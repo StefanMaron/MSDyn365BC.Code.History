@@ -22,7 +22,7 @@ page 1600 "Outlook Mail Engine"
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the Outlook contact.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the display name of the Outlook contact.';

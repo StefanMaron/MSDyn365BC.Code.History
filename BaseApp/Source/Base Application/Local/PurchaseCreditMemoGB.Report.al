@@ -787,7 +787,7 @@ report 10578 "Purchase - Credit Memo GB"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(16) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Cr. Memo") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -897,7 +897,7 @@ report 10578 "Purchase - Credit Memo GB"
     [Scope('OnPrem')]
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(16) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Cr. Memo") <> '';
     end;
 }
 

@@ -816,7 +816,7 @@ report 10576 "Order GB"
         trigger OnOpenPage()
         begin
             ArchiveDocument := PurchSetup."Archive Orders";
-            LogInteraction := SegManagement.FindInteractTmplCode(13) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Ord.") <> '';
 
             ArchiveDocumentEnable := ArchiveDocument;
             LogInteractionEnable := LogInteraction;

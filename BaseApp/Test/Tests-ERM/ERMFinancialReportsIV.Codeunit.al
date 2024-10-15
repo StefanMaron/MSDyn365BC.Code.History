@@ -22,6 +22,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         PostingDateErr: Label 'Enter the posting date.';
+        VATGLAccountErr: Label 'There is one or more VAT Entries with no G/L Account defined in the selected period. Please exclude these VAT entries or ask your partner to help you fix this data issue.';
         DocumentNoErr: Label 'Enter the document no.';
         SettlementAccountErr: Label 'Enter the settlement account';
         IsInitialized: Boolean;
@@ -557,7 +558,7 @@ codeunit 134992 "ERM Financial Reports IV"
         asserterror LibraryReportDataset.RunReportAndLoad(Report::"G/L - VAT Reconciliation", VATStatementName, RequestPageXML);
 
         // [THEN] Both lines Sale and Purchase are printed
-        Assert.ExpectedError('The VAT Entry table with filter');
+        Assert.ExpectedError(VATGLAccountErr);
 
         LibraryVariableStorage.AssertEmpty();
     end;

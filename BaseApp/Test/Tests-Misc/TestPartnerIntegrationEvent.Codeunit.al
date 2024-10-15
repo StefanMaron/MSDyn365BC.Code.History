@@ -953,12 +953,6 @@ codeunit 134299 "Test Partner Integration Event"
         VerifyDataTypeBuffer(OnBeforePostBalancingEntryTxt);
         VerifyDataTypeBuffer(OnBeforePostCustomerEntryTxt);
         VerifyDataTypeBuffer(OnBeforePostInvPostBufferTxt);
-
-#if not CLEAN19
-        // Verify Gen. Jnl. Line transfer field events
-        VerifyDataTypeBuffer(OnAfterCopyGenJnlLineFromInvPostBufferTxt);
-        VerifyDataTypeBuffer(OnAfterCopyGenJnlLineFromSalesHeaderTxt);
-#endif
     end;
 
     [Test]
@@ -1254,12 +1248,6 @@ codeunit 134299 "Test Partner Integration Event"
         VerifyDataTypeBuffer(OnBeforePostBalancingEntryTxt);
         VerifyDataTypeBuffer(OnBeforePostVendorEntryTxt);
         VerifyDataTypeBuffer(OnBeforePostInvPostBufferTxt);
-
-#if not CLEAN19
-        // Verify Gen. Jnl. Line transfer field events
-        VerifyDataTypeBuffer(OnAfterCopyGenJnlLineFromInvPostBufferTxt);
-        VerifyDataTypeBuffer(OnAfterCopyGenJnlLineFromPurchHeaderTxt);
-#endif
     end;
 
     [Test]
@@ -2066,13 +2054,6 @@ codeunit 134299 "Test Partner Integration Event"
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetFABalAccountTxt);
     end;
 
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterCopyGenJnlLineFromInvPostBuffer', '', false, false)]
-    local procedure OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
-    begin
-        InsertDataTypeBuffer(OnAfterCopyGenJnlLineFromInvPostBufferTxt);
-    end;
-#endif
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterCopyGenJnlLineFromPrepmtInvBuffer', '', false, false)]
     local procedure OnAfterCopyGenJnlLineFromPrepmtInvBuffer(PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin

@@ -32,7 +32,7 @@ Page 1 "Company Information"
                         end;
                     }
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;

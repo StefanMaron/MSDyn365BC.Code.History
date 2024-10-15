@@ -1484,7 +1484,7 @@ codeunit 132542 TestMappingToW1Tables
         TempBlobSource.CreateInStream(InStream);
         TempBlobDestination.CreateOutStream(OutStream);
 
-        Writer := Writer.StreamWriter(OutStream, Encoding.Default);
+        Writer := Writer.StreamWriter(OutStream, Encoding.GetEncoding(0));
 
         while 0 <> InStream.ReadText(EncodedText) do
             Writer.WriteLine(EncodedText);

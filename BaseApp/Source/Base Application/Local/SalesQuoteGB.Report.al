@@ -824,7 +824,7 @@ report 10570 "Sales - Quote GB"
             ArchiveDocument :=
               (SalesSetup."Archive Quotes" = SalesSetup."Archive Quotes"::Question) or
               (SalesSetup."Archive Quotes" = SalesSetup."Archive Quotes"::Always);
-            LogInteraction := SegManagement.FindInteractTmplCode(1) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Qte.") <> '';
 
             ArchiveDocumentEnable := ArchiveDocument;
             LogInteractionEnable := LogInteraction;

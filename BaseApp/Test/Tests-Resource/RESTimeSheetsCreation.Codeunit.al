@@ -17,7 +17,6 @@ codeunit 136503 "RES Time Sheets Creation"
         LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        RESTimeSheetsCreation: Codeunit "RES Time Sheets Creation";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Text001Err: Label 'Rolling back changes...';
         NonExistentUserErr: Label 'NON EXISTENT USER ID';
@@ -434,6 +433,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TearDown;
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('TimeSheetLineJobDetailHandler')]
     [Scope('OnPrem')]
@@ -481,7 +481,9 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet.OK.Invoke;
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetCheckLeapYear()
@@ -543,7 +545,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetResourceLine()
@@ -567,6 +571,7 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -605,6 +610,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TearDown;
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetLineEveryDayModify()
@@ -639,7 +645,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetSwitchBetween()
@@ -686,7 +694,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -714,7 +724,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -757,7 +769,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -784,7 +798,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -810,7 +826,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -839,7 +857,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('TimeSheetLineResDetailHndl,StrMenuHandler')]
     [Scope('OnPrem')]
@@ -897,7 +917,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -939,7 +961,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -972,7 +996,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -1008,7 +1034,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetManagerSwitchBetween()
@@ -1063,7 +1091,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -1099,7 +1129,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetResourcePosting()
@@ -1122,7 +1154,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -1161,7 +1195,9 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert.IsFalse(ResJnlLine.FindSet, 'This line should not be suggested');
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -1221,7 +1257,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -1282,6 +1320,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert.IsFalse(ResJnlLine.FindSet, 'This line should not be suggested');
         TearDown;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1324,6 +1363,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TearDown;
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -1392,6 +1432,7 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1430,6 +1471,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TearDown;
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('TimeSheetLineAbsDetailHndl')]
     [Scope('OnPrem')]
@@ -1500,6 +1542,7 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1546,6 +1589,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TearDown;
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -1591,7 +1635,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('TSArchiveHandlMSG,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -1677,7 +1723,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -1717,7 +1765,9 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -1766,7 +1816,9 @@ codeunit 136503 "RES Time Sheets Creation"
         end;
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('JobDimHandlMSG')]
     [Scope('OnPrem')]
@@ -1817,6 +1869,7 @@ codeunit 136503 "RES Time Sheets Creation"
         VerifyDimInJournalDimSet(Dimension.Code, DimensionValue.Code, DimensionSetID);
         TearDown;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -1873,6 +1926,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TearDown;
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetActualScheduledSummary()
@@ -1910,7 +1964,9 @@ codeunit 136503 "RES Time Sheets Creation"
         ValidateActualSchedSummaryFactBox(TimeSheet, DayTimeAllocation1, DayTimeAllocation2, DayTimeAllocationSched);
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('TimeSheetAllocationHandler')]
     [Scope('OnPrem')]
@@ -1946,7 +2002,9 @@ codeunit 136503 "RES Time Sheets Creation"
         ValidateTSAllocationPageValues(DayTimeAllocation);
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetOpenFromTSList()
@@ -1958,8 +2016,6 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         // Test case to check that user can switch between Time Sheets directly from Time Sheet page
         Initialize();
-
-        BindSubscription(RESTimeSheetsCreation);
 
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
@@ -1973,10 +2029,11 @@ codeunit 136503 "RES Time Sheets Creation"
         // 9. Validate Correct Time Sheet was opened
         Assert.AreEqual(TimeSheetHeader."No.", TimeSheet.CurrTimeSheetNo.Value, IncorrectTimeSheetNoOpenedErr);
 
-        UnbindSubscription(RESTimeSheetsCreation);
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure ManagerTimeSheetOpenFromList()
@@ -1991,8 +2048,6 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         // Test case to check that user can switch between Time Sheets directly from Manager Time Sheet page
         Initialize();
-
-        BindSubscription(RESTimeSheetsCreation);
 
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
@@ -2012,10 +2067,11 @@ codeunit 136503 "RES Time Sheets Creation"
         // 4. Validate opened Manager Time Sheet list No. is correct
         Assert.AreEqual(TimeSheetHeader."No.", ManagerTimeSheet.CurrTimeSheetNo.Value, IncorrectTimeSheetNoOpenedErr);
 
-        UnbindSubscription(RESTimeSheetsCreation);
         TearDown;
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetTimeAllocModify()
@@ -2044,6 +2100,7 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('TimeSheetPostingEntryHandler')]
@@ -2094,7 +2151,6 @@ codeunit 136503 "RES Time Sheets Creation"
         // Test case to check that Manager can overview archived Time Sheets
         Initialize();
 
-        BindSubscription(RESTimeSheetsCreation);
         // 1. Create Resource and 2 Time Sheets, Submit, Approve, Suggest and post Resource Lines
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         GlobalTimeSheetNo := TimeSheetHeader."No.";
@@ -2129,10 +2185,10 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert.AreEqual(ManagerTimeSheetArchive.CurrTimeSheetNo.Value, GlobalTimeSheetNo, IncorrectTSArchiveNoOpenedErr);
         // 5. Open Posting Entries and validate
         ManagerTimeSheetArchive."Posting E&ntries".Invoke;
-        UnbindSubscription(RESTimeSheetsCreation);
         TearDown;
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimeSheetDetailNotCreatedForZeroDayAmount()
@@ -2164,6 +2220,7 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2261,6 +2318,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert.ExpectedError(StrSubstNo(IncorrectHRUnitOfMeasureTableRelationErr, UnitOfMeasure.Code));
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('ValidateTimeSheetLineJobDetailHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -2309,6 +2367,7 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown;
     end;
+#endif
 
     local procedure FindResourceJournalBatch(var ResJournalBatch: Record "Res. Journal Batch")
     var
@@ -2364,6 +2423,7 @@ codeunit 136503 "RES Time Sheets Creation"
         LibraryTimeSheet.FindJobJournalBatch(JobJournalBatch, JobJournalTemplate.Name);
     end;
 
+#if not CLEAN22
     local procedure GenerateTimeAllocation(var DayTimeAllocation: array[5] of Decimal; var TimeSheet: TestPage "Time Sheet")
     var
         Counter: Integer;
@@ -2373,6 +2433,7 @@ codeunit 136503 "RES Time Sheets Creation"
 
         AssignTimeSheetDayValues(TimeSheet, DayTimeAllocation);
     end;
+#endif
 
     local procedure GenerateTimeAllocation2(var DayTimeAllocation: array[7] of Decimal; TimeSheetHeader: Record "Time Sheet Header"; TimeSheetLine: Record "Time Sheet Line")
     var
@@ -2384,6 +2445,7 @@ codeunit 136503 "RES Time Sheets Creation"
         end;
     end;
 
+#if not CLEAN22
     local procedure ValidateTimeAllocation(DayTimeAllocation: array[5] of Decimal; var TimeSheet: TestPage "Time Sheet")
     var
         PageFieldValue: Decimal;
@@ -2401,6 +2463,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Evaluate(PageFieldValue, TimeSheet.Field5.Value);
         Assert.AreEqual(DayTimeAllocation[5], PageFieldValue, TimesheetDetailValueIncorrectErr);
     end;
+#endif
 
     local procedure ValidateManagerTimeAllocation(DayTimeAllocation: array[5] of Decimal; var ManagerTimeSheet: TestPage "Manager Time Sheet")
     var
@@ -2516,12 +2579,14 @@ codeunit 136503 "RES Time Sheets Creation"
             end;
     end;
 
+#if not CLEAN22
     local procedure TimeSheetPageOpen(Resource: Record Resource; TimeSheetHeader: Record "Time Sheet Header"; var TimeSheet: TestPage "Time Sheet")
     begin
         TimeSheet.OpenEdit;
         TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
         TimeSheet.ResourceNo.AssertEquals(Resource."No.");
     end;
+#endif
 
     local procedure GenerateResourceTimeSheet(var Resource: Record Resource; var Date: Record Date; var TimeSheetHeader: Record "Time Sheet Header"; CurrentUser: Boolean)
     var
@@ -2572,6 +2637,7 @@ codeunit 136503 "RES Time Sheets Creation"
         ResJnlLine."Journal Batch Name" := ResJnlBatch.Name;
     end;
 
+#if not CLEAN22
     local procedure ValidateResourceJournal(Date: Date; DayTimeAllocation: array[5] of Decimal; Resource: Record Resource; ExtCount: Integer)
     var
         TimeSheetHeader: Record "Time Sheet Header";
@@ -2597,7 +2663,9 @@ codeunit 136503 "RES Time Sheets Creation"
             end
         end;
     end;
+#endif
 
+#if not CLEAN22
     local procedure ValidateResourceJournalLines(Date: Date; DayTimeAllocation: array[5] of Decimal; Resource: Record Resource; ExtCount: Integer)
     var
         TimeSheetHeader: Record "Time Sheet Header";
@@ -2626,6 +2694,7 @@ codeunit 136503 "RES Time Sheets Creation"
             ResJournalLine.Next();
         end;
     end;
+#endif
 
     local procedure PostResourceJournal(ResJnlLine: Record "Res. Journal Line"; TimeSheetHeader: Record "Time Sheet Header")
     var
@@ -2723,6 +2792,7 @@ codeunit 136503 "RES Time Sheets Creation"
         until JobJnlLine.Next() = 0;
     end;
 
+#if not CLEAN22
     local procedure AddTimeSheetLine(LineType: Integer; var TimeSheet: TestPage "Time Sheet"; GenerateTimeAlloc: Boolean)
     begin
         TimeSheet.Type.Value := GetTSLineTypeOption(LineType);
@@ -2730,6 +2800,7 @@ codeunit 136503 "RES Time Sheets Creation"
         if GenerateTimeAlloc then
             GenerateTimeAllocation(DayTimeAllocation, TimeSheet);
     end;
+#endif
 
     local procedure AddJobTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; Job: Record Job; JobTask: Record "Job Task"): Decimal
     var
@@ -2796,6 +2867,7 @@ codeunit 136503 "RES Time Sheets Creation"
           'Wrong Dimension value on gen. Jnl. line dimension');
     end;
 
+#if not CLEAN22
     local procedure ValidateActualSchedSummaryFactBox(TimeSheet: TestPage "Time Sheet"; DayTimeAllocation1: array[5] of Decimal; DayTimeAllocation2: array[5] of Decimal; DayTimeAllocationSched: array[5] of Decimal)
     var
         TimeSheetMgt: Codeunit "Time Sheet Management";
@@ -2821,7 +2893,9 @@ codeunit 136503 "RES Time Sheets Creation"
           Format(TimeSheet.ActualSchedSummaryFactBox.FifthDaySummary),
           'Incorrect Period Summary day value');
     end;
+#endif
 
+#if not CLEAN22
     local procedure CreateCustomTimeSheetLine(TimeSheet: TestPage "Time Sheet"; TypeValue: Integer; Description: Text[30]): Decimal
     var
         TempDec: Decimal;
@@ -2833,6 +2907,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet.Field1.Value := Format(TempDec);
         exit(TempDec);
     end;
+#endif
 
     local procedure GenerateResourceCapacity(Resource: Record Resource; PeriodStart: Date; DaysToGenerate: Integer; var GenerateAllocation: array[14] of Decimal)
     var
@@ -2863,6 +2938,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetHeader.FindFirst();
     end;
 
+#if not CLEAN22
     local procedure AssignTimeSheetDayValues(var TimeSheet: TestPage "Time Sheet"; TimeAllocation: array[5] of Decimal)
     begin
         TimeSheet.Field1.Value := Format(TimeAllocation[1]);
@@ -2871,6 +2947,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet.Field4.Value := Format(TimeAllocation[4]);
         TimeSheet.Field5.Value := Format(TimeAllocation[5]);
     end;
+#endif
 
     local procedure VerifyTimeSheetDetailLinesCount(TimeSheetHeaderNo: Code[20]; NoOfLines: Integer)
     var
@@ -3034,12 +3111,6 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         MyTimeSheets.SetRange("User ID", UserId);
         exit(MyTimeSheets.Count);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
-    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
-    begin
-        Result := false;
     end;
 }
 

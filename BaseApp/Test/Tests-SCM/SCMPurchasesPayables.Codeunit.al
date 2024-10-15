@@ -25,6 +25,7 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryRandom: Codeunit "Library - Random";
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         MessageCounter: Integer;
         Initialized: Boolean;
@@ -41,6 +42,12 @@ codeunit 137061 "SCM Purchases & Payables"
         OrdersDeletedError: Label 'Orders must be deleted.';
         ReturnOrdersDeletedError: Label 'Return Orders must be deleted.';
         SelltoCustomerBlankErr: Label 'The Sell-to Customer No. field must have a value.';
+        PostDocConfirmQst: Label 'Do you want to post the %1?', Comment = '%1 = Document Type';
+        ShipConfirmQst: Label 'Do you want to post the shipment?';
+        ShipInvoiceConfirmQst: Label 'Do you want to post the shipment and invoice?';
+        ReceiveConfirmQst: Label 'Do you want to post the receipt?';
+        ReceiveInvoiceConfirmQst: Label 'Do you want to post the receipt and invoice?';
+        CannotPostInvoiceErr: Label 'You cannot post the invoice';
 
     [Test]
     [Scope('OnPrem')]
@@ -730,6 +737,158 @@ codeunit 137061 "SCM Purchases & Payables"
           DocumentNo, Item."No.", (Item."Unit Cost" - PurchaseLine."Direct Unit Cost") * PurchaseLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ReceivingInvoicingPurchaseOrderWithPostingPolicy()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Order]
+        // [SCENARIO 461826] Receiving and invoicing purchase order with "Prohibited" and "Mandatory" settings of invoice posting policy.
+        Initialize(false);
+        Qty := LibraryRandom.RandInt(10);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), Qty, '', WorkDate());
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        LibraryVariableStorage.Enqueue(ReceiveConfirmQst);
+        PostPurchaseDocument(PurchaseHeader);
+
+        VerifyQtyOnPurchaseOrderLine(PurchaseLine, Qty, 0);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+
+        LibraryVariableStorage.Enqueue(ReceiveInvoiceConfirmQst);
+        PostPurchaseDocument(PurchaseHeader);
+
+        Assert.IsFalse(PurchaseLine.Find(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ReceivingInvoicingPurchaseReturnOrderWithPostingPolicy()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Return Order]
+        // [SCENARIO 461826] Shipping and invoicing purchase return order with "Prohibited" and "Mandatory" settings of invoice posting policy.
+        Initialize(false);
+        Qty := LibraryRandom.RandInt(10);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '',
+          LibraryInventory.CreateItemNo(), Qty, '', WorkDate());
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        LibraryVariableStorage.Enqueue(ShipConfirmQst);
+        PostPurchaseDocument(PurchaseHeader);
+
+        VerifyQtyOnPurchaseReturnOrderLine(PurchaseLine, Qty, 0);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+
+        LibraryVariableStorage.Enqueue(ShipInvoiceConfirmQst);
+        PostPurchaseDocument(PurchaseHeader);
+
+        Assert.IsFalse(PurchaseLine.Find(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,GenericMessageHandler')]
+    procedure ReceivingInvoicingInventoryPutawayWithPostingPolicy()
+    var
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Order] [Inventory Put-away]
+        // [SCENARIO 461826] Receiving and invoicing inventory put-away with "Prohibited" and "Mandatory" settings of invoice posting policy.
+        Initialize(false);
+        Qty := 2 * LibraryRandom.RandInt(10);
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), Qty, Location.Code, WorkDate());
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        LibraryWarehouse.CreateInvtPutPickPurchaseOrder(PurchaseHeader);
+
+        WarehouseActivityLine.SetRange("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Qty. to Handle", Qty / 2);
+        WarehouseActivityLine.Modify(true);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+        LibraryVariableStorage.Enqueue(ReceiveConfirmQst);
+        CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Post (Yes/No)", WarehouseActivityLine);
+
+        VerifyQtyOnPurchaseOrderLine(PurchaseLine, Qty / 2, 0);
+
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Qty. to Handle", Qty / 2);
+        WarehouseActivityLine.Modify(true);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+        LibraryVariableStorage.Enqueue(ReceiveInvoiceConfirmQst);
+        CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Post (Yes/No)", WarehouseActivityLine);
+
+        VerifyQtyOnPurchaseOrderLine(PurchaseLine, Qty, Qty / 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure CannotPostPurchaseInvoiceWithProhibitedPostingPolicy()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Invoice]
+        // [SCENARIO 461826] Cannot post purchase invoice with "Prohibited" invoice posting policy.
+        Initialize(false);
+        Qty := LibraryRandom.RandInt(10);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, '',
+          LibraryInventory.CreateItemNo(), Qty, '', WorkDate());
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        Commit();
+
+        asserterror PostPurchaseDocument(PurchaseHeader);
+        Assert.ExpectedError(CannotPostInvoiceErr);
+
+        VerifyQtyOnPurchaseOrderLine(PurchaseLine, 0, 0);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(PostDocConfirmQst, LowerCase(Format(PurchaseHeader."Document Type"))));
+        PostPurchaseDocument(PurchaseHeader);
+
+        Assert.IsFalse(PurchaseLine.Find(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -741,6 +900,8 @@ codeunit 137061 "SCM Purchases & Payables"
         MessageCounter := 0;
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Allowed);
+
         if Initialized then
             exit;
 
@@ -1065,6 +1226,15 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
+    local procedure CreateUserSetupWithPostingPolicy(InvoicePostingPolicy: Enum "Invoice Posting Policy")
+    var
+        UserSetup: Record "User Setup";
+    begin
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup.Validate("Purch. Invoice Posting Policy", InvoicePostingPolicy);
+        UserSetup.Modify(true);
+    end;
+
     local procedure FindPurchRcptHeader(var PurchRcptHeader: Record "Purch. Rcpt. Header"; OrderNo: Code[20])
     begin
         PurchRcptHeader.SetRange("Order No.", OrderNo);
@@ -1093,6 +1263,12 @@ codeunit 137061 "SCM Purchases & Payables"
             SetRange("No.", ItemNo);
             FindFirst();
         end;
+    end;
+
+    local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.Find();
+        Codeunit.Run(Codeunit::"Purch.-Post (Yes/No)", PurchaseHeader);
     end;
 
     local procedure VerifySalesEntry(ItemNo: Code[20]; SalesOrderNo: Code[20]; VerifyLineType: Option Shipment,Invoice; SalesExpectedAmount: Decimal; SalesActualAmount: Decimal; CostExpectedAmount: Decimal; CostActualAmount: Decimal)
@@ -1182,6 +1358,20 @@ codeunit 137061 "SCM Purchases & Payables"
           CostAmountAct, ItemLedgerEntry."Cost Amount (Actual)", GeneralLedgerSetup."Amount Rounding Precision", CostAmountActualError);
     end;
 
+    local procedure VerifyQtyOnPurchaseOrderLine(PurchaseLine: Record "Purchase Line"; QtyReceived: Decimal; QtyInvoiced: Decimal)
+    begin
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Quantity Received", QtyReceived);
+        PurchaseLine.TestField("Quantity Invoiced", QtyInvoiced);
+    end;
+
+    local procedure VerifyQtyOnPurchaseReturnOrderLine(PurchaseLine: Record "Purchase Line"; QtyReturned: Decimal; QtyInvoiced: Decimal)
+    begin
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Return Qty. Shipped", QtyReturned);
+        PurchaseLine.TestField("Quantity Invoiced", QtyInvoiced);
+    end;
+
     local procedure VerifyValueEntry(EntryType: Enum "Cost Entry Type"; DocumentNo: Code[20]; ItemNo: Code[20]; CostAmt: Decimal)
     var
         ValueEntry: Record "Value Entry";
@@ -1203,11 +1393,23 @@ codeunit 137061 "SCM Purchases & Payables"
           StrPos(Message, 'The change will not affect existing entries.') > 0, StrSubstNo(IncorrectMessageError, Message));
     end;
 
+    [MessageHandler]
+    procedure GenericMessageHandler(Message: Text[1024])
+    begin
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ChangeLocationConfirm(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Message: Text[1024]; var Response: Boolean)
+    begin
+        Assert.ExpectedConfirm(LibraryVariableStorage.DequeueText(), Message);
+        Response := true;
     end;
 
     [MessageHandler]

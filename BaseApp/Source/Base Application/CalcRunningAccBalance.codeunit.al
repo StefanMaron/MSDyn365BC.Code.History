@@ -10,6 +10,7 @@ codeunit 105 "Calc. Running Acc. Balance"
         EntryValuesLCY: Dictionary of [Integer, Decimal];
         PrevAccNo: Code[20];
         PrevTableID: Integer;
+        PrevHighestEntryNo: Integer;
 
     procedure GetBankAccBalance(var BankAccountLedgerEntry: Record "Bank account ledger entry"): Decimal
     var
@@ -41,6 +42,7 @@ codeunit 105 "Calc. Running Acc. Balance"
             Clear(DayTotalsLCY);
             Clear(EntryValues);
             Clear(EntryValuesLCY);
+            Clear(PrevHighestEntryNo);
         end;
         PrevTableID := Database::"Bank Account Ledger Entry";
         PrevAccNo := BankAccountLedgerEntry."Bank Account No.";
@@ -66,5 +68,37 @@ codeunit 105 "Calc. Running Acc. Balance"
         RunningBalanceLCY := DateTotalLCY - BankAccountLedgerEntry2."Amount (LCY)";
         EntryValues.Add(BankAccountLedgerEntry."Entry No.", RunningBalance);
         EntryValuesLCY.Add(BankAccountLedgerEntry."Entry No.", RunningBalanceLCY);
+        if PrevHighestEntryNo < BankAccountLedgerEntry."Entry No." then
+            PrevHighestEntryNo := BankAccountLedgerEntry."Entry No.";
+    end;
+
+    internal procedure FlushDayTotalsForNewestEntries(BankAccountNo: Code[20])
+    var
+        LocalBankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        MinimumPostingDateForNewEntries: Date;
+    begin
+        if PrevAccNo <> BankAccountNo then
+            exit;
+
+        if PrevHighestEntryNo = 0 then
+            exit;
+
+        LocalBankAccountLedgerEntry.Reset();
+        LocalBankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        LocalBankAccountLedgerEntry.SetFilter("Entry No.", '>' + Format(PrevHighestEntryNo));
+        LocalBankAccountLedgerEntry.SetCurrentKey("Posting Date");
+        LocalBankAccountLedgerEntry.SetAscending("Posting Date", true);
+        if not LocalBankAccountLedgerEntry.FindFirst() then
+            exit;
+        MinimumPostingDateForNewEntries := LocalBankAccountLedgerEntry."Posting Date";
+        LocalBankAccountLedgerEntry.SetRange("Entry No.");
+        LocalBankAccountLedgerEntry.SetFilter("Posting Date", '>=' + Format(MinimumPostingDateForNewEntries));
+        if LocalBankAccountLedgerEntry.FindSet() then
+            repeat
+                if DayTotals.Remove(LocalBankAccountLedgerEntry."Posting Date") then;
+                if DayTotalsLCY.Remove(LocalBankAccountLedgerEntry."Posting Date") then;
+                if EntryValues.Remove(LocalBankAccountLedgerEntry."Entry No.") then;
+                if EntryValuesLCY.Remove(LocalBankAccountLedgerEntry."Entry No.") then;
+            until LocalBankAccountLedgerEntry.Next() = 0;
     end;
 }

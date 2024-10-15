@@ -15,7 +15,7 @@ page 1271 "OCR Service Document Templates"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the OCR document template.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the OCR document template.';

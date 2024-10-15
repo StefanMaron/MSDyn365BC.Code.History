@@ -1375,9 +1375,6 @@ codeunit 139196 "CDS Connection Setup Test"
         InsertJobQueueEntry(CODEUNIT::"Integration Synch. Job Runner", JobQueueEntry.Status::Ready);
         InsertJobQueueEntry(CODEUNIT::"Integration Synch. Job Runner", JobQueueEntry.Status::"In Process");
         InsertJobQueueEntry(CODEUNIT::"CRM Statistics Job", JobQueueEntry.Status::Ready);
-#if not CLEAN19
-        InsertJobQueueEntry(CODEUNIT::"Exchange PowerShell Runner", JobQueueEntry.Status::"In Process");
-#endif
     end;
 
     local procedure InsertJobQueueEntriesWithError()
@@ -1385,9 +1382,6 @@ codeunit 139196 "CDS Connection Setup Test"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         InsertJobQueueEntry(CODEUNIT::"CRM Statistics Job", JobQueueEntry.Status::Error);
-#if not CLEAN19
-        InsertJobQueueEntry(CODEUNIT::"Exchange PowerShell Runner", JobQueueEntry.Status::Error);
-#endif
     end;
 
     local procedure InsertJobQueueEntry(ID: Integer; Status: Option)
@@ -1515,11 +1509,8 @@ codeunit 139196 "CDS Connection Setup Test"
     end;
 
     local procedure ConfigureCDS()
-    var
-        IntegrationManagement: Codeunit "Integration Management";
     begin
         RegisterTestTableConnection();
-        IntegrationManagement.SetConnectorIsEnabledForSession(true);
         LibraryCRMIntegration.EnsureCDSSystemUser();
     end;
 }

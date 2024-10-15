@@ -785,7 +785,7 @@ report 10571 "Order Confirmation GB"
         trigger OnOpenPage()
         begin
             ArchiveDocument := SalesSetup."Archive Orders";
-            LogInteraction := SegManagement.FindInteractTmplCode(3) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Ord. Cnfrmn.") <> '';
 
             ArchiveDocumentEnable := ArchiveDocument;
             LogInteractionEnable := LogInteraction;

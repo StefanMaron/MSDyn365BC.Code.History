@@ -5,6 +5,8 @@ permissionset 186 "BaseApp Login - View"
     IncludedPermissionSets = "BaseApp Login - Read";
 
     Permissions = tabledata "License Agreement" = im,
-                  tabledata "My Notifications" = i,
-                  tabledata "User Group Member" = d;
+#if not CLEAN22
+                  tabledata "User Group Member" = d,
+#endif
+                  tabledata "My Notifications" = i;
 }

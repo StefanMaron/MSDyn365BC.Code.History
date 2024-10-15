@@ -53,7 +53,7 @@
                 }
             }
 #if not CLEAN21
-#pragma warning disable
+#pragma warning disable AL0432
             group(Control18)
             {
                 ShowCaption = false;
@@ -112,7 +112,7 @@
                 {
                     Caption = 'Specify your company''s address information and logo.';
                     InstructionalText = 'This is used in invoices and other documents where general information about your company is printed.';
-                    field(Name; Name)
+                    field(Name; Rec.Name)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Company Name';
@@ -246,74 +246,6 @@
                     }
                 }
             }
-#if not CLEAN19
-            group(Control29)
-            {
-                ShowCaption = false;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The Bank Feed setup is no longer configured in this wizard.';
-                ObsoleteTag = '18.0';
-
-                group("Bank Feed Service")
-                {
-                    Caption = 'Bank Feed Service';
-                    InstructionalText = 'You can use a bank feeds service to import electronic bank statements from your bank to quickly process payments.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The Bank Feed setup is no longer configured in this wizard.';
-                    ObsoleteTag = '18.0';
-
-                    field(UseBankStatementFeed; false)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Use a bank feed service';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The Bank Feed setup is no longer configured in this wizard.';
-                        ObsoleteTag = '18.0';
-                    }
-                }
-                group("NOTE:")
-                {
-                    Caption = 'NOTE:';
-                    InstructionalText = 'When you choose Next, you accept the terms of use for the bank feed service.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The Bank Feed setup is no longer configured in this wizard.';
-                    ObsoleteTag = '18.0';
-
-                    field(TermsOfUseLbl; TermsOfUseLbl)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ShowCaption = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The Bank Feed setup is no longer configured in this wizard.';
-                        ObsoleteTag = '18.0';
-
-                        trigger OnDrillDown()
-                        begin
-                            HyperLink(TermsOfUseUrlTxt);
-                        end;
-                    }
-                }
-            }
-            group("Select bank account.")
-            {
-                Caption = 'Select bank account.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The Bank Feed setup is no longer configured in this wizard.';
-                ObsoleteTag = '18.0';
-
-                part(OnlineBanckAccountLinkPagePart; "Online Bank Accounts")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The Bank Feed setup is no longer configured in this wizard.';
-                    ObsoleteTag = '19.0';
-                }
-            }
-#endif
             group(Control37)
             {
                 ShowCaption = false;
@@ -355,127 +287,6 @@
                     Visible = ShowBankAccountCreationWarning;
                 }
             }
-#if not CLEAN19
-            group(Control6)
-            {
-                ShowCaption = false;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The accounting period setup is no longer configured in this wizard.';
-                ObsoleteTag = '18.0';
-
-                group("Specify the start date of the company's fiscal year.")
-                {
-                    Caption = 'Specify the start date of the company''s fiscal year.';
-                    InstructionalText = 'Specify the start of the company''s fiscal year, or select the Skip for Now field if you want to define accounting periods later.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The accounting period setup is no longer configured in this wizard.';
-                    ObsoleteTag = '18.0';
-
-                    field(AccountingPeriodStartDate; AccountingPeriodStartDate)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Fiscal Year Start Date';
-                        Editable = NOT SkipAccountingPeriod;
-                        ShowMandatory = true;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The accounting period setup is no longer configured in this wizard.';
-                        ObsoleteTag = '18.0';
-
-                        trigger OnValidate()
-                        begin
-                            if (not SkipAccountingPeriod) and (AccountingPeriodStartDate = 0D) then
-                                Error(AccountingPeriodStartDateBlankErr);
-                            UserAccountingPeriodStartDate := AccountingPeriodStartDate;
-                        end;
-                    }
-                    field(SkipAccountingPeriod; SkipAccountingPeriod)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Skip for Now';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The accounting period setup is no longer configured in this wizard.';
-                        ObsoleteTag = '18.0';
-
-                        trigger OnValidate()
-                        begin
-                            if SkipAccountingPeriod then
-                                Clear(AccountingPeriodStartDate)
-                            else
-                                AccountingPeriodStartDate := UserAccountingPeriodStartDate;
-                        end;
-                    }
-                }
-            }
-            group(Control57)
-            {
-                ShowCaption = false;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The costing method setup is no longer configured in this wizard. A notification will be shown in the Data Migration Wizard Page';
-                ObsoleteTag = '18.0';
-
-                group("Specify the costing method for your inventory valuation.")
-                {
-                    Caption = 'Specify the costing method for your inventory valuation.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The costing method setup is no longer configured in this wizard. A notification will be shown in the Data Migration Wizard Page';
-                    ObsoleteTag = '18.0';
-
-                    group(Control122)
-                    {
-                        InstructionalText = 'The costing method works together with the posting date and sequence to determine how to record the cost flow.';
-                        ShowCaption = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The costing method setup is no longer configured in this wizard. A notification will be shown in the Data Migration Wizard Page';
-                        ObsoleteTag = '18.0';
-
-                        field("Cost Method"; CostMethodeLbl)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Editable = false;
-                            ShowCaption = false;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'The costing method setup is no longer configured in this wizard. A notification will be shown in the Data Migration Wizard Page';
-                            ObsoleteTag = '18.0';
-
-                            trigger OnDrillDown()
-                            begin
-                                HyperLink(CostMethodUrlTxt);
-                            end;
-                        }
-                        field("Costing Method"; InventorySetup."Default Costing Method")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Costing Method';
-                            ShowMandatory = true;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'The costing method setup is no longer configured in this wizard. A notification will be shown in the Data Migration Wizard Page';
-                            ObsoleteTag = '18.0';
-
-                            trigger OnValidate()
-                            var
-                                ExistingInventorySetup: Record "Inventory Setup";
-                            begin
-                                if not ExistingInventorySetup.Get() then begin
-                                    InventorySetup.Init();
-                                    InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
-                                    InventorySetup."Automatic Cost Posting" := true;
-                                end;
-
-                                if InventorySetup."Default Costing Method" = InventorySetup."Default Costing Method"::Average then begin
-                                    InventorySetup."Average Cost Period" := InventorySetup."Average Cost Period"::Day;
-                                    InventorySetup."Average Cost Calc. Type" := InventorySetup."Average Cost Calc. Type"::Item;
-                                end;
-
-                                if not InventorySetup.Modify() then
-                                    InventorySetup.Insert();
-                            end;
-                        }
-                    }
-                }
-            }
-#endif
             group(Control9)
             {
                 ShowCaption = false;
@@ -600,24 +411,15 @@
 
     var
         MediaRepositoryStandard: Record "Media Repository";
-#if not CLEAN19
-        TempSavedBankAccount: Record "Bank Account" temporary;
-#endif
         TempBankAccount: Record "Bank Account" temporary;
         BankAccount: Record "Bank Account";
         TempOnlineBankAccLink: Record "Online Bank Acc. Link" temporary;
         MediaRepositoryDone: Record "Media Repository";
         MediaResourcesStandard: Record "Media Resources";
         MediaResourcesDone: Record "Media Resources";
-#if not CLEAN19
-        InventorySetup: Record "Inventory Setup";
-#endif
         ClientTypeManagement: Codeunit "Client Type Management";
         CompanyInfoNotification: Notification;
         AccountingPeriodStartDate: Date;
-#if not CLEAN19
-        UserAccountingPeriodStartDate: Date;
-#endif
 #if not CLEAN21
         TypeStandard: Boolean;
         TypeEvaluation: Boolean;
@@ -632,9 +434,6 @@
         CommunicationDetailsVisible: Boolean;
         PaymentDetailsVisible: Boolean;
         DoneVisible: Boolean;
-#if not CLEAN19
-        SkipAccountingPeriod: Boolean;
-#endif
         ShowCompanyInfoDownloadedNotification: Boolean;
         IsCompanyInfoDownloadedNotificationEnabled: Boolean;
         NotificationSent: Boolean;
@@ -642,22 +441,10 @@
         NotSetUpQst: Label 'The application is not set up. This guide will display the next time you sign in. If you do not want the guide to start, go to the Companies page and turn off the guide.\\Are you sure that you want to close this guide?';
         HelpLbl: Label 'Learn more about setting up your company';
         HelpLinkTxt: Label 'http://go.microsoft.com/fwlink/?LinkId=746160', Locked = true;
-#if not CLEAN19
-        BankAccountInformationUpdated: Boolean;
-        TermsOfUseLbl: Label 'Envestnet Yodlee Terms of Use';
-        TermsOfUseUrlTxt: Label 'https://go.microsoft.com/fwlink/?LinkId=746179', Locked = true;
-#endif
         LogoPositionOnDocumentsShown: Boolean;
         ShowBankAccountCreationWarning: Boolean;
         InvalidPhoneNumberErr: Label 'The phone number is invalid.';
-#if not CLEAN19
-        CostMethodeLbl: Label 'Learn more';
-        CostMethodUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=858295', Locked = true;
-#endif
         BankAccountLinkingFailedMsg: Label 'Linking the company bank account failed with the following message:\''%1''\Link the company bank account from the Bank Accounts page.', Comment = '%1 - an error message';
-#if not CLEAN19       
-        AccountingPeriodStartDateBlankErr: Label 'You have not specified a start date for the fiscal year. You must either specify a date in the Fiscal Year Start Date field or select the Skip for Now field.';
-#endif
         GraphURLEndpointLbl: Label '%1v1.0/organization', Locked = true;
         ResourceNameTxt: Label 'Azure Service', Locked = true;
         BearerLbl: Label 'Bearer %1', Comment = '%1 = Access Token', Locked = true;
@@ -683,10 +470,6 @@
                 ShowCommunicationDetailsStep();
             Step::"Payment Details":
                 begin
-#if not CLEAN19
-                    if not Backwards then
-                        PopulateBankAccountInformation();
-#endif
                     ShowPaymentDetailsStep();
                     ShowBankAccountCreationWarning := not ValidateBankAccountNotEmpty();
                 end;
@@ -745,9 +528,6 @@
     local procedure InitializeRecord()
     var
         CompanyInformation: Record "Company Information";
-#if not CLEAN19
-        AccountingPeriod: Record "Accounting Period";
-#endif
     begin
         Init();
 
@@ -757,14 +537,6 @@
                 Name := CompanyName;
         end else
             Name := CompanyName;
-
-#if not CLEAN19
-        SkipAccountingPeriod := not AccountingPeriod.IsEmpty();
-        if not SkipAccountingPeriod then begin
-            AccountingPeriodStartDate := CalcDate('<-CY>', Today);
-            UserAccountingPeriodStartDate := AccountingPeriodStartDate;
-        end;
-#endif
 
         Insert();
     end;
@@ -779,71 +551,6 @@
             then
                 TopBannerVisible := MediaResourcesDone."Media Reference".HasValue;
     end;
-
-#if not CLEAN19
-    local procedure PopulateBankAccountInformation()
-    begin
-        if BankAccountInformationUpdated then
-            if TempOnlineBankAccLink.Count = 0 then begin
-                RestoreBankAccountInformation(TempSavedBankAccount);
-                exit;
-            end;
-
-        if TempOnlineBankAccLink.Count = 1 then
-            TempOnlineBankAccLink.FindFirst()
-        else
-            CurrPage.OnlineBanckAccountLinkPagePart.PAGE.GetRecord(TempOnlineBankAccLink);
-
-        if (TempBankAccount."Bank Account No." = TempOnlineBankAccLink."Bank Account No.") and
-           (TempBankAccount.Name = TempOnlineBankAccLink.Name)
-        then
-            exit;
-
-        if not IsBankAccountFormatValid(TempOnlineBankAccLink."Bank Account No.") then
-            Clear(TempOnlineBankAccLink."Bank Account No.");
-
-        if not BankAccountInformationUpdated then
-            StoreBankAccountInformation(TempSavedBankAccount);
-
-        TempBankAccount.Init();
-        TempBankAccount.CreateNewAccount(TempOnlineBankAccLink);
-        RestoreBankAccountInformation(TempBankAccount);
-        BankAccountInformationUpdated := true;
-    end;
-
-    local procedure StoreBankAccountInformation(var BufferBankAccount: Record "Bank Account")
-    begin
-        if not BufferBankAccount.IsEmpty() then
-            exit;
-        BufferBankAccount.Init();
-        BufferBankAccount."Bank Account No." := "Bank Account No.";
-        BufferBankAccount.Name := "Bank Name";
-        BufferBankAccount."Bank Branch No." := "Bank Branch No.";
-        BufferBankAccount."SWIFT Code" := "SWIFT Code";
-        BufferBankAccount.IBAN := IBAN;
-        BufferBankAccount.Insert();
-    end;
-
-    local procedure RestoreBankAccountInformation(var BufferBankAccount: Record "Bank Account")
-    begin
-        if BufferBankAccount.IsEmpty() then
-            exit;
-        "Bank Account No." := BufferBankAccount."Bank Account No.";
-        "Bank Name" := BufferBankAccount.Name;
-        "Bank Branch No." := BufferBankAccount."Bank Branch No.";
-        "SWIFT Code" := BufferBankAccount."SWIFT Code";
-        IBAN := BufferBankAccount.IBAN;
-    end;
-
-    local procedure IsBankAccountFormatValid(BankAccount: Text): Boolean
-    var
-        VarInt: Integer;
-        Which: Text;
-    begin
-        Which := ' -';
-        exit(Evaluate(VarInt, DelChr(BankAccount, '=', Which)));
-    end;
-#endif
 
     local procedure ValidateBankAccountNotEmpty(): Boolean
     begin

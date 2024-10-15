@@ -57,9 +57,9 @@ codeunit 137414 "SCM Item Categories"
         // [WHEN] The user
         ItemCategories.OpenEdit;
         ItemCategories.First;
-        FirstItemCategory.Get(ItemCategories.Code);
+        FirstItemCategory.Get(ItemCategories.Code.Value);
         ItemCategories.Last;
-        LastItemCategory.Get(ItemCategories.Code);
+        LastItemCategory.Get(ItemCategories.Code.Value);
         ItemCategoryCard.Trap;
         ItemCategories.Edit.Invoke;
         ItemCategoryCard."Parent Category".SetValue(FirstItemCategory.Code);
@@ -91,7 +91,7 @@ codeunit 137414 "SCM Item Categories"
         ExpandTreeStructure(ItemCategories);
         ItemCategories.First;
         ItemCategories.Next();
-        SecondItemCategory.Get(ItemCategories.Code);
+        SecondItemCategory.Get(ItemCategories.Code.Value);
         ItemCategoryCard.Trap;
         ItemCategories.Edit.Invoke;
         ItemCategoryCard."Parent Category".SetValue('');
@@ -121,7 +121,7 @@ codeunit 137414 "SCM Item Categories"
         // [WHEN] The user try to set a parent category to be itself
         ItemCategories.OpenEdit;
         ItemCategories.First;
-        FirstItemCategory.Get(ItemCategories.Code);
+        FirstItemCategory.Get(ItemCategories.Code.Value);
         ItemCategoryCard.Trap;
         ItemCategories.Edit.Invoke;
         asserterror ItemCategoryCard."Parent Category".SetValue(FirstItemCategory.Code);
@@ -145,9 +145,9 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories.OpenEdit;
         ExpandTreeStructure(ItemCategories);
         ItemCategories.First;
-        FirstItemCategory.Get(ItemCategories.Code);
+        FirstItemCategory.Get(ItemCategories.Code.Value);
         ItemCategories.Next();
-        SecondItemCategory.Get(ItemCategories.Code);
+        SecondItemCategory.Get(ItemCategories.Code.Value);
         ItemCategories.First;
         ItemCategoryCard.Trap;
         ItemCategories.Edit.Invoke;
@@ -171,9 +171,9 @@ codeunit 137414 "SCM Item Categories"
         // [WHEN] The user
         ItemCategories.OpenEdit;
         ItemCategories.First;
-        FirstItemCategory.Get(ItemCategories.Code);
+        FirstItemCategory.Get(ItemCategories.Code.Value);
         ItemCategories.Last;
-        SecondItemCategory.Get(ItemCategories.Code);
+        SecondItemCategory.Get(ItemCategories.Code.Value);
         ItemCategoryCard.Trap;
         ItemCategories.Edit.Invoke;
         ItemCategoryCard."Parent Category".SetValue(FirstItemCategory.Code);
@@ -202,7 +202,7 @@ codeunit 137414 "SCM Item Categories"
         CreateItemCategoryHierarchy(2);
         ItemCategories.OpenEdit;
         ItemCategories.Last;
-        LastItemCategory.Get(ItemCategories.Code);
+        LastItemCategory.Get(ItemCategories.Code.Value);
         ItemCategories.Close();
 
         // [WHEN] The user try to set a parent category to one of its children
@@ -233,7 +233,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories.OpenEdit;
         ExpandTreeStructure(ItemCategories);
         ItemCategories.Last;
-        ItemCategory.Get(ItemCategories.Code);
+        ItemCategory.Get(ItemCategories.Code.Value);
         ItemCategoryCard.Trap;
         ItemCategories.Edit.Invoke;
         LibraryVariableStorage.Enqueue(StrSubstNo(DeleteQst, ItemCategories.Code));
@@ -260,7 +260,7 @@ codeunit 137414 "SCM Item Categories"
         // [WHEN] The user delete an item category from the card
         ItemCategories.OpenEdit;
         ItemCategories.First;
-        ItemCategory.Get(ItemCategories.Code);
+        ItemCategory.Get(ItemCategories.Code.Value);
         ItemCategoryCard.Trap;
         ItemCategories.Edit.Invoke;
         Assert.IsFalse(ItemCategoryCard.Delete.Enabled, StrSubstNo(CategoryWithChildrenDeleteErr, ItemCategory.Code));
@@ -2527,7 +2527,7 @@ codeunit 137414 "SCM Item Categories"
         ExpandTreeStructure(ItemCategories);
         ItemCategories.First;
         repeat
-            ItemCategory.Get(ItemCategories.Code);
+            ItemCategory.Get(ItemCategories.Code.Value);
             if ItemCategory.Indentation = PreviousItemCategory.Indentation then
                 Assert.AreEqual(
                   ItemCategory."Parent Category", PreviousItemCategory."Parent Category",
@@ -2545,7 +2545,7 @@ codeunit 137414 "SCM Item Categories"
                       ItemCategory."Parent Category", PreviousItemCategory."Parent Category",
                       StrSubstNo(IncorrectParentErr, ItemCategory.Code, PreviousItemCategory."Parent Category", ItemCategory."Parent Category"));
                 end;
-            PreviousItemCategory.Get(ItemCategories.Code);
+            PreviousItemCategory.Get(ItemCategories.Code.Value);
         until not ItemCategories.Next();
     end;
 

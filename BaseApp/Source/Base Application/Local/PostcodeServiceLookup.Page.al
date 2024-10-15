@@ -16,7 +16,7 @@ page 10502 "Postcode Service Lookup"
         {
             repeater(Group)
             {
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the service to automatically insert post codes, such as GetAdress.io.';

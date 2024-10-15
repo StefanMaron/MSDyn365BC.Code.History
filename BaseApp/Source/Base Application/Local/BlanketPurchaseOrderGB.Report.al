@@ -553,7 +553,7 @@ report 10579 "Blanket Purchase Order GB"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(12) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Blnkt. Ord.") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

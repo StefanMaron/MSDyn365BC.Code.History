@@ -1,5 +1,9 @@
+#if not CLEAN22
 codeunit 1641 "Setup Email Logging"
 {
+    ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -42,7 +46,6 @@ codeunit 1641 "Setup Email Logging"
         TenantIdExtractedTxt: Label 'Tenant ID has been extracted from token.', Locked = true;
         CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token.', Locked = true;
         CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
-        EmailLoggingUsingGraphApiFeatureIdTok: Label 'EmailLoggingUsingGraphApi', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetExchangeFolder(var ExchangeWebServicesClient: Codeunit "Exchange Web Services Client"; var ExchangeFolder: Record "Exchange Folder"; FoldersCaption: Text): Boolean
@@ -355,10 +358,8 @@ codeunit 1641 "Setup Email Logging"
     end;
 
     internal procedure IsEmailLoggingUsingGraphApiFeatureEnabled() FeatureEnabled: Boolean;
-    var
-        FeatureManagementFacade: Codeunit "Feature Management Facade";
     begin
-        FeatureEnabled := FeatureManagementFacade.IsEnabled(EmailLoggingUsingGraphApiFeatureIdTok);
+        FeatureEnabled := true;
     end;
 
     [Scope('OnPrem')]
@@ -429,4 +430,4 @@ codeunit 1641 "Setup Email Logging"
     begin
     end;
 }
-
+#endif

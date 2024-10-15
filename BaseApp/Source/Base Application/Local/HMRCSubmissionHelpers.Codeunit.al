@@ -44,14 +44,14 @@ codeunit 10527 HMRCSubmissionHelpers
     [Scope('OnPrem')]
     procedure HashPassword(Password: Text): Text
     var
-        Encoder: DotNet Encoding;
+        Encoding: DotNet Encoding;
         HashingAlgorithm: DotNet MD5;
         Convert: DotNet Convert;
     begin
         Password := LowerCase(Password);
-        Password := Encoder.UTF8.GetString(Encoder.Default.GetBytes(Password));
+        Password := Encoding.UTF8.GetString(Encoding.GetEncoding(0).GetBytes(Password));
         HashingAlgorithm := HashingAlgorithm.Create();
-        exit(Convert.ToBase64String(HashingAlgorithm.ComputeHash(Encoder.Default.GetBytes(Password))));
+        exit(Convert.ToBase64String(HashingAlgorithm.ComputeHash(Encoding.GetEncoding(0).GetBytes(Password))));
     end;
 }
 
