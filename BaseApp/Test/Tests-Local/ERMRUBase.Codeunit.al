@@ -1417,8 +1417,8 @@ codeunit 144001 "ERM RU - Base"
         LocalReportManagement: Codeunit "Local Report Management";
     begin
         // [FEATURE] [VAT Ledger] [Report] [XML] [UT]
-        // [SCENARIO 372453] VAT Ledger version is '5.06'
-        Assert.AreEqual('5.06', LocalReportManagement.GetVATLedgerFormatVersion(), 'VAT Ledger version');
+        // [SCENARIO 378777] VAT Ledger version is '5.07'
+        Assert.AreEqual('5.07', LocalReportManagement.GetVATLedgerFormatVersion(), 'VAT Ledger version');
     end;
 
     local procedure Initialize()
@@ -1590,7 +1590,6 @@ codeunit 144001 "ERM RU - Base"
     var
         CompanyInformation: Record "Company Information";
         VATLedger: Record "VAT Ledger";
-        LocalReportManagement: Codeunit "Local Report Management";
     begin
         CompanyInformation.Get();
         Result := 'NO_NDS.';
@@ -1620,7 +1619,7 @@ codeunit 144001 "ERM RU - Base"
         if StrLen(CompanyInformation."VAT Registration No.") = 10 then  // The company is an organization
             Result += Format(CompanyInformation."KPP Code");
         Result += '_' + Format(Today, 8, '<Year4><Month,2><Day,2>'); // Date format YYYYMMDD
-        Result += '_' + ConvertStr(LocalReportManagement.GetVATLedgerFormatVersion(), '.', '_');
+        Result += '_05_07';
         Result += '_N'; // Iteration number; added to create unique file names
     end;
 

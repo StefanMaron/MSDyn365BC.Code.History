@@ -14,6 +14,9 @@ codeunit 144016 "ERM G/L Correspodence"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryCosting: Codeunit "Library - Costing";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
@@ -183,16 +186,110 @@ codeunit 144016 "ERM G/L Correspodence"
         VerifyInitialAndReversedGLCorrEntries(GLRegister."No.", GLRegister."No." + 1);
     end;
 
-    local procedure Initialize()
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DoNotMatchEntriesWithSameGLAccountNoIfPossible()
     var
-        GLSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        DummyPurchaseHeader: Record "Purchase Header";
+        GLEntry: Record "G/L Entry";
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        GLCorrespManagement: Codeunit "G/L Corresp. Management";
+        DocNo: Code[20];
+        Qty: Decimal;
+        UnitCost: Decimal;
     begin
+        // [FEATURE] [Post Inventory Cost to G/L]
+        // [SCENARIO 375755] G/L Correspondence does not match pair of G/L entries with the same G/L Account No. if alternate paired G/L entry can be found.
+        Initialize();
+        DocNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+        UnitCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Disable automatic g/l correspondence.
+        // [GIVEN] Disable automatic cost posting.
+        SetAutomaticGLCorrespondence(false);
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Post purchase invoice and credit-memo for one item, quantity and amount are same.
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateAndPostPurchaseDocument(DummyPurchaseHeader."Document Type"::Invoice, Vendor."No.", Item."No.", Qty, UnitCost);
+        CreateAndPostPurchaseDocument(DummyPurchaseHeader."Document Type"::"Credit Memo", Vendor."No.", Item."No.", Qty, UnitCost);
+
+        // [GIVEN] Inventory Account for the item = "X".
+        // [GIVEN] Direct Cost Applied Account = "Y".
+        InventoryPostingSetup.Get('', Item."Inventory Posting Group");
+        GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+
+        // [GIVEN] Post inventory cost to G/L with "Per Posting Group" option.
+        LibraryCosting.PostInvtCostToGL(true, WorkDate, DocNo);
+
+        // [WHEN] Create G/L Correspondence.
+        GLEntry.SetRange("Document No.", DocNo);
+        GLCorrespManagement.CreateCorrespEntries(GLEntry);
+
+        // [THEN] The batch job matches the G/L entry for inventory account with the G/L entry for direct cost applied account.
+        // [THEN] First correspondence entry: Debit Account No. = "X"; Credit Account No. = "Y".
+        // [THEN] Second correspondence entry: Debit Account No. = "Y"; Credit Account No. = "X".
+        VerifyGLCorrespondenceAccount(
+          DocNo, InventoryPostingSetup."Inventory Account", GeneralPostingSetup."Direct Cost Applied Account");
+        VerifyGLCorrespondenceAccount(
+          DocNo, GeneralPostingSetup."Direct Cost Applied Account", InventoryPostingSetup."Inventory Account");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MatchEntriesWithSameGLAccountNoIfOtherwiseImpossible()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        GLCorrespondenceEntry: Record "G/L Correspondence Entry";
+        GLCorrespManagement: Codeunit "G/L Corresp. Management";
+        GLAccountNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO 375755] G/L Correspondence still matches pair of G/L entries with the same G/L Account No. if no alternate paired G/L entry can be found.
+        Initialize();
+        Amount := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Disable automatic g/l correspondence.
+        SetAutomaticGLCorrespondence(false);
+
+        // [GIVEN] G/L Account "X".
+        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Post two gen. journal lines on G/L Account "X" and opposite amounts.
+        CreateGenJnlLineWithGLAccount(GenJournalLine, GenJournalBatch, GLAccountNo, Amount);
+        CreateGenJnlLineWithGLAccount(GenJournalLine, GenJournalBatch, GLAccountNo, -Amount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Create G/L Correspondence.
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLCorrespManagement.CreateCorrespEntries(GLEntry);
+
+        // [THEN] The batch job creates a correspondence entry with "Debit Amount" = "Credit Amount" = "X".
+        GLCorrespondenceEntry.SetRange("Debit Account No.", GLAccountNo);
+        GLCorrespondenceEntry.FindFirst();
+        GLCorrespondenceEntry.TestField("Credit Account No.", GLAccountNo);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibrarySetupStorage.Restore();
+
         if IsInitialized then
             exit;
 
-        GLSetup.Get();
-        GLSetup.Validate("Automatic G/L Correspondence", true);
-        GLSetup.Modify(true);
+        SetAutomaticGLCorrespondence(true);
+
+        LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         IsInitialized := true;
         Commit();
@@ -252,6 +349,18 @@ codeunit 144016 "ERM G/L Correspodence"
         GLAccountArray[4] := VATPostingSetup."Trans. VAT Account";
 
         SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure CreateAndPostPurchaseDocument(DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, DocumentType, VendorNo, ItemNo, Qty, '', WorkDate);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; TransVATType: Option)
@@ -375,6 +484,15 @@ codeunit 144016 "ERM G/L Correspodence"
         end;
     end;
 
+    local procedure SetAutomaticGLCorrespondence(NewValue: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Automatic G/L Correspondence", NewValue);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     local procedure RunReturnPrepaymentReport(EntryNo: Integer; EntryType: Option Sale,Purchase)
     var
         ReturnPrepayment: Report "Return Prepayment";
@@ -474,6 +592,16 @@ codeunit 144016 "ERM G/L Correspodence"
                 Assert.AreEqual(-Amount, ReversedGLCorrespondenceEntry.Amount, FieldCaption(Amount));
                 ReversedGLCorrespondenceEntry.Next;
             until Next = 0;
+    end;
+
+    local procedure VerifyGLCorrespondenceAccount(DocumentNo: Code[20]; DebitAccountNo: Code[20]; CreditAccountNo: Code[20])
+    var
+        GLCorrespondenceEntry: Record "G/L Correspondence Entry";
+    begin
+        GLCorrespondenceEntry.SetRange("Document No.", DocumentNo);
+        GLCorrespondenceEntry.SetRange("Debit Account No.", DebitAccountNo);
+        GLCorrespondenceEntry.FindFirst();
+        GLCorrespondenceEntry.TestField("Credit Account No.", CreditAccountNo);
     end;
 
     [ConfirmHandler]
