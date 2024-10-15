@@ -112,6 +112,7 @@ codeunit 392 "Reminder-Make"
         OpenEntriesNotDueTranslated: Text[100];
         OpenEntriesOnHoldTranslated: Text[100];
         IsHandled: Boolean;
+        IsGracePeriodExpired: Boolean;
     begin
         IsHandled := false;
         OnBeforeMakeReminder(ReminderHeader, CurrencyCode, RetVal, IsHandled);
@@ -167,7 +168,9 @@ codeunit 392 "Reminder-Make"
                     if CustLedgEntry.FindSet then begin
                         repeat
                             SetReminderLine(LineLevel, ReminderDueDate);
-                            if ReminderDueDate < ReminderHeaderReq."Document Date" then begin
+                            IsGracePeriodExpired :=
+                                IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
+                            if IsGracePeriodExpired then begin
                                 if (NextLineNo > 0) and not StartLineInserted then
                                     InsertReminderLine(
                                       ReminderHeader."No.", ReminderLine."Line Type"::"Reminder Line", '', NextLineNo);
@@ -201,9 +204,9 @@ codeunit 392 "Reminder-Make"
                            (CustLedgEntry."Document Type" in [CustLedgEntry."Document Type"::Payment, CustLedgEntry."Document Type"::Refund])
                         then begin
                             SetReminderLine(LineLevel, ReminderDueDate);
-                            if (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) >= ReminderHeaderReq."Document Date") and
-                               (LineLevel = 1)
-                            then begin
+                            IsGracePeriodExpired :=
+                                IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
+                            if (not IsGracePeriodExpired) and (LineLevel = 1) then begin
                                 if not AmountsNotDueLineInserted then begin
                                     InsertReminderLine(ReminderHeader."No.", ReminderLine."Line Type"::"Not Due", '', NextLineNo);
                                     InsertReminderLine(
@@ -257,6 +260,7 @@ codeunit 392 "Reminder-Make"
         LineLevel: Integer;
         MarkEntry: Boolean;
         IsHandled: Boolean;
+        IsGracePeriodExpired: Boolean;
     begin
         IsHandled := false;
         OnBeforeOnBeforeFindAndMarkReminderCandidates(
@@ -272,19 +276,19 @@ codeunit 392 "Reminder-Make"
                 repeat
                     if CustLedgEntry."On Hold" = '' then begin
                         SetReminderLine(LineLevel, ReminderDueDate);
+                        IsGracePeriodExpired :=
+                            IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
                         MarkEntry := false;
-                        if (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) < ReminderHeaderReq."Document Date") and
+                        if IsGracePeriodExpired and
                            ((LineLevel <= ReminderTerms."Max. No. of Reminders") or (ReminderTerms."Max. No. of Reminders" = 0))
                         then begin
                             MarkEntry := true;
                             CustLedgEntry.CalcFields("Remaining Amount");
                             CustAmount += CustLedgEntry."Remaining Amount";
-                            if CustLedgEntry.Positive and
-                               (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) < ReminderHeaderReq."Document Date")
-                            then
+                            if CustLedgEntry.Positive and IsGracePeriodExpired then
                                 MakeDoc := true;
                         end else
-                            if (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) >= ReminderHeaderReq."Document Date") and
+                            if not IsGracePeriodExpired and
                                (not OverdueEntriesOnly or
                                 (CustLedgEntry."Document Type" in [CustLedgEntry."Document Type"::Payment, CustLedgEntry."Document Type"::Refund]))
                             then
@@ -295,7 +299,7 @@ codeunit 392 "Reminder-Make"
                             ReminderLevel.Mark(true);
                             if (ReminderLevel."No." > MaxReminderLevel) and
                                (CustLedgEntry."Document Type" <> CustLedgEntry."Document Type"::"Credit Memo") and
-                               (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) < ReminderHeaderReq."Document Date")
+                               IsGracePeriodExpired
                             then
                                 MaxReminderLevel := ReminderLevel."No.";
                             if MaxLineLevel < LineLevel then
@@ -532,6 +536,11 @@ codeunit 392 "Reminder-Make"
     begin
         Result := Customer.Blocked = Customer.Blocked::All;
         OnAfterCheckCustomerIsBlocked(Customer, Result);
+    end;
+
+    local procedure IsGracePeriodExpiredForOverdueEntry(DueDate: Date; ReminderDocumentDate: Date; GracePeriod: DateFormula): Boolean
+    begin
+        exit(CalcDate(GracePeriod, DueDate) < ReminderDocumentDate);
     end;
 
     [IntegrationEvent(false, false)]
