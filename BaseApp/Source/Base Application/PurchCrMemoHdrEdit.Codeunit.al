@@ -15,6 +15,7 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
         PurchCrMemoHdr."Special Scheme Code" := "Special Scheme Code";
         PurchCrMemoHdr."Cr. Memo Type" := "Cr. Memo Type";
         PurchCrMemoHdr."Correction Type" := "Correction Type";
+        PurchCrMemoHdr."Corrected Invoice No." := "Corrected Invoice No.";
         OnRunOnBeforeTestFieldNo(PurchCrMemoHdr, Rec);
         PurchCrMemoHdr.TestField("No.", "No.");
         PurchCrMemoHdr.Modify();
@@ -43,6 +44,8 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
         SIIDocUploadState.IDType := PurchCrMemoHdr."ID Type";
         SIIDocUploadState."Succeeded Company Name" := PurchCrMemoHdr."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := PurchCrMemoHdr."Succeeded VAT Registration No.";
+        SIIDocUploadState.GetCorrectionInfo(
+          SIIDocUploadState."Corrected Doc. No.", SIIDocUploadState."Corr. Posting Date", SIIDocUploadState."Posting Date");
         SIIDocUploadState.Modify();
     end;
 

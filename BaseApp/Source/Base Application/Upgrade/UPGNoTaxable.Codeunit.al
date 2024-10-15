@@ -7,7 +7,12 @@ codeunit 104102 "Upg No Taxable"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         UpdateNoTaxableEntries;
     end;
 

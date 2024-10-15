@@ -1,5 +1,6 @@
 enum 5405 "Production Order Status"
 {
+    Extensible = true;
     AssignmentCompatibility = true;
 
     value(0; "Simulated") { Caption = 'Simulated'; }

@@ -2422,6 +2422,7 @@
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsHandled: Boolean;
     begin
+        OnBeforePostSalesOrder(Rec, PostingCodeunitID, Navigate);
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
 
@@ -2629,6 +2630,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShippingOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSalesOrder(var SalesHeader: Record "Sales Header"; PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     begin
     end;
 

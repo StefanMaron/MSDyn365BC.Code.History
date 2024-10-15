@@ -7,7 +7,12 @@ codeunit 104100 "UPG SII"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         UpdateEmployeeNewNames;
         UpdateSchemasInSIISetup();
     end;

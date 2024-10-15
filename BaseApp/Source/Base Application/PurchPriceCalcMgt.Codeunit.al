@@ -794,7 +794,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                 Validate("Direct Unit Cost", TempPurchPrice."Direct Unit Cost");
             end;
 
-        OnAfterGetPurchLinePrice(PurchHeader, PurchLine, TempPurchPrice);
+        OnAfterGetPurchLinePrice(PurchHeader, PurchLine, TempPurchPrice, QtyPerUOM);
     end;
 
     procedure GetPurchLineLineDisc(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
@@ -947,7 +947,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetPurchLinePrice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var TempPurchasePrice: Record "Purchase Price" temporary)
+    local procedure OnAfterGetPurchLinePrice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var TempPurchasePrice: Record "Purchase Price" temporary; QtyPerUOM: Decimal)
     begin
     end;
 

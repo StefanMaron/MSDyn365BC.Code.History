@@ -945,6 +945,93 @@ codeunit 134168 "Suggest Price Lines UT"
     end;
 
     [Test]
+    procedure T040_CheckDuplicatePriceLineInTheSamePriceList()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Initialize(true);
+        // [GIVEN] Item 'X'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Two duplicate lines in the 'Draft' price list, where "Asset No." is 'X', "Minimum Quantity" is 0, prices are different.
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+        PriceListLine[2] := PriceListLine[1];
+        PriceListLine[2]."Line No." += 10000;
+
+        // [WHEN] Check if line #2 has duplicates
+        // [THEN] Price list line #2 is duplicate
+        Assert.IsTrue(PriceListManagement.FindDuplicatePrice(PriceListLine[2]), 'must be duplicate');
+    end;
+
+    [Test]
+    procedure T041_CheckNotDuplicateResourceWorkTypePriceLineInTheSamePriceList()
+    var
+        Resource: Record Resource;
+        WorkType: array[2] of Record "Work Type";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Initialize(true);
+        // [GIVEN] 2 work types 'A' and 'B'
+        LibraryResource.CreateWorkType(WorkType[1]);
+        LibraryResource.CreateWorkType(WorkType[2]);
+        // [GIVEN] Resource 'X'
+        LibraryResource.CreateResource(Resource, '');
+        // [GIVEN] Two lines in the 'Draft' price list, where "Asset No." is 'X', "Work Type" are 'A' and 'B', "Minimum Quantity" is 0, prices are different.
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        CreateSalesResourcePriceLine("Price Asset Type"::Resource, Resource."No.", WorkType[1], PriceListHeader, PriceListLine[1]);
+        PriceListLine[2] := PriceListLine[1];
+        PriceListLine[2]."Line No." += 10000;
+        PriceListLine[2]."Work Type Code" := WorkType[2].Code;
+
+        // [WHEN] Check if line #2 has duplicates
+        // [THEN] Price list line #2 is not duplicate
+        Assert.IsFalse(PriceListManagement.FindDuplicatePrice(PriceListLine[2]), 'must not be duplicate');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure T043_CheckDuplicatePriceLinesInTwoPriceLists()
+    var
+        Item: Record Item;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[3] of Record "Price List Line";
+        PriceListManagement: Codeunit "Price List Management";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+        // [GIVEN] Item 'X'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Active Price List #1, where is one line with "Asset No." is 'X', "Minimum Quantity" is 10
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], PriceListHeader[1].Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+        PriceListLine[1]."Minimum Quantity" := 10;
+        PriceListLine[1].Modify();
+        PriceListHeader[1].Validate(Status, "Price Status"::Active);
+        PriceListHeader[1].Modify(true);
+
+        // [GIVEN] Two lines in the 'Draft' price list #2, where "Asset No." is 'X', "Minimum Quantity" is 0 and 10, prices are different.
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], PriceListHeader[2].Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+        PriceListLine[3] := PriceListLine[2];
+        PriceListLine[3]."Line No." += 10000;
+        PriceListLine[3]."Minimum Quantity" := 10;
+
+        // [WHEN] Check if lines #2 and #3 have duplicates
+        // [THEN] Price list line #2 is not duplicate
+        Assert.IsFalse(PriceListManagement.FindDuplicatePrice(PriceListLine[2]), '#2 must not be duplicate');
+        // [THEN] Price list line #3 is duplicate
+        Assert.IsTrue(PriceListManagement.FindDuplicatePrice(PriceListLine[3]), '#3 must be duplicate');
+    end;
+
+    [Test]
     procedure T050_CanTurnRemoveOffInDuplicatePriceLine()
     var
         DuplicatePriceLine: Record "Duplicate Price Line";

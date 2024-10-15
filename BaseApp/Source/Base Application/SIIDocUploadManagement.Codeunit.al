@@ -92,7 +92,9 @@ codeunit 10752 "SII Doc. Upload Management"
         StatusCode := HttpWebResponse.StatusCode;
         StatusDescription := HttpWebResponse.StatusDescription;
         ResponseText := ReadHttpResponseAsText(HttpWebResponse);
+        OnInvokeBatchSoapRequestOnBeforeStoreResponseXML(ResponseText);
         SIISession.StoreResponseXml(ResponseText);
+        OnInvokeBatchSoapRequestOnAfterStoreResponseXML(ResponseText);
         if not StatusCode.Equals(StatusCode.Accepted) and not StatusCode.Equals(StatusCode.OK) then begin
             Session.LogMessage('0000CNS', StrSubstNo(CommunicationErr, StatusDescription), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
             ProcessBatchResponseCommunicationError(
@@ -730,6 +732,16 @@ codeunit 10752 "SII Doc. Upload Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnInvokeBatchSoapRequestOnBeforeStoreRequestXML(var RequestText: Text; RequestType: Option InvoiceIssuedRegistration,InvoiceReceivedRegistration,PaymentSentRegistration,PaymentReceivedRegistration,CollectionInCashRegistration; var WebServiceUrl: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInvokeBatchSoapRequestOnBeforeStoreResponseXML(var ResponseText: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInvokeBatchSoapRequestOnAfterStoreResponseXML(var ResponseText: Text);
     begin
     end;
 }

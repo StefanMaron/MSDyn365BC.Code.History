@@ -249,7 +249,7 @@ page 1310 "O365 Activities"
             }
             cuegroup(Camera)
             {
-                Caption = 'Camera';
+                Caption = 'Scan documents';
                 Visible = HasCamera;
 
                 actions

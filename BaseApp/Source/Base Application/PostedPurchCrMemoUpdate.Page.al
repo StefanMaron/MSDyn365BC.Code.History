@@ -74,6 +74,12 @@ page 10767 "Posted Purch. Cr.Memo - Update"
                     Editable = true;
                     ToolTip = 'Specifies the Correction Type.';
                 }
+                field("Corrected Invoice No."; "Corrected Invoice No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the number of the posted invoice that you need to correct.';
+                }
             }
         }
     }
@@ -103,11 +109,12 @@ page 10767 "Posted Purch. Cr.Memo - Update"
 
     local procedure RecordChanged() IsChanged: Boolean
     begin
-        IsChanged := 
+        IsChanged :=
           (("Operation Description" <> xPurchCrMemoHdr."Operation Description") or
           ("Operation Description 2" <> xPurchCrMemoHdr."Operation Description 2") or
           ("Special Scheme Code" <> xPurchCrMemoHdr."Special Scheme Code") or
           ("Cr. Memo Type" <> xPurchCrMemoHdr."Cr. Memo Type") or
+          ("Corrected Invoice No." <> xPurchCrMemoHdr."Corrected Invoice No.") or
           ("Correction Type" <> xPurchCrMemoHdr."Correction Type"));
         OnAfterRecordChanged(Rec, xPurchCrMemoHdr, IsChanged);
     end;

@@ -1329,7 +1329,11 @@
             TableRelation = "Country/Region";
 
             trigger OnValidate()
+            var
+                FormatAddress: Codeunit "Format Address";
             begin
+                if not FormatAddress.UseCounty("Bill-to Country/Region Code") then
+                    "Bill-to County" := '';
                 ModifyBillToCustomerAddress;
             end;
         }
@@ -1377,7 +1381,11 @@
             TableRelation = "Country/Region";
 
             trigger OnValidate()
+            var
+                FormatAddress: Codeunit "Format Address";
             begin
+                if not FormatAddress.UseCounty("Sell-to Country/Region Code") then
+                    "Sell-to County" := '';
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to Country/Region Code"));
                 ModifyCustomerAddress;
                 Validate("Ship-to Country/Region Code");
@@ -3454,7 +3462,6 @@
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
         PostSalesDelete: Codeunit "PostSales-Delete";
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         OnBeforeConfirmDeletion(Rec);
         SourceCodeSetup.Get();
@@ -3464,6 +3471,19 @@
         PostSalesDelete.InitDeleteHeader(
           Rec, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader,
           SalesInvHeaderPrepmt, SalesCrMemoHeaderPrepmt, SourceCode.Code);
+
+        exit(CheckNoAndShowConfirm(SourceCode));
+    end;
+
+    local procedure CheckNoAndShowConfirm(SourceCode: Record "Source Code") Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNoAndShowConfirm(Rec, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, SalesInvHeaderPrepmt, SalesCrMemoHeaderPrepmt, SourceCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if SalesShptHeader."No." <> '' then
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text009, SalesShptHeader."No."), true) then
@@ -3890,7 +3910,7 @@
         if SalesLine.FindSet then
             repeat
                 IsHandled := false;
-                OnBeforeSalesLineByChangedFieldNo(Rec, SalesLine, ChangedFieldNo, IsHandled);
+                OnBeforeSalesLineByChangedFieldNo(Rec, SalesLine, ChangedFieldNo, IsHandled, xRec);
                 if not IsHandled then
                     case ChangedFieldNo of
                         FieldNo("Shipment Date"):
@@ -4101,6 +4121,8 @@
         if Prompt then
             if not ConfirmManagement.GetResponseOrDefault(Text035, true) then
                 exit(false);
+
+        OnCheckCustomerCreatedOnAfterConfirmProcess(Rec);
 
         if "Sell-to Customer No." = '' then begin
             TestField("Sell-to Contact No.");
@@ -4667,7 +4689,7 @@
                 SalesHeader."Bill-to Customer No." := Cust."Bill-to Customer No."
             else
                 SalesHeader."Bill-to Customer No." := Cust."No.";
-            OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(SalesHeader);
+            OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(SalesHeader, Rec);
             CustCheckCreditLimit.SalesHeaderCheck(SalesHeader);
         end else
             if GetFilterContNo <> '' then begin
@@ -5168,7 +5190,13 @@
     procedure IsApprovedForPosting() Approved: Boolean
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsApprovedForPosting(Rec, Approved, IsHandled);
+        if IsHandled then
+            exit(Approved);
+
         if ApprovalsMgmt.PrePostApprovalCheckSales(Rec) then begin
             if PrepaymentMgt.TestSalesPrepayment(Rec) then
                 Error(PrepaymentInvoicesNotPaidErr, "Document Type", "No.");
@@ -5181,7 +5209,14 @@
     end;
 
     procedure IsApprovedForPostingBatch() Approved: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsApprovedForPostingBatch(Rec, Approved, IsHandled);
+        if IsHandled then
+            exit(Approved);
+
         Approved := ApprovedForPostingBatch;
         OnAfterIsApprovedForPostingBatch(Rec, Approved);
     end;
@@ -5675,10 +5710,14 @@
     end;
 
     local procedure RecreateReservEntryReqLine(var TempSalesLine: Record "Sales Line" temporary; var TempATOLink: Record "Assemble-to-Order Link" temporary; var ATOLink: Record "Assemble-to-Order Link")
+    var
+        ShouldValidateLocationCode: Boolean;
     begin
         repeat
             TestSalesLineFieldsBeforeRecreate;
-            if (SalesLine."Location Code" <> "Location Code") and (not SalesLine.IsNonInventoriableItem) then
+            ShouldValidateLocationCode := (SalesLine."Location Code" <> "Location Code") and not SalesLine.IsNonInventoriableItem;
+            OnRecreateReservEntryReqLineOnAfterCalcShouldValidateLocationCode(Rec, xRec, SalesLine, ShouldValidateLocationCode);
+            if ShouldValidateLocationCode then
                 SalesLine.Validate("Location Code", "Location Code");
             TempSalesLine := SalesLine;
             if SalesLine.Nonstock then begin
@@ -5740,6 +5779,7 @@
         end else begin
             SalesLine.Validate("No.", TempSalesLine."No.");
             if SalesLine.Type <> SalesLine.Type::" " then begin
+                OnCreateSalesLineOnBeforeTransferFieldsFromTempSalesLine(SalesLine, TempSalesLine, Rec);
                 SalesLine.Validate("Unit of Measure Code", TempSalesLine."Unit of Measure Code");
                 SalesLine.Validate("Variant Code", TempSalesLine."Variant Code");
                 OnCreateSalesLineOnBeforeValidateQuantity(SalesLine, TempSalesLine);
@@ -7452,6 +7492,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoAndShowConfirm(SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnRcptHeader: Record "Return Receipt Header"; var SalesInvHeaderPrePmt: Record "Sales Invoice Header"; var SalesCrMemoHeaderPrePmt: Record "Sales Cr.Memo Header"; SourceCode: Record "Source Code"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReturnInfo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7512,7 +7557,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var SalesHeader: Record "Sales Header"; ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
+    local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var SalesHeader: Record "Sales Header"; var ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7608,6 +7653,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsCreditDocType(SalesHeader: Record "Sales Header"; var CreditDocType: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsApprovedForPosting(var SalesHeader: Record "Sales Header"; var Approved: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsApprovedForPostingBatch(var SalesHeader: Record "Sales Header"; var Approved: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -7752,7 +7807,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLineByChangedFieldNo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ChangedFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeSalesLineByChangedFieldNo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ChangedFieldNo: Integer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -7883,6 +7938,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesLineOnBeforeValidateQuantity(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnBeforeTransferFieldsFromTempSalesLine(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8059,6 +8119,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreateReservEntryReqLineOnAfterLoop(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateReservEntryReqLineOnAfterCalcShouldValidateLocationCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var ShouldValidateLocationCode: Boolean)
     begin
     end;
 
@@ -8363,7 +8428,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(var SalesHeader: Record "Sales Header")
+    local procedure OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(var SalesHeader: Record "Sales Header"; Rec: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCustomerCreatedOnAfterConfirmProcess(var SalesHeader: Record "Sales Header")
     begin
     end;
 

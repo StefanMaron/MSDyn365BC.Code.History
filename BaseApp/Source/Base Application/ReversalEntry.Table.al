@@ -1,4 +1,4 @@
-table 179 "Reversal Entry"
+﻿table 179 "Reversal Entry"
 {
     Caption = 'Reversal Entry';
     PasteIsValid = false;
@@ -321,8 +321,7 @@ table 179 "Reversal Entry"
             if GLEntry.IsEmpty() then
                 Error(CannotReverseDeletedErr, GLEntry.TableCaption, GLAcc.TableCaption);
             if GLEntry.Find('-') then begin
-                if GLEntry."Journal Batch Name" = '' then
-                    TestFieldError;
+                CheckGLEntry();
                 repeat
                     CheckGLAcc(GLEntry, BalanceCheckAmount, BalanceCheckAddCurrAmount);
                 until GLEntry.Next() = 0;
@@ -397,6 +396,19 @@ table 179 "Reversal Entry"
         OnAfterCheckEntries(MaxPostingDate);
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 1);
+    end;
+
+    local procedure CheckGLEntry()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckGLEntry(Rec, GLEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GLEntry."Journal Batch Name" = '' then
+            TestFieldError;
     end;
 
     local procedure CheckGLAcc(GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAddCurrAmount: Decimal)
@@ -823,7 +835,14 @@ table 179 "Reversal Entry"
     end;
 
     local procedure CheckPostingDate(PostingDate: Date; Caption: Text[50]; EntryNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPostingDate(PostingDate, Caption, EntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJnlCheckLine.DateNotAllowed(PostingDate) then
             Error(Text001, Caption, EntryNo);
         if PostingDate > MaxPostingDate then
@@ -1555,6 +1574,11 @@ table 179 "Reversal Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLEntry(var ReversalEntry: Record "Reversal Entry"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckRegister(RegisterNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -1606,6 +1630,11 @@ table 179 "Reversal Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckGLAccOnBeforeTestFields(GLAcc: Record "G/L Account"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPostingDate(PostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

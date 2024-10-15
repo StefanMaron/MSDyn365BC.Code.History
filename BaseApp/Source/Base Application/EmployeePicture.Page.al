@@ -37,11 +37,7 @@ page 5202 "Employee Picture"
 
                 trigger OnAction()
                 begin
-                    TestField("No.");
-                    TestField("First Name");
-                    TestField("Last Name");
-
-                    Camera.AddPicture(Rec, Rec.FieldNo(Image));
+                    TakeNewPicture();
                 end;
             }
             action(ImportPicture)
@@ -141,7 +137,28 @@ page 5202 "Employee Picture"
         OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';
         DeleteImageQst: Label 'Are you sure you want to delete the picture?';
         SelectPictureTxt: Label 'Select a picture to upload';
+        MimeTypeTok: Label 'image/jpeg', Locked = true;
         DeleteExportEnabled: Boolean;
+
+    local procedure TakeNewPicture()
+    var
+        PictureInstream: InStream;
+        PictureDescription: Text;
+    begin
+        Rec.TestField("No.");
+        Rec.TestField("First Name");
+        Rec.TestField("Last Name");
+
+        if Rec.Image.HasValue() then
+            if not Confirm(OverrideImageQst) then
+                exit;
+
+        if Camera.GetPicture(PictureInstream, PictureDescription) then begin
+            Clear(Rec.Image);
+            Rec.Image.ImportStream(PictureInstream, PictureDescription, MimeTypeTok);
+            Rec.Modify(true)
+        end;
+    end;
 
     local procedure SetEditableOnPictureActions()
     begin

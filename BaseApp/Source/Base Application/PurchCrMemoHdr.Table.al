@@ -565,18 +565,9 @@ table 124 "Purch. Cr. Memo Hdr."
             trigger OnLookup()
             var
                 PurchaseInvoiceHeader: Record "Purch. Inv. Header";
-                PostedPurchaseInvoices: Page "Posted Purchase Invoices";
             begin
-                PurchaseInvoiceHeader.SetCurrentKey("No.");
-                PurchaseInvoiceHeader.SetRange("Pay-to Vendor No.", "Pay-to Vendor No.");
-                PurchaseInvoiceHeader.SetRange("No.", "Corrected Invoice No.");
-
-                PostedPurchaseInvoices.SetTableView(PurchaseInvoiceHeader);
-                PostedPurchaseInvoices.SetRecord(PurchaseInvoiceHeader);
-                PostedPurchaseInvoices.LookupMode(true);
-                if PostedPurchaseInvoices.RunModal = ACTION::LookupOK then
-                    PostedPurchaseInvoices.GetRecord(PurchaseInvoiceHeader);
-                Clear(PostedPurchaseInvoices);
+                if PurchaseInvoiceHeader.LookupInvoice("Pay-to Vendor No.") then
+                    Validate("Corrected Invoice No.", PurchaseInvoiceHeader."No.");
             end;
         }
         field(10706; "SII Status"; Enum "SII Document Status")
@@ -791,7 +782,14 @@ table 124 "Purch. Cr. Memo Hdr."
     end;
 
     procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if UserSetupMgt.GetPurchasesFilter <> '' then begin
             FilterGroup(2);
             SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
@@ -842,6 +840,11 @@ table 124 "Purch. Cr. Memo Hdr."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
     begin
     end;
 

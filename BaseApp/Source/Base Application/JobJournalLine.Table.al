@@ -158,9 +158,11 @@ table 210 "Job Journal Line"
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
 
-                CheckItemAvailable;
-                if Item."Item Tracking Code" <> '' then
-                    ReserveJobJnlLine.VerifyQuantity(Rec, xRec);
+                if Type = Type::Item then begin
+                    CheckItemAvailable;
+                    if Item."Item Tracking Code" <> '' then
+                        ReserveJobJnlLine.VerifyQuantity(Rec, xRec);
+                end;
             end;
         }
         field(12; "Direct Unit Cost (LCY)"; Decimal)
@@ -1865,6 +1867,8 @@ table 210 "Job Journal Line"
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."));
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec, xRec);
     end;
 
     procedure UpdateDimensions()
@@ -2028,6 +2032,11 @@ table 210 "Job Journal Line"
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var JobJournalLine: Record "Job Journal Line"; LastJobJournalLine: Record "Job Journal Line"; JobJournalTemplate: Record "Job Journal Template"; JobJournalBatch: Record "Job Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line")
     begin
     end;
 

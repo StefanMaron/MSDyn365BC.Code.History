@@ -604,8 +604,7 @@
                             GenJnlLine3."Account Type" := GenJnlLine3."Account Type"::"Bank Account";
                             GenJnlLine3.Validate("Account No.", BankAcc2."No.");
                             if BalancingType <> BalancingType::"G/L Account" then
-                                GenJnlLine3.Description :=
-                                    StrSubstNo(Text014, BalancingType, BalancingNo);
+                                GenJnlLine3.Description := StrSubstNo(Text014, BalancingType, BalancingNo);
                             GenJnlLine3.Validate(Amount, -TotalLineAmount);
                             GenJnlLine3."Bank Payment Type" := GenJnlLine3."Bank Payment Type"::"Computer Check";
                             GenJnlLine3."Check Printed" := true;

@@ -698,7 +698,7 @@
         end else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
 
-        OnUpdateHeaderInfoAfterCalcTotalAmount(Rec);
+        OnUpdateHeaderInfoAfterCalcTotalAmount(Rec, IndexNo);
 
         if Rec."Prices Including VAT" then
             TotalPurchLineLCY[IndexNo].Amount := TotalAmount2[IndexNo]
@@ -933,7 +933,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnUpdateHeaderInfoAfterCalcTotalAmount(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnUpdateHeaderInfoAfterCalcTotalAmount(var PurchaseHeader: Record "Purchase Header"; var IndexNo: Integer)
     begin
     end;
 }

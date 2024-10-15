@@ -48,6 +48,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         AcquisitionOptions: Option "G/L Account",Vendor,"Bank Account";
         isInitialized: Boolean;
+        SalvageValueErr: Label 'There is a reclassification salvage amount that must be posted first. Open the FA Journal page, and then post the relevant reclassification entry.';
 
     [Test]
     [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler')]
@@ -2747,6 +2748,163 @@ codeunit 134450 "ERM Fixed Assets Journal"
             'Wrong Gen. Journal Batch Name.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorSalvageValueForReclassificationFALedgerEntry();
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FALedgerEntry: Record "FA Ledger Entry";
+        FAJournalLine: Record "FA Journal Line";
+        FADepreciationBook: Record "FA Depreciation Book";
+        Amount: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 406530] Salvage Value error arrises when post FA Journal Line Acquisition Cost for reclassification and Salvage Value <> 0
+        Initialize();
+
+        // [GIVEN] Fixed asset
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateJournalSetupDepreciation(DepreciationBook);
+        CreateFADepreciationBook(
+            FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
+
+        // [GIVEN] Posted FA Journal Line with Amount = 100 and Salvage Value = -100
+        Amount := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateFAJournalLine(
+            FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
+            FAJournalLine."Document Type", FAJournalLine."FA Posting Type"::"Acquisition Cost");
+        FAJournalLine.Validate("Salvage Value", -FAJournalLine.Amount);
+        Amount := FAJournalLine.Amount;
+        FAJournalLine.Modify();
+
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+
+
+        // [WHEN] Post FA Journal Line with FA Reclassification Entry = true and Salvage Value = 0
+        CreateFAJournalLine(
+            FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
+            FAJournalLine."Document Type", FAJournalLine."FA Posting Type"::"Acquisition Cost");
+        FAJournalLine.Validate(Amount, -Amount / 2);
+        FAJournalLine.Validate("FA Reclassification Entry", true);
+        FAJournalLine.Modify();
+        asserterror LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+
+        // [THEN] Error arrises
+        Assert.ExpectedError(SalvageValueErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler')]
+    procedure OpenFAGLJournalOptionWhenNoGenJnlLinesWithSameBatch()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FixedAssetAcqWizardCod: Codeunit "Fixed Asset Acquisition Wizard";
+        FixedAssetAcqWizardPage: TestPage "Fixed Asset Acquisition Wizard";
+        GenJnlBatchName: Code[10];
+    begin
+        // [SCENARIO 414697] "Open the FA G/L journal" option state on FA Acquisition Wizard page when Gen. Journal Line for batch with the same name (as for acquisition) does not exist.
+        Initialize();
+        DeleteFAJournalTemplateWithPageID(Page::"Fixed Asset Journal");
+
+        // [GIVEN] Fixed Asset "FA" with Depreciation Book "DB".
+        // [GIVEN] FA Journal Setup with Depreciation Book = "DB" and Gen. Jnl. Batch Name "B1".
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
+        GenJnlBatchName := FixedAssetAcqWizardCod.GetGenJournalBatchName(FixedAsset."No.");
+
+        // [GIVEN] There are no Gen. Journal Lines for any batch with Name "B1".
+        DeleteGenJnlLinesForGenJnlBatch(GenJnlBatchName);
+
+        // [WHEN] Open FA Acquisition Wizard for "FA" and go to the final step with caption "That's it!".
+        RunFAAcquisitionWizardToLastStep(FixedAssetAcqWizardPage, FixedAsset."No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] Option "Upon Finish, open the FA G/L journal." is enabled.
+        Assert.IsTrue(FixedAssetAcqWizardPage.OpenFAGLJournal.Enabled(), '');
+
+        // tear down
+        FixedAssetAcqWizardPage.Close();
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
+    end;
+
+    [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler')]
+    procedure OpenFAGLJournalOptionWhenGenJnlLineWithSameBatchDifferentTemplate()
+    var
+        FixedAsset: Record "Fixed Asset";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        FixedAssetAcqWizardCod: Codeunit "Fixed Asset Acquisition Wizard";
+        FixedAssetAcqWizardPage: TestPage "Fixed Asset Acquisition Wizard";
+        GenJnlBatchName: Code[10];
+    begin
+        // [SCENARIO 414697] "Open the FA G/L journal" option state on FA Acquisition Wizard page when Gen. Journal Line for batch with the same name but different template exists.
+        Initialize();
+        DeleteFAJournalTemplateWithPageID(Page::"Fixed Asset Journal");
+
+        // [GIVEN] Fixed Asset "FA" with Depreciation Book "DB".
+        // [GIVEN] FA Journal Setup with Depreciation Book = "DB" and Gen. Jnl. Batch Name "B1".
+        // [GIVEN] General Journal Batch "B1" has Journal Template Name "T1".
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
+        GenJnlBatchName := FixedAssetAcqWizardCod.GetGenJournalBatchName(FixedAsset."No.");
+
+        // [GIVEN] Gen. Journal Batch with Name "B1" and Journal Template Name "T1" does not have any Gen. Journal Lines.
+        // [GIVEN] There is Gen. Journal Line for batch with Name "B1" and Journal Template Name "T2".
+        DeleteGenJnlLinesForGenJnlBatch(GenJnlBatchName);
+        CreateGenJournalBatchWithName(GenJournalBatch, GenJnlBatchName);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::Invoice,
+            "Gen. Journal Account Type"::"Fixed Asset", FixedAsset."No.", LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [WHEN] Open FA Acquisition Wizard for "FA" and go to the final step with caption "That's it!".
+        RunFAAcquisitionWizardToLastStep(FixedAssetAcqWizardPage, FixedAsset."No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] Option "Upon Finish, open the FA G/L journal." is enabled.
+        Assert.IsTrue(FixedAssetAcqWizardPage.OpenFAGLJournal.Enabled(), '');
+
+        // tear down
+        FixedAssetAcqWizardPage.Close();
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
+    end;
+
+    [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler')]
+    procedure OpenFAGLJournalOptionWhenGenJnlLineWithSameBatchAndTemplate()
+    var
+        FixedAsset: Record "Fixed Asset";
+        GenJournalLine: Record "Gen. Journal Line";
+        FixedAssetAcqWizardCod: Codeunit "Fixed Asset Acquisition Wizard";
+        FixedAssetAcqWizardPage: TestPage "Fixed Asset Acquisition Wizard";
+        GenJnlBatchName: Code[10];
+        GenJnlTemplateName: Code[10];
+    begin
+        // [SCENARIO 414697] "Open the FA G/L journal" option state on FA Acquisition Wizard page when Gen. Journal Line for acquisition other FA exists.
+        Initialize();
+        DeleteFAJournalTemplateWithPageID(Page::"Fixed Asset Journal");
+
+        // [GIVEN] Fixed Asset "FA" with Depreciation Book "DB".
+        // [GIVEN] FA Journal Setup with Depreciation Book = "DB" and Gen. Jnl. Batch Name "B1".
+        // [GIVEN] General Journal Batch "B1" has Journal Template Name "T1".
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
+        GenJnlBatchName := FixedAssetAcqWizardCod.GetGenJournalBatchName(FixedAsset."No.");
+        GenJnlTemplateName := FixedAssetAcqWizardCod.SelectFATemplate();
+
+        // [GIVEN] There is Gen. Journal Line for batch with Name "B1" and Journal Template Name "T1".
+        DeleteGenJnlLinesForGenJnlBatch(GenJnlBatchName);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJnlTemplateName, GenJnlBatchName, "Gen. Journal Document Type"::Invoice,
+            "Gen. Journal Account Type"::"Fixed Asset", FixedAsset."No.", LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [WHEN] Open FA Acquisition Wizard for "FA" and go to the final step with caption "That's it!".
+        RunFAAcquisitionWizardToLastStep(FixedAssetAcqWizardPage, FixedAsset."No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] Option "Upon Finish, open the FA G/L journal." is disabled.
+        Assert.IsFalse(FixedAssetAcqWizardPage.OpenFAGLJournal.Enabled(), '');
+
+        // tear down
+        FixedAssetAcqWizardPage.Close();
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2901,19 +3059,6 @@ codeunit 134450 "ERM Fixed Assets Journal"
         UpdateFAJournalSetup(FAJournalSetup);
     end;
 
-    local procedure UpdateFAJournalSetupUserIDAndGenJournalBatch(DepreciationBookCode: Code[10]; GenJournalBatchName: Code[10])
-    var
-        OldFAJournalSetup: Record "FA Journal Setup";
-        NewFAJournalSetup: Record "FA Journal Setup";
-    begin
-        OldFAJournalSetup.Get(DepreciationBookCode, '');
-        NewFAJournalSetup.TransferFields(OldFAJournalSetup);
-        NewFAJournalSetup."User ID" := UserId();
-        NewFAJournalSetup."Gen. Jnl. Batch Name" := GenJournalBatchName;
-        NewFAJournalSetup.Insert();
-        OldFAJournalSetup.Delete();
-    end;
-
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2924,6 +3069,19 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         GenJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateGenJournalBatchWithName(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalBatchName: Code[10])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Assets);
+        GenJournalTemplate.Modify(true);
+        GenJournalBatch.Init();
+        GenJournalBatch.Validate("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalBatch.Validate(Name, GenJournalBatchName);
+        GenJournalBatch.Insert(true);
     end;
 
     local procedure CreateFAJournalBatch(var FAJournalBatch: Record "FA Journal Batch")
@@ -3233,6 +3391,14 @@ codeunit 134450 "ERM Fixed Assets Journal"
         GenJournalLine.DeleteAll(true);
     end;
 
+    local procedure DeleteGenJnlLinesForGenJnlBatch(GenJournalBatchName: Code[10])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
+        GenJournalLine.DeleteAll();
+    end;
+
     local procedure DeleteFAJournalTemplateWithPageID(PageID: Integer)
     var
         FAJournalTemplate: Record "FA Journal Template";
@@ -3414,6 +3580,22 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FixedAssetAcquisitionWizard.Finish.Invoke();
     end;
 
+    local procedure RunFAAcquisitionWizardToLastStep(var FixedAssetAcqWizardPage: TestPage "Fixed Asset Acquisition Wizard"; FANo: Code[20]; BalAccountNo: Code[20])
+    var
+        TempGenJournalLine: Record "Gen. Journal Line" temporary;
+    begin
+        TempGenJournalLine.SetRange("Account No.", FANo);
+        FixedAssetAcqWizardPage.Trap();
+        Page.Run(Page::"Fixed Asset Acquisition Wizard", TempGenJournalLine);
+
+        FixedAssetAcqWizardPage.NextPage.Invoke();
+        FixedAssetAcqWizardPage.BalancingAccountNo.SetValue(BalAccountNo);
+        FixedAssetAcqWizardPage.NextPage.Invoke();
+        FixedAssetAcqWizardPage.AcquisitionCost.SetValue(LibraryRandom.RandDecInRange(100, 200, 2));
+        FixedAssetAcqWizardPage.AcquisitionDate.SetValue(WorkDate());
+        FixedAssetAcqWizardPage.NextPage.Invoke();
+    end;
+
     local procedure SetAllowCorrectionOfDisposal(DepreciationBookCode: Code[10])
     var
         DepreciationBook: Record "Depreciation Book";
@@ -3498,6 +3680,19 @@ codeunit 134450 "ERM Fixed Assets Journal"
             GLAccount.Next;
         until FAAllocation.Next = 0;
         FAAllocation.Modify(true);
+    end;
+
+    local procedure UpdateFAJournalSetupUserIDAndGenJournalBatch(DepreciationBookCode: Code[10]; GenJournalBatchName: Code[10])
+    var
+        OldFAJournalSetup: Record "FA Journal Setup";
+        NewFAJournalSetup: Record "FA Journal Setup";
+    begin
+        OldFAJournalSetup.Get(DepreciationBookCode, '');
+        NewFAJournalSetup.TransferFields(OldFAJournalSetup);
+        NewFAJournalSetup."User ID" := UserId();
+        NewFAJournalSetup."Gen. Jnl. Batch Name" := GenJournalBatchName;
+        NewFAJournalSetup.Insert();
+        OldFAJournalSetup.Delete();
     end;
 
     local procedure UpdateFAJournalSetup(var FAJournalSetup: Record "FA Journal Setup")
@@ -3958,7 +4153,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         SetDefaultDepreciationBook(DepreciationBook.Code);
 
         FixedAssetCard.OpenEdit;
-        FixedAssetCard.GotoRecord(FixedAsset);
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         FixedAssetCard.FAPostingGroup.SetValue(FixedAsset."FA Posting Group");
         FixedAssetCard.DepreciationBookCode.SetValue(FADepreciationBook."Depreciation Book Code");

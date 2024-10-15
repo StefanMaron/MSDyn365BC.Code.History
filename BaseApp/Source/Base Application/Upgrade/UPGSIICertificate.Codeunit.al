@@ -7,7 +7,12 @@ codeunit 104103 "UPG SII Certificate"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         MoveCertificateFromBlobToIsolatedStorage();
     end;
 

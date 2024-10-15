@@ -7,7 +7,12 @@ codeunit 104107 "Upg Report Selections"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         UpdateReportSelections;
     end;
 

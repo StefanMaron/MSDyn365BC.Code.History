@@ -775,7 +775,7 @@ page 39 "General Journal"
                     group(Control1902759701)
                     {
                         Caption = 'Balance';
-                        field(Balance; Balance + "Balance (LCY)" - xRec."Balance (LCY)")
+                        field(Balance; Balance)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
@@ -788,7 +788,7 @@ page 39 "General Journal"
                     group("Total Balance")
                     {
                         Caption = 'Total Balance';
-                        field(TotalBalance; TotalBalance + "Balance (LCY)" - xRec."Balance (LCY)")
+                        field(TotalBalance; TotalBalance)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;

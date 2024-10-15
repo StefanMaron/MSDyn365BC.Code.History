@@ -586,12 +586,15 @@
 
     trigger OnPostReport()
     begin
-        UpdateAnalysisView.UpdateAll(0, true);
-
-        if TotalCustomersAdjusted + TotalVendorsAdjusted + TotalBankAccountsAdjusted + TotalGLAccountsAdjusted < 1 then
-            Message(NothingToAdjustMsg)
-        else
-            Message(RatesAdjustedMsg);
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries()
+        else begin    
+            UpdateAnalysisView.UpdateAll(0, true);
+            if TotalCustomersAdjusted + TotalVendorsAdjusted + TotalBankAccountsAdjusted + TotalGLAccountsAdjusted < 1 then
+                Message(NothingToAdjustMsg)
+            else
+                Message(RatesAdjustedMsg);
+        end;
 
         OnAfterPostReport(ExchRateAdjReg, PostingDate);
     end;

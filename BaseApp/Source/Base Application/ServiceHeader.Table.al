@@ -1132,7 +1132,11 @@
             TableRelation = "Country/Region";
 
             trigger OnValidate()
+            var
+                FormatAddress: Codeunit "Format Address";
             begin
+                if not FormatAddress.UseCounty("Country/Region Code") then
+                    County := '';
                 UpdateShipToAddressFromGeneralAddress(FieldNo("Ship-to Country/Region Code"));
 
                 Validate("Ship-to Country/Region Code");
@@ -2651,16 +2655,7 @@
 
     trigger OnInsert()
     begin
-        GetServiceMgtSetup();
-        if "No." = '' then begin
-            TestNoSeries;
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", 0D, "No.", "No. Series");
-        end;
-
-        CheckDocumentTypeAlreadyUsed();
-
-        OnInsertOnBeforeInitRecord(Rec, xRec);
-        InitRecord;
+        InitInsert();
 
         Clear(ServLogMgt);
         ServLogMgt.ServHeaderCreate(Rec);
@@ -2920,8 +2915,13 @@
     var
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateCurrencyFactor(Rec, CurrExchRate);
+        IsHandled := false;
+        OnBeforeUpdateCurrencyFactor(Rec, CurrExchRate, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Currency Code" <> '' then begin
             CurrencyDate := "Posting Date";
             if UpdateCurrencyExchangeRates.ExchangeRatesForCurrencyExist(CurrencyDate, "Currency Code") then begin
@@ -3652,6 +3652,25 @@
             if not ServiceShipmentHeader.IsEmpty() then
                 Error(Text008, Format("Document Type"), FieldCaption("No."), "No.");
         end;
+    end;
+
+    procedure InitInsert()
+    var
+        IsHandled: Boolean;
+    begin
+        GetServiceMgtSetup();
+
+        IsHandled := false;
+        OnInitInsertOnBeforeInitSeries(Rec, xRec, IsHandled);
+        if not IsHandled then
+            if "No." = '' then begin
+                TestNoSeries;
+                NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", 0D, "No.", "No. Series");
+            end;
+
+        CheckDocumentTypeAlreadyUsed();
+        OnInsertOnBeforeInitRecord(Rec, xRec);
+        InitRecord();
     end;
 
     procedure InitRecord()
@@ -4428,7 +4447,7 @@
         SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
         Reserve := Cust.Reserve;
 
-        OnAfterCopyBillToCustomerFields(Rec, Cust);
+        OnAfterCopyBillToCustomerFields(Rec, Cust, SkipBillToContact);
     end;
 
     local procedure ShipToAddressModified(): Boolean
@@ -4586,7 +4605,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCurrencyFactor(var ServiceHeader: Record "Service Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    local procedure OnBeforeUpdateCurrencyFactor(var ServiceHeader: Record "Service Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; var IsHandled: Boolean)
     begin
     end;
 
@@ -4601,7 +4620,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyBillToCustomerFields(var ServiceHeader: Record "Service Header"; Customer: Record Customer)
+    local procedure OnAfterCopyBillToCustomerFields(var ServiceHeader: Record "Service Header"; Customer: Record Customer; SkipBillToContact: Boolean)
     begin
     end;
 
@@ -4850,6 +4869,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOnBeforeInitRecord(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitInsertOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 
