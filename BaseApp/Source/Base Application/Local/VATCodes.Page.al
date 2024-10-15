@@ -1,3 +1,4 @@
+#if not CLEAN23
 page 10602 "VAT Codes"
 {
     ApplicationArea = Basic, Suite;
@@ -5,6 +6,9 @@ page 10602 "VAT Codes"
     PageType = List;
     SourceTable = "VAT Code";
     UsageCategory = Lists;
+    ObsoleteReason = 'Use the page "VAT Reporting Codes" instead.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     layout
     {
@@ -66,4 +70,4 @@ page 10602 "VAT Codes"
     {
     }
 }
-
+#endif

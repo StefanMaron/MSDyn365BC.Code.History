@@ -139,8 +139,12 @@ table 256 "VAT Statement Line"
         field(10600; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
-            TableRelation = "VAT Code";
             ObsoleteReason = 'Use VAT Business and VAT Product posting groups for filtering.';
+#if CLEAN20
+            TableRelation = "VAT Code";
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '20.0';
 
@@ -149,6 +153,7 @@ table 256 "VAT Statement Line"
                 if "VAT Code" <> '' then
                     Testfield(Type, Type::"VAT Entry Totaling");
             end;
+#endif
         }
         field(10601; "Incl. Non Deductible VAT"; Boolean)
         {

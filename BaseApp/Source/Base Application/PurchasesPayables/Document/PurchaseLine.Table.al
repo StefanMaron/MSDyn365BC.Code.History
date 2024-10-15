@@ -272,7 +272,7 @@
 #if not CLEAN23
                 OnAfterValidateNo(Rec, xRec, TempPurchLine);
 #endif
-                OnAfterValidateNoPurchaseLine(Rec, xRec, TempPurchLine, PurchHeader);                
+                OnAfterValidateNoPurchaseLine(Rec, xRec, TempPurchLine, PurchHeader);
             end;
         }
         field(7; "Location Code"; Code[10])
@@ -1391,7 +1391,11 @@
             trigger OnValidate()
             begin
                 Validate("VAT Prod. Posting Group");
+#if CLEAN23
+                NorwegianVATTools.InitVATCodePurchaseLine(Rec);
+#else
                 NorwegianVATTools.InitVATCode_PurchaseLine(Rec);
+#endif
             end;
         }
         field(90; "VAT Prod. Posting Group"; Code[20])
@@ -1448,7 +1452,11 @@
                     UpdateAmounts();
                 end;
 
+#if CLEAN23
+                NorwegianVATTools.InitVATCodePurchaseLine(Rec);
+#else
                 NorwegianVATTools.InitVATCode_PurchaseLine(Rec);
+#endif
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -1703,9 +1711,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
                 TestStatusOpen();
                 UpdatePrepmtSetupFields();
+
+                FeatureTelemetry.LogUptake('0000KQD', 'Prepayment Purchase', Enum::"Feature Uptake Status"::Used);
+                FeatureTelemetry.LogUsage('0000KQE', 'Prepayment Purchase', 'Prepayment added');
 
                 if HasTypeToFillMandatoryFields() then
                     UpdateAmounts();
@@ -3364,6 +3377,7 @@
             trigger OnValidate()
             begin
                 NonDeductibleVAT.CheckPrepmtWithNonDeductubleVATInPurchaseLine(Rec);
+                NonDeductibleVAT.CheckNonDeductibleVATPctIsAllowed(Rec);
                 UpdateAmounts();
             end;
         }
@@ -3525,10 +3539,28 @@
         {
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
+            ObsoleteReason = 'Use the field "VAT Number" instead';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
 
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_PurchaseLine(Rec);
+                "VAT Number" := "VAT Code";
+            end;
+#endif
+        }
+        field(10610; "VAT Number"; Code[20])
+        {
+            TableRelation = "VAT Reporting Code".Code;
+
+            trigger OnValidate()
+            begin
+                NorwegianVATTools.InitPostingGroupsPurchaseLine(Rec);
             end;
         }
         field(99000750; "Routing No."; Code[20])
@@ -4270,7 +4302,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckLineAmount(Rec, MaxLineAmount, IsHandled);
+        OnBeforeCheckLineAmount(Rec, MaxLineAmount, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -7771,7 +7803,6 @@
         UpdateDirectUnitCostByField(CallingFieldNo);
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
     var
         IsHandled: Boolean;
@@ -9657,7 +9688,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckLineAmount(var PurchaseLine: Record "Purchase Line"; MaxLineAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCheckLineAmount(var PurchaseLine: Record "Purchase Line"; MaxLineAmount: Decimal; var IsHandled: Boolean; CalledByFieldNo: Integer)
     begin
     end;
 
@@ -10563,7 +10594,7 @@
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateTypePurchaseLine(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
-    end;    
+    end;
 
 
 #if not CLEAN23
@@ -10577,7 +10608,7 @@
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateNoPurchaseLine(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseHeader: Record "Purchase Header")
     begin
-    end;    
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAttachToInventoryItemLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)

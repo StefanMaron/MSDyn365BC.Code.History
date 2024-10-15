@@ -164,10 +164,21 @@ page 256 "Payment Journal"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+#if not CLEAN23
                 field("VAT Code"; Rec."VAT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT Code to be used on the line.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the field "VAT Number" instead';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("VAT Number"; Rec."VAT Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT number to be used on the line.';
                     Visible = false;
                 }
                 field("Gen. Posting Type"; Rec."Gen. Posting Type")
@@ -295,10 +306,21 @@ page 256 "Payment Journal"
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
+#if not CLEAN23
                 field("Bal. VAT Code"; Rec."Bal. VAT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT Code to be used on the line.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("Bal. VAT Number"; Rec."Bal. VAT Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT number to be used on the line.';
                     Visible = false;
                 }
                 field("Bal. Gen. Posting Type"; Rec."Bal. Gen. Posting Type")
@@ -2021,6 +2043,8 @@ page 256 "Payment Journal"
         ApplyEntriesActionEnabled :=
           (Rec."Account Type" in [Rec."Account Type"::Customer, Rec."Account Type"::Vendor, Rec."Account Type"::Employee]) or
           (Rec."Bal. Account Type" in [Rec."Bal. Account Type"::Customer, Rec."Bal. Account Type"::Vendor, Rec."Bal. Account Type"::Employee]);
+
+        OnAfterEnableApplyEntriesAction(Rec, ApplyEntriesActionEnabled);
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -2179,6 +2203,11 @@ page 256 "Payment Journal"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateBalance()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEnableApplyEntriesAction(GenJournalLine: Record "Gen. Journal Line"; var ApplyEntriesActionEnabled: Boolean)
     begin
     end;
 }

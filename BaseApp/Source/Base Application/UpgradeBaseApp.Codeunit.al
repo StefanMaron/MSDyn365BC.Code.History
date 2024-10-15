@@ -63,6 +63,9 @@
         UpgradeJobQueueEntries();
         UpgradeNotificationEntries();
         UpgradeVATReportSetup();
+#if not CLEAN23
+        UpgradeVATCode();
+#endif
         UpgradeStandardCustomerSalesCodes();
         UpgradeStandardVendorPurchaseCode();
         MoveLastUpdateInvoiceEntryNoValue();
@@ -120,6 +123,7 @@
         UpdateProductionSourceCode();
         UpgradeICGLAccountNoInPostedGenJournalLine();
         UpgradeICGLAccountNoInStandardGeneralJournalLine();
+        UpgradeVATSetup();
     end;
 
     local procedure ClearTemporaryTables()
@@ -1131,6 +1135,55 @@
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATRepSetupPeriodRemCalcUpgradeTag());
     end;
 
+#if not CLEAN23
+    local procedure UpgradeVATCode()
+    var
+        VATCode: Record "VAT Code";
+        VATReportingCode: Record "VAT Reporting Code";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+        VATCodeDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetVATCodeUpgradeTag()) then
+            exit;
+
+        if VATReportingCode.IsEmpty() then begin
+            VATCodeDataTransfer.SetTables(Database::"VAT Code", Database::"VAT Reporting Code");
+            VATCodeDataTransfer.AddFieldValue(VATCode.FieldNo(Code), VATReportingCode.FieldNo(Code));
+            VATCodeDataTransfer.AddFieldValue(VATCode.FieldNo("Gen. Posting Type"), VATReportingCode.FieldNo("Gen. Posting Type"));
+            VATCodeDataTransfer.AddFieldValue(VATCode.FieldNo("Test Gen. Posting Type"), VATReportingCode.FieldNo("Test Gen. Posting Type"));
+            VATCodeDataTransfer.AddFieldValue(VATCode.FieldNo(Description), VATReportingCode.FieldNo(Description));
+            VATCodeDataTransfer.AddFieldValue(VATCode.FieldNo("Trade Settlement 2017 Box No."), VATReportingCode.FieldNo("Trade Settlement 2017 Box No."));
+            VATCodeDataTransfer.AddFieldValue(VATCode.FieldNo("Reverse Charge Report Box No."), VATReportingCode.FieldNo("Reverse Charge Report Box No."));
+            VATCodeDataTransfer.AddFieldValue(VATCode.FieldNo("VAT Specification Code"), VATReportingCode.FieldNo("VAT Specification Code"));
+            VATCodeDataTransfer.AddFieldValue(VATCode.FieldNo("VAT Note Code"), VATReportingCode.FieldNo("VAT Note Code"));
+            VATCodeDataTransfer.UpdateAuditFields(false);
+            VATCodeDataTransfer.CopyRows();
+        end;
+
+        VATCodeDataTransfer.SetTables(Database::"VAT Reporting Code", Database::"VAT Code");
+        VATCodeDataTransfer.AddJoin(VATReportingCode.FieldNo(Code), VATCode.FieldNo(Code));
+        VATCodeDataTransfer.AddFieldValue(VATReportingCode.FieldNo(Code), VATCode.FieldNo("Linked VAT Reporting Code"));
+        VATCodeDataTransfer.UpdateAuditFields(false);
+        VATCodeDataTransfer.CopyFields();
+
+        VATCodeDataTransfer.SetTables(Database::"VAT Posting Setup", Database::"VAT Posting Setup");
+        VATCodeDataTransfer.AddFieldValue(VATPostingSetup.FieldNo("VAT Code"), VATPostingSetup.FieldNo("VAT Number"));
+        VATCodeDataTransfer.AddFieldValue(VATPostingSetup.FieldNo("Sales VAT Reporting Code"), VATPostingSetup.FieldNo("Sale VAT Reporting Code"));
+        VATCodeDataTransfer.AddFieldValue(VATPostingSetup.FieldNo("Purchase VAT Reporting Code"), VATPostingSetup.FieldNo("Purch. VAT Reporting Code"));
+        VATCodeDataTransfer.UpdateAuditFields(false);
+        VATCodeDataTransfer.CopyFields();
+
+        VATCodeDataTransfer.SetTables(Database::"G/L Account", Database::"G/L Account");
+        VATCodeDataTransfer.AddFieldValue(GLAccount.FieldNo("VAT Code"), GLAccount.FieldNo("VAT Number"));
+        VATCodeDataTransfer.UpdateAuditFields(false);
+        VATCodeDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetVATCodeUpgradeTag());
+    end;
+#endif
     local procedure UpgradeStandardCustomerSalesCodes()
     var
         StandardSalesCode: Record "Standard Sales Code";
@@ -3260,5 +3313,18 @@
         Clear(StandardGeneralJournalLineDataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICPartnerGLAccountNoUpgradeTag());
+    end;
+
+    local procedure UpgradeVATSetup()
+    var
+        VATSetup: Record "VAT Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATSetupUpgradeTag()) then
+            exit;
+        if not VATSetup.Get() then
+            VATSetup.Insert();
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATSetupUpgradeTag());
     end;
 }

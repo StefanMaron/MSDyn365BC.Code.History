@@ -567,6 +567,7 @@ table 5077 "Segment Line"
         CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
         Mail: Codeunit Mail;
         ResumedAttachmentNo: Integer;
+        InteractionLogEntryNo: Integer;
 
 #if not CLEAN23
         Text000: Label '%1 = %2 can not be specified for %3 %4.\';
@@ -586,7 +587,6 @@ table 5077 "Segment Line"
 #endif
         EmailCouldNotbeSentErr: Label 'The email could not be sent because of the following error: %1.\Note: if you run %2 as administrator, you must run Outlook as administrator as well.', Comment = '%1 - error, %2 - product name';
         WordTemplateUsedErr: Label 'You cannot change the attachment when a Word template has been specified.';
-        NoWordTemplateErr: Label 'The selected interaction template does not have a Word template specified and cannot be used with the Merge wizard action.';
         OneDriveNotEnabledMsg: Label 'Onedrive is not enabled. Please enable it in the OneDrive Setup page.';
         ModifyExistingAttachmentMsg: Label 'Modify existing attachment?';
 
@@ -1231,9 +1231,6 @@ table 5077 "Segment Line"
             if ShouldAssignStep then
                 "Wizard Step" := "Wizard Step"::"6";
 
-            // if not HTMLAttachment then
-            //     HandleTrigger();
-
             "Attempt Failed" := not "Interaction Successful";
             Subject := Description;
             if not HTMLAttachment then
@@ -1260,9 +1257,15 @@ table 5077 "Segment Line"
                     if Mail.GetErrorDesc() <> '' then
                         Error(EmailCouldNotbeSentErr, Mail.GetErrorDesc(), PRODUCTNAME.Full());
             end;
+            InteractionLogEntryNo := InteractionLogEntry."Entry No.";
         end;
 
         OnAfterFinishWizard(Rec, InteractionLogEntry, IsFinish, Flag);
+    end;
+
+    internal procedure GetInteractionLogEntryNo(): Integer
+    begin
+        exit(InteractionLogEntryNo);
     end;
 
     local procedure GetFinishInteractionFlag(IsFinish: Boolean) Flag: Boolean
@@ -1363,9 +1366,9 @@ table 5077 "Segment Line"
                     Merged := true;
                 end;
             GlobalInteractionTemplate."Wizard Action"::Merge:
-                begin
-                    if GlobalInteractionTemplate."Word Template Code" = '' then
-                        Error(NoWordTemplateErr);
+                if GlobalInteractionTemplate."Word Template Code" = '' then
+                    Merged := false
+                else begin
                     MergeTemplate(false, false);
                     Merged := true;
                 end;
