@@ -114,7 +114,15 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetGLEntryJournalTemplateNameUpgradeTag());
         PerCompanyUpgradeTags.Add(GetGLRegisterJournalTemplateNameUpgradeTag());
         PerCompanyUpgradeTags.Add(GetGenJournalTemplateDatesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetGenJournalTemplateNamesSetupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVATEntryJournalTemplateNameUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetBankAccountLedgerEntryJournalTemplateNameUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetCustLedgerEntryJournalTemplateNameUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetEmplLedgerEntryJournalTemplateNameUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetVendLedgerEntryJournalTemplateNameUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSalesHeaderJournalTemplateNameUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetServiceHeaderJournalTemplateNameUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPurchaseHeaderJournalTemplateNameUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCustLedgerEntryPmtDiscPossibleUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVendLedgerEntryPmtDiscPossibleUpgradeTag());
         PerCompanyUpgradeTags.Add(GetGenJournalLinePmtDiscPossibleUpgradeTag());
@@ -903,9 +911,49 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-415286-GenJournalTemplateDates-20211026');
     end;
 
+    procedure GetGenJournalTemplateNamesSetupUpgradeTag(): Code[250]
+    begin
+        exit('MS-415286-GenJournalTemplateNamesSetup-20211026');
+    end;
+
     procedure GetVATEntryJournalTemplateNameUpgradeTag(): Code[250]
     begin
         exit('MS-415286-VATEntryJournalTemplateName-20211026');
+    end;
+
+    procedure GetBankAccountLedgerEntryJournalTemplateNameUpgradeTag(): Code[250]
+    begin
+        exit('MS-415286-BankAccountLedgerEntryJournalTemplateName-20211026');
+    end;
+
+    procedure GetCustLedgerEntryJournalTemplateNameUpgradeTag(): Code[250]
+    begin
+        exit('MS-415286-CustLedgerEntryJournalTemplateName-20211026');
+    end;
+
+    procedure GetEmplLedgerEntryJournalTemplateNameUpgradeTag(): Code[250]
+    begin
+        exit('MS-415286-EmplLedgerEntryJournalTemplateName-20211026');
+    end;
+
+    procedure GetVendLedgerEntryJournalTemplateNameUpgradeTag(): Code[250]
+    begin
+        exit('MS-415286-VendLedgerEntryJournalTemplateName-20211026');
+    end;
+
+    procedure GetSalesHeaderJournalTemplateNameUpgradeTag(): Code[250]
+    begin
+        exit('MS-415286-SalesHeaderJournalTemplateName-20211026');
+    end;
+
+    procedure GetPurchaseHeaderJournalTemplateNameUpgradeTag(): Code[250]
+    begin
+        exit('MS-415286-PurchaseHeaderJournalTemplateName-20211026');
+    end;
+
+    procedure GetServiceHeaderJournalTemplateNameUpgradeTag(): Code[250]
+    begin
+        exit('MS-415286-ServiceHeaderJournalTemplateName-20211026');
     end;
 
     procedure GetCustLedgerEntryPmtDiscPossibleUpgradeTag(): Code[250]

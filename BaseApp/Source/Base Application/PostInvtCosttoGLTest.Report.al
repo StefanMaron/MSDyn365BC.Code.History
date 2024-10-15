@@ -407,6 +407,7 @@
     begin
         OnBeforePreReport(PostValueEntryToGL, ItemValueEntry);
 
+        GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlLineReq."Journal Template Name" = '' then
                 Error(MissingJournalFieldErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
@@ -486,6 +487,7 @@
                 exit;
 
             if PostMethod = PostMethod::"per Entry" then begin
+                GLSetup.Get();
                 if GLSetup."Journal Templ. Name Mandatory" then
                     InvtPostToGL.SetGenJnlBatch(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                 InvtPostToGL.PostInvtPostBufPerEntry(ValueEntry);

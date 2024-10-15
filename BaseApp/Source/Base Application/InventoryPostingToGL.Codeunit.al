@@ -837,6 +837,7 @@ codeunit 5802 "Inventory Posting To G/L"
     local procedure UpdateGlobalInvtPostBuf(ValueEntryNo: Integer): Boolean
     var
         i: Integer;
+        ShouldInsertTempGLItemLedgRelation: Boolean;
     begin
         with GlobalInvtPostBuf do begin
             if not CalledFromTestReport then
@@ -861,8 +862,9 @@ codeunit 5802 "Inventory Posting To G/L"
                     "Entry No." := GlobalInvtPostBufEntryNo;
                     Insert;
                 end;
-
-                if not (RunOnlyCheck or CalledFromTestReport) then begin
+                ShouldInsertTempGLItemLedgRelation := not (RunOnlyCheck or CalledFromTestReport);
+                OnUpdateGlobalInvtPostBufOnAfterCalcShouldInsertTempGLItemLedgRelation(TempGLItemLedgRelation, GlobalInvtPostBuf, ValueEntryNo, RunOnlyCheck, CalledFromTestReport, ShouldInsertTempGLItemLedgRelation);
+                if ShouldInsertTempGLItemLedgRelation then begin
                     TempGLItemLedgRelation.Init();
                     TempGLItemLedgRelation."G/L Entry No." := "Entry No.";
                     TempGLItemLedgRelation."Value Entry No." := ValueEntryNo;
@@ -1033,10 +1035,16 @@ codeunit 5802 "Inventory Posting To G/L"
         GenJnlLine."Reason Code" := ValueEntry."Reason Code";
         GenJnlLine."Prod. Order No." := ValueEntry."Order No.";
         GetGLSetup();
-        if GLSetup."Journal Templ. Name Mandatory" then begin
-            GenJnlLine."Journal Template Name" := GlobalJnlTemplName;
-            GenJnlLine."Journal Batch Name" := GlobalJnlBatchName;
-        end;
+        if GLSetup."Journal Templ. Name Mandatory" then
+            if GlobalJnlTemplName <> '' then begin
+                GenJnlLine."Journal Template Name" := GlobalJnlTemplName;
+                GenJnlLine."Journal Batch Name" := GlobalJnlBatchName;
+            end else begin
+                GetInvtSetup();
+                InvtSetup.TestField("Invt. Cost Jnl. Template Name");
+                GenJnlLine."Journal Template Name" := InvtSetup."Invt. Cost Jnl. Template Name";
+                GenJnlLine."Journal Batch Name" := InvtSetup."Invt. Cost Jnl. Batch Name";
+            end;
         OnPostInvtPostBufOnAfterInitGenJnlLine(GenJnlLine, ValueEntry);
     end;
 
@@ -1492,6 +1500,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateGlobalInvtPostBufOnBeforeModify(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; TempInvtPostBuf: Record "Invt. Posting Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateGlobalInvtPostBufOnAfterCalcShouldInsertTempGLItemLedgRelation(var TempGLItemLedgerRelation: Record "G/L - Item Ledger Relation" temporary; TempInvtPostingBuffer: Record "Invt. Posting Buffer" temporary; ValueEntryNo: Integer; RunOnlyCheck: Boolean; CalledFromTestReport: Boolean; var ShouldInsertTempGLItemLedgRelation: Boolean)
     begin
     end;
 

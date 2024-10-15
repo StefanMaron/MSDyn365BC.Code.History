@@ -703,7 +703,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     end;
 
     [Test]
-    [HandlerFunctions('SelectCustomerTemplListHandler')]
+    [HandlerFunctions('SelectCustomerTemplListHandler,CancelConfirmHandler')]
     [Scope('OnPrem')]
     procedure DocNoVisibility_CustomerDefaultNoSeries()
     var
@@ -792,7 +792,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     end;
 
     [Test]
-    [HandlerFunctions('SelectVendorTemplListHandler')]
+    [HandlerFunctions('SelectVendorTemplListHandler,CancelConfirmHandler')]
     [Scope('OnPrem')]
     procedure DocNoVisibility_VendorDefaultNoSeries()
     var
@@ -881,7 +881,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     end;
 
     [Test]
-    [HandlerFunctions('SelectItemTemplListHandler')]
+    [HandlerFunctions('SelectItemTemplListHandler,CancelConfirmHandler')]
     [Scope('OnPrem')]
     procedure DocNoVisibility_ItemDefaultNoSeries()
     var
@@ -1829,6 +1829,12 @@ codeunit 138100 "Streamline. Autofill No Series"
         HumanResourcesSetup."Employee Nos." := NoSeriesCode;
         HumanResourcesSetup.Modify();
         DocumentNoVisibility.ClearState();
+    end;
+
+    [ConfirmHandler]
+    procedure CancelConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

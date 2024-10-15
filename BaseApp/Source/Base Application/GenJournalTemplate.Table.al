@@ -297,11 +297,11 @@
         }
         field(32; "Allow Posting Date From"; Date)
         {
-            Caption = 'Allow Posting From';
+            Caption = 'Allow Posting Date From';
         }
         field(33; "Allow Posting Date To"; Date)
         {
-            Caption = 'Allow Posting To';
+            Caption = 'Allow Posting Date To';
         }
         field(11300; "Allow Posting From"; Date)
         {

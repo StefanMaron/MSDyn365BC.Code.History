@@ -482,7 +482,7 @@ page 234 "Apply Employee Entries"
         if CalcType = CalcType::Direct then begin
             Empl.Get(Rec."Employee No.");
             ApplnCurrencyCode := '';
-            FindApplyingEntry;
+            FindApplyingEntry();
         end;
 
         AppliesToIDVisible := ApplnType <> ApplnType::"Applies-to Doc. No.";

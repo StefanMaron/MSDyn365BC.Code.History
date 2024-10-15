@@ -1247,7 +1247,7 @@
                     if GlobalItemLedgEntry.Positive then
                         GlobalItemLedgEntry.Modify();
                     IsHandled := false;
-                    OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled);
+                    OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled, VarianceAmount, VarianceAmountACY);
                     if not IsHandled then
                         if ((GlobalValueEntry."Valued Quantity" > 0) or
                             (("Applies-to Entry" <> 0) and ("Entry Type" in ["Entry Type"::Purchase, "Entry Type"::"Assembly Output"]))) and
@@ -1268,7 +1268,7 @@
                     InsertBalanceExpCostRevEntry(GlobalValueEntry);
 
                 IsHandled := false;
-                OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled);
+                OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled, VarianceAmount, VarianceAmountACY);
                 if not IsHandled then
                     if ((GlobalValueEntry."Valued Quantity" > 0) or
                         (("Applies-to Entry" <> 0) and ("Entry Type" in ["Entry Type"::Purchase, "Entry Type"::"Assembly Output"]))) and
@@ -1843,6 +1843,8 @@
                 end;
             end else
                 StartApplication := true;
+
+            OnApplyItemLedgEntryOnBeforeStartApplication(ItemLedgEntry, OldItemLedgEntry, StartApplication);
 
             if StartApplication then begin
                 ItemLedgEntry.CalcFields("Reserved Quantity");
@@ -2509,7 +2511,7 @@
     begin
         with ValueEntry do begin
             IsHandled := false;
-            OnBeforePostInventoryToGL(ValueEntry, IsHandled);
+            OnBeforePostInventoryToGL(ValueEntry, IsHandled, ItemJnlLine);
             if IsHandled then
                 exit;
 
@@ -3012,6 +3014,7 @@
                         ValueEntry."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
                         ValueEntry."Dimension Set ID" := "Dimension Set ID";
                     end;
+            OnInsertValueEntryOnBeforeRoundAmtValueEntry(ValueEntry, ItemLedgEntry, ItemJnlLine, TransferItem);
             RoundAmtValueEntry(ValueEntry);
 
             if ValueEntry."Entry Type" = ValueEntry."Entry Type"::Rounding then begin
@@ -3112,8 +3115,12 @@
                           CalcCostPerUnit(ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)",
                             ValueEntry."Valued Quantity", false)
                     else
-                        ValueEntry."Cost per Unit" :=
-                          CalcCostPerUnit(ValueEntry."Cost Amount (Actual)", ValueEntry."Valued Quantity", false);
+                        if not ValueEntry.Inventoriable and (ValueEntry."Item Charge No." = '') then
+                            ValueEntry."Cost per Unit" :=
+                                CalcCostPerUnit(ValueEntry."Cost Amount (Non-Invtbl.)", ValueEntry."Valued Quantity", false)
+                        else
+                            ValueEntry."Cost per Unit" :=
+                              CalcCostPerUnit(ValueEntry."Cost Amount (Actual)", ValueEntry."Valued Quantity", false);
         end;
     end;
 
@@ -3457,6 +3464,7 @@
             OldValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
             OldValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
             OldValueEntry.SetRange("Entry Type", OldValueEntry."Entry Type"::Revaluation);
+            OnGetValuationDateOnAfterOldValueEntrySetFilters(OldValueEntry, ValueEntry, OldItemLedgEntry);
             if not OldValueEntry.FindLast() then begin
                 OldValueEntry.SetRange("Entry Type");
                 IsHandled := false;
@@ -3742,8 +3750,7 @@
             CalcUnitCost := (DirCost <> 0) and ("Unit Cost" = 0);
         end;
 
-        OnAfterCalcPosShares(
-          ItemJnlLine, DirCost, OvhdCost, PurchVar, DirCostACY, OvhdCostACY, PurchVarACY, CalcUnitCost, CalcPurchVar, Expected);
+        OnAfterCalcPosShares(ItemJnlLine, DirCost, OvhdCost, PurchVar, DirCostACY, OvhdCostACY, PurchVarACY, CalcUnitCost, CalcPurchVar, Expected, GlobalItemLedgEntry);
     end;
 
     local procedure CalcPurchCorrShares(var OverheadAmount: Decimal; var OverheadAmountACY: Decimal; var VarianceAmount: Decimal; var VarianceAmountACY: Decimal)
@@ -5044,14 +5051,16 @@
         OnAfterInsertPostValueEntryToGL(ValueEntry);
     end;
 
-    local procedure IsPostToGL(ValueEntry: Record "Value Entry"): Boolean
+    local procedure IsPostToGL(ValueEntry: Record "Value Entry") Result: Boolean
     begin
-        GetInvtSetup;
+        GetInvtSetup();
         with ValueEntry do
-            exit(
+            Result :=
               Inventoriable and not PostToGL and
               (((not "Expected Cost") and (("Cost Amount (Actual)" <> 0) or ("Cost Amount (Actual) (ACY)" <> 0))) or
-               (InvtSetup."Expected Cost Posting to G/L" and (("Cost Amount (Expected)" <> 0) or ("Cost Amount (Expected) (ACY)" <> 0)))));
+               (InvtSetup."Expected Cost Posting to G/L" and (("Cost Amount (Expected)" <> 0) or ("Cost Amount (Expected) (ACY)" <> 0))));
+
+        OnAfterIsPostToGL(ValueEntry, Result);
     end;
 
     local procedure IsWarehouseReclassification(ItemJournalLine: Record "Item Journal Line"): Boolean
@@ -5646,9 +5655,9 @@
 
     local procedure PostInvtBuffer(var ValueEntry: Record "Value Entry")
     begin
-        GetGLSetup();
         if InventoryPostingToGL.BufferInvtPosting(ValueEntry) then begin
             GetInvtSetup();
+            GetGLSetup();
             if GLSetup."Journal Templ. Name Mandatory" then
                 InventoryPostingToGL.SetGenJnlBatch(
                     InvtSetup."Invt. Cost Jnl. Template Name", InvtSetup."Invt. Cost Jnl. Batch Name");
@@ -6052,7 +6061,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcPosShares(var ItemJournalLine: Record "Item Journal Line"; var DirCost: Decimal; var OvhdCost: Decimal; var PurchVar: Decimal; var DirCostACY: Decimal; var OvhdCostACY: Decimal; var PurchVarACY: Decimal; var CalcUnitCost: Boolean; CalcPurchVar: Boolean; Expected: Boolean)
+    local procedure OnAfterCalcPosShares(var ItemJournalLine: Record "Item Journal Line"; var DirCost: Decimal; var OvhdCost: Decimal; var PurchVar: Decimal; var DirCostACY: Decimal; var OvhdCostACY: Decimal; var PurchVarACY: Decimal; var CalcUnitCost: Boolean; CalcPurchVar: Boolean; Expected: Boolean; GlobalItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -6237,6 +6246,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnBeforeStartApplication(var ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var StartApplication: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterApplyItemLedgEntry(var GlobalItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -6343,6 +6357,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCorrectOutputValuationDateOnBeforeCheckProdOrder(ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetValuationDateOnAfterOldValueEntrySetFilters(var OldValueEntry: Record "Value Entry"; ValueEntry: Record "Value Entry"; OldItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -6645,7 +6664,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostInventoryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    local procedure OnBeforePostInventoryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 
@@ -6976,6 +6995,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterIsPostToGL(ValueEntry: Record "Value Entry"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckItemTrackingOfComp(TempHandlingSpecification: Record "Tracking Specification"; ItemJnlLine: Record "Item Journal Line")
     begin
     end;
@@ -7052,6 +7076,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertValueEntryOnBeforeCalcExpectedCost(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; TransferItemPBln: Boolean; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; var ShouldCalcExpectedCost: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertValueEntryOnBeforeRoundAmtValueEntry(var ValueEntry: Record "Value Entry"; var ItemLedgEntry: Record "Item Ledger Entry"; ItemJnlLine: Record "Item Journal Line"; TransferItem: Boolean)
     begin
     end;
 
@@ -7201,7 +7230,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnItemValuePostingOnBeforeInsertOHValueEntry(var ItemJnlLine: Record "Item Journal Line"; var GlobalValueEntry: Record "Value Entry"; var GlobalItemLedgEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var IsHandled: Boolean)
+    local procedure OnItemValuePostingOnBeforeInsertOHValueEntry(var ItemJnlLine: Record "Item Journal Line"; var GlobalValueEntry: Record "Value Entry"; var GlobalItemLedgEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var IsHandled: Boolean; var VarianceAmount: Decimal; var VarianceAmountACY: Decimal)
     begin
     end;
 

@@ -1293,6 +1293,7 @@
         repeat
             TempAppliedCustLedgEntry := AppliedCustLedgEntry;
             TempAppliedCustLedgEntry.Insert();
+            OnHandleChosenEntriesOnAfterTempAppliedCustLedgEntryInsert(TempAppliedCustLedgEntry);
         until AppliedCustLedgEntry.Next() = 0;
 
         FromZeroGenJnl := (CurrentAmount = 0) and (Type = Type::"Gen. Jnl. Line");
@@ -1540,7 +1541,7 @@
         CalcType := NewCalcType;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalcApplnAmount(CustLedgerEntry: Record "Cust. Ledger Entry"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal; var CalcType: Enum "Customer Apply Calculation Type"; var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -1660,6 +1661,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnFindApplyingEntryOnBeforeCalcApplnAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnHandleChosenEntriesOnAfterTempAppliedCustLedgEntryInsert(var TempAppliedCustLedgerEntry: Record "Cust. Ledger Entry" temporary)
     begin
     end;
 

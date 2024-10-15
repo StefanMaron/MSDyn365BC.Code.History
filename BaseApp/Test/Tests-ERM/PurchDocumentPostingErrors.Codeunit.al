@@ -337,11 +337,13 @@ codeunit 132502 "Purch. Document Posting Errors"
         TempErrorMessage: Record "Error Message" temporary;
         PurchInvoicePage: TestPage "Purchase Invoice";
         GeneralJournalTemplates: TestPage "General Journal Templates";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         OriginalAllowPostingTo: Date;
     begin
         // [FEATURE] [Country:BE]
         // [SCENARIO] Posting of document, where "Posting Date" is out of the allowed period, set in Gen. Journal Template.
         Initialize();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(true);
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "Journal Template", where Type is 'Purchases'
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Purchases);
         GenJournalTemplate.FindFirst();
@@ -761,13 +763,18 @@ codeunit 132502 "Purch. Document Posting Errors"
     end;
 
     local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Purch. Document Posting Errors");
         LibraryErrorMessage.Clear;
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Purch. Document Posting Errors");
+
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 

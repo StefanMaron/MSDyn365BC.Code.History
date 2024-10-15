@@ -396,7 +396,7 @@
         ResidualGLAcc.TestField("Account Type", ResidualGLAcc."Account Type"::Posting);
         SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Adjust Add. Reporting Currency");
-
+        GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlLineReq."Journal Template Name" = '' then
                 Error(Text11300Err);

@@ -3,13 +3,13 @@ codeunit 1878 "Guided Experience Subscribers"
     var
         BusinessManagerRoleCenterTourShortTitleTxt: Label 'A first look around';
         BusinessManagerRoleCenterTourTitleTxt: Label 'Take a first look around';
-        BusinessManagerRoleCenterTourDescriptionTxt: Label 'The role-based home page offers quick access to key metrics and activities. We''ll also show you how to explore all the Business Central features.';
+        BusinessManagerRoleCenterTourDescriptionTxt: Label 'The Business Manager home page offers metrics and activities that help run a business. We`ll also show you how to explore all Business Central features.';
         AccountantRoleCenterTourShortTitleTxt: Label 'A first look around';
         AccountantRoleCenterTourTitleTxt: Label 'Take a first look around';
-        AccountantRoleCenterTourDescriptionTxt: Label 'The role-based home page offers quick access to key metrics and activities. We''ll also show you how to explore all the Business Central features.';
+        AccountantRoleCenterTourDescriptionTxt: Label 'The Accountant home page makes it easier for businesses to keep their books. We`ll also show you how to explore all Business Central features.';
         OrderProcessorRoleCenterTourShortTitleTxt: Label 'A first look around';
         OrderProcessorRoleCenterTourTitleTxt: Label 'Take a first look around';
-        OrderProcessorRoleCenterTourDescriptionTxt: Label 'The role-based home page offers quick access to key metrics and activities. We''ll also show you how to explore all the Business Central features.';
+        OrderProcessorRoleCenterTourDescriptionTxt: Label 'The Sales Order Processor home page helps you stay on top of your sales documents. We`ll also show you how to explore all Business Central features.';
         EditCustomerListInExcelShortTitleTxt: Label 'Edit and analyze in Excel';
         EditCustomerListInExcelTitleTxt: Label 'Edit and analyze in Excel';
         EditCustomerListInExcelDescriptionTxt: Label 'Open business data in Microsoft Excel to quickly analyze data with familiar tools. Let''s show you how with the Customer List.';

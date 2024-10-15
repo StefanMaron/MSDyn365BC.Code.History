@@ -2597,6 +2597,187 @@ codeunit 144000 "Non-Deductible VAT"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATBaseAmountOnVATEntriesWithVATBaseDiscountAnd100PctNonDeductibleVATReverseChargeVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+        ExpectedVATBase: Decimal;
+        ExpectedVATAmount: Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [Purchase Invoice] [VAT Base Discount] [Non-Deductible VAT]
+        // [SCENARIO 429879] "VAT Base Discount %" must be reflected in Base amount on posted VAT Entries when "Non Deductible VAT %" = 100% for "VAT Calculation Type" = "Reverse Charge VAT"
+        Initialize();
+
+        // [GIVEN] Purchase Invoice Header for new Vendor with 2% VAT Base Discount
+        CreatePurchHeaderWithVATBaseDisc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [GIVEN] Purchase Invoice Line for G/L Account with 19% Reverse Charge VAT, 100% Non-Deductible VAT and "Direct unit Cost" = 1000
+        CreateVATPostingSetupWithBusPostGroup(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT",
+          PurchaseHeader."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(10, 30), LibraryUtility.GenerateGUID());
+
+        LibraryBEHelper.CreateGLAccount(GLAccount, VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase, 100);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 10000));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] "VAT Base Amount" = Round(Amount * (1 - "VAT Base Discount %" / 100));
+        // [THEN] VATAmount = Round("VAT Base Amount" * "VAT %" / 100);
+        // [THEN] NonDeductible-VATAmount = Round("VAT Base Amount" * "Nod Deductible VAT %" / 100);
+        // [THEN] Final-VATBaseAmount = "VAT Base Amount" + "NonDeductible-VATAmount"
+        // [THEN] Final-VATAmount = VATAmount - "NonDeductible-VATAmount"
+        ExpectedVATBase := Round(PurchaseLine."Direct Unit Cost" * (1 - PurchaseHeader."VAT Base Discount %" / 100));
+        ExpectedVATAmount := Round(ExpectedVATBase * VATPostingSetup."VAT %" / 100);
+        ExpectedVATBase := ExpectedVATBase + Round(ExpectedVATAmount * GLAccount."% Non deductible VAT" / 100);
+        ExpectedVATAmount := ExpectedVATAmount - Round(ExpectedVATAmount * GLAccount."% Non deductible VAT" / 100);
+        VerifyAmountsWithCreatedVATEntries(DocumentNo, GLAccount, ExpectedVATBase, ExpectedVATAmount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATBaseAmountOnVATEntriesWithVATBaseDiscountAnd100PctNonDeductibleVATNormalVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+        ExpectedVATBase: Decimal;
+        ExpectedVATAmount: Decimal;
+    begin
+        // [FEATURE] [Normal VAT] [Purchase Invoice] [VAT Base Discount] [Non-Deductible VAT]
+        // [SCENARIO 429879] "VAT Base Discount %" must be reflected in Base amount on posted VAT Entries when "Non Deductible VAT %" = 100% for "VAT Calculation Type" = "Normal VAT"
+        Initialize();
+
+        // [GIVEN] Purchase Invoice Header for new Vendor with 2% VAT Base Discount
+        CreatePurchHeaderWithVATBaseDisc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [GIVEN] Purchase Invoice Line for G/L Account with 19% Normal VAT, 100% Non-Deductible VAT and "Direct unit Cost" = 1000
+        CreateVATPostingSetupWithBusPostGroup(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+          PurchaseHeader."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(10, 30), LibraryUtility.GenerateGUID());
+
+        LibraryBEHelper.CreateGLAccount(GLAccount, VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase, 100);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 10000));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] "VAT Base Amount" = Round(Amount * (1 - "VAT Base Discount %" / 100));
+        // [THEN] VATAmount = Round("VAT Base Amount" * "VAT %" / 100);
+        // [THEN] NonDeductible-VATAmount = Round("VAT Base Amount" * "Nod Deductible VAT %" / 100);
+        // [THEN] Final-VATBaseAmount = "VAT Base Amount" + "NonDeductible-VATAmount"
+        // [THEN] Final-VATAmount = VATAmount - "NonDeductible-VATAmount"
+        ExpectedVATBase := Round(PurchaseLine."Direct Unit Cost" * (1 - PurchaseHeader."VAT Base Discount %" / 100));
+        ExpectedVATAmount := Round(ExpectedVATBase * VATPostingSetup."VAT %" / 100);
+        ExpectedVATBase := ExpectedVATBase + Round(ExpectedVATAmount * GLAccount."% Non deductible VAT" / 100);
+        ExpectedVATAmount := ExpectedVATAmount - Round(ExpectedVATAmount * GLAccount."% Non deductible VAT" / 100);
+        VerifyAmountsWithCreatedVATEntries(DocumentNo, GLAccount, ExpectedVATBase, ExpectedVATAmount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATBaseAmountOnVATEntriesWithVATBaseDiscountAnd70PctNonDeductibleVATReverseChargeVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+        ExpectedVATBase: Decimal;
+        ExpectedVATAmount: Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [Purchase Invoice] [VAT Base Discount] [Non-Deductible VAT]
+        // [SCENARIO 429879] "VAT Base Discount %" must be reflected in Base amount on posted VAT Entries when "Non Deductible VAT %" = 70% for "VAT Calculation Type" = "Reverse Charge VAT"
+        Initialize();
+
+        // [GIVEN] Purchase Invoice Header for new Vendor with 2% VAT Base Discount
+        CreatePurchHeaderWithVATBaseDisc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [GIVEN] Purchase Invoice Line for G/L Account with 19% Reverse Charge VAT, 70% Non-Deductible VAT and "Direct unit Cost" = 1000
+        CreateVATPostingSetupWithBusPostGroup(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT",
+          PurchaseHeader."VAT Bus. Posting Group", 17, LibraryUtility.GenerateGUID());
+
+        LibraryBEHelper.CreateGLAccount(GLAccount, VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase, 70);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1117);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] "VAT Base Amount" = Round(Amount * (1 - "VAT Base Discount %" / 100));
+        // [THEN] VATAmount = Round("VAT Base Amount" * "VAT %" / 100);
+        // [THEN] NonDeductible-VATAmount = Round("VAT Base Amount" * "Nod Deductible VAT %" / 100);
+        // [THEN] Final-VATBaseAmount = "VAT Base Amount" + "NonDeductible-VATAmount"
+        // [THEN] Final-VATAmount = VATAmount - "NonDeductible-VATAmount"
+        ExpectedVATBase := Round(PurchaseLine."Direct Unit Cost" * (1 - PurchaseHeader."VAT Base Discount %" / 100));
+        ExpectedVATAmount := Round(ExpectedVATBase * VATPostingSetup."VAT %" / 100);
+        ExpectedVATBase := ExpectedVATBase + Round(ExpectedVATAmount * GLAccount."% Non deductible VAT" / 100);
+        ExpectedVATAmount := ExpectedVATAmount - Round(ExpectedVATAmount * GLAccount."% Non deductible VAT" / 100);
+        // SLICE 426635: Rounding issue on Reverse Charge VAT
+        VerifyAmountsWithCreatedVATEntries(DocumentNo, GLAccount, ExpectedVATBase + 0.01, ExpectedVATAmount - 0.01);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATBaseAmountOnVATEntriesWithVATBaseDiscountAnd70PctNonDeductibleVATNormalVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+        ExpectedVATBase: Decimal;
+        ExpectedVATAmount: Decimal;
+    begin
+        // [FEATURE] [Normal VAT] [Purchase Invoice] [VAT Base Discount] [Non-Deductible VAT]
+        // [SCENARIO 429879] "VAT Base Discount %" must be reflected in Base amount on posted VAT Entries when "Non Deductible VAT %" = 70% for "VAT Calculation Type" = "Normal VAT"
+        Initialize();
+
+        // [GIVEN] Purchase Invoice Header for new Vendor with 2% VAT Base Discount
+        CreatePurchHeaderWithVATBaseDisc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [GIVEN] Purchase Invoice Line for G/L Account with 19% Normal VAT, 70% Non-Deductible VAT and "Direct unit Cost" = 1000
+        CreateVATPostingSetupWithBusPostGroup(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+          PurchaseHeader."VAT Bus. Posting Group", 17, LibraryUtility.GenerateGUID());
+
+        LibraryBEHelper.CreateGLAccount(GLAccount, VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase, 70);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1117);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] "VAT Base Amount" = Round(Amount * (1 - "VAT Base Discount %" / 100));
+        // [THEN] VATAmount = Round("VAT Base Amount" * "VAT %" / 100);
+        // [THEN] NonDeductible-VATAmount = Round("VAT Base Amount" * "Nod Deductible VAT %" / 100);
+        // [THEN] Final-VATBaseAmount = "VAT Base Amount" + "NonDeductible-VATAmount"
+        // [THEN] Final-VATAmount = VATAmount - "NonDeductible-VATAmount"
+        ExpectedVATBase := Round(PurchaseLine."Direct Unit Cost" * (1 - PurchaseHeader."VAT Base Discount %" / 100));
+        ExpectedVATAmount := Round(ExpectedVATBase * VATPostingSetup."VAT %" / 100);
+        ExpectedVATBase := ExpectedVATBase + Round(ExpectedVATAmount * GLAccount."% Non deductible VAT" / 100);
+        ExpectedVATAmount := ExpectedVATAmount - Round(ExpectedVATAmount * GLAccount."% Non deductible VAT" / 100);
+        VerifyAmountsWithCreatedVATEntries(DocumentNo, GLAccount, ExpectedVATBase, ExpectedVATAmount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3594,7 +3775,7 @@ codeunit 144000 "Non-Deductible VAT"
         VerifyAmountsWithCreatedGLEntries(PurchaseHeader."Last Posting No.", GLAccount, ExpectedAmount, ExpectedVAT);
     end;
 
-    local procedure VerifyAmountsWithCreatedVATEntries(DocumentNo: Code[20]; GLAccount: Record "G/L Account"; ExpectedAmount: Decimal; ExpectedVAT: Decimal)
+    local procedure VerifyAmountsWithCreatedVATEntries(DocumentNo: Code[20]; GLAccount: Record "G/L Account"; ExpectedBaseAmount: Decimal; ExpectedVATAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -3603,8 +3784,8 @@ codeunit 144000 "Non-Deductible VAT"
         VATEntry.SetRange("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
         VATEntry.FindFirst();
 
-        VATEntry.TestField(Base, ExpectedAmount);
-        VATEntry.TestField(Amount, ExpectedVAT);
+        VATEntry.TestField(Base, ExpectedBaseAmount);
+        VATEntry.TestField(Amount, ExpectedVATAmount);
     end;
 
     local procedure VerifyAmountsWithCreatedGLEntries(DocumentNo: Code[20]; GLAccount: Record "G/L Account"; ExpectedAmount: Decimal; ExpectedVAT: Decimal)

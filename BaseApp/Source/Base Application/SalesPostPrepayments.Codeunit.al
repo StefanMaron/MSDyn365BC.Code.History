@@ -126,6 +126,7 @@
                     Commit();
             end;
 
+            OnCodeOnBeforeWindowOpen(SalesHeader, DocumentType);
             Window.Open(
               '#1#################################\\' +
               Text002 +
@@ -407,6 +408,7 @@
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ErrorContextElement: Codeunit "Error Context Element";
     begin
+        GLSetup.GetRecordOnce();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             SalesReceivablesSetup.GetRecordOnce();
             SalesReceivablesSetup.TestField("S. Prep. Inv. Template Name");
@@ -440,6 +442,7 @@
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ErrorContextElement: Codeunit "Error Context Element";
     begin
+        GLSetup.GetRecordOnce();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             SalesReceivablesSetup.GetRecordOnce();
             SalesReceivablesSetup.TestField("S. Prep. Cr.Memo Template Name");
@@ -1241,6 +1244,7 @@
             Customer.Get(SalesHeader."Bill-to Customer No.");
             "Country/Region Code" := Customer."Country/Region Code";
 
+            GLSetup.GetRecordOnce();
             if GLSetup."Journal Templ. Name Mandatory" then
                 "Journal Template Name" := GenJournalTemplate.Name;
 
@@ -1278,6 +1282,8 @@
             "Original Pmt. Disc. Possible" := "Orig. Pmt. Disc. Possible";
             "Org. Pmt. Disc. Possible (LCY)" := "Orig. Pmt. Disc. Possible(LCY)";
 #endif
+
+            GLSetup.GetRecordOnce();
             if GLSetup."Journal Templ. Name Mandatory" then
                 "Journal Template Name" := GenJournalTemplate.Name;
 
@@ -1329,6 +1335,8 @@
             "Original Pmt. Disc. Possible" := "Orig. Pmt. Disc. Possible";
             "Org. Pmt. Disc. Possible (LCY)" := "Orig. Pmt. Disc. Possible(LCY)";
 #endif
+
+            GLSetup.GetRecordOnce();
             if GLSetup."Journal Templ. Name Mandatory" then
                 "Journal Template Name" := GenJournalTemplate.Name;
 #if not CLEAN20
@@ -1947,6 +1955,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCalcAndUpdateVATAmountLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; DocumentType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeWindowOpen(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
 

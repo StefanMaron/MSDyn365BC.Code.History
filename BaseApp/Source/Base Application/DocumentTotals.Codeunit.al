@@ -1,4 +1,4 @@
-codeunit 57 "Document Totals"
+﻿codeunit 57 "Document Totals"
 {
 
     trigger OnRun()
@@ -656,6 +656,7 @@ codeunit 57 "Document Totals"
         end;
 
         TotalPurchaseLine2.CalcSums(Amount, "Amount Including VAT", "Line Amount", "Inv. Discount Amount");
+        OnCalculatePurchaseSubPageTotalsOnAfterRecalculate(TotalPurchaseLine2);
         VATAmount := TotalPurchaseLine2."Amount Including VAT" - TotalPurchaseLine2.Amount;
         InvoiceDiscountAmount := TotalPurchaseLine2."Inv. Discount Amount";
 
@@ -1099,6 +1100,11 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnPurchaseCalculateTotalsWithInvoiceRoundingOnAfterCalculateTotalPurchaseLineAndVATAmount(var TempPurchaseLine: Record "Purchase Line" temporary; var TempTotalPurchaseLine: Record "Purchase Line" temporary; var VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculatePurchaseSubPageTotalsOnAfterRecalculate(var TotalPurchaseLine2: Record "Purchase Line")
     begin
     end;
 

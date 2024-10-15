@@ -389,6 +389,8 @@ report 595 "Adjust Exchange Rates"
                   Text012Txt +
                   Text013Txt);
 
+
+                GLSetup.Get();
                 if GLSetup."Journal Templ. Name Mandatory" then
                     VATEntry.SetCurrentKey(
                         "Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date")

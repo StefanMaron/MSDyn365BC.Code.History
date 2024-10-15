@@ -1687,7 +1687,14 @@ page 51 "Purchase Invoice"
     end;
 
     local procedure VerifyTotal()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyTotal(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IsTotalValid then
             Error(TotalsMismatchErr);
     end;
@@ -1853,6 +1860,11 @@ page 51 "Purchase Invoice"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforePostDocument(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; PostingCodeunitID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeVerifyTotal(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

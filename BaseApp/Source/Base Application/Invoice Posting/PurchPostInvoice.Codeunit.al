@@ -346,8 +346,8 @@
 
         TotalAmount := PurchLine.Amount + PurchLine.GetNonDeductibleVATAmount();
         TotalAmountACY := PurchLineACY.Amount + PurchLineACY.GetNonDeductibleVATAmount();
-        TotalVATBase := PurchLine."VAT Base Amount" + NonDeDuctibleVAT;
-        TotalVATBaseACY := PurchLineACY."VAT Base Amount" + NonDeDuctibleVATACY;
+        TotalVATBase := PurchLine.GetVatBaseAmount() + NonDeDuctibleVAT;
+        TotalVATBaseACY := PurchLineACY.GetVatBaseAmount() + NonDeDuctibleVATACY;
 
         PurchPostInvoiceEvents.RunOnAfterInitTotalAmounts(PurchLine, PurchLineACY, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY);
     end;
@@ -447,6 +447,7 @@
             "Non Ded. VAT Amount" := InvoicePostingBuffer."Non Deductible VAT Amt.";
             "Non Ded. Source Curr. VAT Amt." := InvoicePostingBuffer."Non Ded. VAT Amt. (ACY)";
             PurchPostInvoiceEvents.RunOnPrepareGenJnlLineOnAfterCopyToGenJnlLine(GenJnlLine, PurchHeader, InvoicePostingBuffer);
+            GLSetup.Get();
             if GLSetup."Journal Templ. Name Mandatory" then
                 "Journal Template Name" := InvoicePostingBuffer."Journal Templ. Name";
             "Orig. Pmt. Disc. Possible" := TotalPurchLine."Pmt. Discount Amount";
@@ -910,6 +911,7 @@
                 CurrExchRate.ExchangeAmtFCYToLCY(
                   PurchHeader.GetUseDate(), PurchHeader."Currency Code",
                   TempDeferralHeader."Amount to Defer", PurchHeader."Currency Factor"));
+            PurchPostInvoiceEvents.RunOnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert(TempDeferralHeader, DeferralHeader, PurchLine);
             TempDeferralHeader.Insert();
 
             with DeferralLine do begin

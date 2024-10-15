@@ -416,6 +416,7 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         ErrorContextElement: Codeunit "Error Context Element";
     begin
+        GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             PurchasesPayablesSetup.Get();
             PurchasesPayablesSetup.TestField("P. Prep. Inv. Template Name");
@@ -447,6 +448,7 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         ErrorContextElement: Codeunit "Error Context Element";
     begin
+        GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             PurchasesPayablesSetup.Get();
             PurchasesPayablesSetup.TestField("P. Prep. Cr.Memo Template Name");
@@ -1212,6 +1214,7 @@
             if not PrepmtInvLineBuffer.Adjustment then
                 "Gen. Posting Type" := "Gen. Posting Type"::Purchase;
 
+            GLSetup.Get();
             if GLSetup."Journal Templ. Name Mandatory" then
                 "Journal Template Name" := GenJournalTemplate.Name;
 
@@ -1256,6 +1259,8 @@
             "Original Pmt. Disc. Possible" := "Orig. Pmt. Disc. Possible";
             "Org. Pmt. Disc. Possible (LCY)" := "Orig. Pmt. Disc. Possible(LCY)";
 #endif
+
+            GLSetup.Get();
             if GLSetup."Journal Templ. Name Mandatory" then
                 "Journal Template Name" := GenJournalTemplate.Name;
 
@@ -1305,6 +1310,8 @@
             "Original Pmt. Disc. Possible" := "Orig. Pmt. Disc. Possible";
             "Org. Pmt. Disc. Possible (LCY)" := "Orig. Pmt. Disc. Possible(LCY)";
 #endif
+
+            GLSetup.Get();
             if GLSetup."Journal Templ. Name Mandatory" then
                 "Journal Template Name" := GenJournalTemplate.Name;
 

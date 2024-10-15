@@ -259,6 +259,19 @@ page 101 "General Journal Templates"
                     RunPageLink = "Journal Template Name" = FIELD(Name);
                     ToolTip = 'View or edit multiple journals for a specific template. You can use batches when you need multiple journals of a certain type.';
                 }
+#if not CLEAN20
+                action(Update)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Update Journal Template Names in ledger entries and open documents.';
+                    Image = Description;
+                    RunObject = Codeunit "Update Journal Template Names";
+                    ToolTip = 'This procedure will copy values from local Journal Template Name to new Journal Templ. Name if new field in the record is empty.';
+                    ObsoleteReason = 'Will be removed together with old Journal Template Name fields.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                }
+#endif
             }
         }
     }

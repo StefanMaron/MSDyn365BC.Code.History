@@ -132,6 +132,7 @@ report 90 "Import Consolidation from DB"
 
                 Clear(BusUnitConsolidate);
                 BusUnitConsolidate.SetDocNo(GLDocNo);
+                GLSetup.Get();
                 if GLSetup."Journal Templ. Name Mandatory" then begin
                     GenJnlBatch."Journal Template Name" := GenJnlLineReq."Journal Template Name";
                     GenJnlBatch.Name := GenJnlLineReq."Journal Batch Name";
@@ -345,6 +346,7 @@ report 90 "Import Consolidation from DB"
     begin
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Import Consolidation from DB", '', ColumnDim, Text020);
+        GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlLineReq."Journal Template Name" = '' then
                 Error(Text11300Err);

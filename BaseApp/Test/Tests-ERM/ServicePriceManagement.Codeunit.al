@@ -15,6 +15,7 @@ codeunit 136105 "Service - Price Management"
         ServicePriceGroupCodeError: Label 'A service item line cannot belong to a service contract and to a service price group at the same time.';
         ServiceContractConfirmation: Label 'Do you want to create the contract using a contract template?';
         UnexpectedError: Label 'Unexpected error message.';
+        LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryService: Codeunit "Library - Service";
         LibrarySales: Codeunit "Library - Sales";
@@ -465,6 +466,7 @@ codeunit 136105 "Service - Price Management"
         ServicePriceAdjustmentGroup: Record "Service Price Adjustment Group";
         ServPriceAdjustmentDetail: Record "Serv. Price Adjustment Detail";
         ServicePriceManagement: Codeunit "Service Price Management";
+        OldRate: Decimal;
     begin
         // 1. Setup: Create Service Price Group Setup with Adjustment Type Maximum, Include Discount False and Include VAT False and Create
         // Service Order.
@@ -473,6 +475,7 @@ codeunit 136105 "Service - Price Management"
         LibraryService.CreateServPriceAdjustmentGroup(ServicePriceAdjustmentGroup);
         CreateItem(Item);
         CreateItem(Item2);
+        OldRate := AdjustVATRate(Item."VAT Prod. Posting Group", LibraryRandom.RandIntInRange(10, 15));
         CreateServicePriceAdjustDetail(
           ServPriceAdjustmentDetail, ServicePriceAdjustmentGroup.Code, ServPriceAdjustmentDetail.Type::Item, Item."No.");
         CreateServicePriceAdjustDetail(
@@ -495,6 +498,8 @@ codeunit 136105 "Service - Price Management"
 
         // 2. Exercise: Service Price Adjustment on Service Order.
         ServicePriceManagement.ShowPriceAdjustment(ServiceItemLine2);
+
+        AdjustVATRate(Item."VAT Prod. Posting Group", OldRate);
     end;
 
     [Normal]
@@ -937,6 +942,17 @@ codeunit 136105 "Service - Price Management"
                 VerifyWithOldServiceLine(TempServiceLine, TempServiceLine);
             TempServiceLine.Next;
         until ServiceLine.Next = 0;
+    end;
+
+    local procedure AdjustVATRate(VATProdPostingGroup: Code[20]; NewRate: Decimal) OldRate: Decimal;
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        VATPostingSetup.Get(VATPostingSetup."VAT Bus. Posting Group", VATProdPostingGroup);
+        OldRate := VATPostingSetup."VAT %";
+        VATPostingSetup."VAT %" := NewRate;
+        VATPostingSetup.Modify();
     end;
 
     [ModalPageHandler]

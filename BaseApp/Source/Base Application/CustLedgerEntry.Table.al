@@ -550,7 +550,14 @@
             Caption = 'Message to Recipient';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateMessagetoRecipient(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Open, true);
             end;
         }
@@ -1116,6 +1123,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDoc(CustLedgerEntry: Record "Cust. Ledger Entry"; var IsPageOpened: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateMessagetoRecipient(var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

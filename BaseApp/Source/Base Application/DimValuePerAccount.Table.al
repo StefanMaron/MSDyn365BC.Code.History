@@ -79,4 +79,48 @@ table 356 "Dim. Value per Account"
     begin
         exit(ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, "Table ID"));
     end;
+
+    procedure RenameNo(TableId: Integer; OldNo: Code[20]; NewNo: Code[20]; DimensionCode: Code[20])
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+    begin
+        DimValuePerAccount.SetRange("Table ID", TableId);
+        DimValuePerAccount.SetRange("No.", OldNo);
+        DimValuePerAccount.SetRange("Dimension Code", DimensionCode);
+        if DimValuePerAccount.FindSet() then
+            repeat
+                RenameDimValuePerAccount(DimValuePerAccount, DimValuePerAccount."Table ID", NewNo, DimValuePerAccount."Dimension Code", DimValuePerAccount."Dimension Value Code");
+            until DimValuePerAccount.Next() = 0;
+    end;
+
+    procedure RenameDimension(OldDimensionCode: Code[20]; NewDimensionCode: Code[20])
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+    begin
+        DimValuePerAccount.SetRange("Dimension Code", OldDimensionCode);
+        if DimValuePerAccount.FindSet() then
+            repeat
+                RenameDimValuePerAccount(DimValuePerAccount, DimValuePerAccount."Table ID", DimValuePerAccount."No.", NewDimensionCode, DimValuePerAccount."Dimension Value Code");
+            until DimValuePerAccount.Next() = 0;
+    end;
+
+    procedure RenameDimensionValue(DimensionCode: Code[20]; OldDimensionValueCode: Code[20]; NewDimensionValueCode: Code[20])
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+    begin
+        DimValuePerAccount.SetRange("Dimension Code", DimensionCode);
+        DimValuePerAccount.SetRange("Dimension Value Code", OldDimensionValueCode);
+        if DimValuePerAccount.FindSet() then
+            repeat
+                RenameDimValuePerAccount(DimValuePerAccount, DimValuePerAccount."Table ID", DimValuePerAccount."No.", DimValuePerAccount."Dimension Code", NewDimensionValueCode);
+            until DimValuePerAccount.Next() = 0;
+    end;
+
+    local procedure RenameDimValuePerAccount(DimValuePerAccount: Record "Dim. Value per Account"; TableId: Integer; No: Code[20]; DimensionCode: Code[20]; DimensionValueCode: code[20])
+    var
+        DimValuePerAccountToRename: Record "Dim. Value per Account";
+    begin
+        DimValuePerAccountToRename := DimValuePerAccount;
+        DimValuePerAccountToRename.Rename(TableId, No, DimensionCode, DimensionValueCode);
+    end;
 }

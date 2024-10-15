@@ -96,10 +96,18 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeDataExchFieldMapping();
         UpgradeJobReportSelection();
         UpgradeICSetup();
+        UpgradeJournalTemplateNamesInSetupTables();
         UpgradeGLEntryJournalTemplateName();
         UpgradeGLRegisterJournalTemplateName();
         UpgradeGenJournalTemplates();
         UpgradeVATEntryJournalTemplateName();
+        UpgradeBankAccLedgerEntryJournalTemplateName();
+        UpgradeCustLedgerEntryJournalTemplateName();
+        UpgradeEmplLedgerEntryJournalTemplateName();
+        UpgradeVendLedgerEntryJournalTemplateName();
+        UpgradePurchaseHeaderJournalTemplateName();
+        UpgradeSalesHeaderJournalTemplateName();
+        UpgradeServiceHeaderJournalTemplateName();
         UpgradeCustLedgEntryPmtDiscountPossible();
         UpgradeVendLedgEntryPmtDiscountPossible();
     end;
@@ -203,7 +211,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
         IF DefaultDimension.FindSet() then
             REPEAT
-                DefaultDimension.UpdateReferencedIds;
+                DefaultDimension.UpdateReferencedIds();
             UNTIL DefaultDimension.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionAPIUpgradeTag());
@@ -220,7 +228,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
         IF GenJournalBatch.FindSet() then
             REPEAT
-                GenJournalBatch.UpdateBalAccountId;
+                GenJournalBatch.UpdateBalAccountId();
                 IF GenJournalBatch.MODIFY THEN;
             UNTIL GenJournalBatch.Next() = 0;
 
@@ -241,7 +249,7 @@ codeunit 104000 "Upgrade - BaseApp"
             Item.SETFILTER("Item Category Code", '<>''''');
             IF Item.FINDSET(TRUE, FALSE) THEN
                 REPEAT
-                    Item.UpdateItemCategoryId;
+                    Item.UpdateItemCategoryId();
                     IF Item.MODIFY THEN;
                 UNTIL Item.Next() = 0;
         END;
@@ -267,7 +275,7 @@ codeunit 104000 "Upgrade - BaseApp"
                     IntegrationManagement.InsertUpdateIntegrationRecord(RecordRef, CURRENTDATETIME());
                     RecordRef.SETTABLE(Job);
                     Job.Modify();
-                    Job.UpdateReferencedIds;
+                    Job.UpdateReferencedIds();
                 END;
             UNTIL Job.Next() = 0;
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddingIDToJobsUpgradeTag());
@@ -459,7 +467,7 @@ codeunit 104000 "Upgrade - BaseApp"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetLastUpdateInvoiceEntryNoUpgradeTag()) THEN
             EXIT;
 
-        IF CRMConnectionSetup.GET THEN
+        IF CRMConnectionSetup.Get() then
             CRMSynchStatus."Last Update Invoice Entry No." := CRMConnectionSetup."Last Update Invoice Entry No."
         ELSE
             CRMSynchStatus."Last Update Invoice Entry No." := 0;
@@ -1152,14 +1160,14 @@ codeunit 104000 "Upgrade - BaseApp"
         WITH VATReportSetup DO BEGIN
             IF NOT GET THEN
                 EXIT;
-            IF IsPeriodReminderCalculation OR ("Period Reminder Time" = 0) THEN
+            IF IsPeriodReminderCalculation() OR ("Period Reminder Time" = 0) THEN
                 EXIT;
 
             DateFormulaText := STRSUBSTNO('<%1D>', "Period Reminder Time");
             EVALUATE("Period Reminder Calculation", DateFormulaText);
             "Period Reminder Time" := 0;
 
-            IF MODIFY THEN;
+            if Modify() then;
         END;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATRepSetupPeriodRemCalcUpgradeTag());
@@ -2523,7 +2531,7 @@ codeunit 104000 "Upgrade - BaseApp"
             repeat
                 OnlineMapSetup.Enabled := true;
                 OnlineMapSetup.Modify();
-            until OnlineMapSetup.next = 0;
+            until OnlineMapSetup.Next() = 0;
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEnableOnlineMapUpgradeTag());
     end;
 
@@ -2588,12 +2596,15 @@ codeunit 104000 "Upgrade - BaseApp"
     local procedure UpgradeGLEntryJournalTemplateName()
     var
         GLEntry: Record "G/L Entry";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        EnableJournalTemplates: Boolean;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLEntryJournalTemplateNameUpgradeTag()) then
             exit;
 
+        EnableJournalTemplates := false;
         GLEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         GLEntry.SetFilter("Journal Template Name", '<>%1', '');
         GLEntry.SetRange("Journal Templ. Name", '');
@@ -2604,7 +2615,15 @@ codeunit 104000 "Upgrade - BaseApp"
             repeat
                 GLEntry."Journal Templ. Name" := GLEntry."Journal Template Name";
                 GLEntry.Modify();
+                if GLEntry."Journal Templ. Name" <> '' then
+                    EnableJournalTemplates := true;
             until GLEntry.Next() = 0;
+
+        if EnableJournalTemplates then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetup."Journal Templ. Name Mandatory" := true;
+            GeneralLedgerSetup.Modify();
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLEntryJournalTemplateNameUpgradeTag());
     end;
@@ -2659,6 +2678,82 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGenJournalTemplateDatesUpgradeTag());
     end;
 
+    local procedure UpgradeJournalTemplateNamesInSetupTables()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        InventorySetup: Record "Inventory Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGenJournalTemplateNamesSetupUpgradeTag()) then
+            exit;
+
+        if GeneralLedgerSetup.Get() then
+            if (GeneralLedgerSetup."Payment Recon. Template Name" <> '') or
+                (GeneralLedgerSetup."Jnl. Templ. Name for Applying" <> '') or
+                (GeneralLedgerSetup."Jnl. Batch Name for Applying" <> '')
+            then begin
+                GeneralLedgerSetup."Bank Acc. Recon. Template Name" := GeneralLedgerSetup."Payment Recon. Template Name";
+                GeneralLedgerSetup."Apply Jnl. Template Name" := GeneralLedgerSetup."Jnl. Templ. Name for Applying";
+                GeneralLedgerSetup."Apply Jnl. Batch Name" := GeneralLedgerSetup."Jnl. Batch Name for Applying";
+                GeneralLedgerSetup."Journal Templ. Name Mandatory" := true;
+                GeneralLedgerSetup.Modify();
+            end;
+
+        if InventorySetup.Get() then
+            if (InventorySetup."Jnl. Templ. Name Cost Posting" <> '') or
+                (InventorySetup."Jnl. Batch Name Cost Posting" <> '')
+            then begin
+                InventorySetup."Invt. Cost Jnl. Template Name" := InventorySetup."Jnl. Templ. Name Cost Posting";
+                InventorySetup."Invt. Cost Jnl. Batch Name" := InventorySetup."Jnl. Batch Name Cost Posting";
+                InventorySetup.Modify();
+            end;
+
+        if SalesReceivablesSetup.Get() then
+            if (SalesReceivablesSetup."IC Jnl. Templ. Sales Invoice" <> '') or (SalesReceivablesSetup."IC Jnl. Templ. Sales Cr. Memo" <> '') or
+                (SalesReceivablesSetup."Journal Templ. Sales Invoice" <> '') or (SalesReceivablesSetup."Journal Templ. Sales Cr. Memo" <> '') or
+                (SalesReceivablesSetup."Jnl. Templ. Prep. S. Inv." <> '') or (SalesReceivablesSetup."Jnl. Templ. Prep. S. Cr. Memo" > '')
+            then begin
+                SalesReceivablesSetup."S. Invoice Template Name" := SalesReceivablesSetup."Journal Templ. Sales Invoice";
+                SalesReceivablesSetup."S. Cr. Memo Template Name" := SalesReceivablesSetup."Journal Templ. Sales Cr. Memo";
+                SalesReceivablesSetup."S. Prep. Inv. Template Name" := SalesReceivablesSetup."Jnl. Templ. Prep. S. Inv.";
+                SalesReceivablesSetup."S. Prep. Inv. Template Name" := SalesReceivablesSetup."Jnl. Templ. Prep. S. Cr. Memo";
+                SalesReceivablesSetup."IC Sales Invoice Template Name" := SalesReceivablesSetup."IC Jnl. Templ. Sales Invoice";
+                SalesReceivablesSetup."IC Sales Cr. Memo Templ. Name" := SalesReceivablesSetup."IC Jnl. Templ. Sales Cr. Memo";
+                SalesReceivablesSetup.Modify();
+            end;
+
+        if PurchasesPayablesSetup.Get() then
+            if (PurchasesPayablesSetup."Journal Templ. Purch. Invoice" <> '') or (PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo" <> '') or
+                (PurchasesPayablesSetup."Jnl. Templ. Prep. P. Inv." <> '') or (PurchasesPayablesSetup."Jnl. Templ. Prep. P. Cr. Memo" <> '') or
+                (PurchasesPayablesSetup."IC Jnl. Templ. Purch. Invoice" <> '') or (PurchasesPayablesSetup."IC Jnl. Templ. Purch. Cr. Memo" <> '')
+            then begin
+                PurchasesPayablesSetup."P. Invoice Template Name" := PurchasesPayablesSetup."Journal Templ. Purch. Invoice";
+                PurchasesPayablesSetup."P. Cr. Memo Template Name" := PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo";
+                PurchasesPayablesSetup."P. Prep. Inv. Template Name" := PurchasesPayablesSetup."Jnl. Templ. Prep. P. Inv.";
+                PurchasesPayablesSetup."P. Prep. Cr.Memo Template Name" := PurchasesPayablesSetup."Jnl. Templ. Prep. P. Cr. Memo";
+                PurchasesPayablesSetup."IC Purch. Invoice Templ. Name" := PurchasesPayablesSetup."IC Jnl. Templ. Purch. Invoice";
+                PurchasesPayablesSetup."IC Purch. Cr. Memo Templ. Name" := PurchasesPayablesSetup."IC Jnl. Templ. Purch. Cr. Memo";
+                PurchasesPayablesSetup.Modify();
+            end;
+
+        if ServiceMgtSetup.Get() then
+            if (ServiceMgtSetup."Jnl. Templ. Serv. Inv." <> '') or (ServiceMgtSetup."Jnl. Templ. Serv. CM" <> '') or
+                (ServiceMgtSetup."Jnl. Templ. Serv. Contr. Inv." <> '') or (ServiceMgtSetup."Jnl. Templ. Serv. Contr. CM" <> '')
+            then begin
+                ServiceMgtSetup."Serv. Inv. Template Name" := ServiceMgtSetup."Jnl. Templ. Serv. Inv.";
+                ServiceMgtSetup."Serv. Cr. Memo Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. Contr. Inv.";
+                ServiceMgtSetup."Serv. Contr. Inv. Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. Contr. CM";
+                ServiceMgtSetup."Serv. Contr. Cr.M. Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. CM";
+                ServiceMgtSetup.Modify();
+            end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGenJournalTemplateNamesSetupUpgradeTag());
+    end;
+
     local procedure UpgradeVATEntryJournalTemplateName()
     var
         VATEntry: Record "VAT Entry";
@@ -2681,6 +2776,174 @@ codeunit 104000 "Upgrade - BaseApp"
             until VATEntry.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATEntryJournalTemplateNameUpgradeTag());
+    end;
+
+    local procedure UpgradeBankAccLedgerEntryJournalTemplateName()
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetBankAccountLedgerEntryJournalTemplateNameUpgradeTag()) then
+            exit;
+
+        BankAccountLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
+        BankAccountLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
+        BankAccountLedgerEntry.SetRange("Journal Templ. Name", '');
+        if EnvironmentInformation.IsSaaS() then
+            if LogTelemetryForManyRecords(Database::"Bank Account Ledger Entry", BankAccountLedgerEntry.Count()) then
+                exit;
+        if BankAccountLedgerEntry.FindSet() then
+            repeat
+                BankAccountLedgerEntry."Journal Templ. Name" := BankAccountLedgerEntry."Journal Template Name";
+                BankAccountLedgerEntry.Modify();
+            until BankAccountLedgerEntry.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankAccountLedgerEntryJournalTemplateNameUpgradeTag());
+    end;
+
+    local procedure UpgradeCustLedgerEntryJournalTemplateName()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryJournalTemplateNameUpgradeTag()) then
+            exit;
+
+        CustLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
+        CustLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
+        CustLedgerEntry.SetRange("Journal Templ. Name", '');
+        if EnvironmentInformation.IsSaaS() then
+            if LogTelemetryForManyRecords(Database::"Cust. Ledger Entry", CustLedgerEntry.Count()) then
+                exit;
+        if CustLedgerEntry.FindSet() then
+            repeat
+                CustLedgerEntry."Journal Templ. Name" := CustLedgerEntry."Journal Template Name";
+                CustLedgerEntry.Modify();
+            until CustLedgerEntry.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryJournalTemplateNameUpgradeTag());
+    end;
+
+    local procedure UpgradeEmplLedgerEntryJournalTemplateName()
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetEmplLedgerEntryJournalTemplateNameUpgradeTag()) then
+            exit;
+
+        EmployeeLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
+        EmployeeLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
+        EmployeeLedgerEntry.SetRange("Journal Templ. Name", '');
+        if EnvironmentInformation.IsSaaS() then
+            if LogTelemetryForManyRecords(Database::"Employee Ledger Entry", EmployeeLedgerEntry.Count()) then
+                exit;
+        if EmployeeLedgerEntry.FindSet() then
+            repeat
+                EmployeeLedgerEntry."Journal Templ. Name" := EmployeeLedgerEntry."Journal Template Name";
+                EmployeeLedgerEntry.Modify();
+            until EmployeeLedgerEntry.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEmplLedgerEntryJournalTemplateNameUpgradeTag());
+    end;
+
+    local procedure UpgradeVendLedgerEntryJournalTemplateName()
+    var
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryJournalTemplateNameUpgradeTag()) then
+            exit;
+
+        VendLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
+        VendLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
+        VendLedgerEntry.SetRange("Journal Templ. Name", '');
+        if EnvironmentInformation.IsSaaS() then
+            if LogTelemetryForManyRecords(Database::"Vendor Ledger Entry", VendLedgerEntry.Count()) then
+                exit;
+        if VendLedgerEntry.FindSet() then
+            repeat
+                VendLedgerEntry."Journal Templ. Name" := VendLedgerEntry."Journal Template Name";
+                VendLedgerEntry.Modify();
+            until VendLedgerEntry.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryJournalTemplateNameUpgradeTag());
+    end;
+
+    local procedure UpgradeSalesHeaderJournalTemplateName()
+    var
+        SalesHeader: Record "Sales Header";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesHeaderJournalTemplateNameUpgradeTag()) then
+            exit;
+
+        SalesHeader.SetLoadFields("Journal Templ. Name", "Journal Template Name");
+        SalesHeader.SetFilter("Journal Template Name", '<>%1', '');
+        SalesHeader.SetRange("Journal Templ. Name", '');
+        if EnvironmentInformation.IsSaaS() then
+            if LogTelemetryForManyRecords(Database::"Sales Header", SalesHeader.Count()) then
+                exit;
+        if SalesHeader.FindSet() then
+            repeat
+                SalesHeader."Journal Templ. Name" := SalesHeader."Journal Template Name";
+                SalesHeader.Modify();
+            until SalesHeader.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesHeaderJournalTemplateNameUpgradeTag());
+    end;
+
+    local procedure UpgradeServiceHeaderJournalTemplateName()
+    var
+        ServiceHeader: Record "Service Header";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetServiceHeaderJournalTemplateNameUpgradeTag()) then
+            exit;
+
+        ServiceHeader.SetLoadFields("Journal Templ. Name", "Journal Template Name");
+        ServiceHeader.SetFilter("Journal Template Name", '<>%1', '');
+        ServiceHeader.SetRange("Journal Templ. Name", '');
+        if EnvironmentInformation.IsSaaS() then
+            if LogTelemetryForManyRecords(Database::"Service Header", ServiceHeader.Count()) then
+                exit;
+        if ServiceHeader.FindSet() then
+            repeat
+                ServiceHeader."Journal Templ. Name" := ServiceHeader."Journal Template Name";
+                ServiceHeader.Modify();
+            until ServiceHeader.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetServiceHeaderJournalTemplateNameUpgradeTag());
+    end;
+
+    local procedure UpgradePurchaseHeaderJournalTemplateName()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseHeaderJournalTemplateNameUpgradeTag()) then
+            exit;
+
+        PurchaseHeader.SetLoadFields("Journal Templ. Name", "Journal Template Name");
+        PurchaseHeader.SetFilter("Journal Template Name", '<>%1', '');
+        PurchaseHeader.SetRange("Journal Templ. Name", '');
+        if EnvironmentInformation.IsSaaS() then
+            if LogTelemetryForManyRecords(Database::"Purchase Header", PurchaseHeader.Count()) then
+                exit;
+        if PurchaseHeader.FindSet() then
+            repeat
+                PurchaseHeader."Journal Templ. Name" := PurchaseHeader."Journal Template Name";
+                PurchaseHeader.Modify();
+            until PurchaseHeader.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseHeaderJournalTemplateNameUpgradeTag());
     end;
 
     local procedure UpgradeCustLedgEntryPmtDiscountPossible()

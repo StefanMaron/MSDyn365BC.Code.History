@@ -366,6 +366,7 @@
 
             InvoicePostingBuffer.CopyToGenJnlLine(GenJnlLine);
             SalesPostInvoiceEvents.RunOnPrepareGenJnlLineOnAfterCopyToGenJnlLine(GenJnlLine, SalesHeader, InvoicePostingBuffer);
+            GLSetup.Get();
             if GLSetup."Journal Templ. Name Mandatory" then
                 "Journal Template Name" := InvoicePostingBuffer."Journal Templ. Name";
             "Orig. Pmt. Disc. Possible" := TotalSalesLine."Pmt. Discount Amount";
@@ -718,6 +719,7 @@
                 CurrExchRate.ExchangeAmtFCYToLCY(
                   SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                   TempDeferralHeader."Amount to Defer", SalesHeader."Currency Factor"));
+            SalesPostInvoiceEvents.RunOnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert(TempDeferralHeader, DeferralHeader, SalesLine);
             TempDeferralHeader.Insert();
 
             with DeferralLine do begin

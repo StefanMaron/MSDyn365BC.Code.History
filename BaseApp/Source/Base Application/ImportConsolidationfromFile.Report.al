@@ -127,6 +127,7 @@
         GLSetup.Get();
         Consolidate.UpdateGLEntryDimSetID;
         Consolidate.SetDocNo(GLDocNo);
+        GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then
             Consolidate.SetGenJnlBatch(GenJnlBatch);
         Consolidate.Run(BusUnit);

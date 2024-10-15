@@ -693,6 +693,7 @@
         field(175; "Journal Templ. Name Mandatory"; Boolean)
         {
             Caption = 'Journal Templ. Name Mandatory';
+            InitValue = true;
         }
         field(176; "Hide Payment Method Code"; Boolean)
         {

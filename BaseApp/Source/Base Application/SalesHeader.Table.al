@@ -20,6 +20,7 @@
             trigger OnValidate()
             var
                 LocationCode: Code[10];
+                ShouldSkipConfirmSellToCustomerDialog: Boolean;
                 IsHandled: Boolean;
             begin
                 CheckCreditLimitIfLineNotInsertedYet;
@@ -36,7 +37,10 @@
                           FieldCaption("Opportunity No."),
                           "Opportunity No.",
                           "Document Type");
-                    if GetHideValidationDialog or not GuiAllowed then
+
+                    ShouldSkipConfirmSellToCustomerDialog := GetHideValidationDialog() or not GuiAllowed();
+                    OnValidateSellToCustomerNoOnAfterCalcShouldSkipConfirmSellToCustomerDialog(Rec, ShouldSkipConfirmSellToCustomerDialog);
+                    if ShouldSkipConfirmSellToCustomerDialog then
                         Confirmed := true
                     else
                         Confirmed := Confirm(ConfirmChangeQst, false, SellToCustomerTxt);
@@ -286,7 +290,11 @@
 
             trigger OnLookup()
             begin
+                OnBeforeLookupBillToCity(Rec, PostCode);
+
                 PostCode.LookupPostCode("Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+
+                OnAfterLookupBillToCity(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -1248,7 +1256,11 @@
 
             trigger OnLookup()
             begin
+                OnBeforeLookupSellToCity(Rec, PostCode);
+
                 PostCode.LookupPostCode("Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
+
+                OnAfterLookupSellToCity(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -1298,6 +1310,8 @@
                 OnBeforeLookupBillToPostCode(Rec, PostCode);
 
                 PostCode.LookupPostCode("Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+
+                OnAfterLookupBillToPostCode(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -1348,6 +1362,8 @@
                 OnBeforeLookupSellToPostCode(Rec, PostCode);
 
                 PostCode.LookupPostCode("Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
+
+                OnAfterLookupSellToPostCode(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -1628,6 +1644,8 @@
 
             trigger OnValidate()
             begin
+                if "Tax Area Code" = xRec."Tax Area Code" then
+                    exit;
                 TestStatusOpen;
                 ValidateTaxAreaCode;
                 MessageIfSalesLinesExist(FieldCaption("Tax Area Code"));
@@ -1639,6 +1657,8 @@
 
             trigger OnValidate()
             begin
+                if "Tax Liable" = xRec."Tax Liable" then
+                    exit;
                 TestStatusOpen;
                 MessageIfSalesLinesExist(FieldCaption("Tax Liable"));
             end;
@@ -2692,6 +2712,9 @@
                     exit;
 
                 TestStatusOpen;
+                if xRec."Shipping Agent Service Code" = "Shipping Agent Service Code" then
+                    exit;
+
                 GetShippingTime(FieldNo("Shipping Agent Service Code"));
                 UpdateSalesLinesByFieldNo(FieldNo("Shipping Agent Service Code"), CurrFieldNo <> 0);
             end;
@@ -4275,7 +4298,14 @@
     end;
 
     local procedure CheckPrepmtInfo(var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPrepmtInfo(Rec, xRec, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Document Type" = "Document Type"::Order then begin
             SalesLine.SetFilter("Prepmt. Amt. Inv.", '<>0');
             if SalesLine.Find('-') then
@@ -6210,12 +6240,12 @@
         end;
         "Ship-to Contact" := SellToCustomer.Contact;
         if not CustomerTempl.Get("Sell-to Customer Templ. Code") then begin
-            "Tax Area Code" := SellToCustomer."Tax Area Code";
-            "Tax Liable" := SellToCustomer."Tax Liable";
+            Validate("Tax Area Code", SellToCustomer."Tax Area Code");
+            Validate("Tax Liable", SellToCustomer."Tax Liable");
         end;
         SetCustomerLocationCode(SellToCustomer);
-        "Shipping Agent Code" := SellToCustomer."Shipping Agent Code";
-        "Shipping Agent Service Code" := SellToCustomer."Shipping Agent Service Code";
+        Validate("Shipping Agent Code", SellToCustomer."Shipping Agent Code");
+        Validate("Shipping Agent Service Code", SellToCustomer."Shipping Agent Service Code");
 
         OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, xRec);
     end;
@@ -6264,11 +6294,11 @@
         OnSetShipToCustomerAddressFieldsFromShipToAddrOnAfterCalcShouldCopyLocationCode(Rec, xRec, ShipToAddr, ShouldCopyLocationCode);
         if ShouldCopyLocationCode then
             Validate("Location Code", ShipToAddr."Location Code");
-        "Shipping Agent Code" := ShipToAddr."Shipping Agent Code";
-        "Shipping Agent Service Code" := ShipToAddr."Shipping Agent Service Code";
+        Validate("Shipping Agent Code", ShipToAddr."Shipping Agent Code");
+        Validate("Shipping Agent Service Code", ShipToAddr."Shipping Agent Service Code");
         if ShipToAddr."Tax Area Code" <> '' then
-            "Tax Area Code" := ShipToAddr."Tax Area Code";
-        "Tax Liable" := ShipToAddr."Tax Liable";
+            Validate("Tax Area Code", ShipToAddr."Tax Area Code");
+        Validate("Tax Liable", ShipToAddr."Tax Liable");
 
         OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(Rec, ShipToAddr, xRec);
     end;
@@ -6908,37 +6938,43 @@
             end;
     end;
 
-    procedure HasDifferentSellToAddress(Customer: Record Customer): Boolean
+    procedure HasDifferentSellToAddress(Customer: Record Customer) Result: Boolean
     begin
-        exit(("Sell-to Address" <> Customer.Address) or
+        Result := ("Sell-to Address" <> Customer.Address) or
           ("Sell-to Address 2" <> Customer."Address 2") or
           ("Sell-to City" <> Customer.City) or
           ("Sell-to Country/Region Code" <> Customer."Country/Region Code") or
           ("Sell-to County" <> Customer.County) or
           ("Sell-to Post Code" <> Customer."Post Code") or
-          ("Sell-to Contact" <> Customer.Contact));
+          ("Sell-to Contact" <> Customer.Contact);
+
+        OnAfterHasDifferentSellToAddress(Rec, Customer, Result);
     end;
 
-    procedure HasDifferentBillToAddress(Customer: Record Customer): Boolean
+    procedure HasDifferentBillToAddress(Customer: Record Customer) Result: Boolean
     begin
-        exit(("Bill-to Address" <> Customer.Address) or
+        Result := ("Bill-to Address" <> Customer.Address) or
           ("Bill-to Address 2" <> Customer."Address 2") or
           ("Bill-to City" <> Customer.City) or
           ("Bill-to Country/Region Code" <> Customer."Country/Region Code") or
           ("Bill-to County" <> Customer.County) or
           ("Bill-to Post Code" <> Customer."Post Code") or
-          ("Bill-to Contact" <> Customer.Contact));
+          ("Bill-to Contact" <> Customer.Contact);
+
+        OnAfterHasDifferentBillToAddress(Rec, Customer, Result);
     end;
 
-    procedure HasDifferentShipToAddress(Customer: Record Customer): Boolean
+    procedure HasDifferentShipToAddress(Customer: Record Customer) Result: Boolean
     begin
-        exit(("Ship-to Address" <> Customer.Address) or
+        Result := ("Ship-to Address" <> Customer.Address) or
           ("Ship-to Address 2" <> Customer."Address 2") or
           ("Ship-to City" <> Customer.City) or
           ("Ship-to Country/Region Code" <> Customer."Country/Region Code") or
           ("Ship-to County" <> Customer.County) or
           ("Ship-to Post Code" <> Customer."Post Code") or
-          ("Ship-to Contact" <> Customer.Contact));
+          ("Ship-to Contact" <> Customer.Contact);
+
+        OnAfterHasDifferentShipToAddress(Rec, Customer, Result);
     end;
 
     procedure ShowInteractionLogEntries()
@@ -7369,7 +7405,7 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::"Customer Templ.", Rec."Bill-to Customer Templ. Code", FieldNo = Rec.FieldNo("Bill-to Customer Templ. Code"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
     procedure SelltoContactLookup(): Boolean
@@ -7468,7 +7504,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var SalesHeader: Record "Sales Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var SalesHeader: Record "Sales Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -7589,6 +7625,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnInsert(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasDifferentSellToAddress(var SalesHeader: Record "Sales Header"; Customer: Record Customer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasDifferentBillToAddress(var SalesHeader: Record "Sales Header"; Customer: Record Customer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasDifferentShipToAddress(var SalesHeader: Record "Sales Header"; Customer: Record Customer; var Result: Boolean)
     begin
     end;
 
@@ -7770,6 +7821,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckNoAndShowConfirm(SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnRcptHeader: Record "Return Receipt Header"; var SalesInvHeaderPrePmt: Record "Sales Invoice Header"; var SalesCrMemoHeaderPrePmt: Record "Sales Cr.Memo Header"; SourceCode: Record "Source Code"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPrepmtInfo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7969,7 +8025,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupBillToCity(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupSellToContactNo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupSellToCity(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
@@ -7990,6 +8056,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupShipToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupBillToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupBillToCity(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupSellToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupSellToCity(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
@@ -8328,6 +8414,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSellToCustomerNoAfterInit(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToCustomerNoOnAfterCalcShouldSkipConfirmSellToCustomerDialog(var SalesHeader: Record "Sales Header"; var ShouldSkipConfirmSellToCustomerDialog: Boolean)
     begin
     end;
 

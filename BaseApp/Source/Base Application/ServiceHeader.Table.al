@@ -754,8 +754,9 @@
         {
             Caption = 'Invoice Disc. Code';
 
-            trigger OnLookup()
+            trigger OnValidate()
             begin
+                Rec.TestField("Release Status", "Release Status"::Open);
                 MessageIfServLinesExist(FieldCaption("Invoice Disc. Code"));
             end;
         }
@@ -1399,6 +1400,7 @@
                 ServItemLine.SetRange("Document Type", "Document Type");
                 ServItemLine.SetRange("Document No.", "No.");
                 LinesExist := true;
+                OnValidateServiceDocumentStatusOnAfterServItemLineSetFilters(Rec, ServItemLine);
                 if ServItemLine.Find('-') then
                     repeat
                         if ServItemLine."Repair Status Code" <> '' then begin
@@ -2173,6 +2175,7 @@
                 ServContractHeader.SetFilter("Starting Date", '<=%1', "Order Date");
                 ServContractHeader.SetFilter("Expiration Date", '>=%1 | =%2', "Order Date", 0D);
                 ServContractHeader.FilterGroup(0);
+                OnLookupContractNoOnAfterServContractHeaderSetFilters(Rec, ServContractHeader);
                 Clear(ServContractList);
                 ServContractList.SetTableView(ServContractHeader);
                 ServContractList.LookupMode(true);
@@ -2531,7 +2534,14 @@
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         InitInsert();
 
         Clear(ServLogMgt);
@@ -3217,6 +3227,7 @@
 
     local procedure UpdateStartingDateTime()
     begin
+        OnBeforeUpdateStartingDateTime(Rec, ValidatingFromLines, ServiceMgtSetup);
         if ValidatingFromLines then
             exit;
         ServItemLine.Reset();
@@ -3236,6 +3247,7 @@
 
     local procedure UpdateFinishingDateTime()
     begin
+        OnBeforeUpdateFinishingDateTime(Rec, ValidatingFromLines, ServiceMgtSetup);
         if ValidatingFromLines then
             exit;
         ServItemLine.Reset();
@@ -3293,6 +3305,7 @@
         ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", "Document Type");
         ServItemLine.SetRange("Document No.", "No.");
+        OnValidateServPriceGrOnServItemOnAfterServItemLineSetFilters(Rec, ServItemLine);
         if ServItemLine.Find('-') then begin
             ServItemLine.SetServHeader(Rec);
             repeat
@@ -3312,6 +3325,7 @@
     procedure SetValidatingFromLines(NewValidatingFromLines: Boolean)
     begin
         ValidatingFromLines := NewValidatingFromLines;
+        OnAfterSetValidatingFromLines(Rec, ValidatingFromLines);
     end;
 
     procedure TestNoSeries()
@@ -3426,6 +3440,7 @@
                 "Contact Name" := Cust.Contact;
             end;
         end;
+        OnAfterUpdateCont(Rec, Cust, Cont);
     end;
 
     local procedure UpdateBillToCont(CustomerNo: Code[20])
@@ -3675,6 +3690,20 @@
 
         Reserve := Reserve::Optional;
 
+        SetResponsibilityCenter();
+
+        OnAfterInitRecord(Rec);
+    end;
+
+    local procedure SetResponsibilityCenter()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetResponsibilityCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Cust.Get("Customer No.") then
             if Cust."Responsibility Center" <> '' then
                 "Responsibility Center" := UserSetupMgt.GetRespCenter(2, Cust."Responsibility Center")
@@ -3682,8 +3711,6 @@
                 "Responsibility Center" := UserSetupMgt.GetRespCenter(2, "Responsibility Center")
         else
             "Responsibility Center" := UserSetupMgt.GetServiceFilter;
-
-        OnAfterInitRecord(Rec);
     end;
 
     local procedure SetDefaultNoSeries()
@@ -4577,7 +4604,7 @@
             Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text012, ChangedFieldName), true);
     end;
 
-    local procedure GetServiceMgtSetup()
+    procedure GetServiceMgtSetup()
     begin
         ServiceMgtSetup.Get();
 
@@ -4606,7 +4633,7 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::"Service Order Type", Rec."Service Order Type", FieldNo = Rec.FieldNo("Service Order Type"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
 #if not CLEAN20
@@ -4652,7 +4679,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var ServiceHeader: Record "Service Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var ServiceHeader: Record "Service Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -4668,6 +4695,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateShipToAddress(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateStartingDateTime(var ServiceHeader: Record "Service Header"; ValidatingFromLines: Boolean; var ServiceMgtSetup: Record "Service Mgt. Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateFinishingDateTime(var ServiceHeader: Record "Service Header"; ValidatingFromLines: Boolean; var ServiceMgtSetup: Record "Service Mgt. Setup")
     begin
     end;
 
@@ -4712,6 +4749,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetValidatingFromLines(var ServiceHeader: Record "Service Header"; var ValidatingFromLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBillToCont(var ServiceHeader: Record "Service Header"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
@@ -4745,6 +4787,11 @@
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCont(var ServiceHeader: Record "Service Header"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
 
@@ -4814,6 +4861,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenOrderStatistics(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
@@ -4874,6 +4926,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLookupContractNoOnAfterServContractHeaderSetFilters(var ServiceHeader: Record "Service Header"; var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRecreateServLinesOnBeforeUpdateLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
@@ -4917,12 +4974,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceDocumentStatusOnAfterServItemLineSetFilters(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServPriceGrOnServItemOnAfterServItemLineSetFilters(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmRecalculatePrice(ServiceHeader: Record "Service Header"; var HideValidationDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalespersonCode(var ServiceHeader: Record "Service Header"; SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetResponsibilityCenter(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

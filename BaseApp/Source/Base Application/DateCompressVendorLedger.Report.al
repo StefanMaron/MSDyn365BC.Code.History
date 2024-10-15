@@ -563,6 +563,7 @@ report 398 "Date Compress Vendor Ledger"
         if DateComprRetainFields."Retain Global Dimension 2" then
             DtldVendLedgEntryBuffer.SetRange("Initial Entry Global Dim. 2", "Vendor Ledger Entry"."Global Dimension 2 Code");
 
+        OnSummarizeDtldEntryOnAfterTempDetailedVendorLedgEntrySetFilters(DtldVendLedgEntryBuffer, DtldVendLedgEntry, NewVendLedgEntry, "Vendor Ledger Entry");
         if not DtldVendLedgEntryBuffer.Find('-') then begin
             DtldVendLedgEntryBuffer.Reset();
             Clear(DtldVendLedgEntryBuffer);
@@ -728,6 +729,11 @@ report 398 "Date Compress Vendor Ledger"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertRegistersOnBeforeGLentryInsert(var GLentry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSummarizeDtldEntryOnAfterTempDetailedVendorLedgEntrySetFilters(var TempDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry" temporary; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var NewVendorLedgerEntry: Record "Vendor Ledger Entry"; var OriginVendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }
