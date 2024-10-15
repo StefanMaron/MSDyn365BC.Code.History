@@ -199,8 +199,9 @@ report 10181 "Vendor 1099 Div 2022"
                 Codes[16] := 'DIV-10';
                 Codes[17] := 'DIV-11';
                 Codes[18] := 'DIV-12';
+                Codes[19] := 'DIV-13';
 
-                LastLineNo := 18;
+                LastLineNo := 19;
 
                 // Initialize Company Address. As side effect, will read CompanyInfo record
                 FormatCompanyAddress(CompanyAddress, CompanyInfo, TestPrintSwitch);

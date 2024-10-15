@@ -1912,6 +1912,100 @@
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
+    procedure SendPaymentLCYToThreeFCYInvoicesEquivalenciaDRRecalc()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InStream: InStream;
+        VATProdPostingGroup: Code[20];
+        OriginalStr: Text;
+        PaymentNo: Code[20];
+        FileName: Text;
+        Invoice1: Code[20];
+        Invoice2: Code[20];
+        Invoice3: Code[20];
+    begin
+        // [FEATURE] [Payment] [Limits] [Currency]
+        // [SCENARIO 456338] Request stamp for LCY payment applied to three FCY invoices
+        Initialize();
+
+        // [GIVEN] Three posted Sales Invoices in USD with "Amount Including VAT" = 1258.60, 2949.88, 3336.16, VAT% = 16
+        Customer.Get(CreateCustomer());
+        Customer.Validate("Currency Code",
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1 / 21.345, 1 / 21.345));
+        Customer.Modify(true);
+
+        UpdateCustomerSATPaymentFields(Customer."No.");
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+
+        // [GIVEN] Sales Invoice 1 with Amount = 1085.00, Amount Incl VAT = 1258.60, Exch.Rate = 22.345
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        SalesHeader.Validate("Currency Factor", 1 / 22.345);
+        SalesHeader.Modify();
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItem(), VATProdPostingGroup, 1, 1085.0, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+        Invoice1 := SalesInvoiceHeader."No.";
+
+        // [GIVEN] Sales Invoice 2 with Amount = 2543.00, Amount Incl VAT = 2949.88, Exch.Rate = 20.5231
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        SalesHeader.Validate("Currency Factor", 1 / 20.5231);
+        SalesHeader.Modify();
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItem(), VATProdPostingGroup, 1, 2543.0, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+        Invoice2 := SalesInvoiceHeader."No.";
+
+        // [GIVEN] Sales Invoice 3 with Amount = 2876.00, Amount Incl VAT = 3336.16, Exch.Rate = 21.987
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        SalesHeader.Validate("Currency Factor", 1 / 21.987);
+        SalesHeader.Modify();
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItem(), VATProdPostingGroup, 1, 2876.0, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+        Invoice3 := SalesInvoiceHeader."No.";
+
+        // [GIVEN] Payment in LCY with Amount = 161040.35 is applied to all invoices
+        PaymentNo := CreatePostPayment(Customer."No.", '', -161040.35, '');
+
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, Invoice1);
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, Invoice2);
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, Invoice3);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+
+        // [WHEN] Request stamp for the payment
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 161040.35
+        // [THEN] 'Pagos/Pago' node created with attribute 'MonedaP' = 'MXN', 'TipoCambioP' = 1
+        // [THEN] 'Pagos/Pago/DoctoRelacionado' node has attributes 'Monto' = 161040.35, 'MonedaDR' = 'USD', 'EquivalenciaDR' = 0.046850
+        // [THEN] TrasladoP nose has attributes BaseP = 138826.040554, ImpuestoP = 22212.166488
+        InitXMLReaderForPagos20(FileName);
+        CustLedgerEntry.CalcFields("Original String");
+        CustLedgerEntry."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        VerifyComplementoPagoAmountWithCurrency(
+          OriginalStr,
+          161040.35, 'MXN', '1',
+          161040.35, Customer."Currency Code", '0.046850', 1258.6, 30);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 78, 138826.040554, 22212.166488, 0.16, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
     procedure SalesInvoiceRounding_LCYThreeLinesNoDiscount()
     var
         Customer: Record Customer;
