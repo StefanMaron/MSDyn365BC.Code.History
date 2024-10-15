@@ -130,8 +130,12 @@ report 5604 "Fixed Asset - Details"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ShouldSkipAsset: Boolean;
             begin
-                if Inactive then
+                ShouldSkipAsset := Inactive;
+                OnFixedAssetOnAfterGetRecordOnAfterCalcShouldSkipAsset("Fixed Asset", ShouldSkipAsset);
+                if ShouldSkipAsset then
                     CurrReport.Skip();
             end;
         }
@@ -213,6 +217,11 @@ report 5604 "Fixed Asset - Details"
         DeprBookCode := NewDeprBookCode;
         PrintOnlyOnePerPage := NewPrintOnlyOnePerPage;
         PrintReversedEntries := NewPrintReversedEntries;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFixedAssetOnAfterGetRecordOnAfterCalcShouldSkipAsset(FixedAsset: Record "Fixed Asset"; var ShouldSkipAsset: Boolean)
+    begin
     end;
 }
 

@@ -278,7 +278,14 @@
     end;
 
     procedure GetCompanyAddr(RespCenterCode: Code[10]; var ResponsibilityCenter: Record "Responsibility Center"; var CompanyInfo: Record "Company Information"; var CompanyAddr: array[8] of Text[100])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCompanyAddr(RespCenterCode, ResponsibilityCenter, CompanyInfo, CompanyAddr, IsHandled);
+        if IsHandled then
+            exit;
+
         if ResponsibilityCenter.Get(RespCenterCode) then begin
             RespCenter(CompanyAddr, ResponsibilityCenter);
             CompanyInfo."Phone No." := ResponsibilityCenter."Phone No.";
@@ -1589,14 +1596,18 @@
         RemitAddressBuffer: Record "Remit Address Buffer";
     begin
         VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
-        ArrayAddress[1] := RemitAddressBuffer.Name;
-        ArrayAddress[2] := RemitAddressBuffer.Address;
-        ArrayAddress[3] := RemitAddressBuffer."Address 2";
-        ArrayAddress[4] := RemitAddressBuffer.City;
-        ArrayAddress[5] := RemitAddressBuffer.County;
-        ArrayAddress[6] := RemitAddressBuffer."Post Code";
-        ArrayAddress[7] := RemitAddressBuffer."Country/Region Code";
-        ArrayAddress[8] := RemitAddressBuffer.Contact;
+
+        FormatAddr(
+            ArrayAddress,
+            RemitAddressBuffer.Name,
+            RemitAddress."Name 2",
+            RemitAddress.Contact,
+            RemitAddress.Address,
+            RemitAddress."Address 2",
+            RemitAddress.City,
+            RemitAddress."Post Code",
+            RemitAddress.County,
+            RemitAddressBuffer."Country/Region Code");
     end;
 
     procedure VendorRemitToAddress(var RemitAddress: Record "Remit Address"; var RemitAddressBuffer: Record "Remit Address Buffer")
@@ -1713,6 +1724,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCompany(var AddrArray: array[8] of Text[100]; var CompanyInfo: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCompanyAddr(RespCenterCode: Code[10]; var ResponsibilityCenter: Record "Responsibility Center"; var CompanyInfo: Record "Company Information"; var CompanyAddr: array[8] of Text[100]; var IsHandled: Boolean)
     begin
     end;
 

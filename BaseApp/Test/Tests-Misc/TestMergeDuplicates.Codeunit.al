@@ -1552,6 +1552,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
+        CommentLine: Record "Comment Line";
         BlankRecordId: RecordId;
     begin
         // [FEATURE] [Customer]
@@ -1560,6 +1561,43 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [GIVEN] Customers 'A' (ID = 'AAA') and 'B' (ID = 'BBB')
         LibrarySales.CreateCustomer(Customer[1]);
         LibrarySales.CreateCustomer(Customer[2]);
+
+        // [GIVEN] 462939 - Customer 'A' has 3 Comments Lines. Line Numbers: 10000, 15000, 50000
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Customer);
+        CommentLine.Validate("No.", Customer[1]."No.");
+        CommentLine.Validate("Line No.", 10000);
+        CommentLine.Validate(Comment, Customer[1].Name);
+        CommentLine.Insert(true);
+
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Customer);
+        CommentLine.Validate("No.", Customer[1]."No.");
+        CommentLine.Validate("Line No.", 15000);
+        CommentLine.Validate(Comment, Customer[1].Name);
+        CommentLine.Insert(true);
+
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Customer);
+        CommentLine.Validate("No.", Customer[1]."No.");
+        CommentLine.Validate("Line No.", 50000);
+        CommentLine.Validate(Comment, Customer[1].Name);
+        CommentLine.Insert(true);
+
+        // [GIVEN] 462939 - Customer 'B' has 2 Comments Lines. Line Numbers: 15000, 30000
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Customer);
+        CommentLine.Validate("No.", Customer[2]."No.");
+        CommentLine.Validate("Line No.", 15000);
+        CommentLine.Validate(Comment, Customer[2].Name);
+        CommentLine.Insert(true);
+
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Customer);
+        CommentLine.Validate("No.", Customer[2]."No.");
+        CommentLine.Validate("Line No.", 30000);
+        CommentLine.Validate(Comment, Customer[2].Name);
+        CommentLine.Insert(true);
 
         // [GIVEN] Journal Line, where "Account No." is 'A', "Bal. Account No." is 'B', "Customer Id" is 'AAA'
         GenJournalLine.Init();
@@ -1622,6 +1660,12 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [THEN] Customer 'B' does exist, where Name = 'B', ID is 'BBB', SystemID is 'BBB'
         Assert.IsTrue(Customer[2].Find, 'Customer B must exist');
         Customer[2].TestField(Name, Customer[2].Name);
+
+        // [THEN] Customer 'B' has 6 Comment Lines
+        CommentLine.Reset();
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Customer);
+        CommentLine.SetRange("No.", Customer[2]."No.");
+        Assert.RecordCount(CommentLine, 6);
 
         // [THEN] Journal Line, where "Account No." is 'B', "Bal. Account No." is 'B', "Customer Id" is 'BBB'
         GenJournalLine.Find();
@@ -1889,6 +1933,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         IncomingDocument: Record "Incoming Document";
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
+        CommentLine: Record "Comment Line";
         BlankRecordId: RecordId;
     begin
         // [FEATURE] [Vendor]
@@ -1897,6 +1942,43 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [GIVEN] Vendors 'A' (ID = 'AAA') and 'B' (ID = 'BBB')
         LibraryPurchase.CreateVendor(Vendor[1]);
         LibraryPurchase.CreateVendor(Vendor[2]);
+
+        // [GIVEN] 462939 - Vendor 'A' has 3 Comments Lines. Line Numbers: 10000, 15000, 50000
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Vendor);
+        CommentLine.Validate("No.", Vendor[1]."No.");
+        CommentLine.Validate("Line No.", 10000);
+        CommentLine.Validate(Comment, Vendor[1].Name);
+        CommentLine.Insert(true);
+
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Vendor);
+        CommentLine.Validate("No.", Vendor[1]."No.");
+        CommentLine.Validate("Line No.", 15000);
+        CommentLine.Validate(Comment, Vendor[1].Name);
+        CommentLine.Insert(true);
+
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Vendor);
+        CommentLine.Validate("No.", Vendor[1]."No.");
+        CommentLine.Validate("Line No.", 50000);
+        CommentLine.Validate(Comment, Vendor[1].Name);
+        CommentLine.Insert(true);
+
+        // [GIVEN] 462939 - Vendor 'B' has 2 Comments Lines. Line Numbers: 15000, 30000
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Vendor);
+        CommentLine.Validate("No.", Vendor[2]."No.");
+        CommentLine.Validate("Line No.", 15000);
+        CommentLine.Validate(Comment, Vendor[2].Name);
+        CommentLine.Insert(true);
+
+        Clear(CommentLine);
+        CommentLine.Validate("Table Name", CommentLine."Table Name"::Vendor);
+        CommentLine.Validate("No.", Vendor[2]."No.");
+        CommentLine.Validate("Line No.", 30000);
+        CommentLine.Validate(Comment, Vendor[2].Name);
+        CommentLine.Insert(true);
 
         // [GIVEN] PurchInvEntityAggregate, where "Buy-from Vendor No." is 'A', "Vendor Id" is 'AAA'
         PurchInvEntityAggregate."No." := LibraryUtility.GenerateGUID();
@@ -1926,6 +2008,12 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB', SystemId is 'BBB'
         Assert.IsTrue(Vendor[2].Find, 'Vendor B must exist');
         Vendor[2].TestField(Name, Vendor[2].Name);
+
+        // [THEN] Vendor 'B' has 6 Comment Lines
+        CommentLine.Reset();
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Vendor);
+        CommentLine.SetRange("No.", Vendor[2]."No.");
+        Assert.RecordCount(CommentLine, 6);
 
         // [GIVEN] PurchInvEntityAggregate, where "Sell-to Vendor No." is 'B', "Vendor Id" is 'BBB'
         PurchInvEntityAggregate.Find();

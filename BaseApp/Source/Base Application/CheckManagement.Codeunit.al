@@ -146,7 +146,7 @@ codeunit 367 CheckManagement
             CheckLedgEntry2.SetRange("Bank Account No.", GenJnlLine."Bal. Account No.");
         CheckLedgEntry2.SetRange("Entry Status", CheckLedgEntry2."Entry Status"::Printed);
         CheckLedgEntry2.SetRange("Check No.", GenJnlLine."Document No.");
-        OnVoidCheckOnAfterCheckLedgEntry2SetFilters(CheckLedgEntry2);
+        OnVoidCheckOnAfterCheckLedgEntry2SetFilters(CheckLedgEntry2, GenJnlLine);
         CheckLedgEntry2.FindFirst();
         CheckLedgEntry2."Original Entry Status" := CheckLedgEntry2."Entry Status";
         CheckLedgEntry2."Entry Status" := CheckLedgEntry2."Entry Status"::Voided;
@@ -950,7 +950,7 @@ codeunit 367 CheckManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnVoidCheckOnAfterCheckLedgEntry2SetFilters(var CheckLedgerEntry: Record "Check Ledger Entry")
+    local procedure OnVoidCheckOnAfterCheckLedgEntry2SetFilters(var CheckLedgerEntry: Record "Check Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

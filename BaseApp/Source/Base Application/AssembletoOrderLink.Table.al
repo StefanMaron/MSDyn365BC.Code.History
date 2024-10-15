@@ -522,7 +522,13 @@ table 904 "Assemble-to-Order Link"
         ReservEntry: Record "Reservation Entry";
         TrackingSpecification: Record "Tracking Specification";
         AsmHeaderReserve: Codeunit "Assembly Header-Reserve";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReserveAsmToSale(SalesLine, QtyToReserve, QtyToReserveBase, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLine."Document Type" <> SalesLine."Document Type"::Order then
             exit;
 
@@ -672,6 +678,7 @@ table 904 "Assemble-to-Order Link"
                 ToAsmOrderLine."Consumed Quantity (Base)" := 0;
                 ToAsmOrderLine.Validate(Quantity, FromAsmLine."Quantity to Consume");
                 ToAsmOrderLine.Insert(true);
+                OnCopyAsmToNewAsmOrderOnToAsmOrderLineInsert(FromAsmLine, ToAsmOrderLine);
                 AssemblyLineReserve.TransferAsmLineToAsmLine(FromAsmLine, ToAsmOrderLine, ToAsmOrderLine."Quantity (Base)");
                 AssemblyLineReserve.SetDeleteItemTracking(true);
                 AssemblyLineReserve.DeleteLine(FromAsmLine);
@@ -1031,21 +1038,26 @@ table 904 "Assemble-to-Order Link"
         end;
         if NewAsmHeader."Due Date" <> AsmHeader."Due Date" then
             AsmLine."Due Date" := NewAsmHeader."Starting Date";
+        OnAfterTransAvailAsmHeaderToAsmLine(AsmLine, NewAsmHeader);
     end;
 
     local procedure TransAvailBOMCompToAsmLine(var AsmLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
     var
         ItemUOM: Record "Item Unit of Measure";
+        IsHandled: Boolean;
     begin
-        AsmLine.Type := AsmLine.Type::Item;
-        AsmLine."No." := BOMComponent."No.";
-        AsmLine."Variant Code" := BOMComponent."Variant Code";
-        AsmLine."Quantity per" := BOMComponent."Quantity per";
-        AsmLine."Unit of Measure Code" := BOMComponent."Unit of Measure Code";
-        if not ItemUOM.Get(BOMComponent."No.", BOMComponent."Unit of Measure Code") then
-            ItemUOM.Init();
-        AsmLine."Qty. per Unit of Measure" := ItemUOM."Qty. per Unit of Measure";
-
+        IsHandled := false;
+        OnBeforeTransAvailBOMCompToAsmLine(AsmLine, BOMComponent, IsHandled);
+        if not IsHandled then begin
+            AsmLine.Type := AsmLine.Type::Item;
+            AsmLine."No." := BOMComponent."No.";
+            AsmLine."Variant Code" := BOMComponent."Variant Code";
+            AsmLine."Quantity per" := BOMComponent."Quantity per";
+            AsmLine."Unit of Measure Code" := BOMComponent."Unit of Measure Code";
+            if not ItemUOM.Get(BOMComponent."No.", BOMComponent."Unit of Measure Code") then
+                ItemUOM.Init();
+            AsmLine."Qty. per Unit of Measure" := ItemUOM."Qty. per Unit of Measure";
+        end;
         OnAfterTransAvailBOMCompToAsmLine(AsmLine, BOMComponent);
     end;
 
@@ -1338,6 +1350,11 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterTransAvailAsmHeaderToAsmLine(var AssemblyLine: Record "Assembly Line"; var NewAssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAsmHeaderInsert(var AssemblyHeader: Record "Assembly Header")
     begin
     end;
@@ -1378,6 +1395,11 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeReserveAsmToSale(var SalesLine: Record "Sales Line"; QtyToReserve: Decimal; QtyToReserveBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineCheckAvailShowWarning(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1388,7 +1410,17 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransAvailBOMCompToAsmLine(var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAsm(var NewSalesLine: Record "Sales Line"; AsmExists: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyAsmToNewAsmOrderOnToAsmOrderLineInsert(FromAssemblyLine: Record "Assembly Line"; var ToAssemblyLineOrder: Record "Assembly Line")
     begin
     end;
 

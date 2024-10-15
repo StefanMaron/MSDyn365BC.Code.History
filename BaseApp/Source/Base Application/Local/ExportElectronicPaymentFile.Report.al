@@ -337,10 +337,15 @@ report 11380 "Export Electronic Payment File"
         CheckManagement.InsertCheck(CheckLedgerEntry, RecordIdToPrint);
     end;
 
-    local procedure StartExportBasedOnFormat(var BankAccount: Record "Bank Account"; var GenJnlLine: Record "Gen. Journal Line"; SettleDate: Date): Boolean
+    local procedure StartExportBasedOnFormat(var BankAccount: Record "Bank Account"; var GenJnlLine: Record "Gen. Journal Line"; SettleDate: Date) FileCreated: Boolean
     var
-        FileCreated: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeStartExportBasedOnFormat(ExportPaymentsACH, BankAccount, GenJnlLine, SettleDate, FileCreated, IsHandled);
+        if IsHandled then
+            exit(FileCreated);
+
         FileCreated := false;
         case BankAccount."Export Format" of
             BankAccount."Export Format"::US:
@@ -507,6 +512,11 @@ report 11380 "Export Electronic Payment File"
             BankAccount."Export Format"::MX:
                 exit(ExportPaymentsCecoban.ExportElectronicPayment(GenJournalLine, ExportAmount, SettleDate));
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStartExportBasedOnFormat(var ExportPaymentsACH: Codeunit "Export Payments (ACH)"; var BankAccount: Record "Bank Account"; var GenJournalLine: Record "Gen. Journal Line"; SettleDate: Date; var FileCreated: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

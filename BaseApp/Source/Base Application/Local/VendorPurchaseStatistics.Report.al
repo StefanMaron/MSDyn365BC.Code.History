@@ -332,6 +332,9 @@ report 10107 "Vendor Purchase Statistics"
 
             trigger OnAfterGetRecord()
             begin
+                Clear("DiscountsTaken$");
+                Clear("DiscountsLost$");
+
                 for i := 1 to 5 do begin
                     SetRange("Date Filter", PeriodStartingDate[i], PeriodStartingDate[i + 1] - 1);
                     CalcFields("Purchases (LCY)", "Inv. Discounts (LCY)", "Fin. Charge Memo Amounts (LCY)", "Payments (LCY)", "Net Change (LCY)");
@@ -356,9 +359,8 @@ report 10107 "Vendor Purchase Statistics"
                                (VendLedgerEntry.Amount <> 0)
                             then
                                 "DiscountsLost$"[i] := "DiscountsLost$"[i] +
-                                  (VendLedgerEntry."Original Pmt. Disc. Possible" * (VendLedgerEntry."Amount (LCY)" / VendLedgerEntry.Amount
-                                                                                     ))
-                                  - VendLedgerEntry."Pmt. Disc. Rcd.(LCY)";
+                                  (VendLedgerEntry."Original Pmt. Disc. Possible" * (VendLedgerEntry."Amount (LCY)" / VendLedgerEntry.Amount)) -
+                                  VendLedgerEntry."Pmt. Disc. Rcd.(LCY)";
                         until VendLedgerEntry.Next() = 0;
                 end;
                 SetRange("Date Filter");

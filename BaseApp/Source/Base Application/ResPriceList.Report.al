@@ -30,6 +30,12 @@ report 7054 "Res. Price List"
             column(CompanyAddr6; CompanyAddr[6])
             {
             }
+            column(CompanyAddr7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddr8; CompanyAddr[8])
+            {
+            }
             column(StrsubsnoAsofFormatWorkDt; StrSubstNo(AsOfTok, Format(DateReq, 0, 4)))
             {
             }

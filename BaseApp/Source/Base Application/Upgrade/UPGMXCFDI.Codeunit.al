@@ -16,6 +16,7 @@ codeunit 104151 "UPG. MX CFDI"
         UpdateSATCatalogs();
         UpdateCFDIFields();
         UpdateCFDIEnabled();
+        UpgradePACWebServiceDetails();
     end;
 
     local procedure UpdateSATCatalogs()
@@ -60,6 +61,20 @@ codeunit 104151 "UPG. MX CFDI"
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCFDIEnableOptionUpgradeTag());
+    end;
+
+    local procedure UpgradePACWebServiceDetails()
+    var
+        SATUtilities: Codeunit "SAT Utilities";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetPACWebServiceDetailsUpgradeTag()) then
+            exit;
+
+        SATUtilities.PopulatePACWebServiceData;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetPACWebServiceDetailsUpgradeTag());
     end;
 }
 

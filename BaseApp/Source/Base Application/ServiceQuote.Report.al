@@ -61,6 +61,12 @@ report 5902 "Service Quote"
                     column(CustAddr_1_; CustAddr[1])
                     {
                     }
+                    column(CompanyAddr_8_; CompanyAddr[8])
+                    {
+                    }
+                    column(CompanyAddr_7_; CompanyAddr[7])
+                    {
+                    }
                     column(CompanyAddr_6_; CompanyAddr[6])
                     {
                     }

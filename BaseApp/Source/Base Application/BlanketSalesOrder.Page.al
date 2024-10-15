@@ -1362,4 +1362,3 @@ page 507 "Blanket Sales Order"
     begin
     end;
 }
-

@@ -1276,7 +1276,7 @@ page 5905 "Service Lines"
 
     procedure SetSelectionFilter()
     begin
-        OnBeforeSetSelectionFilter(SelectionFilter);
+        OnBeforeSetSelectionFilter(SelectionFilter, Rec);
         case SelectionFilter of
             SelectionFilter::"All Service Lines":
                 SetRange("Service Item Line No.");
@@ -1421,7 +1421,7 @@ page 5905 "Service Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetSelectionFilter(var SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related")
+    local procedure OnBeforeSetSelectionFilter(var SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related"; var ServiceLine: Record "Service Line")
     begin
     end;
 

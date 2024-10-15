@@ -860,6 +860,7 @@ table 5093 "Opportunity Entry"
             "Action Type"::Jump:
                 TempSalesCycleStageJump.Get("Sales Cycle Code", "Sales Cycle Stage");
         end;
+        OnAfterValidateStage(Rec);
     end;
 
     procedure NoOfSalesCyclesFirst(): Integer
@@ -955,6 +956,11 @@ table 5093 "Opportunity Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertEntry(var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateStage(var OpportunityEntry: Record "Opportunity Entry")
     begin
     end;
 
