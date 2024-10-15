@@ -3572,6 +3572,13 @@
         exit('0' + Month);
     end;
 
+    local procedure FormatExchRate(ExchangeRate: Decimal): Text
+    begin
+        if ExchangeRate = 1 then
+            exit('1');
+        exit(FormatDecimal(ExchangeRate, 6));
+    end;
+
     local procedure FilterDocumentLines(var TempDocumentLine: Record "Document Line" temporary; DocumentNo: Code[20])
     begin
         TempDocumentLine.Reset();
@@ -3964,6 +3971,7 @@
                     SalesInvoiceLine.Reset();
                     SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
                     SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+                    SalesInvoiceLine.SetFilter(Quantity, '<>0');
                     if AdvanceSettle then
                         SalesInvoiceLine.SetFilter("Prepayment Line", '=0');
 
@@ -3998,6 +4006,7 @@
                     SalesCrMemoLine.Reset();
                     SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
                     SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+                    SalesCrMemoLine.SetFilter(Quantity, '<>0');
                     if SalesCrMemoLine.FindSet() then begin
                         repeat
                             TempDocumentLine.TransferFields(SalesCrMemoLine);
@@ -4029,6 +4038,7 @@
                     ServiceInvoiceLine.Reset();
                     ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
                     ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
+                    ServiceInvoiceLine.SetFilter(Quantity, '<>0');
                     if ServiceInvoiceLine.FindSet() then begin
                         repeat
                             TempDocumentLine.TransferFields(ServiceInvoiceLine);
@@ -4061,6 +4071,7 @@
                     ServiceCrMemoLine.Reset();
                     ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
                     ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
+                    ServiceCrMemoLine.SetFilter(Quantity, '<>0');
                     if ServiceCrMemoLine.FindSet() then begin
                         repeat
                             TempDocumentLine.TransferFields(ServiceCrMemoLine);
@@ -4415,9 +4426,11 @@
         DateTimeFirstReqSent := GetDateTimeOfFirstReqPayment(CustLedgerEntry);
         CurrencyDecimalPlaces := GetCurrencyDecimalPlaces(CustLedgerEntry."Currency Code");
 
+        CalcPaymentData(TempDetailedCustLedgEntry, CustLedgerEntry."Entry No.", CurrencyDecimalPlaces);
+
         // Create Payment Digital Stamp
-        CreateOriginalPaymentStr33(Customer, CustLedgerEntry, TempDetailedCustLedgEntry, DateTimeFirstReqSent,
-          TempBlobOriginalString);
+        CreateOriginalPaymentStr33(
+            Customer, CustLedgerEntry, TempDetailedCustLedgEntry, DateTimeFirstReqSent, TempBlobOriginalString);
 
         TempBlobOriginalString.CreateInStream(InStream);
         OriginalString := TypeHelper.ReadAsTextWithSeparator(InStream, Environment.NewLine);
@@ -4725,7 +4738,6 @@
         DomicilioFiscalReceptor: Text;
         SubjectToTax: Text;
         TipoCambioP: Decimal;
-        CurrencyFactorInvoice: Decimal;
         CurrencyFactorPayment: Decimal;
         EquivalenciaDR: Decimal;
     begin
@@ -4853,19 +4865,8 @@
                     AddAttribute(XMLDoc, XMLCurrNode, 'Folio', CustLedgerEntry2."Document No.");
                     AddAttribute(XMLDoc, XMLCurrNode, 'MonedaDR', ConvertCurrency(CustLedgerEntry2."Currency Code"));
 
-                    if GLSetup."Disable CFDI Payment Details" then
-                        EquivalenciaDR := CustLedgerEntry2."Original Currency Factor" / "Original Currency Factor"
-                    else begin
-                        CurrencyFactorInvoice := TempDetailedCustLedgEntry.Amount / TempDetailedCustLedgEntry."Amount (LCY)";
-                        if ConvertCurrency(DetailedCustLedgEntryPmt."Currency Code") = ConvertCurrency(CustLedgerEntry2."Currency Code") then
-                            EquivalenciaDR := 1
-                        else
-                            EquivalenciaDR := Round(CurrencyFactorInvoice / CurrencyFactorPayment, 0.000001)
-                    end;
-                    if ConvertCurrency(CustLedgerEntry2."Currency Code") = ConvertCurrency("Currency Code") then
-                        AddAttribute(XMLDoc, XMLCurrNode, 'EquivalenciaDR', '1')
-                    else
-                        AddAttribute(XMLDoc, XMLCurrNode, 'EquivalenciaDR', FormatDecimal(EquivalenciaDR, 6));
+                    EquivalenciaDR := TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible";
+                    AddAttribute(XMLDoc, XMLCurrNode, 'EquivalenciaDR', FormatExchRate(EquivalenciaDR));
 
                     SumStampedPayments(CustLedgerEntry2, SumOfStamped, PaymentNo);
                     AddAttribute(XMLDoc, XMLCurrNode, 'NumParcialidad', Format(PaymentNo));
@@ -4909,7 +4910,6 @@
         DomicilioFiscalReceptor: Text;
         SubjectToTax: Text;
         TipoCambioP: Decimal;
-        CurrencyFactorInvoice: Decimal;
         CurrencyFactorPayment: Decimal;
         EquivalenciaDR: Decimal;
     begin
@@ -5012,19 +5012,8 @@
                     WriteOutStr(OutStream, CustLedgerEntry2."Document No." + '|');// Folio
                     WriteOutStr(OutStream, ConvertCurrency(CustLedgerEntry2."Currency Code") + '|'); // MonedaDR
 
-                    if GLSetup."Disable CFDI Payment Details" then
-                        EquivalenciaDR := CustLedgerEntry2."Original Currency Factor" / "Original Currency Factor"
-                    else begin
-                        CurrencyFactorInvoice := TempDetailedCustLedgEntry.Amount / TempDetailedCustLedgEntry."Amount (LCY)";
-                        if ConvertCurrency(DetailedCustLedgEntryPmt."Currency Code") = ConvertCurrency(CustLedgerEntry2."Currency Code") then
-                            EquivalenciaDR := 1
-                        else
-                            EquivalenciaDR := Round(CurrencyFactorInvoice / CurrencyFactorPayment, 0.000001)
-                    end;
-                    if ConvertCurrency(CustLedgerEntry2."Currency Code") = ConvertCurrency("Currency Code") then
-                        WriteOutStr(OutStream, '1|') // EquivalenciaDR
-                    else
-                        WriteOutStr(OutStream, FormatDecimal(EquivalenciaDR, 6) + '|'); // EquivalenciaDR
+                    EquivalenciaDR := TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible";
+                    WriteOutStr(OutStream, FormatExchRate(EquivalenciaDR) + '|');
 
                     SumStampedPayments(CustLedgerEntry2, SumOfStamped, PaymentNo);
                     WriteOutStr(OutStream, Format(PaymentNo) + '|');// NumParcialidad
@@ -5075,10 +5064,65 @@
         TempCFDIRelationDocument.Insert();
     end;
 
+    local procedure CalcPaymentData(var TempDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary; PaymentEntryNo: Integer; CurrencyDecimals: Integer)
+    var
+        DetailedCustLedgEntryPmt: Record "Detailed Cust. Ledg. Entry";
+        CustLedgerEntryPmt: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+        CurrencyFactorInvoice: Decimal;
+        EquivalenciaDR: Decimal;
+        PaymentAmount: Decimal;
+        CurrencyFactorPayment: Decimal;
+        Monto: Decimal;
+    begin
+        GetPmtCustDtldEntry(DetailedCustLedgEntryPmt, PaymentEntryNo);
+        DetailedCustLedgEntryPmt.CalcSums(Amount, "Amount (LCY)");
+        PaymentAmount := Abs(DetailedCustLedgEntryPmt.Amount);
+        CustLedgerEntryPmt.Get(PaymentEntryNo);
+
+        CurrencyFactorPayment := DetailedCustLedgEntryPmt.Amount / DetailedCustLedgEntryPmt."Amount (LCY)";
+        if TempDetailedCustLedgEntry.FindSet(true) then
+            repeat
+                if TempDetailedCustLedgEntry."Document Type" = TempDetailedCustLedgEntry."Document Type"::Payment then
+                    CustLedgerEntry2.Get(TempDetailedCustLedgEntry."Cust. Ledger Entry No.")
+                else
+                    CustLedgerEntry2.Get(TempDetailedCustLedgEntry."Applied Cust. Ledger Entry No.");
+
+                CurrencyFactorInvoice := TempDetailedCustLedgEntry.Amount / TempDetailedCustLedgEntry."Amount (LCY)";
+
+                if GLSetup."Disable CFDI Payment Details" then
+                    EquivalenciaDR := CustLedgerEntry2."Original Currency Factor" / CustLedgerEntryPmt."Original Currency Factor"
+                else
+                    if ConvertCurrency(DetailedCustLedgEntryPmt."Currency Code") = ConvertCurrency(CustLedgerEntry2."Currency Code") then
+                        EquivalenciaDR := 1
+                    else
+                        EquivalenciaDR := Round(CurrencyFactorInvoice / CurrencyFactorPayment, 0.000001);
+
+                TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible" := EquivalenciaDR;
+                TempDetailedCustLedgEntry.Modify;
+
+                Monto += Abs(TempDetailedCustLedgEntry.Amount) / EquivalenciaDR;
+            until TempDetailedCustLedgEntry.Next = 0;
+
+        if GLSetup."Disable CFDI Payment Details" then
+            exit;
+
+        Monto := Round(Monto, Power(0.1, CurrencyDecimals));
+        if Monto <= Round(PaymentAmount, Power(0.1, CurrencyDecimals)) then
+            exit;
+
+        if TempDetailedCustLedgEntry.FindSet(true) then
+            repeat
+                if TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible" <> 1 then begin // EquivalenciaDR
+                    TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible" += 0.000001;
+                    TempDetailedCustLedgEntry.Modify;
+                end;
+            until TempDetailedCustLedgEntry.Next = 0;
+    end;
+
     local procedure GetPaymentData(var TempDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary; var DetailedCustLedgEntryPmt: Record "Detailed Cust. Ledg. Entry"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLinePmt: Record "VAT Amount Line" temporary; var TempVATAmountLineTotal: Record "VAT Amount Line" temporary; var PaymentAmount: Decimal; var PaymentAmountLCY: Decimal; var CurrencyFactorPayment: Decimal; PaymentEntryNo: Integer)
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
-        CurrencyFactorInvoice: Decimal;
         EquivalenciaDR: Decimal;
         UUID: Text[50];
         DocAmountInclVAT: Decimal;
@@ -5103,12 +5147,7 @@
                   TempVATAmountLine, UUID, DocAmountInclVAT, SubjectToTax);
                 UpdatePartialPaymentAmounts(TempDetailedCustLedgEntry, CustLedgerEntry2, TempVATAmountLine);
 
-                CurrencyFactorInvoice := TempDetailedCustLedgEntry.Amount / TempDetailedCustLedgEntry."Amount (LCY)";
-
-                if ConvertCurrency(DetailedCustLedgEntryPmt."Currency Code") = ConvertCurrency(CustLedgerEntry2."Currency Code") then
-                    EquivalenciaDR := 1
-                else
-                    EquivalenciaDR := Round(CurrencyFactorInvoice / CurrencyFactorPayment, 0.000001);
+                EquivalenciaDR := TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible";
 
                 InsertTempVATAmountLinePmt(TempVATAmountLinePmt, TempVATAmountLine, EquivalenciaDR);
             until TempDetailedCustLedgEntry.Next() = 0;
@@ -5120,38 +5159,11 @@
 
     local procedure GetPmtDataFromFirstDoc(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var DomicilioFiscalReceptor: Text)
     var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
         CustomerLoc: Record Customer;
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        ServiceDoc: Boolean;
-        InvoiceDoc: Boolean;
-        TableId: Integer;
     begin
         CustomerLoc.Get(DetailedCustLedgEntry."Customer No.");
         DomicilioFiscalReceptor :=
             GetSATPostalCode(CustomerLoc."Location Code", CustomerLoc."Post Code");
-        ServiceDoc := false;
-        InvoiceDoc := false;
-        if DetailedCustLedgEntry."Document Type" = DetailedCustLedgEntry."Document Type"::Payment then
-            CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.")
-        else
-            CustLedgerEntry.Get(DetailedCustLedgEntry."Applied Cust. Ledger Entry No.");
-
-        TableID := GetRelatedDocumentTableID(DetailedCustLedgEntry, CustLedgerEntry."Source Code");
-
-        case TableID of
-            DATABASE::"Sales Invoice Header":
-                SalesInvoiceHeader.Get(CustLedgerEntry."Document No.");
-            DATABASE::"Sales Cr.Memo Header":
-                SalesCrMemoHeader.Get(CustLedgerEntry."Document No.");
-            DATABASE::"Service Invoice Header":
-                ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.");
-            DATABASE::"Service Cr.Memo Header":
-                ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.");
-        end;
     end;
 
     local procedure GetPmtCustDtldEntry(var DetailedCustLedgEntryPmt: Record "Detailed Cust. Ledg. Entry"; EntryNo: Integer)
@@ -5675,9 +5687,9 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
             WriteOutStr(OutStr, Format(TempDocumentLine.Quantity, 0, 9) + '|'); // CantidadAduana
             UnitOfMeasure.Get(TempDocumentLine."Unit of Measure Code");
             WriteOutStr(OutStr, UnitOfMeasure."SAT Customs Unit" + '|'); // UnidadAduana
-            WriteOutStr(OutStr, 
+            WriteOutStr(OutStr,
               FormatDecimal(Round(TempDocumentLine.Amount * CurrencyFactor, 0.000001), 2) + '|'); // ValorDolares
-            WriteOutStr(OutStr, 
+            WriteOutStr(OutStr,
               FormatDecimal(Round(TempDocumentLine."Unit Price/Direct Unit Cost" * CurrencyFactor, 0.000001), 2) + '|'); // ValorUnitarioAduana
         until TempDocumentLine.Next() = 0;
     end;
@@ -6276,12 +6288,12 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
                 TempVATAmountLinePmt."VAT Base" := 0;
                 TempVATAmountLinePmt."VAT Amount" := 0;
                 TempVATAmountLinePmt."Amount Including VAT" := 0;
-                TempVATAmountLinePmt.Insert;
+                TempVATAmountLinePmt.Insert();
             end;
             TempVATAmountLinePmt."VAT Base" += Round(TempVATAmountLine."VAT Base") / CurrencyFactor;
             TempVATAmountLinePmt."VAT Amount" += Round(TempVATAmountLine."VAT Amount") / CurrencyFactor;
             TempVATAmountLinePmt."Amount Including VAT" += Round(TempVATAmountLine."Amount Including VAT") / CurrencyFactor;
-            TempVATAmountLinePmt.Modify;
+            TempVATAmountLinePmt.Modify();
         until TempVATAmountLine.Next = 0;
     end;
 
@@ -6309,7 +6321,7 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
                 TempVATAmountLineTotal."VAT Base" := 0;
                 TempVATAmountLineTotal."VAT Amount" := 0;
                 TempVATAmountLineTotal."Amount Including VAT" := 0;
-                TempVATAmountLineTotal.Insert;
+                TempVATAmountLineTotal.Insert();
             end;
             TempVATAmountLineTotal."VAT Base" +=
               Round(TempVATAmountLine."VAT Base", RoundingPrecision) * CurrencyFactor;
@@ -6317,7 +6329,7 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
               Round(TempVATAmountLine."VAT Amount", RoundingPrecision) * CurrencyFactor;
             TempVATAmountLineTotal."Amount Including VAT" +=
               Round(TempVATAmountLine."Amount Including VAT", RoundingPrecision) * CurrencyFactor;
-            TempVATAmountLineTotal.Modify;
+            TempVATAmountLineTotal.Modify();
         until TempVATAmountLine.Next = 0;
     end;
 

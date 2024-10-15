@@ -10,8 +10,6 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
             DataItemTableView = SORTING("No.");
 
             trigger OnAfterGetRecord()
-            var
-                LocalCheckLedgerEntry: Record "Check Ledger Entry";
             begin
                 BankAccLedgEntry.Reset();
                 BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
@@ -25,11 +23,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
 
                 while not EOFBankAccLedgEntries do begin
                     InsertBankAccReconciliationLine(BankAccLedgEntry);
-                    LocalCheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
-                    if LocalCheckLedgerEntry.FindFirst() then
-                        MatchCLEToBankAccReconciliationLine(BankAccReconLine, LocalCheckLedgerEntry)
-                    else
-                        MatchBLEToBankAccReconciliationLine(BankAccReconLine, BankAccLedgEntry);
+                    MatchBLEToBankAccReconciliationLine(BankAccReconLine, BankAccLedgEntry);
                     EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
                 end;
             end;
@@ -116,7 +110,6 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         BankAccSetStmtNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
-        CheckEntrySetReconNo: Codeunit "Check Entry set Recon.-No.";
         StartDate: Date;
         EndDate: Date;
         IncludeChecks: Boolean;
@@ -142,21 +135,6 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
 
         OnBeforeInsertBankAccReconLine(BankAccReconLine, BankAccountLedgerEntry);
         BankAccReconLine.Insert();
-    end;
-
-    local procedure MatchCLEToBankAccReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgerEntry: Record "Check Ledger Entry")
-    var
-        BankAccount: Record "Bank Account";
-    begin
-        if BankAccount.Get(CheckLedgerEntry."Bank Account No.") then
-            if not BankAccount."Disable Automatic Pmt Matching" then begin
-                BankAccReconciliationLine."Applied Amount" := BankAccReconciliationLine."Statement Amount";
-                BankAccReconciliationLine."Check No." := CheckLedgerEntry."Check No.";
-                BankAccReconciliationLine."Applied Entries" := 1;
-                CheckEntrySetReconNo.SetReconNo(CheckLedgerEntry, BankAccReconciliationLine);
-            end;
-        OnInsertCheckLineOnBeforeBankAccReconLineInsert(BankAccReconciliationLine, CheckLedgerEntry);
-        BankAccReconciliationLine.Modify();
     end;
 
     local procedure MatchBLEToBankAccReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
@@ -196,9 +174,12 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         // ExcludeReversedEntries = FALSE by default
     end;
 
+#if not CLEAN22
+    [Obsolete('Use OnBeforeInsertBankAccReconLine instead.', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnInsertCheckLineOnBeforeBankAccReconLineInsert(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
+#endif
 }
 

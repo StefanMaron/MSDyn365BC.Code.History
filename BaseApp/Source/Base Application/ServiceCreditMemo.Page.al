@@ -141,7 +141,8 @@ page 5935 "Service Credit Memo"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -895,6 +896,8 @@ page 5935 "Service Credit Memo"
     end;
 
     trigger OnOpenPage()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         Rec.SetSecurityFilterOnRespCenter();
         if (Rec."No." <> '') and (Rec."Customer No." = '') then
@@ -902,6 +905,7 @@ page 5935 "Service Credit Memo"
 
         ActivateFields();
         CheckShowBackgrValidationNotification();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -930,6 +934,8 @@ page 5935 "Service Credit Memo"
         ServiceDocCheckFactboxVisible: Boolean;
         [InDataSet]
         IsServiceLinesEditable: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
     begin

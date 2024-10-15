@@ -3773,6 +3773,131 @@
         PurchaseLine.TestField("Requested Receipt Date", SalesLine."Planned Delivery Date");
     end;
 
+    [Test]
+    [HandlerFunctions('CalculatePlanReqWkshRequestPageHandler')]
+    procedure S457091_ItemVariantQtyOnInventoryIsUsedInCalculationOfRequisitionQuantity_WithRespectPlanningParameters()
+    var
+        ObjectOptions: Record "Object Options";
+        Item: Record Item;
+        ItemVariant: array[3] of Record "Item Variant";
+        StockkeepingUnit: array[3] of Record "Stockkeeping Unit";
+        Customer: Record Customer;
+        SalesHeader: array[6] of Record "Sales Header";
+        SalesLine: array[6] of Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ItemVariantStockQty: array[3] of Decimal;
+        SalesQty: array[6] of Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Reorder Point] [Stockkeeping Unit] [Requisition Worksheet] [Calculate Plan] [Respect Planning Parameters]
+        // [SCENARIO 457091] Check that Quantities calculated in "Requisition Worksheet" respect Qty. on Inventory for Items and Variants.
+        // [SCENARIO 457091] Create Item with 3 Variants and Stockkeeping Units. Put Quantity on Inventory for each Variant.
+        // [SCENARIO 457091] Create 2 Sales Orders for 1st Variant, 1 Sales Order for 2nd Variant and 3 Sales Orders for 3rd Variant.
+        // [SCENARIO 457091] Use "Calculate Plan" in "Requisition Worksheet" with "Respect Planning Parameters" enabled.
+        Initialize();
+        ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
+        ObjectOptions.SetRange("Object ID", Report::"Calculate Plan - Req. Wksh.");
+        ObjectOptions.DeleteAll();
+
+        ItemVariantStockQty[1] := LibraryRandom.RandIntInRange(1, 5);
+        ItemVariantStockQty[2] := LibraryRandom.RandIntInRange(1, 5);
+        ItemVariantStockQty[3] := LibraryRandom.RandIntInRange(1, 5);
+
+        SalesQty[1] := LibraryRandom.RandIntInRange(10, 30);
+        SalesQty[2] := LibraryRandom.RandIntInRange(10, 30);
+        SalesQty[3] := LibraryRandom.RandIntInRange(10, 30);
+        SalesQty[4] := LibraryRandom.RandIntInRange(10, 30);
+        SalesQty[5] := LibraryRandom.RandIntInRange(10, 30);
+        SalesQty[6] := LibraryRandom.RandIntInRange(10, 30);
+
+        // [GIVEN] Create Item "I" with "Reordering Policy" = "Fixed Qty.", "Replenishment System" = "Purchase", "Manufacturing Policy" = "Make-to-Stock" and "Reorder Quantity" = 1
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Stock");
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Reorder Quantity", 1);
+        Item.Modify(true);
+
+        //  [GIVEN] Create Customer "C"
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create three Variants "V1", "V2", "V3" for Item "I"
+        for i := 1 to ArrayLen(ItemVariant) do begin
+            LibraryInventory.CreateItemVariant(ItemVariant[i], Item."No.");
+        end;
+
+        // [GIVEN] Create Stockkeeping Units for Item "I" and Variants "V1", "V2", "V3"
+        for i := 1 to ArrayLen(ItemVariant) do begin
+            LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit[i], '', Item."No.", ItemVariant[i].Code);
+            StockkeepingUnit[i].CopyFromItem(Item);
+            StockkeepingUnit[i].Modify(true);
+        end;
+
+        // [GIVEN] Put Item "I" and Variants "V1", "V2", "V3" on Inventory
+        for i := 1 to ArrayLen(ItemVariant) do begin
+            PutItemVariantInventoryOnLocation(Item."No.", ItemVariant[i].Code, '', WorkDate(), ItemVariantStockQty[i]);
+        end;
+
+        // [GIVEN] Create 1st Sales Order for Item "I", Variant "V1"
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item, Item."No.", WorkDate(), SalesQty[1]);
+        SalesLine[1].Validate("Variant Code", ItemVariant[1].Code);
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Create 1st Sales Order for Item "I", Variant "V2"
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine[2], SalesHeader[2], SalesLine[2].Type::Item, Item."No.", WorkDate(), SalesQty[2]);
+        SalesLine[2].Validate("Variant Code", ItemVariant[2].Code);
+        SalesLine[2].Modify(true);
+
+        // [GIVEN] Create 1st Sales Order for Item "I", Variant "V3"
+        LibrarySales.CreateSalesHeader(SalesHeader[3], SalesHeader[3]."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine[3], SalesHeader[3], SalesLine[3].Type::Item, Item."No.", WorkDate(), SalesQty[3]);
+        SalesLine[3].Validate("Variant Code", ItemVariant[3].Code);
+        SalesLine[3].Modify(true);
+
+        // [GIVEN] Create 2nd Sales Order for Item "I", Variant "V1"
+        LibrarySales.CreateSalesHeader(SalesHeader[4], SalesHeader[4]."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine[4], SalesHeader[4], SalesLine[4].Type::Item, Item."No.", WorkDate(), SalesQty[4]);
+        SalesLine[4].Validate("Variant Code", ItemVariant[1].Code);
+        SalesLine[4].Modify(true);
+
+        // [GIVEN] Create 2nd Sales Order for Item "I", Variant "V3"
+        LibrarySales.CreateSalesHeader(SalesHeader[5], SalesHeader[5]."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine[5], SalesHeader[5], SalesLine[5].Type::Item, Item."No.", WorkDate(), SalesQty[5]);
+        SalesLine[5].Validate("Variant Code", ItemVariant[3].Code);
+        SalesLine[5].Modify(true);
+
+        // [GIVEN] Create 3rd Sales Order for Item "I", Variant "V3"
+        LibrarySales.CreateSalesHeader(SalesHeader[6], SalesHeader[6]."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine[6], SalesHeader[6], SalesLine[6].Type::Item, Item."No.", WorkDate(), SalesQty[6]);
+        SalesLine[6].Validate("Variant Code", ItemVariant[3].Code);
+        SalesLine[6].Modify(true);
+
+        // [WHEN] Calculate regenerative plan with "Respect Planning Parameters" = true.
+        ReqWorksheetCalculatePlan(Item."No.", '', WorkDate(), WorkDate(), true);
+
+        // [THEN] Verify that there are three Requisition Lines for Item "I"
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        Assert.RecordCount(RequisitionLine, ArrayLen(ItemVariant));
+
+        // [THEN] Verify that Requisition Line Quantity for Item "I" and Variant "V1" is sum of Quantities on Sales Orders decreased by Inventory
+        RequisitionLine.SetRange("Variant Code", ItemVariant[1].Code);
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField(Quantity, SalesQty[1] + SalesQty[4] - ItemVariantStockQty[1]);
+
+        // [THEN] Verify that Requisition Line Quantity for Item "I" and Variant "V1" is sum of Quantities on Sales Orders decreased by Inventory
+        RequisitionLine.SetRange("Variant Code", ItemVariant[2].Code);
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField(Quantity, SalesQty[2] - ItemVariantStockQty[2]);
+
+        // [THEN] Verify that Requisition Line Quantity for Item "I" and Variant "V1" is sum of Quantities on Sales Orders decreased by Inventory
+        RequisitionLine.SetRange("Variant Code", ItemVariant[3].Code);
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField(Quantity, SalesQty[3] + SalesQty[5] + SalesQty[6] - ItemVariantStockQty[3]);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -4214,6 +4339,19 @@
     local procedure UpdateInventoryOnLocation(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; PostingDate: Date; Quantity: Decimal)
     begin
         CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, ItemNo, Quantity);
+        ItemJournalLine.Validate("Posting Date", PostingDate);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure PutItemVariantInventoryOnLocation(ItemNo: Code[20]; VarintCode: Code[10]; LocationCode: Code[10]; PostingDate: Date; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        if VarintCode <> '' then
+            ItemJournalLine.Validate("Variant Code", VarintCode);
         ItemJournalLine.Validate("Posting Date", PostingDate);
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);

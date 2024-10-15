@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
@@ -10,96 +10,6 @@
       <rd:DataSourceID>6c28998a-7d4c-42e3-a9cd-5b94895cabe8</rd:DataSourceID>
     </DataSource>
   </DataSources>
-  <DataSets>
-    <DataSet Name="DataSet_Result">
-      <Query>
-        <DataSourceName>DataSource</DataSourceName>
-        <CommandText />
-      </Query>
-      <Fields>
-        <Field Name="VoidBox">
-          <DataField>VoidBox</DataField>
-        </Field>
-        <Field Name="CompanyAddress1">
-          <DataField>CompanyAddress1</DataField>
-        </Field>
-        <Field Name="GetAmtNEC01">
-          <DataField>GetAmtNEC01</DataField>
-        </Field>
-        <Field Name="GetAmtNEC01Format">
-          <DataField>GetAmtNEC01Format</DataField>
-        </Field>
-        <Field Name="GetAmtNEC02">
-          <DataField>GetAmtNEC02</DataField>
-        </Field>
-        <Field Name="GetAmtNEC02Format">
-          <DataField>GetAmtNEC02Format</DataField>
-        </Field>
-        <Field Name="GetAmtNEC04">
-          <DataField>GetAmtNEC04</DataField>
-        </Field>
-        <Field Name="GetAmtNEC04Format">
-          <DataField>GetAmtNEC04Format</DataField>
-        </Field>
-        <Field Name="CompanyAddress2">
-          <DataField>CompanyAddress2</DataField>
-        </Field>
-        <Field Name="CompanyAddress3">
-          <DataField>CompanyAddress3</DataField>
-        </Field>
-        <Field Name="CompanyAddress4">
-          <DataField>CompanyAddress4</DataField>
-        </Field>
-        <Field Name="CompanyAddress5">
-          <DataField>CompanyAddress5</DataField>
-        </Field>
-        <Field Name="FATCA">
-          <DataField>FATCA</DataField>
-        </Field>
-        <Field Name="Box2">
-          <DataField>Box2</DataField>
-        </Field>
-        <Field Name="CompanyInfoFederalIDNo">
-          <DataField>CompanyInfoFederalIDNo</DataField>
-        </Field>
-        <Field Name="FederalIDNo_Vendor">
-          <DataField>FederalIDNo_Vendor</DataField>
-        </Field>
-        <Field Name="Name_Vendor">
-          <DataField>Name_Vendor</DataField>
-        </Field>
-        <Field Name="Name2_Vendor">
-          <DataField>Name2_Vendor</DataField>
-        </Field>
-        <Field Name="Address_Vendor">
-          <DataField>Address_Vendor</DataField>
-        </Field>
-        <Field Name="Address3_Vendor">
-          <DataField>Address3_Vendor</DataField>
-        </Field>
-        <Field Name="No_Vendor">
-          <DataField>No_Vendor</DataField>
-        </Field>
-        <Field Name="Address2_Vendor">
-          <DataField>Address2_Vendor</DataField>
-        </Field>
-        <Field Name="PageGroupNo">
-          <DataField>PageGroupNo</DataField>
-        </Field>
-        <Field Name="YearDigits">
-          <DataField>YearDigits</DataField>
-        </Field>
-        <Field Name="FormCounter">
-          <DataField>FormCounter</DataField>
-        </Field>
-      </Fields>
-      <rd:DataSetInfo>
-        <rd:DataSetName>DataSet</rd:DataSetName>
-        <rd:SchemaPath>Report.xsd</rd:SchemaPath>
-        <rd:TableName>Result</rd:TableName>
-      </rd:DataSetInfo>
-    </DataSet>
-  </DataSets>
   <ReportSections>
     <ReportSection>
       <Body>
@@ -2221,4 +2131,89 @@ End Function
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
   <rd:ReportUnitType>Cm</rd:ReportUnitType>
   <rd:ReportID>05910c9a-5d8b-4474-bbe7-831ee5ed2c71</rd:ReportID>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="VoidBox">
+          <DataField>VoidBox</DataField>
+        </Field>
+        <Field Name="CompanyAddress1">
+          <DataField>CompanyAddress1</DataField>
+        </Field>
+        <Field Name="GetAmtNEC01">
+          <DataField>GetAmtNEC01</DataField>
+        </Field>
+        <Field Name="GetAmtNEC01Format">
+          <DataField>GetAmtNEC01Format</DataField>
+        </Field>
+        <Field Name="GetAmtNEC02">
+          <DataField>GetAmtNEC02</DataField>
+        </Field>
+        <Field Name="GetAmtNEC02Format">
+          <DataField>GetAmtNEC02Format</DataField>
+        </Field>
+        <Field Name="GetAmtNEC04">
+          <DataField>GetAmtNEC04</DataField>
+        </Field>
+        <Field Name="GetAmtNEC04Format">
+          <DataField>GetAmtNEC04Format</DataField>
+        </Field>
+        <Field Name="CompanyAddress2">
+          <DataField>CompanyAddress2</DataField>
+        </Field>
+        <Field Name="CompanyAddress3">
+          <DataField>CompanyAddress3</DataField>
+        </Field>
+        <Field Name="CompanyAddress4">
+          <DataField>CompanyAddress4</DataField>
+        </Field>
+        <Field Name="CompanyAddress5">
+          <DataField>CompanyAddress5</DataField>
+        </Field>
+        <Field Name="FATCA">
+          <DataField>FATCA</DataField>
+        </Field>
+        <Field Name="Box2">
+          <DataField>Box2</DataField>
+        </Field>
+        <Field Name="CompanyInfoFederalIDNo">
+          <DataField>CompanyInfoFederalIDNo</DataField>
+        </Field>
+        <Field Name="FederalIDNo_Vendor">
+          <DataField>FederalIDNo_Vendor</DataField>
+        </Field>
+        <Field Name="Name_Vendor">
+          <DataField>Name_Vendor</DataField>
+        </Field>
+        <Field Name="Name2_Vendor">
+          <DataField>Name2_Vendor</DataField>
+        </Field>
+        <Field Name="Address_Vendor">
+          <DataField>Address_Vendor</DataField>
+        </Field>
+        <Field Name="Address3_Vendor">
+          <DataField>Address3_Vendor</DataField>
+        </Field>
+        <Field Name="No_Vendor">
+          <DataField>No_Vendor</DataField>
+        </Field>
+        <Field Name="Address2_Vendor">
+          <DataField>Address2_Vendor</DataField>
+        </Field>
+        <Field Name="PageGroupNo">
+          <DataField>PageGroupNo</DataField>
+        </Field>
+        <Field Name="YearDigits">
+          <DataField>YearDigits</DataField>
+        </Field>
+        <Field Name="FormCounter">
+          <DataField>FormCounter</DataField>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+    </DataSet>
+  </DataSets>
 </Report>

@@ -1,7 +1,7 @@
 report 10183 "Vendor 1099 Int 2022"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Vendor1099Int2022.rdlc';
+    RDLCLayout = './Local/Vendor1099Int2022.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor 1099 Interest 2022';
     UsageCategory = ReportsAndAnalysis;

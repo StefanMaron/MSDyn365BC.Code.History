@@ -1892,6 +1892,73 @@ codeunit 141050 "Bank Recon. with Matching"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure EnablingStandardizedBankReconWithMatchingFeature_AllCompanies()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
+        DefaultCompany: Text[30];
+        SecondCompanyName: Text[30];
+    begin
+        // [SCENARIO 456991] Enabling "Standardized Bank Acc Recon" feature will update "Bank Recon. with Auto. Match" in all companies
+        Initialize();
+
+        // [GIVEN] Default company wtih "Bank Recon. with Auto. Match" disabled
+        DefaultCompany := GeneralLedgerSetup.CurrentCompany();
+        SetBankReconwithAutoMatch(GeneralLedgerSetup, false);
+
+        // [GIVEN] A 2nd company with "Bank Recon. with Auto. Match" disabled
+        SecondCompanyName := CreateCompanyWithGLSetup();
+        GeneralLedgerSetup.ChangeCompany(SecondCompanyName);
+        SetBankReconwithAutoMatch(GeneralLedgerSetup, false);
+
+        // [WHEN] Enable "Standardized Bank Acc Recon" via management
+        BankDepositFeatureMgt.EnableDepositActions();
+
+        // [THEN] "Bank Recon. with Auto. Match" in default company = true, Report Selections have correct Reports selected
+        GeneralLedgerSetup.ChangeCompany(DefaultCompany);
+        VerifyBankReconwithAutoMatch(GeneralLedgerSetup, true);
+        VerifyReportLayoutSelectionInCompany(DefaultCompany, Report::"Bank Account Statement", Report::"Bank Acc. Recon. - Test");
+
+        // [THEN] "Bank Recon. with Auto. Match" in 2nd company = true, Report Selections have correct Reports selected
+        GeneralLedgerSetup.ChangeCompany(SecondCompanyName);
+        VerifyBankReconwithAutoMatch(GeneralLedgerSetup, true);
+        VerifyReportLayoutSelectionInCompany(SecondCompanyName, Report::"Bank Account Statement", Report::"Bank Acc. Recon. - Test");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DisablingStandardizedBankReconWithMatchingFeature_AllCompanies()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
+        DefaultCompany: Text[30];
+        SecondCompanyName: Text[30];
+    begin
+        // [SCENARIO 456991] Disabling "Standardized Bank Acc Recon" feature will update "Bank Recon. with Auto. Match" in all companies
+        Initialize();
+
+        // [GIVEN] Default company wtih "Bank Recon. with Auto. Match" enabled by default
+        DefaultCompany := GeneralLedgerSetup.CurrentCompany();
+
+        // [GIVEN] A 2nd company with "Bank Recon. with Auto. Match" enabled by default
+        SecondCompanyName := CreateCompanyWithGLSetup();
+
+        // [WHEN] Disable "Standardized Bank Acc Recon" via management
+        BankDepositFeatureMgt.DisableDepositActions();
+
+        // [THEN] "Bank Recon. with Auto. Match" in default company = false, Report Selections have correct Reports selected
+        GeneralLedgerSetup.ChangeCompany(DefaultCompany);
+        VerifyBankReconwithAutoMatch(GeneralLedgerSetup, false);
+        VerifyReportLayoutSelectionInCompany(DefaultCompany, Report::"Bank Reconciliation", Report::"Bank Rec. Test Report");
+
+        // [THEN] "Bank Recon. with Auto. Match" in 2nd company = false, Report Selections have correct Reports selected
+        GeneralLedgerSetup.ChangeCompany(SecondCompanyName);
+        VerifyBankReconwithAutoMatch(GeneralLedgerSetup, false);
+        VerifyReportLayoutSelectionInCompany(SecondCompanyName, Report::"Bank Reconciliation", Report::"Bank Rec. Test Report");
+    end;
+
     local procedure Initialize()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -1903,6 +1970,46 @@ codeunit 141050 "Bank Recon. with Matching"
             GeneralLedgerSetup."Bank Rec. Adj. Doc. Nos." := LibraryERM.CreateNoSeriesCode;
             GeneralLedgerSetup.Modify();
         end;
+    end;
+
+    procedure CreateCompanyWithGLSetup() NewCompanyName: Text[30]
+    var
+        Company: Record Company;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        NewCompanyName := LibraryUtility.GenerateGUID();
+        Company.Name := NewCompanyName;
+        Company.Insert(true);
+        Commit();
+        GeneralLedgerSetup.ChangeCompany(NewCompanyName);
+        GeneralLedgerSetup.Init();
+        GeneralLedgerSetup.Insert();
+    end;
+
+    procedure SetBankReconwithAutoMatch(var GeneralLedgerSetup: Record "General Ledger Setup"; NewValue: Boolean)
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Bank Recon. with Auto. Match", NewValue);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    procedure VerifyBankReconwithAutoMatch(var GeneralLedgerSetup: Record "General Ledger Setup"; ExpectedValue: Boolean)
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("Bank Recon. with Auto. Match", ExpectedValue);
+    end;
+
+    procedure VerifyReportLayoutSelectionInCompany(CompanyName: Text[30]; PrintingReportID: Integer; TestingReportID: Integer)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ReportSelections.ChangeCompany(CompanyName);
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"B.Stmt");
+        ReportSelections.FindFirst();
+        ReportSelections.TestField("Report ID", PrintingReportID);
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"B.Recon.Test");
+        ReportSelections.FindFirst();
+        ReportSelections.TestField("Report ID", TestingReportID);
     end;
 
     local procedure OpenBankReconciliationList(No: Code[20])

@@ -157,7 +157,7 @@ page 973 "Time Sheet Card"
                 Image = Reject;
                 Enabled = ApproveEnabled;
                 Visible = ManagerTimeSheet;
-                ToolTip = 'Approve all submitted time sheet lines. For dedicated line approval use action Approve on the subform Lines.';
+                ToolTip = 'Reject all submitted time sheet lines. For dedicated line rejection use action Reject on the subform Lines.';
 
                 trigger OnAction()
                 begin
