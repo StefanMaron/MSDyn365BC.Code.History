@@ -43,8 +43,7 @@ codeunit 3 "G/L Account-Indent"
                             Error(
                               Text005,
                               "No.");
-                        if Totaling = '' then
-                            Totaling := AccNo[i] + '..' + "No.";
+                        Totaling := AccNo[i] + '..' + "No.";
                         i := i - 1;
                     end;
 

@@ -2284,7 +2284,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Last(Fields!TotalOvhdCostAmt.Value))</Value>
+                                  <Value>=Code.BlankZero(Last(Fields!TotalVarMfgOvhdCostAmt.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!TotalVarMfgOvhdCostAmtFormat.Value</Format>

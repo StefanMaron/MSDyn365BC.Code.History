@@ -38,21 +38,34 @@ codeunit 1011 "Job Jnl.-Check Line"
 
             CheckDim(JobJnlLine);
 
-            if Type = Type::Item then begin
-                if ("Quantity (Base)" < 0) and ("Entry Type" = "Entry Type"::Usage) then
-                    CheckItemQuantityJobJnl(JobJnlLine);
-                GetLocation("Location Code");
-                if Location."Directed Put-away and Pick" then
-                    TestField("Bin Code", '')
-                else
-                    if Location."Bin Mandatory" then
-                        TestField("Bin Code");
-            end;
+            CheckItemQuantityAndBinCode(JobJnlLine);
 
             TestJobJnlLineChargeable(JobJnlLine);
         end;
 
         OnAfterRunCheck(JobJnlLine);
+    end;
+
+    local procedure CheckItemQuantityAndBinCode(var JobJournalLine: Record "Job Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckItemQuantityAndBinCode(JobJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if JobJournalLine.Type <> JobJournalLine.Type::Item then
+            exit;
+
+        if (JobJournalLine."Quantity (Base)" < 0) and (JobJournalLine."Entry Type" = JobJournalLine."Entry Type"::Usage) then
+            CheckItemQuantityJobJnl(JobJournalLine);
+        GetLocation(JobJournalLine."Location Code");
+        if Location."Directed Put-away and Pick" then
+            JobJournalLine.TestField("Bin Code", '')
+        else
+            if Location."Bin Mandatory" then
+                JobJournalLine.TestField("Bin Code");
     end;
 
     local procedure TestJobStatusOpen(var JobJnlLine: Record "Job Journal Line")
@@ -225,6 +238,11 @@ codeunit 1011 "Job Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDim(var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemQuantityAndBinCode(JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

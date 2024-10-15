@@ -33,6 +33,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
+        FileMgt: Codeunit "File Management";
         TempSubDirectoryTxt: Label '142083_Test\';
         "Layout": Option RDLC,Word;
         AmountVerificationMsg: Label 'Amount must be equal.';
@@ -972,6 +973,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         BankExportImportSetup: Record "Bank Export/Import Setup";
         TempACHRBHeader: Record "ACH RB Header" temporary;
         TempACHRBDetail: Record "ACH RB Detail" temporary;
+        GenJournalLine: Record "Gen. Journal Line";
         ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         GenerateEFT: Codeunit "Generate EFT";
@@ -1014,7 +1016,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         // [GIVEN] Export the payment journal.
         // [GIVEN] Mark the exported lines as "Include" so they can be processed to EFT file.
         // [GIVEN] TODAY = 23/03/2019, WORKDATE = 20/03/2019
-        CreateAndExportVendorPayment(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
+        CreateAndExportVendorPayment(TempEFTExportWorkset, GenJournalLine, VendorBankAccount, BankAccount."No.");
 
         // [WHEN] Generate EFT file.
         Commit();
@@ -2007,6 +2009,298 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(MyBalCaptionTxt, GenJournalLine."Bal. Account No.");
         LibraryVariableStorage.AssertEmpty();
+        UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler,VoidCheckPageHandler')]
+    procedure FinanciallyVoidCheckForFCYBank()
+    var
+        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+        BankAccount: Record "Bank Account";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+    begin
+        // [FEATURE] [Check] [Currency]
+        // [SCENARIO 408136] Financially Void check for the FCY bank account
+        Initialize();
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        CreateExportReportSelection(Layout::RDLC);
+
+        // [GIVEN] FCY Bank Account with EFT setup
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'CA');
+        CreateBankAccountForCountry(
+            BankAccount, BankAccount."Export Format"::CA, CreateBankExportImportSetup(CreateDataExchDefForCA),
+            LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
+        // [GIVEN] FCY Vendor Payment with 1000 CAD Amount and 900 USD Amount LCY
+        // [GIVEN] Export the payment
+        CreateAndExportVendorPayment(TempEFTExportWorkset, GenJournalLine, VendorBankAccount, BankAccount."No.");
+        GenJournalLine.TestField("Currency Code");
+        GenJournalLine.TestField(Amount);
+
+        // [GIVEN] A new check is created with Amount = 1000 and status = Exported
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        CheckLedgerEntry.FindFirst();
+        CheckLedgerEntry.TestField(Amount, GenJournalLine.Amount);
+        CheckLedgerEntry.TestField("Entry Status", CheckLedgerEntry."Entry Status"::Exported);
+
+        // [GIVEN] Post the payment
+        // [GIVEN] The check status = Posted and linked bank ledger entry has Amount = -1000, Amount LCY = -900
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        CheckLedgerEntry.Find();
+        CheckLedgerEntry.TestField("Entry Status", CheckLedgerEntry."Entry Status"::Posted);
+        CheckLedgerEntry.TestField("Bank Account Ledger Entry No.");
+        BankAccountLedgerEntry.GET(CheckLedgerEntry."Bank Account Ledger Entry No.");
+        BankAccountLedgerEntry.TestField(Amount, -GenJournalLine.Amount);
+        BankAccountLedgerEntry.TestField("Amount (LCY)", -GenJournalLine."Amount (LCY)");
+
+        // [WHEN] Void the check (financial void)
+        VoidCheck(CheckLedgerEntry);
+
+        // [THEN] The check has status is "Financially Voided"
+        // [THEN] A new bank ledgerentry is created with Amount = +1000, Amount LCY = +900
+        CheckLedgerEntry.Find();
+        CheckLedgerEntry.TestField("Entry Status", CheckLedgerEntry."Entry Status"::"Financially Voided");
+        BankAccountLedgerEntry.Next();
+        BankAccountLedgerEntry.TestField(Amount, GenJournalLine.Amount);
+        BankAccountLedgerEntry.TestField("Amount (LCY)", GenJournalLine."Amount (LCY)");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsWordOutputXMLRequestPageHandler')]
+    procedure RunExportPaymentsWordPaymentJournalPageMultipleLinesOneVendor()
+    var
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        ServerTempFileName: Text;
+        DocumentNos: List of [Code[20]];
+    begin
+        // [SCENARIO 409562] Run Bank - Export on Payment Journal page with multiple Payment Journal lines for one Vendor. Vendor Remittance report is "ExportElecPayments - Word".
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        LibraryFileMgtHandler.SetSaveFileActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        // [GIVEN] Report "ExportElecPayments - Word" is set as a report for Vendor Remittance.
+        CreateExportReportSelection(Layout::Word);
+
+        // [GIVEN] Two Payment Journal lines with Gen. Journal Batch "B" for one Vendor.
+        CreateBankAccountForCountry(
+            BankAccount, BankAccount."Export Format"::US, CreateBankExportImportSetup(CreateDataExchDefForUS()), '', '');
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateVendorPaymentLine(GenJournalLine[1], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        CreateVendorPaymentLine(GenJournalLine[2], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+
+        // [WHEN] Open Payment Journal, set Batch Name "B", run Bank - Export.
+        // [WHEN] Set Output = XML on requst page of report "ExportElecPayments - Word".
+        ExportPaymentJournalViaAction(GenJournalLine[1], GenJournalBatch, GenJournalLine[1]."Bal. Account No.");
+
+        // [THEN] One xml file for both Payment Journal lines is created.
+        ServerTempFileName := LibraryFileMgtHandler.GetServerTempFileName();
+        Assert.AreEqual('xml', FileMgt.GetExtension(ServerTempFileName), '');
+        GenJournalLine[1].Find();
+        GenJournalLine[2].Find();
+        DocumentNos.AddRange(GenJournalLine[1]."Document No.", GenJournalLine[2]."Document No.");
+        VerifyDocumentNoInXmlOutput(ServerTempFileName, DocumentNos);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsWordOutputXMLRequestPageHandler')]
+    procedure RunExportPaymentsWordPaymentJournalPageMultLinesMultVendors()
+    var
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[4] of Record "Gen. Journal Line";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        ServerTempFileName: Text;
+        XmlFileNames: List of [Text];
+        DocumentNos1: List of [Code[20]];
+        DocumentNos2: List of [Code[20]];
+    begin
+        // [SCENARIO 409562] Run Bank - Export on Payment Journal page with multiple Payment Journal lines for one Vendor. Vendor Remittance report is "ExportElecPayments - Word".
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        LibraryFileMgtHandler.SetSaveFileActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        // [GIVEN] Report "ExportElecPayments - Word" is set as a report for Vendor Remittance.
+        CreateExportReportSelection(Layout::Word);
+
+        // [GIVEN] Four Payment Journal lines with Gen. Journal Batch "B", two lines for each Vendor.
+        CreateBankAccountForCountry(
+            BankAccount, BankAccount."Export Format"::US, CreateBankExportImportSetup(CreateDataExchDefForUS()), '', '');
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
+
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateVendorPaymentLine(GenJournalLine[1], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        CreateVendorPaymentLine(GenJournalLine[2], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateVendorPaymentLine(GenJournalLine[3], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        CreateVendorPaymentLine(GenJournalLine[4], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+
+        // [WHEN] Open Payment Journal, set Batch Name "B", run Bank - Export.
+        // [WHEN] Set Output = XML on requst page of report "ExportElecPayments - Word".
+        ExportPaymentJournalViaAction(GenJournalLine[1], GenJournalBatch, GenJournalLine[1]."Bal. Account No.");
+
+        // [THEN] One zip archive with two xml files is created. Each xml file contains two payments for one Vendor.
+        ServerTempFileName := LibraryFileMgtHandler.GetServerTempFileName();
+        Assert.AreEqual('zip', FileMgt.GetExtension(ServerTempFileName), '');
+        GenJournalLine[1].Find();
+        GenJournalLine[2].Find();
+        GenJournalLine[3].Find();
+        GenJournalLine[4].Find();
+        DocumentNos1.AddRange(GenJournalLine[1]."Document No.", GenJournalLine[2]."Document No.");
+        DocumentNos2.AddRange(GenJournalLine[3]."Document No.", GenJournalLine[4]."Document No.");
+
+        GetFilesFromZipArchive(ServerTempFileName, XmlFileNames);
+
+        VerifyDocumentNoInXmlOutput(XmlFileNames.Get(1), DocumentNos1);
+        VerifyDocumentNoAbsenceInXmlOutput(XmlFileNames.Get(1), DocumentNos2);
+
+        VerifyDocumentNoInXmlOutput(XmlFileNames.Get(2), DocumentNos2);
+        VerifyDocumentNoAbsenceInXmlOutput(XmlFileNames.Get(2), DocumentNos1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsOutputXMLRequestPageHandler')]
+    procedure RunExportPaymentsPaymentJournalPageMultipleLinesOneVendor()
+    var
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        ServerTempFileName: Text;
+        DocumentNos: List of [Code[20]];
+    begin
+        // [SCENARIO 409562] Run Bank - Export on Payment Journal page with multiple Payment Journal lines for one Vendor. Vendor Remittance report is "Export Elecronic Payments".
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        LibraryFileMgtHandler.SetSaveFileActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        // [GIVEN] Report "Export Elecronic Payments" is set as a report for Vendor Remittance.
+        CreateExportReportSelection(Layout::RDLC);
+
+        // [GIVEN] Two Payment Journal lines with Gen. Journal Batch "B" for one Vendor.
+        CreateBankAccountForCountry(
+            BankAccount, BankAccount."Export Format"::US, CreateBankExportImportSetup(CreateDataExchDefForUS()), '', '');
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateVendorPaymentLine(GenJournalLine[1], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        CreateVendorPaymentLine(GenJournalLine[2], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+
+        // [WHEN] Open Payment Journal, set Batch Name "B", run Bank - Export.
+        // [WHEN] Set Output = XML on requst page of report "Export Elecronic Payments".
+        ExportPaymentJournalViaAction(GenJournalLine[1], GenJournalBatch, GenJournalLine[1]."Bal. Account No.");
+
+        // [THEN] One xml file for both Payment Journal lines is created.
+        ServerTempFileName := LibraryFileMgtHandler.GetServerTempFileName();
+        Assert.AreEqual('xml', FileMgt.GetExtension(ServerTempFileName), '');
+        GenJournalLine[1].Find();
+        GenJournalLine[2].Find();
+        DocumentNos.AddRange(GenJournalLine[1]."Document No.", GenJournalLine[2]."Document No.");
+        VerifyDocumentNoInXmlOutput(ServerTempFileName, DocumentNos);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsOutputXMLRequestPageHandler')]
+    procedure RunExportPaymentsPaymentJournalPageMultLinesMultVendors()
+    var
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[4] of Record "Gen. Journal Line";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        ServerTempFileName: Text;
+        FileName: Text;
+        XmlFileNames: List of [Text];
+        DocumentNos1: List of [Code[20]];
+        DocumentNos2: List of [Code[20]];
+    begin
+        // [SCENARIO 409562] Run Bank - Export on Payment Journal page with multiple Payment Journal lines for one Vendor. Vendor Remittance report is "ExportElecPayments - Word".
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        LibraryFileMgtHandler.SetSaveFileActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        // [GIVEN] Report "Export Elecronic Payments" is set as a report for Vendor Remittance.
+        CreateExportReportSelection(Layout::RDLC);
+
+        // [GIVEN] Four Payment Journal lines with Gen. Journal Batch "B", two lines for each Vendor.
+        CreateBankAccountForCountry(
+            BankAccount, BankAccount."Export Format"::US, CreateBankExportImportSetup(CreateDataExchDefForUS()), '', '');
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
+
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateVendorPaymentLine(GenJournalLine[1], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        CreateVendorPaymentLine(GenJournalLine[2], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateVendorPaymentLine(GenJournalLine[3], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        CreateVendorPaymentLine(GenJournalLine[4], GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+
+        // [WHEN] Open Payment Journal, set Batch Name "B", run Bank - Export.
+        // [WHEN] Set Output = XML on requst page of report "Export Elecronic Payments".
+        ExportPaymentJournalViaAction(GenJournalLine[1], GenJournalBatch, GenJournalLine[1]."Bal. Account No.");
+
+        // [THEN] One zip archive with two xml files is created. Each xml file contains two payments for one Vendor.
+        ServerTempFileName := LibraryFileMgtHandler.GetServerTempFileName();
+        Assert.AreEqual('zip', FileMgt.GetExtension(ServerTempFileName), '');
+        GenJournalLine[1].Find();
+        GenJournalLine[2].Find();
+        GenJournalLine[3].Find();
+        GenJournalLine[4].Find();
+        DocumentNos1.AddRange(GenJournalLine[1]."Document No.", GenJournalLine[2]."Document No.");
+        DocumentNos2.AddRange(GenJournalLine[3]."Document No.", GenJournalLine[4]."Document No.");
+
+        GetFilesFromZipArchive(ServerTempFileName, XmlFileNames);
+
+        VerifyDocumentNoInXmlOutput(XmlFileNames.Get(1), DocumentNos1);
+        VerifyDocumentNoAbsenceInXmlOutput(XmlFileNames.Get(1), DocumentNos2);
+
+        VerifyDocumentNoInXmlOutput(XmlFileNames.Get(2), DocumentNos2);
+        VerifyDocumentNoAbsenceInXmlOutput(XmlFileNames.Get(2), DocumentNos1);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -2329,11 +2623,10 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndExportVendorPayment(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; VendorBankAccount: Record "Vendor Bank Account"; BankAccountNo: Code[20])
+    local procedure CreateAndExportVendorPayment(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var GenJournalLine: Record "Gen. Journal Line"; VendorBankAccount: Record "Vendor Bank Account"; BankAccountNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
         EFTExport: Record "EFT Export";
         PaymentJournal: TestPage "Payment Journal";
         InvoiceNo: Code[20];
@@ -2375,8 +2668,10 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     end;
 
     local procedure CreateAndExportVendorPaymentWithAllBusinessData(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; VendorBankAccount: Record "Vendor Bank Account"; BankAccountNo: Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
     begin
-        CreateAndExportVendorPayment(TempEFTExportWorkset, VendorBankAccount, BankAccountNo);
+        CreateAndExportVendorPayment(TempEFTExportWorkset, GenJournalLine, VendorBankAccount, BankAccountNo);
         TempEFTExportWorkset.TestField("Document No.");
         TempEFTExportWorkset.TestField("External Document No.");
         TempEFTExportWorkset.TestField("Applies-to Doc. No.");
@@ -3060,6 +3355,33 @@ codeunit 142083 "ERM Electronic Funds Transfer"
             Erase(ZipPath);
     end;
 
+    local procedure GetFilesFromZipArchive(ZipFileName: Text; var FileNames: List of [Text]);
+    var
+        DataCompression: Codeunit "Data Compression";
+        ZipFile: File;
+        ExtractedFile: File;
+        ZipInStream: InStream;
+        FileOutStream: OutStream;
+        EntryName: Text;
+        EntryList: List of [Text];
+        FileName: Text;
+        EntryLength: Integer;
+    begin
+        ZipFile.Open(ZipFileName);
+        ZipFile.CreateInStream(ZipInStream);
+        DataCompression.OpenZipArchive(ZipInStream, false);
+        DataCompression.GetEntryList(EntryList);
+        foreach EntryName in EntryList do begin
+            FileName := FileMgt.ServerTempFileName(FileMgt.GetExtension(EntryName));
+            FileNames.Add(FileName);
+            ExtractedFile.Create(FileName);
+            ExtractedFile.CreateOutStream(FileOutStream);
+            DataCompression.ExtractEntry(EntryName, FileOutStream, EntryLength);
+            ExtractedFile.Close();
+        end;
+        ZipFile.Close();
+    end;
+
     local procedure ModifyUseForElectronicPaymentsVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; CheckBoxValue: Boolean)
     begin
         VendorBankAccount.SetFilter("Vendor No.", '<>''''');
@@ -3123,6 +3445,18 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     end;
 
     [RequestPageHandler]
+    procedure ExportElectronicPaymentsOutputXMLRequestPageHandler(var ExportElectronicPayments: TestRequestPage "Export Electronic Payments")
+    var
+        SupportedOutputMethod: Option Print,Preview,PDF,Email,Excel,XML;
+    begin
+        ExportElectronicPayments.BankAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText());
+        ExportElectronicPayments.OutputMethod.SetValue(SupportedOutputMethod::XML);
+        ExportElectronicPayments.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ExportElectronicPaymentsWordLayoutRequestPageHandler(var ExportElecPaymentsWord: TestRequestPage "ExportElecPayments - Word")
     var
@@ -3132,6 +3466,18 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         ExportElecPaymentsWord.BankAccountNo.SetValue(BankAccountNo);
         ExportElecPaymentsWord.OutputMethod.SetValue('PDF');
         ExportElecPaymentsWord.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure ExportElectronicPaymentsWordOutputXMLRequestPageHandler(var ExportElecPaymentsWord: TestRequestPage "ExportElecPayments - Word")
+    var
+        SupportedOutputMethod: Option Print,Preview,PDF,Email,Word,XML;
+    begin
+        ExportElecPaymentsWord.BankAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        ExportElecPaymentsWord."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        ExportElecPaymentsWord."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText());
+        ExportElecPaymentsWord.OutputMethod.SetValue(SupportedOutputMethod::XML);
+        ExportElecPaymentsWord.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3235,6 +3581,15 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         DataExchFieldMapping.Validate("Table ID", Database::"ACH US Detail");
         DataExchFieldMapping.Validate("Field ID", ACHUSDetail.FieldNo("Entry Detail Sequence No"));
         DataExchFieldMapping.Insert(true);
+    end;
+
+    local procedure VoidCheck(var CheckLedgerEntry: Record "Check Ledger Entry")
+    var
+        CheckManagement: Codeunit CheckManagement;
+        VoidType: Option "Unapply and void check","Void check only";
+    begin
+        LibraryVariableStorage.Enqueue(VoidType::"Void check only");
+        CheckManagement.FinancialVoidCheck(CheckLedgerEntry);
     end;
 
     local procedure VerifyPaymentFileError(GenJournalLine: Record "Gen. Journal Line"; PaymentFileErrorTxt: Text)
@@ -3342,6 +3697,26 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJournalLine.TestField("Check Transmitted", Transmitted);
     end;
 
+    local procedure VerifyDocumentNoInXmlOutput(FileName: Text; DocumentNos: List of [Code[20]]);
+    var
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        DocumentNo: Code[20];
+    begin
+        LibraryXPathXMLReader.Initialize(FileName, '');
+        foreach DocumentNo in DocumentNos do
+            LibraryXPathXMLReader.VerifyNodeCountWithValueByXPath('//DataItems/DataItem/Columns/Column', DocumentNo, 1);
+    end;
+
+    local procedure VerifyDocumentNoAbsenceInXmlOutput(FileName: Text; DocumentNos: List of [Code[20]]);
+    var
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        DocumentNo: Code[20];
+    begin
+        LibraryXPathXMLReader.Initialize(FileName, '');
+        foreach DocumentNo in DocumentNos do
+            LibraryXPathXMLReader.VerifyNodeCountWithValueByXPath('//DataItems/DataItem/Columns/Column', DocumentNo, 0);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -3354,6 +3729,13 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     begin
         LibraryVariableStorage.Enqueue(Question);
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    procedure VoidCheckPageHandler(var ConfirmFinancialVoid: Page "Confirm Financial Void"; var Response: Action)
+    begin
+        ConfirmFinancialVoid.InitializeRequest(WorkDate(), LibraryVariableStorage.DequeueInteger());
+        Response := Action::Yes;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnIsTestMode', '', false, false)]

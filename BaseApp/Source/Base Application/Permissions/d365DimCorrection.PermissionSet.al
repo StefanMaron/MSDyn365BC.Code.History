@@ -9,5 +9,7 @@ permissionset 2980 "D365 DIM CORRECTION"
                   tabledata "Dim Correction Set Buffer" = RIMD,
                   tabledata "Dim Correction Entry Log" = RIMD,
                   tabledata "Dimension Correction" = RIMD,
+                  tabledata "Change Global Dim. Header" = RIMD,
+                  tabledata "Change Global Dim. Log Entry" = RIMD,
                   tabledata "Invalidated Dim Correction" = RIMD;
 }

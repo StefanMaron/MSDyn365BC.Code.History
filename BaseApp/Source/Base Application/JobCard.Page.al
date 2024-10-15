@@ -53,6 +53,7 @@ page 88 "Job Card"
                     begin
                         if not BilltoContactLookup() then
                             exit(false);
+                        Text := "Bill-to Contact No.";
                         BilltoCustomerNoOnAfterValidate();
                         exit(true);
                     end;

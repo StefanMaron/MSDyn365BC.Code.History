@@ -339,6 +339,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
         with SalesShptLine do begin
             SalesLine.Get(SalesLine."Document Type"::Order, "Order No.", "Order Line No.");
+            OnUpdateOrderLineOnBeforeUpdateSalesLine(SalesShptLine, SalesLine);
             UndoPostingMgt.UpdateSalesLine(SalesLine, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry);
             OnAfterUpdateSalesLine(SalesLine, SalesShptLine);
         end;
@@ -654,6 +655,11 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnBeforeRunItemJnlPostLine(var ItemJnlLine: Record "Item Journal Line"; ItemLedgEntryNotInvoiced: Record "Item Ledger Entry"; SalesShptLine: Record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOrderLineOnBeforeUpdateSalesLine(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 

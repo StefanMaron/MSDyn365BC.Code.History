@@ -1,4 +1,4 @@
-page 6510 "Item Tracking Lines"
+﻿page 6510 "Item Tracking Lines"
 {
     Caption = 'Item Tracking Lines';
     DataCaptionFields = "Item No.", "Variant Code", Description;
@@ -1326,7 +1326,7 @@ page 6510 "Item Tracking Lines"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetSourceSpecForTransferReceipt(Rec, ReservEntry, TrackingSpecification, CurrentRunMode, DeleteIsBlocked, IsHandled);
+        OnBeforeSetSourceSpecForTransferReceipt(Rec, ReservEntry, TrackingSpecification, CurrentRunMode, DeleteIsBlocked, IsHandled, TempTrackingSpecification2);
         if IsHandled then
             exit;
 
@@ -1889,7 +1889,7 @@ page 6510 "Item Tracking Lines"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRegisterChange(OldTrackingSpecification, NewTrackingSpecification, CurrentSignFactor, CurrentRunMode.AsInteger(), IsHandled);
+        OnBeforeRegisterChange(OldTrackingSpecification, NewTrackingSpecification, CurrentSignFactor, CurrentRunMode.AsInteger(), IsHandled, CurrentPageIsOpen);
         if IsHandled then
             exit;
 
@@ -3360,7 +3360,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRegisterChange(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer; var IsHandled: Boolean)
+    local procedure OnBeforeRegisterChange(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer; var IsHandled: Boolean; CurrentPageIsOpen: Boolean)
     begin
     end;
 
@@ -3510,7 +3510,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetSourceSpecForTransferReceipt(var TrackingSpecificationRec: Record "Tracking Specification"; var ReservEntry: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification"; CurrentRunMode: Enum "Item Tracking Run Mode"; var DeleteIsBlocked: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSetSourceSpecForTransferReceipt(var TrackingSpecificationRec: Record "Tracking Specification"; var ReservEntry: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification"; CurrentRunMode: Enum "Item Tracking Run Mode"; var DeleteIsBlocked: Boolean; var IsHandled: Boolean; var TempTrackingSpecification2: Record "Tracking Specification" temporary)
     begin
     end;
 

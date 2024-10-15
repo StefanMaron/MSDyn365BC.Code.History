@@ -54,7 +54,7 @@ page 6621 "Blanket Sales Order Arch. Sub."
                 field("Purchasing Code"; "Purchasing Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies which purchaser is assigned to the vendor.';
+                    ToolTip = 'Specifies the code for a special procurement method, such as drop shipment.';
                     Visible = false;
                 }
                 field(Nonstock; Nonstock)

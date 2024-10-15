@@ -125,7 +125,7 @@
         LocationCode := LocationCode2;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeWhsePutAwayRequestOnAfterGetRecord(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line");
     begin
     end;
