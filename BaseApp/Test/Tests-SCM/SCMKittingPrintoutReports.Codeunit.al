@@ -32,6 +32,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         WorkDate2: Date;
         MsgUpdateDim: Label 'Do you want to update the Dimensions on the lines?';
         NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
+        UpdateDimensionOnLine: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     local procedure Initialize()
     var
@@ -176,6 +177,13 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         Assert.IsTrue(StrPos(Question, MsgUpdateDim) > 0, StrSubstNo('Wrong question: %1', Question));
 
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmUpdateDimensionChange(Question: Text[1024]; var Reply: Boolean)
+    begin
+        if (Question = MsgUpdateDim) or (Question = UpdateDimensionOnLine) then
+            Reply := true;
     end;
 
     [Normal]
@@ -424,7 +432,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandler,PostedAssemblyOrderRequestPageHandler,NothingPostedMessageHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler,NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutPostedATS()
     var
@@ -461,7 +469,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandler,PostedAssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutPostedATSShowDimensions()
     var
@@ -479,7 +487,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandler,PostedAssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutPostedATSUndo()
     var
@@ -504,7 +512,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandler,PostedAssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutPostedATSLongOrders()
     var
@@ -531,7 +539,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandler,AssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,AssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutAssemblyComponentsATS()
     var
@@ -576,7 +584,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandler,AssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,AssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutAssemblyComponentsLongOrders()
     var
