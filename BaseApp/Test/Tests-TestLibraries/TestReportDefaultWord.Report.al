@@ -1,8 +1,6 @@
 report 134600 "Test Report - Default=Word"
 {
-    RDLCLayout = './Test Report - Default=Word.rdlc';
-    WordLayout = './Test Report - Default=Word.docx';
-    DefaultLayout = Word;
+    DefaultRenderingLayout = "./Test Report - Default=Word.docx";
 
     dataset
     {
@@ -28,6 +26,20 @@ report 134600 "Test Report - Default=Word"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout("./Test Report - Default=Word.rdlc")
+        {
+            Type = RDLC;
+            LayoutFile = './Test Report - Default=Word.rdlc';
+        }
+        layout("./Test Report - Default=Word.docx")
+        {
+            Type = Word;
+            LayoutFile = './Test Report - Default=Word.docx';
         }
     }
 

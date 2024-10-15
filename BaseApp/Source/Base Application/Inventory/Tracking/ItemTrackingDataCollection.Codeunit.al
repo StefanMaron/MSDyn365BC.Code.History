@@ -368,7 +368,7 @@ codeunit 6501 "Item Tracking Data Collection"
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
         TempTrackingSpecification2: Record "Tracking Specification" temporary;
-        LotNo: Code[50];
+        LotNo, PackageNo : Code[50];
     begin
         LastSummaryEntryNo := 0;
         LastReservEntryNo := 2147483647;
@@ -403,6 +403,7 @@ codeunit 6501 "Item Tracking Data Collection"
         OnRetrieveLookupDataOnBeforeTransferToTempRec(TempTrackingSpecification, TempReservEntry, ItemLedgEntry, FullDataSet);
 
         LotNo := '';
+        PackageNo := '';
         if FullDataSet then begin
             TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
             TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
@@ -420,9 +421,19 @@ codeunit 6501 "Item Tracking Data Collection"
                         TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
                     end;
 
+                    ItemLedgEntry.ClearTrackingFilter();
+                    TempReservEntry.ClearTrackingFilter();
+                    if (TempTrackingSpecification."Package No." <> '') and (TempTrackingSpecification."Package No." <> PackageNo) then begin
+                        PackageNo := TempTrackingSpecification."Package No.";
+                        ItemLedgEntry.SetRange("Package No.", TempTrackingSpecification."Package No.");
+                        TempReservEntry.SetRange("Package No.", TempTrackingSpecification."Package No.");
+                        TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
+                        TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
+                    end;
+
                     OnRetrieveLookupDataOnAfterBuildNonSerialDataSet(TempTrackingSpecification, ItemLedgEntry, TempReservEntry);
 
-                    if (TempTrackingSpecification."Lot No." = '') and (TempTrackingSpecification."Serial No." <> '') then begin
+                    if (TempTrackingSpecification."Lot No." = '') and (TempTrackingSpecification."Package No." = '') and (TempTrackingSpecification."Serial No." <> '') then begin
                         ItemLedgEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
                         TempReservEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
                         TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);

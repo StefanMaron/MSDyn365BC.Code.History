@@ -3,7 +3,6 @@
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Utilities;
-using System.Azure.Identity;
 using System.Environment;
 using System.Security.AccessControl;
 
@@ -39,7 +38,7 @@ table 9062 "User Security Status"
         }
         field(14; "Belongs To Subscription Plan"; Boolean)
         {
-            CalcFormula = exist("User Plan" where("User Security ID" = field("User Security ID")));
+            CalcFormula = exist(System.Azure.Identity."User Plan" where("User Security ID" = field("User Security ID")));
             Caption = 'Belongs To Subscription Plan';
             FieldClass = FlowField;
             ObsoleteState = Removed;
@@ -144,7 +143,6 @@ table 9062 "User Security Status"
         User: Record User;
         UserSecurityStatus: Record "User Security Status";
         EnvironmentInfo: Codeunit "Environment Information";
-        AzureADPlan: Codeunit "Azure AD Plan";
         UserSelection: Codeunit "User Selection";
         IsSaaS: Boolean;
     begin
@@ -155,12 +153,7 @@ table 9062 "User Security Status"
 
         IsSaaS := EnvironmentInfo.IsSaaS();
         repeat
-            if UserSecurityStatus.Get(User."User Security ID") then begin
-                if not AzureADPlan.DoesUserHavePlans(User."User Security ID") and IsSaaS then begin
-                    UserSecurityStatus.Reviewed := false;
-                    UserSecurityStatus.Modify(true);
-                end;
-            end else begin
+            if not UserSecurityStatus.Get(User."User Security ID") then begin
                 UserSecurityStatus.Init();
                 UserSecurityStatus."User Security ID" := User."User Security ID";
                 UserSecurityStatus.Reviewed := false;

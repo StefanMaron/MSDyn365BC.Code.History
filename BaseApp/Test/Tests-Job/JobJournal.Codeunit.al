@@ -1299,6 +1299,106 @@ codeunit 136305 "Job Journal"
 #endif
 
     [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure GLEntryToJobLedgerEntryMatchingForPostedSalesInvoiceForJobGLAccount()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        GLAccountNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO] When "Copy Line Descr. to G/L Entry" every entry should have different "Ledger Entry No." on Job Ledger Entry after posting Sales Invoice created from Job Planning Line.
+        Initialize();
+        PriceListLine.DeleteAll();
+
+        // [GIVEN] "Copy Line Descr. to G/L Entry" = true in Sales Receivables Setup
+        UpdateSalesSetupCopyLineDescr(true);
+
+        // [GIVEN] GL Account with Sales Setup
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+
+        // [GIVEN] A Job GL Price with Discount Percent and Unit Price
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Create and Update 2 Job Planning Line
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, GLAccountNo, JobPlanningLine.Type::"G/L Account");
+        UpdateJobPlanningLineCostAndPrice(JobPlanningLine);
+        Clear(JobPlanningLine);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, GLAccountNo, JobPlanningLine.Type::"G/L Account");
+        UpdateJobPlanningLineCostAndPrice(JobPlanningLine);
+        Commit();  // Using Commit to prevent Test Failure.
+
+        // [GIVEN] Create Sales Invoice from Job Planning Line 
+        JobPlanningLine.Reset();
+        JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLine.FindSet();
+        LibraryVariableStorage.Enqueue(WorkDate());
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);  // Passing False to avoid Credit Memo creation.
+        FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::"G/L Account");
+
+        // [WHEN] Post Sales Invoice created from Job Planning Line.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Verify Job Ledger Entries have different G/L entry no.
+        VerifyGLEntriesOnJobLedgerEntry(DocumentNo, JobTask."Job No.", GLAccountNo);
+    end;
+
+    local procedure UpdateJobPlanningLineCostAndPrice(var JobPlanningLine: Record "Job Planning Line");
+    begin
+        JobPlanningLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        JobPlanningLine.Validate("Unit Price", 2 * JobPlanningLine."Unit Cost");
+        JobPlanningLine.Modify(true);
+    end;
+
+    local procedure VerifyGLEntriesOnJobLedgerEntry(DocumentNo: Code[20]; JobNo: Code[20]; AccountNo: Code[20])
+    var
+        JobLedgerEntry: Record "Job Ledger Entry";
+        LastGLEntryNo: Integer;
+    begin
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, JobNo, JobLedgerEntry.Type::"G/L Account", AccountNo);
+        Assert.IsTrue(JobLedgerEntry.Count > 1, 'Ledger Entry Count is 1');
+        repeat
+            Assert.AreNotEqual(LastGLEntryNo, JobLedgerEntry."Ledger Entry No.", '');
+            LastGLEntryNo := JobLedgerEntry."Ledger Entry No.";
+        until JobLedgerEntry.Next() = 0;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure GLEntryToJobLedgerEntryMatchingForPostedPurchaseInvoiceForJobGLAccount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        JobTask: Record "Job Task";
+        GLAccountNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO] When "Copy Line Descr. to G/L Entry" every entry should have different "Ledger Entry No." on Job Ledger Entry after posting Purchase Invoice linked with Job Planning Line.
+
+        Initialize();
+
+        // [GIVEN] "Copy Line Descr. to G/L Entry" = true in Purchase & Payables Setup
+        UpdatePurchaseSetupCopyLineDescr(true);
+
+        // [GIVEN] Purchase order with job
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+        CreateJobWithJobTask(JobTask);
+        CreatePurchaseOrderWithTwoGlAccountLinesLinkedWithJobTask(PurchaseHeader, GLAccountNo, JobTask);
+
+        // [GIVEN] Post receipt and invoice from purchase order. 
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify Job Ledger Entries have different G/L entry no.
+        VerifyGLEntriesOnJobLedgerEntry(DocumentNo, JobTask."Job No.", GLAccountNo);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
     [Scope('OnPrem')]
     procedure JobJournalWithBinAndPositiveQuantity()
@@ -3230,6 +3330,27 @@ codeunit 136305 "Job Journal"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreatePurchaseOrderWithTwoGlAccountLinesLinkedWithJobTask(var PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20]; JobTask: Record "Job Task")
+    var
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        CreatePurchaseLineForGLAccountLinkedWithJobTask(PurchaseHeader, GLAccountNo, JobTask);
+        CreatePurchaseLineForGLAccountLinkedWithJobTask(PurchaseHeader, GLAccountNo, JobTask);
+    end;
+
+    local procedure CreatePurchaseLineForGLAccountLinkedWithJobTask(PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20]; JobTask: Record "Job Task")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity / 2);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure CreateResourceUnitOfMeasure(var ResourceUnitOfMeasure: Record "Resource Unit of Measure"; Resource: Record Resource)
     begin
         LibraryResource.CreateResourceUnitOfMeasure(
@@ -3408,6 +3529,15 @@ codeunit 136305 "Job Journal"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Copy Line Descr. to G/L Entry" := CopyLineDescr;
         SalesReceivablesSetup.Modify();
+    end;
+
+    local procedure UpdatePurchaseSetupCopyLineDescr(CopyLineDescr: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Copy Line Descr. to G/L Entry" := CopyLineDescr;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; AccountNo: Code[20])

@@ -108,6 +108,7 @@ codeunit 134284 "Non Ded. VAT Misc."
         PurchInvHeader: record "Purch. Inv. Header";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         JobJnlLine: Record "Job Journal Line";
+        CurrExchRate: Record "Currency Exchange Rate";
         JobTransferLine: Codeunit "Job Transfer Line";
         DeductiblePercent: Decimal;
         NonDeductiblePercent: Decimal;
@@ -125,11 +126,23 @@ codeunit 134284 "Non Ded. VAT Misc."
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, VATPostingSetup);
         // [GIVEN] "Direct Unit Cost" is 100
         SetJobForPurchaseLine(PurchaseLine);
+        // [GIVEN] Exchange amounts in the purchase line to local currency
+        PurchaseLine.Amount :=
+            Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                PurchaseHeader.GetUseDate(), PurchaseHeader."Currency Code",
+                PurchaseLine.Amount, PurchaseHeader."Currency Factor"));
+        PurchaseLine."Amount Including VAT" :=
+            Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                PurchaseHeader.GetUseDate(), PurchaseHeader."Currency Code",
+                PurchaseLine."Amount Including VAT", PurchaseHeader."Currency Factor"));
 
         // [WHEN] Run FromPurchaseLineToJnlLine
         JobTransferLine.FromPurchaseLineToJnlLine(PurchaseHeader, PurchInvHeader, PurchCrMemoHeader, PurchaseLine, '', JobJnlLine);
 
         // [THEN] JobJnlLine, where "Unit Cost" is 108
+        // Work item id 521514: Non-Deductible VAT is correctly added to the job ledger entry for the purchase invoice with FCY
         Assert.AreEqual(
             Round(JobJnlLine."Unit Cost (LCY)"),
             Round(PurchaseLine."Unit Cost (LCY)" * (100 + NonDeductiblePercent) / 100), 'Unit Cost (LCY)');

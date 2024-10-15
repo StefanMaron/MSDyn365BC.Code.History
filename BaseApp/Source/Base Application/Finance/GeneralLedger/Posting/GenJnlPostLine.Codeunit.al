@@ -594,7 +594,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             end;
 
         GLEntry."Additional-Currency Amount" :=
-          GLCalcAddCurrency(GLEntry.Amount, GLEntry."Additional-Currency Amount", GLEntry."Additional-Currency Amount", true, GenJnlLine, UseVendExchRate);
+          GLCalcAddCurrency(GLEntry.Amount, GLEntry."Additional-Currency Amount", GLEntry."Additional-Currency Amount", true, GenJnlLine);
         NonDeductibleVAT.CopyNonDedVATAmountFromGenJnlLineToGLEntry(GLEntry, GenJnlLine);
 
         OnAfterInitVAT(GenJnlLine, GLEntry, VATPostingSetup, AddCurrGLEntryVATAmt);
@@ -1278,9 +1278,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
             // Post detailed customer entries
             DtldLedgEntryInserted := PostDtldCustLedgEntries(GenJournalLine, TempDtldCVLedgEntryBuf, CustPostingGr, true);
 
-    #if not CLEAN23        
+#if not CLEAN23
             OnAfterCustLedgEntryInsert(CustLedgEntry, GenJournalLine, DtldLedgEntryInserted);
-    #endif
+#endif
             OnAfterCustLedgEntryInsertInclPreviewMode(CustLedgEntry, GenJournalLine, DtldLedgEntryInserted, PreviewMode);
 
             // Post Reminder Terms - Note About Line Fee on Report
@@ -2034,7 +2034,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             GLEntry."System-Created Entry" := SystemCreatedEntry;
             GLEntry.Amount := Amount;
             GLEntry."Additional-Currency Amount" :=
-              GLCalcAddCurrency(Amount, AmountAddCurr, GLEntry."Additional-Currency Amount", UseAmountAddCurr, GenJnlLine, UseVendExchRate);
+              GLCalcAddCurrency(Amount, AmountAddCurr, GLEntry."Additional-Currency Amount", UseAmountAddCurr, GenJnlLine);
             UseVendExchRate := false;
         end;
 
@@ -3704,7 +3704,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             OnCustPostApplyCustLedgEntryOnAfterApplyCustLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf);
             CustLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
             CustLedgEntry."Applies-to ID" := '';
-            OnCustPostApplyCustLedgEntryOnBeforeModifyCustLedgEntry(CustLedgEntry, CVLedgEntryBuf);	    
+            OnCustPostApplyCustLedgEntryOnBeforeModifyCustLedgEntry(CustLedgEntry, CVLedgEntryBuf);
             CustLedgEntry.Modify();
 
             SourceCodeSetup.Get();
@@ -5296,13 +5296,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 IsHandled := false;
                 OnVendUnrealizedVATOnBeforeGetUnrealizedVATPart(GenJnlLine, VendLedgEntry2, PaidAmount, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, SettledAmount, VATEntry2, VATPart, IsHandled);
                 if not IsHandled then
-	                VATPart :=
-	                  VATEntry2.GetUnrealizedVATPart(
-	                    Round(SettledAmount / VendLedgEntry2.GetAdjustedCurrencyFactor()),
-	                    PaidAmount,
-	                    VendLedgEntry2."Amount (LCY)" - WHTAmount,
-	                    TotalUnrealVATAmountFirst,
-	                    TotalUnrealVATAmountLast);
+                    VATPart :=
+                      VATEntry2.GetUnrealizedVATPart(
+                        Round(SettledAmount / VendLedgEntry2.GetAdjustedCurrencyFactor()),
+                        PaidAmount,
+                        VendLedgEntry2."Amount (LCY)" - WHTAmount,
+                        TotalUnrealVATAmountFirst,
+                        TotalUnrealVATAmountLast);
 
                 OnVendUnrealizedVATOnAfterVATPartCalculation(
                   GenJnlLine, VendLedgEntry2, PaidAmount, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, SettledAmount, VATEntry2);
@@ -6632,7 +6632,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 "Calculate Interest" := true;
     end;
 
-    procedure GLCalcAddCurrency(Amount: Decimal; AddCurrAmount: Decimal; OldAddCurrAmount: Decimal; UseAddCurrAmount: Boolean; GenJnlLine: Record "Gen. Journal Line"; var UseVendExchRateCheck: Boolean) Result: Decimal
+    procedure GLCalcAddCurrency(Amount: Decimal; AddCurrAmount: Decimal; OldAddCurrAmount: Decimal; UseAddCurrAmount: Boolean; GenJnlLine: Record "Gen. Journal Line") Result: Decimal
     var
         PurchSetup: Record "Purchases & Payables Setup";
         IsHandled: Boolean;
@@ -6644,7 +6644,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 exit(AddCurrAmount);
 
             PurchSetup.Get();
-            if PurchSetup."Enable Vendor GST Amount (ACY)" and UseVendExchRateCheck then
+            if PurchSetup."Enable Vendor GST Amount (ACY)" and UseVendExchRate then
                 exit(AddCurrAmount);
 
             IsHandled := false;
