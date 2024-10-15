@@ -3408,6 +3408,406 @@ codeunit 139197 DocumentSendingPostTests
         SalesInvoiceHeader.Get(InvoiceNo);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0101()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = "a@a.com"
+        // [GIVEN] Customer[2]."E-Mail" = "b@b.com"
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = "d@d.com"
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = Ú¿‹e@e.comÚ¿›
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = "d@d.com" // system gets from Document Layout of Bill-to Customer
+
+        Initialize();
+
+        EmailAddressCustomer[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[1]));
+        EmailAddressCustomer[2] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[2]));
+
+        DocumentLayoutEmail[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(DocumentLayoutEmail[1]));
+        DocumentLayoutEmail[2] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(DocumentLayoutEmail[2]));
+
+        SellToEmail := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(SellToEmail));
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, '', PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, DocumentLayoutEmail[2], AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0102()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = "a@a.com"
+        // [GIVEN] Customer[2]."E-Mail" = "b@b.com"
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = Ú¿‹e@e.comÚ¿›
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
+
+        Initialize();
+
+        EmailAddressCustomer[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[1]));
+        EmailAddressCustomer[2] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[2]));
+
+        DocumentLayoutEmail[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(DocumentLayoutEmail[1]));
+        DocumentLayoutEmail[2] := '';
+
+        SellToEmail := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(SellToEmail));
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, SellToEmail, PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, SellToEmail, AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0103()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = "a@a.com"
+        // [GIVEN] Customer[2]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = Ú¿‹e@e.comÚ¿›
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
+
+        Initialize();
+
+        EmailAddressCustomer[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[1]));
+        EmailAddressCustomer[2] := '';
+
+        DocumentLayoutEmail[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(DocumentLayoutEmail[1]));
+        DocumentLayoutEmail[2] := '';
+
+        SellToEmail := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(SellToEmail));
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, SellToEmail, PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, SellToEmail, AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0104()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = "a@a.com"
+        // [GIVEN] Customer[2]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = Ú¿‹e@e.comÚ¿›
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
+
+        Initialize();
+
+        EmailAddressCustomer[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[1]));
+        EmailAddressCustomer[2] := '';
+
+        DocumentLayoutEmail[1] := '';
+        DocumentLayoutEmail[2] := '';
+
+        SellToEmail := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(SellToEmail));
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, SellToEmail, PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, SellToEmail, AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0105()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = <blank>
+        // [GIVEN] Customer[2]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = Ú¿‹e@e.comÚ¿›
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
+
+        Initialize();
+
+        EmailAddressCustomer[1] := '';
+        EmailAddressCustomer[2] := '';
+
+        DocumentLayoutEmail[1] := '';
+        DocumentLayoutEmail[2] := '';
+
+        SellToEmail := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(SellToEmail));
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, SellToEmail, PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, SellToEmail, AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0106()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = <blank>
+        // [GIVEN] Customer[2]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = <blank>
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = <blank> // system gets Sales Document."Sell-to E-Mail"
+
+        Initialize();
+
+        EmailAddressCustomer[1] := '';
+        EmailAddressCustomer[2] := '';
+
+        DocumentLayoutEmail[1] := '';
+        DocumentLayoutEmail[2] := '';
+
+        SellToEmail := '';
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, SellToEmail, PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, SellToEmail, AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0201()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = "a@a.com"
+        // [GIVEN] Customer[2]."E-Mail" = "b@b.com"
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = "d@d.com"
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = <blank>
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = "d@d.com"
+
+        Initialize();
+
+        EmailAddressCustomer[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[1]));
+        EmailAddressCustomer[2] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[2]));
+
+        DocumentLayoutEmail[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(DocumentLayoutEmail[1]));
+        DocumentLayoutEmail[2] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(DocumentLayoutEmail[2]));
+
+        SellToEmail := '';
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, '', PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, DocumentLayoutEmail[2], AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0202()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = "a@a.com"
+        // [GIVEN] Customer[2]."E-Mail" = "b@b.com"
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = <blank>
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = "b@b.com"
+
+        Initialize();
+
+        EmailAddressCustomer[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[1]));
+        EmailAddressCustomer[2] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[2]));
+
+        DocumentLayoutEmail[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(DocumentLayoutEmail[1]));
+        DocumentLayoutEmail[2] := '';
+
+        SellToEmail := '';
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, SellToEmail, PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, EmailAddressCustomer[2], AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0203()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = "a@a.com"
+        // [GIVEN] Customer[2]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = <blank>
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = <blank>
+
+        Initialize();
+
+        EmailAddressCustomer[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[1]));
+        EmailAddressCustomer[2] := '';
+
+        DocumentLayoutEmail[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(DocumentLayoutEmail[1]));
+        DocumentLayoutEmail[2] := '';
+
+        SellToEmail := '';
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, SellToEmail, PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, '', AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,VerifySelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPostedInvoiceSendToEmailSellToBillToDifferentCustomer_0204()
+    var
+        EmailAddressCustomer: array[2] of Text[80];
+        DocumentLayoutEmail: array[2] of Text[80];
+        PostedInvoiceNo: Code[20];
+        DocumentSendingProfileEmail: Record "Document Sending Profile";
+        AttachmentName: Text;
+        SellToEmail: Text[80];
+    begin
+        // [SCENARIO 423995] Send email for sales document with different Sell-to and Bill-to customers.
+
+        // [GIVEN] Customer[1]."E-Mail" = "a@a.com"
+        // [GIVEN] Customer[2]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
+        // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
+        // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
+        // [GIVEN] Ú¿‹Sell-to EmailÚ¿› = <blank>
+        // [WHEN] Send Email for posted sales invoice
+        // [THEN] Target Email Address = <blank>
+
+        Initialize();
+
+        EmailAddressCustomer[1] := CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(EmailAddressCustomer[1]));
+        EmailAddressCustomer[2] := '';
+
+        DocumentLayoutEmail[1] := '';
+        DocumentLayoutEmail[2] := '';
+
+        SellToEmail := '';
+
+        Scenario_423995(EmailAddressCustomer, DocumentLayoutEmail, SellToEmail, PostedInvoiceNo, DocumentSendingProfileEmail, AttachmentName);
+
+        Scenario_423995_Verify(PostedInvoiceNo, DocumentSendingProfileEmail, '', AttachmentName);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -3459,6 +3859,66 @@ codeunit 139197 DocumentSendingPostTests
         IsInitialized := true;
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::DocumentSendingPostTests);
+    end;
+
+    local procedure Scenario_423995(EmailAddressCustomer: array[2] of Text[80]; DocumentLayoutEmail: array[2] of Text[80]; SellToEmail: Text[80]; var PostedInvoiceNo: Code[20]; var DocumentSendingProfileEmail: Record "Document Sending Profile"; var AttachmentName: Text)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: array[2] of Record Customer;
+        NoSeriesManagement: Codeunit "NoSeriesManagement";
+        ReportSelectionUsage: Enum "Report Selection Usage";
+        CustomReportLayoutCode: Code[20];
+        ReportID: Integer;
+        Index: Integer;
+    begin
+        InitializeDocumentSendingProfile(DocumentSendingProfileEmail, DocumentSendingProfileEmail."E-Mail Attachment"::PDF,
+            DocumentSendingProfileEmail.Printer::No, DocumentSendingProfileEmail."E-Mail"::"Yes (Prompt for Settings)");
+
+        ReportID := REPORT::"Standard Sales - Invoice";
+        ReportSelectionUsage := ReportSelectionUsage::"S.Invoice";
+        CustomReportLayoutCode := FindCustomReportLayout(ReportID);
+
+        for Index := 1 to ArrayLen(Customer) do begin
+            LibrarySales.CreateCustomer(Customer[Index]);
+            Customer[Index].Validate("E-Mail", EmailAddressCustomer[Index]);
+            Customer[Index].Modify(true);
+        end;
+
+        LibrarySales.CreateCustomerDocumentLayout(
+            Customer[1]."No.", ReportSelectionUsage, ReportID, CustomReportLayoutCode, DocumentLayoutEmail[1]);
+        LibrarySales.CreateCustomerDocumentLayout(
+            Customer[2]."No.", ReportSelectionUsage, ReportID, CustomReportLayoutCode, DocumentLayoutEmail[2]);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer[1]."No.");
+        SalesHeader.Validate("Bill-to Customer No.", Customer[2]."No.");
+        SalesHeader.Validate("Sell-to E-Mail", SellToEmail);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+
+        AttachmentName := NoSeriesManagement.DoGetNextNo(SalesHeader."Posting No. Series", SalesHeader."Posting Date", false, true);
+
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure Scenario_423995_Verify(PostedInvoiceNo: Code[20]; DocumentSendingProfileEmail: Record "Document Sending Profile"; ExpectedTargetEmail: Text[80]; ExpectedAttachmentName: Text)
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.Get(PostedInvoiceNo);
+        SalesInvoiceHeader.SetRecFilter();
+
+        LibraryVariableStorage.Enqueue(DocumentSendingProfileEmail);
+        LibraryVariableStorage.Enqueue(true);
+
+        LibraryVariableStorage.Enqueue(ExpectedTargetEmail);
+        LibraryVariableStorage.Enqueue(ExpectedAttachmentName);
+
+        SalesInvoiceHeader.SendRecords();
     end;
 
     local procedure SetupInvoiceReportLayoutSelection()

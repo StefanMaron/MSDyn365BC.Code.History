@@ -15,6 +15,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
         NoWorkflowEnabledErr: Label 'No approval workflow for this record type is enabled.';
         ApprovalRequestSendMsg: Label 'An approval request has been sent.';
@@ -465,6 +466,58 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [THEN] The Vendor gets approved.
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Vendor.RecordId);
         VerifyApprovalEntry(ApprovalEntry, ApprovalEntry.Status::Approved, Vendor);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VendorApprovalWorkflowSalesPersonPurchaserApprovalType()
+    var
+        Vendor: Record Vendor;
+        Workflow: Record Workflow;
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        CurrentUserSetup: Record "User Setup";
+        ApprovalEntry: Record "Approval Entry";
+        ApprovalUserSetup: Record "User Setup";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        WorkflowSetup: Codeunit "Workflow Setup";
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [Workflow] [Workflow User Group]
+        // [SCENARIO 428471] Vendor Approval Workflow for ApproverType = Salesperson/Purchaser shows no error.
+        Initialize();
+
+        // [GIVEN] Vendor "V1".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.SetRecFilter();
+
+        // [GIVEN] SalesPerson "SP"
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+
+        // [GIVEN] Vendor Approval Workflow "WF" where Approver Type set as "Salesperson/Purchaser'"
+        LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode());
+        LibraryWorkflow.DisableAllWorkflows;
+        LibraryDocumentApprovals.SetWorkflowApproverType(Workflow, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser");
+        ApprovalUserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
+        ApprovalUserSetup.Modify(true);
+
+        // [GIVEN] "WF" is enabled.
+        LibraryWorkflow.EnableWorkflow(Workflow);
+
+        // [GIVEN] Vendor Purchaser Code = SP
+        Vendor.Validate("Purchaser Code", SalespersonPurchaser.Code);
+        Vendor.Modify(true);
+
+        // [WHEN] Vendor is sent for approval
+        VendorCard.OpenEdit;
+        VendorCard.GotoRecord(Vendor);
+        VendorCard.SendApprovalRequest.Invoke;
+
+        // [THEN] No error appears
+        // [THEN] Approval Entry has Status::Open.
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Vendor.RecordId);
+        VerifyApprovalEntry(ApprovalEntry, ApprovalEntry.Status::Open, Vendor);
     end;
 
     [MessageHandler]

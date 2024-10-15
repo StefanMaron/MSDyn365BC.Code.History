@@ -264,6 +264,45 @@ codeunit 135404 "Sales Document Plan-based E2E"
         SalesQuote.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestValidateQuantityOnSalesOrderWithNonEmptyReOrderingPolicyItemTeamMember()
+    var
+        TempCustomerDetails: Record Customer temporary;
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        SalesOrder: TestPage "Sales Order";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO] Change quantity on sales orderline with order - reordering policy items works
+        Initialize();
+        FindCustomerPostingAndVATSetup(TempCustomerDetails);
+        
+        // [GIVEN] Sales Order with a sales line for item whose reordering policy is not ''
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
+        LibrarySales.CreateCustomer(Customer);
+        Item.Get(CreateItem());
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Modify(true);
+        CreateSalesOrder(SalesOrder, TempCustomerDetails, Item."No.");
+        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrder."No.".Value);
+        SalesOrder.Close();
+
+        // [WHEN] Change the quantity
+        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(100));
+
+        // [THEN] No errors are thrown
+        SalesOrder.Close();
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
@@ -303,13 +342,21 @@ codeunit 135404 "Sales Document Plan-based E2E"
     end;
 
     local procedure CreateSalesOrder(var SalesOrder: TestPage "Sales Order"; TempCustomerDetails: Record Customer temporary)
+    begin
+        CreateSalesOrder(SalesOrder, TempCustomerDetails, '');
+    end;
+    
+    local procedure CreateSalesOrder(var SalesOrder: TestPage "Sales Order"; TempCustomerDetails: Record Customer temporary; ItemNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
         SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CreateCustomer(TempCustomerDetails));
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
-        SalesOrder.SalesLines."No.".SetValue(CreateItem);
+        if ItemNo = '' then
+            SalesOrder.SalesLines."No.".SetValue(CreateItem)
+        else
+            SalesOrder.SalesLines."No.".SetValue(ItemNo);
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 1));
     end;
 

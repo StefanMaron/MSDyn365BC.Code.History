@@ -1,4 +1,4 @@
-codeunit 8614 "Config. XML Exchange"
+﻿codeunit 8614 "Config. XML Exchange"
 {
 
     trigger OnRun()
@@ -1274,10 +1274,16 @@ codeunit 8614 "Config. XML Exchange"
         exit('Media');
     end;
 
-    procedure GetXSDType(TableID: Integer; FieldID: Integer): Text[30]
+    procedure GetXSDType(TableID: Integer; FieldID: Integer) Result: Text[30]
     var
         "Field": Record "Field";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetXSDType(TableID, FieldID, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Field.Get(TableID, FieldID) then
             case Field.Type of
                 Field.Type::Integer:
@@ -1544,6 +1550,11 @@ codeunit 8614 "Config. XML Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEvaluateMinCountForAsyncImport(var ConfigPackage: Record "Config. Package"; var Value: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetXSDType(TableID: Integer; FieldID: Integer; var Result: Text[30]; var IsHandled: Boolean)
     begin
     end;
 

@@ -61,6 +61,9 @@
       "path": "./C52012DataMigration/Test/C5 2012 Data Migration Tests"
     },
     {
+      "path": "./ReportLayouts/test/Report Layouts Tests"
+    },
+    {
       "path": "./FIK/Test/Payment and Reconciliation Formats (DK) Tests"
     },
     {

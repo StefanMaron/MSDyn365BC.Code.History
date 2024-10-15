@@ -96,8 +96,15 @@ codeunit 170 "Standard Codes Mgt."
         exit(true);
     end;
 
-    local procedure CanCreateSalesRecurringLines(SalesHeader: Record "Sales Header"): Boolean;
+    local procedure CanCreateSalesRecurringLines(SalesHeader: Record "Sales Header") Result: Boolean;
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCanCreateSalesRecurringLines(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SkipRecurringLines then
             exit(false);
 
@@ -412,6 +419,11 @@ codeunit 170 "Standard Codes Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCanCreatePurchRecurringLines(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCanCreateSalesRecurringLines(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

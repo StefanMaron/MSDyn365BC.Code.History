@@ -75,16 +75,22 @@ codeunit 99000832 "Sales Line-Reserve"
             ExpectedReceiptDate := SalesLine."Shipment Date";
         end;
 
-        CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(),
-          SalesLine."Document No.", '', 0, SalesLine."Line No.", SalesLine."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForReservEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(SalesLine, Quantity, QuantityBase, ForReservEntry, IsHandled);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+                DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(),
+                SalesLine."Document No.", '', 0, SalesLine."Line No.", SalesLine."Qty. per Unit of Measure",
+                Quantity, QuantityBase, ForReservEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
-          SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code",
-          Description, ExpectedReceiptDate, ShipmentDate, 0);
+            SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code",
+            Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
+
+        OnAfterCreateReservation(SalesLine);
     end;
 
     procedure CreateBindingReservation(SalesLine: Record "Sales Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
@@ -196,7 +202,7 @@ codeunit 99000832 "Sales Line-Reserve"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeVerifyQuantity(NewSalesLine, IsHandled);
+        OnBeforeVerifyQuantity(NewSalesLine, IsHandled, OldSalesLine);
         if IsHandled then
             exit;
 
@@ -1178,7 +1184,7 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVerifyQuantity(var NewSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeVerifyQuantity(var NewSalesLine: Record "Sales Line"; var IsHandled: Boolean; var OldSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -1209,6 +1215,16 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCheckReservedQty(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; QuantityBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var SalesLine: Record "Sales Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateReservation(var SalesLine: Record "Sales Line")
     begin
     end;
 }

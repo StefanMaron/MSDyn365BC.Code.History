@@ -46,6 +46,8 @@ codeunit 1336 "Item Templ. Mgt."
 
     local procedure ApplyTemplate(var Item: Record Item; ItemTempl: Record "Item Templ."; UpdateExistingValues: Boolean)
     var
+        TempItem: Record Item temporary;
+        InventorySetup: Record "Inventory Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         ItemRecRef: RecordRef;
@@ -60,9 +62,12 @@ codeunit 1336 "Item Templ. Mgt."
         FieldExclusionList: List of [Integer];
         FieldValidationList: List of [Integer];
     begin
+        CheckItemTemplRoundingPrecision(ItemTempl);
         ItemRecRef.GetTable(Item);
-        EmptyItemRecRef.Open(Database::Item);
-        EmptyItemRecRef.Init();
+        InventorySetup.Get();
+        TempItem.Init();
+        TempItem."Costing Method" := InventorySetup."Default Costing Method";
+        EmptyItemRecRef.GetTable(TempItem);
         ItemTemplRecRef.GetTable(ItemTempl);
         EmptyItemTemplRecRef.Open(Database::"Item Templ.");
         EmptyItemTemplRecRef.Init();
@@ -398,6 +403,22 @@ codeunit 1336 "Item Templ. Mgt."
             Item.Validate("Base Unit of Measure", ItemTempl."Base Unit of Measure")
         else
             Item.Validate("Base Unit of Measure", GetUnitOfMeasureCode());
+    end;
+
+    local procedure CheckItemTemplRoundingPrecision(var ItemTempl: Record "Item Templ.")
+    var
+        ModifyTemplate: Boolean;
+    begin
+        if ItemTempl."Rounding Precision" = 0 then begin
+            ItemTempl."Rounding Precision" := 1;
+            ModifyTemplate := true;
+        end;
+        if (ItemTempl.Type = ItemTempl.Type::Service) and (ItemTempl.Reserve <> ItemTempl.Reserve::Never) then begin
+            ItemTempl.Reserve := ItemTempl.Reserve::Never;
+            ModifyTemplate := true;
+        end;
+        if ModifyTemplate then
+            ItemTempl.Modify();
     end;
 
     [IntegrationEvent(false, false)]

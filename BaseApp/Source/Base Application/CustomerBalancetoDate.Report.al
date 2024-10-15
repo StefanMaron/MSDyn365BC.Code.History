@@ -157,6 +157,8 @@ report 121 "Customer - Balance to Date"
                         RemainingAmt := "Remaining Amount";
                         CurrencyCode := "Currency Code";
                     end;
+
+                    OnAfterCustLedgEntry3OnAfterGetRecord(CustLedgEntry3, PrintAmountInLCY, OriginalAmt, RemainingAmt, CurrencyCode);
                 end;
 
                 trigger OnPreDataItem()
@@ -406,15 +408,7 @@ report 121 "Customer - Balance to Date"
             AddCustomerDimensionFilter(TempCustLedgerEntry);
             if FindSet() then
                 repeat
-                    if PrintAmountInLCY then begin
-                        CalcFields("Remaining Amt. (LCY)");
-                        RemainingAmt := "Remaining Amt. (LCY)";
-                        CurrencyCode := '';
-                    end else begin
-                        CalcFields("Remaining Amount");
-                        RemainingAmt := "Remaining Amount";
-                        CurrencyCode := "Currency Code";
-                    end;
+                    CalcRemainingAmount(TempCustLedgerEntry);
                     if (RemainingAmt <> 0) or ShowEntriesWithZeroBalance then
                         CurrencyTotalBuffer.UpdateTotal(
                           CurrencyCode,
@@ -425,9 +419,25 @@ report 121 "Customer - Balance to Date"
         end;
     end;
 
+    local procedure CalcRemainingAmount(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary);
+    begin
+        if PrintAmountInLCY then begin
+            TempCustLedgerEntry.CalcFields("Remaining Amt. (LCY)");
+            RemainingAmt := TempCustLedgerEntry."Remaining Amt. (LCY)";
+            CurrencyCode := '';
+        end else begin
+            TempCustLedgerEntry.CalcFields("Remaining Amount");
+            RemainingAmt := TempCustLedgerEntry."Remaining Amount";
+            CurrencyCode := TempCustLedgerEntry."Currency Code";
+        end;
+
+        OnAfterCalcRemainingAmount(TempCustLedgerEntry, PrintAmountInLCY, RemainingAmt, CurrencyCode);
+    end;
+
     local procedure CheckCustEntryIncluded(EntryNo: Integer): Boolean
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        ClosingCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         if CustLedgerEntry.Get(EntryNo) and (CustLedgerEntry."Posting Date" <= MaxDate) then begin
             CustLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
@@ -435,7 +445,8 @@ report 121 "Customer - Balance to Date"
             if CustLedgerEntry."Remaining Amount" <> 0 then
                 exit(true);
             if ShowEntriesWithZeroBalance then
-                exit(true);
+                if ClosingCustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.") then
+                    exit(ClosingCustLedgerEntry."Posting Date" <= MaxDate);
             if PrintUnappliedEntries then
                 exit(CheckUnappliedEntryExists(EntryNo));
         end;
@@ -454,6 +465,16 @@ report 121 "Customer - Balance to Date"
             SetRange(Unapplied, true);
             exit(not IsEmpty);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcRemainingAmount(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; PrintAmountInLCY: Boolean; var RemainingAmt: Decimal; var CurrencyCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCustLedgEntry3OnAfterGetRecord(CustLedgerEntry: Record "Cust. Ledger Entry"; PrintAmountInLCY: Boolean; var OriginalAmt: Decimal; var RemainingAmt: Decimal; var CurrencyCode: Code[10])
+    begin
     end;
 }
 
