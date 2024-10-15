@@ -205,6 +205,7 @@ codeunit 7018 "Price UX Management"
                 begin
                     SalesPriceLists.LookupMode(true);
                     SalesPriceLists.SetRecordFilter(PriceListHeader);
+                    OnBeforeRunSalesPriceList(SalesPriceLists, PriceListHeader);
                     if SalesPriceLists.RunModal() = Action::LookupOK then begin
                         SalesPriceLists.GetRecord(PriceListHeader);
                         PriceListCode := PriceListHeader.Code;
@@ -214,6 +215,7 @@ codeunit 7018 "Price UX Management"
                 begin
                     PurchasePriceLists.LookupMode(true);
                     PurchasePriceLists.SetRecordFilter(PriceListHeader);
+                    OnBeforeRunPurchasePriceList(PurchasePriceLists, PriceListHeader);
                     if PurchasePriceLists.RunModal() = Action::LookupOK then begin
                         PurchasePriceLists.GetRecord(PriceListHeader);
                         PriceListCode := PriceListHeader.Code;
@@ -673,6 +675,16 @@ codeunit 7018 "Price UX Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowPriceLists(PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type"; PriceType: Enum "Price Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPurchasePriceList(var PurchasePriceLists: Page "Purchase Price Lists"; var PriceListHeader: Record "Price List Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunSalesPriceList(var SalesPriceLists: Page "Sales Price Lists"; var PriceListHeader: Record "Price List Header")
     begin
     end;
 }

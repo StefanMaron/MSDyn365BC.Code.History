@@ -2120,10 +2120,11 @@ table 23 Vendor
         VendorWithoutQuote: Text;
         VendorFilterFromStart: Text;
         VendorFilterContains: Text;
-        IsHandled: Boolean;
+        ShowCreateVendorOption, IsHandled : Boolean;
     begin
+        ShowCreateVendorOption := true;
         IsHandled := false;
-        OnBeforeGetVendorNoOpenCard(VendorText, ShowVendorCard, VendorNo, IsHandled);
+        OnBeforeGetVendorNoOpenCard(VendorText, ShowVendorCard, VendorNo, IsHandled, ShowCreateVendorOption);
         if IsHandled then
             exit(VendorNo);
 
@@ -2183,12 +2184,15 @@ table 23 Vendor
         OnGetVendorNoOpenCardOnBeforeSelectVendor(Vendor);
         if Vendor.Count = 0 then begin
             if Vendor.WritePermission then
-                case StrMenu(StrSubstNo('%1,%2', StrSubstNo(CreateNewVendTxt, VendorText), SelectVendTxt), 1, VendNotRegisteredTxt) of
-                    0:
-                        Error(SelectVendorErr);
-                    1:
-                        exit(CreateNewVendor(CopyStr(VendorText, 1, MaxStrLen(Vendor.Name)), ShowVendorCard));
-                end;
+                if ShowCreateVendorOption then
+                    case StrMenu(StrSubstNo('%1,%2', StrSubstNo(CreateNewVendTxt, VendorText), SelectVendTxt), 1, VendNotRegisteredTxt) of
+                        0:
+                            Error(SelectVendorErr);
+                        1:
+                            exit(CreateNewVendor(CopyStr(VendorText, 1, MaxStrLen(Vendor.Name)), ShowVendorCard));
+                    end
+                else
+                    exit('');
             Vendor.Reset();
             NoFiltersApplied := true;
         end;
@@ -2686,7 +2690,7 @@ table 23 Vendor
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetVendorNoOpenCard(VendorText: Text; ShowVendorCard: Boolean; var VendorNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeGetVendorNoOpenCard(VendorText: Text; ShowVendorCard: Boolean; var VendorNo: Code[20]; var IsHandled: Boolean; var ShowCreateVendorOption: Boolean)
     begin
     end;
 

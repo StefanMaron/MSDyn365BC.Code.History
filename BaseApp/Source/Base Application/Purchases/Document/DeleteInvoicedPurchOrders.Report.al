@@ -24,8 +24,19 @@ report 499 "Delete Invoiced Purch. Orders"
 
             trigger OnAfterGetRecord()
             var
+                PurchaseOrderLine: Record "Purchase Line";
+                PurchRcptHeader: Record "Purch. Rcpt. Header";
+                PurchInvHeader: Record "Purch. Inv. Header";
+                PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+                ReturnShipmentHeader: Record "Return Shipment Header";
+                PrepaymentPurchInvHeader: Record "Purch. Inv. Header";
+                PrepaymentPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+                PurchCommentLine: Record "Purch. Comment Line";
+                ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+                WarehouseRequest: Record "Warehouse Request";
                 PurchLineReserve: Codeunit "Purch. Line-Reserve";
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                ArchiveManagement: Codeunit ArchiveManagement;
                 PostPurchDelete: Codeunit "PostPurch-Delete";
                 IsHandled: Boolean;
                 ItemChargeComplete: Boolean;
@@ -40,46 +51,44 @@ report 499 "Delete Invoiced Purch. Orders"
                 if GuiAllowed() then
                     Window.Update(1, "No.");
 
-                ItemChargeAssgntPurch.Reset();
-                ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
-                ItemChargeAssgntPurch.SetRange("Document No.", "No.");
+                ItemChargeAssignmentPurch.SetRange("Document Type", "Document Type");
+                ItemChargeAssignmentPurch.SetRange("Document No.", "No.");
 
                 // Continue only if there are invoiced lines in the purchase document
-                PurchLine.Reset();
-                PurchLine.SetRange("Document Type", "Document Type");
-                PurchLine.SetRange("Document No.", "No.");
-                PurchLine.SetFilter("Quantity Invoiced", '<>0');
-                OnAfterGetRecordPurchaseHeaderOnBeforeCheckInvoicedPurchaseLineIsEmpty(PurchLine, "Purchase Header");
-                if PurchLine.IsEmpty() then
+                PurchaseOrderLine.SetRange("Document Type", "Document Type");
+                PurchaseOrderLine.SetRange("Document No.", "No.");
+                PurchaseOrderLine.SetFilter("Quantity Invoiced", '<>0');
+                OnAfterGetRecordPurchaseHeaderOnBeforeCheckInvoicedPurchaseLineIsEmpty(PurchaseOrderLine, "Purchase Header");
+                if PurchaseOrderLine.IsEmpty() then
                     exit;
 
                 // Continue only if there are no outstanding quantity to receive
-                PurchLine.SetRange("Quantity Invoiced");
-                PurchLine.SetFilter("Outstanding Quantity", '<>0');
-                OnAfterSetPurchLineFilters(PurchLine);
-                if not PurchLine.IsEmpty() then
+                PurchaseOrderLine.SetRange("Quantity Invoiced");
+                PurchaseOrderLine.SetFilter("Outstanding Quantity", '<>0');
+                OnAfterSetPurchLineFilters(PurchaseOrderLine);
+                if not PurchaseOrderLine.IsEmpty() then
                     exit;
 
                 // Continue only if all lines are received and invoiced
-                PurchLine.SetRange("Outstanding Quantity");
-                PurchLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
-                if not PurchLine.IsEmpty() then
+                PurchaseOrderLine.SetRange("Outstanding Quantity");
+                PurchaseOrderLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
+                if not PurchaseOrderLine.IsEmpty() then
                     exit;
 
                 // Find if there are any uninvoiced item charges
-                PurchLine.SetRange("Qty. Rcd. Not Invoiced");
+                PurchaseOrderLine.SetRange("Qty. Rcd. Not Invoiced");
                 ItemChargeComplete := true;
-                PurchLine.SetRange(Type, PurchLine.Type::"Charge (Item)");
-                if PurchLine.FindSet() then
+                PurchaseOrderLine.SetRange(Type, PurchaseOrderLine.Type::"Charge (Item)");
+                if PurchaseOrderLine.FindSet() then
                     repeat
-                        PurchLine.CalcFields("Qty. Assigned");
-                        if (PurchLine."Qty. Assigned" <> PurchLine."Quantity Invoiced") and
-                           not IsPostedUnassignedItemChargeWithZeroAmount(PurchLine)
+                        PurchaseOrderLine.CalcFields("Qty. Assigned");
+                        if (PurchaseOrderLine."Qty. Assigned" <> PurchaseOrderLine."Quantity Invoiced") and
+                           not IsPostedUnassignedItemChargeWithZeroAmount(PurchaseOrderLine)
                         then
                             ItemChargeComplete := false;
-                    until (PurchLine.Next() = 0) or not ItemChargeComplete;
+                    until (PurchaseOrderLine.Next() = 0) or not ItemChargeComplete;
 
-                PurchLine.SetRange(Type);
+                PurchaseOrderLine.SetRange(Type);
                 if not ItemChargeComplete then
                     exit;
 
@@ -91,26 +100,26 @@ report 499 "Delete Invoiced Purch. Orders"
                     ArchiveManagement.AutoArchivePurchDocument("Purchase Header");
 
                 // Delete lines and then the header
-                PurchLine.LockTable();
-                if PurchLine.Find('-') then
+                PurchaseOrderLine.LockTable();
+                if PurchaseOrderLine.Find('-') then
                     repeat
-                        if PurchLine.Type = PurchLine.Type::"Charge (Item)" then begin
-                            ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
-                            ItemChargeAssgntPurch.DeleteAll();
+                        if PurchaseOrderLine.Type = PurchaseOrderLine.Type::"Charge (Item)" then begin
+                            ItemChargeAssignmentPurch.SetRange("Document Line No.", PurchaseOrderLine."Line No.");
+                            ItemChargeAssignmentPurch.DeleteAll();
                         end;
-                        ShouldDeleteLinks := PurchLine.HasLinks();
-                        OnPurchaseHeaderOnAfterGetRecordOnAfterCalcShouldDeleteLinks(PurchLine, ShouldDeleteLinks);
+                        ShouldDeleteLinks := PurchaseOrderLine.HasLinks();
+                        OnPurchaseHeaderOnAfterGetRecordOnAfterCalcShouldDeleteLinks(PurchaseOrderLine, ShouldDeleteLinks);
                         if ShouldDeleteLinks then
-                            PurchLine.DeleteLinks();
+                            PurchaseOrderLine.DeleteLinks();
 
-                        OnBeforePurchLineDelete(PurchLine);
-                        PurchLine.Delete();
-                        OnAfterPurchLineDelete(PurchLine);
-                    until PurchLine.Next() = 0;
+                        OnBeforePurchLineDelete(PurchaseOrderLine);
+                        PurchaseOrderLine.Delete();
+                        OnAfterPurchLineDelete(PurchaseOrderLine);
+                    until PurchaseOrderLine.Next() = 0;
 
                 PostPurchDelete.DeleteHeader(
-                "Purchase Header", PurchRcptHeader, PurchInvHeader, PurchCrMemoHeader,
-                ReturnShptHeader, PrepmtPurchInvHeader, PrepmtPurchCrMemoHeader);
+                  "Purchase Header", PurchRcptHeader, PurchInvHeader, PurchCrMemoHdr,
+                  ReturnShipmentHeader, PrepaymentPurchInvHeader, PrepaymentPurchCrMemoHdr);
 
                 PurchLineReserve.DeleteInvoiceSpecFromHeader("Purchase Header");
 
@@ -118,18 +127,18 @@ report 499 "Delete Invoiced Purch. Orders"
                 PurchCommentLine.SetRange("No.", "No.");
                 PurchCommentLine.DeleteAll();
 
-                WhseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
-                WhseRequest.SetRange("Source Subtype", "Document Type");
-                WhseRequest.SetRange("Source No.", "No.");
-                if not WhseRequest.IsEmpty() then
-                    WhseRequest.DeleteAll(true);
+                WarehouseRequest.SetRange("Source Type", Database::"Purchase Line");
+                WarehouseRequest.SetRange("Source Subtype", "Document Type");
+                WarehouseRequest.SetRange("Source No.", "No.");
+                if not WarehouseRequest.IsEmpty() then
+                    WarehouseRequest.DeleteAll(true);
 
                 ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
                 IsHandled := false;
                 OnPurchaseHeaderOnAfterGetRecordOnBeforeDeleteLinks("Purchase Header", IsHandled);
                 if not IsHandled then
-                    if HasLinks then
+                    if HasLinks() then
                         DeleteLinks();
 
                 IsHandled := false;
@@ -145,54 +154,27 @@ report 499 "Delete Invoiced Purch. Orders"
             trigger OnPreDataItem()
             begin
                 if GuiAllowed() then
-                    Window.Open(Text000Txt);
+                    Window.Open(ProcessingProgressTxt);
             end;
         }
     }
 
-    requestpage
-    {
-
-        layout
-        {
-        }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
-    }
-
     var
-        PurchLine: Record "Purchase Line";
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-        PurchInvHeader: Record "Purch. Inv. Header";
-        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        ReturnShptHeader: Record "Return Shipment Header";
-        PrepmtPurchInvHeader: Record "Purch. Inv. Header";
-        PrepmtPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        PurchCommentLine: Record "Purch. Comment Line";
-        ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-        WhseRequest: Record "Warehouse Request";
-        ArchiveManagement: Codeunit ArchiveManagement;
-
-        Text000Txt: Label 'Processing purch. orders #1##########';
+        ProcessingProgressTxt: Label 'Processing purchase orders #1##########', Comment = '%1 - Purchase Order No.';
 
     protected var
         Window: Dialog;
 
     local procedure IsPostedUnassignedItemChargeWithZeroAmount(PurchaseLine: Record "Purchase Line"): Boolean
     begin
-        PurchaseLine.CalcFields("Qty. Assigned");
         if (PurchaseLine.Type = PurchaseLine.Type::"Charge (Item)") and
            (PurchaseLine.Quantity = PurchaseLine."Quantity Invoiced") and
-           (PurchaseLine."Qty. Assigned" = 0) and
            (PurchaseLine.Amount = 0)
-        then
-            exit(true);
+        then begin
+            PurchaseLine.CalcFields("Qty. Assigned");
+            if PurchaseLine."Qty. Assigned" = 0 then
+                exit(true);
+        end;
 
         exit(false);
     end;
@@ -207,7 +189,7 @@ report 499 "Delete Invoiced Purch. Orders"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var SuppressCommit: Boolean)
     begin
     end;

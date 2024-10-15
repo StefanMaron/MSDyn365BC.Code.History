@@ -18,26 +18,33 @@ codeunit 6400 "Flow Service Management"
 
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
+#if not CLEAN25
         DotNetString: DotNet String;
+#endif
         JObject: DotNet JObject;
 
         FlowUrlProdTxt: Label 'https://make.powerautomate.com/', Locked = true;
         FlowUrlTip1Txt: Label 'https://make.test.powerautomate.com/', Locked = true;
-        FlowSearchTemplatesUrlTxt: Label 'https://make.powerautomate.com/templates/?q=%1', Locked = true, Comment = '%1: a query string to use for template search';
         FlowARMResourceUrlTxt: Label 'https://management.core.windows.net/', Locked = true;
-        FlowServiceResourceUrlTxt: Label 'https://service.flow.microsoft.com/', Locked = true, Comment = 'Note: while the url of Power Automate changed, the AAD resource still contains the old product name"Flow".';
         FlowEnvironmentsProdApiTxt: Label 'https://api.flow.microsoft.com/providers/Microsoft.ProcessSimple/environments?api-version=2016-11-01', Locked = true;
         FlowEnvironmentsTip1ApiTxt: Label 'https://tip1.api.powerapps.com/providers/Microsoft.PowerApps/environments?api-version=2016-11-01', Locked = true;
         GenericErr: Label 'An error occurred while trying to access the Power Automate service. Please try again or contact your system administrator if the error persists.';
         FlowResourceNameTxt: Label 'Flow Services';
+        FlowAccessDeniedErr: Label 'Windows Azure Service Management API permissions need to be enabled for Power Automate in the Azure portal. Contact your system administrator.';
+        FlowLinkUrlFormatTxt: Label '%1/flows/%2/details', Locked = true;
+        FlowLinkInvalidFlowIdErr: Label 'An invalid flow ID was provided.';
+        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token for Power Automate services.', Locked = true;
+        NullGuidReceivedMsg: Label 'Encountered an null GUID value as Power Automate Environment ID.', Locked = true;
+        PowerAutomatePickerTelemetryCategoryLbl: Label 'AL Power Automate Environment Picker', Locked = true;
+
+#if not CLEAN25
+        FlowSearchTemplatesUrlTxt: Label 'https://make.powerautomate.com/templates/?q=%1', Locked = true, Comment = '%1: a query string to use for template search';
+        FlowServiceResourceUrlTxt: Label 'https://service.flow.microsoft.com/', Locked = true, Comment = 'Note: while the url of Power Automate changed, the AAD resource still contains the old product name"Flow".';
         FlowTemplatePageSizeTxt: Label '20', Locked = true;
         FlowTemplateDestinationNewTxt: Label 'new', Locked = true;
         FlowTemplateDestinationDetailsTxt: Label 'details', Locked = true;
-        FlowPPEErr: Label 'Power Automate integration is only supported on a production environment.';
-        FlowAccessDeniedErr: Label 'Windows Azure Service Management API permissions need to be enabled for Power Automate in the Azure portal. Contact your system administrator.';
-        FlowLinkUrlFormatTxt: Label '%1environments/%2/flows/%3/details', Locked = true;
         FlowManageLinkUrlFormatTxt: Label '%1environments/%2/flows/', Locked = true;
-        FlowLinkInvalidFlowIdErr: Label 'An invalid flow ID was provided.';
+        FlowPPEErr: Label 'Power Automate integration is only supported on a production environment.';
         TemplateFilterTxt: Label 'Microsoft Dynamics 365 Business Central', Locked = true;
         SalesFilterTxt: Label 'Sales', Locked = true;
         PurchasingFilterTxt: Label 'Purchase', Locked = true;
@@ -45,8 +52,7 @@ codeunit 6400 "Flow Service Management"
         CustomerFilterTxt: Label 'Customer', Locked = true;
         ItemFilterTxt: Label 'Item', Locked = true;
         VendorFilterTxt: Label 'Vendor', Locked = true;
-        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token for Power Automate services.', Locked = true;
-        PowerAutomatePickerTelemetryCategoryLbl: Label 'AL Power Automate Environment Picker', Locked = true;
+#endif
 
     procedure GetFlowUrl(): Text
     var
@@ -73,42 +79,12 @@ codeunit 6400 "Flow Service Management"
         exit(FlowEnvironmentsProdApiTxt);
     end;
 
-    procedure GetLocale(): Text
-    var
-        CultureInfo: DotNet CultureInfo;
-        TextInfo: DotNet TextInfo;
-    begin
-        CultureInfo := CultureInfo.CultureInfo(GlobalLanguage);
-        TextInfo := CultureInfo.TextInfo;
-        exit(LowerCase(TextInfo.CultureName));
-    end;
-
     procedure GetFlowDetailsUrl(FlowId: Guid) FlowDetailsUrl: Text
     begin
         if IsNullGuid(FlowId) then
             Error(FlowLinkInvalidFlowIdErr);
 
-        FlowDetailsUrl := StrSubstNo(FlowLinkUrlFormatTxt, GetFlowUrl(), GetFlowEnvironmentID(), LowerCase(Format(FlowId, 0, 4)));
-    end;
-
-    procedure GetFlowManageUrl() Url: Text
-    begin
-        Url := StrSubstNo(FlowManageLinkUrlFormatTxt, GetFlowUrl(), GetFlowEnvironmentID());
-    end;
-
-    procedure GetFlowARMResourceUrl(): Text
-    begin
-        exit(FlowARMResourceUrlTxt);
-    end;
-
-    procedure GetFlowServiceResourceUrl(): Text
-    begin
-        exit(FlowServiceResourceUrlTxt);
-    end;
-
-    procedure GetFlowResourceName(): Text
-    begin
-        exit(FlowResourceNameTxt);
+        FlowDetailsUrl := StrSubstNo(FlowLinkUrlFormatTxt, GetFlowUrl(), LowerCase(Format(FlowId, 0, 4)));
     end;
 
     procedure GetGenericError(): Text
@@ -134,97 +110,7 @@ codeunit 6400 "Flow Service Management"
         else
             // If not, check if the default environment is configured
             if FlowUserEnvironmentConfig.Get(EmptyGuid) then
-                FlowEnvironmentId := FlowUserEnvironmentConfig."Environment ID"
-            else begin
-                // If still not, set the user environment to the first environment in the list
-                SetSelectedFlowEnvironmentIDToDefault();
-                if FlowUserEnvironmentConfig.Get(UserSecurityId()) then
-                    FlowEnvironmentId := FlowUserEnvironmentConfig."Environment ID"
-            end;
-    end;
-
-    procedure GetFlowTemplatePageSize(): Text
-    begin
-        // Notice: the behaviour of the pagesize parameter for templates depends on the destination parameter:
-        //  - If destination=new and pagesize=x, then the list loads x templates in the initial view, but a button is present to "load more templates"
-        //  - If destination=details and pagesize=x, then the list loads x templates in the view, but since no button is present to "load more templates",
-        //    the user is stuck in a view with only x templates
-
-        exit(FlowTemplatePageSizeTxt);
-    end;
-
-    procedure GetFlowTemplateDestinationNew(): Text
-    begin
-        // This value asks flow to embed the full flow creation experience from template into the iframe, see:
-        //   https://go.microsoft.com/fwlink/?linkid=2206517
-        // Currently, this is broken from Flow (see BUG 34364), so we load the Details experience instead
-
-        exit(FlowTemplateDestinationNewTxt);
-    end;
-
-    procedure GetFlowTemplateDestinationDetails(): Text
-    begin
-        // This value asks flow to embed only the template list in the iframe, and on template click open the experience in a new tab, see:
-        //   https://go.microsoft.com/fwlink/?linkid=2206173
-
-        exit(FlowTemplateDestinationDetailsTxt);
-    end;
-
-    [NonDebuggable]
-    [Scope('OnPrem')]
-    procedure IsUserReadyForFlow(): Boolean
-    begin
-        if not AzureAdMgt.IsAzureADAppSetupDone() then
-            exit(false);
-
-        exit(not DotNetString.IsNullOrWhiteSpace(AzureAdMgt.GetAccessToken(GetFlowARMResourceUrl(), GetFlowResourceName(), false)));
-    end;
-
-    procedure GetFlowPPEError(): Text
-    begin
-        exit(FlowPPEErr);
-    end;
-
-    procedure GetTemplateFilter(): Text
-    begin
-        // Gets the default text value that filters Flow templates when opening page 6400.
-        exit(TemplateFilterTxt);
-    end;
-
-    procedure GetSalesTemplateFilter(): Text
-    begin
-        // Gets a text value that filters Flow templates for Sales pages when opening page 6400.
-        exit(TemplateFilterTxt + ' ' + SalesFilterTxt);
-    end;
-
-    procedure GetPurchasingTemplateFilter(): Text
-    begin
-        // Gets a text value that filters Flow templates for Purchasing pages when opening page 6400.
-        exit(TemplateFilterTxt + ' ' + PurchasingFilterTxt);
-    end;
-
-    procedure GetJournalTemplateFilter(): Text
-    begin
-        // Gets a text value that filters Flow templates for General Journal pages when opening page 6400.
-        exit(TemplateFilterTxt + ' ' + JournalFilterTxt);
-    end;
-
-    procedure GetCustomerTemplateFilter(): Text
-    begin
-        // Gets a text value that filters Flow templates for Customer pages when opening page 6400.
-        exit(TemplateFilterTxt + ' ' + CustomerFilterTxt);
-    end;
-
-    procedure GetItemTemplateFilter(): Text
-    begin
-        // Gets a text value that filters Flow templates for Item pages when opening page 6400.
-        exit(TemplateFilterTxt + ' ' + ItemFilterTxt);
-    end;
-
-    procedure GetVendorTemplateFilter(): Text
-    begin
-        // Gets a text value that filters Flow templates for Vendor pages when opening page 6400.
-        exit(TemplateFilterTxt + ' ' + VendorFilterTxt);
+                FlowEnvironmentId := FlowUserEnvironmentConfig."Environment ID";
     end;
 
     procedure GetSelectedFlowEnvironmentName() FlowEnvironmentName: Text
@@ -273,6 +159,7 @@ codeunit 6400 "Flow Service Management"
     procedure ParseResponseTextForEnvironments(ResponseText: Text; var TempFlowUserEnvironmentBuffer: Record "Flow User Environment Buffer" temporary)
     var
         FlowUserEnvironmentConfig: Record "Flow User Environment Config";
+        EnvironmentInformation: Codeunit "Environment Information";
         Current: DotNet GenericKeyValuePair2;
         JObj: DotNet JObject;
         JObjProp: DotNet JObject;
@@ -308,6 +195,9 @@ codeunit 6400 "Flow Service Management"
                             TempFlowUserEnvironmentBuffer."Environment ID" := JToken.ToString();
                             TempFlowUserEnvironmentBuffer."Environment Display Name" := Format(JProperty.Value);
 
+                            if EnvironmentInformation.GetLinkedPowerPlatformEnvironmentId() = TempFlowUserEnvironmentBuffer."Environment Id" then
+                                TempFlowUserEnvironmentBuffer.Linked := true;
+
                             // mark current environment as enabled/selected if it is currently the user selected environment
                             FlowUserEnvironmentConfig.Reset();
                             FlowUserEnvironmentConfig.SetRange("Environment ID", JToken.ToString());
@@ -336,7 +226,6 @@ codeunit 6400 "Flow Service Management"
             FlowUserEnvironmentConfig."Environment ID" := TempFlowUserEnvironmentBuffer."Environment ID";
             FlowUserEnvironmentConfig."Environment Display Name" := TempFlowUserEnvironmentBuffer."Environment Display Name";
             FlowUserEnvironmentConfig.Modify();
-
             exit;
         end;
 
@@ -346,6 +235,15 @@ codeunit 6400 "Flow Service Management"
         FlowUserEnvironmentConfig."Environment ID" := TempFlowUserEnvironmentBuffer."Environment ID";
         FlowUserEnvironmentConfig."Environment Display Name" := TempFlowUserEnvironmentBuffer."Environment Display Name";
         FlowUserEnvironmentConfig.Insert();
+    end;
+
+    procedure UseLinkedEnvironment()
+    var
+        FlowUserEnvironmentConfig: Record "Flow User Environment Config";
+    begin
+        // Remove all previous selections if exists
+        FlowUserEnvironmentConfig.Reset();
+        FlowUserEnvironmentConfig.DeleteAll();
     end;
 
     procedure SaveFlowEnvironmentSelectionForAll(var TempFlowUserEnvironmentBuffer: Record "Flow User Environment Buffer" temporary)
@@ -365,6 +263,205 @@ codeunit 6400 "Flow Service Management"
         FlowUserEnvironmentConfig.Insert();
     end;
 
+    procedure HasUserSelectedFlowEnvironment(): Boolean
+    var
+        FlowUserEnvironmentConfig: Record "Flow User Environment Config";
+        EmptyGuid: Guid;
+    begin
+        exit(FlowUserEnvironmentConfig.Get(UserSecurityId()) or FlowUserEnvironmentConfig.Get(EmptyGuid));
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetPowerPlatformEnvironmentId', '', true, true)]
+    local procedure GetEnvironmentId(Scenario: Text; var EnvironmentId: Text)
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+        GUIDValue: Guid;
+        LinkedEnvironmentId: Text;
+        EmptyGuidText: Text;
+    begin
+        EmptyGuidText := '00000000-0000-0000-0000-000000000000';
+        EnvironmentId := '';
+        if HasUserSelectedFlowEnvironment() then
+            // if a user has a specific environment configured, use it
+            EnvironmentId := GetFlowEnvironmentID()
+        else begin
+            // if not, use the linked environment if exists
+            LinkedEnvironmentId := EnvironmentInformation.GetLinkedPowerPlatformEnvironmentId();
+            if (LinkedEnvironmentId <> '') and (Evaluate(GUIDValue, LinkedEnvironmentId)) then begin
+                EnvironmentId := LinkedEnvironmentId;
+
+                if (LinkedEnvironmentId = EmptyGuidText) then
+                    Session.LogMessage('0000NBM', NullGuidReceivedMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerAutomatePickerTelemetryCategoryLbl);
+                ;
+            end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Azure AD Access Dialog", 'OnOAuthAccessDenied', '', false, false)]
+    local procedure CheckOAuthAccessDenied(description: Text; resourceFriendlyName: Text)
+    begin
+        if StrPos(resourceFriendlyName, FlowResourceNameTxt) > 0 then
+            if StrPos(description, 'AADSTS65005') > 0 then
+                Error(FlowAccessDeniedErr);
+    end;
+
+    [TryFunction]
+    local procedure TryGetFlowEnvironmentsApi(var FlowEnvironmentsApi: Text)
+    var
+        FlowServiceConfiguration: Record "Flow Service Configuration";
+    begin
+        FlowEnvironmentsApi := FlowEnvironmentsProdApiTxt;
+        if FlowServiceConfiguration.FindFirst() then
+            case FlowServiceConfiguration."Flow Service" of
+                FlowServiceConfiguration."Flow Service"::"Testing Service (TIP 1)":
+                    FlowEnvironmentsApi := FlowEnvironmentsTip1ApiTxt;
+            end;
+    end;
+
+    [InternalEvent(false)]
+    internal procedure OnBeforeSendGetEnvironmentRequest(var ResponseText: Text; var Handled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('We do not provide localization for Power Automate anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetLocale(): Text
+    var
+        CultureInfo: DotNet CultureInfo;
+        TextInfo: DotNet TextInfo;
+    begin
+        CultureInfo := CultureInfo.CultureInfo(GlobalLanguage);
+        TextInfo := CultureInfo.TextInfo;
+        exit(LowerCase(TextInfo.CultureName));
+    end;
+
+    [Obsolete('We do not support providing the Power Automate manage URL anymore.', '25.0')]
+    procedure GetFlowManageUrl() Url: Text
+    begin
+        Url := StrSubstNo(FlowManageLinkUrlFormatTxt, GetFlowUrl(), GetFlowEnvironmentID());
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetFlowARMResourceUrl(): Text
+    begin
+        exit(FlowARMResourceUrlTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetFlowServiceResourceUrl(): Text
+    begin
+        exit(FlowServiceResourceUrlTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetFlowResourceName(): Text
+    begin
+        exit(FlowResourceNameTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetFlowTemplatePageSize(): Text
+    begin
+        // Notice: the behaviour of the pagesize parameter for templates depends on the destination parameter:
+        //  - If destination=new and pagesize=x, then the list loads x templates in the initial view, but a button is present to "load more templates"
+        //  - If destination=details and pagesize=x, then the list loads x templates in the view, but since no button is present to "load more templates",
+        //    the user is stuck in a view with only x templates
+
+        exit(FlowTemplatePageSizeTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetFlowTemplateDestinationNew(): Text
+    begin
+        // This value asks flow to embed the full flow creation experience from template into the iframe, see:
+        //   https://go.microsoft.com/fwlink/?linkid=2206517
+        // Currently, this is broken from Flow (see BUG 34364), so we load the Details experience instead
+
+        exit(FlowTemplateDestinationNewTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetFlowTemplateDestinationDetails(): Text
+    begin
+        // This value asks flow to embed only the template list in the iframe, and on template click open the experience in a new tab, see:
+        //   https://go.microsoft.com/fwlink/?linkid=2206173
+
+        exit(FlowTemplateDestinationDetailsTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    [NonDebuggable]
+    [Scope('OnPrem')]
+    procedure IsUserReadyForFlow(): Boolean
+    begin
+        if not AzureAdMgt.IsAzureADAppSetupDone() then
+            exit(false);
+
+        exit(not DotNetString.IsNullOrWhiteSpace(AzureAdMgt.GetAccessToken(GetFlowARMResourceUrl(), GetFlowResourceName(), false)));
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetFlowPPEError(): Text
+    begin
+        exit(FlowPPEErr);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetTemplateFilter(): Text
+    begin
+        // Gets the default text value that filters Flow templates when opening page 6400.
+        exit(TemplateFilterTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetSalesTemplateFilter(): Text
+    begin
+        // Gets a text value that filters Flow templates for Sales pages when opening page 6400.
+        exit(TemplateFilterTxt + ' ' + SalesFilterTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetPurchasingTemplateFilter(): Text
+    begin
+        // Gets a text value that filters Flow templates for Purchasing pages when opening page 6400.
+        exit(TemplateFilterTxt + ' ' + PurchasingFilterTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetJournalTemplateFilter(): Text
+    begin
+        // Gets a text value that filters Flow templates for General Journal pages when opening page 6400.
+        exit(TemplateFilterTxt + ' ' + JournalFilterTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetCustomerTemplateFilter(): Text
+    begin
+        // Gets a text value that filters Flow templates for Customer pages when opening page 6400.
+        exit(TemplateFilterTxt + ' ' + CustomerFilterTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetItemTemplateFilter(): Text
+    begin
+        // Gets a text value that filters Flow templates for Item pages when opening page 6400.
+        exit(TemplateFilterTxt + ' ' + ItemFilterTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetVendorTemplateFilter(): Text
+    begin
+        // Gets a text value that filters Flow templates for Vendor pages when opening page 6400.
+        exit(TemplateFilterTxt + ' ' + VendorFilterTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
+    procedure GetFlowTemplateSearchUrl(): Text
+    begin
+        exit(FlowSearchTemplatesUrlTxt);
+    end;
+
+    [Obsolete('This function is not used anymore. We do not set the default environment anymore. We rely on Power Automate instead.', '25.0')]
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetSelectedFlowEnvironmentIDToDefault()
@@ -404,56 +501,10 @@ codeunit 6400 "Flow Service Management"
         end;
     end;
 
-    procedure HasUserSelectedFlowEnvironment(): Boolean
-    var
-        FlowUserEnvironmentConfig: Record "Flow User Environment Config";
-        EmptyGuid: Guid;
-    begin
-        exit(FlowUserEnvironmentConfig.Get(UserSecurityId()) or FlowUserEnvironmentConfig.Get(EmptyGuid));
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetPowerPlatformEnvironmentId', '', true, true)]
-    local procedure GetEnvironmentId(Scenario: Text; var EnvironmentId: Text)
-    begin
-        EnvironmentId := '';
-        if not HasUserSelectedFlowEnvironment() then
-            exit;
-        EnvironmentId := GetFlowEnvironmentID();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Azure AD Access Dialog", 'OnOAuthAccessDenied', '', false, false)]
-    local procedure CheckOAuthAccessDenied(description: Text; resourceFriendlyName: Text)
-    begin
-        if StrPos(resourceFriendlyName, FlowResourceNameTxt) > 0 then
-            if StrPos(description, 'AADSTS65005') > 0 then
-                Error(FlowAccessDeniedErr);
-    end;
-
-    procedure GetFlowTemplateSearchUrl(): Text
-    begin
-        exit(FlowSearchTemplatesUrlTxt);
-    end;
-
-    [TryFunction]
-    local procedure TryGetFlowEnvironmentsApi(var FlowEnvironmentsApi: Text)
-    var
-        FlowServiceConfiguration: Record "Flow Service Configuration";
-    begin
-        FlowEnvironmentsApi := FlowEnvironmentsProdApiTxt;
-        if FlowServiceConfiguration.FindFirst() then
-            case FlowServiceConfiguration."Flow Service" of
-                FlowServiceConfiguration."Flow Service"::"Testing Service (TIP 1)":
-                    FlowEnvironmentsApi := FlowEnvironmentsTip1ApiTxt;
-            end;
-    end;
-
-    [InternalEvent(false)]
-    internal procedure OnBeforeSendGetEnvironmentRequest(var ResponseText: Text; var Handled: Boolean)
-    begin
-    end;
-
+    [Obsolete('This function is not used anymore. We do not set the default environment anymore. We rely on Power Automate instead.', '25.0')]
     [InternalEvent(false)]
     internal procedure OnBeforeSetDefaultEnvironmentRequest(var ResponseText: Text; var Handled: Boolean)
     begin
     end;
+#endif
 }

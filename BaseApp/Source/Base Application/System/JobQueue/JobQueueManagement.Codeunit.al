@@ -242,7 +242,7 @@ codeunit 456 "Job Queue Management"
         if not JobQueueCategory.WritePermission() then
             exit;
 
-        JobQueueEntry.ReadIsolation(IsolationLevel::ReadCommitted);
+        JobQueueEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         JobQueueEntry.SetFilter("Job Queue Category Code", '<>''''');
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Waiting);
         JobQueueEntry.SetLoadFields("Job Queue Category Code");
@@ -292,6 +292,7 @@ codeunit 456 "Job Queue Management"
                         if (not TaskScheduler.TaskExists(JobQueueEntry2."System Task ID")) and
                         HasNoActiveSession(JobQueueEntry2."User Service Instance ID", JobQueueEntry2."User Session ID") then begin
                             JobQueueEntry.SetError(JobSomethingWentWrongMsg);
+                            OnFindStaleJobsAndSetErrorOnAfterSetError(JobQueueEntry);
 
                             StaleJobQueueEntryTelemetry(JobQueueEntry);
                         end;
@@ -482,6 +483,11 @@ codeunit 456 "Job Queue Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunJobQueueEntryOnceOnAfterJobQueueEntryInsert(SelectedJobQueueEntry: Record "Job Queue Entry"; JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindStaleJobsAndSetErrorOnAfterSetError(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }
