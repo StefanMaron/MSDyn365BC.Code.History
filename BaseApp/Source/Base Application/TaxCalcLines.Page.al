@@ -1,0 +1,53 @@
+page 17320 "Tax Calc. Lines"
+{
+    Caption = 'Tax Calc. Lines';
+    Editable = false;
+    PageType = List;
+    SourceTable = "Tax Calc. Line";
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1)
+            {
+                ShowCaption = false;
+                field("Line Code"; "Line Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the line code associated with the tax calculation line.';
+                }
+                field(Description; Description)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the line code description associated with the tax calculation line.';
+                }
+                field("Expression Type"; "Expression Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how the related tax calculation term is named, such as Plus/Minus, Multiply/Divide, and Compare.';
+                }
+                field(Expression; Expression)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the expression of the related XML element.';
+                }
+                field("Link Register No."; "Link Register No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the link register number associated with the tax calculation line.';
+                }
+                field(Period; Period)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the period associated with the tax calculation line.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+    }
+}
+

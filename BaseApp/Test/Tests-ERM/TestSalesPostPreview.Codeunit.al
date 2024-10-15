@@ -1,0 +1,1086 @@
+codeunit 134763 "Test Sales Post Preview"
+{
+    EventSubscriberInstance = Manual;
+    Subtype = Test;
+    TestPermissions = NonRestrictive;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Post Preview] [Sales]
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTrees: Codeunit "Library - Trees";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        NoRecordsErr: Label 'There are no preview records to show.';
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        LibraryJournals: Codeunit "Library - Journals";
+        IsInitialized: Boolean;
+        WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
+        RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
+        AmountMustBePositiveErr: Label 'Amount must be positive';
+        InvalidSubscriberTypeErr: label 'Invalid Subscriber type. The type must be CODEUNIT.';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSalesInvoicePreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        CustomerEntriesPreview: TestPage "Cust. Ledg. Entries Preview";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Posting preview of Sales Invoice opens G/L Posting Preview with the navigatable entries to be posted.
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::Invoice);
+        BindSubscription(TestSalesPostPreview);
+
+        // Execute
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
+        GLPostingPreviewHandler(GLPostingPreview);
+        CustomerEntriesPreview.Trap;
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Cust. Ledger Entry"));
+        GLPostingPreview.Show.Invoke;
+        CustEntriesPreviewHandler(CustomerEntriesPreview, SalesHeader."Document Type"::Invoice);
+
+        GLPostingPreview.OK.Invoke;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSalesOrderPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        CustomerEntriesPreview: TestPage "Cust. Ledg. Entries Preview";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Posting preview of Sales Order opens G/L Posting Preview with the navigatable entries to be posted.
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::Order);
+        BindSubscription(TestSalesPostPreview);
+
+        // Execute
+
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
+        GLPostingPreviewHandler(GLPostingPreview);
+        // Verify
+        CustomerEntriesPreview.Trap;
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Cust. Ledger Entry"));
+        GLPostingPreview.Show.Invoke;
+        CustEntriesPreviewHandler(CustomerEntriesPreview, SalesHeader."Document Type"::Invoice);
+
+        GLPostingPreview.OK.Invoke;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceTryPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        ErrorMessageMgt: codeunit "Error Message Management";
+        PostingPreviewEventHandler: Codeunit "Posting Preview Event Handler";
+        RecRef: RecordRef;
+        ErrorMsg: Text;
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Run posting preview engine with success
+        Initialize;
+        // [GIVEN] the valid Sales Invoice with one line
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::Invoice);
+
+        // [WHEN] Run TryPreview()
+        BindSubscription(SalesPostYesNo);
+        GenJnlPostPreview.SetContext(SalesPostYesNo, SalesHeader);
+        Assert.IsFalse(GenJnlPostPreview.Run(), 'Preview.Run returned true');
+
+        // [THEN] Preview has not failed
+        Assert.IsTrue(GenJnlPostPreview.IsSuccess(), 'preview has failed');
+        // [THEN] PostingPreviewEventHandler gives access to temp buffers: CLE and G/L Entries.
+        GenJnlPostPreview.GetPreviewHandler(PostingPreviewEventHandler);
+        PostingPreviewEventHandler.GetEntries(Database::"Cust. Ledger Entry", RecRef);
+        Assert.RecordCount(RecRef, 1);
+        PostingPreviewEventHandler.GetEntries(Database::"G/L Entry", RecRef);
+        Assert.RecordCount(RecRef, 3);
+        // [THEN] No error message found
+        Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ErrorMsg), 'Errors found');
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceTryPreviewMissingContext()
+    var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Run posting preview engine if context is missing
+        Initialize;
+
+        // [WHEN] Run TryPreview() without context
+        COMMIT;
+        Assert.IsFalse(GenJnlPostPreview.Run(), 'Preview.Run returned true');
+
+        // [THEN] Preview has failed: 'Invalid Subscriber Type'
+        Assert.IsFalse(GenJnlPostPreview.IsSuccess(), 'preview has not failed');
+        Assert.ExpectedError(InvalidSubscriberTypeErr);
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceTryPreviewWithFailure()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        ErrorMessageMgt: codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        PostingPreviewEventHandler: Codeunit "Posting Preview Event Handler";
+        RecRef: RecordRef;
+        ErrorMsg: Text;
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Run posting preview engine if error occurs
+        Initialize;
+        // [GIVEN] the valid Sales Invoice with one line, where amount is negative
+        AmountToVerify := -LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::Invoice);
+
+        // [WHEN] Run TryPreview()
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        BindSubscription(SalesPostYesNo);
+        GenJnlPostPreview.SetContext(SalesPostYesNo, SalesHeader);
+        Assert.IsFalse(GenJnlPostPreview.Run(), 'Preview.Run returned true');
+
+        // [THEN] Preview has failed
+        Assert.IsFalse(GenJnlPostPreview.IsSuccess(), 'preview has not failed');
+        // [THEN] PostingPreviewEventHandler gives access to temp buffers: CLE and G/L Entries
+        GenJnlPostPreview.GetPreviewHandler(PostingPreviewEventHandler);
+        PostingPreviewEventHandler.GetEntries(Database::"Cust. Ledger Entry", RecRef);
+        Assert.RecordIsEmpty(RecRef);
+        PostingPreviewEventHandler.GetEntries(Database::"G/L Entry", RecRef);
+        Assert.RecordCount(RecRef, 2);
+        // [THEN] Error message found: "Amount must be positive"
+        Assert.IsTrue(ErrorMessageMgt.IsActive(), 'ErroMsgMgt inactive');
+        Assert.AreNotEqual(0, ErrorMessageMgt.GetLastError(ErrorMsg), 'Errors not found');
+        Assert.ExpectedMessage(AmountMustBePositiveErr, ErrorMsg);
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoice: TestPage "Sales Invoice";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Preview action on Sales Invoice page runs posting preview engine
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::Invoice);
+
+        SalesInvoice.Trap;
+        PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesInvoice.Preview.Invoke;
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceListOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SalesInvoiceList: TestPage "Sales Invoice List";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Preview action on Sales Invoice List page runs posting preview engine
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::Invoice);
+
+        SalesInvoiceList.Trap;
+        PAGE.Run(PAGE::"Sales Invoice List", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesInvoiceList.Preview.Invoke;
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SalesOrder: TestPage "Sales Order";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Preview action on Sales Order page runs posting preview engine
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::Order);
+
+        SalesOrder.Trap;
+        PAGE.Run(PAGE::"Sales Order", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesOrder.PreviewPosting.Invoke;
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderListOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SalesOrderList: TestPage "Sales Order List";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Preview action on Sales Order List page runs posting preview engine
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::Order);
+
+        SalesOrderList.Trap;
+        PAGE.Run(PAGE::"Sales Order List", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesOrderList."Preview Posting".Invoke;
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Preview action on Sales Return Order page runs posting preview engine
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::"Return Order");
+
+        SalesReturnOrder.Trap;
+        PAGE.Run(PAGE::"Sales Return Order", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesReturnOrder."Preview Posting".Invoke; // Preview
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnListOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SalesReturnOrderList: TestPage "Sales Return Order List";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Preview action on Sales Return Order List page runs posting preview engine
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::"Return Order");
+
+        SalesReturnOrderList.Trap;
+        PAGE.Run(PAGE::"Sales Return Order List", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesReturnOrderList."Preview Posting".Invoke; // Preview
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Preview action on Sales Credit Memo page runs posting preview engine
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::"Credit Memo");
+
+        SalesCreditMemo.Trap;
+        PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesCreditMemo."Preview Posting".Invoke; // Preview
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoListOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SalesCreditMemos: TestPage "Sales Credit Memos";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+    begin
+        // [SCENARIO] Preview action on Sales Credit Memo Lists page runs posting preview engine
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::"Credit Memo");
+
+        SalesCreditMemos.Trap;
+        PAGE.Run(PAGE::"Sales Credit Memos", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesCreditMemos."Preview Posting".Invoke; // Preview
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPrepmtInvoiceOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO] Preview action on Sales Order page runs posting preview engine
+        Initialize;
+
+        LibraryERMCountryData.CreateVATData;
+        CreateSalesOrderWithPrepayment(SalesHeader);
+
+        SalesOrder.Trap;
+        PAGE.Run(PAGE::"Sales Order", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesOrder.PreviewPrepmtInvoicePosting.Invoke;
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPrepmtCrMemoOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO] Preview action on Sales Order page runs posting preview engine
+        Initialize;
+
+        CreateSalesOrderWithPrepayment(SalesHeader);
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        Commit;
+
+        SalesOrder.Trap;
+        PAGE.Run(PAGE::"Sales Order", SalesHeader);
+
+        GLPostingPreview.Trap;
+        SalesOrder.PreviewPrepmtCrMemoPosting.Invoke;
+
+        if not GLPostingPreview.First then
+            Error(NoRecordsErr);
+        GLPostingPreview.OK.Invoke;
+
+        // Cleanup
+        asserterror Error('');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestSalesInvoicePreviewWorksWithApprovals()
+    var
+        SalesHeader: Record "Sales Header";
+        RestrictedRecord: Record "Restricted Record";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        RecordRestrictionMgt: Codeunit "Record Restriction Mgt.";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        AmountToVerify: Decimal;
+        ExpectedQuantity: Decimal;
+        ExpectedErrorMessage: Text;
+        ActualErrorMessage: Text;
+    begin
+        // [SCENARIO] Preview action on Sales Invoice should work even if Invoice is under Approval Workflow.
+        Initialize;
+        AmountToVerify := LibraryRandom.RandInt(500);
+        ExpectedQuantity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Sales Invoice that is under an approval workflow.
+        CreateSalesRecord(SalesHeader, AmountToVerify, ExpectedQuantity, SalesHeader."Document Type"::Invoice);
+        RecordRestrictionMgt.RestrictRecordUsage(SalesHeader, '');
+        Commit;
+        RestrictedRecord.SetRange("Record ID", SalesHeader.RecordId);
+        Assert.IsTrue(RestrictedRecord.FindFirst, 'Missing RestrictedRecord');
+
+        // [WHEN] Preview is executed
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        // [THEN] GETLASTERRORTEXT should be null
+        Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview. Actual error: ' + GetLastErrorText);
+        GLPostingPreview.Close;
+
+        ClearLastError;
+        Clear(SalesPostYesNo);
+
+        ExpectedErrorMessage := StrSubstNo(RecordRestrictedTxt,
+            Format(Format(RestrictedRecord."Record ID", 0, 1)));
+
+        // [WHEN] Post is executed.
+        asserterror SalesPostYesNo.Run(SalesHeader);
+        // [THEN] GETLASTERRORTEXT should be non-null
+        ActualErrorMessage := CopyStr(GetLastErrorText, 1, StrLen(ExpectedErrorMessage));
+        Assert.AreEqual(ExpectedErrorMessage, ActualErrorMessage, 'Unexpected error message.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PartialShippedSalesOrderOpensPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 376432] Preview action should work for partial shipped Sales Order
+
+        Initialize;
+
+        // [GIVEN] "Calc. Inv. Discount" is enabled in Sales & Receivables Setup
+        LibrarySales.SetCalcInvDiscount(true);
+
+        // [GIVEN] Partial shipped Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 10));
+        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandIntInRange(1, SalesLine.Quantity));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Open Post Preview
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+
+        // [THEN] Preview is open
+        Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText); // If preview was prepared successfully, it throws an empty error to roll the transaction back
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPartialSalesOrderPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Location: Record Location;
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 378536] Preview action can be opened for Sales Order with FIFO Item, if was before posted partially several times.
+        Initialize;
+
+        // [GIVEN] Inventory Setup: Automatic Cost Posting = TRUE, Expected Cost Posting = TRUE
+        LibraryInventory.SetAutomaticCostPosting(true);
+        LibraryInventory.SetExpectedCostPosting(true);
+        LibraryInventory.UpdateInventoryPostingSetup(Location);
+
+        // [GIVEN] Item with Lot Tracking and Costing Method FIFO
+        ItemNo := CreateItemWithFIFO;
+        CreateAndPostItemJournalLine(ItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
+
+        // [GIVEN] Create Sales Order, Ship and Invoice partially
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandIntInRange(5, 10));
+        PostPartialQuantity(SalesHeader, true);
+
+        // [GIVEN] Ship Sales Order again partially
+        PostPartialQuantity(SalesHeader, false);
+
+        // [WHEN] Open Post Preview
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+
+        // [THEN] Preview is open
+        Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnPostPreviewOrderWithBlockedCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        // [SCENARIO 221818] Preview posting does not hide actual error when posting sales document for blocked customer
+        Initialize;
+
+        // [GIVEN] Sales Order with Customer "X" has Blocked = " "
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 10));
+
+        // [GIVEN] Customer "X" has Blocked = "All"
+        Customer.Blocked := Customer.Blocked::All;
+        Customer.Modify(true);
+        Commit;
+
+        // [WHEN] Try Preview Posting for Sales Order
+        ErrorMessagesPage.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+
+        // [THEN] Error: "You cannot post this type of document when Customer X is blocked with type All"
+        Assert.ExpectedError('');
+        Assert.ExpectedMessage(
+          'You cannot post this type of document when Customer ' + Customer."No." + ' is blocked with type All',
+          ErrorMessagesPage.Description.Value);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnPostPreviewOrderWithPrivacyBlockedCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        // [SCENARIO 221818] Preview posting does not hide actual error when posting sales document for Privacy Blocked customer
+        Initialize;
+
+        // [GIVEN] Sales Order with Customer "X" is PrivacyBlocked
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 10));
+
+        // [GIVEN] Customer "X" is PrivacyBlocked
+        Customer.Validate("Privacy Blocked", true);
+        Customer.Modify(true);
+        Commit;
+
+        // [WHEN] Try Preview Posting for Sales Order
+        ErrorMessagesPage.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+
+        // [THEN] Error: "You cannot post this type of document when Customer X is blocked for privacy"
+        Assert.ExpectedError('');
+        Assert.ExpectedMessage(
+          'You cannot post this type of document when Customer ' + Customer."No." + ' is blocked for privacy.',
+          ErrorMessagesPage.Description.Value);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderWithCalcInvAndDiscPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [FEATURE] [Order]
+        // [SCENARIO 263954] Stan can see posting preview of released sales order when "Calc. Inv. and Pmt. Discount" is set in setup.
+        // [GIVEN] "Calc. Inv. and Pmt. Discount" = TRUE in "Sales & Receivable Setup"
+        LibrarySales.SetCalcInvDiscount(true);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+        SalesHeader.Modify(true);
+        Commit;
+
+        // [WHEN] Stan calls "Post Preview" from invoice
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        Assert.ExpectedError('');
+
+        // [THEN] Posting preview page opens without errors.
+        GLPostingPreview.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderWithCalcInvAndDiscPreviewPartialInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [FEATURE] [Order]
+        // [SCENARIO 263954] Stan can see posting preview of released sales order when "Calc. Inv. and Pmt. Discount" is set in setup.
+        // [GIVEN] "Calc. Inv. and Pmt. Discount" = TRUE in "Sales & Receivable Setup"
+        // [GIVEN] "Qty. to Invoice" = 90, "Quantity" = 100
+        LibrarySales.SetCalcInvDiscount(true);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+
+        SalesLine.Validate("Qty. to Invoice", SalesLine.Quantity / 3);
+        SalesLine.Modify(true);
+
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        Commit;
+
+        // [WHEN] Stan calls "Post Preview" from invoice
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        Assert.ExpectedError('');
+
+        // [THEN] Posting preview page opens without errors.
+        GLPostingPreview.Close;
+    end;
+
+    [Test]
+    [HandlerFunctions('GLPostingPreviewPageHandler')]
+    [Scope('OnPrem')]
+    procedure PmtDiscToleranceConsidersOnPostingPreview()
+    var
+        ApplyingCustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        InvNo: Code[20];
+        PmtNo: Code[20];
+    begin
+        // [FEATURE] [Payment Discount] [Payment Discount Tolerance]
+        // [SCENARIO 277573] Payment Discount Tolerance considers when preview application of payment to invoice
+
+        Initialize;
+
+        // [GIVEN] Posted payment and invoice with possible payment discount tolerance
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(Format(LibraryRandom.RandIntInRange(3, 10)) + 'D');
+        PostPaidInvWithPmtDiscTol(InvNo, PmtNo);
+        FindEntriesAndSetAppliesToID(ApplyingCustLedgerEntry, CustLedgerEntry, InvNo, PmtNo);
+        Commit;
+        LibraryVariableStorage.Enqueue(DATABASE::"Detailed Cust. Ledg. Entry");
+
+        // [WHEN] Preview application of payment to invoice
+        asserterror CustEntryApplyPostedEntries.PreviewApply(
+            ApplyingCustLedgerEntry, ApplyingCustLedgerEntry."Document No.",
+            CustEntryApplyPostedEntries.GetApplicationDate(ApplyingCustLedgerEntry));
+
+        // [THEN] Three entries expected in "G/L Posting Preview" page for table "Detailed Customer Ledger Entry"
+        // [THEN] Payment Discount Tolerance and two applications (invoice -> payment and payment -> invoice)
+        // Verification done in DtldCustLedgEntryPageHandler
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger, '');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AssembleToOrderReleaseOrderPostingPreview()
+    var
+        Item: Record Item;
+        SalesOrderLine: Record "Sales Line";
+        SalesOrderHeader: Record "Sales Header";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        SupplyType: Option Inventory,Purchase,"Prod. Order";
+    begin
+        // [FEATURE] [Assemble-to-Order] [Assembly]
+        // [SCENARIO 309585] Can't post-preview released Sales Order with ATO Item
+        Initialize;
+
+        // [GIVEN] Created an Item with "Assembly Policy"="Assemble-to-Order" and its Assembly List
+        LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+        LibraryAssembly.CreateAssemblyList(Item."Costing Method", Item."No.", true, 1, 0, 0, 1, '', '');
+        LibraryTrees.CreateMixedTree(Item, Item."Replenishment System"::Assembly, Item."Costing Method", 1, 1, 1);
+        LibraryTrees.CreateSupply(Item."No.", '', '', WorkDate, SupplyType::Inventory, 10);
+
+        // [GIVEN] Created and released Sales Order with ATO Item
+        LibrarySales.CreateSalesDocumentWithItem(SalesOrderHeader, SalesOrderLine, SalesOrderHeader."Document Type"::Order,
+          LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandInt(10), '', 0D);
+        LibrarySales.ReleaseSalesDocument(SalesOrderHeader);
+        Commit;
+
+        // [WHEN] Call "Post Preview" from order
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesOrderHeader);
+        Assert.ExpectedError('');
+
+        // [THEN] Posting preview page opens without errors
+        GLPostingPreview.Close;
+    end;
+
+    local procedure Initialize()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Sales Post Preview");
+        LibrarySetupStorage.Restore;
+        if IsInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Sales Post Preview");
+        IsInitialized := true;
+
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdatePrepaymentAccounts;
+
+        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryERM.CreateNoSeriesCode);
+        SalesReceivablesSetup.Modify(true);
+
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Sales Post Preview");
+    end;
+
+    local procedure CreateSalesRecord(var SalesHeader: Record "Sales Header"; ItemCost: Decimal; Quantity: Decimal; Type: Integer)
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        RecordExportBuffer: Record "Record Export Buffer";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, Type, Customer."No.");
+
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        if not VATPostingSetup.FindFirst then
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup, Customer."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity);
+        SalesLine."Unit Price" := ItemCost;
+        SalesLine."Line Amount" := Quantity * SalesLine."Unit Price";
+        SalesLine."Amount Including VAT" := SalesLine."Line Amount";
+        SalesLine.Modify;
+
+        RecordExportBuffer.DeleteAll;
+        RecordExportBuffer.Init;
+        RecordExportBuffer.RecordID := SalesHeader.RecordId;
+        RecordExportBuffer.Insert;
+
+        Commit;
+    end;
+
+    local procedure CreateSalesOrderWithPrepayment(var SalesHeader: Record "Sales Header")
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Prepayment %", LibraryRandom.RandInt(10));
+        Customer.Modify;
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", '', 1, '', 0D);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(500));
+        SalesLine.Modify(true);
+        Commit;
+    end;
+
+    local procedure CreateItemWithFIFO(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        with Item do begin
+            LibraryInventory.CreateItem(Item);
+            Validate("Costing Method", "Costing Method"::FIFO);
+            Modify(true);
+            exit("No.");
+        end;
+    end;
+
+    local procedure PostPartialQuantity(var SalesHeader: Record "Sales Header"; Invoice: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        with SalesLine do begin
+            SetRange("Document Type", SalesHeader."Document Type");
+            SetRange("Document No.", SalesHeader."No.");
+            FindFirst;
+            Validate("Qty. to Ship", 1); // specific value needed for test
+            Modify(true);
+        end;
+        LibrarySales.PostSalesDocument(SalesHeader, true, Invoice);
+    end;
+
+    local procedure PostPaidInvWithPmtDiscTol(var InvNo: Code[20]; var PmtNo: Code[20])
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        PmtDiscTol: Decimal;
+        InvoiceAmount: Decimal;
+        PmtAmount: Decimal;
+    begin
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+
+        PmtDiscTol := PaymentTerms."Discount %" / LibraryRandom.RandDec(3, 5);
+        InvoiceAmount := LibraryRandom.RandDec(100, 2);
+        PmtAmount := Round(InvoiceAmount * PmtDiscTol / 100 - InvoiceAmount);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", InvoiceAmount);
+        InvNo := GenJournalLine."Document No.";
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.",
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, PmtAmount);
+        GenJournalLine.Validate("Posting Date", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1); // date after "Pmt. Disc. Posting Date"
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        PmtNo := GenJournalLine."Document No.";
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Purchase, ItemNo, Quantity);
+        ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDecInRange(10, 100, 2));
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(
+          ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+    end;
+
+    local procedure FindEntriesAndSetAppliesToID(var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; InvNo: Code[20]; PmtNo: Code[20])
+    begin
+        LibraryERM.FindCustomerLedgerEntry(
+          ApplyingCustLedgerEntry, ApplyingCustLedgerEntry."Document Type"::Payment, PmtNo);
+        ApplyingCustLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyCustomerEntry(ApplyingCustLedgerEntry, ApplyingCustLedgerEntry."Remaining Amount");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvNo);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
+    end;
+
+    [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
+    local procedure ThrowErrorSalesHeaderOnBeforeDeleteEvent(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    var
+        RecordExportBuffer: Record "Record Export Buffer";
+        RecRef: RecordRef;
+    begin
+        Assert.RecordIsNotEmpty(RecordExportBuffer);
+        RecRef.GetTable(Rec);
+        if not RecRef.IsTemporary then begin
+            RecordExportBuffer.SetRange(RecordID, Rec.RecordId);
+            Assert.RecordIsEmpty(RecordExportBuffer);
+        end;
+    end;
+
+    local procedure GLPostingPreviewHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
+    var
+        GLEntry: Record "G/L Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        ValueEntry: Record "Value Entry";
+    begin
+        GLPostingPreview.First;
+        VerifyGLPostingPreviewLine(GLPostingPreview, GLEntry.TableCaption, 3);
+
+        GLPostingPreview.Next;
+        VerifyGLPostingPreviewLine(GLPostingPreview, CustLedgerEntry.TableCaption, 1);
+
+        GLPostingPreview.Next;
+        VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption, 1);
+
+        GLPostingPreview.Next;
+        VerifyGLPostingPreviewLine(GLPostingPreview, VATEntry.TableCaption, 1);
+
+        GLPostingPreview.Next;
+        VerifyGLPostingPreviewLine(GLPostingPreview, DetailedCustLedgEntry.TableCaption, 1);
+
+        GLPostingPreview.Next;
+        VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption, 1);
+    end;
+
+    local procedure CustEntriesPreviewHandler(var CustomerEntriesPreview: TestPage "Cust. Ledg. Entries Preview"; EntryType: Integer)
+    begin
+        CustomerEntriesPreview.First;
+        Assert.AreEqual(EntryType, CustomerEntriesPreview."Document Type".AsInteger, 'Unexpected DocumentType in CustomerEntriesPreview');
+        CustomerEntriesPreview.OK.Invoke;
+    end;
+
+    local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
+    begin
+        Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
+        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger,
+          StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        DetCustLedgEntrPreview: TestPage "Det. Cust. Ledg. Entr. Preview";
+    begin
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(LibraryVariableStorage.DequeueInteger));
+        LibraryVariableStorage.Enqueue(GLPostingPreview."No. of Records".Value);
+        DetCustLedgEntrPreview.Trap;
+        GLPostingPreview."No. of Records".DrillDown;
+        DetCustLedgEntrPreview.FILTER.SetFilter("Entry Type", Format(DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance"));
+        Assert.IsTrue(
+          DetCustLedgEntrPreview.Amount.AsDEcimal <> 0, 'Payment Discount Tolerance does not exist');
+        DetCustLedgEntrPreview.FILTER.SetFilter("Entry Type", Format(DetailedCustLedgEntry."Entry Type"::Application));
+        Assert.IsTrue(
+          DetCustLedgEntrPreview.Amount.AsDEcimal <> 0, 'Application does not exist');
+        DetCustLedgEntrPreview.Next;
+        Assert.IsTrue(
+          DetCustLedgEntrPreview.Amount.AsDEcimal <> 0, 'Application does not exist');
+    end;
+}
+

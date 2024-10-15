@@ -1,0 +1,193 @@
+page 35600 "Cash Accounts"
+{
+    ApplicationArea = Basic, Suite;
+    Caption = 'Cash Accounts';
+    CardPageID = "Cash Account Card";
+    PageType = List;
+    SourceTable = "Bank Account";
+    SourceTableView = WHERE("Account Type" = CONST("Cash Account"));
+    UsageCategory = Lists;
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1210000)
+            {
+                ShowCaption = false;
+                field("No."; "No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                }
+                field(Name; Name)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the related record.';
+                }
+                field("Search Name"; "Search Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
+                }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
+            }
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            part(Control1905532107; "Dimensions FactBox")
+            {
+                SubPageLink = "Table ID" = CONST(270),
+                              "No." = FIELD("No.");
+                Visible = false;
+            }
+        }
+    }
+
+    actions
+    {
+        area(navigation)
+        {
+            group("&Cash Acc.")
+            {
+                Caption = '&Cash Acc.';
+                action(Statistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Bank Account Statistics";
+                    RunPageLink = "No." = FIELD("No."),
+                                  "Date Filter" = FIELD("Date Filter"),
+                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                }
+                action("Co&mments")
+                {
+                    Caption = 'Co&mments';
+                    Image = ViewComments;
+                    RunObject = Page "Comment Sheet";
+                    RunPageLink = "Table Name" = CONST("Bank Account"),
+                                  "No." = FIELD("No.");
+                }
+                group(Dimensions)
+                {
+                    Caption = 'Dimensions';
+                    Image = Dimensions;
+                    action("Dimensions-Single")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Dimensions-Single';
+                        Image = Dimensions;
+                        Promoted = false;
+                        //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
+                        //PromotedCategory = Process;
+                        RunObject = Page "Default Dimensions";
+                        RunPageLink = "Table ID" = CONST(270),
+                                      "No." = FIELD("No.");
+                        ShortCutKey = 'Shift+Ctrl+D';
+                    }
+                    action("Dimensions-&Multiple")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Dimensions-&Multiple';
+                        Image = DimensionSets;
+                        Promoted = false;
+                        //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
+                        //PromotedCategory = Process;
+
+                        trigger OnAction()
+                        var
+                            BankAcc: Record "Bank Account";
+                            DefaultDimMultiple: Page "Default Dimensions-Multiple";
+                        begin
+                            CurrPage.SetSelectionFilter(BankAcc);
+                            DefaultDimMultiple.SetMultiRecord(BankAcc, FieldNo("No."));
+                            DefaultDimMultiple.RunModal;
+                        end;
+                    }
+                }
+                action(Balance)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Balance';
+                    Image = Balance;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Bank Account Balance";
+                    RunPageLink = "No." = FIELD("No."),
+                                  "Date Filter" = FIELD("Date Filter"),
+                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                }
+                action("Ledger E&ntries")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Ledger E&ntries';
+                    Image = BankAccountLedger;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Bank Account Ledger Entries";
+                    RunPageLink = "Bank Account No." = FIELD("No.");
+                    RunPageView = SORTING("Bank Account No.");
+                    ShortCutKey = 'Ctrl+F7';
+                    ToolTip = 'View the history of transactions that have been posted for the selected record.';
+                }
+                action("Chec&k Ledger Entries")
+                {
+                    Caption = 'Chec&k Ledger Entries';
+                    Image = CheckLedger;
+                    RunObject = Page "Check Ledger Entries";
+                    RunPageLink = "Bank Account No." = FIELD("No.");
+                    RunPageView = SORTING("Bank Account No.");
+                }
+                action("C&ontact")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'C&ontact';
+                    Image = ContactPerson;
+
+                    trigger OnAction()
+                    begin
+                        ShowContact;
+                    end;
+                }
+            }
+        }
+        area(reporting)
+        {
+            action("Bank Account G/L Turnover")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Bank Account G/L Turnover';
+                Image = "Report";
+                Promoted = true;
+                PromotedCategory = "Report";
+                RunObject = Report "Bank Account G/L Turnover";
+            }
+            action("Bank Account Card")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Bank Account Card';
+                Image = "Report";
+                Promoted = true;
+                PromotedCategory = "Report";
+                RunObject = Report "Bank Account Card";
+            }
+        }
+    }
+}
+

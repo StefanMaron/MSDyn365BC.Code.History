@@ -1,0 +1,203 @@
+page 12465 "Default Signature Setup"
+{
+    ApplicationArea = Basic, Suite;
+    Caption = 'Default Signature Setup';
+    DelayedInsert = true;
+    PageType = List;
+    SourceTable = "Default Signature Setup";
+    UsageCategory = Lists;
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1470000)
+            {
+                ShowCaption = false;
+                field("Table ID"; "Table ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the table ID associated with the default signature setup information.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        AllObjWithCaption: Record AllObjWithCaption;
+                        Objects: Page Objects;
+                    begin
+                        AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
+                        AllObjWithCaption.SetFilter("Object ID", '36|38|5740|12450|12470');
+                        Objects.SetTableView(AllObjWithCaption);
+                        if "Table ID" <> 0 then begin
+                            AllObjWithCaption."Object Type" := AllObjWithCaption."Object Type"::Table;
+                            AllObjWithCaption."Object ID" := "Table ID";
+                            AllObjWithCaption.Find;
+                            Objects.SetRecord(AllObjWithCaption);
+                        end;
+                        Objects.LookupMode := true;
+                        if Objects.RunModal = ACTION::LookupOK then begin
+                            Objects.GetRecord(AllObjWithCaption);
+                            "Table ID" := AllObjWithCaption."Object ID";
+                            CalcFields("Table Name");
+                        end;
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        TableIDOnAfterValidate;
+                    end;
+                }
+                field("Table Name"; "Table Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    DrillDown = false;
+                    ToolTip = 'Specifies the table name associated with the default signature setup information.';
+                }
+                field(DocumentTypeName; DocumentTypeName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Document Type';
+                    Editable = false;
+                    ToolTip = 'Specifies the type of the related document.';
+
+                    trigger OnAssistEdit()
+                    var
+                        Selection: Integer;
+                    begin
+                        case "Table ID" of
+                            DATABASE::"Sales Header",
+                            DATABASE::"Purchase Header",
+                            DATABASE::"Item Document Header",
+                            DATABASE::"FA Document Header":
+                                begin
+                                    Selection := StrMenu(GetDocumetTypeString("Table ID"), "Document Type" + 1);
+                                    if Selection <> 0 then begin
+                                        "Document Type" := Selection - 1;
+                                        DocumentTypeName := GetDocumentTypeDesc("Table ID", "Document Type");
+                                    end;
+                                end;
+                        end;
+                    end;
+                }
+                field("Employee Type"; "Employee Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the employee type associated with the default signature setup information.';
+                }
+                field("Employee No."; "Employee No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the involved employee.';
+                }
+                field(Mandatory; Mandatory)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the default signature setup information is mandatory.';
+                }
+                field("Warrant Description"; "Warrant Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the warrant description associated with the default signature setup information.';
+                }
+                field("Warrant No."; "Warrant No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the warrant number associated with the default signature setup information.';
+                }
+                field("Warrant Date"; "Warrant Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the warrant date associated with the default signature setup information.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+    }
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        DocumentTypeName := GetDocumentTypeDesc("Table ID", "Document Type");
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        DocumentTypeName := GetDocumentTypeDesc("Table ID", "Document Type");
+    end;
+
+    var
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        ItemDocumentHeader: Record "Item Document Header";
+        FADocumentHeader: Record "FA Document Header";
+        DocumentTypeName: Text[30];
+
+    [Scope('OnPrem')]
+    procedure GetDocumetTypeString(TableID: Integer): Text[250]
+    var
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        case TableID of
+            DATABASE::"Sales Header":
+                begin
+                    RecRef.GetTable(SalesHeader);
+                    FieldRef := RecRef.FieldIndex(SalesHeader.FieldNo("Document Type"));
+                    exit(FieldRef.OptionCaption);
+                end;
+            DATABASE::"Purchase Header":
+                begin
+                    RecRef.GetTable(PurchaseHeader);
+                    FieldRef := RecRef.FieldIndex(SalesHeader.FieldNo("Document Type"));
+                    exit(FieldRef.OptionCaption);
+                end;
+            DATABASE::"Item Document Header":
+                begin
+                    RecRef.GetTable(ItemDocumentHeader);
+                    FieldRef := RecRef.FieldIndex(SalesHeader.FieldNo("Document Type"));
+                    exit(FieldRef.OptionCaption);
+                end;
+            DATABASE::"FA Document Header":
+                begin
+                    RecRef.GetTable(FADocumentHeader);
+                    FieldRef := RecRef.FieldIndex(SalesHeader.FieldNo("Document Type"));
+                    exit(FieldRef.OptionCaption);
+                end;
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetDocumentTypeDesc(TableID: Integer; DocumentType: Integer): Text[30]
+    begin
+        case TableID of
+            DATABASE::"Sales Header":
+                begin
+                    SalesHeader."Document Type" := DocumentType;
+                    exit(Format(SalesHeader."Document Type"));
+                end;
+            DATABASE::"Purchase Header":
+                begin
+                    PurchaseHeader."Document Type" := DocumentType;
+                    exit(Format(PurchaseHeader."Document Type"));
+                end;
+            DATABASE::"Item Document Header":
+                begin
+                    ItemDocumentHeader."Document Type" := DocumentType;
+                    exit(Format(ItemDocumentHeader."Document Type"));
+                end;
+            DATABASE::"FA Document Header":
+                begin
+                    FADocumentHeader."Document Type" := DocumentType;
+                    exit(Format(FADocumentHeader."Document Type"));
+                end;
+        end;
+    end;
+
+    local procedure TableIDOnAfterValidate()
+    begin
+        if "Table ID" <> 0 then
+            CalcFields("Table Name");
+    end;
+}
+

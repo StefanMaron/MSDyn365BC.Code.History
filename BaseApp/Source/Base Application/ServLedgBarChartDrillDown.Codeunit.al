@@ -1,0 +1,27 @@
+codeunit 6085 "Serv. Ledg Bar Chart DrillDown"
+{
+    TableNo = "Bar Chart Buffer";
+
+    trigger OnRun()
+    begin
+        if Tag = '' then
+            Error(Text000);
+        ServLedgEntry.SetView(Tag);
+        ServLedgEntry.SetRange(Open, false);
+        case "Series No." of
+            1:
+                ServLedgEntry.SetRange("Entry Type", ServLedgEntry."Entry Type"::Sale);
+            2:
+                begin
+                    ServLedgEntry.SetRange("Entry Type", ServLedgEntry."Entry Type"::Usage);
+                    ServLedgEntry.SetRange("Moved from Prepaid Acc.", true);
+                end;
+        end;
+        PAGE.RunModal(0, ServLedgEntry);
+    end;
+
+    var
+        ServLedgEntry: Record "Service Ledger Entry";
+        Text000: Label 'The corresponding service ledger entries cannot be displayed because the filter expression is too long.';
+}
+

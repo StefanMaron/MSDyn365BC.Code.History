@@ -1,0 +1,1668 @@
+codeunit 134001 "ERM Apply Purchase/Payables"
+{
+    Permissions = TableData "Vendor Ledger Entry" = rimd;
+    Subtype = Test;
+    TestPermissions = NonRestrictive;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Purchase]
+        isInitialized := false;
+    end;
+
+    var
+        PmtTerms: Record "Payment Terms";
+        Assert: Codeunit Assert;
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryJournals: Codeunit "Library - Journals";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        isInitialized: Boolean;
+        InvoiceError: Label 'Invoice did not close.';
+        InternalError: Label 'Internal error: %1 did not add up to full amount.';
+        AmountErr: Label 'ENU=%1 and %2 must be same.', Comment = '%1 = PmtDiscountAmount,%2 = VendorLedgerEntry."Original Pmt. Disc. Possible"';
+        AppliesToIDIsNotEmptyOnLedgEntryErr: Label 'Applies-to ID is not empty in %1.';
+        AmountToApplyErr: Label '"Amount to Apply" should be zero.';
+        WrongValErr: Label '%1 must be %2 in %3.';
+        DialogTxt: Label 'Dialog';
+        DimensionUsedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error.';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyLCYTest()
+    begin
+        Initialize;
+
+        // We don't need to know what LCY currency is, it suffices to post with blank currency code.
+        // Invoice and Payment in LCY, Pay 100% of invoice in 1 payment 0 days after invoice date.
+        TestApplication('', '', 1.0, 1, 1, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyFCYTest()
+    var
+        FCY1: Code[10];
+        FCY2: Code[10];
+    begin
+        Initialize;
+
+        FCY1 := RandomCurrency;
+        FCY2 := FCY1;
+        while FCY2 = FCY1 do
+            FCY2 := RandomCurrency;
+
+        // Currency checks.
+        TestApplication('', '', 1.0, 1, 1, '<0D>', false);
+        TestApplication(FCY1, '', 1.0, 1, 1, '<0D>', false);
+        TestApplication('', FCY1, 1.0, 1, 1, '<0D>', false);
+        TestApplication(FCY1, FCY1, 1.0, 1, 1, '<0D>', false);
+        TestApplication(FCY2, FCY1, 1.0, 1, 1, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyLastDueDateTest()
+    begin
+        Initialize;
+
+        // Check boundary case when payment is at last day for discount to apply.
+        TestApplication('', '', 1.0, 1, 1, Format(PmtTerms."Discount Date Calculation"), false);
+
+        // Check boundary case when payment is just after the last day for discount to apply.
+        TestApplication('', '', 1.0, 1, 1, Format(PmtTerms."Discount Date Calculation") + '+<1D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyOverPmtTest()
+    begin
+        Initialize;
+
+        // Check over payment (110% here).
+        TestApplication('', '', 1.1, 1, 1, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyUnderPmtTest()
+    begin
+        Initialize;
+
+        // Check under payment (90% here). Invoice should not close.
+        asserterror TestApplication('', '', 0.9, 1, 1, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyMultiPmtTest()
+    begin
+        Initialize;
+
+        // Check multi payment (4 payments).
+        TestApplication('', '', 1.0, 1, 4, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyMultiInvTest()
+    begin
+        Initialize;
+
+        // Check multi invoice (4 invoices).
+        TestApplication('', '', 1.0, 4, 1, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyStepWiseInvTest()
+    begin
+        Initialize;
+
+        // Check multi invoice with step-wise posting (4 invoices).
+        TestApplication('', '', 1.0, 4, 1, '<0D>', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyMultiInvPmtTest()
+    begin
+        Initialize;
+
+        // Check multi invoice and payment (4 each).
+        TestApplication('', '', 1.0, 4, 4, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyFuzzyTest()
+    var
+        i: Integer;
+    begin
+        Initialize;
+
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+
+        // Fuzzy testing on discount percentage, currency and number of payments.
+        for i := 1 to 10 do begin
+            ReplacePaymentTerms(PmtTerms, 'NEW', '<1M>', '<8D>', LibraryRandom.RandInt(200) / 10);
+            FuzzyTestApplication(LibraryRandom.RandInt(4), LibraryRandom.RandInt(4));
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyBoundaryTest()
+    var
+        Vendor: Record Vendor;
+        InvVendorLedgerEntry: Record "Vendor Ledger Entry";
+        PmtVendorLedgerEntry: Record "Vendor Ledger Entry";
+        PaymentTerms: Record "Payment Terms";
+        CurrencyCode: Code[10];
+        VendorNo: Code[20];
+        Amount: Decimal;
+        AmountLCY: Decimal;
+    begin
+        // This is a bug repro test case, it tests for a rounding issue in multi currency apply
+        // Test for W1 regression of PS bug #44288.
+
+        Initialize;
+
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+
+        VendorNo := CreateVendorWithPaymentTerms(PaymentTerms);
+        SetApplicationMethodOnVendor(VendorNo, Vendor."Application Method"::Manual);
+
+        CurrencyCode := RandomCurrency;
+        Amount := LibraryRandom.RandDec(200, 2);
+        CreateVendorInvoice(InvVendorLedgerEntry, VendorNo, -Amount, '');
+        AmountLCY := LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate);
+        CreateVendorPayment(PmtVendorLedgerEntry, VendorNo, AmountLCY, CurrencyCode, '<0D>');
+        SetupApplyingEntry(PmtVendorLedgerEntry, PmtVendorLedgerEntry.Amount);
+        SetupApplyEntry(InvVendorLedgerEntry);
+        LibraryLowerPermissions.SetAccountPayables;
+        CODEUNIT.Run(CODEUNIT::"VendEntry-Apply Posted Entries", PmtVendorLedgerEntry);
+
+        // Validation.
+        ValidateVendLedgEntrClosed(InvVendorLedgerEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntriesOnPostedPurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // Test G/L Entries and Remaining Amount on Vendor Ledger Entry after Posting of Purchase Invoice.
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        TestRemainingAmountOnVendorLedgerEntry(PurchaseHeader."Document Type"::Invoice, 1, -1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntriesOnPostedPurchaseCreditMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // Test G/L Entries and Remaining Amount on Vendor Ledger Entry after Posting of Purchase Credit Memo.
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        TestRemainingAmountOnVendorLedgerEntry(PurchaseHeader."Document Type"::"Credit Memo", -1, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntriesOnPostedGeneralJournal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Test G/L Entries on Posted General Journal.
+        // Setup: Create and Post General Journal Line.
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        Initialize;
+        CreateAndPostGenJournalLine(GenJournalLine, CreateVendor, LibraryRandom.RandDec(1000, 2));
+
+        // Verify: Verify G/L Entries.
+        VerifyGLEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.", -1 * GenJournalLine."Amount (LCY)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyAndPostApplicationOnVendorLedgerEntry()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        InvAmountIncludingVAT: Decimal;
+        RemainingPmtDiscPossible: Decimal;
+        Quantity: Decimal;
+    begin
+        // Test when apply Remaining Amount fully when Amount to Apply is reduced to the extent of payment discount in the Invoice and with Credit Memo.
+        // Setup: Create and Post Purchase Invoice,Purchase Credit Memo and General Journal.
+        Initialize;
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        Quantity := LibraryRandom.RandDec(100, 2);
+        CreateAndPostPurchaseDocument(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor, CreateItem,
+          LibraryRandom.RandDecInDecimalRange(100, 500, 2), Quantity);
+        InvAmountIncludingVAT := PurchaseLine."Amount Including VAT";
+        RemainingPmtDiscPossible := (PurchaseLine."Amount Including VAT" * PurchaseHeader."Payment Discount %") / 100;
+
+        CreateAndPostPurchaseDocument(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.",
+          PurchaseLine."No.", LibraryRandom.RandDec(100, 2), Quantity);
+        CreateAndPostGenJournalLine(
+          GenJournalLine, PurchaseLine."Buy-from Vendor No.",
+          InvAmountIncludingVAT - PurchaseLine."Amount Including VAT" - RemainingPmtDiscPossible);
+
+        // Excercise: Apply Vendor ledger Entries.
+        ApplyAndPostVendorEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // Verify: Verify G/L and Vendor Ledger Entries.
+        VerifyVendorLedgerEntry(GenJournalLine."Account No.", 0); // Remaining Amount should be Zero in all Lines.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithPmtDiscExcVatWithBalAccTypeVAT()
+    begin
+        // To verify that program calculate correct payment discount value in Vendor ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type having VAT.
+        Initialize;
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountWithPurchSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithPmtDiscExclVATWithOutBalAccTypeVAT()
+    begin
+        // To verify that program calculate correct payment discount value in Vendor ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type does not having VAT.
+        Initialize;
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithOutPmtDiscExcVatWithBalAccTypeVAT()
+    begin
+        // To verify that program calculate correct payment discount value in Vendor ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type having VAT.
+        Initialize;
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountWithPurchSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithOutPmtDiscExcVatWithOutBalAccTypeVAT()
+    begin
+        // To verify that program calculate correct payment discount value in Vendor ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type does not having VAT.
+        Initialize;
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithPmtDiscExcVatWithBalVATAmount()
+    var
+        PaymentTerms: Record "Payment Terms";
+        GenJournalLine: Record "Gen. Journal Line";
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        Amount: Decimal;
+    begin
+        // To verify that program calculate correct payment discount value in Vendor ledger entry when Pmt. Disc. Excl. VAT is true while Bal. VAT Amount (LCY) not equal to zero.
+
+        // Setup: Update Pmt. Disc. Excl. VAT in General Ledger & Create Vendor with Payment Terms & Create Gen. Journal Line.
+        Initialize;
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
+        LibraryPmtDiscSetup.SetPmtDiscExclVAT(true);
+
+        // Exercise: Create - Post Gen. Journal Line.
+        CreatePostGenJnlLineWithBalAccount(GenJournalLine, GetVendorWithPaymentTerms(PaymentTerms));
+
+        // Verify: Verifying Vendor Ledger Entry.
+        Amount :=
+          Round(GenJournalLine."Bal. VAT Amount (LCY)" * PaymentTerms."Discount %" / 100) -
+          Round(GenJournalLine."Amount (LCY)" * PaymentTerms."Discount %" / 100);
+        VerifyDiscountValueInVendorLedger(GenJournalLine, -Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ClearAppliesToIDFromVendLedgEntryWhenChangeValueOnGenJnlLine()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 118226] Applies-to ID is cleared from Vendor Ledger Entry when change value of General Journal Line
+
+        // [GIVEN] Vendor Ledger Entry and General Journal Line with the same Applies-to ID
+        Initialize;
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
+        FindOpenInvVendLedgEntry(VendLedgEntry);
+        SetAppliesToIDOnVendLedgEntry(VendLedgEntry);
+        CreateGenJnlLineWithAppliesToID(
+          GenJnlLine, GenJnlLine."Account Type"::Vendor, VendLedgEntry."Vendor No.", VendLedgEntry."Applies-to ID");
+
+        // [WHEN] Change "Applies-to ID" in General Journal Line
+        LibraryLowerPermissions.SetAccountPayables;
+        GenJnlLine.Validate("Applies-to ID", LibraryUtility.GenerateGUID);
+        GenJnlLine.Modify(true);
+
+        // [THEN] "Applies-to ID" in Vendor Ledger Entry is empty
+        VendLedgEntry.Find;
+        Assert.AreEqual('', VendLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, VendLedgEntry.TableCaption));
+        Assert.AreEqual(0, VendLedgEntry."Amount to Apply", AmountToApplyErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ClearAppliesToIDFromVendLedgEntryWhenDeleteGenJnlLine()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 118226] Applies-to ID is cleared from Vendor Ledger Entry when delete General Journal Line
+
+        // [GIVEN] Vendor Ledger Entry and General Journal Line with the same Applies-to ID
+        Initialize;
+        FindOpenInvVendLedgEntry(VendLedgEntry);
+        SetAppliesToIDOnVendLedgEntry(VendLedgEntry);
+        CreateGenJnlLineWithAppliesToID(
+          GenJnlLine, GenJnlLine."Account Type"::Vendor, VendLedgEntry."Vendor No.", VendLedgEntry."Applies-to ID");
+
+        // [WHEN] Delete General Journal Line
+        LibraryLowerPermissions.SetAccountPayables;
+        GenJnlLine.Delete(true);
+
+        // [THEN] "Applies-to ID" in Vendor Ledger Entry is empty
+        VendLedgEntry.Find;
+        Assert.AreEqual('', VendLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, VendLedgEntry.TableCaption));
+        Assert.AreEqual(0, VendLedgEntry."Amount to Apply", AmountToApplyErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ClearAppliesToDocNoValueFromGenJnlLine()
+    var
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 120733] Vendor Ledger Entry "Amount-to Apply" = 0 when blank "Applies-to Doc. No." field in General Journal Line
+        Initialize;
+
+        // [GIVEN] Vendor Ledger Entry and General Journal Line with "Applies-to Doc. No"
+        FindOpenInvVendLedgEntry(VendLedgEntry);
+        CreateGenJnlLineWithAppliesToDocNo(
+          GenJnlLine, GenJnlLine."Account Type"::Vendor, VendLedgEntry."Vendor No.", VendLedgEntry."Document No.");
+
+        // [WHEN] Blank "Applies-to Doc. No." field in General Journal Line
+        LibraryLowerPermissions.SetAccountPayables;
+        GenJnlLine.Validate("Applies-to Doc. No.", '');
+        GenJnlLine.Modify(true);
+
+        // [THEN] Vendor Ledger Entry "Amount to Apply" = 0
+        VendLedgEntry.Find;
+        Assert.AreEqual(0, VendLedgEntry."Amount to Apply", AmountToApplyErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteGenJnlLineWithAppliesToDocNo()
+    var
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 120733] Vendor Ledger Entry "Amount-to Apply" = 0 when delete General Journal Line with "Applies-to Doc. No."
+        Initialize;
+        // [GIVEN] Vendor Ledger Entry and General Journal Line with "Applies-to Doc. No"
+        FindOpenInvVendLedgEntry(VendLedgEntry);
+        CreateGenJnlLineWithAppliesToDocNo(
+          GenJnlLine, GenJnlLine."Account Type"::Vendor, VendLedgEntry."Vendor No.", VendLedgEntry."Document No.");
+
+        // [WHEN] Delete General Journal Line
+        LibraryLowerPermissions.SetAccountPayables;
+        GenJnlLine.Validate("Applies-to Doc. No.", '');
+        GenJnlLine.Modify(true);
+
+        // [THEN] Vendor Ledger Entry "Amount to Apply" = 0
+        VendLedgEntry.Find;
+        Assert.AreEqual(0, VendLedgEntry."Amount to Apply", AmountToApplyErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyAmountApplToExtDocNoWhenSetValue()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJournal: TestPage "Payment Journal";
+        PostedDocNo: Code[20];
+        ExpectedExtDocNo: Code[35];
+    begin
+        // [FEATURE] [Application] [Cash Receipt]
+        // [SCENARIO 363069] Verify that External Doc No transferred when setting 'Applies-to Doc. No.' value in Payment Journal.
+
+        // [GIVEN] Create invoice from vendor ('External Document No.' non-empty).
+        Initialize;
+        PostInvoice(GenJournalLine);
+        ExpectedExtDocNo := GenJournalLine."External Document No.";
+        PostedDocNo := GenJournalLine."Document No.";
+
+        // [GIVEN] Create Payment Journal Line for the vendor.
+        CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        Commit;
+
+        LibraryLowerPermissions.SetAccountPayables;
+        PaymentJournal.OpenEdit;
+        PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
+
+        // [WHEN] Set 'Applies-to Doc. No.' manually to Posted Invoice doc. no.
+        PaymentJournal.AppliesToDocNo.SetValue(PostedDocNo);
+        PaymentJournal.OK.Invoke;
+
+        // [THEN] External doc. no. transferred to 'Applied-to Ext. Doc. No.', but Amount is not.
+        VerifyExtDocNoAmount(GenJournalLine, ExpectedExtDocNo, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesModalPageHandler,GeneralJournalTemplateListPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyAmountApplToExtDocNoWhenLookUp()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJournal: TestPage "Payment Journal";
+        ExpectedExtDocNo: Code[35];
+        ExpectedAmount: Decimal;
+    begin
+        // [FEATURE] [Application] [Cash Receipt]
+        // [SCENARIO 363069] Verify that Amount and External Doc No transferred when looking up 'Applies-to Doc. No.' value in Payment Journal.
+
+        // [GIVEN] Create invoice from vendor ('External Document No.' non-empty).
+        Initialize;
+        PostInvoice(GenJournalLine);
+        ExpectedExtDocNo := GenJournalLine."External Document No.";
+        ExpectedAmount := -GenJournalLine.Amount;
+
+        // [GIVEN] Create Payment Journal Line for the vendor.
+        CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        Commit;
+
+        LibraryLowerPermissions.SetAccountPayables;
+        PaymentJournal.OpenEdit;
+        PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
+
+        // [WHEN] Look up and set 'Applies-to Doc. No.' to Posted Invoice doc. no.
+        PaymentJournal.AppliesToDocNo.Lookup;
+        PaymentJournal.OK.Invoke;
+
+        // [THEN] External doc. no. transferred to 'Applied-to Ext. Doc. No.' as well as Amount.
+        VerifyExtDocNoAmount(GenJournalLine, ExpectedExtDocNo, ExpectedAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PmtJnlApplToInvWithNoDimDiscountAndDefDimErr()
+    var
+        DimensionValue: Record "Dimension Value";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Dimension] [Payment Discount]
+        // [SCENARIO 376797] Error try posting purchase payment journal without dimension applied to posted Invoice in case of Discount, "Payment Disc. Credit Acc." with default dimension with "Value Posting" = "Same Code"
+        Initialize;
+
+        // [GIVEN] Vendor with "Payment Disc. Credit Acc." = "A"
+        // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
+        VendorNo := CreateVendor;
+        CreateDefaultDimensionGLAccSameValue(DimensionValue, CreateVendPostingGrPmtDiscCreditAccNo(VendorNo));
+
+        // [GIVEN] Posted Purchase Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
+        CreatePostGenJnlLineWithBalAccount(GenJournalLine, VendorNo);
+        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
+
+        // [GIVEN] Purchase Journal with Payment Amount = 9800 and applied to posted Invoice. No dimension is set.
+        CreateGenJnlLineWithAppliesToDocNo(
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Document No.");
+        GenJournalLine.Validate(Amount, PaymentAmount);
+        GenJournalLine.Modify;
+
+        // [WHEN] Post Purchase Journal
+        LibraryLowerPermissions.SetAccountPayables;
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Error occurs: "A dimension used in Gen. Journal Line GENERAL, CASH, 10000 has caused an error."
+        Assert.ExpectedErrorCode(DialogTxt);
+        Assert.ExpectedError(
+          StrSubstNo(DimensionUsedErr,
+            GenJournalLine.TableCaption, GenJournalLine."Journal Template Name",
+            GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PmtJnlApplToInvWithDimDiscountAndDefDim()
+    var
+        DimensionValue: Record "Dimension Value";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Dimension] [Payment Discount]
+        // [SCENARIO 376797] Purchase payment journal with dimension applied to posted Invoice can be posted in case of Discount, "Payment Disc. Credit Acc." with default dimension with "Value Posting" = "Same Code"
+        Initialize;
+
+        // [GIVEN] Vendor with "Payment Disc. Credit Acc." = "A"
+        // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
+        VendorNo := CreateVendor;
+        GLAccountNo := CreateVendPostingGrPmtDiscCreditAccNo(VendorNo);
+        CreateDefaultDimensionGLAccSameValue(DimensionValue, GLAccountNo);
+
+        // [GIVEN] Posted Purchase Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
+        CreatePostGenJnlLineWithBalAccount(GenJournalLine, VendorNo);
+        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
+
+        // [GIVEN] Purchase Journal with Payment Amount = 9800 and applied to posted Invoice. No dimension is set.
+        CreateGenJnlLineWithAppliesToDocNo(
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Document No.");
+        GenJournalLine.Validate("Dimension Set ID", LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code));
+        GenJournalLine.Validate(Amount, PaymentAmount);
+        GenJournalLine.Modify;
+
+        // [WHEN] Post Purchase Journal
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Posted G/L Entry with "G/L Account No." = "A" has Dimension "D"
+        FindGLEntry(GLEntry, GenJournalLine."Document No.", GLAccountNo);
+        Assert.AreEqual(GenJournalLine."Dimension Set ID", GLEntry."Dimension Set ID", GLEntry.FieldCaption("Dimension Set ID"))
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PmtToInvApplWithNoDimDiscountAndDefDim()
+    var
+        DimensionValue: Record "Dimension Value";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Dimension] [Payment Discount]
+        // [SCENARIO 376797] Error try posting purchase payment journal without dimension applied to posted Invoice in case of Discount, "Payment Disc. Credit Acc." with default dimension with "Value Posting" = "Same Code"
+        Initialize;
+
+        // [GIVEN] Vendor with "Payment Disc. Credit Acc." = "A"
+        // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
+        VendorNo := CreateVendor;
+        GLAccountNo := CreateVendPostingGrPmtDiscCreditAccNo(VendorNo);
+        CreateDefaultDimensionGLAccSameValue(DimensionValue, GLAccountNo);
+
+        // [GIVEN] Posted Purchase Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
+        CreatePostGenJnlLineWithBalAccount(GenJournalLine, VendorNo);
+        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
+
+        // [GIVEN] Posted Purcahse Payment with Amount = 9800. No dimension is set.
+        CreateAndPostGenJournalLine(GenJournalLine, GenJournalLine."Account No.", PaymentAmount);
+
+        // [WHEN] Post Payment to Invoice application
+        LibraryLowerPermissions.SetAccountPayables;
+        ApplyAndPostVendorEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // [THEN] Posted G/L Entry with "G/L Account No." = "A" has no Dimension ("Dimension Set ID" = 0).
+        FindGLEntry(GLEntry, GenJournalLine."Document No.", GLAccountNo);
+        Assert.AreEqual(0, GLEntry."Dimension Set ID", GLEntry.FieldCaption("Dimension Set ID"))
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesWithSetAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler')]
+    [Scope('OnPrem')]
+    procedure ClearAmountToApplyWhenDeleteAppliesToIDUT()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJournal: TestPage "Payment Journal";
+        ExpectedAmount: Decimal;
+    begin
+        // [FEATURE] [Application] [Cash Receipt]
+        // [SCENARIO 230936] When deleting the value in "Applies-to-ID" field on the PAG 233 manually, "Amount to Apply" must be reset to zero
+
+        // [GIVEN] Posted Purchase Invoice
+        Initialize;
+
+        PostInvoice(GenJournalLine);
+        ExpectedAmount := GenJournalLine.Amount;
+
+        // [GIVEN] Create Payment Journal Line
+        CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        Commit;
+
+        LibraryLowerPermissions.SetAccountPayables;
+        PaymentJournal.OpenEdit;
+        PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
+
+        // [GIVEN] Open "Apply Vendor Entries" page
+        LibraryVariableStorage.Enqueue(ExpectedAmount);
+        PaymentJournal.ApplyEntries.Invoke;
+
+        // [GIVEN] Use "Set Applies-to ID"
+        // Done in ApplyVendorEntriesWithSetAppliesToIDModalPageHandler
+
+        // [WHEN] Manually remove "Applies-to ID"
+        // Done in ApplyVendorEntriesWithSetAppliesToIDModalPageHandler
+
+        // [THEN] "Amount to apply" and "Appln. Amount to Apply" on "Apply Customer Entries" page is 0
+        // Done in ApplyVendorEntriesWithSetAppliesToIDModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('TwoApplyVendorEntriesModalPageHandler,GeneralJournalTemplateListPageHandler')]
+    [Scope('OnPrem')]
+    procedure ClearAppliesToIDInOneRecordOfSeveralCustLedgEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [Application] [Payment Journal]
+        // [SCENARIO 230936] When deleting the value in "Applies-to-ID" field on the "Apply Vendor Entries" page manually, "Applies-to-ID" should not be deleted in other lines having the same "Applies-to-ID"
+
+        Initialize;
+
+        // [GIVEN] Two Posted Sales Invoices
+        CreateAndPostTwoGenJournalLinesForSameVendor(GenJournalLine);
+
+        // [GIVEN] Create Payment Journal Line
+        CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        Commit;
+
+        LibraryLowerPermissions.SetAccountPayables;
+        PaymentJournal.OpenEdit;
+        PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
+
+        // [GIVEN] Open "Apply Vendor Entries" page with two lines
+        PaymentJournal.ApplyEntries.Invoke;
+
+        // [GIVEN] Use "Set Applies-to ID" on both lines, "Applies-to ID" of the 1st line = "A", "Applies-to ID" of the 2nd line = "A"
+        // Done in TwoEntriesWithSameAppliesToIDModalPageHandler
+
+        // [WHEN] Manually remove "Applies-to ID" on the 2nd line
+        // Done in TwoEntriesWithSameAppliesToIDModalPageHandler
+
+        // [THEN] "Applies-to ID" of the 1st line = "A"
+        // Done in TwoEntriesWithSameAppliesToIDModalPageHandler
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TwoEntriesWithSameAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler')]
+    [Scope('OnPrem')]
+    procedure SetAppliesToIDInOneRecordOfSeveralCustLedgEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [Application] [Payment Journal]
+        // [SCENARIO 230936] When manually set the value in "Applies-to-ID" field on the "Apply Vendor Entries" page, "Applies-to-ID" of the other lines with the same value is not changed
+
+        Initialize;
+
+        // [GIVEN] Two Posted Sales Invoices
+        CreateAndPostTwoGenJournalLinesForSameVendor(GenJournalLine);
+
+        // [GIVEN] Create Payment Journal Line
+        CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        Commit;
+
+        LibraryLowerPermissions.SetAccountPayables;
+        PaymentJournal.OpenEdit;
+        PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
+
+        // [GIVEN] Open "Apply Vendor Entries" page with two lines
+        PaymentJournal.ApplyEntries.Invoke;
+
+        // [GIVEN] Use "Set Applies-to ID" action on 1st line, "Applies-to ID" of the 1st line = "A"
+        // Done in TwoApplyVendorEntriesModalPageHandler
+
+        // [WHEN] Manually set "Applies-to ID" on the 2nd line = "A"
+        // Done in TwoApplyVendorEntriesModalPageHandler
+
+        // [THEN] "Applies-to ID" of the 1st line = "A"
+        // Done in TwoApplyVendorEntriesModalPageHandler
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TwoEntriesWithDifferentAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler')]
+    [Scope('OnPrem')]
+    procedure SetDifferentAppliesToIDInOneRecordOfSeveralCustLedgEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [Application] [Payment Journal]
+        // [SCENARIO 230936] When manually set the value in "Applies-to-ID" field on the "Apply Vendor Entries" page, "Applies-to-ID" of the other lines with different value is not changed
+
+        Initialize;
+
+        // [GIVEN] Two Posted Sales Invoices
+        CreateAndPostTwoGenJournalLinesForSameVendor(GenJournalLine);
+
+        // [GIVEN] Create Payment Journal Line
+        CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        Commit;
+
+        LibraryLowerPermissions.SetAccountPayables;
+        PaymentJournal.OpenEdit;
+        PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
+
+        // [GIVEN] Open "Apply Vendor Entries" page with two lines
+        PaymentJournal.ApplyEntries.Invoke;
+
+        // [GIVEN] Use "Set Applies-to ID" action on 1st line, "Applies-to ID" of the 1st line = "A"
+        // Done in TwoEntriesWithDifferentAppliesToIDModalPageHandler
+
+        // [WHEN] Manually set "Applies-to ID" of the 2nd line = "B"
+        // Done in TwoEntriesWithDifferentAppliesToIDModalPageHandler
+
+        // [THEN] "Applies-to ID" of the 1st line = "A", "Applies-to ID" of the 2nd line = "B"
+        // Done in TwoEntriesWithDifferentAppliesToIDModalPageHandler
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply Purchase/Payables");
+
+        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Apply Purchase/Payables");
+
+        // Setup default fixture
+
+        // Create new payment terms with random discount due date and discount percentage.
+        // The due date must be after the discount due date.
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        ReplacePaymentTerms(
+          PmtTerms, 'NEW', '<1M>', '<' + Format(LibraryRandom.RandInt(20)) + 'D>', LibraryRandom.RandInt(200) / 10);
+        ModifyGenJnlBatchNoSeries;
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        isInitialized := true;
+        Commit;
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Purchase/Payables");
+    end;
+
+    local procedure ApplyVendorEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        LibraryERM.FindVendorLedgerEntry(ApplyingVendorLedgerEntry, DocumentType, DocumentNo);
+        ApplyingVendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(ApplyingVendorLedgerEntry, ApplyingVendorLedgerEntry."Remaining Amount");
+
+        // Find Posted Vendor Ledger Entries.
+        VendorLedgerEntry.SetRange("Vendor No.", ApplyingVendorLedgerEntry."Vendor No.");
+        VendorLedgerEntry.SetRange("Applying Entry", false);
+        VendorLedgerEntry.FindSet;
+        repeat
+            VendorLedgerEntry.CalcFields("Remaining Amount");
+            VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
+            VendorLedgerEntry.Modify(true);
+        until VendorLedgerEntry.Next = 0;
+
+        // Set Applies-to ID.
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+    end;
+
+    local procedure ApplyAndPostVendorEntry(DocumentType: Option; DocumentNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        ApplyVendorEntry(VendorLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
+    end;
+
+    local procedure ClearGenenalJournalLine(var GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+    end;
+
+    local procedure TestApplication(InvCurrency: Code[10]; PmtCurrency: Code[10]; PaymentPercentage: Decimal; NumberOfInvoices: Integer; NumberOfPayments: Integer; PostingDelta: Text[30]; StepWisePost: Boolean)
+    var
+        InvVendorLedgerEntry: array[10] of Record "Vendor Ledger Entry";
+        PmtVendorLedgerEntry: array[10] of Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        InvLCYFullAmount: Decimal;
+        PmtLCYFullAmount: Decimal;
+        i: Integer;
+    begin
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        Assert.IsTrue(NumberOfInvoices <= 10, 'Not more than 10 invoices');
+        Assert.IsTrue(NumberOfPayments <= 10, 'Not more than 10 payments');
+
+        // Find a random vendor and update the payment terms.
+        GetVendorAndUpdatePmtTerms(Vendor);
+
+        // Compute Invoice and Payment amounts.
+        ComputeAmounts(InvLCYFullAmount, PmtLCYFullAmount, PaymentPercentage, CalcDate(PostingDelta));
+
+        // Create Invoices.
+        for i := 1 to NumberOfInvoices do
+            // Make a partial invoice.
+            CreateVendorPartialInvoice(InvVendorLedgerEntry[i], InvLCYFullAmount, Vendor, InvCurrency, i, NumberOfInvoices);
+
+        // Create multiple Payments.
+        for i := 1 to NumberOfPayments do
+            // Make a partial payment.
+            CreateVendorPartialPayment(PmtVendorLedgerEntry[i], PmtLCYFullAmount, Vendor, PostingDelta, PmtCurrency, i, NumberOfPayments);
+
+        // Sanity check that the full amount has been paid.
+        Assert.AreEqual(Round(InvLCYFullAmount), 0, StrSubstNo(InternalError, 'Invoice'));
+        Assert.AreEqual(Round(PmtLCYFullAmount), 0, StrSubstNo(InternalError, 'Payment'));
+
+        // Excercise application of invoice and payments.
+        if StepWisePost then
+            PostApplicationStepwise(InvVendorLedgerEntry, PmtVendorLedgerEntry, NumberOfInvoices, NumberOfPayments)
+        else
+            PostApplication(InvVendorLedgerEntry, PmtVendorLedgerEntry, NumberOfInvoices, NumberOfPayments);
+
+        // Validate that all invoices closed.
+        for i := 1 to NumberOfInvoices do
+            ValidateVendLedgEntrClosed(InvVendorLedgerEntry[i])
+    end;
+
+    local procedure FuzzyTestApplication(NumberOfInvoices: Integer; NumberOfPayments: Integer)
+    var
+        InvVendorLedgerEntry: array[10] of Record "Vendor Ledger Entry";
+        PmtVendorLedgerEntry: array[10] of Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        InvLCYFullAmount: Decimal;
+        PmtLCYFullAmount: Decimal;
+        TotalPmtAmount: Decimal;
+        i: Integer;
+    begin
+        Assert.IsTrue(NumberOfPayments <= 10, 'Not more than 10 payments');
+
+        // Find a random vendor and update the payment terms.
+        GetVendorAndUpdatePmtTerms(Vendor);
+
+        // Compute Invoice and Payment amounts.
+        ComputeAmounts(InvLCYFullAmount, PmtLCYFullAmount, 1.0, WorkDate);
+
+        // Create an Invoice.
+        for i := 1 to NumberOfInvoices do begin
+            // Make a partial invoice.
+            CreateVendorPartialInvoice(InvVendorLedgerEntry[i], InvLCYFullAmount, Vendor, RandomCurrency, i, NumberOfInvoices);
+            InvVendorLedgerEntry[i].CalcFields("Remaining Amount");
+            TotalPmtAmount += InvVendorLedgerEntry[i]."Remaining Pmt. Disc. Possible" - InvVendorLedgerEntry[i]."Remaining Amount";
+        end;
+
+        // Create multiple Payments.
+        for i := 1 to NumberOfPayments do begin
+            // Make a partial payment in a random currency.
+            CreateVendorPartialPaymentWithRemainder(
+              PmtVendorLedgerEntry[i], PmtLCYFullAmount,
+              TotalPmtAmount, Vendor, '<0D>', RandomCurrency, i, NumberOfPayments);
+            PmtVendorLedgerEntry[i].CalcFields("Remaining Amount");
+            TotalPmtAmount -= PmtVendorLedgerEntry[i]."Remaining Amount";
+        end;
+
+        // Sanity check that the full amount has been paid.
+        Assert.AreEqual(Round(InvLCYFullAmount), 0, StrSubstNo(InternalError, 'Invoice'));
+        Assert.AreEqual(Round(PmtLCYFullAmount), 0, StrSubstNo(InternalError, 'Payment'));
+
+        // Excercise application of invoice and payments.
+        PostApplication(InvVendorLedgerEntry, PmtVendorLedgerEntry, NumberOfInvoices, NumberOfPayments);
+
+        // Validation.
+        for i := 1 to NumberOfInvoices do
+            ValidateVendLedgEntrClosed(InvVendorLedgerEntry[i])
+    end;
+
+    local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    begin
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>''''');
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
+        VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
+        VATPostingSetup.SetFilter("VAT %", '0');
+
+        VATPostingSetup.FindFirst;
+    end;
+
+    local procedure FindVendorLedgerEntryAmount(GenJournalLine: Record "Gen. Journal Line"; PmtDiscExclVAT: Boolean; DiscountPercentage: Decimal) PmtDiscountAmount: Decimal
+    begin
+        if PmtDiscExclVAT then
+            PmtDiscountAmount := ((-GenJournalLine.Amount + GenJournalLine."VAT Amount") * DiscountPercentage / 100)
+        else
+            PmtDiscountAmount := (-GenJournalLine.Amount * DiscountPercentage / 100);
+    end;
+
+    local procedure GetPmtTermsDiscountPct(): Decimal
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        exit(PaymentTerms."Discount %");
+    end;
+
+    local procedure ReplacePaymentTerms(var PmtTerms: Record "Payment Terms"; "Code": Code[10]; DueDateCalc: Text[30]; DiscountDateCalc: Text[30]; Discount: Decimal)
+    begin
+        // Creates or updates payment terms with given code.
+        if not PmtTerms.Get(Code) then begin
+            PmtTerms.Init;
+            PmtTerms.Code := Code;
+            PmtTerms.Insert(true);
+        end;
+
+        Evaluate(PmtTerms."Due Date Calculation", DueDateCalc);
+        Evaluate(PmtTerms."Discount Date Calculation", DiscountDateCalc);
+        PmtTerms.Validate("Discount %", Discount);
+        PmtTerms.Modify(true);
+    end;
+
+    local procedure RandomCurrency(): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        exit(Currency.Code);
+    end;
+
+    local procedure GetVendorAndUpdatePmtTerms(var Vendor: Record Vendor)
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Terms Code", PmtTerms.Code);
+        Vendor.Validate("Application Method", Vendor."Application Method"::Manual);
+        Vendor.Modify(true);
+    end;
+
+    local procedure ComputeAmounts(var InvLCYFullAmount: Decimal; var PmtLCYFullAmount: Decimal; PmtPercentage: Decimal; PostingDate: Date)
+    var
+        PmtLCYAmount: Decimal;
+        PmtLCYDiscount: Decimal;
+    begin
+        // Compute a random decimal invoice amount (invoice is negative for vendors).
+        InvLCYFullAmount := -LibraryRandom.RandDec(100000, 2);
+
+        // Compute payment LCY amount.
+        PmtLCYAmount := -Round(PmtPercentage * InvLCYFullAmount);
+
+        // Compute discount (if applicable).
+        if PostingDate <= CalcDate(PmtTerms."Discount Date Calculation") then
+            PmtLCYDiscount := -Round(PmtLCYAmount * PmtTerms."Discount %" / 100)
+        else
+            PmtLCYDiscount := 0.0;
+
+        // Adjust full amount for discount.
+        PmtLCYFullAmount := PmtLCYAmount + PmtLCYDiscount;
+    end;
+
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal)
+    begin
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, AccountNo, Amount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateAndPostTwoGenJournalLinesForSameVendor(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        VendorNo: Code[20];
+    begin
+        VendorNo := LibraryPurchase.CreateVendorNo;
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
+          VendorNo, -LibraryRandom.RandIntInRange(1000, 2000));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
+          VendorNo, -LibraryRandom.RandIntInRange(1000, 2000));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.FindBankAccount(BankAccount);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+          GenJournalLine."Account Type"::Vendor, AccountNo, Amount);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure PostInvoice(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        with GenJournalLine do begin
+            CreateGenJournalLine(
+              GenJournalLine, "Document Type"::Invoice,
+              LibraryPurchase.CreateVendorNo, -LibraryRandom.RandIntInRange(10, 100));
+            Validate("External Document No.", LibraryUtility.GenerateGUID);
+            Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+    end;
+
+    local procedure CreateAndPostGenJournalLineWithPmtDiscExclVAT(PmtDiscExclVAT: Boolean; GLAccountNo: Code[20])
+    var
+        PaymentTerms: Record "Payment Terms";
+        GenJournalLine: Record "Gen. Journal Line";
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        VendorNo: Code[20];
+    begin
+        // Setup: Update Pmt. Disc. Excl. VAT in General Ledger & Create Vendor with Payment Terms & Create Gen. Journal Line.
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
+        LibraryPmtDiscSetup.SetPmtDiscExclVAT(PmtDiscExclVAT);
+
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        VendorNo := CreateVendorWithPaymentTerms(PaymentTerms);
+
+        // Exercise: Create-Post Gen. Journal Line.
+        CreatePostBalancedGenJnlLine(GenJournalLine, VendorNo, GLAccountNo);
+
+        // Verify: Verifying Vendor Ledger Entry.
+        VerifyDiscountValueInVendorLedger(
+          GenJournalLine,
+          FindVendorLedgerEntryAmount(GenJournalLine, PmtDiscExclVAT, PaymentTerms."Discount %"));
+    end;
+
+    local procedure CreateItem(): Code[20]
+    var
+        Item: Record Item;
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; DirectUnitCost: Decimal; Quantity: Decimal): Code[20]
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, ItemNo, DirectUnitCost, Quantity);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreatePostBalancedGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; GLAccountNo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DocumentNo: Code[20];
+    begin
+        CreateGenJnlTemplateAndBatch(GenJournalBatch);
+        CreateGenJnlLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandInt(50));
+        DocumentNo := GenJournalLine."Document No.";
+        CreateGenJnlLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccountNo, -GenJournalLine.Amount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+          AccountType, AccountNo, Amount);
+    end;
+
+    local procedure CreateGenJnlTemplateAndBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreatePostGenJnlLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreateGenJnlTemplateAndBatch(GenJournalBatch);
+        CreateGenJnlLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandIntInRange(1000, 2000));
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithPurchSetup);
+        GenJournalLine.Validate("Sales/Purch. (LCY)", 0);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; DirectUnitCost: Decimal; Quantity: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateVendor(): Code[20]
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        PaymentTerms.SetRange("Calc. Pmt. Disc. on Cr. Memos", false);
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        exit(CreateVendorWithPaymentTerms(PaymentTerms));
+    end;
+
+    local procedure CreateVendorWithPaymentTerms(PaymentTerms: Record "Payment Terms"): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateVendorInvoice(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; Amount: Decimal; Currency: Code[10])
+    var
+        Inv: Record "Gen. Journal Line";
+        Batch: Record "Gen. Journal Batch";
+    begin
+        // Create an Invoice in the General Journal.
+        Inv.Init;
+        ClearGenenalJournalLine(Batch);
+        LibraryERM.CreateGeneralJnlLine(
+          Inv,
+          Batch."Journal Template Name",
+          Batch.Name,
+          Inv."Document Type"::Invoice,
+          Inv."Account Type"::Vendor,
+          VendorNo,
+          Amount);
+
+        // Set currency.
+        Inv.Validate("Currency Code", Currency);
+        Inv.Modify(true);
+
+        // Post it.
+        LibraryERM.PostGeneralJnlLine(Inv);
+
+        // Find the newly posted vendor ledger entry and update flowfields.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, Inv."Document Type", Inv."Document No.");
+        VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)", "Remaining Amount");
+    end;
+
+    local procedure CreateVendorPayment(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; Amount: Decimal; Currency: Code[10]; PostingDelta: Text[30])
+    var
+        Pmt: Record "Gen. Journal Line";
+        Batch: Record "Gen. Journal Batch";
+        PostingDate: Date;
+    begin
+        // Create a Payment in the General Journal.
+        Pmt.Init;
+        ClearGenenalJournalLine(Batch);
+        LibraryERM.CreateGeneralJnlLine(
+          Pmt,
+          Batch."Journal Template Name",
+          Batch.Name,
+          Pmt."Document Type"::Payment,
+          Pmt."Account Type"::Vendor,
+          VendorNo,
+          Amount);
+
+        // Set posting date and currency.
+        PostingDate := CalcDate(PostingDelta, WorkDate);
+        Pmt.Validate("Posting Date", PostingDate);
+        Pmt.Validate("Currency Code", Currency);
+        Pmt.Modify(true);
+
+        // Post it.
+        LibraryERM.PostGeneralJnlLine(Pmt);
+
+        // Find the newly posted vendor ledger entry and update flowfields.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, Pmt."Document Type", Pmt."Document No.");
+        VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)", "Remaining Amount");
+    end;
+
+    local procedure CreateVendorPartialInvoice(var InvVendorLedgerEntry: Record "Vendor Ledger Entry"; var Remainder: Decimal; Vendor: Record Vendor; Currency: Code[10]; InvoiceNumber: Integer; NumberOfInvoices: Integer)
+    var
+        InvLCYAmount: Decimal;
+        InvAmount: Decimal;
+    begin
+        // Pay a random percentage between 10% and 90% of the remaining amount (last invoice is always full).
+        if InvoiceNumber = NumberOfInvoices then
+            InvLCYAmount := Remainder
+        else
+            InvLCYAmount := Round((10 + LibraryRandom.RandInt(80)) / 100 * Remainder);
+
+        // Convert amount to foreign currency.
+        InvAmount := Round(LibraryERM.ConvertCurrency(InvLCYAmount, '', Currency, WorkDate));
+
+        // Create partial payment for PmtAmount.
+        CreateVendorInvoice(InvVendorLedgerEntry, Vendor."No.", InvAmount, Currency);
+        Remainder := Remainder - InvLCYAmount;
+    end;
+
+    local procedure CreateVendorPartialPayment(var PmtVendorLedgerEntry: Record "Vendor Ledger Entry"; var Remainder: Decimal; Vendor: Record Vendor; PostingDelta: Text[30]; Currency: Code[10]; PaymentNumber: Integer; NumberOfPayments: Integer)
+    var
+        PmtLCYAmount: Decimal;
+        PmtAmount: Decimal;
+    begin
+        // Pay a random percentage between 10% and 90% of the remaining amount (last payment is always full).
+        if PaymentNumber = NumberOfPayments then
+            PmtLCYAmount := Remainder
+        else
+            PmtLCYAmount := Round((10 + LibraryRandom.RandInt(80)) / 100 * Remainder);
+
+        // Convert amount to foreign currency.
+        PmtAmount := Round(LibraryERM.ConvertCurrency(PmtLCYAmount, '', Currency, WorkDate));
+
+        // Create partial payment for PmtAmount.
+        CreateVendorPayment(PmtVendorLedgerEntry, Vendor."No.", PmtAmount, Currency, PostingDelta);
+        Remainder := Remainder - PmtLCYAmount;
+    end;
+
+    local procedure CreateVendorPartialPaymentWithRemainder(var PmtVendorLedgerEntry: Record "Vendor Ledger Entry"; var Remainder: Decimal; LCYRemainder: Decimal; Vendor: Record Vendor; PostingDelta: Text[30]; Currency: Code[10]; PaymentNumber: Integer; NumberOfPayments: Integer)
+    var
+        PmtLCYAmount: Decimal;
+        PmtAmount: Decimal;
+    begin
+        // Pay a random percentage between 10% and 90% of the remaining amount (last payment is always full).
+        if PaymentNumber = NumberOfPayments then
+            PmtLCYAmount := Remainder
+        else
+            PmtLCYAmount := Round((10 + LibraryRandom.RandInt(80)) / 100 * Remainder);
+
+        // Convert amount to foreign currency.
+        PmtAmount := Round(LibraryERM.ConvertCurrency(PmtLCYAmount, '', Currency, WorkDate));
+        if PaymentNumber = NumberOfPayments then
+            PmtAmount += Abs(LCYRemainder - PmtAmount);
+
+        // Create partial payment for PmtAmount.
+        CreateVendorPayment(PmtVendorLedgerEntry, Vendor."No.", PmtAmount, Currency, PostingDelta);
+        Remainder := Remainder - PmtLCYAmount;
+    end;
+
+    local procedure CreateGenJnlLineWithAppliesToID(var GenJnlLine: Record "Gen. Journal Line"; AccType: Option; AccNo: Code[20]; AppliesToID: Code[50])
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+    begin
+        with GenJnlLine do begin
+            LibraryERM.SelectGenJnlBatch(GenJnlBatch);
+            LibraryERM.CreateGeneralJnlLine(
+              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
+            "Applies-to ID" := AppliesToID;
+            Modify;
+        end;
+    end;
+
+    local procedure CreateGenJnlLineWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AccType: Option; AccNo: Code[20]; AppliesToDocNo: Code[20])
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+    begin
+        with GenJnlLine do begin
+            LibraryERM.SelectGenJnlBatch(GenJnlBatch);
+            LibraryERM.ClearGenJournalLines(GenJnlBatch);
+            LibraryERM.CreateGeneralJnlLine(
+              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
+            "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
+            "Applies-to Doc. No." := AppliesToDocNo;
+            Modify;
+        end;
+    end;
+
+    local procedure CreatePaymentJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        with GenJournalTemplate do begin
+            LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+            Validate(Type, Type::Payments);
+            Modify(true);
+            LibraryERM.CreateGenJournalBatch(GenJournalBatch, Name);
+        end;
+
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, AccountNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0);
+    end;
+
+    local procedure CreateDefaultDimensionGLAccSameValue(var DimensionValue: Record "Dimension Value"; GLAccountNo: Code[20])
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccountNo, DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Same Code");
+        DefaultDimension.Modify;
+    end;
+
+    local procedure CreateVendPostingGrPmtDiscCreditAccNo(VendorNo: Code[20]): Code[20]
+    var
+        VendorPostingGroup: Record "Vendor Posting Group";
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(VendorNo);
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        VendorPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Modify(true);
+        exit(VendorPostingGroup."Payment Disc. Credit Acc.");
+    end;
+
+    local procedure FindOpenInvVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+        with VendLedgEntry do begin
+            SetRange("Document Type", "Document Type"::Invoice);
+            SetRange("Applying Entry", false);
+            SetRange(Open, true);
+            FindFirst;
+        end;
+    end;
+
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
+    begin
+        with GLEntry do begin
+            SetRange("Document No.", DocumentNo);
+            SetRange("G/L Account No.", GLAccountNo);
+            FindFirst;
+        end;
+    end;
+
+    local procedure GetVendorWithPaymentTerms(var PaymentTerms: Record "Payment Terms"): Code[20]
+    begin
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        exit(CreateVendorWithPaymentTerms(PaymentTerms));
+    end;
+
+    local procedure ModifyGenJnlBatchNoSeries()
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJnlBatch);
+        GenJnlBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJnlBatch.Modify(true);
+    end;
+
+    local procedure PostApplication(var InvVendorLedgerEntry: array[10] of Record "Vendor Ledger Entry"; var PmtVendorLedgerEntries: array[10] of Record "Vendor Ledger Entry"; NumberOfInvoices: Integer; NumberOfPayments: Integer)
+    var
+        i: Integer;
+    begin
+        // The first payment is the applying entry, otherwise the discount does not apply.
+        SetupApplyingEntry(PmtVendorLedgerEntries[1], PmtVendorLedgerEntries[1].Amount);
+
+        // Include all invoices.
+        for i := 1 to NumberOfInvoices do
+            SetupApplyEntry(InvVendorLedgerEntry[i]);
+
+        // Include remaining payments.
+        for i := 2 to NumberOfPayments do
+            SetupApplyEntry(PmtVendorLedgerEntries[i]);
+
+        // Call Apply codeunit.
+        CODEUNIT.Run(CODEUNIT::"VendEntry-Apply Posted Entries", PmtVendorLedgerEntries[1]);
+    end;
+
+    local procedure PostApplicationStepwise(var InvVendorLedgerEntry: array[10] of Record "Vendor Ledger Entry"; var PmtVendorLedgerEntries: array[10] of Record "Vendor Ledger Entry"; NumberOfInvoices: Integer; NumberOfPayments: Integer)
+    var
+        i: Integer;
+        j: Integer;
+    begin
+        // Apply invoices step-wise.
+        for i := 1 to NumberOfInvoices do begin
+            // The first payment is the applying entry, otherwise the discount does not apply.
+            PmtVendorLedgerEntries[1].Get(PmtVendorLedgerEntries[1]."Entry No.");
+            PmtVendorLedgerEntries[1].CalcFields("Remaining Amount");
+
+            SetupApplyingEntry(PmtVendorLedgerEntries[1], PmtVendorLedgerEntries[1]."Remaining Amount");
+
+            // Apply all remaining payments.
+            for j := 2 to NumberOfPayments do begin
+                PmtVendorLedgerEntries[j].Get(PmtVendorLedgerEntries[j]."Entry No.");
+                PmtVendorLedgerEntries[j].CalcFields("Remaining Amount");
+
+                if PmtVendorLedgerEntries[j].Open then
+                    SetupApplyEntry(PmtVendorLedgerEntries[j]);
+            end;
+
+            // Apply to i'th invoice.
+            SetupApplyEntry(InvVendorLedgerEntry[i]);
+
+            // Call Apply codeunit.
+            CODEUNIT.Run(CODEUNIT::"VendEntry-Apply Posted Entries", PmtVendorLedgerEntries[1]);
+        end;
+    end;
+
+    local procedure SetAppliesToIDOnVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+        VendLedgEntry."Applies-to ID" := LibraryUtility.GenerateGUID;
+        VendLedgEntry.Modify;
+    end;
+
+    local procedure SetupApplyingEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AmountToApply: Decimal)
+    begin
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, AmountToApply);
+    end;
+
+    local procedure SetupApplyEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+    end;
+
+    local procedure TestRemainingAmountOnVendorLedgerEntry(DocumentType: Option; SignForGLEntry: Integer; SignForVendorLedgerEntry: Integer)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PostedDocumentNo: Code[20];
+    begin
+        // Setup.
+        Initialize;
+
+        // Exercise: Create and Post Purchase Document.
+        PostedDocumentNo :=
+          CreateAndPostPurchaseDocument(
+            PurchaseHeader, PurchaseLine, DocumentType, CreateVendor, CreateItem, LibraryRandom.RandDec(1000, 2),
+            LibraryRandom.RandDec(100, 2));
+
+        // Verify: Verify G/L and Vendor Ledger Entries.
+        VerifyGLEntry(DocumentType, PostedDocumentNo, SignForGLEntry * PurchaseLine."Line Amount");
+        VerifyVendorLedgerEntry(PurchaseHeader."Buy-from Vendor No.", SignForVendorLedgerEntry * PurchaseLine."Line Amount");
+    end;
+
+    local procedure ValidateVendLedgEntrClosed(VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        with VendorLedgerEntry do begin
+            // Update record to reflect changes done by codeunit.
+            Get("Entry No.");
+            CalcFields(Amount, "Remaining Amount");
+
+            // Check that the invoice closed and has no remaining amount.
+            Assert.IsFalse(Open, InvoiceError);
+            Assert.IsTrue("Remaining Amount" = 0.0, 'Invoice has remaining amount');
+        end;
+    end;
+
+    local procedure VerifyDiscountValueInVendorLedger(GenJournalLine: Record "Gen. Journal Line"; PmtDiscountAmount: Decimal)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document No.");
+        Assert.AreNearlyEqual(PmtDiscountAmount, VendorLedgerEntry."Original Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(AmountErr, Round(PmtDiscountAmount, LibraryERM.GetAmountRoundingPrecision), PmtDiscountAmount));
+        VendorLedgerEntry.TestField("Remaining Pmt. Disc. Possible", VendorLedgerEntry."Original Pmt. Disc. Possible");
+    end;
+
+    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.FindFirst;
+        GLEntry.TestField(Amount, Amount);
+    end;
+
+    local procedure VerifyVendorLedgerEntry(VendorNo: Code[20]; RemainingAmount: Decimal)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        repeat
+            VendorLedgerEntry.TestField("Remaining Amount", RemainingAmount);
+        until VendorLedgerEntry.Next = 0;
+    end;
+
+    local procedure SetApplicationMethodOnVendor(VendorNo: Code[20]; ApplicationMethod: Option)
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Application Method", ApplicationMethod);
+        Vendor.Modify(true);
+    end;
+
+    local procedure VerifyExtDocNoAmount(GenJournalLine: Record "Gen. Journal Line"; ExpectedExtDocNo: Code[35]; ExpectedAmount: Decimal)
+    begin
+        with GenJournalLine do begin
+            Find;
+            Assert.AreEqual(
+              ExpectedExtDocNo, "Applies-to Ext. Doc. No.",
+              StrSubstNo(WrongValErr, FieldCaption("Applies-to Ext. Doc. No."), ExpectedExtDocNo, TableCaption));
+            Assert.AreEqual(
+              ExpectedAmount, Amount,
+              StrSubstNo(WrongValErr, FieldCaption(Amount), ExpectedAmount, TableCaption));
+        end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesWithSetAppliesToIDModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.AppliedAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+
+        ApplyVendorEntries.AppliesToID.SetValue('');
+        ApplyVendorEntries.AppliedAmount.AssertEquals(0);
+        ApplyVendorEntries."Amount to Apply".AssertEquals(0);
+        ApplyVendorEntries.ApplnAmountToApply.AssertEquals(0);
+
+        ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure TwoApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    var
+        AppliesToID: Code[20];
+    begin
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        AppliesToID := ApplyVendorEntries.AppliesToID.Value;
+
+        ApplyVendorEntries.Next;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.AppliesToID.SetValue('');
+        ApplyVendorEntries.AppliesToID.AssertEquals('');
+
+        ApplyVendorEntries.Previous;
+        ApplyVendorEntries.AppliesToID.AssertEquals(AppliesToID);
+
+        ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure TwoEntriesWithSameAppliesToIDModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    var
+        AppliesToID: Code[20];
+    begin
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        AppliesToID := ApplyVendorEntries.AppliesToID.Value;
+
+        ApplyVendorEntries.Next;
+        ApplyVendorEntries.AppliesToID.SetValue(AppliesToID);
+        ApplyVendorEntries.AppliesToID.AssertEquals(AppliesToID);
+
+        ApplyVendorEntries.Previous;
+        ApplyVendorEntries.AppliesToID.AssertEquals(AppliesToID);
+
+        ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure TwoEntriesWithDifferentAppliesToIDModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    var
+        AppliesToID: Code[20];
+        AlternativeAppliesToID: Code[20];
+    begin
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        AppliesToID := ApplyVendorEntries.AppliesToID.Value;
+
+        ApplyVendorEntries.Next;
+        AlternativeAppliesToID := LibraryUtility.GenerateGUID;
+        ApplyVendorEntries.AppliesToID.SetValue(AlternativeAppliesToID);
+
+        ApplyVendorEntries.Previous;
+        ApplyVendorEntries.AppliesToID.AssertEquals(AppliesToID);
+
+        ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalTemplateListPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
+        GeneralJournalTemplateList.OK.Invoke;
+    end;
+}
+
