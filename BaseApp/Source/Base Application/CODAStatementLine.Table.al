@@ -421,7 +421,10 @@ table 2000041 "CODA Statement Line"
     var
         CODAStmtLine: Record "CODA Statement Line";
         CODAStmtLine2: Record "CODA Statement Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
         StatusCount: array[4] of Integer;
+        AmountToApply: Decimal;
     begin
         if "Account No." = '' then begin
             "Application Status" := "Application Status"::" ";
@@ -434,9 +437,29 @@ table 2000041 "CODA Statement Line"
                 Validate(Amount, 0);
                 "Unapplied Amount" := "Statement Amount";
             end else begin
-                "Application Status" := "Application Status"::Applied;
-                Validate(Amount, "Statement Amount");
-                "Unapplied Amount" := 0
+                AmountToApply := "Statement Amount";
+                case "Account Type" of
+                    "Account Type"::Customer:
+                        begin
+                            CustLedgerEntry.SetRange("Customer No.", "Account No.");
+                            CustLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
+                            CustLedgerEntry.CalcSums("Amount to Apply");
+                            AmountToApply := CustLedgerEntry."Amount to Apply";
+                        end;
+                    "Account Type"::Vendor:
+                        begin
+                            VendorLedgerEntry.SetRange("Vendor No.", "Account No.");
+                            VendorLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
+                            VendorLedgerEntry.CalcSums("Amount to Apply");
+                            AmountToApply := VendorLedgerEntry."Amount to Apply";
+                        end;
+                end;
+                if AmountToApply = "Statement Amount" then
+                    "Application Status" := "Application Status"::Applied
+                else
+                    "Application Status" := "Application Status"::"Partly applied";
+                Validate(Amount, AmountToApply);
+                "Unapplied Amount" := "Statement Amount" - Amount;
             end;
 
         // Lines with global info and details

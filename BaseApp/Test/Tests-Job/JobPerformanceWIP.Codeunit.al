@@ -1733,6 +1733,61 @@ codeunit 136304 "Job Performance WIP"
         VerifyJobWIPEntryByType(Job."No.", JobWIPEntry.Type::"Applied Costs", -JobPlanningLine."Total Cost (LCY)");
     end;
 
+    [Test]
+    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [Scope('OnPrem')]
+    procedure CalcWIPWhenWIPTotalNotAssignedToLastTask()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPostingGroup: Record "Job Posting Group";
+        JobWIPMethod: Record "Job WIP Method";
+        JobPlanningLine: Record "Job Planning Line";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        JobWIPEntry: Record "Job WIP Entry";
+        TotalCost: Decimal;
+    begin
+        // [SCENARIO 368853] WIP Entries generate correctly when "WIP-Total" is not assigned to the last task
+
+        Initialize();
+
+        // [GIVEN] Job with "WIP Method" = "Cost Value" for recognized costs
+        CreateJobWIPMethod(
+          JobWIPMethod."Recognized Costs"::"Cost Value", JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)", JobWIPMethod);
+        CreateJobWithWIPMethod(Job, JobWIPMethod.Code, Job."WIP Posting Method"::"Per Job");
+        CreateJobPostingGroup(JobPostingGroup);
+        UpdateJobPostingGroup(JobPostingGroup);
+        Job.Validate("Job Posting Group", JobPostingGroup.Code);
+        Job.Modify(true);
+
+        // [GIVEN] First job task with "WIP-Total" = Total and amount 100
+        LibraryJob.CreateJobTask(Job, JobTask);
+        JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
+        JobTask.Validate("WIP Method", Job."WIP Method");
+        JobTask.Modify(true);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, 1);
+        JobPlanningLine.Validate("Total Cost (LCY)", LibraryRandom.RandDec(100, 2));
+        JobPlanningLine.Modify(true);
+        CreateMockJobLedgerEntry(JobPlanningLine, 1, JobLedgerEntry);
+        TotalCost += JobPlanningLine."Total Cost (LCY)";
+
+        // [GIVEN] Second job task with blank "WIP-Total" and amount 200
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, 1);
+        JobPlanningLine.Validate("Total Cost (LCY)", LibraryRandom.RandDec(100, 2));
+        JobPlanningLine.Modify(true);
+        CreateMockJobLedgerEntry(JobPlanningLine, 1, JobLedgerEntry);
+        TotalCost += JobPlanningLine."Total Cost (LCY)";
+
+        // [WHEN] Calculate WIP
+        CalculateWIP(Job);
+
+        // [THEN] A WIP Entry with type "Applied Costs" and Amount equals 300
+        VerifyJobWIPEntryByType(Job."No.", JobWIPEntry.Type::"Applied Costs", -TotalCost);
+    end;
+    
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
