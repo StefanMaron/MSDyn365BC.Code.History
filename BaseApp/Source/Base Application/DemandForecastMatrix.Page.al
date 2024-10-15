@@ -885,7 +885,7 @@ page 9245 "Demand Forecast Matrix"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeEnterBaseQty(Rec, ColumnID, IsHandled);
+        OnBeforeEnterBaseQty(Rec, ColumnID, IsHandled, MatrixRecords, QtyType);
         if IsHandled then
             exit;
 
@@ -909,7 +909,9 @@ page 9245 "Demand Forecast Matrix"
             SetRange("Component Forecast", false);
         if ForecastType = ForecastType::Both then
             SetRange("Component Forecast");
+        OnEnterBaseQtyOnBeforeValidateProdForecastQty(Rec, ColumnID, MatrixRecords);
         Validate("Prod. Forecast Quantity (Base)", MATRIX_CellData[ColumnID]);
+        OnEnterBaseQtyOnAfterValidateProdForecastQty(Rec, ColumnID, MatrixRecords, QtyType);
     end;
 
     local procedure ProdForecastQtyBase_OnValidate(ColumnID: Integer)
@@ -917,9 +919,10 @@ page 9245 "Demand Forecast Matrix"
         ProdForecastEntry: Record "Production Forecast Entry";
         ProdForecastEntry2: Record "Production Forecast Entry";
         IsHandled: Boolean;
+        ShouldConfirmMovingForecasts: Boolean;
     begin
         IsHandled := false;
-        OnBeforeProdForecastQtyBase_OnValidate(Rec, ColumnID, IsHandled);
+        OnBeforeProdForecastQtyBase_OnValidate(Rec, ColumnID, IsHandled, MatrixRecords, QtyType);
         if IsHandled then
             exit;
 
@@ -935,8 +938,10 @@ page 9245 "Demand Forecast Matrix"
           MatrixRecords[ColumnID]."Period Start",
           MatrixRecords[ColumnID]."Period End");
         ProdForecastEntry.SetFilter("Component Forecast", GetFilter("Component Forecast"));
-        if ProdForecastEntry.FindLast then
-            if ProdForecastEntry."Forecast Date" > MatrixRecords[ColumnID]."Period Start" then
+        if ProdForecastEntry.FindLast() then begin
+            ShouldConfirmMovingForecasts := ProdForecastEntry."Forecast Date" > MatrixRecords[ColumnID]."Period Start";
+            OnProdForecastQtyBase_OnValidateOnAfterCalcShouldConfirmMovingForecasts(ProdForecastEntry, ColumnID, MatrixRecords, ShouldConfirmMovingForecasts);
+            if ShouldConfirmMovingForecasts then
                 if Confirm(
                      Text001,
                      false,
@@ -947,6 +952,7 @@ page 9245 "Demand Forecast Matrix"
                     ProdForecastEntry.ModifyAll("Forecast Date", MatrixRecords[ColumnID]."Period Start")
                 else
                     Error(Text004);
+        end;
         ProdForecastEntry2.SetCurrentKey(
           "Production Forecast Name", "Item No.", "Location Code", "Forecast Date", "Component Forecast");
         if GetFilter("Location Filter") = '' then begin
@@ -974,12 +980,27 @@ page 9245 "Demand Forecast Matrix"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeEnterBaseQty(var Item: Record Item; ColumnID: Integer; var IsHandled: Boolean);
+    local procedure OnBeforeEnterBaseQty(var Item: Record Item; ColumnID: Integer; var IsHandled: Boolean; MatrixRecords: array[32] of Record Date; QtyType: Enum "Analysis Amount Type");
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeProdForecastQtyBase_OnValidate(var Item: Record Item; ColumnID: Integer; var IsHandled: Boolean);
+    local procedure OnBeforeProdForecastQtyBase_OnValidate(var Item: Record Item; ColumnID: Integer; var IsHandled: Boolean; MatrixRecords: array[32] of Record Date; QtyType: Enum "Analysis Amount Type");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEnterBaseQtyOnAfterValidateProdForecastQty(var Item: Record Item; ColumnID: Integer; MatrixRecords: array[32] of Record Date; QtyType: Enum "Analysis Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEnterBaseQtyOnBeforeValidateProdForecastQty(var Item: Record Item; ColumnID: Integer; MatrixRecords: array[32] of Record Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProdForecastQtyBase_OnValidateOnAfterCalcShouldConfirmMovingForecasts(var ProdForecastEntry: Record "Production Forecast Entry"; ColumnID: Integer; MatrixRecords: array[32] of Record Date; var ShouldConfirmMovingForecasts: Boolean)
     begin
     end;
 

@@ -10,22 +10,28 @@ codeunit 455 "Job Queue User Handler"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetFilter(Status, '%1|%2', Status::Ready, Status::"In Process");
-            SetRange("Recurring Job", true);
-            if FindSet(true) then
-                repeat
-                    if JobShouldBeRescheduled(JobQueueEntry) then
-                        Restart;
-                until Next() = 0;
+        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process");
+        JobQueueEntry.SetRange("Recurring Job", true);
+        if JobQueueEntry.FindSet(true) then
+            repeat
+                if JobShouldBeRescheduled(JobQueueEntry) then begin
+                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+                    JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime();
+                    JobQueueEntry.Modify();
+                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", JobQueueEntry."Earliest Start Date/Time") then;
+                end;
+            until JobQueueEntry.Next() = 0;
 
-            FilterInactiveOnHoldEntries;
-            if FindSet(true) then
-                repeat
-                    if DoesJobNeedToBeRun then
-                        Restart;
-                until Next() = 0;
-        end;
+        JobQueueEntry.FilterInactiveOnHoldEntries();
+        if JobQueueEntry.FindSet(true) then
+            repeat
+                if JobQueueEntry.DoesJobNeedToBeRun() then begin
+                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+                    JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime();
+                    JobQueueEntry.Modify();
+                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", JobQueueEntry."Earliest Start Date/Time") then;
+                end;
+            until JobQueueEntry.Next() = 0;
     end;
 
     local procedure JobShouldBeRescheduled(JobQueueEntry: Record "Job Queue Entry") Result: Boolean

@@ -122,7 +122,7 @@ codeunit 99000770 "Where-Used Management"
                 end;
             until ProdBOMComponent.Next() = 0;
 
-        OnAfterBuildWhereUsedList(Type, No, CalcDate);
+        OnAfterBuildWhereUsedList(Type, No, CalcDate, WhereUsedList, NextWhereUsedEntryNo, Level, Quantity, MultiLevel);
     end;
 
     local procedure IsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line") Result: Boolean
@@ -157,7 +157,7 @@ codeunit 99000770 "Where-Used Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBuildWhereUsedList(Type: Option " ",Item,"Production BOM"; No: Code[20]; CalcDate: Date)
+    local procedure OnAfterBuildWhereUsedList(Type: Option " ",Item,"Production BOM"; No: Code[20]; CalcDate: Date; var WhereUsedList: Record "Where-Used Line" temporary; NextWhereUsedEntryNo: Integer; Level: Integer; Quantity: Decimal; MultiLevel: Boolean)
     begin
     end;
 

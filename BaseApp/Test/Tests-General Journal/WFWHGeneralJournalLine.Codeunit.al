@@ -1,4 +1,4 @@
-codeunit 134220 "WFWH General Journal Line"
+﻿codeunit 134220 "WFWH General Journal Line"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "User Setup" = imd,
@@ -29,6 +29,32 @@ codeunit 134220 "WFWH General Journal Line"
         UserCannotRejectErr: Label 'User %1 does not have the permission necessary to reject the item.', Comment = '%1 = NAV USERID';
         UnexpectedNoOfApprovalEntriesErr: Label 'Unexpected number of approval entries found.', Locked = true;
         UnexpectedNoOfWorkflowStepInstancesErr: Label 'Unexpected number of workflow step instances found.';
+        RestrictionLineImposedErr: Label 'The restriction was imposed by the %1 workflow, General Journal Line Approval Workflow.';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure HasPendingWorkflowWebhookEntryByRecordId()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 418743] CanRequestApproval is refactored to show if there are no pending entries.
+        // [GIVEN] Gen. Jnl line 'GJL' has a pending WorkflowWebhookEntry
+        GenJournalLine.Insert();
+        WorkflowWebhookEntry.Init();
+        WorkflowWebhookEntry."Record ID" := GenJournalLine.RecordId();
+        WorkflowWebhookEntry.Response := WorkflowWebhookEntry.Response::Pending;
+        WorkflowWebhookEntry.Insert();
+
+        // [THEN] CanRequestApproval() is reverted FindWorkflowWebhookEntryByRecordIdAndResponse() for 'Pending'
+        Assert.IsFalse(WorkflowWebhookManagement.CanRequestApproval(GenJournalLine.RecordId()), 'CanRequestApproval');
+        Assert.IsTrue(
+        WorkflowWebhookManagement.FindWorkflowWebhookEntryByRecordIdAndResponse(
+            WorkflowWebhookEntry, GenJournalLine.RecordId(), WorkflowWebhookEntry.Response::Pending),
+            'FindWorkflowWebhookEntryByRecordIdAndResponse');
+    end;
 
     [Normal]
     local procedure ChangeWorkflowWebhookEntryInitiatedBy(Id: Guid; InitiatedByUserID: Code[50])
@@ -795,12 +821,138 @@ codeunit 134220 "WFWH General Journal Line"
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
+        GenJournalLine.Find();
         GenJournalLine.Delete(true);
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
         WorkflowStepInstance.SetRange("Workflow Code", DummyWorkflowCode);
         Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CannotModifyJournalLineAfterLineApprovalIsSent()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        GeneralJournal: TestPage "General Journal";
+        WorkflowCode: Code[20];
+    begin
+        // [SCENARIO 418743] A user cannot modify a general journal line after they send it for approval 
+        Initialize();
+
+        // [GIVEN] Existing approval for the journal line for the workflow 'X'
+        WorkflowCode := CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
+        CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        MakeCurrentUserAnApprover;
+        // [WHEN] Send journal line for approval
+        SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
+
+        Commit();
+        // [THEN] "Pending Approval" is Yes in the line, No is the Batch
+        GenJournalBatch.Find();
+        GenJournalBatch.TestField("Pending Approval", false);
+        GenJournalLine.Find();
+        GenJournalLine.TestField("Pending Approval");
+
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // [WHEN] The user modifies Amount in the general journal line.
+        ClearLastError();
+        GeneralJournal.OpenEdit();
+        GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        GeneralJournal.First();
+        asserterror GeneralJournal.Amount.SetValue(GenJournalLine.Amount + 1);
+
+        // [THEN] The error message: 'The restriction was imposed by the X workflow...'
+        Assert.ExpectedError(StrSubstNo(RestrictionLineImposedErr, WorkflowCode));
+        Commit();
+
+        // [WHEN] Allow Record Usage and remove restriction
+        AllowRecordUsageCode(GenJournalLine, GenJournalLine);
+        // [THEN] "Pending Approval" is No in the line and the Batch
+        GenJournalBatch.Find();
+        GenJournalBatch.TestField("Pending Approval", false);
+        GenJournalLine.Find();
+        GenJournalLine.TestField("Pending Approval", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CanInsertJournalLineAfterLineApprovalIsSent()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+    begin
+        // [SCENARIO 418743] A user can insert another general journal line after they send one for approval 
+        Initialize();
+
+        // [GIVEN] Existing approval for the journal line for the workflow 'X'
+        CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
+        CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        MakeCurrentUserAnApprover;
+        // [WHEN] Send journal line for approval
+        SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
+
+        Commit();
+        // [THEN] "Pending Approval" is Yes in the line, No is the Batch
+        GenJournalBatch.Find();
+        GenJournalBatch.TestField("Pending Approval", false);
+        GenJournalLine.Find();
+        GenJournalLine.TestField("Pending Approval");
+
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // [WHEN] The user tries to insert another general journal line to the batch
+        ClearLastError();
+        GenJournalLine."Line No." += 10000;
+        GenJournalLine.Insert(true);
+
+        // [THEN] No error message, the new journal line is inserted
+        Assert.AreEqual('', GetLastErrorText(), 'error text');
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        Assert.RecordCount(GenJournalLine, 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CancelLineApprovalResetPendingApproval()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+    begin
+        // [SCENARIO 418743] Cancel of the line approval resets "Pending Approval" 
+        Initialize();
+
+        // [GIVEN] Existing approval for the journal line for the workflow 'X'
+        CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
+        CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        MakeCurrentUserAnApprover;
+        // [WHEN] Send journal line for approval
+        SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
+
+        Commit();
+        // [THEN] "Pending Approval" is Yes in the line, No is the Batch
+        GenJournalBatch.Find();
+        GenJournalBatch.TestField("Pending Approval", false);
+        GenJournalLine.Find();
+        GenJournalLine.TestField("Pending Approval");
+
+        // [WHEN] Cancel the line approval
+        ApprovalsMgmt.TryCancelJournalLineApprovalRequests(GenJournalLine);
+        // [THEN] "Pending Approval" is No in the line and the Batch
+        GenJournalBatch.Find();
+        GenJournalBatch.TestField("Pending Approval", false);
+        GenJournalLine.Find();
+        GenJournalLine.TestField("Pending Approval", false);
     end;
 
     [Test]
@@ -1118,6 +1270,47 @@ codeunit 134220 "WFWH General Journal Line"
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
         GeneralJournal.FILTER.SetFilter("Line No.", Format(LineNo));
         GeneralJournal.SendApprovalRequestJournalLine.Invoke;
+    end;
+
+    local procedure AllowRecordUsageCode(Variant: Variant; xVariant: Variant)
+    var
+        FirstWorkflowStepInstance: Record "Workflow Step Instance";
+        RemoveRestrictionWorkflowStepInstance: Record "Workflow Step Instance";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        WorkflowMgt: Codeunit "Workflow Management";
+    begin
+        CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RemoveRestrictionWorkflowStepInstance,
+          WorkflowResponseHandling.AllowRecordUsageCode);
+        WorkflowMgt.ExecuteResponses(Variant, xVariant, FirstWorkflowStepInstance);
+    end;
+
+    local procedure CreateWorkflowStepInstanceWithTwoResponses(var FirstWorkflowStepInstance: Record "Workflow Step Instance"; var SecondWorkflowStepInstance: Record "Workflow Step Instance"; SecondResponseCode: Code[128])
+    var
+        Workflow: Record Workflow;
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+    begin
+        LibraryWorkflow.CreateWorkflow(Workflow);
+
+        Workflow.Enabled := true;
+        Workflow.Modify();
+
+        CreateResponseWorkflowStepInstance(FirstWorkflowStepInstance, Workflow.Code,
+          CreateGuid, WorkflowResponseHandling.DoNothingCode, 1, 0, FirstWorkflowStepInstance.Status::Completed);
+
+        CreateResponseWorkflowStepInstance(SecondWorkflowStepInstance, Workflow.Code,
+          FirstWorkflowStepInstance.ID, SecondResponseCode, 2, 1, SecondWorkflowStepInstance.Status::Active);
+    end;
+
+    local procedure CreateResponseWorkflowStepInstance(var WorkflowStepInstance: Record "Workflow Step Instance"; WorkflowCode: Code[20]; WorkflowInstanceId: Guid; FunctionCode: Code[128]; StepId: Integer; PreviousStepId: Integer; Status: Option)
+    begin
+        WorkflowStepInstance.ID := WorkflowInstanceId;
+        WorkflowStepInstance."Workflow Code" := WorkflowCode;
+        WorkflowStepInstance."Workflow Step ID" := StepId;
+        WorkflowStepInstance.Type := WorkflowStepInstance.Type::Response;
+        WorkflowStepInstance."Function Name" := FunctionCode;
+        WorkflowStepInstance.Status := Status;
+        WorkflowStepInstance."Previous Workflow Step ID" := PreviousStepId;
+        WorkflowStepInstance.Insert();
     end;
 
     [MessageHandler]
