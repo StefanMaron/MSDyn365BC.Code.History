@@ -71,6 +71,7 @@
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Use Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Unit of Measure");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Country Code");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Address");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Tax Scheme");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Payment Term");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Payment Method");

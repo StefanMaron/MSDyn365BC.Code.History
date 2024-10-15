@@ -81,6 +81,9 @@
       "path": "./uksendremittanceadvice/Test/Send remittance advice by email Tests"
     },
     {
+      "path": "./paymentpractices/test/Payment Practices Tests"
+    },
+    {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
     },
     {

@@ -282,6 +282,16 @@
             Caption = 'Error Description';
             Editable = false;
         }
+        field(10037; "Date/Time Stamp Received"; DateTime)
+        {
+            Caption = 'Date/Time Stamp Received';
+            Editable = false;
+        }
+        field(10038; "Date/Time Cancel Sent"; DateTime)
+        {
+            Caption = 'Date/Time Cancel Sent';
+            Editable = false;
+        }
         field(10040; "PAC Web Service Name"; Text[50])
         {
             Caption = 'PAC Web Service Name';
