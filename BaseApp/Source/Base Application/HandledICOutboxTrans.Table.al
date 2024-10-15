@@ -143,6 +143,8 @@ table 416 "Handled IC Outbox Trans."
                     HandledICOutboxPurchDoc.RunModal;
                 end;
         end;
+
+        OnAfterShowDetails(Rec);
     end;
 
     local procedure DeleteComments(TransactionNo: Integer; ICPartnerCode: Code[20])
@@ -153,6 +155,11 @@ table 416 "Handled IC Outbox Trans."
         ICCommentLine.SetRange("Transaction No.", TransactionNo);
         ICCommentLine.SetRange("IC Partner Code", ICPartnerCode);
         ICCommentLine.DeleteAll();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDetails(var HandledICOutboxTrans: Record "Handled IC Outbox Trans.")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

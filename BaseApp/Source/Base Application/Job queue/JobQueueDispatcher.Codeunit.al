@@ -94,6 +94,7 @@ codeunit 448 "Job Queue Dispatcher"
     local procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry") Result: Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
+        JobQueueEntryCheck: Record "Job Queue Entry";
         JobQueueCategory: Record "Job Queue Category";
         IsHandled: Boolean;
     begin
@@ -118,7 +119,7 @@ codeunit 448 "Job Queue Dispatcher"
                 if DoesSystemTaskExist(JobQueueEntry."System Task ID") then
                     exit(true)
                 else // stale job queue entry with status in process but no system task behind it.
-                    if JobQueueEntry."User ID" = UserId() then
+                    if (JobQueueEntry."User ID" = UserId()) and JobQueueEntryCheck.Get(JobQueueEntry.ID) then
                         Reschedule(JobQueueEntry)
                     else
                         if not DoesSystemTaskExist(JobQueueEntry."Recovery Task Id") then

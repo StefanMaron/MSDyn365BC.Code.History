@@ -326,7 +326,7 @@ codeunit 398 "Sales Tax Calculate"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitSalesTaxLines(TaxAreaCode, TaxGroupCode, TaxLiable, Amount, Quantity, Date, DesiredTaxAmount, TMPTaxDetail, IsHandled, Initialised, FirstLine);
+        OnBeforeInitSalesTaxLines(TaxAreaCode, TaxGroupCode, TaxLiable, Amount, Quantity, Date, DesiredTaxAmount, TMPTaxDetail, IsHandled, Initialised, FirstLine, TotalForAllocation);
         if IsHandled then
             exit;
 
@@ -509,7 +509,7 @@ codeunit 398 "Sales Tax Calculate"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitSalesTaxLines(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Amount: Decimal; Quantity: Decimal; Date: Date; DesiredTaxAmount: Decimal; var TMPTaxDetail: Record "Tax Detail"; var IsHandled: Boolean; var Initialised: Boolean; var FirstLine: Boolean)
+    local procedure OnBeforeInitSalesTaxLines(var TaxAreaCode: Code[20]; var TaxGroupCode: Code[20]; TaxLiable: Boolean; Amount: Decimal; Quantity: Decimal; Date: Date; DesiredTaxAmount: Decimal; var TMPTaxDetail: Record "Tax Detail"; var IsHandled: Boolean; var Initialised: Boolean; var FirstLine: Boolean; var TotalForAllocation: Decimal)
     begin
     end;
 }

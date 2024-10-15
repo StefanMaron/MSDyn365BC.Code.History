@@ -1,4 +1,4 @@
-page 254 "Purchase Journal"
+﻿page 254 "Purchase Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
     // // Show more coloums action (IsSimplePage = FALSE)
@@ -1192,7 +1192,6 @@ page 254 "Purchase Journal"
     trigger OnOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
-        JnlSelected: Boolean;
         LastGenJnlBatch: Code[10];
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
@@ -1202,20 +1201,15 @@ page 254 "Purchase Journal"
         SetControlVisibility;
         SetDimensionsVisibility;
         BalAccName := '';
-        if IsOpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
-            GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
-            SetControlAppearanceFromBatch();
+        if OpenJournalFromBatch() then
             exit;
-        end;
-        GenJnlManagement.TemplateSelection(PAGE::"Purchase Journal", "Gen. Journal Template Type"::Purchases, false, Rec, JnlSelected);
-        if not JnlSelected then
-            Error('');
+        SelectTemplate();
 
         LastGenJnlBatch := GenJnlManagement.GetLastViewedJournalBatchName(PAGE::"Purchase Journal");
         if LastGenJnlBatch <> '' then
             CurrentJnlBatchName := LastGenJnlBatch;
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+        OnOpenPageOnAfterOpenJnl(CurrentJnlBatchName);
         SetControlAppearanceFromBatch();
     end;
 
@@ -1345,6 +1339,48 @@ page 254 "Purchase Journal"
         JournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
+    local procedure OpenJournalFromBatch() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenJournalFromBatch(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if IsOpenedFromBatch then begin
+            CurrentJnlBatchName := "Journal Batch Name";
+            GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
+            exit(true);
+        end;
+    end;
+
+    procedure SetCurrentJnlBatchName(NewCurrentJnlBatchName: Code[10])
+    begin
+        CurrentJnlBatchName := NewCurrentJnlBatchName;
+    end;
+
+    procedure GetCurrentJnlBatchName(): Code[10]
+    begin
+        exit(CurrentJnlBatchName);
+    end;
+
+    local procedure SelectTemplate()
+    var
+        JnlSelected: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSelectTemplate(Rec, GenJnlManagement, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlManagement.TemplateSelection(PAGE::"Purchase Journal", "Gen. Journal Template Type"::Purchases, false, Rec, JnlSelected);
+        if not JnlSelected then
+            Error('');
+    end;
+
     local procedure SetJobQueueVisibility()
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
@@ -1353,6 +1389,21 @@ page 254 "Purchase Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOpenJournalFromBatch(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSelectTemplate(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlManagement: Codeunit GenJnlManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOpenPageOnAfterOpenJnl(var CurrentJnlBatchName: Code[10])
     begin
     end;
 }

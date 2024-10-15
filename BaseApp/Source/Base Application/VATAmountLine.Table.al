@@ -395,8 +395,15 @@
         exit(LineAmount);
     end;
 
-    procedure GetTotalVATAmount(): Decimal
+    procedure GetTotalVATAmount() VATAmount: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetTotalVATAmount(Rec, VATAmount, IsHandled);
+        if IsHandled then
+            exit(VATAmount);
+
         CalcSums("VAT Amount", "EC Amount");
         exit("VAT Amount" + "EC Amount");
     end;
@@ -1045,6 +1052,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterVATAmountText(VATPercentage: Decimal; FullCount: Integer; var Result: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTotalVATAmount(var VATAmountLine: Record "VAT Amount Line"; var VATAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 

@@ -18,8 +18,11 @@ codeunit 5349 "Auto Create Sales Orders"
     local procedure CreateNAVSalesOrdersFromSubmittedCRMSalesorders()
     var
         CRMSalesorder: Record "CRM Salesorder";
+        IntegrationTableSynch: Codeunit "Integration Table Synch.";
         IsHandled: Boolean;
     begin
+        IntegrationTableSynch.OnAfterInitSynchJob(TableConnectionType::CRM, Database::"CRM Salesorder");
+
         IsHandled := false;
         OnBeforeCreateNAVSalesOrdersFromSubmittedCRMSalesorders(CRMSalesorder, IsHandled);
         if IsHandled then

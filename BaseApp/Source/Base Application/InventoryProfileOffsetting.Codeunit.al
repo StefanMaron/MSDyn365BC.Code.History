@@ -4567,6 +4567,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         xFromInventoryProfile.CopyFilters(ToInventoryProfile);
         with FromInventoryProfile do begin
             SetRange("Attribute Priority", 1, 7);
+            SetRange("Planning Level Code", 0);
             if FindSet then begin
                 repeat
                     ToInventoryProfile.SetRange(Binding, Binding);

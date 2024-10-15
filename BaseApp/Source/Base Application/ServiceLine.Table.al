@@ -3754,6 +3754,7 @@
         Res.CheckResourcePrivacyBlocked(false);
         Res.TestField(Blocked, false);
         Res.TestField("Gen. Prod. Posting Group");
+        OnCopyFromResourceOnAfterCheckResource(Rec, Res);
         Description := Res.Name;
         "Description 2" := Res."Name 2";
         if "Service Item Line No." <> 0 then begin
@@ -4519,6 +4520,7 @@
                             end;
                     end;
                     TotalVATAmount += "Amount Including VAT" - Amount + "VAT Difference";
+                    OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, ServHeader, ServiceLine, Currency, QtyType, TotalVATAmount);
                 until Next() = 0;
             SetRange(Type);
             SetRange(Quantity);
@@ -5921,7 +5923,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnAfterCalcLineTotals(var VATAmountLine: Record "VAT Amount Line"; ServHeader: Record "Service Header"; ServiceLine: Record "Service Line"; Currency: Record Currency; QtyType: Option General,Invoicing,Shipping; var TotalVATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckItemAvailableOnBeforeCheckNonStock(var ServiceLine: Record "Service Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromResourceOnAfterCheckResource(var ServiceLine: Record "Service Line"; Resource: Record Resource)
     begin
     end;
 

@@ -444,6 +444,9 @@ codeunit 9002 "Permission Manager"
         UserPermissions: Codeunit "User Permissions";
         CurrentUserSecurityId: Guid;
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         Rec.TestField("User Name");
         CurrentUserSecurityId := UserSecurityId();
         if not LoggedInUser.Get(CurrentUserSecurityId) then // Current user is Super from when there were no users in the system

@@ -18,8 +18,12 @@ report 6651 "Delete Invd Sales Ret. Orders"
             var
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 PostSalesDelete: Codeunit "PostSales-Delete";
+                IsHandled: Boolean;
             begin
-                OnSalesHeaderOnBeforeOnAfterGetRecord("Sales Header");
+                IsHandled := false;
+                OnSalesHeaderOnBeforeOnAfterGetRecord("Sales Header", IsHandled);
+                if IsHandled then
+                    exit;
 
                 Window.Update(1, "No.");
 
@@ -147,7 +151,7 @@ report 6651 "Delete Invd Sales Ret. Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesHeaderOnBeforeOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    local procedure OnSalesHeaderOnBeforeOnAfterGetRecord(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

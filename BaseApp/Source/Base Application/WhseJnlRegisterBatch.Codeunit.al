@@ -238,6 +238,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                     UpdateTempBinContentBuffer(WhseJnlLine, "From Bin Code", false);
 
                 ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+                OnCheckLinesOnAfterGetWhseItemTrkgSetup(WhseJnlLine, WhseItemTrackingSetup);
                 if WhseItemTrackingSetup.TrackingRequired() then begin
                     if WhseItemTrackingSetup."Serial No. Required" then
                         TestField("Qty. per Unit of Measure", 1);
@@ -328,7 +329,13 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         BinContent: Record "Bin Content";
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTrackingSpecification(WhseJnlLine, TempHandlingSpecification, IsHandled);
+        if IsHandled then
+            exit;
+
         if (WhseJnlLine."Entry Type" = WhseJnlLine."Entry Type"::Movement) or
            (WhseJnlLine.Quantity < 0)
         then
@@ -662,6 +669,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTrackingSpecification(WarehouseJournalLine: Record "Warehouse Journal Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateReservEntry(WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
     end;
@@ -703,6 +715,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckItemAvailabilityOnAfterCalcQtyOnWarehouseEntry(var ReservedQtyOnInventory: Decimal; var QtyOnWarehouseEntries: Decimal; var WhseJnlLineQty: Decimal; var TempSKU: Record "Stockkeeping Unit" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckLinesOnAfterGetWhseItemTrkgSetup(WhseJnlLine: Record "Warehouse Journal Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

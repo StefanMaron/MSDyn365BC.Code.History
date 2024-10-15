@@ -41,6 +41,7 @@ codeunit 5055 "CustVendBank-Update"
     begin
         with Cust do begin
             Get(ContBusRel."No.");
+            OnUpdateCustomerOnAfterGetCust(Cust, Cont, ContBusRel);
             NoSeries := "No. Series";
             VATRegNo := "VAT Registration No.";
             CustCopyFieldsFromCont(Cont);
@@ -76,6 +77,7 @@ codeunit 5055 "CustVendBank-Update"
     begin
         with Vend do begin
             Get(ContBusRel."No.");
+            OnUpdateVendorOnAfterGetVend(Vend, Cont, ContBusRel);
             NoSeries := "No. Series";
             PurchaserCode := "Purchaser Code";
             VATRegNo := "VAT Registration No.";
@@ -214,27 +216,49 @@ codeunit 5055 "CustVendBank-Update"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustomerOnAfterGetCust(var Customer: Record Customer; var Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendorOnAfterGetVend(var Vendor: Record Vendor; var Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
+    begin
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Contact Business Relation", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertContBusRelation(var Rec: Record "Contact Business Relation"; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         Rec.UpdateContactBusinessRelation();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Contact Business Relation", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteContBusRelation(var Rec: Record "Contact Business Relation"; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         Rec.UpdateContactBusinessRelation();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Contact Business Relation", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyContBusRelation(var Rec: Record "Contact Business Relation"; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         Rec.UpdateContactBusinessRelation();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Contact Business Relation", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameContBusRelation(var Rec: Record "Contact Business Relation"; var xRec: Record "Contact Business Relation"; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         xRec.UpdateContactBusinessRelation();
         Rec.UpdateContactBusinessRelation();
     end;

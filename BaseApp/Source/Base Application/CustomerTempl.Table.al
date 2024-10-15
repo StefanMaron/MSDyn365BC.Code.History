@@ -13,6 +13,14 @@ table 1381 "Customer Templ."
         {
             Caption = 'Description';
         }
+        field(5; Address; Text[100])
+        {
+            Caption = 'Address';
+        }
+        field(6; "Address 2"; Text[50])
+        {
+            Caption = 'Address 2';
+        }
         field(7; City; Text[30])
         {
             Caption = 'City';
@@ -35,10 +43,23 @@ table 1381 "Customer Templ."
                 PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
+        field(9; "Phone No."; Text[30])
+        {
+            Caption = 'Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
+        field(10; "Telex No."; Text[20])
+        {
+            Caption = 'Telex No.';
+        }
         field(11; "Document Sending Profile"; Code[20])
         {
             Caption = 'Document Sending Profile';
             TableRelation = "Document Sending Profile".Code;
+        }
+        field(14; "Our Account No."; Text[20])
+        {
+            Caption = 'Our Account No.';
         }
         field(15; "Territory Code"; Code[10])
         {
@@ -69,6 +90,16 @@ table 1381 "Customer Templ."
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
         }
+        field(18; "Chain Name"; Code[10])
+        {
+            Caption = 'Chain Name';
+        }
+        field(19; "Budgeted Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Budgeted Amount';
+        }
         field(20; "Credit Limit (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -94,6 +125,10 @@ table 1381 "Customer Templ."
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(26; "Statistics Group"; Integer)
+        {
+            Caption = 'Statistics Group';
+        }
         field(27; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -104,10 +139,25 @@ table 1381 "Customer Templ."
             Caption = 'Fin. Charge Terms Code';
             TableRelation = "Finance Charge Terms";
         }
+        field(29; "Salesperson Code"; Code[20])
+        {
+            Caption = 'Salesperson Code';
+            TableRelation = "Salesperson/Purchaser";
+        }
         field(30; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+        }
+        field(31; "Shipping Agent Code"; Code[10])
+        {
+            AccessByPermission = TableData "Shipping Agent Services" = R;
+            Caption = 'Shipping Agent Code';
+            TableRelation = "Shipping Agent";
+        }
+        field(32; "Place of Export"; Code[20])
+        {
+            Caption = 'Place of Export';
         }
         field(33; "Invoice Disc. Code"; Code[20])
         {
@@ -135,6 +185,16 @@ table 1381 "Customer Templ."
                 City := CopyStr(CityText, 1, MaxStrLen(City));
                 County := CopyStr(CountyText, 1, MaxStrLen(County));
             end;
+        }
+        field(36; "Collection Method"; Code[20])
+        {
+            Caption = 'Collection Method';
+        }
+        field(37; Amount; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Amount';
         }
         field(39; Blocked; Enum "Customer Blocked")
         {
@@ -167,10 +227,32 @@ table 1381 "Customer Templ."
             Caption = 'Location Code';
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
         }
+        field(84; "Fax No."; Text[30])
+        {
+            Caption = 'Fax No.';
+        }
+        field(85; "Telex Answer Back"; Text[20])
+        {
+            Caption = 'Telex Answer Back';
+        }
+        field(86; "VAT Registration No."; Text[20])
+        {
+            Caption = 'VAT Registration No.';
+        }
+        field(87; "Combine Shipments"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Shipment Header" = R;
+            Caption = 'Combine Shipments';
+        }
         field(88; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+        }
+        field(90; GLN; Code[13])
+        {
+            Caption = 'GLN';
+            Numeric = true;
         }
         field(91; "Post Code"; Code[20])
         {
@@ -199,6 +281,24 @@ table 1381 "Customer Templ."
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
         }
+        field(93; "EORI Number"; Text[40])
+        {
+            Caption = 'EORI Number';
+        }
+        field(95; "Use GLN in Electronic Document"; Boolean)
+        {
+            Caption = 'Use GLN in Electronic Documents';
+        }
+        field(102; "E-Mail"; Text[80])
+        {
+            Caption = 'Email';
+            ExtendedDatatype = EMail;
+        }
+        field(103; "Home Page"; Text[80])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
         field(104; "Reminder Terms Code"; Code[10])
         {
             Caption = 'Reminder Terms Code';
@@ -223,26 +323,126 @@ table 1381 "Customer Templ."
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
         }
+        field(115; Reserve; Enum "Reserve Method")
+        {
+            AccessByPermission = TableData "Sales Shipment Header" = R;
+            Caption = 'Reserve';
+            InitValue = Optional;
+        }
         field(116; "Block Payment Tolerance"; Boolean)
         {
             Caption = 'Block Payment Tolerance';
+        }
+        field(119; "IC Partner Code"; Code[20])
+        {
+            Caption = 'IC Partner Code';
+            TableRelation = "IC Partner";
+        }
+        field(124; "Prepayment %"; Decimal)
+        {
+            Caption = 'Prepayment %';
+            DecimalPlaces = 0 : 5;
+            MaxValue = 100;
+            MinValue = 0;
         }
         field(132; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
         }
+        field(150; "Privacy Blocked"; Boolean)
+        {
+            Caption = 'Privacy Blocked';
+
+            trigger OnValidate()
+            begin
+                if "Privacy Blocked" then
+                    Blocked := Blocked::All
+                else
+                    Blocked := Blocked::" ";
+            end;
+        }
+        field(160; "Disable Search by Name"; Boolean)
+        {
+            Caption = 'Disable Search by Name';
+            DataClassification = SystemMetadata;
+        }
+        field(840; "Cash Flow Payment Terms Code"; Code[10])
+        {
+            Caption = 'Cash Flow Payment Terms Code';
+            TableRelation = "Payment Terms";
+        }
         field(5050; "Contact Type"; Enum "Contact Type")
         {
             Caption = 'Contact Type';
+        }
+        field(5061; "Mobile Phone No."; Text[30])
+        {
+            Caption = 'Mobile Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
+        field(5700; "Responsibility Center"; Code[10])
+        {
+            Caption = 'Responsibility Center';
+            TableRelation = "Responsibility Center";
+        }
+        field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
+        {
+            AccessByPermission = TableData "Sales Shipment Header" = R;
+            Caption = 'Shipping Advice';
+        }
+        field(5790; "Shipping Time"; DateFormula)
+        {
+            AccessByPermission = TableData "Shipping Agent Services" = R;
+            Caption = 'Shipping Time';
+        }
+        field(5792; "Shipping Agent Service Code"; Code[10])
+        {
+            Caption = 'Shipping Agent Service Code';
+            TableRelation = "Shipping Agent Services".Code WHERE("Shipping Agent Code" = FIELD("Shipping Agent Code"));
+        }
+        field(5900; "Service Zone Code"; Code[10])
+        {
+            Caption = 'Service Zone Code';
+            TableRelation = "Service Zone";
         }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
             InitValue = true;
         }
+        field(7600; "Base Calendar Code"; Code[10])
+        {
+            Caption = 'Base Calendar Code';
+            TableRelation = "Base Calendar";
+        }
+        field(7601; "Copy Sell-to Addr. to Qte From"; Enum "Contact Type")
+        {
+            AccessByPermission = TableData Contact = R;
+            Caption = 'Copy Sell-to Addr. to Qte From';
+        }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
             Caption = 'Validate EU Vat Reg. No.';
+        }
+        field(10700; "Payment Days Code"; Code[20])
+        {
+            Caption = 'Payment Days Code';
+            TableRelation = Customer;
+            //This property is currently not supported
+            //TestTableRelation = false;
+            ValidateTableRelation = false;
+        }
+        field(10701; "Non-Paymt. Periods Code"; Code[20])
+        {
+            Caption = 'Non-Paymt. Periods Code';
+            TableRelation = Customer;
+            //This property is currently not supported
+            //TestTableRelation = false;
+            ValidateTableRelation = false;
+        }
+        field(10702; "Not in AEAT"; Boolean)
+        {
+            Caption = 'Not in AEAT';
         }
     }
 

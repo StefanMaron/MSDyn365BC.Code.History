@@ -1,4 +1,4 @@
-codeunit 6 "Fiscal Year-Close"
+﻿codeunit 6 "Fiscal Year-Close"
 {
     TableNo = "Accounting Period";
 
@@ -63,6 +63,13 @@ codeunit 6 "Fiscal Year-Close"
 
             Reset;
         end;
+
+        OnAfterCode(AccountingPeriod, AccountingPeriod2, AccountingPeriod3);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var AccountingPeriod: Record "Accounting Period"; var AccountingPeriod2: Record "Accounting Period"; var AccountingPeriod3: Record "Accounting Period")
+    begin
     end;
 
     [Scope('OnPrem')]

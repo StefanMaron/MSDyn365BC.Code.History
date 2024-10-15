@@ -266,6 +266,9 @@ codeunit 7019 "Price Helper - V15"
         SalesPrice: Record "Sales Price";
         SalesLineDisc: Record "Sales Line Discount";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then begin
             DeleteSalesPrices(SalesPrice."Sales Type"::Customer, Rec."No.");
             DeleteSalesDiscounts(SalesLineDisc."Sales Type"::Customer, Rec."No.");
@@ -277,6 +280,9 @@ codeunit 7019 "Price Helper - V15"
     var
         SalesLineDisc: Record "Sales Line Discount";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeleteSalesDiscounts(SalesLineDisc."Sales Type"::"Customer Disc. Group", Rec.Code);
     end;
@@ -286,6 +292,9 @@ codeunit 7019 "Price Helper - V15"
     var
         SalesPrice: Record "Sales Price";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeleteSalesPrices(SalesPrice."Sales Type"::"Customer Price Group", Rec.Code);
     end;
@@ -293,6 +302,9 @@ codeunit 7019 "Price Helper - V15"
     [EventSubscriber(ObjectType::Table, Database::"Customer Price Group", 'OnAfterRenameEvent', '', false, false)]
     local procedure AfterRenameCustomerPriceGroup(var Rec: Record "Customer Price Group"; var xRec: Record "Customer Price Group"; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameCustomerPriceGroupPrices(xRec.Code, Rec.Code);
     end;
@@ -303,6 +315,9 @@ codeunit 7019 "Price Helper - V15"
         SalesPrice: Record "Sales Price";
         SalesLineDisc: Record "Sales Line Discount";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then begin
             DeleteSalesPrices(SalesPrice."Sales Type"::Campaign, Rec."No.");
             DeleteSalesDiscounts(SalesLineDisc."Sales Type"::Campaign, Rec."No.");
@@ -314,6 +329,9 @@ codeunit 7019 "Price Helper - V15"
     var
         SalesLineDisc: Record "Sales Line Discount";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then begin
             DeleteSalesPricesForItem(Rec."No.", '');
             DeleteSalesDiscountsForType(SalesLineDisc.Type::Item, Rec."No.", '');
@@ -326,6 +344,9 @@ codeunit 7019 "Price Helper - V15"
     var
         SalesLineDisc: Record "Sales Line Discount";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeleteSalesDiscountsForType(SalesLineDisc.Type::"Item Disc. Group", Rec.Code, '');
     end;
@@ -335,6 +356,9 @@ codeunit 7019 "Price Helper - V15"
     var
         SalesLineDisc: Record "Sales Line Discount";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then begin
             DeleteSalesPricesForItem(Rec."Item No.", Rec.Code);
             DeleteSalesDiscountsForType(SalesLineDisc.Type::Item, Rec."Item No.", Rec.Code);
@@ -345,6 +369,9 @@ codeunit 7019 "Price Helper - V15"
     [EventSubscriber(ObjectType::Table, Database::Job, 'OnAfterDeleteEvent', '', false, false)]
     local procedure AfterDeleteJob(var Rec: Record Job; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeleteJobPrices(Rec."No.");
     end;
@@ -354,6 +381,9 @@ codeunit 7019 "Price Helper - V15"
     var
         ResourcePrice: Record "Resource Price";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeleteResourcePrices(ResourcePrice.Type::Resource, Rec."No.");
     end;
@@ -363,6 +393,9 @@ codeunit 7019 "Price Helper - V15"
     var
         ResourcePrice: Record "Resource Price";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeleteResourcePrices(ResourcePrice.Type::"Group(Resource)", Rec."No.");
     end;
@@ -370,6 +403,9 @@ codeunit 7019 "Price Helper - V15"
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterDeleteEvent', '', false, false)]
     local procedure AfterDeleteVendor(var Rec: Record Vendor; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePurchasePrices(Rec."No.");
     end;
@@ -377,6 +413,9 @@ codeunit 7019 "Price Helper - V15"
     [EventSubscriber(ObjectType::Table, Database::Campaign, 'OnAfterModifyEvent', '', false, false)]
     local procedure AfterModifyCampaign(var Rec: Record Campaign; var xRec: Record Campaign; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             if (Rec."Starting Date" <> xRec."Starting Date") or (Rec."Ending Date" <> xRec."Ending Date") then
                 UpdateDates(Rec);

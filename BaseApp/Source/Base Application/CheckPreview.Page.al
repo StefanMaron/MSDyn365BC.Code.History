@@ -234,6 +234,18 @@ page 404 "Check Preview"
         if CheckAmount < 0 then
             CheckAmount := 0;
 
+        FormatTextFieldsForCheck();
+    end;
+
+    local procedure FormatTextFieldsForCheck()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFormatTextFieldsForCheck(CheckToAddr, CheckAmount, GenJnlLine, Cust, BankAcc, Employee, Vend, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckReport.TextNoDecimals(0);
         CheckReport.FormatNoText(NumberText, CheckAmount, GenJnlLine."Currency Code");
 
@@ -269,6 +281,18 @@ page 404 "Check Preview"
                     FormatAddr.Employee(CheckToAddr, Employee);
                 end;
         end;
+
+        OnAfterFormatTextFieldsForCheck(CheckToAddr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatTextFieldsForCheck(var CheckToAddr: array[8] of Text[100]; CheckAmount: Decimal; var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; var BankAccount: Record "Bank Account"; var Employee: Record Employee; var Vendor: Record Vendor; Rec: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterFormatTextFieldsForCheck(var CheckToAddr: array[8] of Text[100])
+    begin
     end;
 }
 

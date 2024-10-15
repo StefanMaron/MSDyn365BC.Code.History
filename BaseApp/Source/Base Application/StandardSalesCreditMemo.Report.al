@@ -832,6 +832,8 @@ report 1307 "Standard Sales - Credit Memo"
                 }
                 column(Amount_ReportTotalsLine; Amount)
                 {
+                    AutoFormatExpression = Header."Currency Code";
+                    AutoFormatType = 1;
                 }
                 column(AmountFormatted_ReportTotalsLine; "Amount Formatted")
                 {

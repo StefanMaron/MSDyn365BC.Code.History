@@ -868,7 +868,7 @@
         end;
 
         OnCopyPurchDocOnBeforeUpdatePurchInvoiceDiscountValue(
-          ToPurchHeader, FromDocType.AsInteger(), FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, RecalculateLines);
+          ToPurchHeader, FromDocType.AsInteger(), FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, RecalculateLines, FromPurchHeader, LinesNotCopied, NextLineNo, MissingExCostRevLink);
 
         UpdatePurchaseInvoiceDiscountValue(ToPurchHeader);
 
@@ -1480,6 +1480,7 @@
             ToSalesLine."Job No." := FromSalesLine."Job No.";
             ToSalesLine."Job Task No." := FromSalesLine."Job Task No.";
             ToSalesLine."Job Contract Entry No." := FromSalesLine."Job Contract Entry No.";
+            OnCopySalesDocLineOnAfterMoveNegLines(ToSalesLine, FromSalesLine);
         end;
 
         if CopyJobData then
@@ -1500,7 +1501,7 @@
             exit(Result);
         if CopyThisLine then begin
             OnBeforeInsertToSalesLine(
-              ToSalesLine, FromSalesLine, FromSalesDocType.AsInteger(), RecalculateLines, ToSalesHeader, DocLineNo, NextLineNo);
+              ToSalesLine, FromSalesLine, FromSalesDocType.AsInteger(), RecalculateLines, ToSalesHeader, DocLineNo, NextLineNo, RecalculateAmount);
             ToSalesLine.Insert();
             HandleAsmAttachedToSalesLine(ToSalesLine);
             IsHandled := false;
@@ -1515,7 +1516,7 @@
         exit(CopyThisLine);
     end;
 
-    local procedure RecalculateAndApplySalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; RecalculateAmount: Boolean)
+    local procedure RecalculateAndApplySalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; var RecalculateAmount: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -1658,6 +1659,7 @@
                     ToSalesLine.Reserve := ToSalesHeader.Reserve
                 else
                     ToSalesLine.Reserve := Item.Reserve;
+                OnUpdateSalesLineOnAfterSetReserve(ToSalesLine, FromSalesLine);
                 if ToSalesLine.Reserve = ToSalesLine.Reserve::Always then
                     InitShipmentDateInLine(ToSalesHeader, ToSalesLine);
             end;
@@ -6305,6 +6307,8 @@
             "Prepmt. Posting Description" := OldPurchHeader."Prepmt. Posting Description";
             SetSalespersonPurchaserCode("Purchaser Code");
         end;
+
+        OnAfterCopyFieldsFromOldPurchHeaderProcedure(ToPurchHeader, OldPurchHeader);
     end;
 
     local procedure CheckFromSalesHeader(SalesHeaderFrom: Record "Sales Header"; SalesHeaderTo: Record "Sales Header")
@@ -6930,6 +6934,8 @@
         end else
             if FromDocType = "Purchase Document Type From"::"Posted Invoice" then
                 TestPurchEfecs(FromDocType, ToPurchHeader, FromPurchInvHeader, VendLedgEntry);
+		
+        OnAfterUpdateVendLedgEntry(ToPurchHeader, FromDocNo);
     end;
 
     local procedure UpdatePurchCreditMemoHeader(var PurchaseHeader: Record "Purchase Header")
@@ -7356,11 +7362,23 @@
         ToSalesLine."Ret. Qty. Rcd. Not Invd.(Base)" := 0;
         ToSalesLine."Shipped Not Invoiced (LCY)" := 0;
         ToSalesLine."Return Rcd. Not Invd. (LCY)" := 0;
-        ToSalesLine."Job No." := '';
-        ToSalesLine."Job Task No." := '';
-        ToSalesLine."Job Contract Entry No." := 0;
+        InitJobFieldsForSalesLine(ToSalesLine);
 
         OnAfterInitSalesLineFields(ToSalesLine);
+    end;
+
+    local procedure InitJobFieldsForSalesLine(var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitJobFieldsForSalesLine(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine."Job No." := '';
+        SalesLine."Job Task No." := '';
+        SalesLine."Job Contract Entry No." := 0;
     end;
 
     local procedure InitPurchLineFields(var ToPurchLine: Record "Purchase Line")
@@ -7794,6 +7812,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitJobFieldsForSalesLine(var ToSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySalesInvLinesToBuffer(var FromSalesLine: Record "Sales Line"; var FromSalesInvLine: Record "Sales Invoice Line"; var ToSalesHeader: Record "Sales Header")
     begin
     end;
@@ -7990,6 +8013,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyArchPurchLine(ToPurchHeader: Record "Purchase Header"; var ToPurchaseLine: Record "Purchase Line"; FromPurchaseLineArchive: Record "Purchase Line Archive"; IncludeHeader: Boolean; RecalculateLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFieldsFromOldPurchHeaderProcedure(var PurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -8194,7 +8222,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateVendLedgEntry(var PurchaseHeader: Record "Purchase Header"; FromDocumentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLine(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesLineOnAfterSetReserve(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -8269,7 +8307,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertToSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; FromDocType: Option; RecalcLines: Boolean; var ToSalesHeader: Record "Sales Header"; DocLineNo: Integer; var NextLineNo: Integer)
+    local procedure OnBeforeInsertToSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; FromDocType: Option; RecalcLines: Boolean; var ToSalesHeader: Record "Sales Header"; DocLineNo: Integer; var NextLineNo: Integer; RecalculateAmount: Boolean)
     begin
     end;
 
@@ -8504,7 +8542,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRecalculateAndApplySalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; Currency: Record Currency; ExactCostRevMandatory: Boolean; RecalculateAmount: Boolean; CreateToHeader: Boolean; MoveNegLines: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeRecalculateAndApplySalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; Currency: Record Currency; var ExactCostRevMandatory: Boolean; var RecalculateAmount: Boolean; var CreateToHeader: Boolean; MoveNegLines: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8694,7 +8732,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyPurchDocOnBeforeUpdatePurchInvoiceDiscountValue(var ToPurchaseHeader: Record "Purchase Header"; FromDocType: Option; FromDocNo: Code[20]; FromDocOccurrenceNo: Integer; FromDocVersionNo: Integer; RecalculateLines: Boolean)
+    local procedure OnCopyPurchDocOnBeforeUpdatePurchInvoiceDiscountValue(var ToPurchaseHeader: Record "Purchase Header"; FromDocType: Option; FromDocNo: Code[20]; FromDocOccurrenceNo: Integer; FromDocVersionNo: Integer; RecalculateLines: Boolean; FromPurchHeader: Record "Purchase Header"; LinesNotCopied: Integer; NextLineNo: Integer; MissingExCostRevLink: Boolean)
     begin
     end;
 
@@ -9095,6 +9133,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocLineOnAfterValidateQuantityMoveNegLines(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopySalesDocLineOnAfterMoveNegLines(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
     begin
     end;
 

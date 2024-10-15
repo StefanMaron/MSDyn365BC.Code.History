@@ -15,6 +15,7 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             var
+                CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -24,6 +25,8 @@ table 10751 "SII Setup"
 
                 if Enabled and ("Certificate Code" = '') then
                     Error(CannotEnableWithoutCertificateErr);
+                IF Enabled then
+                    Enabled := CustomerConsentMgt.ConfirmUserConsent();
             end;
         }
         field(3; Certificate; BLOB)
@@ -118,7 +121,7 @@ table 10751 "SII Setup"
                 SIIJobManagement: Codeunit "SII Job Management";
             begin
                 if "Auto Missing Entries Check" = xRec."Auto Missing Entries Check" then
-                  exit;
+                    exit;
 
                 SIIJobManagement.RestartJobQueueEntryForMissingEntryCheck("Auto Missing Entries Check");
             end;
@@ -127,7 +130,7 @@ table 10751 "SII Setup"
         {
             Caption = 'Include ImporteTotal';
         }
-        field(40;"SuministroInformacion Schema";Text[2048])
+        field(40; "SuministroInformacion Schema"; Text[2048])
         {
             InitValue = 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd';
         }
@@ -142,7 +145,7 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             begin
-                Enabled := "Certificate Code" <> '';
+                Validate(Enabled, "Certificate Code" <> '');
             end;
         }
     }
@@ -168,17 +171,18 @@ table 10751 "SII Setup"
         CannotEnableWithoutCertificateErr: Label 'The setup cannot be enabled without a valid certificate.';
         SiiTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd', Locked = true;
         SiiLRTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd', Locked = true;
+
     procedure IsEnabled(): Boolean
     begin
         if not Get then
-          exit(false);
+            exit(false);
         exit(Enabled);
     end;
 
     procedure SetDefaults()
     begin
         if ("SuministroInformacion Schema" <> '') and ("SuministroLR Schema" <> '') then
-          exit;
+            exit;
         "SuministroInformacion Schema" := SiiTxt;
         "SuministroLR Schema" := SiiLRTxt;
         Modify(true);
