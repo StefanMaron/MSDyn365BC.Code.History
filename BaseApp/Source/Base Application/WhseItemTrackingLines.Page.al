@@ -137,7 +137,7 @@ page 6550 "Whse. Item Tracking Lines"
                         MaxQuantity: Decimal;
                     begin
                         if ColorOfQuantityArray[1] = 0 then
-                            MaxQuantity := UndefinedQtyArray[1] + ("Quantity (Base)" - "Quantity Handled (Base)");
+                            MaxQuantity := UndefinedQtyArray[1];
 
                         LookUpTrackingSummary(Rec, 0, MaxQuantity, -1, true);
                         CurrPage.Update;
@@ -166,7 +166,7 @@ page 6550 "Whse. Item Tracking Lines"
                         MaxQuantity: Decimal;
                     begin
                         if ColorOfQuantityArray[1] = 0 then
-                            MaxQuantity := UndefinedQtyArray[1] + ("Quantity (Base)" - "Quantity Handled (Base)");
+                            MaxQuantity := UndefinedQtyArray[1];
 
                         LookUpTrackingSummary(Rec, 1, MaxQuantity, -1, true);
                         CurrPage.Update;

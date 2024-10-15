@@ -2726,12 +2726,6 @@ codeunit 99000845 "Reservation Management"
         QtyToTrack: Decimal;
     begin
         CalcReservEntry.TestField("Source Type");
-        if CalcReservEntry."Item No." = '' then
-            exit;
-
-        GetItemSetup(CalcReservEntry);
-        if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
-            exit;
 
         if CalcReservEntry."Source Type" in [DATABASE::"Sales Line", DATABASE::"Purchase Line", DATABASE::"Service Line"] then
             if not (CalcReservEntry."Source Subtype" in [1, 5]) then
@@ -2741,6 +2735,15 @@ codeunit 99000845 "Reservation Management"
         then
             if CalcReservEntry."Source Subtype" = 0 then
                 exit; // Not simulation
+        if CalcReservEntry."Source Type" = DATABASE::"Item Journal Line" then
+            exit;
+
+        if CalcReservEntry."Item No." = '' then
+            exit;
+
+        GetItemSetup(CalcReservEntry);
+        if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
+            exit;
 
         CalcReservEntry.Lock;
 

@@ -1561,6 +1561,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         with BinContent do begin
             SetRange("Location Code", WhseActivLine."Location Code");
+            if FromBinCode <> '' then
+                SetRange("Bin Code", FromBinCode);
             SetRange("Item No.", WhseActivLine."Item No.");
             SetRange("Variant Code", WhseActivLine."Variant Code");
             SetRange("Serial No. Filter", SerialNo);

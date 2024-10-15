@@ -343,7 +343,6 @@ table 26570 "XML Element Line"
         StatutoryReportSetup: Record "Statutory Report Setup";
         FormatVersion: Record "Format Version";
         ExcelMgt: Codeunit "Excel Management";
-        XlRangeValueDataType: DotNet XlRangeValueDataType;
         Text001: Label '%1 cannot be deleted because %2 %3 contains report data.';
         Text002: Label '%1 cannot be inserted because %2 %3 contains report data.';
         Text003: Label '''%1'' can not be formated to %2 for %3.';

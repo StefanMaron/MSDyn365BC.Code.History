@@ -475,7 +475,7 @@ page 1310 "O365 Activities"
             NewRecord := true;
         end;
 
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
 
         HasCamera := Camera.IsAvailable();
 
