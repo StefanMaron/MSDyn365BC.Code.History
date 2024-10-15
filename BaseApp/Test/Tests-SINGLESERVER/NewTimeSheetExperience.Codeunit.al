@@ -16,6 +16,8 @@ codeunit 136506 "New Time Sheet Experience"
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryHumanResource: Codeunit "Library - Human Resource";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryJob: Codeunit "Library - Job";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         TimeSheetV2Enabled: Boolean;
@@ -1665,6 +1667,53 @@ codeunit 136506 "New Time Sheet Experience"
         UnbindSubscription(NewTimeSheetExperience);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestJobJnlLinesRequestPageHandler,ConfirmHandlerYes,MessageHandler')]
+    procedure CopyTimeSheetLinesWithDetailsAfterPosting()
+    var
+        FromTimeSheetHeader: Record "Time Sheet Header";
+        FromTimeSheetLine: Record "Time Sheet Line";
+        ToTimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetDetail: Record "Time Sheet Detail";
+        JobJournalLine: Record "Job Journal Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        TimeSheetMgt: Codeunit "Time Sheet Management";
+    begin
+        // [SCENARIO 421957] "Copy lines from previous time sheet" for Time Sheet which lines were posted.
+        Initialize();
+
+        // [GIVEN] Job "J" with Job Task "T".
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Time Sheet "S1" with one Time Sheet Line that has five Time Sheet Detail.
+        // [GIVEN] Time Sheet Line has Job No. "J" and Job Task No. "T".
+        LibraryTimeSheet.CreateTimeSheet(FromTimeSheetHeader, true);
+        CreateTimeSheetLineWithTimeAllocaiton(FromTimeSheetLine, FromTimeSheetHeader, "Time Sheet Line Type"::Job, Job."No.", JobTask."Job Task No.");
+
+        // [GIVEN] Submitted and approved Time Sheet Line.
+        LibraryTimeSheet.SubmitAndApproveTimeSheetLine(FromTimeSheetLine);
+
+        // [GIVEN] Job Journal Lines suggested from Time Sheet "S1" and posted.
+        InitJobJournalLine(JobJournalLine);
+        LibraryTimeSheet.RunSuggestJobJnlLinesReportForResourceInPeriod(
+            JobJournalLine, FromTimeSheetHeader."Resource No.", WorkDate(), CalcDate('<1M>', WorkDate()));
+        TimeSheetDetail.SetRange("Time Sheet No.", FromTimeSheetHeader."No.");
+        Assert.RecordCount(JobJournalLine, TimeSheetDetail.Count);
+        PostJobJournalLine(JobJournalLine);
+
+        // [GIVEN] Create time sheet "S2" without Time Sheet Lines.
+        TimeSheetCreate(FromTimeSheetHeader."Ending Date" + 1, 1, FromTimeSheetHeader."Resource No.", ToTimeSheetHeader);
+        ToTimeSheetHeader.FindLast();
+
+        // [WHEN] Run function "Copy lines from previous time sheet" for Time Sheet "S2".
+        TimeSheetMgt.CopyPrevTimeSheetLines(ToTimeSheetHeader);
+
+        // [THEN] Time Sheet Details were copied from "S1" to "S2" with Posted Quantity = 0.
+        VerifyCopiedTimeSheetDetails(FromTimeSheetHeader, FromTimeSheetLine, ToTimeSheetHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1690,6 +1739,16 @@ codeunit 136506 "New Time Sheet Experience"
         for i := 1 to 5 do
             LibraryTimeSheet.CreateTimeSheetDetail(
                 TimeSheetLine, TimeSheetHeader."Starting Date" + i - 1, LibraryRandom.RandDec(10, 2));
+    end;
+
+    local procedure CreateTimeSheetLineWithTimeAllocaiton(var TimeSheetLine: Record "Time Sheet Line"; TimeSheetHeader: Record "Time Sheet Header"; LineType: Enum "Time Sheet Line Type"; JobNo: Code[20]; JobTaskNo: Code[20])
+    var
+        i: Integer;
+    begin
+        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, LineType, JobNo, JobTaskNo, '', '');
+        for i := 1 to 5 do
+            LibraryTimeSheet.CreateTimeSheetDetail(
+                TimeSheetLine, TimeSheetHeader."Starting Date" + i - 1, LibraryRandom.RandDecInRange(5, 15, 2));
     end;
 
     local procedure CreateTimeSheetWithLines(var TimeSheetHeader: Record "Time Sheet Header"; Submit: Boolean; Approve: Boolean; Reject: Boolean)
@@ -1765,6 +1824,29 @@ codeunit 136506 "New Time Sheet Experience"
     begin
         BindSubscription(NewTimeSheetExperience);
         NewTimeSheetExperience.SetTimeSheetV2Enabled(false);
+    end;
+
+    local procedure InitJobJournalLine(var JobJournalLine: Record "Job Journal Line")
+    var
+        JobJournalTemplate: Record "Job Journal Template";
+        JobJournalBatch: Record "Job Journal Batch";
+    begin
+        LibraryJob.CreateJobJournalTemplate(JobJournalTemplate);
+        JobJournalTemplate."Increment Batch Name" := true;
+        JobJournalTemplate.Modify();
+
+        LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
+        JobJournalLine.Init();
+        JobJournalLine.Validate("Journal Template Name", JobJournalTemplate.Name);
+        JobJournalLine.Validate("Journal Batch Name", JobJournalBatch.Name);
+        JobJournalLine.SetRange("Journal Template Name", JobJournalLine."Journal Template Name");
+        JobJournalLine.SetRange("Journal Batch Name", JobJournalLine."Journal Batch Name");
+    end;
+
+    local procedure PostJobJournalLine(var JobJournalLine: Record "Job Journal Line")
+    begin
+        JobJournalLine.ModifyAll("Document No.", LibraryUtility.GenerateGUID());
+        LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
     procedure SetTimeSheetV2Enabled(NewTimeSheetV2Enabled: Boolean)
@@ -1861,6 +1943,7 @@ codeunit 136506 "New Time Sheet Experience"
             ToTimeSheetDetail.TestField(Posted, false);
             ToTimeSheetDetail.TestField(Status, "Time Sheet Status"::Open);
             ToTimeSheetDetail.TestField(Quantity, FromTimeSheetDetail.Quantity);
+            ToTimeSheetDetail.TestField("Posted Quantity", 0);
             ToTimeSheetDetail.TestField(Date, CalcDate('<+7D>', FromTimeSheetDetail.Date));
 
             ToTimeSheetDetail.Next();
@@ -1875,6 +1958,11 @@ codeunit 136506 "New Time Sheet Experience"
     procedure GetTimeSheetArchiveCardOwnerUserIDFilter(): Text
     begin
         exit(TimeSheetArchiveCardOwnerUserIDFilter);
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(MessageText: Text[1024])
+    begin
     end;
 
     [ConfirmHandler]
@@ -1924,6 +2012,12 @@ codeunit 136506 "New Time Sheet Experience"
     procedure CreateTimeSheetsHandler(var CreateTimeSheets: TestRequestPage "Create Time Sheets")
     begin
         CreateTimeSheets.Cancel().Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure SuggestJobJnlLinesRequestPageHandler(var SuggestJobJnlLines: TestRequestPage "Suggest Job Jnl. Lines")
+    begin
+        SuggestJobJnlLines.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]

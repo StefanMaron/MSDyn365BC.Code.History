@@ -17,8 +17,8 @@ codeunit 419 "File Management"
         PathHelper: DotNet Path;
         [RunOnClient]
         DirectoryHelper: DotNet Directory;
-        [RunOnClient]
 #if not CLEAN17
+        [RunOnClient]
         ClientFileHelper: DotNet File;
 #endif
         ServerFileHelper: DotNet File;

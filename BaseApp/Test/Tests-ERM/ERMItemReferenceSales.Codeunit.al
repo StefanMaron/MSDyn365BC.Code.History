@@ -1345,6 +1345,57 @@ codeunit 134463 "ERM Item Reference Sales"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemReferenceListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ICRLookupSalesItemWhenSameCustomerForSameItemDifferentVariants()
+    var
+        ItemReference: array[2] of Record "Item Reference";
+        SalesLine: Record "Sales Line";
+        ItemVariant: Record "Item Variant";
+        CustNo: Code[20];
+        ItemRefNo: Code[50];
+        Index: Integer;
+        ItemNo: Code[20];
+        VariantCode: array[2] of Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 289240] Customers: C Item: I, Variants: A,B Item References: IA, IB
+        // [SCENARIO 289240] Page Item Reference List allow to select variant B
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
+        CustNo := LibrarySales.CreateCustomerNo();
+        VariantCode[1] := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
+        VariantCode[2] := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
+        ItemRefNo :=
+          LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
+        LibraryVariableStorage.Enqueue(ItemRefNo);
+
+        // [GIVEN] Three Item References for Item 1000 with No = 1234, Variant = A,B
+        for Index := 1 to ArrayLen(VariantCode) do begin
+            LibraryItemReference.CreateItemReference(
+              ItemReference[Index], ItemNo, VariantCode[Index], '', "Item Reference Type"::Customer, CustNo, ItemRefNo);
+            EnqueueItemReferenceFields(ItemReference[Index]);
+        end;
+
+        // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
+        MockSalesLineForICRLookupSalesItem(SalesLine, CustNo, ItemRefNo);
+
+        // [GIVEN] Ran ICRLookupSalesItem from codeunit Dist. Integration for the Sales Line with ShowDialog = TRUE
+        ItemReferenceMgt.ReferenceLookupSalesItem(SalesLine, ItemReference[1], true);
+
+        // [GIVEN] Stan selected the second one
+        // Done in ItemReferenceListModalPageHandler
+
+        // [WHEN] Push OK on page Item Reference List
+        // Done in ItemReferenceListModalPageHandler
+
+        // [THEN] ICRLookupSalesItem returns Item Reference with Variant Code = B
+        ItemReference[1].TestField("Item No.", ItemReference[2]."Item No.");
+        ItemReference[1].TestField("Variant Code", ItemReference[2]."Variant Code");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Reference Sales");
