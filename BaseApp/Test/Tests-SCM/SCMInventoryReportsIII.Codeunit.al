@@ -193,10 +193,77 @@ codeunit 137350 "SCM Inventory Reports - III"
         CreateAndPostItemJournalForRevaluation(Item."No.", WorkDate);
 
         // Exercise: Run Inventory Valuation Cost Specification Report.
-        RunInvtValuationCostSpecReport(Item."No.");
+        RunInvtValuationCostSpecReport(Item."No.", WorkDate());
 
         // Verify: Verify Inventory Valuation Cost Specification Report.
         VerifyInvtValuationCostSpecReport(Item."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerInvSetup,MessageHandlerInvtSetup,InvtValuationCostSpecRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure S474285_InvtValuationCostSpecReportWithAverageCostingAfterRevaluation()
+    var
+        Item: Record Item;
+        InventorySetup: Record "Inventory Setup";
+        ItemJournalLine: Record "Item Journal Line";
+        PositiveQty: array[2] of Decimal;
+        NegativeQty: Decimal;
+        PositiveUnitCost: array[2] of Decimal;
+        AverageUnitCost: Decimal;
+        RemainingInventory: Decimal;
+        DecimalVariant: Variant;
+    begin
+        // [FEATURE] [Invt. Valuation - Cost Spec.] [Average Costing Method]
+        // [SCENARIO 474285] Verify Inventory Valuation Cost Specification Report when Item is using Average Costing Method.
+        Initialize();
+
+        // [GIVEN] Update Inventory Setup.
+        LibraryInventory.UpdateInventorySetup(
+          InventorySetup, true, false, InventorySetup."Automatic Cost Adjustment"::Always,
+          InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant", InventorySetup."Average Cost Period"::Month);
+
+        // [GIVEN] Create Item with Average Costing Method.
+        CreateAndUpdateItem(Item, Item.Reserve::Never, Item."Reordering Policy"::" ", 0, 0, Item."Costing Method"::Average, '', '');  // Pass zero values for Maximum Inventory and Reordering Point.
+        Item.Validate("Unit Cost", 0);
+        Item.Modify(true);
+
+        // [GIVEN] Create and post Item Journals: 1st Positive Adjustment, Negative Adjustment, 2nd Positive Adjustment.
+        PositiveQty[1] := LibraryRandom.RandDecInRange(2, 10, 2);
+        PositiveQty[2] := LibraryRandom.RandDecInRange(2, 10, 2);
+        NegativeQty := LibraryRandom.RandDecInRange(1, 5, 2);
+        PositiveUnitCost[1] := LibraryRandom.RandDec(100, 2);
+        PositiveUnitCost[2] := LibraryRandom.RandDec(100, 2);
+
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", CalcDate('<-CM>', WorkDate()), PositiveUnitCost[1], PositiveQty[1]);
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", CalcDate('<-CM + 1D>', WorkDate()), 0, NegativeQty);
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", CalcDate('<-CM + 3D>', WorkDate()), PositiveUnitCost[2], PositiveQty[2]);
+        Commit();
+
+        // [WHEN] Run Inventory Valuation Cost Specification Report for end of Month.
+        RunInvtValuationCostSpecReport(Item."No.", CalcDate('<+CM>', WorkDate())); // Uses InvtValuationCostSpecRequestPageHandler.
+
+        // [THEN] Verify Inventory Valuation Cost Specification Report.
+        Item.GetBySystemId(Item.SystemId);
+        if Item."Unit Cost" <> 0 then
+            AverageUnitCost := Item."Unit Cost"
+        else
+            AverageUnitCost := (PositiveQty[1] * PositiveUnitCost[1] + PositiveQty[2] * PositiveUnitCost[2]) / (PositiveQty[1] + PositiveQty[2]);
+        RemainingInventory := PositiveQty[1] - NegativeQty + PositiveQty[2];
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+
+        // [THEN] Verify Direct Cost - Unit Cost.
+        LibraryReportDataset.FindCurrentRowValue('UnitCost1', DecimalVariant);
+        Assert.AreNearlyEqual(AverageUnitCost, DecimalVariant, LibraryERM.GetAmountRoundingPrecision(), ValueNotMatchedError);
+
+        // [THEN] Verify Direct Cost - Verify Quantity.
+        LibraryReportDataset.AssertCurrentRowValueEquals('RemainingQty', RemainingInventory);
+
+        // [THEN] Verify Direct Cost - Amount.
+        LibraryReportDataset.FindCurrentRowValue('TotalCost', DecimalVariant);
+        Assert.AreNearlyEqual(AverageUnitCost * RemainingInventory, DecimalVariant, LibraryERM.GetAmountRoundingPrecision(), ValueNotMatchedError);
     end;
 
     [Test]
@@ -2246,12 +2313,12 @@ codeunit 137350 "SCM Inventory Reports - III"
         REPORT.Run(REPORT::"Item Substitutions", true, false, Item);
     end;
 
-    local procedure RunInvtValuationCostSpecReport(No: Code[20])
+    local procedure RunInvtValuationCostSpecReport(No: Code[20]; ValuationDate: Date)
     var
         Item: Record Item;
     begin
         Item.SetRange("No.", No);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(ValuationDate);
         REPORT.Run(REPORT::"Invt. Valuation - Cost Spec.", true, false, Item);
     end;
 
@@ -2953,11 +3020,11 @@ codeunit 137350 "SCM Inventory Reports - III"
     [Scope('OnPrem')]
     procedure InvtValuationCostSpecRequestPageHandler(var InvtValuationCostSpec: TestRequestPage "Invt. Valuation - Cost Spec.")
     var
-        ValuationDate: Variant;
+        ValuationDateVariant: Variant;
     begin
-        LibraryVariableStorage.Dequeue(ValuationDate);
-        InvtValuationCostSpec.ValuationDate.SetValue(ValuationDate);
-        InvtValuationCostSpec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LibraryVariableStorage.Dequeue(ValuationDateVariant);
+        InvtValuationCostSpec.ValuationDate.SetValue(ValuationDateVariant);
+        InvtValuationCostSpec.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

@@ -72,6 +72,9 @@
       "path": "./Email - Outlook REST API/Test"
     },
     {
+      "path": "./paymentpractices/test/Payment Practices Tests"
+    },
+    {
       "path": "./shopify/test/Shopify Connector Test"
     },
     {
