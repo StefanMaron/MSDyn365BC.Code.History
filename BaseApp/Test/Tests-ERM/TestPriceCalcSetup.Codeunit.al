@@ -2356,7 +2356,7 @@ codeunit 134158 "Test Price Calc. Setup"
         UnbindSubscription(TestPriceCalcSetup); // to deactivate OnAfterGetAssetTypeHandler
 
         // [THEN] FindActivePricingSubscription() returns No
-        Assert.AreEqual('7020-OnAfterGetAssetTypeHandler;Manual-0;', PriceCalculationMgt.FindActiveSubscriptions(), 'unbound');
+        Assert.AreEqual('7020-OnAfterGetAssetTypeHandler;Manual-0;7021-OnAfterSetFilterByFilterPageBuilder;Manual-0;', PriceCalculationMgt.FindActiveSubscriptions(), 'unbound');
     end;
 
     local procedure Initialize()

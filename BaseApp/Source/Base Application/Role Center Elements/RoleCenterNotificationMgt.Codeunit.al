@@ -678,7 +678,6 @@ codeunit 1430 "Role Center Notification Mgt."
     local procedure StartTrial()
     var
         UserPermissions: Codeunit "User Permissions";
-        SessionSetting: SessionSettings;
         CompanyName: Text;
     begin
         if not (UserPermissions.IsSuper(UserSecurityId) and FindNonEvaluationCompany(CompanyName)) then begin
@@ -686,37 +685,7 @@ codeunit 1430 "Role Center Notification Mgt."
             exit;
         end;
 
-        ClickEvaluationNotification;
-        Commit();
-
-        DisableEvaluationNotification;
-
-        SessionSetting.Init();
-        SessionSetting.Company(CompanyName);
-        SetProfileForNewSession(SessionSetting);
-        SessionSetting.RequestSessionUpdate(true)
-    end;
-
-    local procedure SetProfileForNewSession(var SessionSettings: SessionSettings)
-    var
-        UserPersonalization: Record "User Personalization";
-        AllProfile: Record "All Profile";
-    begin
-        // if the user is starting the trial from an evaluation company where they were currently on the 'Business Manager Evaluation' 
-        // role center, they should be redirected to the Business Manager role center in the production company
-
-        if not UserPersonalization.Get(UserSecurityId()) then
-            exit;
-
-        if UserPersonalization."Profile ID" <> 'BUSINESS MANAGER EVALUATION' then
-            exit;
-
-        AllProfile.SetRange("Role Center ID", Page::"Business Manager Role Center");
-        if AllProfile.FindFirst() then begin
-            SessionSettings.ProfileId := AllProfile."Profile ID";
-            SessionSettings.ProfileAppId := AllProfile."App ID";
-            SessionSettings.ProfileSystemScope := (AllProfile.Scope = AllProfile.Scope::System);
-        end;
+        Codeunit.Run(Codeunit::"Start Trial");
     end;
 
     local procedure FindNonEvaluationCompany(var CompanyName: Text): Boolean
@@ -749,13 +718,6 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         DisableBuyNotification;
         HyperLink(ContactAPartnerURLTxt);
-    end;
-
-    local procedure ClickEvaluationNotification()
-    var
-        RoleCenterNotifications: Record "Role Center Notifications";
-    begin
-        RoleCenterNotifications.SetEvaluationNotificationState(RoleCenterNotifications."Evaluation Notification State"::Clicked);
     end;
 
     procedure DisableEvaluationNotification()

@@ -140,6 +140,7 @@
                     ApplicationArea = Advanced;
                     Importance = Additional;
                     ToolTip = 'Specifies if multiple posting groups can be used for the same customer in sales documents.';
+                    Visible = false;
                 }
                 field("Validate Document On Posting"; "Validate Document On Posting")
                 {

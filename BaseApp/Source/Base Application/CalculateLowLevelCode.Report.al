@@ -1,6 +1,6 @@
 report 152 "Calculate Low Level Code"
 {
-    ApplicationArea = Manufacturing;
+    ApplicationArea = Planning;
     Caption = 'Calculate Low Level Code';
     ProcessingOnly = true;
     UsageCategory = Tasks;

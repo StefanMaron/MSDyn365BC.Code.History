@@ -95,8 +95,11 @@ codeunit 144173 "ERM IT Prepayment II"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         AmountErr: Label 'Amount must be equal.';
         PrepaymentDueDateErr: Label 'Prepayment Due Date must have a value in %1: Document Type=Order, No.=%2. It cannot be zero or empty.';
+        ConfirmPurchaseChangeVATBusPostingGroupTxt: Label 'If you change VAT Bus. Posting Group, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.';
+        ConfirmSalesChangeVATBusPostingGroupTxt: Label 'If you change VAT Bus. Posting Group, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1029,8 +1032,6 @@ codeunit 144173 "ERM IT Prepayment II"
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
-        SalesCreditMemosTestPage: TestPage "Sales Credit Memos";
-        SalesCreditMemoTestPage: TestPage "Sales Credit Memo";
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales] [Credit Memo] [UT]
@@ -1079,8 +1080,6 @@ codeunit 144173 "ERM IT Prepayment II"
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
-        SalesCreditMemosTestPage: TestPage "Sales Credit Memos";
-        SalesCreditMemoTestPage: TestPage "Sales Credit Memo";
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales] [Invoice] [UT]
@@ -1096,6 +1095,174 @@ codeunit 144173 "ERM IT Prepayment II"
 
         SalesHeader.TestField("Operation Type", VATBusinessPostingGroup."Default Sales Operation Type");
         SalesHeader.TestField("Posting No. Series", VATBusinessPostingGroup."Default Sales Operation Type");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ValidatingConfirmHandler')]
+    procedure SetOperationTypeWhenVATBusPostingGroupValidateOnPurchaseCreditMemoHeader()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        VATBusinessPostingGroup: array[2] of Record "VAT Business Posting Group";
+        Vendor: Record Vendor;
+    begin
+        // [FEATURE] [Purchase] [Credit Memo] [UT]
+        // [SCENARIO 436558] System sets "Posting No. Series" and "Operation Type" from VAT Business Posting Group validated on Purchase Credit Memo with vendor.
+        CreateVATPostingSetupWithCustomOperationTypes(VATPostingSetup[1]);
+        VATBusinessPostingGroup[1].Get(VATPostingSetup[1]."VAT Bus. Posting Group");
+        CreateVATPostingSetupWithCustomOperationTypes(VATPostingSetup[2], VATPostingSetup[1]."VAT Prod. Posting Group");
+        VATBusinessPostingGroup[2].Get(VATPostingSetup[2]."VAT Bus. Posting Group");
+
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusinessPostingGroup[1].Code));
+
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Insert(true);
+
+        PurchaseHeader.TestField("Operation Type", VATBusinessPostingGroup[1]."Default Purch. Operation Type");
+        PurchaseHeader.TestField("Posting No. Series", VATBusinessPostingGroup[1]."Default Purch. Operation Type");
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader,
+            PurchaseLine.Type::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup[1]."VAT Prod. Posting Group"), 1);
+
+        LibraryVariableStorage.Enqueue(ConfirmPurchaseChangeVATBusPostingGroupTxt);
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup[2].Code);
+        PurchaseHeader.Modify(true);
+
+        PurchaseHeader.TestField("Operation Type", VATBusinessPostingGroup[2]."Default Purch. Operation Type");
+        PurchaseHeader.TestField("Posting No. Series", VATBusinessPostingGroup[2]."Default Purch. Operation Type");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ValidatingConfirmHandler')]
+    procedure SetOperationTypeWhenVATBusPostingGroupValidateOnSalesCreditMemoHeader()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        VATBusinessPostingGroup: array[2] of Record "VAT Business Posting Group";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [UT]
+        // [SCENARIO 436558] System sets "Posting No. Series" and "Operation Type" from VAT Business Posting Group validated on Sales Credit Memo with customer.
+        CreateVATPostingSetupWithCustomOperationTypes(VATPostingSetup[1]);
+        VATBusinessPostingGroup[1].Get(VATPostingSetup[1]."VAT Bus. Posting Group");
+        CreateVATPostingSetupWithCustomOperationTypes(VATPostingSetup[2], VATPostingSetup[1]."VAT Prod. Posting Group");
+        VATBusinessPostingGroup[2].Get(VATPostingSetup[2]."VAT Bus. Posting Group");
+
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusinessPostingGroup[1].Code));
+
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Insert(true);
+
+        SalesHeader.TestField("Operation Type", VATBusinessPostingGroup[1]."Default Sales Operation Type");
+        SalesHeader.TestField("Posting No. Series", VATBusinessPostingGroup[1]."Default Sales Operation Type");
+
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader,
+            SalesLine.Type::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup[1]."VAT Prod. Posting Group"), 1);
+
+        LibraryVariableStorage.Enqueue(ConfirmSalesChangeVATBusPostingGroupTxt);
+        LibraryVariableStorage.Enqueue(true);
+        SalesHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup[2].Code);
+        SalesHeader.Modify(true);
+
+        SalesHeader.TestField("Operation Type", VATBusinessPostingGroup[2]."Default Sales Operation Type");
+        SalesHeader.TestField("Posting No. Series", VATBusinessPostingGroup[2]."Default Sales Operation Type");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ValidatingConfirmHandler')]
+    procedure SetOperationTypeWhenVATBusPostingGroupValidateOnPurchaseInvoiceHeader()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        VATBusinessPostingGroup: array[2] of Record "VAT Business Posting Group";
+        Vendor: Record Vendor;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [UT]
+        // [SCENARIO 436558] System sets "Posting No. Series" and "Operation Type" from VAT Business Posting Group validated on Purchase Invoice with vendor.
+        CreateVATPostingSetupWithCustomOperationTypes(VATPostingSetup[1]);
+        VATBusinessPostingGroup[1].Get(VATPostingSetup[1]."VAT Bus. Posting Group");
+        CreateVATPostingSetupWithCustomOperationTypes(VATPostingSetup[2], VATPostingSetup[1]."VAT Prod. Posting Group");
+        VATBusinessPostingGroup[2].Get(VATPostingSetup[2]."VAT Bus. Posting Group");
+
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusinessPostingGroup[1].Code));
+
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Insert(true);
+
+        PurchaseHeader.TestField("Operation Type", VATBusinessPostingGroup[1]."Default Purch. Operation Type");
+        PurchaseHeader.TestField("Posting No. Series", VATBusinessPostingGroup[1]."Default Purch. Operation Type");
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader,
+            PurchaseLine.Type::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup[1]."VAT Prod. Posting Group"), 1);
+
+        LibraryVariableStorage.Enqueue(ConfirmPurchaseChangeVATBusPostingGroupTxt);
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup[2].Code);
+        PurchaseHeader.Modify(true);
+
+        PurchaseHeader.TestField("Operation Type", VATBusinessPostingGroup[2]."Default Purch. Operation Type");
+        PurchaseHeader.TestField("Posting No. Series", VATBusinessPostingGroup[2]."Default Purch. Operation Type");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ValidatingConfirmHandler')]
+    procedure SetOperationTypeWhenVATBusPostingGroupValidateOnSalesInvoiceHeader()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        VATBusinessPostingGroup: array[2] of Record "VAT Business Posting Group";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 436558] System sets "Posting No. Series" and "Operation Type" from VAT Business Posting Group validated on Sales Invoice with customer.
+        CreateVATPostingSetupWithCustomOperationTypes(VATPostingSetup[1]);
+        VATBusinessPostingGroup[1].Get(VATPostingSetup[1]."VAT Bus. Posting Group");
+        CreateVATPostingSetupWithCustomOperationTypes(VATPostingSetup[2], VATPostingSetup[1]."VAT Prod. Posting Group");
+        VATBusinessPostingGroup[2].Get(VATPostingSetup[2]."VAT Bus. Posting Group");
+
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusinessPostingGroup[1].Code));
+
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Insert(true);
+
+        SalesHeader.TestField("Operation Type", VATBusinessPostingGroup[1]."Default Sales Operation Type");
+        SalesHeader.TestField("Posting No. Series", VATBusinessPostingGroup[1]."Default Sales Operation Type");
+
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader,
+            SalesLine.Type::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup[1]."VAT Prod. Posting Group"), 1);
+
+        LibraryVariableStorage.Enqueue(ConfirmSalesChangeVATBusPostingGroupTxt);
+        LibraryVariableStorage.Enqueue(true);
+        SalesHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup[2].Code);
+        SalesHeader.Modify(true);
+
+        SalesHeader.TestField("Operation Type", VATBusinessPostingGroup[2]."Default Sales Operation Type");
+        SalesHeader.TestField("Posting No. Series", VATBusinessPostingGroup[2]."Default Sales Operation Type");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ApplyAndPostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
@@ -1149,15 +1316,26 @@ codeunit 144173 "ERM IT Prepayment II"
 
     local procedure CreateVATPostingSetupWithCustomOperationTypes(var VATPostingSetup: Record "VAT Posting Setup")
     var
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         VATBusinessPostingGroup.Validate("Default Purch. Operation Type", LibraryERM.CreateNoSeriesPurchaseCode());
         VATBusinessPostingGroup.Validate("Default Sales Operation Type", LibraryERM.CreateNoSeriesSalesCode());
         VATBusinessPostingGroup.Modify(true);
-        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        CreateVATPostingSetupWithCustomOperationTypes(VATPostingSetup, VATProductPostingGroup.Code);
+    end;
+
+    local procedure CreateVATPostingSetupWithCustomOperationTypes(var VATPostingSetup: Record "VAT Posting Setup"; VATProductPostingGroupCode: Code[20])
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VATBusinessPostingGroup.Validate("Default Purch. Operation Type", LibraryERM.CreateNoSeriesPurchaseCode());
+        VATBusinessPostingGroup.Validate("Default Sales Operation Type", LibraryERM.CreateNoSeriesSalesCode());
+        VATBusinessPostingGroup.Modify(true);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroupCode);
     end;
 
     local procedure PostSalesInvoiceAndGeneralJournalLine(GLAccountNo: Code[20]) DocumentNo: Code[20]
@@ -1473,6 +1651,14 @@ codeunit 144173 "ERM IT Prepayment II"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ValidatingConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]

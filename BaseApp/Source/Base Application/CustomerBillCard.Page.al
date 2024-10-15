@@ -209,6 +209,20 @@ page 12175 "Customer Bill Card"
                 RunObject = Report "List of Bank Receipts";
                 ToolTip = 'View the related list of bank receipts.';
             }
+            action(ExportBillToFloppyFile)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Export Bill to Floppy File';
+                Image = Export;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Export the document in the local format.';
+
+                trigger OnAction()
+                begin
+                    ExportToFloppyFile();
+                end;
+            }
         }
     }
 

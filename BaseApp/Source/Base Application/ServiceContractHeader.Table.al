@@ -15,7 +15,7 @@ table 5965 "Service Contract Header"
             begin
                 if "Contract No." <> xRec."Contract No." then begin
                     ServMgtSetup.Get();
-                    NoSeriesMgt.TestManual(ServMgtSetup."Service Contract Nos.");
+                    NoSeriesMgt.TestManual(GetServiceContractNos());
                     "No. Series" := '';
                 end;
             end;
@@ -1996,7 +1996,7 @@ table 5965 "Service Contract Header"
 
         if "Contract No." = '' then begin
             ServMgtSetup.TestField("Service Contract Nos.");
-            NoSeriesMgt.InitSeries(ServMgtSetup."Service Contract Nos.", xRec."No. Series", 0D,
+            NoSeriesMgt.InitSeries(GetServiceContractNos(), xRec."No. Series", 0D,
               "Contract No.", "No. Series");
         end;
     end;

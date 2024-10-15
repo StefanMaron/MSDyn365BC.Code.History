@@ -43,7 +43,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         UndoSalesRetReceiptMsg: Label 'Do you really want to undo the selected Return Receipt lines?';
         UndoChargeItemRetRcptMsg: Label 'Undo Return Receipt can be performed only for lines of type Item.';
         ChangeCurrCodeMessage: Label 'If you change';
-        ChangePostingDateMessage: Label 'You have changed the Posting Date on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.';
+        ChangePostingDateMessage: Label 'You have changed the Posting Date on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.';
         BeforeWorkDateErr: Label 'is before work date %1 in one or more of the assembly lines';
         AdjustCostErr: Label 'Cost Amount (Actual) for Assembled Item in Sale type item ledger entry should equal the negative of the sum of components''s cost after running adjust cost';
         ExpandBOMErr: Label 'BOM component should not exist for Item %1';

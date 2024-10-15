@@ -228,6 +228,50 @@ codeunit 139210 "JSON Buffer Tests"
         Assert.AreEqual(LongString, PropertyValue, 'Invalid string');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FormatJSONDateTimeWithoutSeconds()
+    var
+        TempJSONBuffer: Record "JSON Buffer" temporary;
+        DateTime: DotNet DateTime;
+        CultureInfo: DotNet CultureInfo;
+        DateTimeString: Text;
+        PropertyValue: Text;
+    begin
+        // [SCENARIO] JSON Buffer supports formatting DateTime containing no seconds and milliseconds
+        LibraryLowerPermissions.SetO365Basic;
+
+        // [WHEN] A JSON string containing a DateTime without seconds or milliseconds is read
+        DateTimeString := DateTime.UtcNow.ToString('yyyy-MM-ddTHH:mm', CultureInfo.InvariantCulture);
+        TempJSONBuffer.ReadFromText(StrSubstNo('{"Variable":"%1"}', DateTimeString));
+
+        // [THEN] JSON Buffer contains formatted DateTime without seconds or milliseconds
+        TempJSONBuffer.GetPropertyValue(PropertyValue, 'Variable');
+        Assert.IsFalse(PropertyValue.Contains('.'), 'DateTime contains seconds and milliseconds');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FormatJSONDateTimeWithSeconds()
+    var
+        TempJSONBuffer: Record "JSON Buffer" temporary;
+        DateTime: DotNet DateTime;
+        CultureInfo: DotNet CultureInfo;
+        DateTimeString: Text;
+        PropertyValue: Text;
+    begin
+        // [SCENARIO] JSON Buffer supports formatting DateTime containing seconds and milliseconds
+        LibraryLowerPermissions.SetO365Basic;
+
+        // [WHEN] A JSON string containing a DateTime with seconds and milliseconds is read
+        DateTimeString := DateTime.UtcNow.ToString('yyyy-MM-ddTHH:mm:ss.fff', CultureInfo.InvariantCulture);
+        TempJSONBuffer.ReadFromText(StrSubstNo('{"Variable":"%1"}', DateTimeString));
+
+        // [THEN] JSON Buffer contains formatted DateTime with seconds and milliseconds
+        TempJSONBuffer.GetPropertyValue(PropertyValue, 'Variable');
+        Assert.IsTrue(PropertyValue.Contains('.'), 'DateTime does not contain seconds and milliseconds');
+    end;
+
     local procedure VerifyJSONBuffer(var TempJSONBuffer: Record "JSON Buffer" temporary; Depth: Integer; TokenType: Option; Value: Text; ValueType: Text[250]; Path: Text[250])
     begin
         Assert.AreEqual(Depth, TempJSONBuffer.Depth, 'Incorrect depth');

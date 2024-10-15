@@ -2767,6 +2767,77 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure VerifyRemainingAmountOnPaymentReco()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccReconciliationTestPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountStatement: Record "Bank Account Statement";
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccLedgEntry: Record "Bank Account Ledger Entry";
+        GenJournalLine: array[5] of Record "Gen. Journal Line";
+        LastStatementNo: array[5] of Code[20];
+        StatementNo: Code[20];
+        EndingBalance: Decimal;
+        EndingBalanceBefore: Decimal;
+        Index: Integer;
+    begin
+        // [SCENARIO 439203] Ensure that Remining amount of Bank ledger entry when it is applied from reconciliation journal
+        Initialize();
+
+        // [GIVEN] Create a new vendor, bank
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        LastStatementNo[1] := '0';
+        LastStatementNo[2] := '1';
+        LastStatementNo[3] := '2';
+        LastStatementNo[4] := '22';
+        LastStatementNo[5] := '32';
+
+        // [GIVEN] Create and post a journal
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalBatch.Modify(true);
+
+        for Index := 1 to ArrayLen(GenJournalLine) do begin
+            LibraryERM.CreateGeneralJnlLine(
+                GenJournalLine[Index],
+                GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[Index]."Document Type"::Payment,
+                GenJournalLine[Index]."Account Type"::Vendor, Vendor."No.",
+                LibraryRandom.RandIntInRange(100, 200));
+            GenJournalLine[Index].Validate("Posting Date", DMY2Date(1, Index, 2021));
+            GenJournalLine[Index].Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine[Index]);
+        end;
+
+        // [WHEN] Apply and post payment reconciliation journal
+        EndingBalance := 0;
+        for Index := 1 to ArrayLen(GenJournalLine) do begin
+            EndingBalanceBefore := EndingBalance;
+            ManualApplyAndPostBankAccountReconciliation(BankAccount, LastStatementNo[Index], Vendor, GenJournalLine[Index], EndingBalance);
+            BankAccount.Find();
+            StatementNo := LastStatementNo[Index];
+            StatementNo := IncStr(StatementNo);
+            BankAccount.TestField("Last Statement No.", StatementNo);
+            BankAccount.TestField("Balance Last Statement", -EndingBalance);
+
+            BankAccountStatement.Get(BankAccount."No.", StatementNo);
+            BankAccountStatement.TestField("Balance Last Statement", -EndingBalanceBefore);
+            BankAccountStatement.TestField("Statement Ending Balance", -EndingBalance);
+        end;
+
+        // [THEN] Remaining amountof Bank ledger entry must be zero.
+        BankAccLedgEntry.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccLedgEntry.SetFilter("Remaining Amount", '<>%1', 0);
+        Assert.RecordIsEmpty(BankAccLedgEntry);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";

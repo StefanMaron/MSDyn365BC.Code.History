@@ -117,11 +117,11 @@ report 12172 "Cust Bills Floppy"
         OutFile.Close;
 
         if ServerFileName <> '' then begin
-            RBMgt.CopyServerFile(FileName, ServerFileName, true);
+            FileMgt.CopyServerFile(FileName, ServerFileName, true);
             exit;
         end;
 
-        if not Download(FileName, '', 'C:', '', ToFile) then
+        if not FileMgt.DownloadHandler(FileName, '', 'C:', '', ToFile) then
             exit;
 
         Message(Text1130023, ToFile);
@@ -144,7 +144,7 @@ report 12172 "Cust Bills Floppy"
         Clear(OutFile);
         OutFile.TextMode := true;
         OutFile.WriteMode := true;
-        FileName := RBMgt.ServerTempFileName('');
+        FileName := FileMgt.ServerTempFileName('');
         ToFile := 'EFFETTI.TXT';
         OutFile.Create(FileName);
     end;
@@ -155,7 +155,7 @@ report 12172 "Cust Bills Floppy"
         Cust: Record Customer;
         CustBankAcc: Record "Customer Bank Account";
         OldLines: Record "Customer Bill Line";
-        RBMgt: Codeunit "File Management";
+        FileMgt: Codeunit "File Management";
         LocalAppMgt: Codeunit LocalApplicationManagement;
         Window: Dialog;
         OutFile: File;

@@ -44,8 +44,6 @@ codeunit 104000 "Upgrade - BaseApp"
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
 
-        HybridDeployment.SanitizeCompanyBeforeUpgrade();
-
         ClearTemporaryTables();
 
         UpdateDefaultDimensionsReferencedIds();

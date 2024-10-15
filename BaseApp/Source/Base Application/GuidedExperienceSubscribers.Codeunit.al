@@ -49,6 +49,13 @@ codeunit 1878 "Guided Experience Subscribers"
         ReturnOrdersTitleTxt: Label 'Process sales returns';
         ReturnOrdersShortTitleTxt: Label 'Sales Return Orders';
         ReturnOrdersDescriptionTxt: Label 'Manage the return of products from customers to track warehouse receipt, refund, if applicable, and the reason for the return.';
+        TryWithYourOwnDataTitleTxt: Label 'Start a 30-day trial with your own data';
+        TryWithYourOwnDataShortTitleTxt: Label 'Try with your own data';
+        TryWithYourOwnDataDescriptionTxt: Label 'Try out Business Central in 30-day trial with your own data.';
+        ReadyToGoTitleTxt: Label 'Want to get started or learn more?';
+        ReadyToGoShortTitleTxt: Label 'Ready to go?';
+        ReadyToGoDescriptionTxt: Label 'Excited? You can get more elaborate demos from Business Central resellers, called Microsoft Partners. They can also help you buy a subscription. Contact a reseller here.';
+        ReadyToGoLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2198402', Locked = true;
 
     procedure GetYourSalesWithinOutlookVideoLinkTxt(): Text
     begin
@@ -58,11 +65,14 @@ codeunit 1878 "Guided Experience Subscribers"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterGuidedExperienceItem', '', false, false)]
     local procedure OnRegisterGuidedExperienceItem()
     var
+        Company: Record Company;
         GuidedExperience: Codeunit "Guided Experience";
+        Language: Codeunit Language;
         SpotlightTourType: Enum "Spotlight Tour Type";
         VideoCategory: Enum "Video Category";
         CustomerListSpotlightDictionary: Dictionary of [Enum "Spotlight Tour Text", Text];
         ItemCardSpotlightDictionary: Dictionary of [Enum "Spotlight Tour Text", Text];
+        CurrentGlobalLanguage: Integer;
     begin
         GuidedExperience.InsertTour(BusinessManagerRoleCenterTourTitleTxt, BusinessManagerRoleCenterTourShortTitleTxt,
             BusinessManagerRoleCenterTourDescriptionTxt, 2, Page::"Business Manager Role Center");
@@ -98,6 +108,21 @@ codeunit 1878 "Guided Experience Subscribers"
             Page::"Posted Sales Invoices");
         GuidedExperience.InsertApplicationFeature(ReturnOrdersTitleTxt, ReturnOrdersShortTitleTxt, ReturnOrdersDescriptionTxt, 15, ObjectType::Page,
            Page::"Sales Return Order List");
+
+        GuidedExperience.InsertLearnLink(ReadyToGoTitleTxt, ReadyToGoShortTitleTxt, ReadyToGoDescriptionTxt, 5, ReadyToGoLinkTxt);
+
+        if Company.Get(CompanyName()) then
+            if Company."Evaluation Company" then begin
+                CurrentGlobalLanguage := GlobalLanguage;
+                GuidedExperience.InsertApplicationFeature(TryWithYourOwnDataTitleTxt, TryWithYourOwnDataShortTitleTxt, TryWithYourOwnDataDescriptionTxt, 0,
+                    ObjectType::Codeunit, Codeunit::"Start Trial");
+                GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+                GuidedExperience.AddTranslationForSetupObjectTitle("Guided Experience Type"::"Application Feature", ObjectType::Codeunit,
+                    Codeunit::"Start Trial", Language.GetDefaultApplicationLanguageId(), TryWithYourOwnDataTitleTxt);
+                GuidedExperience.AddTranslationForSetupObjectDescription("Guided Experience Type"::"Application Feature", ObjectType::Codeunit,
+                    Codeunit::"Start Trial", Language.GetDefaultApplicationLanguageId(), TryWithYourOwnDataDescriptionTxt);
+                GLOBALLANGUAGE(CurrentGlobalLanguage);
+            end;
     end;
 
     local procedure GetCustomerListSpotlightDictionary(var CustomerListSpotlightDictionary: Dictionary of [Enum "Spotlight Tour Text", Text])

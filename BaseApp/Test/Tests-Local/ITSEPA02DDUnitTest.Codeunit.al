@@ -996,6 +996,38 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         Assert.AreEqual('0000000000', LocalAppMgt.ConvertToNumeric('AABBCCDDEE', 10), 'Invalid value.');
     end;
 
+    [Test]
+    procedure CustomerBillFloppyReportOnExportBilToFloppyFileAction()
+    var
+        CustomerBillHeader: Record "Customer Bill Header";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        CustomerBillCard: TestPage "Customer Bill Card";
+        FileName: Text;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 435070] "Cust Bills Floppy" report is run when Stan presses action "Export Bill to Floppy File" on "Customer Bill Card" page.
+
+        // [GIVEN] Customer Bill; Company Information has VAT Registration No. '123456789'.
+        CreateCustomerBillCardAndUpdateCompanyInformation(GetFixedVATRegNo(), '', CustomerBillHeader);
+
+        // [GIVEN] Opened "Customer Bill Card" page.
+        CustomerBillCard.OpenEdit();
+        CustomerBillCard.Filter.SetFilter("No.", CustomerBillHeader."No.");
+
+        // [WHEN] Stan presses action "Export Bill to Floppy File".
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        LibraryFileMgtHandler.SetSaveFileActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        CustomerBillCard.ExportBillToFloppyFile.Invoke();
+
+        UnbindSubscription(LibraryFileMgtHandler);
+
+        // [THEN] Report "Cust Bills Floppy" was run. Output file contains line with value = '123456789       '.
+        FileName := LibraryFileMgtHandler.GetServerTempFileName();
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -1294,7 +1326,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
             Modify();
         end;
     end;
-    
+
     procedure DequeueFileName(var FileName: Text)
     begin
         FileName := LibraryVariableStorage.DequeueText();

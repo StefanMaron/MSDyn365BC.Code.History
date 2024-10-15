@@ -61,6 +61,16 @@ codeunit 103 "Cust. Entry-Edit"
         CustLedgEntry: Record "Cust. Ledger Entry";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
 
+    procedure SetOnHold(var CustLedgEntry: Record "Cust. Ledger Entry"; NewOnHold: Code[3])
+    var
+        xOnHold: Code[3];
+    begin
+        xOnHold := CustLedgEntry."On Hold";
+        CustLedgEntry."On Hold" := NewOnHold;
+        if xOnHold <> CustLedgEntry."On Hold" then
+            CustLedgEntry.Modify();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustLedgEntryModify(var CustLedgEntry: Record "Cust. Ledger Entry"; FromCustLedgEntry: Record "Cust. Ledger Entry")
     begin

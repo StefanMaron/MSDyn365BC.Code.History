@@ -475,6 +475,11 @@ page 99000817 "Prod. Order Routing"
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        UnitCostPerEditable := Rec.Type = "Capacity Type"::"Work Center";
+    end;
+
     trigger OnDeleteRecord(): Boolean
     begin
         CheckPreviousAndNext;
@@ -499,6 +504,7 @@ page 99000817 "Prod. Order Routing"
         [InDataSet]
         ProdOrderNoVisible: Boolean;
         NextOperationNoEditable: Boolean;
+        UnitCostPerEditable: Boolean;
         StartingTime: Time;
         EndingTime: Time;
         StartingDate: Date;

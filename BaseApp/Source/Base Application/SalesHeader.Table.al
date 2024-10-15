@@ -85,6 +85,7 @@
                     SalesLine.Reset();
                 end;
 
+                OnValidateSellToCustomerNoOnBeforeGetCust(Rec, xRec);
                 GetCust("Sell-to Customer No.");
                 IsHandled := false;
                 OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(Rec, Cust, IsHandled);
@@ -541,12 +542,13 @@
                 ResetInvoiceDiscountValue();
 
                 NeedUpdateCurrencyFactor := "Currency Code" <> '';
-                OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(Rec, Confirmed, NeedUpdateCurrencyFactor);
+                OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(Rec, Confirmed, NeedUpdateCurrencyFactor, xRec);
                 if NeedUpdateCurrencyFactor then begin
                     UpdateCurrencyFactor;
-                    if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
+                    if ("Currency Factor" <> xRec."Currency Factor") and not GetCalledFromWhseDoc() then
                         ConfirmCurrencyFactorUpdate();
                 end;
+                OnValidatePostingDateOnAfterCheckNeedUpdateCurrencyFactor(Rec, xRec, NeedUpdateCurrencyFactor);
 
                 if "Posting Date" <> xRec."Posting Date" then
                     if DeferralHeadersExist then
@@ -723,9 +725,10 @@
                 if ShouldCheckShowRecurringSalesLines(xRec, Rec) then
                     StandardCodesMgt.CheckShowSalesRecurringLinesNotification(Rec);
 
-                if "Currency Code" <> xRec."Currency Code" then
+                if "Currency Code" <> xRec."Currency Code" then begin
                     SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
-                SetCompanyBankAccount();
+                    SetCompanyBankAccount();
+                end;
             end;
         }
         field(33; "Currency Factor"; Decimal)
@@ -1529,7 +1532,13 @@
             trigger OnValidate()
             var
                 WhseSalesRelease: Codeunit "Whse.-Sales Release";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateExternalDocumentNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (xRec."External Document No." <> "External Document No.") and (Status = Status::Released) and
                    ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"])
                 then
@@ -3316,7 +3325,7 @@
         RecreateSalesLinesMsg: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.\\Do you want to continue?', Comment = '%1: FieldCaption';
         ResetItemChargeAssignMsg: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.\The amount of the item charge assignment will be reset to 0.\\Do you want to continue?', Comment = '%1: FieldCaption';
         LinesNotUpdatedMsg: Label 'You have changed %1 on the sales header, but it has not been changed on the existing sales lines.', Comment = 'You have changed Order Date on the sales header, but it has not been changed on the existing sales lines.';
-        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.', Comment = '%1: OrderDate';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.', Comment = '%1: OrderDate';
         Text019: Label 'You must update the existing sales lines manually.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
         Text021: Label 'Do you want to update the exchange rate?';
@@ -3512,7 +3521,10 @@
 
         UpdateOutboundWhseHandlingTime;
 
-        "Responsibility Center" := UserSetupMgt.GetRespCenter(0, "Responsibility Center");
+        IsHandled := false;
+        OnInitRecordOnBeforeAssignResponsibilityCenter(Rec, IsHandled);
+        if not IsHandled then
+            "Responsibility Center" := UserSetupMgt.GetRespCenter(0, "Responsibility Center");
         "Doc. No. Occurrence" := ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
 
         Validate("Payment Terms Code");
@@ -3909,6 +3921,7 @@
             SalesLine.SetRange("Document No.", "No.");
             OnRecreateSalesLinesOnAfterSetSalesLineFilters(SalesLine);
             if SalesLine.FindSet() then begin
+                OnRecreateSalesLinesOnAfterFindSalesLine(Rec, SalesLine, ChangedFieldName);
                 TempReservEntry.DeleteAll();
                 RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink);
                 StoreSalesCommentLineToTemp(TempSalesCommentLine);
@@ -4042,7 +4055,7 @@
         TempItemChargeAssgntSales.SetRange("Applies-to Doc. Line No.", TempSalesLine."Line No.");
         if TempItemChargeAssgntSales.FindSet() then
             repeat
-                if not TempItemChargeAssgntSales.Mark then begin
+                if not TempItemChargeAssgntSales.Mark() then begin
                     TempItemChargeAssgntSales."Applies-to Doc. Line No." := SalesLine."Line No.";
                     TempItemChargeAssgntSales.Description := SalesLine.Description;
                     TempItemChargeAssgntSales.Modify();
@@ -4707,6 +4720,8 @@
 
     local procedure CopyFromNewSellToCustTemplate(SellToCustTemplate: Record "Customer Templ.")
     begin
+        OnBeforeCopyFromNewSellToCustTemplate(Rec, xRec, SellToCustTemplate);
+
         if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
             SellToCustTemplate.TestField("Gen. Bus. Posting Group");
         "Gen. Bus. Posting Group" := SellToCustTemplate."Gen. Bus. Posting Group";
@@ -5295,6 +5310,7 @@
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     var
         ATOLink: Record "Assemble-to-Order Link";
+        xSalesLine: Record "Sales Line";
         NewDimSetID: Integer;
         ShippedReceivedItemLineDimChangeConfirmed: Boolean;
         IsHandled: Boolean;
@@ -5320,6 +5336,7 @@
                 NewDimSetID := DimMgt.GetDeltaDimSetID(SalesLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 OnUpdateAllLineDimOnAfterGetSalesLineNewDimsetID(Rec, xRec, SalesLine, NewDimSetID, NewParentDimSetID, OldParentDimSetID);
                 if SalesLine."Dimension Set ID" <> NewDimSetID then begin
+                    xSalesLine := SalesLine;
                     SalesLine."Dimension Set ID" := NewDimSetID;
 
                     if not GetHideValidationDialog and GuiAllowed then
@@ -5328,8 +5345,9 @@
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       SalesLine."Dimension Set ID", SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
 
-                    OnUpdateAllLineDimOnBeforeSalesLineModify(SalesLine);
+                    OnUpdateAllLineDimOnBeforeSalesLineModify(SalesLine, xSalesLine);
                     SalesLine.Modify();
+                    OnUpdateAllLineDimOnAfterSalesLineModify(SalesLine);
                     ATOLink.UpdateAsmDimFromSalesLine(SalesLine, true);
                 end;
             until SalesLine.Next() = 0;
@@ -6911,8 +6929,12 @@
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
             AssignVATRegistrationNo(SellToCustomer."No.");
             "Shipping Advice" := SellToCustomer."Shipping Advice";
-            "Responsibility Center" := UserSetupMgt.GetRespCenter(0, SellToCustomer."Responsibility Center");
-            OnCopySelltoCustomerAddressFieldsFromCustomerOnAfterAssignRespCenter(Rec, SellToCustomer, CurrFieldNo);
+            IsHandled := false;
+            OnCopySelltoCustomerAddressFieldsFromCustomerOnBeforeAssignRespCenter(Rec, SellToCustomer, IsHandled);
+            if not IsHandled then begin
+                "Responsibility Center" := UserSetupMgt.GetRespCenter(0, SellToCustomer."Responsibility Center");
+                OnCopySelltoCustomerAddressFieldsFromCustomerOnAfterAssignRespCenter(Rec, SellToCustomer, CurrFieldNo);
+            end;
             UpdateLocationCode(SellToCustomer."Location Code");
         end;
 
@@ -7104,8 +7126,16 @@
     end;
 
     local procedure ShouldCopyAddressFromBillToCustomer(BillToCustomer: Record Customer): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
-        exit(((not HasBillToAddress) and BillToCustomer.HasAddress) or (xRec."Bill-to Contact" <> BillToCustomer.Contact));
+        IsHandled := false;
+        OnBeforeShouldCopyAddressFromBillToCustomer(BillToCustomer, Rec, xRec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
+        exit(((not HasBillToAddress()) and BillToCustomer.HasAddress()) or (xRec."Bill-to Contact" <> BillToCustomer.Contact));
     end;
 
     local procedure SellToCustomerIsReplaced(): Boolean
@@ -7114,7 +7144,15 @@
     end;
 
     local procedure BillToCustomerIsReplaced(): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBillToCustomerIsReplaced(Rec, xRec, Result, IsHandled);
+        If IsHandled then
+            exit(Result);
+
         exit((xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> "Bill-to Customer No."));
     end;
 
@@ -7307,20 +7345,24 @@
     end;
 
     procedure InitFromSalesHeader(SourceSalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeInitFromSalesHeader(Rec, SourceSalesHeader);
-
-        "Document Date" := SourceSalesHeader."Document Date";
-        "Shipment Date" := SourceSalesHeader."Shipment Date";
-        "Shortcut Dimension 1 Code" := SourceSalesHeader."Shortcut Dimension 1 Code";
-        "Shortcut Dimension 2 Code" := SourceSalesHeader."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := SourceSalesHeader."Dimension Set ID";
-        "Location Code" := SourceSalesHeader."Location Code";
-        SetShipToAddress(
-          SourceSalesHeader."Ship-to Name", SourceSalesHeader."Ship-to Name 2", SourceSalesHeader."Ship-to Address",
-          SourceSalesHeader."Ship-to Address 2", SourceSalesHeader."Ship-to City", SourceSalesHeader."Ship-to Post Code",
-          SourceSalesHeader."Ship-to County", SourceSalesHeader."Ship-to Country/Region Code");
-        "Ship-to Contact" := SourceSalesHeader."Ship-to Contact";
+        IsHandled := false;
+        OnBeforeInitFromSalesHeader(Rec, SourceSalesHeader, IsHandled);
+        if not IsHandled then begin
+            "Document Date" := SourceSalesHeader."Document Date";
+            "Shipment Date" := SourceSalesHeader."Shipment Date";
+            "Shortcut Dimension 1 Code" := SourceSalesHeader."Shortcut Dimension 1 Code";
+            "Shortcut Dimension 2 Code" := SourceSalesHeader."Shortcut Dimension 2 Code";
+            "Dimension Set ID" := SourceSalesHeader."Dimension Set ID";
+            "Location Code" := SourceSalesHeader."Location Code";
+            SetShipToAddress(
+            SourceSalesHeader."Ship-to Name", SourceSalesHeader."Ship-to Name 2", SourceSalesHeader."Ship-to Address",
+            SourceSalesHeader."Ship-to Address 2", SourceSalesHeader."Ship-to City", SourceSalesHeader."Ship-to Post Code",
+            SourceSalesHeader."Ship-to County", SourceSalesHeader."Ship-to Country/Region Code");
+            "Ship-to Contact" := SourceSalesHeader."Ship-to Contact";
+        end;
 
         OnAfterInitFromSalesHeader(Rec, SourceSalesHeader);
     end;
@@ -7365,6 +7407,8 @@
 
     local procedure InitFromBillToCustTemplate(BillToCustTemplate: Record "Customer Templ.")
     begin
+        OnBeforeInitFromBillToCustTemplate(Rec, xRec, BillToCustTemplate);
+
         BillToCustTemplate.TestField("Customer Posting Group");
         "Customer Posting Group" := BillToCustTemplate."Customer Posting Group";
         "Invoice Disc. Code" := BillToCustTemplate."Invoice Disc. Code";
@@ -7553,6 +7597,8 @@
     var
         Customer: Record Customer;
     begin
+        OnBeforeModifyCustomerAddress(Rec, xRec);
+
         GetSalesSetup();
         if SalesSetup."Ignore Updated Addresses" then
             exit;
@@ -7788,7 +7834,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShouldSearchForCustomerByName(CustomerNo, Result, IsHandled, CurrFieldNo);
+        OnBeforeShouldSearchForCustomerByName(CustomerNo, Result, IsHandled, CurrFieldNo, Rec);
         if IsHandled then
             exit(Result);
 
@@ -8025,6 +8071,11 @@
     procedure GetStatusCheckSuspended(): Boolean
     begin
         exit(StatusCheckSuspended);
+    end;
+
+    procedure GetCalledFromWhseDoc(): Boolean
+    begin
+        exit(CalledFromWhseDoc);
     end;
 
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
@@ -8734,7 +8785,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitFromSalesHeader(var SalesHeader: Record "Sales Header"; SourceSalesHeader: Record "Sales Header")
+    local procedure OnBeforeInitFromSalesHeader(var SalesHeader: Record "Sales Header"; SourceSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8879,7 +8930,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShouldSearchForCustomerByName(CustomerNo: Code[20]; var Result: Boolean; var IsHandled: Boolean; var CallingFieldNo: Integer)
+    local procedure OnBeforeShouldSearchForCustomerByName(CustomerNo: Code[20]; var Result: Boolean; var IsHandled: Boolean; var CallingFieldNo: Integer; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9365,7 +9416,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAllLineDimOnBeforeSalesLineModify(var SalesLine: Record "Sales Line")
+    local procedure OnUpdateAllLineDimOnAfterSalesLineModify(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeSalesLineModify(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -9450,7 +9506,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var IsConfirmed: Boolean; var NeedUpdateCurrencyFactor: Boolean)
+    local procedure OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var IsConfirmed: Boolean; var NeedUpdateCurrencyFactor: Boolean; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9708,5 +9764,59 @@
     local procedure OnAfterInitPostingNoSeries(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitFromBillToCustTemplate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var BillToCustTemplate: Record "Customer Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromNewSellToCustTemplate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var SellToCustTemplate: Record "Customer Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyCustomerAddress(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShouldCopyAddressFromBillToCustomer(BillToCustomer: Record Customer; Rec: Record "Sales Header"; xRec: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBillToCustomerIsReplaced(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateSalesLinesOnAfterFindSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ChangedFieldName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopySelltoCustomerAddressFieldsFromCustomerOnBeforeAssignRespCenter(var SalesHeader: Record "Sales Header"; var SellToCustomer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateExternalDocumentNo(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingDateOnAfterCheckNeedUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var NeedUpdateCurrencyFactor: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToCustomerNoOnBeforeGetCust(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitRecordOnBeforeAssignResponsibilityCenter(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+}

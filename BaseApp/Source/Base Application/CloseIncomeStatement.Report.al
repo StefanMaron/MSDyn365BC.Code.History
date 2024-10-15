@@ -71,6 +71,7 @@
                             EntryNoAmountBuf.Amount2 := "Additional-Currency Amount";
                             EntryNoAmountBuf.Insert();
                         end;
+                        OnGLEntryOnAfterGetRecordOnAfterEntryNoAmountBuf(EntryNoAmountBuf, "G/L Entry");
                     end;
 
                     if GroupSum then
@@ -126,7 +127,8 @@
                                     GenJnlLine.UpdateLineBalance();
                                 end;
 
-                                HandleGenJnlLine;
+                                HandleGenJnlLine();
+                                OnGLEntryOnPostDataItemOnAfterHandleGenJnlLine(GenJnlLine, EntryNoAmountBuf);
                             end;
                         until EntryNoAmountBuf.Next() = 0;
 
@@ -727,6 +729,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPreReportOnBeforeCheckDimPostingRules(var IsHandled: Boolean; var TempSelectedDim: Record "Selected Dimension" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGLEntryOnAfterGetRecordOnAfterEntryNoAmountBuf(var TempEntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary; GEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGLEntryOnPostDataItemOnAfterHandleGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary)
     begin
     end;
 }
