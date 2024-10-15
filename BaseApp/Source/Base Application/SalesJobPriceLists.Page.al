@@ -41,8 +41,7 @@ page 7019 "Sales Job Price Lists"
                 field("Allow Updating Defaults"; Rec."Allow Updating Defaults")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Multi-Type Price List';
-                    ToolTip = 'Specifies whether users can change the values in the fields on the price list line that contain default values from the header.';
+                    ToolTip = 'Specifies whether users can change the values in the fields on the price list lines that contain default values from the header. This does not affect the ability to allow line or invoice discounts.';
                 }
                 field(Defines; Rec."Amount Type")
                 {
