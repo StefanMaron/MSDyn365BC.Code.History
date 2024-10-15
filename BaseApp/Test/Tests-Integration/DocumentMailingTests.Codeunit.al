@@ -15,9 +15,15 @@ codeunit 135060 "Document Mailing Tests"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryERM: Codeunit "Library - ERM";
         IsInitialized: Boolean;
+        IsMailManagementOnBeforeIsEnabledActive: Boolean;
         MailingJobCategoryCodeTok: Label 'SENDINV', Comment = 'Must be max. 10 chars and no spacing. (Send Invoice)';
         CannotSendEmailErr: Label 'You cannot send the email.\Verify that the email settings are correct.', Locked = true;
+        KeepDraftOrDiscardPageQst: Label 'The email has not been sent.';
+        PeppolFormatNameTxt: Label 'PEPPOL', Locked = true;
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue')]
@@ -311,6 +317,106 @@ codeunit 135060 "Document Mailing Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAttachmentNameModalPageHandler,ConfirmHandlerTrue,KeepDraftOrDiscardStrMenuHandler')]
+    procedure SendPostedSalesInvoiceWhenPdfAndElectronicDocAndCombineEmailsYes()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        DocumentMailingTests: Codeunit "Document Mailing Tests";
+        ConnectorMock: Codeunit "Connector Mock";
+        PostedInvoiceNo: Code[20];
+        FileName: Text[250];
+    begin
+        // [SCENARIO 426569] Send Posted Sales Invoice when Document Sending Profile has E-Mail Attachment = "PDF & Electronic Document" and Combine Email Documents = true.
+        Initialize();
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        LibraryWorkflow.SetUpEmailAccount();
+        ConnectorMock.FailOnSend(true);
+
+        // [GIVEN] PEPPOL electronic format.
+        InsertPeppolElectronicFormat();
+
+        // [GIVEN] Default Document Sending Profile with E-Mail = "Yes (Prompt for Settings)", E-Mail Attachment = "PDF & Electronic Document", E-Mail Format = PEPPOL; Combine Email Documents is set.
+        SetupDefaultEmailSendingProfile(
+            DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)", "Document Sending Profile Attachment Type"::"PDF & Electronic Document", PeppolFormatNameTxt, true);
+
+        // [GIVEN] Posted Sales Invoice "103032" for Customer with VAT Registration No and Address.
+        LibrarySales.CreateCustomerWithAddress(Customer);
+        SetVatRegistrationNoToCustomer(Customer);
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        SetYourReferenceToSalesHeader(SalesHeader);
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(PostedInvoiceNo);
+
+        // [WHEN] Send Posted Sales Invoice.
+        DocumentMailingTests.SetMailManagementOnBeforeIsEnabledActive(true);
+        BindSubscription(DocumentMailingTests);
+        SalesInvoiceHeader.SetRecFilter();
+        SalesInvoiceHeader.SendRecords();
+        DocumentMailingTests.SetMailManagementOnBeforeIsEnabledActive(false);
+        UnbindSubscription(DocumentMailingTests);
+
+        // [THEN] Email Editor page is shown, it has Attachment file name "Cronus - Invoice 103032.zip".
+        FileName := LibraryVariableStorage.DequeueText();
+        Assert.ExpectedMessage(SalesInvoiceHeader."No.", FileName); // file name must contain Posted Invoice No.
+        Assert.ExpectedMessage('.zip', FileName);                   // extension must be zip
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAttachmentNameModalPageHandler,ConfirmHandlerTrue,KeepDraftOrDiscardStrMenuHandler')]
+    procedure SendPostedSalesInvoiceWhenPdfAndElectronicDocAndCombineEmailsNo()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        DocumentMailingTests: Codeunit "Document Mailing Tests";
+        ConnectorMock: Codeunit "Connector Mock";
+        PostedInvoiceNo: Code[20];
+        FileName: Text[250];
+    begin
+        // [SCENARIO 426569] Send Posted Sales Invoice when Document Sending Profile has E-Mail Attachment = "PDF & Electronic Document" and Combine Email Documents = false.
+        Initialize();
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        LibraryWorkflow.SetUpEmailAccount();
+        ConnectorMock.FailOnSend(true);
+
+        // [GIVEN] PEPPOL electronic format.
+        InsertPeppolElectronicFormat();
+
+        // [GIVEN] Default Document Sending Profile with E-Mail = "Yes (Prompt for Settings)", E-Mail Attachment = "PDF & Electronic Document", E-Mail Format = PEPPOL; Combine Email Documents is not set.
+        SetupDefaultEmailSendingProfile(
+            DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)", "Document Sending Profile Attachment Type"::"PDF & Electronic Document", PeppolFormatNameTxt, false);
+
+        // [GIVEN] Posted Sales Invoice "103032" for Customer with VAT Registration No and Address.
+        LibrarySales.CreateCustomerWithAddress(Customer);
+        SetVatRegistrationNoToCustomer(Customer);
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        SetYourReferenceToSalesHeader(SalesHeader);
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(PostedInvoiceNo);
+
+        // [WHEN] Send Posted Sales Invoice.
+        DocumentMailingTests.SetMailManagementOnBeforeIsEnabledActive(true);
+        BindSubscription(DocumentMailingTests);
+        SalesInvoiceHeader.SetRecFilter();
+        SalesInvoiceHeader.SendRecords();
+        DocumentMailingTests.SetMailManagementOnBeforeIsEnabledActive(false);
+        UnbindSubscription(DocumentMailingTests);
+
+        // [THEN] Email Editor page is shown, it has Attachment file name "Cronus - Invoice 103032.zip".
+        FileName := LibraryVariableStorage.DequeueText();
+        Assert.ExpectedMessage(SalesInvoiceHeader."No.", FileName); // file name must contain Posted Invoice No.
+        Assert.ExpectedMessage('.zip', FileName);                   // extension must be zip
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Document Mailing Tests");
@@ -320,6 +426,8 @@ codeunit 135060 "Document Mailing Tests"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Document Mailing Tests");
+
+        SetupBankInfoOnCompany();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Document Mailing Tests");
@@ -356,6 +464,22 @@ codeunit 135060 "Document Mailing Tests"
         LibraryVariableStorage.Enqueue(ReportUsage);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeIsEnabled', '', false, false)]
+    local procedure SetEmailingEnabledOnBeforeIsEnabled(OutlookSupported: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+        if not IsMailManagementOnBeforeIsEnabledActive then
+            exit;
+
+        OutlookSupported := false;
+        Result := true;
+        IsHandled := true;
+    end;
+
+    procedure SetMailManagementOnBeforeIsEnabledActive(IsActive: Boolean)
+    begin
+        IsMailManagementOnBeforeIsEnabledActive := IsActive;
+    end;
+
     local procedure InitializeStream(Content: Text; var TempBlob: Codeunit "Temp Blob")
     var
         OutStream: OutStream;
@@ -376,6 +500,24 @@ codeunit 135060 "Document Mailing Tests"
         SMTPMailSetup.Insert();
     end;
 
+    local procedure InsertPeppolElectronicFormat()
+    var
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        CountryRegion: Record "Country/Region";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        ElectronicDocumentFormat.DeleteAll();
+        ElectronicDocumentFormat.InsertElectronicFormat(
+            PeppolFormatNameTxt, PeppolFormatNameTxt, Codeunit::"Exp. Sales Inv. PEPPOL BIS3.0", 0,
+            ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger());
+
+        CountryRegion.SetRange("VAT Scheme", '');
+        CountryRegion.ModifyAll("VAT Scheme", CountryRegion.Code);
+
+        VATPostingSetup.SetRange("Tax Category", '');
+        VATPostingSetup.ModifyAll("Tax Category", 'AA');
+    end;
+
     local procedure SetupDefaultEmailSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     begin
         with DocumentSendingProfile do begin
@@ -389,6 +531,61 @@ codeunit 135060 "Document Mailing Tests"
             "Electronic Document" := "Electronic Document"::No;
             Insert();
         end;
+    end;
+
+    local procedure SetupDefaultEmailSendingProfile(EmailType: Option; EmailAttachment: Enum "Document Sending Profile Attachment Type"; EmailFormatCode: Code[20]; CombineEmails: Boolean)
+    var
+        DocumentSendingProfile: Record "Document Sending Profile";
+    begin
+        DocumentSendingProfile.DeleteAll();
+
+        DocumentSendingProfile.Init();
+        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
+        DocumentSendingProfile.Printer := DocumentSendingProfile.Printer::No;
+        DocumentSendingProfile."E-Mail" := EmailType;
+        DocumentSendingProfile."E-Mail Attachment" := EmailAttachment;
+        DocumentSendingProfile."E-Mail Format" := EmailFormatCode;
+        DocumentSendingProfile."Combine Email Documents" := CombineEmails;
+        DocumentSendingProfile.Disk := DocumentSendingProfile.Disk::No;
+        DocumentSendingProfile."Electronic Document" := DocumentSendingProfile."Electronic Document"::No;
+        DocumentSendingProfile.Default := true;
+        DocumentSendingProfile.Insert();
+    end;
+
+    local procedure SetAllowBlankPaymentInfo()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        CompanyInformation."Allow Blank Payment Info." := true;
+        CompanyInformation.Modify();
+    end;
+
+    local procedure SetVatRegistrationNoToCustomer(var Customer: Record Customer)
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code");
+        Customer.Modify(true);
+    end;
+
+    local procedure SetYourReferenceToSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader.Validate("Your Reference", LibraryUtility.GenerateGUID());
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure SetupBankInfoOnCompany()
+    var
+        CompanyInfo: Record "Company Information";
+    begin
+        CompanyInfo.Get();
+        CompanyInfo.Validate(Name, LibraryUtility.GenerateGUID());
+        CompanyInfo.Validate(IBAN, 'GB29NWBK60161331926819');
+        CompanyInfo.Validate("SWIFT Code", 'MIDLGB22Z0K');
+        CompanyInfo.Validate("Bank Branch No.", '1234');
+        CompanyInfo.Validate(GLN, '1234567890128');
+        CompanyInfo.Modify(true);
     end;
 
     local procedure VerifyValues()
@@ -411,6 +608,26 @@ codeunit 135060 "Document Mailing Tests"
     procedure SelectSendingOptionsStrMenuHandler(MenuOptions: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         Choice := LibraryVariableStorage.DequeueInteger();
+    end;
+
+    [ModalPageHandler]
+    procedure SelectSendingOptionsOKModalPageHandler(var SelectSendingOptions: TestPage "Select Sending Options")
+    begin
+        SelectSendingOptions.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure EmailEditorCheckAttachmentNameModalPageHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+        LibraryVariableStorage.Enqueue(EmailEditor.Attachments.FileName.Value);
+        EmailEditor.Discard.Invoke();
+    end;
+
+    [StrMenuHandler]
+    procedure KeepDraftOrDiscardStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Assert.AreEqual(KeepDraftOrDiscardPageQst, Instruction, '');
+        Choice := 2;    // discard email
     end;
 }
 

@@ -122,7 +122,6 @@ table 7022 "Price Worksheet Line"
         {
             Caption = 'Product No.';
             DataClassification = CustomerContent;
-            NotBlank = true;
 
             trigger OnValidate()
             begin
