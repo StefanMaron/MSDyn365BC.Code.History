@@ -412,6 +412,7 @@ codeunit 134451 "ERM Fixed Assets"
         FAJournalLine: Record "FA Journal Line";
         SalesHeader: Record "Sales Header";
         FALedgerEntry: Record "FA Ledger Entry";
+        FADepreciationBook: Record "FA Depreciation Book";
         DocumentNo: Code[20];
     begin
         // Test the Posting of Sales Invoice with Fixed Asset.
@@ -426,6 +427,8 @@ codeunit 134451 "ERM Fixed Assets"
 
         CreateMultipleFAJournalLine(FAJournalLine, FixedAsset."No.", DepreciationBook.Code);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+        FADepreciationBook.Get(FixedAsset."No.", DepreciationBook.Code);
+        FADepreciationBook.CalcFields("Acquisition Cost");
 
         RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
@@ -440,7 +443,9 @@ codeunit 134451 "ERM Fixed Assets"
         ExecuteUIHandler;
 
         // 3.Verify: Verify FA Ledger Entry for Sales Invoice.
-        VerifySalesFALedgerEntry(DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
+        VerifySalesFALedgerEntry(
+          DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Acquisition Cost",
+          -FADepreciationBook."Acquisition Cost", 0, FADepreciationBook."Acquisition Cost");
     end;
 
     [Test]
@@ -530,12 +535,17 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryLowerPermissions.AddO365FAEdit;
         Clear(SalesHeader);
         SellFixedAsset(SalesHeader, SalesHeader."Document Type"::Order, FixedAsset."No.", DepreciationBook.Code);
+        SalesHeader.CalcFields(Amount);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         ExecuteUIHandler;
 
         // 3.Verify: Verify "Proceeds on Disposal" and "Gain/Loss" FA Ledger Entry for Sales Order.
-        VerifySalesFALedgerEntry(DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal");
-        VerifySalesFALedgerEntry(DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Gain/Loss");
+        VerifySalesFALedgerEntry(
+          DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal",
+          SalesHeader.Amount, SalesHeader.Amount, 0);
+        VerifySalesFALedgerEntry(
+          DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Gain/Loss",
+          -SalesHeader.Amount, 0, SalesHeader.Amount);
     end;
 
     [Test]
@@ -833,7 +843,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // 3.Verify: Verify that the Amount is posted in FA Ledger Entry correctly.
-        VerifyAmountInFALedgerEntry(FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", -Amount);
+        VerifyAmountInFALedgerEntry(FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", Amount);
     end;
 
     [Test]
@@ -2278,6 +2288,59 @@ codeunit 134451 "ERM Fixed Assets"
         Assert.AreEqual(FinalRoundingAmount, FADepreciationBook."Final Rounding Amount", '');
     end;
 
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ProceedsOnDisposalWithGainLossAfterDepreciation()
+    var
+        DepreciationBook: Record "Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+        FAJournalBatch: Record "FA Journal Batch";
+        FAJournalLine: Record "FA Journal Line";
+        SalesHeader: Record "Sales Header";
+        FALedgerEntry: Record "FA Ledger Entry";
+        FADepreciationBook: Record "FA Depreciation Book";
+        DocumentNo: Code[20];
+        GainLossAmount: Decimal;
+    begin
+        // [FEATURE] [Proceeds on Disposal]
+        // [SCENARIO 352540] Posting Sales Order with disposal and gain/loss entries for fixed asset
+        Initialize;
+
+        // [GIVEN] Fixed Asset has aquisition cost of 1000
+        CreateFixedAssetSetup(DepreciationBook);
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
+        UpdateIntegrationInBook(DepreciationBook, false, false, false);
+        UpdateAllowCorrectionInBook(DepreciationBook);
+        ModifyIntegrationInBook(DepreciationBook);
+        CreateFAJournalBatch(FAJournalBatch);
+        CreateFAJournalLine(
+          FAJournalLine, FAJournalBatch, FAJournalLine."FA Posting Type"::"Acquisition Cost", FixedAsset."No.",
+          DepreciationBook.Code, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+
+        // [GIVEN] Depreciation is posted for the fixed asset with amount = 100
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        PostDepreciationWithDocumentNo(DepreciationBook.Code);
+        FADepreciationBook.Get(FixedAsset."No.", DepreciationBook.Code);
+        FADepreciationBook.CalcFields("Acquisition Cost", Depreciation);
+
+        // [WHEN] Post Sales Order for the fixed asset with amount = 300
+        SellFixedAsset(SalesHeader, SalesHeader."Document Type"::Order, FixedAsset."No.", DepreciationBook.Code);
+        SalesHeader.CalcFields(Amount);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        ExecuteUIHandler;
+
+        // [THEN] 'Proceeds on Disposal' FA Legger Entry has amount = 300
+        // [THEN] 'Gain/Loss' FA Legger Entry has amount = 600 (1000 - 100 - 300)
+        VerifySalesFALedgerEntry(
+          DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", SalesHeader.Amount, SalesHeader.Amount, 0);
+        GainLossAmount := FADepreciationBook."Acquisition Cost" + FADepreciationBook.Depreciation - SalesHeader.Amount;
+        VerifySalesFALedgerEntry(
+          DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Gain/Loss", GainLossAmount, GainLossAmount, 0);
+    end;
+
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";
@@ -2954,7 +3017,7 @@ codeunit 134451 "ERM Fixed Assets"
         FALedgerEntry.TestField("Depreciation Book Code", DepreciationBookCode)
     end;
 
-    local procedure VerifySalesFALedgerEntry(DocumentNo: Code[20]; FANo: Code[20]; FAPostingType: Option)
+    local procedure VerifySalesFALedgerEntry(DocumentNo: Code[20]; FANo: Code[20]; FAPostingType: Option; ExpectedAmount: Decimal; Debit: Decimal; Credit: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
@@ -2963,6 +3026,9 @@ codeunit 134451 "ERM Fixed Assets"
         FALedgerEntry.SetRange("Document No.", DocumentNo);
         FALedgerEntry.FindFirst;
         FALedgerEntry.TestField("FA No.", FANo);
+        FALedgerEntry.TestField(Amount, ExpectedAmount);
+        FALedgerEntry.TestField("Debit Amount", Debit);
+        FALedgerEntry.TestField("Credit Amount", Credit);
     end;
 
     local procedure VerifyDepreciationFALedger(FANo: Code[20]; DepreciationBookCode: Code[10])
