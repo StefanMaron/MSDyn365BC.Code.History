@@ -113,6 +113,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Payments - SEPA V2 - NamedType ResendConfirmMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1332481971 - NamedType 4142372063" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reference number cannot contain only zeros.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Payments - SEPA V2 - NamedType ZeroReferenceNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2702270399 - NamedType 2694608853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[0123456789]]></Val>

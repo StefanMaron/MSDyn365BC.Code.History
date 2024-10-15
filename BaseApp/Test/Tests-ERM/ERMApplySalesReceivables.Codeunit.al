@@ -32,6 +32,8 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.';
         DifferentCurrenciesErr: Label 'All entries in one application must be in the same currency.';
         AppliesToDocErr: Label 'Applies-To Doc, should not be blank.';
+        AppliesToIDErr: Label 'Applies-to ID, should not be blank.';
+        SummedAmountWrongErr: Label 'Summed amount on cash receipt journal line is not correct.';
 
     [Test]
     [Scope('OnPrem')]
@@ -782,6 +784,8 @@ codeunit 134000 "ERM Apply Sales/Receivables"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, GenJournalLineInv."Account No.",
           "Gen. Journal Account Type"::"G/L Account", '', 0);
+        GenJournalLine.Validate(
+            "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
         GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
         GenJournalLine.Insert();
         Commit();
@@ -1058,6 +1062,53 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
         // [VERIFY] "Applies-to Doc. No." will be same as  in Customer Ledger Entry
         Assert.AreEqual(GenJnlLine."Applies-to Doc. No.", CustLedgEntry."Document No.", AppliesToDocErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MultiplCustomerEntrieseApplyModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ValidateAmountOnCashReceiptJournalLineWhenSetAppliesToIDOnApplyCustomerEntries()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        ExpectedAmount: Decimal;
+    begin
+        // [FEATURE] [Application]
+        // [SCENARIO 461143] When a user applies multiple documents in the Apply Customer Entries page the summed amount on the journal line is not correct.
+        Initialize();
+
+        // [GIVEN] Create Customer and Post first Sales Invoice
+        LibrarySales.CreateCustomer(Customer);
+        CreateAndPostGenJnlLine(
+            GenJournalLine, WorkDate(),
+            GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(100), Customer."No.", '');
+        ExpectedAmount := -GenJournalLine.Amount;
+
+        // [GIVEN] Cash Receipt Journal Line
+        CreateCashReceiptJnlLine(GenJournalLine2, GenJournalLine."Account No.");
+        GenJournalLine2.Validate("Applies-to Doc. Type", GenJournalLine2."Applies-to Doc. Type"::Invoice);
+        GenJournalLine2.Modify(true);
+
+        // [GIVEN] "Apply Customer Entries" page is opened by Codeunit "Gen. Jnl.-Apply" run for Cash Receipt Journal Line.
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine2);
+
+        // [GIVEN] Set Cash Receipt General Line amount to Zero
+        GenJournalLine2.Validate(Amount, 0);
+        GenJournalLine2.Modify();
+
+        // [GIVEN] Post another Sales Invoice
+        CreateAndPostGenJnlLine(
+            GenJournalLine, WorkDate(),
+            GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(100), Customer."No.", '');
+        ExpectedAmount -= GenJournalLine.Amount;
+
+        // [GIVEN] "Apply Customer Entries" page is opened by Codeunit "Gen. Jnl.-Apply" run for Cash Receipt Journal Line.
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine2);
+
+        // [VERIFY] Verify: Summed Amount on Cash Receipt Journal Line
+        Assert.AreEqual(true, (GenJournalLine2."Applies-to ID" <> ''), AppliesToIDErr);
+        Assert.AreEqual(ExpectedAmount, GenJournalLine2.Amount, SummedAmountWrongErr);
     end;
 
     local procedure Initialize()
@@ -1600,6 +1651,25 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
         GeneralJournalTemplateList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure MultiplCustomerEntrieseApplyModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    var
+        AppliesToID: Code[20];
+    begin
+        AppliesToID := ApplyCustomerEntries.AppliesToID.Value;
+        if AppliesToID = '' then
+            ApplyCustomerEntries."Set Applies-to ID".Invoke;
+
+        if (ApplyCustomerEntries.Next()) then begin
+            ApplyCustomerEntries.AppliesToID.SetValue(AppliesToID);
+            ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
+            ApplyCustomerEntries.Previous;
+            ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
+        end;
+        ApplyCustomerEntries.OK.Invoke;
     end;
 }
 

@@ -257,6 +257,41 @@
             Caption = 'Fixed Asset Line No.';
             DataClassification = SystemMetadata;
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %';
+            DecimalPlaces = 0 : 5;
+            DataClassification = SystemMetadata;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Base';
+            DataClassification = SystemMetadata;
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Amount';
+            DataClassification = SystemMetadata;
+        }
+        field(6203; "Non-Deductible VAT Base ACY"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Base ACY';
+            DataClassification = SystemMetadata;
+        }
+        field(6204; "Non-Deductible VAT Amount ACY"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Amount ACY';
+            DataClassification = SystemMetadata;
+        }
+        field(6205; "Non-Deductible VAT Diff."; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference';
+            Editable = false;
+        }
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
@@ -297,6 +332,7 @@
 #if not CLEAN20
     var
         TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary;
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         DimMgt: Codeunit DimensionManagement;
         FeatureKeyManagement: Codeunit "Feature Key Management";
 
@@ -340,6 +376,7 @@
             "VAT Base Amount (ACY)" := 0;
             "VAT Amount" := 0;
             "VAT Amount (ACY)" := 0;
+            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
         end;
         if not FeatureKeyManagement.IsAutomaticAccountCodesEnabled() then
             "Auto. Acc. Group" := SalesLine."Auto. Acc. Group";
@@ -385,6 +422,7 @@
         Amount := "VAT Base Amount";
         "Amount (ACY)" := "VAT Base Amount (ACY)";
         "VAT Base Before Pmt. Disc." := "VAT Base Amount";
+        NonDeductibleVAT.Calculate(Rec);
     end;
 
     local procedure CalcVATAmount(ValueInclVAT: Boolean; Value: Decimal; VATPercent: Decimal): Decimal
@@ -437,6 +475,7 @@
         "Job No." := PurchLine."Job No.";
         "VAT %" := PurchLine."VAT %";
         "VAT Difference" := PurchLine."VAT Difference";
+        NonDeductibleVAT.Copy(Rec, PurchLine);
         if Type = Type::"Fixed Asset" then begin
             "FA Posting Date" := PurchLine."FA Posting Date";
             "Depreciation Book Code" := PurchLine."Depreciation Book Code";
@@ -464,6 +503,7 @@
             "VAT Base Amount (ACY)" := 0;
             "VAT Amount" := 0;
             "VAT Amount (ACY)" := 0;
+            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
         end;
         if not FeatureKeyManagement.IsAutomaticAccountCodesEnabled() then
             "Auto. Acc. Group" := PurchLine."Auto. Acc. Group";
@@ -517,6 +557,7 @@
         "VAT Base Amount (ACY)" := -"VAT Base Amount (ACY)";
         "VAT Amount" := -"VAT Amount";
         "VAT Amount (ACY)" := -"VAT Amount (ACY)";
+        NonDeductibleVAT.Reverse(Rec);
     end;
 
     [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
@@ -626,6 +667,7 @@
             "VAT Amount (ACY)" += InvoicePostBuffer."VAT Amount (ACY)";
             "VAT Difference" += InvoicePostBuffer."VAT Difference";
             "VAT Base Amount (ACY)" += InvoicePostBuffer."VAT Base Amount (ACY)";
+            NonDeductibleVAT.Increment(Rec, InvoicePostBuffer);
             Quantity += InvoicePostBuffer.Quantity;
             "VAT Base Before Pmt. Disc." += InvoicePostBuffer."VAT Base Before Pmt. Disc.";
             if not InvoicePostBuffer."System-Created Entry" then
@@ -711,7 +753,7 @@
         AdjustRoundingFieldsPair(TempInvoicePostBufferRounding.Amount, Amount, "Amount (ACY)");
         AdjustRoundingFieldsPair(TempInvoicePostBufferRounding."VAT Amount", "VAT Amount", "VAT Amount (ACY)");
         AdjustRoundingFieldsPair(TempInvoicePostBufferRounding."VAT Base Amount", "VAT Base Amount", "VAT Base Amount (ACY)");
-
+        NonDeductibleVAT.AdjustRoundingForInvoicePostBufferUpdate(TempInvoicePostBufferRounding, Rec);
         OnAfterAdjustRoundingForUpdate(Rec, TempInvoicePostBufferRounding);
     end;
 
@@ -728,7 +770,7 @@
         ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding.Amount, Amount);
         ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding."VAT Amount", "VAT Amount");
         ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding."VAT Base Amount", "VAT Base Amount");
-
+        NonDeductibleVAT.ApplyRoundingForFinalPostingFromInvoicePostBuffer(TempInvoicePostBufferRounding, Rec);
         OnAfterApplyRoundingForFinalPosting(Rec, TempInvoicePostBufferRounding);
     end;
 
@@ -768,6 +810,7 @@
         GenJnlLine."Source Curr. VAT Amount" := Rec."VAT Amount (ACY)";
         GenJnlLine."VAT Difference" := Rec."VAT Difference";
         GenJnlLine."VAT Base Before Pmt. Disc." := Rec."VAT Base Before Pmt. Disc.";
+        NonDeductibleVAT.Copy(GenJnlLine, Rec);
         if not FeatureKeyManagement.IsAutomaticAccountCodesEnabled() then
             GenJnlLine."Auto. Acc. Group" := Rec."Auto. Acc. Group";
 

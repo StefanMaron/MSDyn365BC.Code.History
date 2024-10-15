@@ -437,7 +437,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCompressBuffer(PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var IsHandled: Boolean)
+    local procedure OnBeforeCompressBuffer(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var IsHandled: Boolean)
     begin
     end;
 

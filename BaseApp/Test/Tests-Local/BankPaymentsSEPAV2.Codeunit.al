@@ -28,6 +28,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         ResendConfirmMsg: Label 'Transactions have been transferred to bank file.';
         NothingToSendErr: Label 'There is nothing to send.';
         ReportLinesCountErr: Label 'Only one payment should exist.';
+        ZeroReferenceNoErr: Label 'Reference number cannot contain only zeros.';
 
     [Test]
     [HandlerFunctions('RPHSuggestBankPayments,MessageHandler')]
@@ -703,6 +704,61 @@ codeunit 144004 "Bank Payments - SEPA V2"
         // [THEN] Suggested posting date is the same as the date used by the Bank Payments
         VerifyGeneralJournalPostingDate(GenJournalLine, GenJournalLine."Account Type"::Vendor, Vendor."No.", InvoiceNo[1], WorkDate + 1);
         VerifyGeneralJournalPostingDate(GenJournalLine, GenJournalLine."Account Type"::Vendor, Vendor."No.", InvoiceNo[2], WorkDate + 2);
+    end;
+
+    [Test]
+    procedure InvoiceMessageZerosOnlyWhenMessageTypeReferenceNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoiceCard: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 457227] Set only zeros to Invoice Message when Message Type is Reference No.
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with Message Type = Reference No.
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.Validate("Message Type", PurchaseHeader."Message Type"::"Reference No.");
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Opened Purchase Invoice card.
+        PurchaseInvoiceCard.OpenEdit();
+        PurchaseInvoiceCard.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] Set Invoice Message = "00000000".
+        asserterror PurchaseInvoiceCard."Invoice Message".SetValue('00000000');
+
+        // [THEN] Error "Reference number cannot contain only zeros." is thrown.
+        Assert.ExpectedError(ZeroReferenceNoErr);
+        Assert.ExpectedErrorCode('TestValidation');
+    end;
+
+    [Test]
+    procedure InvoiceMessageNotZerosOnlyWhenMessageTypeReferenceNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoiceCard: TestPage "Purchase Invoice";
+        InvoiceMessage: Text[250];
+    begin
+        // [SCENARIO 457227] Set value that contains not only zeros to Invoice Message when Message Type is Reference No.
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with Message Type = Reference No.
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.Validate("Message Type", PurchaseHeader."Message Type"::"Reference No.");
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Opened Purchase Invoice card.
+        PurchaseInvoiceCard.OpenEdit();
+        PurchaseInvoiceCard.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] Set Invoice Message = "10000003".
+        InvoiceMessage := '10000003';
+        PurchaseInvoiceCard."Invoice Message".SetValue(InvoiceMessage);
+        PurchaseInvoiceCard.Close();
+
+        // [THEN] The Invoice Message was set to "10000003".
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PurchaseHeader.TestField("Invoice Message", InvoiceMessage);
     end;
 
     local procedure Initialize()

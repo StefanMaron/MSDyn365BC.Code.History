@@ -244,6 +244,10 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
+        if SourceFieldRef.Number() = DestinationFieldRef.Number() then
+            if SourceFieldRef.Record().Number() = DestinationFieldRef.Record().Number() then
+                exit;
+
         if DestinationFieldRef.Name() = 'OwnerId' then begin
             CDSConnectionSetup.Get();
             case CDSConnectionSetup."Ownership Model" of

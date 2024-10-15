@@ -484,6 +484,21 @@ table 5092 Opportunity
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+        }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Opportunity)));
         }
         field(9501; "Wizard Step"; Option)
         {
@@ -551,9 +566,14 @@ table 5092 Opportunity
         key(Key8; SystemModifiedAt)
         {
         }
+#if not CLEAN23
         key(Key9; "Coupled to CRM")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+            ObsoleteTag = '23.0';
         }
+#endif
     }
 
     fieldgroups
@@ -603,7 +623,6 @@ table 5092 Opportunity
         RMSetup: Record "Marketing Setup";
         Opp: Record Opportunity;
         RMCommentLine: Record "Rlshp. Mgt. Comment Line";
-        SegHeader: Record "Segment Header";
         OppEntry: Record "Opportunity Entry";
         TempRlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -657,45 +676,49 @@ table 5092 Opportunity
         Insert(true);
     end;
 
-    procedure CreateOppFromOpp(var Opp: Record Opportunity)
+    procedure CreateOppFromOpp(var Opportunity: Record Opportunity)
     var
-        Cont: Record Contact;
-        SalesPurchPerson: Record "Salesperson/Purchaser";
+        Contact: Record Contact;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
         Campaign: Record Campaign;
-        SegHeader: Record "Segment Header";
-        SegLine: Record "Segment Line";
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        IsHandled: Boolean;
     begin
         DeleteAll();
         Init();
-        OnCreateOppFromOppOnAfterInit(Opp);
+        OnCreateOppFromOppOnAfterInit(Opportunity);
         "Creation Date" := WorkDate();
         SetDefaultSalesCycle();
-        if Cont.Get(Opp.GetFilter("Contact Company No.")) then begin
-            Validate("Contact No.", Cont."No.");
-            "Salesperson Code" := Cont."Salesperson Code";
+        if Contact.Get(Opportunity.GetFilter("Contact Company No.")) then begin
+            Validate("Contact No.", Contact."No.");
+            "Salesperson Code" := Contact."Salesperson Code";
             SetRange("Contact Company No.", "Contact No.");
         end;
-        if Cont.Get(Opp.GetFilter("Contact No.")) then begin
-            Validate("Contact No.", Cont."No.");
-            "Salesperson Code" := Cont."Salesperson Code";
+        if Contact.Get(Opportunity.GetFilter("Contact No.")) then begin
+            Validate("Contact No.", Contact."No.");
+            "Salesperson Code" := Contact."Salesperson Code";
             SetRange("Contact No.", "Contact No.");
         end;
-        if SalesPurchPerson.Get(Opp.GetFilter("Salesperson Code")) then begin
-            "Salesperson Code" := SalesPurchPerson.Code;
-            SetRange("Salesperson Code", "Salesperson Code");
-        end;
-        if Campaign.Get(Opp.GetFilter("Campaign No.")) then begin
+        IsHandled := false;
+        OnCreateOppFromOppOnBeforeSetFilterSalesPersonCode(Rec, IsHandled);
+        if not IsHandled then
+            if SalespersonPurchaser.Get(Opportunity.GetFilter("Salesperson Code")) then begin
+                "Salesperson Code" := SalespersonPurchaser.Code;
+                SetRange("Salesperson Code", "Salesperson Code");
+            end;
+        if Campaign.Get(Opportunity.GetFilter("Campaign No.")) then begin
             "Campaign No." := Campaign."No.";
             "Salesperson Code" := Campaign."Salesperson Code";
             SetRange("Campaign No.", "Campaign No.");
         end;
-        if SegHeader.Get(Opp.GetFilter("Segment No.")) then begin
-            SegLine.SetRange("Segment No.", SegHeader."No.");
-            if SegLine.Count = 0 then
+        if SegmentHeader.Get(Opportunity.GetFilter("Segment No.")) then begin
+            SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
+            if SegmentLine.Count = 0 then
                 Error(Text001);
-            "Segment No." := SegHeader."No.";
-            "Campaign No." := SegHeader."Campaign No.";
-            "Salesperson Code" := SegHeader."Salesperson Code";
+            "Segment No." := SegmentHeader."No.";
+            "Campaign No." := SegmentHeader."Campaign No.";
+            "Salesperson Code" := SegmentHeader."Salesperson Code";
             SetRange("Segment No.", "Segment No.");
         end;
 
@@ -704,8 +727,8 @@ table 5092 Opportunity
 
     local procedure InsertOpportunity(var Opp2: Record Opportunity; OppEntry2: Record "Opportunity Entry"; var TempRlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line"; ActivateFirstStage: Boolean)
     var
-        SegHeader: Record "Segment Header";
-        SegLine: Record "Segment Line";
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
         SalesCycleStage: Record "Sales Cycle Stage";
     begin
         Opp := Opp2;
@@ -717,19 +740,19 @@ table 5092 Opportunity
                 OppEntry2."Sales Cycle Stage" := SalesCycleStage.Stage;
         end;
 
-        if SegHeader.Get(GetFilter("Segment No.")) then begin
-            SegLine.SetRange("Segment No.", SegHeader."No.");
-            SegLine.SetFilter("Contact No.", '<>%1', '');
-            if SegLine.Find('-') then
-                if Confirm(Text002, true, SegHeader."No.") then
+        if SegmentHeader.Get(GetFilter("Segment No.")) then begin
+            SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
+            SegmentLine.SetFilter("Contact No.", '<>%1', '');
+            if SegmentLine.Find('-') then
+                if Confirm(Text002, true, SegmentHeader."No.") then
                     repeat
-                        Opp."Contact No." := SegLine."Contact No.";
-                        Opp."Contact Company No." := SegLine."Contact Company No.";
+                        Opp."Contact No." := SegmentLine."Contact No.";
+                        Opp."Contact Company No." := SegmentLine."Contact Company No.";
                         Clear(Opp."No.");
                         Opp.Insert(true);
                         CreateCommentLines(TempRlshpMgtCommentLine, Opp."No.");
-                        ProcessFirstStage(OppEntry2, ActivateFirstStage, true, SegLine."Salesperson Code");
-                    until SegLine.Next() = 0;
+                        ProcessFirstStage(OppEntry2, ActivateFirstStage, true, SegmentLine."Salesperson Code");
+                    until SegmentLine.Next() = 0;
         end else begin
             Opp.Insert(true);
             CreateCommentLines(TempRlshpMgtCommentLine, Opp."No.");
@@ -752,6 +775,8 @@ table 5092 Opportunity
             OpportunityEntry.InsertEntry(OpportunityEntry, false, true);
             OpportunityEntry.UpdateEstimates();
         end;
+
+        OnAfterProcessFirstStage(OpportunityEntry);
     end;
 
     procedure UpdateOpportunity()
@@ -925,6 +950,7 @@ table 5092 Opportunity
 
     procedure CheckStatus()
     var
+        SegmentHeader: Record "Segment Header";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -937,7 +963,7 @@ table 5092 Opportunity
         if Description = '' then
             ErrorMessage(FieldCaption(Description));
 
-        if not SegHeader.Get(GetFilter("Segment No.")) then
+        if not SegmentHeader.Get(GetFilter("Segment No.")) then
             if "Contact No." = '' then
                 Error(Text023);
         if "Salesperson Code" = '' then
@@ -1111,7 +1137,7 @@ table 5092 Opportunity
         IsHandled := false;
         OnBeforeRunQuotePage(SalesHeader, Modal, IsHandled);
         if IsHandled then
-           exit;
+            exit;
 
         if Modal then
             PAGE.RunModal(PAGE::"Sales Quote", SalesHeader)
@@ -1294,6 +1320,16 @@ table 5092 Opportunity
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunQuotePage(var SalesHeader: Record "Sales Header"; Modal: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOppFromOppOnBeforeSetFilterSalesPersonCode(var Opportunity: Record Opportunity; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessFirstStage(var OpportunityEntry: Record "Opportunity Entry")
     begin
     end;
 }

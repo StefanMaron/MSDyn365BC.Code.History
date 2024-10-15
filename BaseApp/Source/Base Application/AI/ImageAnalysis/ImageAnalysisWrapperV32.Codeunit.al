@@ -5,6 +5,7 @@ codeunit 2023 "Image Analysis Wrapper V3.2" implements "Image Analysis Provider"
     // https://westus.dev.cognitive.microsoft.com/docs/services/computer-vision-v3-2/operations/56f91f2e778daf14a499f21b
 
     var
+        RequestIdTelemetryMsg: Label 'Call to Image Analysis succeeded. ID present: %1; Request ID: %2.', Locked = true;
         CognitiveServicesErr: Label 'Could not contact the %1. %2 Status code: %3.', Comment = '%1: Error returned from called API. %2: the error message. %3: HTTP status code of error';
         MediaTooLargeErr: Label 'The media file is too large. Only images up to 4 MB are supported.';
         MediaTooSmallErr: Label 'The media file is too small. It must be at least 50x50 pixels.';
@@ -76,6 +77,23 @@ codeunit 2023 "Image Analysis Wrapper V3.2" implements "Image Analysis Provider"
             LastError := StrSubstNo(CognitiveServicesErr, ComputerVisionApiTxt, MessageText, HttpResponseMessage.HttpStatusCode);
             Error('');
         end;
+
+        LogCorrelationToTelemetry(JSONManagement);
+    end;
+
+    local procedure LogCorrelationToTelemetry(var JSONManagement: Codeunit "JSON Management")
+    var
+        ImageAnalysisManagement: Codeunit "Image Analysis Management";
+        JsonResult: DotNet JObject;
+        RequestIdAsGuid: Guid;
+        RequestIdPresent: Boolean;
+    begin
+        JSONManagement.GetJSONObject(JsonResult);
+
+        RequestIdPresent := JSONManagement.GetGuidPropertyValueFromJObjectByName(JsonResult, 'requestId', RequestIdAsGuid);
+
+        Session.LogMessage('0000K10', StrSubstNo(RequestIdTelemetryMsg, RequestIdPresent, RequestIdAsGuid),
+            Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ImageAnalysisManagement.GetTelemetryCategory());
     end;
 
     procedure GetLastError(): Text
@@ -144,7 +162,7 @@ codeunit 2023 "Image Analysis Wrapper V3.2" implements "Image Analysis Provider"
     var
         DotNetCultureInfo: Codeunit DotNet_CultureInfo;
         CultureCode: Text[10];
-        IsoLanguage: Text[2];
+        IsoLanguage: Text[10];
         SupportedLanguages: List of [Text[10]];
         LocalAnalysisTypes: List of [Enum "Image Analysis Type"];
     begin

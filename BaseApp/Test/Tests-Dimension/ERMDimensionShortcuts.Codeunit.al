@@ -25,6 +25,8 @@ codeunit 134485 "ERM Dimension Shortcuts"
         IsInitialized: Boolean;
         TempBatchNameTxt: Label 'BD_TEMP';
         ShortcutDimErrorTxt: Label 'Recurring Method must not be BD Balance by Dimension in Gen. Journal Line';
+        KeepExistingDimensionsMsg: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
+        UpdateDimensionOnLineMsg: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     [Test]
     [Scope('OnPrem')]
@@ -6009,6 +6011,63 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchaseQuote.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure VerifyDimensionsAreUpdatedOnSalesLineOnChangeSalespersonOnSalesHeader()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        SalespersonPurchaser, SalespersonPurchaser2 : Record "Salesperson/Purchaser";
+        SalespersonDimensionValue: Record "Dimension Value";
+        DimensionValue: array[6] of Record "Dimension Value";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 469349] Verify dimensions are updated on sales line on change salesperson on sales header
+        // [GIVEN] Initial state
+        Initialize();
+
+        // [GIVEN] General ledger setup with shortcut dimensions SD3-SD8
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Salesperson with default dimension
+        CreateSalespersonWithDefaultDim(SalespersonPurchaser, DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
+
+        // [GIVEN] Create Salesperson with default dimension
+        LibraryDimension.CreateDimensionValue(SalespersonDimensionValue, DimensionValue[1]."Dimension Code");
+        CreateSalespersonWithDefaultDim(SalespersonPurchaser2, SalespersonDimensionValue."Dimension Code", SalespersonDimensionValue.Code);
+
+        // [GIVEN] Add Salesperson to Customer
+        Customer."Salesperson Code" := SalespersonPurchaser.Code;
+        Customer.Modify(true);
+
+        // [GIVEN] Item I with description "XXX"
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create sales document
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Open Sales Order
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [GIVEN] Create new Sales Order Line        
+        SalesOrder.SalesLines.New();
+        SalesOrder.SalesLines.Type.SetValue("Sales Line Type"::Item);
+        SalesOrder.SalesLines."No.".SetValue(Item."No.");
+
+        // [WHEN] Update Salesperson on Sales Order
+        SalesOrder."Salesperson Code".SetValue(SalespersonPurchaser2.Code);
+
+        // [THEN] Verify that Sales Order Lines has shortcut dimension SD3       
+        SalesOrder.SalesLines.ShortcutDimCode3.AssertEquals(SalespersonDimensionValue.Code);
+        SalesOrder.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Shortcuts");
@@ -6527,11 +6586,30 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Assert.IsTrue(GLEntry.Amount = 0, 'Wrong balance');
     end;
 
+    local procedure CreateSalespersonWithDefaultDim(var SalespersonPurchaser: Record "Salesperson/Purchaser"; DimensionCode: Code[20]; DimensionValueCode: Code[20])
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, Database::"Salesperson/Purchaser", SalespersonPurchaser.Code, DimensionCode, DimensionValueCode);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        if Question = KeepExistingDimensionsMsg then
+            Reply := false;
+        if Question = UpdateDimensionOnLineMsg then
+            Reply := true;
     end;
 
     [MessageHandler]

@@ -1,3 +1,4 @@
+#if not CLEAN23
 codeunit 438 "IC Mapping Accounts"
 {
     Access = Internal;
@@ -219,3 +220,4 @@ codeunit 438 "IC Mapping Accounts"
         FailedToChangeCompanyErr: Label 'It was not possible to find table %1 in partner %2.', Comment = '%1 = Table caption, %2 = Partner Code';
         MissingPermissionToReadTableErr: Label 'You do not have the necessary permissions to access the intercompany chart of accounts of partner %1.', Comment = '%1 = Partner Code';
 }
+#endif

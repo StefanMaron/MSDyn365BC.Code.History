@@ -433,12 +433,53 @@ table 254 "VAT Entry"
             begin
                 if (Rec."VAT Reporting Date" = xRec."VAT Reporting Date") and (CurrFieldNo <> 0) then
                     exit;
-
+                // if type settlement then we error
+                Validate(Type);
                 if not VATDateReportingMgt.IsVATDateModifiable() or not VATDateReportingMgt.IsValidVATDate(Rec) or not VATDateReportingMgt.IsValidDate(xRec."VAT Reporting Date", true) then
                     Error('');
 
                 VATDateReportingMgt.UpdateLinkedEntries(Rec);
             end;
+        }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %"';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Base';
+            Editable = false;
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Amount';
+            Editable = false;
+        }
+        field(6203; "Non-Deductible VAT Base ACY"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Base ACY';
+            Editable = false;
+        }
+        field(6204; "Non-Deductible VAT Amount ACY"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Amount ACY';
+            Editable = false;
+        }
+        field(6205; "Non-Deductible VAT Diff."; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference';
+            Editable = false;
+        }
+        field(6206; "Non-Deductible VAT Diff. ACY"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference ACY';
+            Editable = false;
         }
     }
 
@@ -500,6 +541,7 @@ table 254 "VAT Entry"
         Cust: Record Customer;
         Vend: Record Vendor;
         GLSetup: Record "General Ledger Setup";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
 
         Text000: Label 'You cannot change the contents of this field when %1 is %2.';
         ConfirmAdjustQst: Label 'Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?';
@@ -615,6 +657,7 @@ table 254 "VAT Entry"
         "Bill-to/Pay-to No." := GenJnlLine."Bill-to/Pay-to No.";
         "Country/Region Code" := GenJnlLine."Country/Region Code";
         "VAT Registration No." := GenJnlLine."VAT Registration No.";
+        NonDeductibleVAT.Copy(Rec, GenJnlLine);
 
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
     end;
@@ -624,7 +667,7 @@ table 254 "VAT Entry"
         "Posting Date" := GenJnlLine."Posting Date";
         if GenJnlLine."VAT Reporting Date" = 0D then
             "VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date")
-        else 
+        else
             "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
         "Document Type" := GenJnlLine."Document Type";
         "Document Date" := GenJnlLine."Document Date";

@@ -117,6 +117,8 @@
                 Validate("Location Code", LocationCode);
                 GetShippingTime(FieldNo("Sell-to Customer No."));
 
+                SetRcvdFromCountry(Customer."Country/Region Code");
+
                 if (xRec."Sell-to Customer No." <> "Sell-to Customer No.") or
                    (xRec."Currency Code" <> "Currency Code") or
                    (xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group") or
@@ -2226,6 +2228,11 @@
                     InitVATDate();
             end;
         }
+        field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }        
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -2270,6 +2277,21 @@
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+        }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Sales Header")));
         }
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
@@ -2307,6 +2329,7 @@
 
             trigger OnValidate()
             begin
+                UpdateSalesLinesByFieldNo(FieldNo("Campaign No."), CurrFieldNo <> 0);
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
@@ -2673,7 +2696,14 @@
             Caption = 'Promised Delivery Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePromisedDeliveryDate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 if "Promised Delivery Date" <> xRec."Promised Delivery Date" then
                     UpdateSalesLinesByFieldNo(FieldNo("Promised Delivery Date"), CurrFieldNo <> 0);
@@ -3130,6 +3160,7 @@
         ArchiveManagement: Codeunit ArchiveManagement;
         LocationCode: Code[10];
         IsHandled: Boolean;
+        NewOrderDate: Date;
     begin
         GetSalesSetup();
         IsHandled := false;
@@ -3143,8 +3174,9 @@
 
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then
             "Posting Date" := 0D;
-
-        "Order Date" := WorkDate();
+        NewOrderDate := WorkDate();
+        OnInitRecordOnBeforeAssignOrderDate(Rec, NewOrderDate);
+        "Order Date" := NewOrderDate;
         "Document Date" := WorkDate();
         if "Document Type" = "Document Type"::Quote then
             CalcQuoteValidUntilDate();
@@ -3917,6 +3949,7 @@
     var
         "Field": Record "Field";
         JobTransferLine: Codeunit "Job Transfer Line";
+        JobPostLine: Codeunit "Job Post-Line";
         Question: Text[250];
         IsHandled: Boolean;
         ShouldConfirmReservationDateConflict: Boolean;
@@ -4021,6 +4054,12 @@
                         SalesLine.FieldNo("Deferral Code"):
                             if SalesLine."No." <> '' then
                                 SalesLine.Validate("Deferral Code");
+                        FieldNo("Campaign No."):
+                            if SalesLine."No." <> '' then begin
+                                if SalesLine."Job No." <> '' then
+                                    JobPostLine.TestSalesLine(SalesLine);
+                                SalesLine.UpdateUnitPrice(0);
+                            end;
                         else
                             OnUpdateSalesLineByChangedFieldName(Rec, SalesLine, Field.FieldName, ChangedFieldNo, xRec);
                     end;
@@ -4467,7 +4506,7 @@
         end else
             if Cust.Get(CustomerNo) then begin
                 if Cust."Primary Contact No." <> '' then
-                    Validate("Sell-to Contact No.", Cust."Primary Contact No.")
+                    "Sell-to Contact No." := Cust."Primary Contact No."
                 else begin
                     ContBusRel.Reset();
                     ContBusRel.SetCurrentKey("Link to Table", "No.");
@@ -4914,6 +4953,13 @@
         OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo);
     end;
 
+    local procedure SetRcvdFromCountry(RcvdFromCountryRegionCode: Code[10])
+    begin
+        if not IsCreditDocType() then
+            exit;
+        Rec."Rcvd-from Country/Region Code" := RcvdFromCountryRegionCode;
+    end;
+    
     local procedure UpdateShipToCodeFromCust()
     var
         IsHandled: Boolean;
@@ -7461,13 +7507,16 @@
         OnBeforeCheckCustomerPostingGroupChange(Rec, xRec, IsHandled);
         if IsHandled then
             exit;
+
         if ("Customer Posting Group" <> xRec."Customer Posting Group") and (xRec."Customer Posting Group" <> '') then begin
             TestField("Bill-to Customer No.");
             BillToCustomer.Get("Bill-to Customer No.");
-            BillToCustomer.TestField("Allow Multiple Posting Groups");
             GetSalesSetup();
-            PostingGroupChangeInterface := SalesSetup."Check Multiple Posting Groups";
-            PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
+            if SalesSetup."Allow Multiple Posting Groups" then begin
+                BillToCustomer.TestField("Allow Multiple Posting Groups");
+                PostingGroupChangeInterface := SalesSetup."Check Multiple Posting Groups";
+                PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
+            end;
         end;
     end;
 
@@ -7627,6 +7676,24 @@
             IsEditable := Rec."Sell-to Customer No." <> '';
 
         OnAfterSalesLinesEditable(Rec, IsEditable);
+    end;
+    
+    internal procedure SetTrackInfoForCancellation()
+    var
+        CancelledDocument: Record "Cancelled Document";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        if Rec."Applies-to Doc. Type" <> Rec."Applies-to Doc. Type"::Invoice then
+            exit;
+        SalesInvoiceHeader.SetLoadFields("No.");
+        if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
+            exit;
+        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.");
+        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
+        if not SalesCreditMemoHeader.FindFirst() then
+            exit;
+        CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
     end;
 
 #if not CLEAN20
@@ -8370,6 +8437,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePromisedDeliveryDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -8646,6 +8718,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitRecordOnBeforeAssignShipmentDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitRecordOnBeforeAssignOrderDate(var SalesHeader: Record "Sales Header"; var NewOrderDate: Date)
     begin
     end;
 

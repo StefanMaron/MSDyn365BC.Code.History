@@ -209,7 +209,8 @@
         SummarizePerVend: Boolean;
         VendorLedgerEntryView: Text;
         GenJournalDocType: Enum "Gen. Journal Document Type";
-        ThereAreNoPaymentsToProccesErr: Label 'There are no payments to process for the selected entries . They might be included in another payment process. If so, the Applies-to ID field will contain a value. You might need to use Page Inspection (Ctrl+Alt+F1) to find the field.';
+        ThereAreNoPaymentsToProccesErr: Label 'There are no payments to process for the selected entries.';
+        PaymentApplicationInProcessErr: Label 'A payment application process ''%1'' is in progress for the selected entry no. %2. Make sure you have not applied this entry in ongoing journals or payment reconciliation journals.', Comment = '%1 - A code for the payment application process, %2 - The entry no. that has an ongoing application process';
     begin
         TempVendorPaymentBuffer.Reset();
         TempVendorPaymentBuffer.DeleteAll();
@@ -258,6 +259,7 @@
                     TempVendorPaymentBuffer.SetRange("Vendor Ledg. Entry Doc. Type", TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type");
                     if TempVendorPaymentBuffer.Find('-') then begin
                         TempVendorPaymentBuffer.Amount += PaymentAmt;
+                        TempVendorPaymentBuffer."Payment Reference" := '';
                         SummarizePerVend := true;
                         TempVendorPaymentBuffer.Modify();
                     end else begin
@@ -270,10 +272,11 @@
 
                     VendorLedgerEntry."Amount to Apply" := VendorLedgerEntry."Remaining Amount";
                     CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
-                end;
+                end else
+                    Error(PaymentApplicationInProcessErr, VendorLedgerEntry."Applies-to ID", VendorLedgerEntry."Entry No.")
             until VendorLedgerEntry.Next() = 0;
         if TempVendorPaymentBuffer.IsEmpty() then
-            error(ThereAreNoPaymentsToProccesErr);
+            Error(ThereAreNoPaymentsToProccesErr);
         CopyTempPaymentBufferToGenJournalLines(TempVendorPaymentBuffer, GenJnlLine, SummarizePerVend);
         VendorLedgerEntry.SetView(VendorLedgerEntryView);
     end;

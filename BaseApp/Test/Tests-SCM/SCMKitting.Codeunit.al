@@ -2500,6 +2500,35 @@ codeunit 137101 "SCM Kitting"
         VerifyAssemblyLine(AssemblyHeader, 6);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDimensionsOnAssemblyOrderAfterExplodeBOM()
+    var
+        DefaultDimension: Record "Default Dimension";
+        AssemblyItem: Record Item;
+        AssemblyItem2: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        // [SCENARIO 466770] Dimensions not added when inserting a new line in Assembly Order
+
+        // [GIVEN] Setup: Create Assembly Items and create their BOM components.
+        Initialize();
+        CreateAssemblyItemsAndBOMComponentsWithDefaultDimension(AssemblyItem, AssemblyItem2, DefaultDimension);
+
+        // [GIVEN] Create Assembly Order and explode BOM. Add inventory for Component Item.
+        LibraryAssembly.CreateAssemblyHeader(
+          AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, AssemblyItem2."No.", '', LibraryRandom.RandInt(5), '');
+        FindAssemblyOrderLine(AssemblyLine, AssemblyHeader."No.", AssemblyItem."No.");
+
+        // [THEN] Explode the Assembly List
+        AssemblyLine.ExplodeAssemblyList;
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), LibraryRandom.RandInt(5));
+
+        // [VERIFY] Verify: Default Dimension on Assembly Line
+        VerifyJobTaskDimensionOnRequisitionLine(AssemblyLine, DefaultDimension);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4126,6 +4155,29 @@ codeunit 137101 "SCM Kitting"
         if StandardCostAmt <> 0 then
             Item.Validate("Standard Cost", StandardCostAmt);
         Item.Modify(true);
+    end;
+
+    local procedure CreateAssemblyItemsAndBOMComponentsWithDefaultDimension(var Item: Record Item; var AssemblyItem: Record Item; var DefaultDimension: Record "Default Dimension")
+    var
+        BOMComponent: Record "BOM Component";
+    begin
+        CreateAssemblyItem(Item);
+        CreateAssemblyItem(AssemblyItem);
+        UpdateItemDimensionWithValuePosting(
+          DefaultDimension, AssemblyItem."No.", DefaultDimension."Value Posting"::"Same Code");
+        LibraryAssembly.CreateAssemblyListComponent(
+          BOMComponent.Type::Item, Item."No.", AssemblyItem."No.", '',
+          BOMComponent."Resource Usage Type", LibraryRandom.RandInt(5), true);
+    end;
+
+    local procedure VerifyJobTaskDimensionOnRequisitionLine(AssemblyLine: Record "Assembly Line"; DefaultDimension: Record "Default Dimension")
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        DimensionSetEntry.SetRange("Dimension Set ID", AssemblyLine."Dimension Set ID");
+        DimensionSetEntry.FindLast();
+        Assert.AreEqual(DefaultDimension."Dimension Code", DimensionSetEntry."Dimension Code", '');
+        Assert.AreEqual(DefaultDimension."Dimension Value Code", DimensionSetEntry."Dimension Value Code", '');
     end;
 
     [ConfirmHandler]

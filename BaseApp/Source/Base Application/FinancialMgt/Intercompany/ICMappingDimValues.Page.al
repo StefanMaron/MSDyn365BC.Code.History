@@ -45,7 +45,7 @@ page 668 "IC Mapping Dim Values"
                     var
                         ICDimensionValues: Record "IC Dimension Value";
                         DimensionValues: Record "Dimension Value";
-                        ICMappingDimensions: Codeunit "IC Mapping Dimensions";
+                        ICMapping: Codeunit "IC Mapping";
                         UserSelection: Integer;
                     begin
                         UserSelection := StrMenu(SelectionOptionsQst, 0, MapDimensionValuesInstructionQst);
@@ -53,19 +53,19 @@ page 668 "IC Mapping Dim Values"
                             1:
                                 begin
                                     CurrPage.IntercompanyDimValues.Page.GetSelectedLines(ICDimensionValues);
-                                    ICMappingDimensions.MapICDimensionValues(ICDimensionValues);
+                                    ICMapping.MapICDimensionValues(ICDimensionValues);
                                 end;
                             2:
                                 begin
                                     CurrPage.CompanyDimValues.Page.GetSelectedLines(DimensionValues);
-                                    ICMappingDimensions.MapCompanyDimensionValues(DimensionValues);
+                                    ICMapping.MapCompanyDimensionValues(DimensionValues);
                                 end;
                             3:
                                 begin
                                     CurrPage.IntercompanyDimValues.Page.GetSelectedLines(ICDimensionValues);
                                     CurrPage.CompanyDimValues.Page.GetSelectedLines(DimensionValues);
-                                    ICMappingDimensions.MapICDimensionValues(ICDimensionValues);
-                                    ICMappingDimensions.MapCompanyDimensionValues(DimensionValues);
+                                    ICMapping.MapICDimensionValues(ICDimensionValues);
+                                    ICMapping.MapCompanyDimensionValues(DimensionValues);
                                 end;
                         end;
                     end;
@@ -81,7 +81,7 @@ page 668 "IC Mapping Dim Values"
                     var
                         ICDimensionValues: Record "IC Dimension Value";
                         DimensionValues: Record "Dimension Value";
-                        ICMappingDimensions: Codeunit "IC Mapping Dimensions";
+                        ICMapping: Codeunit "IC Mapping";
                         UserSelection: Integer;
                     begin
                         UserSelection := StrMenu(SelectionOptionsQst, 0, RemoveMappingInstructionQst);
@@ -89,19 +89,19 @@ page 668 "IC Mapping Dim Values"
                             1:
                                 begin
                                     CurrPage.IntercompanyDimValues.Page.GetSelectedLines(ICDimensionValues);
-                                    ICMappingDimensions.RemoveICMapping(ICDimensionValues);
+                                    ICMapping.RemoveICMapping(ICDimensionValues);
                                 end;
                             2:
                                 begin
                                     CurrPage.CompanyDimValues.Page.GetSelectedLines(DimensionValues);
-                                    ICMappingDimensions.RemoveCompanyMapping(DimensionValues);
+                                    ICMapping.RemoveCompanyMapping(DimensionValues);
                                 end;
                             3:
                                 begin
                                     CurrPage.IntercompanyDimValues.Page.GetSelectedLines(ICDimensionValues);
                                     CurrPage.CompanyDimValues.Page.GetSelectedLines(DimensionValues);
-                                    ICMappingDimensions.RemoveICMapping(ICDimensionValues);
-                                    ICMappingDimensions.RemoveCompanyMapping(DimensionValues);
+                                    ICMapping.RemoveICMapping(ICDimensionValues);
+                                    ICMapping.RemoveCompanyMapping(DimensionValues);
                                 end;
                         end;
                     end;
