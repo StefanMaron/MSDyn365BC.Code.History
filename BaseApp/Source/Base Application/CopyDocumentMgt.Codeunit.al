@@ -5342,6 +5342,8 @@
         ToAsmLine: Record "Assembly Line";
         BasicAsmOrderCopy: Boolean;
     begin
+        OnBeforeCopyAsmOrderToAsmOrder(TempAsmHeader, TempAsmLine, ToSalesLine, ToAsmHeaderDocType, ToAsmHeaderDocNo, InclAsmHeader);
+
         if ToAsmHeaderDocType = -1 then
             exit;
         BasicAsmOrderCopy := ToAsmHeaderDocNo <> '';
@@ -7544,7 +7546,7 @@
         ToSalesLine."Attached to Line No." :=
           TransferOldExtLines.TransferExtendedText(DocLineNo, NextLineNo, FromSalesLine."Attached to Line No.");
 
-        OnAfterCopySalesLineExtText(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, DocLineNo, NextLineNo, TransferOldExtLines);
+        OnAfterCopySalesLineExtText(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, DocLineNo, NextLineNo, TransferOldExtLines, RecalculateLines);
     end;
 
     procedure CopySalesLinesToDoc(FromDocType: Option; ToSalesHeader: Record "Sales Header"; var FromSalesShipmentLine: Record "Sales Shipment Line"; var FromSalesInvoiceLine: Record "Sales Invoice Line"; var FromReturnReceiptLine: Record "Return Receipt Line"; var FromSalesCrMemoLine: Record "Sales Cr.Memo Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
@@ -7639,12 +7641,18 @@
     end;
 
     local procedure TransferFieldsFromCrMemoToInv(var ToSalesHeader: Record "Sales Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        IsHandled: Boolean;
     begin
-        ToSalesHeader.Validate("Sell-to Customer No.", FromSalesCrMemoHeader."Sell-to Customer No.");
-        ToSalesHeader.TransferFields(FromSalesCrMemoHeader, false);
-        if (ToSalesHeader."Document Type" = ToSalesHeader."Document Type"::Invoice) and IncludeHeader then begin
-            ToSalesHeader.CopySellToAddressToShipToAddress;
-            ToSalesHeader.Validate("Ship-to Code", FromSalesCrMemoHeader."Ship-to Code");
+        IsHandled := false;
+        OnBeforeTransferFieldsFromCrMemoToInv(ToSalesHeader, FromSalesCrMemoHeader, IsHandled);
+        if not IsHandled then begin
+            ToSalesHeader.Validate("Sell-to Customer No.", FromSalesCrMemoHeader."Sell-to Customer No.");
+            ToSalesHeader.TransferFields(FromSalesCrMemoHeader, false);
+            if (ToSalesHeader."Document Type" = ToSalesHeader."Document Type"::Invoice) and IncludeHeader then begin
+                ToSalesHeader.CopySellToAddressToShipToAddress;
+                ToSalesHeader.Validate("Ship-to Code", FromSalesCrMemoHeader."Ship-to Code");
+            end;
         end;
 
         OnAfterTransferFieldsFromCrMemoToInv(ToSalesHeader, FromSalesCrMemoHeader, CopyJobData);
@@ -7853,6 +7861,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddSalesDocLine(var TempDocSalesLine: Record "Sales Line" temporary; BufferLineNo: Integer; DocumentNo: Code[20]; DocumentLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyAsmOrderToAsmOrder(var TempFromAsmHeader: Record "Assembly Header" temporary; var TempFromAsmLine: Record "Assembly Line" temporary; ToSalesLine: Record "Sales Line"; ToAsmHeaderDocType: Option; ToAsmHeaderDocNo: Code[20]; InclAsmHeader: Boolean)
     begin
     end;
 
@@ -8917,6 +8930,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferFieldsFromCrMemoToInv(var ToSalesHeader: Record "Sales Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocOnAfterTransferPostedInvoiceFields(var ToSalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header"; OldSalesHeader: Record "Sales Header")
     begin
     end;
@@ -9277,7 +9295,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopySalesLineExtText(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; FromSalesHeader: Record "Sales Header"; FromSalesLine: Record "Sales Line"; DocLineNo: Integer; var NextLineNo: Integer; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines")
+    local procedure OnAfterCopySalesLineExtText(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; FromSalesHeader: Record "Sales Header"; FromSalesLine: Record "Sales Line"; DocLineNo: Integer; var NextLineNo: Integer; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines"; RecalculateLines: Boolean)
     begin
     end;
 

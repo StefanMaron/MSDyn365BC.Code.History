@@ -283,7 +283,7 @@ page 9060 "SO Processor Activities"
         end;
 
         SetRespCenterFilter;
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate());
         SetFilter("Date Filter2", '>=%1', WorkDate);
         SetRange("User ID Filter", UserId);
 

@@ -193,7 +193,7 @@ report 10707 "Make 347 Declaration"
                         VATRegNo347 := '0' + VATRegNo347
                 else
                     VATRegNo347 := '         ';
-                Name347 := PadStr(FormatTextName(Name), 40, ' ');
+                Name347 := PadStr(FormatTextName(Name, false), 40, ' ');
 
                 GetCountyCode(true);
                 NotIn347Amt := 0;
@@ -361,7 +361,7 @@ report 10707 "Make 347 Declaration"
                         VATRegNo347 := '0' + VATRegNo347
                 else
                     VATRegNo347 := '         ';
-                Name347 := PadStr(FormatTextName(Name), 40, ' ');
+                Name347 := PadStr(FormatTextName(Name, false), 40, ' ');
 
                 GetCountyCode(false);
                 NotIn347Amt := 0;
@@ -886,7 +886,7 @@ report 10707 "Make 347 Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure FormatTextName(NameString: Text[100]) Result: Text[100]
+    procedure FormatTextName(NameString: Text[100]; ClearNumerico: Boolean) Result: Text[100]
     var
         TempString: Text[100];
         TempString1: Text[1];
@@ -897,7 +897,9 @@ report 10707 "Make 347 Declaration"
         if StrLen(TempString) > 0 then
             repeat
                 TempString1 := CopyStr(TempString, 1, 1);
-                if TempString1 in ['A' .. 'Z', '-'] then
+                if (TempString1 in ['A' .. 'Z', '-']) or
+                   (not ClearNumerico and (TempString1 in ['0' .. '9']))
+                then
                     Result := Result + TempString1
                 else
                     Result := Result + ' ';
@@ -905,6 +907,12 @@ report 10707 "Make 347 Declaration"
             until StrLen(TempString) = 0;
 
         exit(Result);
+    end;
+
+    [Scope('OnPrem')]
+    procedure FormatTextName(InputString: Text[100]): Text[100];
+    begin
+        exit(FormatTextName(InputString, true));
     end;
 
     [Scope('OnPrem')]
@@ -977,7 +985,7 @@ report 10707 "Make 347 Declaration"
                     Name347 := Customer2.Name;
                 end;
             until Customer2.Next() = 0;
-        Name347 := PadStr(FormatTextName(Name347), 40, ' ');
+        Name347 := PadStr(FormatTextName(Name347, false), 40, ' ');
 
         exit(Amt);
     end;
@@ -1025,7 +1033,7 @@ report 10707 "Make 347 Declaration"
                     Name347 := Vendor2.Name;
                 end;
             until Vendor2.Next() = 0;
-        Name347 := PadStr(FormatTextName(Name347), 40, ' ');
+        Name347 := PadStr(FormatTextName(Name347, false), 40, ' ');
     end;
 
     local procedure IdentifyCashPayments(CustomerNo: Code[20]; VATRegistrationNo: Text[20])

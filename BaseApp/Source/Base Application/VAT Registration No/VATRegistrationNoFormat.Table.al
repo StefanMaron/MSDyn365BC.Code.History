@@ -95,21 +95,18 @@
 
         case TableID of
             DATABASE::Customer:
-                if not CheckCust(VATRegNo, Number) then
-                    exit(false);
+                CheckCust(VATRegNo, Number);
             DATABASE::Vendor:
-                if not CheckVendor(VATRegNo, Number) then
-                    exit(false);
+                CheckVendor(VATRegNo, Number);
             DATABASE::Contact:
-                if not CheckContact(VATRegNo, Number) then
-                    exit(false);
+                CheckContact(VATRegNo, Number);
             else
                 OnTestTable(VATRegNo, CountryCode, Number, TableID);
         end;
         exit(true);
     end;
 
-    local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20]): Boolean
+    local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20])
     var
         Cust: Record Customer;
         Check: Boolean;
@@ -137,12 +134,8 @@
                 AppendString(TextString, Finish, CustomerIdentification);
             until (Cust.Next() = 0) or Finish;
         end;
-        if not Check then begin
+        if not Check then
             ShowCheckCustMessage(TextString);
-            exit(false);
-        end;
-
-        exit(true);
     end;
 
     local procedure ShowCheckCustMessage(TextString: Text)
@@ -157,7 +150,7 @@
         Message(StrSubstNo(Text002, TextString));
     end;
 
-    local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20]): Boolean
+    local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20])
     var
         Vend: Record Vendor;
         Check: Boolean;
@@ -183,12 +176,8 @@
                 AppendString(TextString, Finish, Vend."No.");
             until (Vend.Next() = 0) or Finish;
         end;
-        if not Check then begin
+        if not Check then
             ShowCheckVendMessage(TextString);
-            exit(false);
-        end;
-
-        exit(true);
     end;
 
     local procedure ShowCheckVendMessage(TextString: Text)
@@ -203,7 +192,7 @@
         Message(StrSubstNo(Text003, TextString));
     end;
 
-    local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20]): Boolean
+    local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20])
     var
         Cont: Record Contact;
         Check: Boolean;
@@ -228,12 +217,8 @@
                 AppendString(TextString, Finish, Cont."No.");
             until (Cont.Next() = 0) or Finish;
         end;
-        if not Check then begin
+        if not Check then
             Message(StrSubstNo(Text004, TextString));
-            exit(false);
-        end;
-
-        exit(true);
     end;
 
     procedure Compare(VATRegNo: Text[20]; Format: Text[20]): Boolean

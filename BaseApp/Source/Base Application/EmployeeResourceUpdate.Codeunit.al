@@ -30,7 +30,7 @@ codeunit 5200 "Employee/Resource Update"
         Res."Country/Region Code" := Employee."Country/Region Code";
         Res."Social Security No." := Employee."Social Security No.";
         Res."Employment Date" := Employee."Employment Date";
-        OnAfterUpdateResource(Res);
+        OnAfterUpdateResource(Res, Employee);
         Res.Modify(true)
     end;
 
@@ -58,7 +58,7 @@ codeunit 5200 "Employee/Resource Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateResource(var Resource: Record Resource)
+    local procedure OnAfterUpdateResource(var Resource: Record Resource; Employee: Record Employee)
     begin
     end;
 

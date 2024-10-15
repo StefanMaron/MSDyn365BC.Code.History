@@ -318,7 +318,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then
             repeat
                 OldReservEntry.TestItemFields(TransLine."Item No.", TransLine."Variant Code", TransferLocation);
-                if not IsReclass then
+                if not IsReclass or not OldReservEntry.NewTrackingExists() then
                     OldReservEntry.CopyNewTrackingFromReservEntry(OldReservEntry);
 
                 IsHandled := false;

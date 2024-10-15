@@ -338,9 +338,8 @@ codeunit 7000000 CarteraManagement
         with CarteraDoc2 do
             if Find('-') then begin
                 BillGr.Get("Bill Gr./Pmt. Order No.");
-                if BillGr."No. Printed" <> 0 then
-                    if not Confirm(Text1100001, false) then
-                        exit;
+                if not CheckConfirmBillGroupAlreadyPrinted(BillGr) then
+                    exit;
                 BillGr."No. Printed" := 0;
                 repeat
                     RemoveReceivableError(CarteraDoc2);
@@ -356,6 +355,22 @@ codeunit 7000000 CarteraManagement
             end;
     end;
 
+    local procedure CheckConfirmBillGroupAlreadyPrinted(BillGr: Record "Bill Group") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckConfirmBillGroupAlreadyPrinted(BillGr, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if BillGr."No. Printed" <> 0 then
+            if not Confirm(Text1100001, false) then
+                exit(false);
+
+        exit(true);
+    end;
+
     procedure RemovePayableDocs(var CarteraDoc2: Record "Cartera Doc.")
     var
         PaymentOrder: Record "Payment Order";
@@ -364,9 +379,8 @@ codeunit 7000000 CarteraManagement
         with CarteraDoc2 do
             if Find('-') then begin
                 PaymentOrder.Get("Bill Gr./Pmt. Order No.");
-                if PaymentOrder."No. Printed" <> 0 then
-                    if not Confirm(Text1100004, false) then
-                        exit;
+                if not CheckConfirmPaymentOrderAlreadyPrinted(PaymentOrder) then
+                    exit;
                 PaymentOrder."No. Printed" := 0;
                 repeat
                     RemovePayableError(CarteraDoc2);
@@ -380,6 +394,22 @@ codeunit 7000000 CarteraManagement
                 until Next() = 0;
                 PaymentOrder.Modify();
             end;
+    end;
+
+    local procedure CheckConfirmPaymentOrderAlreadyPrinted(PaymentOrder: Record "Payment Order") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckConfirmPaymentOrderAlreadyPrinted(PaymentOrder, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if PaymentOrder."No. Printed" <> 0 then
+            if not Confirm(Text1100004, false) then
+                exit(false);
+
+        exit(true);
     end;
 
     [Scope('OnPrem')]
@@ -1149,6 +1179,16 @@ codeunit 7000000 CarteraManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReverseReceivableDocPayment(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckConfirmBillGroupAlreadyPrinted(BillGr: Record "Bill Group"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckConfirmPaymentOrderAlreadyPrinted(PaymentOrder: Record "Payment Order"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

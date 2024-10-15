@@ -1806,7 +1806,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         VatRegNo := Library347Declaration.FormatVATRegNo(CompanyInfo."VAT Registration No.");
         CompanyName := PadStr(Make347Declaration.FormatTextName(CompanyInfo.Name), 40, ' ');
         ContactName := PadStr(Make347Declaration.FormatTextName(Test347DeclarationParameter.ContactName), 40, ' ');
-        ExpectedName := PadStr(Make347Declaration.FormatTextName(ExpectedName), 40, ' ');
+        ExpectedName := PadStr(Make347Declaration.FormatTextName(ExpectedName, false), 40, ' ');
         TelephoneNumber := Test347DeclarationParameter.TelephoneNumber;
 
         // Validate header data

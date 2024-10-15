@@ -1026,8 +1026,11 @@ codeunit 7000006 "Document-Post"
                         CarteraDoc."Remaining Amt. (LCY)" :=
                           CarteraDoc."Remaining Amt. (LCY)" + ("Remaining Amt. (LCY)" - CarteraDoc."Remaining Amt. (LCY)");
                         CarteraDoc.ResetNoPrinted;
-                        if Open then
-                            CarteraDoc.Modify
+                        if Open then begin
+                            OnUpdateUnAppliedReceivableDocOnBeforeCarteraDocModify(CarteraDoc);
+                            CarteraDoc.Modify();
+                            OnUpdateUnAppliedReceivableDocOnAfterCarteraDocModify(CarteraDoc);
+                        end;
                     end;
                 "Document Situation"::"Closed Documents":
                     begin
@@ -1057,7 +1060,9 @@ codeunit 7000006 "Document-Post"
                                 CarteraDoc.Type := CarteraDoc.Type::Receivable;
                                 CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" + "Remaining Amount";
                                 CarteraDoc."Remaining Amt. (LCY)" := CarteraDoc."Remaining Amt. (LCY)" + "Remaining Amt. (LCY)";
+                                OnUpdateUnAppliedReceivableDocOnBeforeCarteraDocInsert(CarteraDoc);
                                 CarteraDoc.Insert();
+                                OnUpdateUnAppliedReceivableDocOnAfterCarteraDocInsert(CarteraDoc);
                                 ClosedCarteraDoc.Delete();
                                 "Document Situation" := "Document Situation"::Cartera;
                                 "Document Status" := "Document Status"::Open;
@@ -1116,8 +1121,11 @@ codeunit 7000006 "Document-Post"
                         CarteraDoc."Remaining Amt. (LCY)" :=
                           CarteraDoc."Remaining Amt. (LCY)" - ("Remaining Amt. (LCY)" + CarteraDoc."Remaining Amt. (LCY)");
                         CarteraDoc.ResetNoPrinted;
-                        if Open then
-                            CarteraDoc.Modify
+                        if Open then begin
+                            OnUpdateUnAppliedPayableDocOnBeforeCarteraDocModify(CarteraDoc);
+                            CarteraDoc.Modify();
+                            OnUpdateUnAppliedPayableDocOnAfterCarteraDocModify(CarteraDoc);
+                        end;
                     end;
                 "Document Situation"::"Closed Documents":
                     begin
@@ -1127,7 +1135,9 @@ codeunit 7000006 "Document-Post"
                             CarteraDoc.Type := CarteraDoc.Type::Payable;
                             CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" - "Remaining Amount";
                             CarteraDoc."Remaining Amt. (LCY)" := CarteraDoc."Remaining Amt. (LCY)" - "Remaining Amt. (LCY)";
+                            OnUpdateUnAppliedPayableDocOnBeforeCarteraDocInsert(CarteraDoc);
                             CarteraDoc.Insert();
+                            OnUpdateUnAppliedPayableDocOnAfterCarteraDocInsert(CarteraDoc);
                             ClosedCarteraDoc.Delete();
                             "Document Situation" := "Document Situation"::Cartera;
                             "Document Status" := "Document Status"::Open;
@@ -1166,6 +1176,46 @@ codeunit 7000006 "Document-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCloseBillGroupIfEmptyOnAfterPostedCarteraDocSetFilter(var PostedCarteraDoc: Record "Posted Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnAppliedReceivableDocOnAfterCarteraDocModify(var CarteraDoc: Record "Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnAppliedReceivableDocOnBeforeCarteraDocModify(var CarteraDoc: Record "Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnAppliedReceivableDocOnAfterCarteraDocInsert(var CarteraDoc: Record "Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnAppliedReceivableDocOnBeforeCarteraDocInsert(var CarteraDoc: Record "Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnAppliedPayableDocOnAfterCarteraDocModify(var CarteraDoc: Record "Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnAppliedPayableDocOnBeforeCarteraDocModify(var CarteraDoc: Record "Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnAppliedPayableDocOnAfterCarteraDocInsert(var CarteraDoc: Record "Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnAppliedPayableDocOnBeforeCarteraDocInsert(var CarteraDoc: Record "Cartera Doc.")
     begin
     end;
 }

@@ -3502,15 +3502,15 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
     local procedure UpdateSerialNoInformationAndComments(var ItemTrackingLines: TestPage "Item Tracking Lines")
     var
-        SerialNoInformationList: TestPage "Serial No. Information List";
+        SerialNoInformationCard: TestPage "Serial No. Information Card";
         ItemTrackingComments: TestPage "Item Tracking Comments";
     begin
         // Update Description on Serial No information list and add Comments for Serial No.
-        SerialNoInformationList.Trap;
+        SerialNoInformationCard.Trap;
         ItemTrackingLines.Reclass_SerialNoInfoCard.Invoke;
         ItemTrackingComments.Trap;
-        SerialNoInformationList.Description.SetValue(Description);
-        SerialNoInformationList.Comment.Invoke;
+        SerialNoInformationCard.Description.SetValue(Description);
+        SerialNoInformationCard.Comment.Invoke;
         ItemTrackingComments.Date.SetValue(WorkDate);
         ItemTrackingComments.Comment.SetValue(Comment);
         ItemTrackingLines.OK.Invoke;
@@ -4646,7 +4646,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     procedure LotItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     var
         LotNoInformation: Record "Lot No. Information";
-        LotNoInformationList: TestPage "Lot No. Information List";
+        LotNoInformationCard: TestPage "Lot No. Information Card";
         ItemTrackingComments: TestPage "Item Tracking Comments";
     begin
         // Assign Lot no based on requirments.
@@ -4654,12 +4654,12 @@ codeunit 137052 "SCM RTAM Item Tracking"
             ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
             ItemTrackingLines.Last;
             LibraryItemTracking.CreateLotNoInformation(LotNoInformation, GlobalItemNo, '', ItemTrackingLines."Lot No.".Value);
-            LotNoInformationList.Trap;
+            LotNoInformationCard.Trap;
             ItemTrackingLines.Reclass_LotNoInfoCard.Invoke;
 
             ItemTrackingComments.Trap;
-            LotNoInformationList.Description.SetValue(Description);
-            LotNoInformationList.Comment.Invoke;
+            LotNoInformationCard.Description.SetValue(Description);
+            LotNoInformationCard.Comment.Invoke;
             ItemTrackingComments.Date.SetValue(WorkDate);
             ItemTrackingComments.Comment.SetValue(Comment);
             ItemTrackingLines.OK.Invoke;

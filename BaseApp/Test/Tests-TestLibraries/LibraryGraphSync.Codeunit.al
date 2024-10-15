@@ -158,11 +158,11 @@ codeunit 130620 "Library - Graph Sync"
             Validate(Address, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Address)), 1, MaxStrLen(Address)));
             Validate("Address 2", CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("Address 2")), 1, MaxStrLen("Address 2")));
             Validate("Post Code", PostCode.Code);
-            Validate("Phone No.", CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("Phone No.")), 1, MaxStrLen("Phone No.")));
+            Validate("Phone No.", CopyStr(LibraryUtility.GenerateRandomNumericText(MaxStrLen("Phone No.")), 1, MaxStrLen("Phone No.")));
             Validate("Fax No.", CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("Fax No.")), 1, MaxStrLen("Fax No.")));
             Validate(Pager, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Pager)), 1, MaxStrLen(Pager)));
             Validate("Mobile Phone No.",
-              CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("Mobile Phone No.")), 1, MaxStrLen("Mobile Phone No.")));
+              CopyStr(LibraryUtility.GenerateRandomNumericText(MaxStrLen("Mobile Phone No.")), 1, MaxStrLen("Mobile Phone No.")));
             Validate("Home Page", CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("Home Page")), 1, MaxStrLen("Home Page")));
             Modify(true);
         end;
@@ -184,7 +184,7 @@ codeunit 130620 "Library - Graph Sync"
             Validate(Address, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Address)), 1, MaxStrLen(Address)));
             Validate("Address 2", CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("Address 2")), 1, MaxStrLen("Address 2")));
             Validate("Post Code", PostCode.Code);
-            Validate("Phone No.", CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("Phone No.")), 1, MaxStrLen("Phone No.")));
+            Validate("Phone No.", CopyStr(LibraryUtility.GenerateRandomNumericText(MaxStrLen("Phone No.")), 1, MaxStrLen("Phone No.")));
             Validate("Fax No.", CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("Fax No.")), 1, MaxStrLen("Fax No.")));
             Modify(true);
         end;

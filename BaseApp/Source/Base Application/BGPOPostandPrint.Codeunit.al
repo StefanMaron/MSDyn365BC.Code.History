@@ -75,22 +75,29 @@ codeunit 7000003 "BG/PO-Post and Print"
     procedure PayablePostAndPrint(PmtOrd: Record "Payment Order")
     var
         PostedPmtOrd: Record "Posted Payment Order";
+        IsHandled: Boolean;
     begin
-        PmtOrd.SetRecFilter();
-        REPORT.RunModal(REPORT::"Post Payment Order", false, false, PmtOrd);
+        IsHandled := false;
+        OnBeforePayablePostAndPrint(PmtOrd, IsHandled);
+        if not IsHandled then begin
+            PmtOrd.SetRecFilter();
+            REPORT.RunModal(REPORT::"Post Payment Order", false, false, PmtOrd);
 
-        Commit();
+            Commit();
 
-        if PostedPmtOrd.Get(PmtOrd."No.") then begin
-            PostedPmtOrd.SetRecFilter();
-            CarteraReportSelection.Reset();
-            CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Posted Payment Order");
-            CarteraReportSelection.Find('-');
-            repeat
-                CarteraReportSelection.TestField("Report ID");
-                REPORT.Run(CarteraReportSelection."Report ID", false, false, PostedPmtOrd);
-            until CarteraReportSelection.Next() = 0;
+            if PostedPmtOrd.Get(PmtOrd."No.") then begin
+                PostedPmtOrd.SetRecFilter();
+                CarteraReportSelection.Reset();
+                CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Posted Payment Order");
+                CarteraReportSelection.Find('-');
+                repeat
+                    CarteraReportSelection.TestField("Report ID");
+                    REPORT.Run(CarteraReportSelection."Report ID", false, false, PostedPmtOrd);
+                until CarteraReportSelection.Next() = 0;
+            end;
         end;
+
+        OnAfterPayablePostAndPrint(PmtOrd);
     end;
 
     procedure PrintCounter("Table": Integer; Number: Code[20])
@@ -149,7 +156,17 @@ codeunit 7000003 "BG/PO-Post and Print"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPayablePostAndPrint(var PaymentOrder: Record "Payment Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePayablePostOnly(var PaymentOrder: Record "Payment Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePayablePostAndPrint(var PaymentOrder: Record "Payment Order"; var IsHandled: Boolean)
     begin
     end;
 }

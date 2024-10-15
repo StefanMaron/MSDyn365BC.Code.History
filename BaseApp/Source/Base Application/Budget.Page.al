@@ -1,4 +1,4 @@
-page 113 Budget
+﻿page 113 Budget
 {
     Caption = 'Budget';
     DataCaptionExpression = BudgetName;
@@ -896,37 +896,39 @@ page 113 Budget
                   BudgetDim4Filter, StepType.AsInteger(), MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
                   MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns, ShowColumnName, MATRIX_CaptionRange);
         end;
+        OnAfterGenerateColumnCaptions(ColumnDimCode, StepType, MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns, MATRIX_MatrixRecords, ShowColumnName);
     end;
 
-    local procedure DimCodeToType(DimCode: Text[30]): Enum "G/L Budget Matrix Dimensions"
+    local procedure DimCodeToType(DimCode: Text[30]) Result: Enum "G/L Budget Matrix Dimensions"
     var
         BusUnit: Record "Business Unit";
         GLAcc: Record "G/L Account";
     begin
         case DimCode of
             '':
-                exit("G/L Budget Matrix Dimensions"::Undefined);
+                Result := "G/L Budget Matrix Dimensions"::Undefined;
             GLAcc.TableCaption():
-                exit("G/L Budget Matrix Dimensions"::"G/L Account");
+                Result := "G/L Budget Matrix Dimensions"::"G/L Account";
             Text001:
-                exit("G/L Budget Matrix Dimensions"::Period);
+                Result := "G/L Budget Matrix Dimensions"::Period;
             BusUnit.TableCaption():
-                exit("G/L Budget Matrix Dimensions"::"Business Unit");
+                Result := "G/L Budget Matrix Dimensions"::"Business Unit";
             GLSetup."Global Dimension 1 Code":
-                exit("G/L Budget Matrix Dimensions"::"Global Dimension 1");
+                Result := "G/L Budget Matrix Dimensions"::"Global Dimension 1";
             GLSetup."Global Dimension 2 Code":
-                exit("G/L Budget Matrix Dimensions"::"Global Dimension 2");
+                Result := "G/L Budget Matrix Dimensions"::"Global Dimension 2";
             GLBudgetName."Budget Dimension 1 Code":
-                exit("G/L Budget Matrix Dimensions"::"Budget Dimension 1");
+                Result := "G/L Budget Matrix Dimensions"::"Budget Dimension 1";
             GLBudgetName."Budget Dimension 2 Code":
-                exit("G/L Budget Matrix Dimensions"::"Budget Dimension 2");
+                Result := "G/L Budget Matrix Dimensions"::"Budget Dimension 2";
             GLBudgetName."Budget Dimension 3 Code":
-                exit("G/L Budget Matrix Dimensions"::"Budget Dimension 3");
+                Result := "G/L Budget Matrix Dimensions"::"Budget Dimension 3";
             GLBudgetName."Budget Dimension 4 Code":
-                exit("G/L Budget Matrix Dimensions"::"Budget Dimension 4");
+                Result := "G/L Budget Matrix Dimensions"::"Budget Dimension 4";
             else
-                exit("G/L Budget Matrix Dimensions"::Undefined);
+                Result := "G/L Budget Matrix Dimensions"::Undefined;
         end;
+        OnAfterDimCodeToType(DimCode, Result);
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
@@ -972,6 +974,8 @@ page 113 Budget
         if GLBudgetName."Budget Dimension 4 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, GLBudgetName."Budget Dimension 4 Code", '');
 
+        OnGetDimSelectionOnBeforeDimSelectionLookup(DimSelection);
+
         DimSelection.LookupMode := true;
         if DimSelection.RunModal = ACTION::LookupOK then
             exit(DimSelection.GetDimSelCode);
@@ -1006,6 +1010,7 @@ page 113 Budget
                     SetFilter("Budget Dimension 3 Code", BudgetDim3Filter);
                 if BudgetDim4Filter <> '' then
                     SetFilter("Budget Dimension 4 Code", BudgetDim4Filter);
+                OnDeleteBudgetOnAfterGLBudgetEntrySetFilters(GLBudgetEntry);
                 SetCurrentKey("Entry No.");
                 if FindFirst then
                     UpdateAnalysisView.SetLastBudgetEntryNo("Entry No." - 1);
@@ -1045,27 +1050,13 @@ page 113 Budget
         BudgetDim4FilterEnable := (GLBudgetName."Budget Dimension 4 Code" <> '');
 
         PrevGLBudgetName := GLBudgetName;
+
+        OnAfterValidateBudgetName(GLAccBudgetBuf, GLBudgetName);
     end;
 
     local procedure ValidateLineDimCode()
-    var
-        BusUnit: Record "Business Unit";
-        GLAcc: Record "G/L Account";
     begin
-        if (UpperCase(LineDimCode) <> UpperCase(GLAcc.TableCaption)) and
-           (UpperCase(LineDimCode) <> UpperCase(BusUnit.TableCaption)) and
-           (UpperCase(LineDimCode) <> UpperCase(Text001)) and
-           (UpperCase(LineDimCode) <> GLBudgetName."Budget Dimension 1 Code") and
-           (UpperCase(LineDimCode) <> GLBudgetName."Budget Dimension 2 Code") and
-           (UpperCase(LineDimCode) <> GLBudgetName."Budget Dimension 3 Code") and
-           (UpperCase(LineDimCode) <> GLBudgetName."Budget Dimension 4 Code") and
-           (UpperCase(LineDimCode) <> GLSetup."Global Dimension 1 Code") and
-           (UpperCase(LineDimCode) <> GLSetup."Global Dimension 2 Code") and
-           (LineDimCode <> '')
-        then begin
-            Message(Text006, LineDimCode);
-            LineDimCode := '';
-        end;
+        ClearDimCodeOnChange(LineDimCode, Text006);
         LineDimType := DimCodeToType(LineDimCode);
         DateFilter := InternalDateFilter;
         if (LineDimType <> LineDimType::Period) and (ColumnDimType <> ColumnDimType::Period) then begin
@@ -1077,24 +1068,8 @@ page 113 Budget
     end;
 
     local procedure ValidateColumnDimCode()
-    var
-        BusUnit: Record "Business Unit";
-        GLAcc: Record "G/L Account";
     begin
-        if (UpperCase(ColumnDimCode) <> UpperCase(GLAcc.TableCaption)) and
-           (UpperCase(ColumnDimCode) <> UpperCase(BusUnit.TableCaption)) and
-           (UpperCase(ColumnDimCode) <> UpperCase(Text001)) and
-           (UpperCase(ColumnDimCode) <> GLBudgetName."Budget Dimension 1 Code") and
-           (UpperCase(ColumnDimCode) <> GLBudgetName."Budget Dimension 2 Code") and
-           (UpperCase(ColumnDimCode) <> GLBudgetName."Budget Dimension 3 Code") and
-           (UpperCase(ColumnDimCode) <> GLBudgetName."Budget Dimension 4 Code") and
-           (UpperCase(ColumnDimCode) <> GLSetup."Global Dimension 1 Code") and
-           (UpperCase(ColumnDimCode) <> GLSetup."Global Dimension 2 Code") and
-           (ColumnDimCode <> '')
-        then begin
-            Message(Text007, ColumnDimCode);
-            ColumnDimCode := '';
-        end;
+        ClearDimCodeOnChange(ColumnDimCode, Text007);
         ColumnDimType := DimCodeToType(ColumnDimCode);
         DateFilter := InternalDateFilter;
         if (LineDimType <> LineDimType::Period) and (ColumnDimType <> ColumnDimType::Period) then begin
@@ -1103,6 +1078,33 @@ page 113 Budget
                 DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
         end else
             DateFilter := '';
+    end;
+
+    local procedure ClearDimCodeOnChange(var DimCode: Text[30]; MessageText: Text)
+    var
+        BusUnit: Record "Business Unit";
+        GLAcc: Record "G/L Account";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeClearDimCodeOnChange(DimCode, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (UpperCase(DimCode) <> UpperCase(GLAcc.TableCaption)) and
+            (UpperCase(DimCode) <> UpperCase(BusUnit.TableCaption)) and
+            (UpperCase(DimCode) <> UpperCase(Text001)) and
+            (UpperCase(DimCode) <> GLBudgetName."Budget Dimension 1 Code") and
+            (UpperCase(DimCode) <> GLBudgetName."Budget Dimension 2 Code") and
+            (UpperCase(DimCode) <> GLBudgetName."Budget Dimension 3 Code") and
+            (UpperCase(DimCode) <> GLBudgetName."Budget Dimension 4 Code") and
+            (UpperCase(DimCode) <> GLSetup."Global Dimension 1 Code") and
+            (UpperCase(DimCode) <> GLSetup."Global Dimension 2 Code") and
+            (DimCode <> '')
+        then begin
+            Message(MessageText, DimCode);
+            DimCode := '';
+        end;
     end;
 
     local procedure GetCaptionClass(BudgetDimType: Integer): Text[250]
@@ -1299,6 +1301,36 @@ page 113 Budget
         DateFilter := CopyStr(GLAccBudgetBuf.GetFilter("Date Filter"), 1, MaxStrLen(DateFilter));
         InternalDateFilter := NewDateFilter;
         DateFilterOnAfterValidate();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGenerateColumnCaptions(ColumnDimCode: Text[30]; StepType: Enum "Matrix Page Step Type"; var PrimKeyFirstCaptionInCu: Text; var CaptionSet: array[32] of Text[80]; var CaptionRange: Text; var CurrentNoOfColumns: Integer; var MatrixRecords: array[32] of Record "Dimension Code Buffer"; ShowColumnName: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDimCodeToType(DimCode: Text[30]; var Result: Enum "G/L Budget Matrix Dimensions")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateBudgetName(var GLAccBudgetBuf: Record "G/L Acc. Budget Buffer"; var GLBudgetName: Record "G/L Budget Name")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearDimCodeOnChange(DimensionCode: Text[30]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteBudgetOnAfterGLBudgetEntrySetFilters(var GLBudgetEntry: Record "G/L Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDimSelectionOnBeforeDimSelectionLookup(var DimensionSelection: Page "Dimension Selection")
+    begin
     end;
 }
 

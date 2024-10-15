@@ -1179,6 +1179,7 @@
             end;
             TempSubsidGLAcc."Consol. Translation Method" := OriginalTranslationMethod;
         end;
+        OnAfterCreateAndPostGenJnlLine(GenJnlLine, ConsolidAmount, CurrencyACY);
     end;
 
     local procedure TranslateUsingHistoricalRate(AmountToTranslate: Decimal; DateToTranslate: Date) TranslatedAmount: Decimal
@@ -1427,6 +1428,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateTempGLEntry(var BusUnit: Record "Business Unit"; var TempSubsidGLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; ConsolidAmount: Decimal; CurrencyACY: Code[10])
     begin
     end;
 

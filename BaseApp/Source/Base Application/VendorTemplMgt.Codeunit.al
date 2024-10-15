@@ -6,6 +6,9 @@ codeunit 1385 "Vendor Templ. Mgt."
     begin
     end;
 
+    var
+        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records. Do you want to continue?';
+
     procedure CreateVendorFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean) Result: Boolean
     var
         VendorTempl: Record "Vendor Templ.";
@@ -35,7 +38,12 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     procedure ApplyVendorTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
     begin
-        ApplyTemplate(Vendor, VendorTempl);
+        ApplyVendorTemplate(Vendor, VendorTempl, false);
+    end;
+
+    procedure ApplyVendorTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ."; UpdateExistingValues: Boolean)
+    begin
+        ApplyTemplate(Vendor, VendorTempl, UpdateExistingValues);
         InsertDimensions(Vendor."No.", VendorTempl.Code, Database::Vendor, Database::"Vendor Templ.");
         Vendor.Get(Vendor."No.");
     end;
@@ -52,7 +60,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         ApplyVendorTemplate(Vendor, VendorTempl);
     end;
 
-    local procedure ApplyTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    local procedure ApplyTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ."; UpdateExistingValues: Boolean)
     var
         VendorRecRef: RecordRef;
         EmptyVendorRecRef: RecordRef;
@@ -76,11 +84,11 @@ codeunit 1385 "Vendor Templ. Mgt."
 
         for i := 3 to VendorTemplRecRef.FieldCount do begin
             VendorTemplFldRef := VendorTemplRecRef.FieldIndex(i);
-            if TemplateFieldCanBeProcessed(VendorTemplFldRef, FieldExclusionList) then begin
+            if TemplateFieldCanBeProcessed(VendorTemplFldRef.Number, FieldExclusionList) then begin
                 VendorFldRef := VendorRecRef.Field(VendorTemplFldRef.Number);
                 EmptyVendorFldRef := EmptyVendorRecRef.Field(VendorTemplFldRef.Number);
                 EmptyVendorTemplFldRef := EmptyVendorTemplRecRef.Field(VendorTemplFldRef.Number);
-                if (VendorFldRef.Value = EmptyVendorFldRef.Value) and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value) then
+                if (VendorFldRef.Value = EmptyVendorFldRef.Value) and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value) or UpdateExistingValues then
                     VendorFldRef.Value := VendorTemplFldRef.Value;
             end;
         end;
@@ -198,7 +206,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         if not CanBeUpdatedFromTemplate(VendorTempl, IsHandled) then
             exit;
 
-        ApplyVendorTemplate(Vendor, VendorTempl);
+        ApplyVendorTemplate(Vendor, VendorTempl, GetUpdateExistingValuesParam());
     end;
 
     procedure UpdateVendorsFromTemplate(var Vendor: Record Vendor)
@@ -222,7 +230,7 @@ codeunit 1385 "Vendor Templ. Mgt."
 
         if Vendor.FindSet() then
             repeat
-                ApplyVendorTemplate(Vendor, VendorTempl);
+                ApplyVendorTemplate(Vendor, VendorTempl, GetUpdateExistingValuesParam());
             until Vendor.Next() = 0;
     end;
 
@@ -327,9 +335,26 @@ codeunit 1385 "Vendor Templ. Mgt."
         NoSeriesManagement.InitSeries(VendorTempl."No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
     end;
 
-    local procedure TemplateFieldCanBeProcessed(TemplateFldRef: FieldRef; FieldExclusionList: List of [Integer]): Boolean
+    local procedure TemplateFieldCanBeProcessed(FieldNumber: Integer; FieldExclusionList: List of [Integer]): Boolean
+    var
+        VendorField: Record Field;
+        VendorTemplateField: Record Field;
     begin
-        exit(not (FieldExclusionList.Contains(TemplateFldRef.Number) or (TemplateFldRef.Number > 2000000000)));
+        if FieldExclusionList.Contains(FieldNumber) or (FieldNumber > 2000000000) then
+            exit(false);
+
+        if not (VendorField.Get(Database::Vendor, FieldNumber) and VendorTemplateField.Get(Database::"Vendor Templ.", FieldNumber)) then
+            exit(false);
+
+        if (VendorField.Class <> VendorField.Class::Normal) or (VendorTemplateField.Class <> VendorTemplateField.Class::Normal) or
+            (VendorField.Type <> VendorTemplateField.Type) or (VendorField.FieldName <> VendorTemplateField.FieldName) or
+            (VendorField.Len <> VendorTemplateField.Len) or
+            (VendorField.ObsoleteState = VendorField.ObsoleteState::Removed) or
+            (VendorTemplateField.ObsoleteState = VendorTemplateField.ObsoleteState::Removed)
+        then
+            exit(false);
+
+        exit(true);
     end;
 
     local procedure FillFieldExclusionList(var FieldExclusionList: List of [Integer])
@@ -343,6 +368,17 @@ codeunit 1385 "Vendor Templ. Mgt."
 		FieldExclusionList.Add(VendorTempl.FieldNo("Non-Paymt. Periods Code"));
 
         OnAfterFillFieldExclusionList(FieldExclusionList);
+    end;
+
+    local procedure GetUpdateExistingValuesParam() Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetUpdateExistingValuesParam(Result, IsHandled);
+        if not IsHandled then
+            Result := ConfirmManagement.GetResponseOrDefault(UpdateExistingValuesQst, false);
     end;
 
     [IntegrationEvent(false, false)]
@@ -482,5 +518,10 @@ codeunit 1385 "Vendor Templ. Mgt."
             exit;
 
         ShowVendorTemplList(IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUpdateExistingValuesParam(var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }

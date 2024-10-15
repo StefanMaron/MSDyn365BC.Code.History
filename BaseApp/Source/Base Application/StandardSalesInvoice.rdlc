@@ -4176,6 +4176,15 @@
                                                   <GroupExpressions>
                                                     <GroupExpression>=Fields!LineNo_AssemblyLine.Value</GroupExpression>
                                                   </GroupExpressions>
+                                                  <Filters>
+                                                    <Filter>
+                                                      <FilterExpression>=CStr(Fields!Quantity_AssemblyLine.Value) = String.Empty</FilterExpression>
+                                                      <Operator>Equal</Operator>
+                                                      <FilterValues>
+                                                        <FilterValue DataType="Boolean">=false</FilterValue>
+                                                      </FilterValues>
+                                                    </Filter>
+                                                  </Filters>
                                                 </Group>
                                                 <SortExpressions>
                                                   <SortExpression>
@@ -4184,9 +4193,6 @@
                                                 </SortExpressions>
                                               </TablixMember>
                                             </TablixMembers>
-                                            <Visibility>
-                                              <Hidden>=Fields!Quantity_AssemblyLine.Value = "0"</Hidden>
-                                            </Visibility>
                                           </TablixMember>
                                         </TablixMembers>
                                       </TablixMember>

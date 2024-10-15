@@ -1371,16 +1371,24 @@ table 270 "Bank Account"
 
     [Scope('OnPrem')]
     procedure BuildCCC()
+    var
+        IsHandled: Boolean; 
     begin
+        IsHandled := false;
+        OnBeforeBuildCCC(Rec, IsHandled);
+        if IsHandled then
+            exit;   
+
         "CCC No." := "CCC Bank No." + "CCC Bank Branch No." + "CCC Control Digits" + "CCC Bank Account No.";
         if "CCC No." <> '' then
             TestField("Bank Account No.", '');
     end;
 
     [Scope('OnPrem')]
-    procedure PrePadString(InString: Text[250]; MaxLen: Integer): Text[250]
+    procedure PrePadString(InString: Text[250]; MaxLen: Integer) Result: Text[250]
     begin
-        exit(PadStr('', MaxLen - StrLen(InString), '0') + InString);
+        Result := PadStr('', MaxLen - StrLen(InString), '0') + InString;
+        OnAfterPrePadString(Rec, InString, MaxLen, Result);
     end;
 
     [Scope('OnPrem')]
@@ -1906,6 +1914,16 @@ table 270 "Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var BankAccount: Record "Bank Account"; var xBankAccount: Record "Bank Account"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrePadString(var BankAccount: Record "Bank Account"; InString: Text[250]; MaxLen: Integer; var Result: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBuildCCC(var BankAccount: Record "Bank Account"; var IsHandled: Boolean)
     begin
     end;
 

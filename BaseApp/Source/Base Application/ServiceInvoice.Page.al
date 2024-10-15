@@ -2,6 +2,7 @@ page 5933 "Service Invoice"
 {
     Caption = 'Service Invoice';
     PageType = Document;
+    PromotedActionCategories = 'New,Process,Report,Posting,Invoice';
     RefreshOnActivate = true;
     SourceTable = "Service Header";
     SourceTableView = WHERE("Document Type" = FILTER(Invoice));

@@ -270,7 +270,13 @@
     var
         TempRevertTransactionNo: Record "Integer" temporary;
         NextLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertReversalEntry(Rec, Number, RevType, IsHandled);
+        if IsHandled then
+            exit;
+
         GLSetup.Get();
         TempReversalEntry.DeleteAll();
         NextLineNo := 1;
@@ -395,7 +401,7 @@
                 until VATEntry.Next() = 0;
         end;
 
-        OnAfterCheckEntries(MaxPostingDate);
+        OnAfterCheckEntries(MaxPostingDate, Rec);
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 1);
     end;
@@ -671,7 +677,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckRegister(RegisterNo, IsHandled);
+        OnBeforeCheckRegister(RegisterNo, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -716,7 +722,7 @@
             VATEntry.SetRange("Entry No.", GLReg."From VAT Entry No.", GLReg."To VAT Entry No.");
         end;
 
-        OnAfterSetReverseFilter(Number, RevType, GLReg);
+        OnAfterSetReverseFilter(Number, RevType, GLReg, Rec);
     end;
 
     procedure CopyReverseFilters(var GLEntry2: Record "G/L Entry"; var CustLedgEntry2: Record "Cust. Ledger Entry"; var VendLedgEntry2: Record "Vendor Ledger Entry"; var BankAccLedgEntry2: Record "Bank Account Ledger Entry"; var VATEntry2: Record "VAT Entry"; var FALedgEntry2: Record "FA Ledger Entry"; var MaintenanceLedgEntry2: Record "Maintenance Ledger Entry"; var EmployeeLedgerEntry2: Record "Employee Ledger Entry")
@@ -841,7 +847,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPostingDate(PostingDate, Caption, EntryNo, IsHandled);
+        OnBeforeCheckPostingDate(PostingDate, Caption, EntryNo, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -858,7 +864,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckFAPostingDate(FAPostingDate, Caption, EntryNo, IsHandled);
+        OnBeforeCheckFAPostingDate(FAPostingDate, Caption, EntryNo, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -1407,7 +1413,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckEntries(var MaxPostingDate: Date)
+    local procedure OnAfterCheckEntries(var MaxPostingDate: Date; var ReversalEntry: Record "Reversal Entry")
     begin
     end;
 
@@ -1557,7 +1563,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetReverseFilter(Number: Integer; RevType: Option Transaction,Register; GLRegister: Record "G/L Register")
+    local procedure OnAfterSetReverseFilter(Number: Integer; RevType: Option Transaction,Register; GLRegister: Record "G/L Register"; var ReversalEntry: Record "Reversal Entry")
     begin
     end;
 
@@ -1577,7 +1583,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckFAPostingDate(FAPostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCheckFAPostingDate(FAPostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean; var ReversalEntry: Record "Reversal Entry")
     begin
     end;
 
@@ -1597,7 +1603,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckRegister(RegisterNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCheckRegister(RegisterNo: Integer; var IsHandled: Boolean; var ReversalEntry: Record "Reversal Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertReversalEntry(var ReversalEntry: Record "Reversal Entry"; Number: Integer; RevType: Option Transaction,Register; var IsHandled: Boolean)
     begin
     end;
 
@@ -1652,7 +1663,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPostingDate(PostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCheckPostingDate(PostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean; var ReversalEntry: Record "Reversal Entry")
     begin
     end;
 

@@ -360,6 +360,7 @@ report 398 "Date Compress Vendor Ledger"
         GLentry."System-Created Entry" := true;
         GLentry."User ID" := UserId;
         GLentry."Transaction No." := NextTransactionNo;
+        OnInsertRegistersOnBeforeGLentryInsert(GlEntry);
         GLentry.Insert();
         GLentry.Consistent(GLentry.Amount = 0);
         GLReg."To Entry No." := LastEntryNo;
@@ -704,5 +705,9 @@ report 398 "Date Compress Vendor Ledger"
         Session.LogMessage('0000F4Z', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertRegistersOnBeforeGLentryInsert(var GLentry: Record "G/L Entry")
+    begin
+    end;
 }
 

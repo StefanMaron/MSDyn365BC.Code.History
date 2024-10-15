@@ -4,8 +4,9 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
     end;
 
-#if not CLEAN19
     var
+        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records. Do you want to continue?';
+#if not CLEAN19            
         TemplatesDisabledTxt: Label 'Contact conversion templates are being replaced by customer templates to avoid duplication. We have migrated your existing contact conversion templates to customer templates. Going forward, use only customer templates. Contact conversion templates are no longer used.';
         LearnMoreTxt: Label 'Learn more';
         LearnMoreUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2171036', Locked = true;
@@ -57,7 +58,7 @@ codeunit 1381 "Customer Templ. Mgt."
         Customer.Insert(true);
         Customer.SetInsertFromContact(false);
 
-        ApplyTemplate(Customer, CustomerTempl);
+        ApplyTemplate(Customer, CustomerTempl, false);
         InsertDimensions(Customer."No.", CustomerTempl.Code, Database::Customer, Database::"Customer Templ.");
         Customer.Get(Customer."No.");
 
@@ -67,12 +68,19 @@ codeunit 1381 "Customer Templ. Mgt."
 
     procedure ApplyCustomerTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
     begin
-        ApplyTemplate(Customer, CustomerTempl);
-        InsertDimensions(Customer."No.", CustomerTempl.Code, Database::Customer, Database::"Customer Templ.");
-        Customer.Get(Customer."No.");
+        ApplyCustomerTemplate(Customer, CustomerTempl, false);
     end;
 
-    local procedure ApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
+    procedure ApplyCustomerTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; UpdateExistingValues: Boolean)
+    begin
+        ApplyTemplate(Customer, CustomerTempl, UpdateExistingValues);
+        InsertDimensions(Customer."No.", CustomerTempl.Code, Database::Customer, Database::"Customer Templ.");
+        Customer.Get(Customer."No.");
+
+        OnAfterApplyCustomerTemplate(Customer, CustomerTempl);
+    end;
+
+    local procedure ApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; UpdateExistingValues: Boolean)
     var
         CustomerRecRef: RecordRef;
         EmptyCustomerRecRef: RecordRef;
@@ -102,11 +110,11 @@ codeunit 1381 "Customer Templ. Mgt."
 
         for i := 3 to CustomerTemplRecRef.FieldCount do begin
             CustomerTemplFldRef := CustomerTemplRecRef.FieldIndex(i);
-            if TemplateFieldCanBeProcessed(CustomerTemplFldRef, FieldExclusionList) then begin
+            if TemplateFieldCanBeProcessed(CustomerTemplFldRef.Number, FieldExclusionList) then begin
                 CustomerFldRef := CustomerRecRef.Field(CustomerTemplFldRef.Number);
                 EmptyCustomerFldRef := EmptyCustomerRecRef.Field(CustomerTemplFldRef.Number);
                 EmptyCustomerTemplFldRef := EmptyCustomerTemplRecRef.Field(CustomerTemplFldRef.Number);
-                if (CustomerFldRef.Value = EmptyCustomerFldRef.Value) and (CustomerTemplFldRef.Value <> EmptyCustomerTemplFldRef.Value) then
+                if (CustomerFldRef.Value = EmptyCustomerFldRef.Value) and (CustomerTemplFldRef.Value <> EmptyCustomerTemplFldRef.Value) or UpdateExistingValues then
                     CustomerFldRef.Value := CustomerTemplFldRef.Value;
             end;
         end;
@@ -231,7 +239,7 @@ codeunit 1381 "Customer Templ. Mgt."
         if not CanBeUpdatedFromTemplate(CustomerTempl, IsHandled) then
             exit;
 
-        ApplyCustomerTemplate(Customer, CustomerTempl);
+        ApplyCustomerTemplate(Customer, CustomerTempl, GetUpdateExistingValuesParam());
     end;
 
     procedure UpdateCustomersFromTemplate(var Customer: Record Customer)
@@ -255,7 +263,7 @@ codeunit 1381 "Customer Templ. Mgt."
 
         if Customer.FindSet() then
             repeat
-                ApplyCustomerTemplate(Customer, CustomerTempl);
+                ApplyCustomerTemplate(Customer, CustomerTempl, GetUpdateExistingValuesParam());
             until Customer.Next() = 0;
     end;
 
@@ -359,9 +367,26 @@ codeunit 1381 "Customer Templ. Mgt."
         NoSeriesManagement.InitSeries(CustomerTempl."No. Series", '', 0D, Customer."No.", Customer."No. Series");
     end;
 
-    local procedure TemplateFieldCanBeProcessed(TemplateFldRef: FieldRef; FieldExclusionList: List of [Integer]): Boolean
+    local procedure TemplateFieldCanBeProcessed(FieldNumber: Integer; FieldExclusionList: List of [Integer]): Boolean
+    var
+        CustomerField: Record Field;
+        CustomerTemplateField: Record Field;
     begin
-        exit(not (FieldExclusionList.Contains(TemplateFldRef.Number) or (TemplateFldRef.Number > 2000000000)));
+        if FieldExclusionList.Contains(FieldNumber) or (FieldNumber > 2000000000) then
+            exit(false);
+
+        if not (CustomerField.Get(Database::Customer, FieldNumber) and CustomerTemplateField.Get(Database::"Customer Templ.", FieldNumber)) then
+            exit(false);
+
+        if (CustomerField.Class <> CustomerField.Class::Normal) or (CustomerTemplateField.Class <> CustomerTemplateField.Class::Normal) or
+            (CustomerField.Type <> CustomerTemplateField.Type) or (CustomerField.FieldName <> CustomerTemplateField.FieldName) or
+            (CustomerField.Len <> CustomerTemplateField.Len) or
+            (CustomerField.ObsoleteState = CustomerField.ObsoleteState::Removed) or
+            (CustomerTemplateField.ObsoleteState = CustomerTemplateField.ObsoleteState::Removed)
+        then
+            exit(false);
+
+        exit(true);
     end;
 
     local procedure FillFieldExclusionList(var FieldExclusionList: List of [Integer])
@@ -377,8 +402,24 @@ codeunit 1381 "Customer Templ. Mgt."
         OnAfterFillFieldExclusionList(FieldExclusionList);
     end;
 
+    local procedure GetUpdateExistingValuesParam() Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetUpdateExistingValuesParam(Result, IsHandled);
+        if not IsHandled then
+            Result := ConfirmManagement.GetResponseOrDefault(UpdateExistingValuesQst, false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyCustomerTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
     begin
     end;
 
@@ -553,4 +594,9 @@ codeunit 1381 "Customer Templ. Mgt."
         ShowContactConversionTemplatesNotification();
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUpdateExistingValuesParam(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
 }

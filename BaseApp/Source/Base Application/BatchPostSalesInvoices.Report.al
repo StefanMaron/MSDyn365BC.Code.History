@@ -113,6 +113,7 @@ report 297 "Batch Post Sales Invoices"
             ReplaceDocumentDate := false;
             PrintDoc := false;
             PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+            OnAfterOnOpenPage(CalcInvDisc, ReplacePostingDate, ReplaceDocumentDate, PrintDoc, PrintDocVisible);
         end;
     }
 
@@ -129,6 +130,11 @@ report 297 "Batch Post Sales Invoices"
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderPreDataItem(var SalesHeader: Record "Sales Header")
