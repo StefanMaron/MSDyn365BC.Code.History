@@ -5,7 +5,6 @@
 namespace Microsoft.Foundation.Attachment;
 
 using Microsoft.CRM.Outlook;
-using Microsoft.EServices.EDocument;
 using System.Integration;
 using System.IO;
 using System.Utilities;
@@ -35,7 +34,7 @@ page 1173 "Document Attachment Details"
                     var
                         Selection: Integer;
                     begin
-                        if Rec."Document Reference ID".HasValue() then
+                        if Rec.HasContent() then
                             Rec.Export(true)
                         else
                             if not IsOfficeAddin or not EmailHasAttachments then
@@ -109,16 +108,8 @@ page 1173 "Document Attachment Details"
                 Enabled = not IsMultiSelect;
                 Scope = Repeater;
                 trigger OnAction()
-                var
-                    FileManagement: Codeunit "File Management";
-                    DocumentServiceMgt: Codeunit "Document Service Management";
-                    FileName: Text;
-                    FileExtension: Text;
                 begin
-                    FileName := FileManagement.StripNotsupportChrInFileName(Rec."File Name");
-                    FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
-
-                    DocumentServiceMgt.OpenInOneDriveFromMedia(FileName, FileExtension, Rec."Document Reference ID".MediaId());
+                    Rec.OpenInOneDrive("Document Sharing Intent"::Open);
                 end;
             }
             action(EditInOneDrive)
@@ -132,19 +123,8 @@ page 1173 "Document Attachment Details"
                 Scope = Repeater;
 
                 trigger OnAction()
-                var
-                    FileManagement: Codeunit "File Management";
-                    DocumentServiceMgt: Codeunit "Document Service Management";
-                    FileName: Text;
-                    FileExtension: Text;
                 begin
-                    FileName := FileManagement.StripNotsupportChrInFileName(Rec."File Name");
-                    FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
-
-                    if DocumentServiceMgt.EditInOneDriveFromMedia(FileName, FileExtension, Rec."Document Reference ID".MediaId()) then begin
-                        Rec."Attached Date" := CurrentDateTime();
-                        Rec.Modify();
-                    end;
+                    Rec.OpenInOneDrive("Document Sharing Intent"::Edit);
                 end;
             }
             action(ShareWithOneDrive)
@@ -157,16 +137,8 @@ page 1173 "Document Attachment Details"
                 Enabled = not IsMultiSelect;
                 Scope = Repeater;
                 trigger OnAction()
-                var
-                    FileManagement: Codeunit "File Management";
-                    DocumentServiceMgt: Codeunit "Document Service Management";
-                    FileName: Text;
-                    FileExtension: Text;
                 begin
-                    FileName := FileManagement.StripNotsupportChrInFileName(Rec."File Name");
-                    FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
-
-                    DocumentServiceMgt.ShareWithOneDriveFromMedia(FileName, FileExtension, Rec."Document Reference ID".MediaId());
+                    Rec.OpenInOneDrive("Document Sharing Intent"::Share);
                 end;
             }
             action(Preview)
@@ -271,10 +243,10 @@ page 1173 "Document Attachment Details"
             ShareOptionsVisible := false;
             ShareEditOptionVisible := false;
         end else begin
-            ShareOptionsVisible := (Rec."Document Reference ID".HasValue()) and (DocumentSharing.ShareEnabled());
+            ShareOptionsVisible := (Rec.HasContent()) and (DocumentSharing.ShareEnabled());
             ShareEditOptionVisible := DocumentSharing.EditEnabledForFile('.' + Rec."File Extension");
         end;
-        DownloadEnabled := Rec."Document Reference ID".HasValue() and (not IsMultiSelect);
+        DownloadEnabled := Rec.HasContent() and (not IsMultiSelect);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -286,7 +258,6 @@ page 1173 "Document Attachment Details"
         OfficeMgmt: Codeunit "Office Management";
         OfficeHostMgmt: Codeunit "Office Host Management";
         SalesDocumentFlow: Boolean;
-        FileExtensionLbl: Label '.%1', Locked = true;
         FileDialogTxt: Label 'Attachments (%1)|%1', Comment = '%1=file types, such as *.txt or *.docx';
         FilterTxt: Label '*.jpg;*.jpeg;*.bmp;*.png;*.gif;*.tiff;*.tif;*.pdf;*.docx;*.doc;*.xlsx;*.xls;*.pptx;*.ppt;*.msg;*.xml;*.*', Locked = true;
         ImportTxt: Label 'Attach a document.';

@@ -192,6 +192,7 @@ codeunit 7307 "Whse.-Activity-Register"
             end else begin
                 "Last Registering No." := "Registering No.";
                 "Registering No." := '';
+                OnCodeOnBeforeModifyGlobalWhseActivHeader(GlobalWhseActivHeader);
                 Modify();
                 AutofillQtyToHandle(GlobalWhseActivLine);
             end;
@@ -1096,7 +1097,7 @@ codeunit 7307 "Whse.-Activity-Register"
                     TempWhseActivLine.SetRange("Item No.", TempWhseActivLine."Item No.");
                     QtyAvailToInsertBase := CalcQtyAvailToInsertBase(TempWhseActivLine);
                     TempWhseActivLine.SetTrackingFilterFromWhseActivityLine(TempWhseActivLine);
-                    OnCheckWhseItemTrkgLineOnBeforeCalcQtyToRegisterBase(TempWhseActivLine, WhseActivLine);
+                    OnCheckWhseItemTrkgLineOnBeforeCalcQtyToRegisterBase(TempWhseActivLine, WhseActivLine, QtyAvailToInsertBase);
                     QtyToRegisterBase := 0;
                     repeat
                         QtyToRegisterBase := QtyToRegisterBase + TempWhseActivLine."Qty. to Handle (Base)";
@@ -2713,7 +2714,7 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckWhseItemTrkgLineOnBeforeCalcQtyToRegisterBase(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnCheckWhseItemTrkgLineOnBeforeCalcQtyToRegisterBase(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyAvailToInsertBase: Decimal)
     begin
     end;
 
@@ -2739,6 +2740,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterJobPlanningLineModify(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeModifyGlobalWhseActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 }

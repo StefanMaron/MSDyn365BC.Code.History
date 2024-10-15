@@ -492,7 +492,14 @@ page 296 "Recurring Req. Worksheet"
                     ToolTip = 'Use a batch job to help you calculate a supply plan for items and stockkeeping units that have the Replenishment System field set to Purchase or Transfer.';
 
                     trigger OnAction()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCalculateLines(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         ReorderItems.SetTemplAndWorksheet(Rec."Worksheet Template Name", Rec."Journal Batch Name");
                         ReorderItems.RunModal();
                         Clear(ReorderItems);
@@ -655,6 +662,11 @@ page 296 "Recurring Req. Worksheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMakePurchaseOrder(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateLines(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

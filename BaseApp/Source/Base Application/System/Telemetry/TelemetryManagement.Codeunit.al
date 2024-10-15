@@ -29,7 +29,7 @@ codeunit 1350 "Telemetry Management"
             exit;
         if not (JobQueueEntry.ReadPermission() and JobQueueEntry.WritePermission()) then
             exit;
-        if not JobQueueEntry.TryCheckRequiredPermissions() then
+        if not JobQueueEntry.HasRequiredPermissions() then
             exit;
 
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);

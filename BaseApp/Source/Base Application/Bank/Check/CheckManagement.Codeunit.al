@@ -190,7 +190,7 @@ codeunit 367 CheckManagement
         AmountToVoid := CalcAmountToVoid(CheckLedgEntry);
 
         InitGenJnlLine(
-          GenJnlLine2, CheckLedgEntry."Document No.", ConfirmFinancialVoid.GetVoidDate(),
+          GenJnlLine2, CheckLedgEntry."Document Type", CheckLedgEntry."Document No.", ConfirmFinancialVoid.GetVoidDate(),
           GenJnlLine2."Account Type"::"Bank Account", CheckLedgEntry."Bank Account No.",
           StrSubstNo(VoidingCheckMsg, CheckLedgEntry."Check No."));
         GenJnlLine2.Validate(Amount, AmountToVoid);
@@ -211,7 +211,7 @@ codeunit 367 CheckManagement
             ClearBankLedgerEntry(BankAccLedgEntry3);
 
         InitGenJnlLine(
-          GenJnlLine2, CheckLedgEntry."Document No.", ConfirmFinancialVoid.GetVoidDate(),
+          GenJnlLine2, CheckLedgEntry."Document Type", CheckLedgEntry."Document No.", ConfirmFinancialVoid.GetVoidDate(),
           CheckLedgEntry."Bal. Account Type", CheckLedgEntry."Bal. Account No.",
           StrSubstNo(VoidingCheckMsg, CheckLedgEntry."Check No."));
         GenJnlLine2.Validate("Currency Code", BankAcc."Currency Code");
@@ -651,11 +651,12 @@ codeunit 367 CheckManagement
         OnAfterCalcAmountToVoid(CheckLedgEntry, AmountToVoid);
     end;
 
-    local procedure InitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Description: Text[50])
+    local procedure InitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Description: Text[50])
     begin
         GenJnlLine.Init();
         GenJnlLine."System-Created Entry" := true;
         GenJnlLine."Financial Void" := true;
+        GenJnlLine."Document Type" := DocumentType;
         GenJnlLine."Document No." := DocumentNo;
         GenJnlLine."Account Type" := AccountType;
         GenJnlLine."Posting Date" := PostingDate;
