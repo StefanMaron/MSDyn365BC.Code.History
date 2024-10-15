@@ -1,0 +1,126 @@
+page 11723 "Issued Payment Order Lines"
+{
+    Caption = 'Issued Payment Order Lines';
+    Editable = false;
+    PageType = List;
+    SourceTable = "Issued Payment Order Line";
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1220018)
+            {
+                ShowCaption = false;
+                field(Status; Status)
+                {
+                    ToolTip = 'Specifies the status of issued payment order lines';
+                    Visible = false;
+                }
+                field("Account No."; "Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number used by the bank for the bank account.';
+                }
+                field(Description; Description)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a description of the payment order line.';
+                }
+                field(Name; Name)
+                {
+                    ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
+                    Visible = false;
+                }
+                field(Amount; Amount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies Amount on Issued Payment Order Line.';
+                }
+                field("Amount (LCY)"; "Amount (LCY)")
+                {
+                    ToolTip = 'Specifies the amount in the local currency for payment.';
+                    Visible = false;
+                }
+                field("Variable Symbol"; "Variable Symbol")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the detail information for payment.';
+                }
+                field("Constant Symbol"; "Constant Symbol")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the additional symbol of bank payments.';
+                }
+                field("Specific Symbol"; "Specific Symbol")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the additional symbol of bank payments.';
+                }
+                field("Transit No."; "Transit No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a bank identification number of your own choice.';
+                }
+                field(Type; Type)
+                {
+                    ToolTip = 'Specifies the type of issude bank statement';
+                    Visible = false;
+                }
+                field("No."; "No.")
+                {
+                    ToolTip = 'Specifies the number of the payment order.';
+                    Visible = false;
+                }
+                field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")
+                {
+                    ToolTip = 'Specifies the bank account code of the customer or vendor.';
+                    Visible = false;
+                }
+                field("Payment Order No."; "Payment Order No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the Issued Payment Order. The field is either filled automatically from a defined number series.';
+                }
+                field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the vendor is uncertainty payer.';
+                }
+                field("Public Bank Account"; "Public Bank Account")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the bank account is public.';
+                }
+                field("Third Party Bank Account"; "Third Party Bank Account")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the account is third party bank account.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+        area(navigation)
+        {
+            group("&Line")
+            {
+                Caption = '&Line';
+                action(Cancel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Cancel';
+                    ToolTip = 'This function deletes the payment order line.';
+
+                    trigger OnAction()
+                    begin
+                        LineCancel;
+                    end;
+                }
+            }
+        }
+    }
+}
+
