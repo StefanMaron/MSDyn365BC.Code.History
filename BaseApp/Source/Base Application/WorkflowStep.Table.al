@@ -236,6 +236,9 @@ table 1502 "Workflow Step"
         WorkflowStepInstance."Function Name" := "Function Name";
         WorkflowStepInstance."Sequence No." := "Sequence No.";
 
+        // Avoid a deadlock when two processes are executting the following code
+        // at same time (Get / Insert on the WorkflowStepArgument table)
+        WorkflowStepArgument.LockTable(true); 
         if WorkflowStepArgument.Get(Argument) then
             WorkflowStepInstance.Argument := WorkflowStepArgument.Clone;
 

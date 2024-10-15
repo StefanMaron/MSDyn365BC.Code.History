@@ -716,7 +716,7 @@
         if not OverReceiptMgt.IsOverReceiptAllowed() or (CurrFieldNo <> FieldNo("Qty. to Receive")) or ("Qty. to Receive" <= "Qty. Outstanding") then
             exit(false);
 
-        Validate("Over-Receipt Quantity", "Qty. to Receive" - xRec."Qty. to Receive");
+        Validate("Over-Receipt Quantity", "Qty. to Receive" - Quantity + "Qty. Received");
         exit(true);
     end;
 

@@ -288,10 +288,16 @@ codeunit 10 "Type Helper"
         exit(Field.Get(TableNo, FieldNo) and (Field.ObsoleteState <> Field.ObsoleteState::Removed));
     end;
 
-    procedure GetFieldLength(TableNo: Integer; FieldNo: Integer): Integer
+    procedure GetFieldLength(TableNo: Integer; FieldNo: Integer)FieldLength: Integer
     var
         "Field": Record "Field";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetFieldLength(Field, FieldLength, IsHandled);
+        if IsHandled then
+            exit(FieldLength);
+
         if GetField(TableNo, FieldNo, Field) then
             exit(Field.Len);
 
@@ -521,6 +527,12 @@ codeunit 10 "Type Helper"
             InStream.ReadText(ContentLine);
             Content += LineSeparator + ContentLine;
         end;
+    end;
+
+    [TryFunction]
+    procedure TryReadAsTextWithSeparator(InStream: InStream; LineSeparator: Text; var Content: Text)
+    begin
+        Content := ReadAsTextWithSeparator(InStream, LineSeparator);
     end;
 
     procedure CRLFSeparator(): Text[2]
@@ -849,6 +861,11 @@ codeunit 10 "Type Helper"
         CultureInfo := CultureInfo.GetCultureInfo(LocaleId);
         NumberFormat := CultureInfo.NumberFormat;
         CurrencyPositivePattern := NumberFormat.CurrencyPositivePattern;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFieldLength(var "Field": Record "Field"; var FieldLength: Integer;var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -1,4 +1,4 @@
-codeunit 137046 "SCM Order Planning - I"
+﻿codeunit 137046 "SCM Order Planning - I"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1001,6 +1001,30 @@ codeunit 137046 "SCM Order Planning - I"
         PurchaseHeader.TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestItemCardReplenishmentSystem()
+    var
+        Item: Record item;
+        ItemCard: TestPage "Item Card";
+    begin
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // open the page
+        ItemCard.OpenEdit();
+
+        // test allowed options
+        ItemCard."Replenishment System".Value(Format(Item."Replenishment System"::Assembly));
+        ItemCard."Replenishment System".Value(Format(Item."Replenishment System"::Purchase));
+        ItemCard."Replenishment System".Value(Format(Item."Replenishment System"::"Prod. Order"));
+
+        // test not allowed options
+        asserterror ItemCard."Replenishment System".Value(Format(Item."Replenishment System"::" "));
+        asserterror ItemCard."Replenishment System".Value(Format(Item."Replenishment System"::Transfer));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1514,7 +1538,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     local procedure FindPurchaseHeaderByItemNo(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20])
@@ -1628,7 +1652,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate(Quantity, Quantity);
             ItemJournalLine.Modify(true);
@@ -1682,7 +1706,7 @@ codeunit 137046 "SCM Order Planning - I"
             DemandTypeGlobal::Sales:
                 begin
                     SalesLine.SetRange("Document No.", DemandOrderNo);
-                    SalesLine.FindSet;
+                    SalesLine.FindSet();
                     repeat
                         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
                         FindRequisitionLine(RequisitionLine, SalesLine."Document No.", SalesLine."No.", SalesLine."Location Code");
@@ -1699,7 +1723,7 @@ codeunit 137046 "SCM Order Planning - I"
                 begin
                     ProdOrderComponent.SetRange("Prod. Order No.", DemandOrderNo);
                     ProdOrderComponent.SetRange(Status, Status);
-                    ProdOrderComponent.FindSet;
+                    ProdOrderComponent.FindSet();
                     repeat
                         FindRequisitionLine(
                           RequisitionLine, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Item No.", ProdOrderComponent."Location Code");
@@ -1719,7 +1743,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         Clear(ProductionOrder);
         repeat
             Item.Get(ProdOrderComponent."Item No.");
@@ -1777,7 +1801,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderComponent.SetRange(Status, Status);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         repeat
             StockkeepingUnit.SetRange("Location Code", ProdOrderComponent."Location Code");
             StockkeepingUnit.SetRange("Item No.", ProdOrderComponent."Item No.");

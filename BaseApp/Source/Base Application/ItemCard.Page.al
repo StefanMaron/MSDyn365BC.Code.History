@@ -609,11 +609,17 @@
             group(Replenishment)
             {
                 Caption = 'Replenishment';
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; ItemReplenishmentSystem)
                 {
                     ApplicationArea = Assembly, Planning;
+                    Caption = 'Replenishment System';
                     Importance = Promoted;
                     ToolTip = 'Specifies the type of supply order created by the planning system when the item needs to be replenished.';
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Replenishment System", ItemReplenishmentSystem);
+                    end;
                 }
                 field("Lead Time Calculation"; "Lead Time Calculation")
                 {
@@ -2469,6 +2475,13 @@
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
 
         CurrPage.ItemAttributesFactbox.PAGE.LoadItemAttributesData("No.");
+
+        ItemReplenishmentSystem := "Replenishment System";
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        ItemReplenishmentSystem := "Replenishment System";
     end;
 
     trigger OnInit()
@@ -2552,6 +2565,7 @@
         SpecialPurchPricesAndDiscountsTxt: Text;
 
     protected var
+        ItemReplenishmentSystem: Enum "Item Replenishment System";
         EnabledApprovalWorkflowsExist: Boolean;
         EventFilter: Text;
         NoFieldVisible: Boolean;
@@ -2613,7 +2627,7 @@
         IsService := IsServiceType;
         IsNonInventoriable := IsNonInventoriableType;
         IsInventoriable := IsInventoriableType;
-        
+
         if IsNonInventoriable then
             "Stockout Warning" := "Stockout Warning"::No;
 

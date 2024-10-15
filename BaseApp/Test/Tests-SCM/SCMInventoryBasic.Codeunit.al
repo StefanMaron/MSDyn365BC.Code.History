@@ -2036,6 +2036,64 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure DeleteCatalogItemWithItemCreated()
+    var
+        NonstockItem: Record "Nonstock Item";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Nonstock Item] [Item Template] [Item]
+        // [SCENARIO 386556] Item created from a Catalog Item has flag "Created From Nonstock Item" cleared on Catalog Item deletion
+        Initialize();
+
+        // [GIVEN] Nonstock Item with Item Template and Vendor Item No. 2100
+        // [GIVEN] Create Item from Nonstock Item via Catalog Item Management
+        LibraryInventory.CreateNonStockItem(NonstockItem);
+        NonstockItem.Find();
+        Item.Get(NonstockItem."Item No.");
+
+        // [WHEN] Delete the catalog item
+        NonstockItem.Delete(true);
+
+        // [THEN] Item with No 2100 has flag "Created From Nonstock Item" cleared
+        Item.Find();
+        Item.TestField("Created From Nonstock Item", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure DeleteSalesLineWithItemFromDeletedCatalogItem()
+    var
+        NonstockItem: Record "Nonstock Item";
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Nonstock Item] [Item Template] [Item] [Sales]
+        // [SCENARIO 386556] Deleting a Nonstock Sales Line for an Item created from an afterwards deleted Catalog Item doesn't delete the Item
+        Initialize();
+
+        // [GIVEN] Nonstock Item with Item Template and Vendor Item No. 2100
+        // [GIVEN] Create Item from Nonstock Item via Catalog Item Management
+        LibraryInventory.CreateNonStockItem(NonstockItem);
+        NonstockItem.Find();
+        Item.Get(NonstockItem."Item No.");
+
+        // [GIVEN] Sales Order created with Sales Line for Item No. 2100
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] The catalog item deleted
+        NonstockItem.Delete(true);
+
+        // [WHEN] Delete the Sales Line
+        SalesLine.Delete(true);
+
+        // [THEN] Item No 2100 is not deleted
+        Item.Find();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
