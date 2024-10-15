@@ -295,5 +295,43 @@ codeunit 138200 "Normal DemoData"
             TestField("Auto Receive Period CU ID", 0);
         end;
     end;
+
+    [Test]
+    procedure AdvancedIntrastatChecklist()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        Assert.RecordCount(AdvancedIntrastatChecklist, 15);
+
+        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Checklist");
+        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Form");
+        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Make Disk Tax Auth");
+
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Quantity), '');
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
+    end;
+
+    local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
+    end;
+
+    local procedure AdvancedIntrastatChecklistField(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        AdvancedIntrastatChecklist.SetRange("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
+        AdvancedIntrastatChecklist.SetRange("Object Id", ReportId);
+        AdvancedIntrastatChecklist.SetRange("Field No.", FieldNo);
+        AdvancedIntrastatChecklist.SetRange("Filter Expression", FilterExpr);
+        Assert.IsFalse(AdvancedIntrastatChecklist.IsEmpty(), 'Advanced Intrastat Checklist Setup');
+    end;
 }
 

@@ -1336,6 +1336,48 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseLine.TestField("Unit Cost", PurchasePrice."Direct Unit Cost");
     end;
 
+    [Test]
+    [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
+    [Scope('OnPrem')]
+    procedure CrMemoGetPostedDocumentLinesPostedPurchShptUnitPrice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasePrice: Record "Purchase Price";
+        InitialUnitCost: Decimal;
+    begin
+        // [FEATURE] [Get Document Lines to Reverse]
+        // [SCENARIO 393339] Action "Get Document Lines to Reserse" copies Unit Price from Posted Purchase Shipment and not from current Purchase Price
+
+        // [GIVEN] Purchase order with one line: Item "I1" with Unit Cost = X.
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo);
+        InitialUnitCost := LibraryRandom.RandIntInRange(5, 10);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, 1);
+        PurchaseLine.Validate("Direct Unit Cost", InitialUnitCost);
+        PurchaseLine.Modify();
+
+        // [GIVEN] Post Credit Memo
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Purchase Price for Item "I1" = X + 5 for WorkDate
+        LibraryCosting.CreatePurchasePrice(
+          PurchasePrice, PurchaseHeader."Buy-from Vendor No.", PurchaseLine."No.", WorkDate, '', '', '', 0);
+        PurchasePrice.Validate("Direct Unit Cost", InitialUnitCost + 5);
+        PurchasePrice.Modify(true);
+        PurchaseLine.Reset();
+
+        // [GIVEN] Create Purchase Credit Memo
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.");
+
+        // [WHEN] Run Get Document Lines to Reverse and copy from Posted Purchase Shipment
+        GetPostedDocumentLines(PurchaseHeader."No.", PostedDocType::PostedReturnShipments);
+
+        // [THEN] "Unit Cost" = X in created Purchase Line
+        GetPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
+        Assert.AreEqual(InitialUnitCost, PurchaseLine."Unit Cost", PurchaseLine.FieldCaption("Unit Cost"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -571,15 +571,30 @@ page 370 "Bank Account Card"
                     RefreshStatementProvider(Rec);
                 end;
             }
+            action(EditOnlineBankAccount)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Edit Online Bank Account Information';
+                Enabled = Linked;
+                Image = EditCustomer;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                ToolTip = 'Edit the information about the online bank account linked to the selected bank account.';
+                Visible = ShowBankLinkingActions;
+
+                trigger OnAction()
+                begin
+                    EditAccountStatementProvider(Rec);
+                end;
+            }
             action(RenewAccessConsentOnlineBankAccount)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Renew Access Consent for Online Bank Account';
                 Enabled = Linked;
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
+                Promoted = false;
                 ToolTip = 'Renew access consent for the online bank account linked to the selected bank account.';
                 Visible = ShowBankLinkingActions;
 

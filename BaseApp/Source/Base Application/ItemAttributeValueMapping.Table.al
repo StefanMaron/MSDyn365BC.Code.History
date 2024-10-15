@@ -62,6 +62,21 @@ table 7505 "Item Attribute Value Mapping"
             ItemAttributeValue.Delete();
     end;
 
+    trigger OnInsert()
+    var
+        ItemAttributeValue: Record "Item Attribute Value";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        RecRef.Open("Table ID");
+        FieldRef := RecRef.Field(1);
+        FieldRef.SetRange("No.");
+        RecRef.FindFirst();
+
+        if "Item Attribute Value ID" <> 0 then
+            ItemAttributeValue.Get("Item Attribute ID", "Item Attribute Value ID");
+    end;
+
     procedure RenameItemAttributeValueMapping(PrevNo: Code[20]; NewNo: Code[20])
     var
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
