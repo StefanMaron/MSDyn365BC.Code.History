@@ -86,6 +86,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Data Check Tests - NamedType CustvendBankAccountMissedFieldListTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4032324508 - NamedType 3625992881" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Since you did not schedule the SAF-T file generation, it will be generated immediately which can take a while. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Dimension Tests - NamedType GenerateSAFTFileImmediatelyQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1529448322 - NamedType 1908741162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Earliest Start Date/Time field is not filled in. Do you want to proceed and start the export immediately?]]></Val>

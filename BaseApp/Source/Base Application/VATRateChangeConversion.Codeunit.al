@@ -97,6 +97,8 @@ codeunit 550 "VAT Rate Change Conversion"
             UpdateTable(
               DATABASE::"Item Template",
               ConvertVATProdPostGrp("Update Item Templates"), ConvertGenProdPostGrp("Update Item Templates"));
+            UpdateConfigTemplateLine(
+              DATABASE::Item, ConvertVATProdPostGrp("Update Item Templates"), ConvertGenProdPostGrp("Update Item Templates"));
             UpdateTable(
               DATABASE::"Item Charge",
               ConvertVATProdPostGrp("Update Item Charges"), ConvertGenProdPostGrp("Update Item Charges"));
@@ -241,6 +243,65 @@ codeunit 550 "VAT Rate Change Conversion"
         then
             exit(true);
         exit(false);
+    end;
+
+    local procedure UpdateConfigTemplateLine(TableID: Integer; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        ConfigTemplateLine: Record "Config. Template Line";
+        "Field": Record "Field";
+        VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
+        DefaultValue: Code[20];
+        i: Integer;
+    begin
+        if not ConvertVATProdPostingGroup and not ConvertGenProdPostingGroup then
+            exit;
+
+        ConfigTemplateHeader.SetRange("Table ID", TableID);
+        if not ConfigTemplateHeader.FindSet() then
+            exit;
+
+        ProgressWindow.Update(1, Format(ConfigTemplateHeader.TableCaption()));
+        ProgressWindow.Update(3, ConfigTemplateHeader.Count());
+        repeat
+            i := i + 1;
+            ProgressWindow.Update(2, i);
+            ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
+            ConfigTemplateLine.SetFilter("Default Value", '<>%1', '');
+            if ConfigTemplateLine.FindSet() then
+                repeat
+                    if Field.Get(ConfigTemplateHeader."Table ID", ConfigTemplateLine."Field ID") then begin
+                        DefaultValue := CopyStr(ConfigTemplateLine."Default Value", 1, MaxStrLen(DefaultValue));
+                        if DefaultValue = ConfigTemplateLine."Default Value" then
+                            case true of
+                                ConvertGenProdPostingGroup and (Field.RelationTableNo = DATABASE::"Gen. Product Posting Group"):
+                                    if VATRateChangeConversion.Get(VATRateChangeConversion.Type::"Gen. Prod. Posting Group", DefaultValue) then begin
+                                        InitVATRateChangeLogEntryFromConfigTemplateLine(VATRateChangeLogEntry, ConfigTemplateLine);
+                                        VATRateChangeLogEntry."Old Gen. Prod. Posting Group" := DefaultValue;
+                                        ConfigTemplateLine.Validate("Default Value", VATRateChangeConversion."To Code");
+                                        VATRateChangeLogEntry."New Gen. Prod. Posting Group" := VATRateChangeConversion."To Code";
+                                    end;
+                                ConvertVATProdPostingGroup and (Field.RelationTableNo = DATABASE::"VAT Product Posting Group"):
+                                    if VATRateChangeConversion.Get(VATRateChangeConversion.Type::"VAT Prod. Posting Group", DefaultValue) then begin
+                                        InitVATRateChangeLogEntryFromConfigTemplateLine(VATRateChangeLogEntry, ConfigTemplateLine);
+                                        VATRateChangeLogEntry."Old VAT Prod. Posting Group" := DefaultValue;
+                                        ConfigTemplateLine.Validate("Default Value", VATRateChangeConversion."To Code");
+                                        VATRateChangeLogEntry."New VAT Prod. Posting Group" := VATRateChangeConversion."To Code";
+                                    end;
+                            end;
+                    end;
+                    if (VATRateChangeLogEntry."New Gen. Prod. Posting Group" <> VATRateChangeLogEntry."Old Gen. Prod. Posting Group") or
+                       (VATRateChangeLogEntry."New VAT Prod. Posting Group" <> VATRateChangeLogEntry."Old VAT Prod. Posting Group")
+                    then begin
+                        if VATRateChangeSetup."Perform Conversion" then begin
+                            ConfigTemplateLine.Modify();
+                            VATRateChangeLogEntry.Converted := true;
+                        end;
+                        WriteLogEntry(VATRateChangeLogEntry);
+                        VATRateChangeLogEntry.Init();
+                    end;
+                until ConfigTemplateLine.Next() = 0;
+        until ConfigTemplateHeader.Next() = 0;
     end;
 
     local procedure UpdateTable(TableID: Integer; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
@@ -390,13 +451,17 @@ codeunit 550 "VAT Rate Change Conversion"
                                               RecRef, ConvertVATProdPostGrp(VATRateChangeSetup."Update Sales Documents"),
                                               ConvertGenProdPostGrp(VATRateChangeSetup."Update Sales Documents"));
 
-                                            if SalesHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" then begin
-                                                RecRef.SetTable(SalesLine);
+                                            SalesLine.Find();
+                                            if SalesHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" and
+                                               (SalesLine."VAT %" <> SalesLineOld."VAT %") and
+                                               UpdateUnitPriceInclVAT(SalesLine.Type)
+                                            then begin
                                                 RoundingPrecision := GetRoundingPrecision(SalesHeader."Currency Code");
                                                 SalesLine.Validate(
                                                   "Unit Price",
                                                   Round(
-                                                    SalesLineOld."Unit Price" * (100 + SalesLine."VAT %") / (100 + SalesLineOld."VAT %"), RoundingPrecision))
+                                                    SalesLineOld."Unit Price" * (100 + SalesLine."VAT %") / (100 + SalesLineOld."VAT %"), RoundingPrecision));
+                                                SalesLine.Modify(true);
                                             end;
                                         end else
                                             if VATRateChangeSetup."Perform Conversion" and (SalesLine."Outstanding Quantity" <> 0) then begin
@@ -714,7 +779,11 @@ codeunit 550 "VAT Rate Change Conversion"
                                               RecRef, ConvertVATProdPostGrp(VATRateChangeSetup."Update Purchase Documents"),
                                               ConvertGenProdPostGrp(VATRateChangeSetup."Update Purchase Documents"));
 
-                                            if PurchaseHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" then begin
+                                            PurchaseLine.Find();
+                                            if PurchaseHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" and
+                                               (PurchaseLine."VAT %" <> PurchaseLineOld."VAT %") and
+                                               UpdateUnitPriceInclVAT(PurchaseLine.Type)
+                                            then begin
                                                 RecRef.SetTable(PurchaseLine);
                                                 RoundingPrecision := GetRoundingPrecision(PurchaseHeader."Currency Code");
                                                 PurchaseLine.Validate(
@@ -722,6 +791,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                                   Round(
                                                     PurchaseLineOld."Direct Unit Cost" * (100 + PurchaseLine."VAT %") / (100 + PurchaseLineOld."VAT %"),
                                                     RoundingPrecision));
+                                                PurchaseLine.Modify(true);
                                             end;
                                         end else
                                             if VATRateChangeSetup."Perform Conversion" and (PurchaseLine."Outstanding Quantity" <> 0) then begin
@@ -1009,6 +1079,18 @@ codeunit 550 "VAT Rate Change Conversion"
         end;
     end;
 
+    local procedure UpdateUnitPriceInclVAT(Type: Option): Boolean
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        exit(
+          ((VATRateChangeSetup."Update Unit Price For G/L Acc." and
+            (Type = SalesLine.Type::"G/L Account")) or
+           (VATRateChangeSetup."Upd. Unit Price For Item Chrg." and
+            (Type = SalesLine.Type::"Charge (Item)")) or
+           (VATRateChangeSetup."Upd. Unit Price For FA" and (Type = SalesLine.Type::"Fixed Asset"))));
+    end;
+
     local procedure LineInScope(GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; ConvertGenProdPostingGroup: Boolean; ConvertVATProdPostingGroup: Boolean): Boolean
     begin
         if ConvertGenProdPostingGroup then
@@ -1163,10 +1245,16 @@ codeunit 550 "VAT Rate Change Conversion"
                                   RecRef, ConvertVATProdPostGrp(VATRateChangeSetup."Update Service Docs."),
                                   ConvertGenProdPostGrp(VATRateChangeSetup."Update Service Docs."));
 
-                                if ServiceHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" then begin
+                                Find();
+                                if ServiceHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" and
+                                   ("VAT %" <> ServiceLineOld."VAT %") and
+                                   VATRateChangeSetup."Update Unit Price For G/L Acc." and
+                                   (Type = Type::"G/L Account")
+                                then begin
                                     RecRef.SetTable(ServiceLine);
                                     RoundingPrecision := GetRoundingPrecision(ServiceHeader."Currency Code");
-                                    Validate("Unit Price", Round("Unit Price" * (100 + "VAT %") / (100 + ServiceLineOld."VAT %"), RoundingPrecision))
+                                    Validate("Unit Price", Round("Unit Price" * (100 + "VAT %") / (100 + ServiceLineOld."VAT %"), RoundingPrecision));
+                                    Modify(true);
                                 end;
                             end else
                                 if VATRateChangeSetup."Perform Conversion" and ("Outstanding Quantity" <> 0) then begin
@@ -1426,6 +1514,16 @@ codeunit 550 "VAT Rate Change Conversion"
                 exit(true);
         end;
         exit(false)
+    end;
+
+    local procedure InitVATRateChangeLogEntryFromConfigTemplateLine(var VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; ConfigTemplateLine: Record "Config. Template Line")
+    var
+        RecRef: RecordRef;
+    begin
+        VATRateChangeLogEntry.Init();
+        RecRef.GetTable(ConfigTemplateLine);
+        VATRateChangeLogEntry."Record ID" := RecRef.RecordId;
+        VATRateChangeLogEntry."Table ID" := RecRef.Number;
     end;
 
     local procedure IncludeLine(Type: Option " ","G/L Account",Item,Resource; No: Code[20]): Boolean

@@ -4218,7 +4218,7 @@
 
             CopyDocumentFields(GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, SalesHeader."Posting No. Series");
 
-            Validate("Account Type", "Account Type"::"IC Partner");
+            "Account Type" := "Account Type"::"IC Partner";
             Validate("Account No.", SalesLine."IC Partner Code");
             "Source Currency Code" := SalesHeader."Currency Code";
             "Source Currency Amount" := Amount;

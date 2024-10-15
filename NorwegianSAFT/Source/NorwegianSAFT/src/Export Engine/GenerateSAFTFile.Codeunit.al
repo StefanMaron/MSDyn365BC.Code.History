@@ -618,6 +618,7 @@ codeunit 10673 "Generate SAF-T File"
     var
         TempDimIDBuffer: Record "Dimension ID Buffer" temporary;
         VATEntry: Record "VAT Entry";
+        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
         SAFTExportMgt: Codeunit "SAF-T Export Mgt.";
         AmountXMLNode: Text;
         Amount: Decimal;
@@ -650,12 +651,11 @@ codeunit 10673 "Generate SAF-T File"
             SAFTExportMgt.GetAmountInfoFromGLEntry(AmountXMLNode, Amount, GLEntry);
             ExportAmountInfo(AmountXMLNode, Amount);
             if (GLEntry."VAT Bus. Posting Group" <> '') or (GLEntry."VAT Prod. Posting Group" <> '') then begin
-                VATEntry.SetCurrentKey("Document No.", "Posting Date");
-                VATEntry.SetRange("Document No.", GLEntry."Document No.");
-                VATEntry.SetRange("Posting Date", GLEntry."Posting Date");
-                VATEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-                if VATEntry.FindFirst() then
+                GLEntryVATEntryLink.SetRange("G/L Entry No.", GLEntry."Entry No.");
+                if GLEntryVATEntryLink.FindFirst() then begin
+                    VATEntry.Get(GLEntryVATEntryLink."VAT Entry No.");
                     ExportTaxInformation(VATEntry);
+                end;
             end;
             SAFTXMLHelper.AppendXMLNode('ReferenceNumber', GLEntry."External Document No.");
             SAFTXMLHelper.FinalizeXMLNode();
@@ -664,6 +664,8 @@ codeunit 10673 "Generate SAF-T File"
     end;
 
     local procedure ExportGLEntryTransactionInfo(GLEntry: Record "G/L Entry")
+    var
+        SystemEntryDate: Date;
     begin
         SAFTXMLHelper.AddNewXMLNode('Transaction', '');
         SAFTXMLHelper.AppendXMLNode('TransactionID', format(GLEntry."Document No."));
@@ -672,7 +674,11 @@ codeunit 10673 "Generate SAF-T File"
         SAFTXMLHelper.AppendXMLNode('TransactionDate', FormatDate(GLEntry."Document Date"));
         SAFTXMLHelper.AppendXMLNode('SourceID', GetSAFTMiddle1Text(GLEntry."User ID"));
         SAFTXMLHelper.AppendXMLNode('Description', GLEntry.Description);
-        SAFTXMLHelper.AppendXMLNode('SystemEntryDate', FormatDate(DT2Date(GLEntry."Last Modified DateTime")));
+        if GLEntry."Last Modified DateTime" = 0DT then
+            SystemEntryDate := GLEntry."Posting Date"
+        else
+            SystemEntryDate := DT2Date(GLEntry."Last Modified DateTime");
+        SAFTXMLHelper.AppendXMLNode('SystemEntryDate', FormatDate(SystemEntryDate));
         SAFTXMLHelper.AppendXMLNode('GLPostingDate', FormatDate(GLEntry."Posting Date"));
     end;
 
@@ -847,10 +853,12 @@ codeunit 10673 "Generate SAF-T File"
 
         repeat
             Dimension.Get(TempDimSetEntry."Dimension Code");
-            TempDimIDBuffer."Parent ID" += 1;
-            TempDimIDBuffer."Dimension Code" := Dimension."SAF-T Analysis Type";
-            TempDimIDBuffer."Dimension Value" := TempDimSetEntry."Dimension Value Code";
-            TempDimIDBuffer.Insert();
+            if Dimension."Export to SAF-T" then begin
+                TempDimIDBuffer."Parent ID" += 1;
+                TempDimIDBuffer."Dimension Code" := Dimension."SAF-T Analysis Type";
+                TempDimIDBuffer."Dimension Value" := TempDimSetEntry."Dimension Value Code";
+                TempDimIDBuffer.Insert();
+            end;
         until TempDimSetEntry.Next() = 0;
 
     end;
