@@ -171,8 +171,6 @@ table 901 "Assembly Line"
             begin
                 TestField(Type, Type::Item);
 
-                Item.Get("No.");
-
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
                 CheckItemAvailable(FieldNo("Location Code"));
                 VerifyReservationChange(Rec, xRec);
@@ -1654,17 +1652,15 @@ table 901 "Assembly Line"
 
     procedure GetDefaultBin()
     begin
-        TestField(Type, Type::Item);
+        if (Type <> Type::Item) or not IsInventoriableItem() then
+            exit;
         if (Quantity * xRec.Quantity > 0) and
            ("No." = xRec."No.") and
            ("Location Code" = xRec."Location Code") and
            ("Variant Code" = xRec."Variant Code")
         then
             exit;
-        if Item."No." <> "No." then
-            Item.Get("No.");
-        if Item.IsInventoriableType() then
-            Validate("Bin Code", FindBin);
+        Validate("Bin Code", FindBin());
     end;
 
     procedure FindBin() NewBinCode: Code[20]

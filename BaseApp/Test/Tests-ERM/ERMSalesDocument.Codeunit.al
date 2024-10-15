@@ -1,4 +1,4 @@
-codeunit 134385 "ERM Sales Document"
+﻿codeunit 134385 "ERM Sales Document"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Cust. Ledger Entry" = rimd,
@@ -3390,6 +3390,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateLocalData();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         isInitialized := true;
         Commit();
 
@@ -4464,6 +4465,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.Type := SalesLine.GetDefaultLineType();
     end;
 
+#if not CLEAN20
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareSales', '', false, false)]
     local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -4473,6 +4475,7 @@ codeunit 134385 "ERM Sales Document"
             InvoicePostBuffer."Entry Description" := SalesLine.Description;
         end;
     end;
+#endif
 
     [EventSubscriber(ObjectType::table, Database::"Invoice Posting Buffer", 'OnAfterPrepareSales', '', false, false)]
     local procedure OnAfterPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -5078,7 +5081,7 @@ codeunit 134385 "ERM Sales Document"
         ItemTrackingLines.OK.Invoke;
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterFillInvoicePostBuffer', '', false, false)]
     local procedure AddGroupOnFillInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; CommitIsSuppressed: Boolean)
     begin

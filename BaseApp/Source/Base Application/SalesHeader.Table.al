@@ -1208,26 +1208,6 @@
         {
             Caption = 'VAT Country/Region Code';
             TableRelation = "Country/Region";
-
-            trigger OnValidate()
-            var
-                NewVATRegNo: Text[20];
-                OldCustNo: Code[20];
-            begin
-                // NAVCZ
-                NewVATRegNo := "VAT Registration No.";
-                if "Bill-to Customer No." <> '' then begin
-                    OldCustNo := Cust."No.";
-                    GetCust("Bill-to Customer No.");
-                    NewVATRegNo := Cust."VAT Registration No.";
-                    if OldCustNo <> '' then
-                        GetCust(OldCustNo)
-                    else
-                        Clear(Cust);
-                end;
-                "VAT Registration No." := NewVATRegNo;
-                // NAVCZ
-            end;
         }
         field(79; "Sell-to Customer Name"; Text[100])
         {
@@ -8269,14 +8249,16 @@
         Customer: Record Customer;
         LookupStateManager: Codeunit "Lookup State Manager";
         RecVariant: Variant;
+        SearchCustomerName: Text;
     begin
+        SearchCustomerName := CustomerName;
         Customer.SetFilter("Date Filter", GetFilter("Date Filter"));
         if "Sell-to Customer No." <> '' then
             Customer.Get("Sell-to Customer No.");
 
         if Customer.LookupCustomer(Customer) then begin
             if Rec."Sell-to Customer Name" = Customer.Name then
-                CustomerName := ''
+                CustomerName := SearchCustomerName
             else
                 CustomerName := Customer.Name;
             RecVariant := Customer;

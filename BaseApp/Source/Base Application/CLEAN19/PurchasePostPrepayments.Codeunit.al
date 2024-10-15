@@ -3,7 +3,9 @@ codeunit 444 "Purchase-Post Prepayments"
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "G/L Register" = rimd,
+#if not CLEAN20
                   TableData "Invoice Post. Buffer" = imd,
+#endif
                   TableData "Vendor Posting Group" = imd,
                   TableData "Inventory Posting Group" = imd,
                   TableData "Purch. Inv. Header" = imd,
@@ -1727,6 +1729,7 @@ codeunit 444 "Purchase-Post Prepayments"
     begin
     end;
 #endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillInvLineBuffer(var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; PurchLine: Record "Purchase Line"; CommitIsSuppressed: Boolean; PurchaseHeader: Record "Purchase Header")
     begin

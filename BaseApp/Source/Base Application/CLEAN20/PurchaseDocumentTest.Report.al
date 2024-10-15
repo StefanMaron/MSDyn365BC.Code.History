@@ -1,4 +1,4 @@
-#if CLEAN20
+﻿#if CLEAN20
 report 402 "Purchase Document - Test"
 {
     DefaultLayout = RDLC;
@@ -1860,7 +1860,7 @@ report 402 "Purchase Document - Test"
                                       StrSubstNo(
                                         MustBeForErr,
                                         GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "No."));
-                                if not GLAcc."Direct Posting" and ("Line No." <= OrigMaxLineNo) then
+                                if (not GLAcc."Direct Posting") and (not "System-Created Entry") and ("Line No." <= OrigMaxLineNo) then
                                     AddError(
                                       StrSubstNo(
                                         MustBeForErr,

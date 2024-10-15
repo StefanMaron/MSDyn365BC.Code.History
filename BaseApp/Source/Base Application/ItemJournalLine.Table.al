@@ -4575,8 +4575,11 @@
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"): Boolean
     var
         IsHandled: Boolean;
+        RecordCount: Integer;
     begin
         ProdOrderComponent.SetFilterByReleasedOrderNo("Order No.");
+        if "Order Line No." <> 0 then
+            ProdOrderComponent.SetRange("Prod. Order Line No.", "Order Line No.");
         ProdOrderComponent.SetRange("Line No.", "Prod. Order Comp. Line No.");
         IsHandled := false;
         OnValidateItemNoOnAfterProdOrderCompSetFilters(Rec, ProdOrderComponent, IsHandled);
@@ -4584,8 +4587,12 @@
             exit;
 
         ProdOrderComponent.SetRange("Item No.", "Item No.");
-        if ProdOrderComponent.FindFirst() then
-            exit(true);
+        RecordCount := ProdOrderComponent.Count();
+        if RecordCount > 1 then
+            exit(false)
+        else
+            if RecordCount = 1 then
+                exit(ProdOrderComponent.FindFirst());
 
         ProdOrderComponent.SetRange("Line No.");
         if ProdOrderComponent.Count() = 1 then

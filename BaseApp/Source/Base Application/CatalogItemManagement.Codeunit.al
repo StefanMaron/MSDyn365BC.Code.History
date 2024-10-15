@@ -514,32 +514,30 @@ codeunit 5703 "Catalog Item Management"
                             Evaluate(NewItemNo, NonstockItem."Manufacturer Code" + NonstockItem."Vendor Item No.")
                         else
                             Evaluate(NewItemNo, NonstockItem."Manufacturer Code" + NonstockItem."Entry No.");
-                    end else begin
+                    end else
                         if Length1 + Length2 < 20 then
                             Evaluate(
-                            NewItemNo,
-                            NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Vendor Item No.")
+                              NewItemNo,
+                              NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Vendor Item No.")
                         else
                             Evaluate(
-                            NewItemNo,
-                            NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Entry No.");
-                    end;
+                              NewItemNo,
+                              NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Entry No.");
                 NonstockItemSetupMy."No. Format"::"Vendor Item No. + Mfr.":
                     if NonstockItemSetupMy."No. Format Separator" = '' then begin
                         if Length1 + Length2 <= 20 then
                             Evaluate(NewItemNo, NonstockItem."Vendor Item No." + NonstockItem."Manufacturer Code")
                         else
                             Evaluate(NewItemNo, NonstockItem."Entry No." + NonstockItem."Manufacturer Code");
-                    end else begin
+                    end else
                         if Length1 + Length2 < 20 then
                             Evaluate(
-                            NewItemNo,
-                            NonstockItem."Vendor Item No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code")
+                              NewItemNo,
+                              NonstockItem."Vendor Item No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code")
                         else
                             Evaluate(
-                            NewItemNo,
-                            NonstockItem."Entry No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code");
-                    end;
+                              NewItemNo,
+                              NonstockItem."Entry No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code");
                 NonstockItemSetupMy."No. Format"::"Entry No.":
                     NewItemNo := NonstockItem."Entry No.";
             end;
@@ -589,6 +587,7 @@ codeunit 5703 "Catalog Item Management"
         OnBeforeInitItemFromTemplate(Item, NonstockItem, IsHandled);
         if not IsHandled then begin
             ItemTempl.Get(NonstockItem."Item Templ. Code");
+            Item.Type := ItemTempl.Type;
             Item."Inventory Posting Group" := ItemTempl."Inventory Posting Group";
             Item."Costing Method" := ItemTempl."Costing Method";
             Item."Gen. Prod. Posting Group" := ItemTempl."Gen. Prod. Posting Group";

@@ -2132,7 +2132,7 @@ report 202 "Sales Document - Test"
                                       StrSubstNo(
                                         Text007,
                                         GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "No."));
-                                if not GLAcc."Direct Posting" and ("Line No." <= OrigMaxLineNo) then
+                                if (not GLAcc."Direct Posting") and (not "System-Created Entry") and ("Line No." <= OrigMaxLineNo) then
                                     AddError(
                                       StrSubstNo(
                                         Text007,

@@ -1,4 +1,4 @@
-#if not CLEAN20
+﻿#if not CLEAN20
 codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd;
@@ -1592,6 +1592,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField("Ledger Entry Amount", true);
+        DetailedCustLedgEntry.TestField("Exch. Rate Adjmt. Reg. No.");
         DetailedCustLedgEntry.CalcSums("Amount (LCY)");
         Currency.Get(DetailedCustLedgEntry."Currency Code");
         Assert.AreNearlyEqual(

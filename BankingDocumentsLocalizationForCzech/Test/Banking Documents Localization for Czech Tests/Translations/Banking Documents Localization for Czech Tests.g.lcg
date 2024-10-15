@@ -16,7 +16,7 @@
   </Item>
   <Item ItemId=";Codeunit 2382095419 - Method 3506933504 - NamedType 91038322" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Payment Order Line was created.]]></Val>
+      <Val><![CDATA[Payment Order Line wasn't created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

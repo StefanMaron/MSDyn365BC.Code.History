@@ -3,7 +3,9 @@ codeunit 444 "Purchase-Post Prepayments"
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "G/L Register" = rimd,
+#if not CLEAN20
                   TableData "Invoice Post. Buffer" = imd,
+#endif
                   TableData "Vendor Posting Group" = imd,
                   TableData "Inventory Posting Group" = imd,
                   TableData "Purch. Inv. Header" = imd,

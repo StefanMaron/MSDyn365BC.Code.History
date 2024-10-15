@@ -685,6 +685,7 @@ codeunit 900 "Assembly-Post"
         TempItemLedgEntryInChain: Record "Item Ledger Entry" temporary;
         ItemApplnEntry: Record "Item Application Entry";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        EntriesExist: Boolean;
     begin
         UndoPostingMgt.CollectItemLedgEntries(
           TempItemLedgEntry2, SourceType, ItemJnlLine."Document No.", ItemJnlLine."Document Line No.",
@@ -692,7 +693,8 @@ codeunit 900 "Assembly-Post"
 
         if TempItemLedgEntry2.FindSet() then
             repeat
-                ItemTrackingMgt.RetrieveAppliedExpirationDate(TempItemLedgEntry2);
+                TempItemLedgEntry2."Expiration Date" :=
+                  ItemTrackingMgt.ExistingExpirationDate(TempItemLedgEntry2, false, EntriesExist);
                 TempItemLedgEntry := TempItemLedgEntry2;
                 TempItemLedgEntry.Insert();
 
