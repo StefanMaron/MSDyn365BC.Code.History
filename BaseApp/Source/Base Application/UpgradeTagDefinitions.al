@@ -105,8 +105,8 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetCreateDefaultAADApplicationTag());
         PerDatabaseUpgradeTags.Add(GetDefaultAADApplicationDescriptionTag());
         PerDatabaseUpgradeTags.Add(GetMonitorSensitiveFieldPermissionUpgradeTag());
-#if not CLEAN19
         PerDatabaseUpgradeTags.Add(GetDataOutOfGeoAppUpgradeTag());
+#if not CLEAN19
         PerDatabaseUpgradeTags.Add(GetExportExcelReportUpgradeTag());
 #endif
         PerDatabaseUpgradeTags.Add(GetUpgradePowerBIOptinImageUpgradeTag());
@@ -636,14 +636,12 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-379473-DefaultAADApplicationDescriptionTag-20201217');
     end;
 
-#if not CLEAN19
-    [Obsolete('Function will be removed', '19.0')]
     procedure GetDataOutOfGeoAppUpgradeTag(): Code[250]
     begin
         exit('MS-370438-DataOutOfGeoAppTag-20210121');
     end;
-
-    [Obsolete('Function will be removed', '19.0')]
+#if not CLEAN19
+    [Obsolete('Function will be removed or moved to internal', '19.0')]
     procedure GetExportExcelReportUpgradeTag(): Code[250]
     begin
         exit('MS-390522-ExportExcelReport-20210611')
@@ -685,6 +683,12 @@ codeunit 9998 "Upgrade Tag Definitions"
     var
     begin
         exit('MS-388025-PriceSourceGroup-20210331');
+    end;
+
+    procedure GetAllJobsResourcePriceUpgradeTag(): Code[250]
+    var
+    begin
+        exit('MS-412932-AllJobsResourcePrice-20210929');
     end;
 
     procedure GetPriceSourceGroupFixedUpgradeTag(): Code[250]
