@@ -2353,6 +2353,7 @@
         NumeroPedimento: Text;
         DestinationRFCNo: Text;
         HazardousMatExists: Boolean;
+        SATClassificationCode: Code[10];
     begin
         InitXMLCartaPorte(XMLDoc, XMLCurrNode);
 
@@ -2376,8 +2377,12 @@
         // Receptor
         AddElementCFDI(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
-        AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', CompanyInfo."RFC No.");
-        GetCustomer(TempDocumentHeader."Bill-to/Pay-To No.");
+        if not Customer.get(TempDocumentHeader."Bill-to/Pay-To No.") then begin // Transfer
+            Customer.Init();
+            Customer."RFC No." := CompanyInfo."RFC No.";
+            Customer."CFDI Customer Name" := CompanyInfo.Name;
+        end;
+        AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', Customer."RFC No.");
         AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', Customer."CFDI Customer Name");
         AddAttribute(XMLDoc, XMLCurrNode, 'UsoCFDI', TempDocumentHeader."CFDI Purpose");
         AddAttribute(
@@ -2467,10 +2472,10 @@
                     Item.Get(TempDocumentLine."No.")
                 else
                     Item.Init();
+                SATClassificationCode := SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.");
                 AddElementCartaPorte(XMLCurrNode, 'Mercancia', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
-                AddAttribute(
-                  XMLDoc, XMLCurrNode, 'BienesTransp', SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No."));
+                AddAttribute(XMLDoc, XMLCurrNode, 'BienesTransp', SATClassificationCode);
                 AddAttribute(XMLDoc, XMLCurrNode, 'Descripcion', EncodeString(TempDocumentLine.Description));
                 AddAttribute(XMLDoc, XMLCurrNode, 'Cantidad', Format(TempDocumentLine.Quantity, 0, 9));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code"));
@@ -2480,8 +2485,8 @@
                     AddAttribute(XMLDoc, XMLCurrNode, 'CveMaterialPeligroso', Item."SAT Hazardous Material");
                     AddAttribute(XMLDoc, XMLCurrNode, 'Embalaje', Item."SAT Packaging Type");
                 end else
-                    AddAttribute(XMLDoc, XMLCurrNode, 'MaterialPeligroso', 'No');
-
+                    if IsHazardousMaterialMandatory(SATClassificationCode) then
+                        AddAttribute(XMLDoc, XMLCurrNode, 'MaterialPeligroso', 'No');
                 AddAttribute(XMLDoc, XMLCurrNode, 'PesoEnKg', FormatDecimal(TempDocumentLine."Gross Weight", 3));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ValorMercancia', '0');
                 AddAttribute(XMLDoc, XMLCurrNode, 'Moneda', 'MXN');
@@ -3016,6 +3021,7 @@
         OutStream: OutStream;
         DestinationRFCNo: Text;
         HazardousMatExists: Boolean;
+        SATClassificationCode: Code[10];
     begin
         Clear(TempBlob);
         TempBlob.CreateOutStream(OutStream);
@@ -3037,8 +3043,12 @@
         WriteOutStr(OutStream, CompanyInfo."SAT Tax Regime Classification" + '|'); // RegimenFiscal
 
         // Customer information (Receptor)
-        WriteOutStr(OutStream, CompanyInfo."RFC No." + '|'); // Rfc
-        GetCustomer(TempDocumentHeader."Bill-to/Pay-To No.");
+        if not Customer.get(TempDocumentHeader."Bill-to/Pay-To No.") then begin // Transfer
+            Customer.Init();
+            Customer."RFC No." := CompanyInfo."RFC No.";
+            Customer."CFDI Customer Name" := CompanyInfo.Name;
+        end;
+        WriteOutStr(OutStream, Customer."RFC No." + '|'); // Rfc
         WriteOutStr(OutStream, RemoveInvalidChars(Customer."CFDI Customer Name") + '|'); // Nombre
         WriteOutStr(OutStream,
             GetSATPostalCode(
@@ -3097,7 +3107,8 @@
                     Item.Get(TempDocumentLine."No.")
                 else
                     Item.Init();
-                WriteOutStr(OutStream, SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|'); // BienesTransp
+                SATClassificationCode := SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.");
+                WriteOutStr(OutStream, SATClassificationCode + '|'); // BienesTransp
                 WriteOutStr(OutStream, EncodeString(TempDocumentLine.Description) + '|'); // Descripcion
                 WriteOutStr(OutStream, Format(TempDocumentLine.Quantity, 0, 9) + '|'); // Cantidad
                 WriteOutStr(OutStream, SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code") + '|'); // ClaveUnidad
@@ -3106,8 +3117,9 @@
                     WriteOutStr(OutStream, 'Sí|'); // MaterialPeligroso
                     WriteOutStr(OutStream, Item."SAT Hazardous Material" + '|'); // CveMaterialPeligroso
                     WriteOutStr(OutStream, Item."SAT Packaging Type" + '|'); // Embalaje
-                end else 
-                    WriteOutStr(OutStream, 'No|');
+                end else
+                    if IsHazardousMaterialMandatory(SATClassificationCode) then
+                        WriteOutStr(OutStream, 'No|');
 
                 WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Gross Weight", 3) + '|'); // PesoEnKg
                 WriteOutStr(OutStream, '0|'); // ValorMercancia
@@ -3509,10 +3521,14 @@
     local procedure FormatPeriod(Period: Option "Diario","Semanal","Quincenal","Mensual"): Text
     begin
         case Period of
-             Period::Diario: exit('01');
-             Period::Semanal: exit('02');
-             Period::Quincenal: exit('03');
-             Period::Mensual: exit('04'); 
+            Period::Diario:
+                exit('01');
+            Period::Semanal:
+                exit('02');
+            Period::Quincenal:
+                exit('03');
+            Period::Mensual:
+                exit('04');
         end;
     end;
 
@@ -3675,12 +3691,17 @@
         PACWebService: Record "PAC Web Service";
         PACWebServiceDetail: Record "PAC Web Service Detail";
         IsolatedCertificate: Record "Isolated Certificate";
+        MXElectronicInvoicingSetup: Record "MX Electronic Invoicing Setup";
+        TempBlob: Codeunit "Temp Blob";
         CertificateManagement: Codeunit "Certificate Management";
         EInvoiceObjectFactory: Codeunit "E-Invoice Object Factory";
         DotNet_SecureString: Codeunit DotNet_SecureString;
         IWebServiceInvoker: DotNet IWebServiceInvoker;
         SecureStringPassword: DotNet SecureString;
         Response: Text;
+        DocOutStream: OutStream;
+        DocInStream: InStream;
+        DocFileName: text;
     begin
         GetGLSetup();
         if GLSetup."Sim. Request Stamp" then
@@ -3689,6 +3710,16 @@
             Error(Text014);
 
         EInvoiceObjectFactory.GetWebServiceInvoker(IWebServiceInvoker);
+
+        if MXElectronicInvoicingSetup.Get() then
+            if MXElectronicInvoicingSetup."Download XML with Requests" then begin
+                TempBlob.CreateOutStream(DocOutStream);
+                XMLDoc.Save(DocOutStream);
+                TempBlob.CreateInStream(DocInStream);
+
+                DocFileName := 'ElectronicInvoice.xml';
+                DownloadFromStream(DocInStream, '', '', '', DocFileName);
+            end;
 
         // Depending on the chosen service provider, this section needs to be modified.
         // The parameters for the invoked method need to be added in the correct order.
@@ -4266,7 +4297,7 @@
     begin
         Export := true;
         Customer.Get(CustLedgerEntry."Customer No.");
-        Customer.TestField("Payment Method Code");
+        CustLedgerEntry.TestField("Payment Method Code");
         Session.LogMessage('0000C7Y', PaymentStampReqMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
@@ -4698,7 +4729,7 @@
             AddElementPago(XMLCurrNode, 'Pago', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'FechaPago', FormatAsDateTime("Posting Date", 0T, ''));
-            AddAttribute(XMLDoc, XMLCurrNode, 'FormaDePagoP', SATUtilities.GetSATPaymentMethod(TempCustomer."Payment Method Code"));
+            AddAttribute(XMLDoc, XMLCurrNode, 'FormaDePagoP', SATUtilities.GetSATPaymentMethod("Payment Method Code"));
             AddAttribute(XMLDoc, XMLCurrNode, 'MonedaP', ConvertCurrency("Currency Code"));
             if GLSetup."Disable CFDI Payment Details" then
                 TipoCambioP := 1 / "Original Currency Factor"
@@ -4858,7 +4889,7 @@
             WriteOutStr(OutStream, FormatAmount(PaymentAmountLCY) + '|');// Totales/MontoTotalPagos
 
             WriteOutStr(OutStream, FormatAsDateTime("Posting Date", 0T, '') + '|');// FechaPagoSetToPD
-            WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod(TempCustomer."Payment Method Code") + '|');// FormaDePagoP
+            WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod("Payment Method Code") + '|');// FormaDePagoP
             WriteOutStr(OutStream, ConvertCurrency("Currency Code") + '|');// MonedaP
 
             if GLSetup."Disable CFDI Payment Details" then
@@ -5598,7 +5629,7 @@ IsVATExemptLine(TempDocumentLine));
             until TempVATAmountLinePmt.Next() = 0;
     end;
 
-        local procedure AddNodePagoTotales(var XMLDoc: DotNet XmlDocument; XMLCurrNode: DotNet XmlNode; var TempVATAmountLineTotal: Record "VAT Amount Line" temporary)
+    local procedure AddNodePagoTotales(var XMLDoc: DotNet XmlDocument; XMLCurrNode: DotNet XmlNode; var TempVATAmountLineTotal: Record "VAT Amount Line" temporary)
     begin
         if TempVATAmountLineTotal.FindSet() then
             repeat
@@ -5854,6 +5885,15 @@ IsVATExemptLine(TempDocumentLine));
     begin
         GetGLSetupOnce();
         exit((GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled) And GLSetup."CFDI Enabled");
+    end;
+
+    procedure IsHazardousMaterialMandatory(SATClassificationCode: Code[10]): Boolean
+    var
+        SATClassification: Record "SAT Classification";
+    begin
+        if not SATClassification.Get(SATClassificationCode) then
+            exit(false);
+        exit(SATClassification."Hazardous Material Mandatory");
     end;
 
     local procedure WriteOutStr(var OutStr: OutStream; TextParam: Text[1024])

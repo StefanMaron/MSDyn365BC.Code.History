@@ -22,6 +22,11 @@ page 27040 "SAT Classifications"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for this entry according to the SAT item classification definition.';
                 }
+                field("Hazardous Material Mandatory"; Rec."Hazardous Material Mandatory")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if it is mandatory to export attributes related to hazardous material according to the SAT item classification definition.';
+                }
             }
         }
     }

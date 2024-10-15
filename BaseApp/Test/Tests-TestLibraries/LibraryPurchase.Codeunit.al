@@ -206,17 +206,12 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure CreatePurchaseQuote(var PurchaseHeader: Record "Purchase Header")
-    begin
-        CreatePurchaseQuoteForVendor(PurchaseHeader, CreateVendorNo());
-    end;
-
-    procedure CreatePurchaseQuoteForVendor(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
     begin
-        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, VendorNo);
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, CreateVendorNo);
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 99, 2));
@@ -239,15 +234,10 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
-    begin
-        CreatePurchaseOrderForVendorNo(PurchaseHeader, CreateVendorNo());
-    end;
-
-    procedure CreatePurchaseOrderForVendorNo(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorNo);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
