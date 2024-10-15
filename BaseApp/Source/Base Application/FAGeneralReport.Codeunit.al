@@ -84,7 +84,7 @@ codeunit 5626 "FA General Report"
         end;
     end;
 
-    procedure CalcFAPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option "Before Starting Date","Net Change","at Ending Date"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]; BeforeAmount: Decimal; UntilAmount: Decimal; OnlyReclassified: Boolean; OnlyBookValue: Boolean): Decimal
+    procedure CalcFAPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option "Before Starting Date","Net Change","at Ending Date"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]; BeforeAmount: Decimal; UntilAmount: Decimal; OnlyReclassified: Boolean; OnlyBookValue: Boolean) Result: Decimal
     begin
         case true of
             UseCreditAmounts:
@@ -177,15 +177,17 @@ codeunit 5626 "FA General Report"
             if (PostingType = FADeprBook.FieldNo(Derogatory)) then begin
                 if UseCreditAmounts then begin
                     Clear(UseCreditAmounts);
-                    exit("Credit Amount");
+                    Result := "Credit Amount";
                 end;
                 if UseDebitAmounts then begin
                     Clear(UseDebitAmounts);
-                    exit("Debit Amount");
+                    Result := "Debit Amount";
                 end;
-            end;
-            exit(Amount);
+            end else
+                Result := Amount;
         end;
+
+        OnAfterCalcFAPostedAmount(FALedgEntry, PostingType, Period, BeforeAmount, UntilAmount, Result);
     end;
 
     procedure CalcGLPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option " ",Disposal,"Bal. Disposal"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]): Decimal
@@ -311,6 +313,11 @@ codeunit 5626 "FA General Report"
             UseCreditAmounts := false;
             UseDebitAmounts := true;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcFAPostedAmount(var FALedgerEntry: Record "FA Ledger Entry"; PostingType: Integer; Period: Option "Before Starting Date","Net Change","at Ending Date"; BeforeAmount: Decimal; UntilAmount: Decimal; var Result: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

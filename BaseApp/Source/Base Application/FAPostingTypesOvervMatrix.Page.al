@@ -933,6 +933,8 @@ page 9277 "FA Posting Types Overv. Matrix"
         end;
 
         SetVisible;
+
+        OnAfterMATRIX_OnAfterGetRecord(MATRIX_CellData, MATRIX_ColumnOrdinal, RoundingFactor, MatrixRecords, FADeprBook);
     end;
 
     procedure SetVisible()
@@ -974,6 +976,11 @@ page 9277 "FA Posting Types Overv. Matrix"
     local procedure FormatStr(): Text
     begin
         exit(RoundingFactorFormatString);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMATRIX_OnAfterGetRecord(var MATRIX_CellData: array[32] of Decimal; MATRIX_ColumnOrdinal: Integer; RoundingFactor: Enum "Analysis Rounding Factor"; MatrixRecords: array[32] of Record "FA Matrix Posting Type"; FADepreciationBook: Record "FA Depreciation Book")
+    begin
     end;
 }
 

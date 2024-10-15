@@ -67,7 +67,7 @@ table 10860 "Payment Class"
         }
         field(10; "Is Create Document"; Boolean)
         {
-            CalcFormula = Exist ("Payment Step" WHERE("Payment Class" = FIELD(Code),
+            CalcFormula = Exist("Payment Step" WHERE("Payment Class" = FIELD(Code),
                                                       "Action Type" = CONST("Create New Document")));
             Caption = 'Is Create Document';
             Editable = false;
@@ -139,7 +139,14 @@ table 10860 "Payment Class"
         StepLedger.DeleteAll();
     end;
 
+    trigger OnInsert()
+    begin
+        FeatureTelemetry.LogUptake('1000HP1', FRPaymentSlipTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
+
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        FRPaymentSlipTok: Label 'FR Create Payment Slips', Locked = true;
         Text001: Label 'You cannot delete this Payment Class because it is already in use.';
         PaymentStep: Record "Payment Step";
         Text002: Label 'You cannot assign numbers longer than 10 characters.';

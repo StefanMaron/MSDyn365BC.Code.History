@@ -92,10 +92,24 @@ report 10820 "Export G/L Entries to XML"
     var
         FileMgt: Codeunit "File Management";
     begin
+        FeatureTelemetry.LogUptake('1000HO7', FRGeneralLedgerXMLTok, Enum::"Feature Uptake Status"::"Set up");
         FileName := FileMgt.ServerTempFileName('xml');
     end;
 
+    trigger OnInitReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HO6', FRGeneralLedgerXMLTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HO8', FRGeneralLedgerXMLTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('1000HO9', FRGeneralLedgerXMLTok, 'FR General Ledger Entries Tax Audits Exported to XML File');
+    end;
+
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        FRGeneralLedgerXMLTok: Label 'FR Export General Ledger Entries to XML File', Locked = true;
         Text001: Label 'You must enter a Starting Date.';
         Text002: Label 'You must enter an Ending Date.';
         Text003: Label 'You must enter a File Name.';

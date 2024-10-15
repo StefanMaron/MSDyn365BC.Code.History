@@ -184,16 +184,19 @@ report 10885 "Export G/L Entries - Tax Audit"
 
     trigger OnPostReport()
     begin
+        FeatureTelemetry.LogUptake('1000HO4', FRGeneralLedgerTok, Enum::"Feature Uptake Status"::"Used");
         ToFileName := GetFileName;
         Writer.Close;
 
         FileManagement.DownloadHandler(OutputFileName, '', '', '', ToFileName);
         Clear(oStream);
         Erase(OutputFileName);
+        FeatureTelemetry.LogUsage('1000HO5', FRGeneralLedgerTok, 'FR General Ledger Entries for Tax Audits Exported');
     end;
 
     trigger OnPreReport()
     begin
+        FeatureTelemetry.LogUptake('1000HO3', FRGeneralLedgerTok, Enum::"Feature Uptake Status"::"Set up");
         if StartingDate = 0D then
             Error(MissingStartingDateErr);
         if EndingDate = 0D then
@@ -210,8 +213,14 @@ report 10885 "Export G/L Entries - Tax Audit"
         WriteHeaderToFile;
     end;
 
+    trigger OnInitReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HO2', FRGeneralLedgerTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
     var
         FileManagement: Codeunit "File Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         OutputFile: File;
         oStream: OutStream;
         Writer: DotNet StreamWriter;
@@ -227,6 +236,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         NoEntriestoExportErr: Label 'There are no entries to export within the defined filter. The file was not created.';
         InvalidWindowsChrStringTxt: Label '""#%&*:<>?\/{|}~';
         ServerFileExtensionTxt: Label 'TXT';
+        FRGeneralLedgerTok: Label 'FR Export General Ledger Entries for Tax Audits', Locked = true;
         IncludeOpeningBalances: Boolean;
         CurrentTransactionNo: Integer;
         CurrentSourceType: Enum "Gen. Journal Source Type";
@@ -826,7 +836,7 @@ report 10885 "Export G/L Entries - Tax Audit"
             "Source Type",
             "Transaction No."
         );
-                
+
         GLEntry.SetFilter("Posting Date", '..%1', StartingDate - 1);
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Source Type", SourceType);

@@ -15,7 +15,13 @@ codeunit 5613 "Calculate Acq. Cost Depr."
         FADeprBook: Record "FA Depreciation Book";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         DeprBasis: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeprCalc(DeprAmount, Custom1Amount, FANo, DeprBookCode, LocalDeprBasis, Custom1LocalDeprBasis, IsHandled);
+        if IsHandled then
+            exit;
+
         DeprAmount := 0;
         Custom1Amount := 0;
         DeprBook.Get(DeprBookCode);
@@ -81,6 +87,11 @@ codeunit 5613 "Calculate Acq. Cost Depr."
           Text000,
           GenJnlLine.FieldCaption("Depr. Acquisition Cost"),
           FADeprBook.FieldCaption("Depreciable Basis"), DepreciationCalc.FAName(FA, DeprBookCode));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeprCalc(var DeprAmount: Decimal; var Custom1Amount: Decimal; FANo: Code[20]; DeprBookCode: Code[10]; LocalDeprBasis: Decimal; Custom1LocalDeprBasis: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

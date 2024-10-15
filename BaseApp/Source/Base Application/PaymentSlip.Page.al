@@ -302,8 +302,10 @@ page 10868 "Payment Slip"
                     var
                         PaymentMgt: Codeunit "Payment Management";
                     begin
+                        FeatureTelemetry.LogUptake('1000HP2', FRPaymentSlipTok, Enum::"Feature Uptake Status"::"Used");
                         PaymentStep.SetRange("Action Type", PaymentStep."Action Type"::File);
                         PaymentMgt.ProcessPaymentSteps(Rec, PaymentStep);
+                        FeatureTelemetry.LogUsage('1000HP3', FRPaymentSlipTok, 'FR Payment Slips File Created');
                     end;
                 }
                 action(Post)
@@ -355,12 +357,14 @@ page 10868 "Payment Slip"
 
     var
         PaymentStep: Record "Payment Step";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ChangeExchangeRate: Page "Change Exchange Rate";
         Navigate: Page Navigate;
         Text001: Label 'This payment class does not authorize vendor suggestions.';
         Text002: Label 'This payment class does not authorize customer suggestions.';
         Text003: Label 'You cannot suggest payments on a posted header.';
         Text009: Label 'Do you want to archive this document?';
+        FRPaymentSlipTok: Label 'FR Create Payment Slips', Locked = true;
 
     local procedure DocumentDateOnAfterValidate()
     begin

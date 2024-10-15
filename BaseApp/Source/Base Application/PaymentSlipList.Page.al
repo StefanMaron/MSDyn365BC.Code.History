@@ -58,5 +58,13 @@ page 10870 "Payment Slip List"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        FRPaymentSlipTok: Label 'FR Create Payment Slips', Locked = true;
+    begin
+        FeatureTelemetry.LogUptake('1000HP0', FRPaymentSlipTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
 }
 

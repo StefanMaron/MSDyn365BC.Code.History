@@ -18,6 +18,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         AmountError: Label 'Additional Fee Amount must be %1 for Issued Reminder No: %2.';
         ReminderEndingText: Label 'Balance %7';
@@ -479,6 +480,67 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         CustomerList.Close;
     end;
 
+    [Test]
+    [HandlerFunctions('BatchCancelIssuedRemindersRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestIfReminderCanBeIssuedAfterCancellation()
+    var
+        Customer: Record Customer;
+        Reminder: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        IssuedReminder: Record "Issued Reminder Header";
+        GLSetup: Record "General Ledger Setup";
+        CancelReminder: Codeunit "Cancel Issued Reminder";
+        ReminderNo: Code[20];
+        IssueNo: Code[20];
+        OldReminderLevel: Integer;
+        DocumentDate: Date;
+    begin
+        // [SCENARIO 435427] To check if Reminder is getting issued after cancelation of previous reminder where reminder level are updated manually by user in first document
+        Initialize();
+
+        // [GIVEN] Create a customer and issue areminder document
+
+        GLSetup.Get();
+        GLSetup."Journal Templ. Name Mandatory" := false;
+        GLSetup.Modify();
+
+        CreateCustomer(Customer, '');
+        SetupAndPostSalesInvoice(Customer, DocumentDate, '', '');
+        CreateReminder(Customer."No.", DocumentDate, true);
+        ReminderNo := GetReminderNo(Customer."No.");
+        Reminder.Get(ReminderNo);
+        OldReminderLevel := Reminder."Reminder Level";
+
+        // [GIVEN] Update reminder Level on lines manually
+        ReminderLine.SetRange("Reminder No.", ReminderNo);
+        ReminderLine.SetFilter("No. of Reminders", '<>%1', 0);
+        if ReminderLine.findset() then
+            repeat
+                ReminderLine.Validate("No. of Reminders", 4);
+                ReminderLine.Modify(true);
+            until ReminderLine.Next() = 0;
+
+        // [GIVEN] Issue the reminder
+        IssueNo := IssueReminderWithReminderHeader(Reminder);
+        IssuedReminder.SetRange("No.", IssueNo);
+        IssuedReminder.FindFirst();
+
+        // [GIVEN] Cancel Issued Reminder
+        RunCancelIssuedReminderReportWithParameters(IssuedReminder, true, true, DocumentDate);
+
+        // [WHEN] a new Reminder is generated with same parameters
+        CreateReminder(Customer."No.", DocumentDate, true);
+        ReminderNo := GetReminderNo(Customer."No.");
+        Reminder.Get(ReminderNo);
+
+        // [THEN] New reminder should have previous reminder levels on line
+        ReminderLine.SetRange("Reminder No.", Reminder."No.");
+        ReminderLine.SetRange("No. of Reminders", OldReminderLevel);
+
+        Assert.RecordIsNotEmpty(ReminderLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -488,6 +550,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // Clear global variable.
         Clear(ReminderLevelNo);
         DocumentNoVisibility.ClearState();
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -890,6 +953,15 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
           StrSubstNo(AmountError, Amount, IssuedReminderNo));
     end;
 
+    local procedure RunCancelIssuedReminderReportWithParameters(var IssuedReminderHeader: Record "Issued Reminder Header"; UseSameDocumentNo: Boolean; UseSamePostingDate: Boolean; NewPostingDate: Date)
+    begin
+        LibraryVariableStorage.Enqueue(UseSameDocumentNo);
+        LibraryVariableStorage.Enqueue(UseSamePostingDate);
+        LibraryVariableStorage.Enqueue(NewPostingDate);
+        Commit();
+        REPORT.RunModal(REPORT::"Cancel Issued Reminders", true, false, IssuedReminderHeader);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure UpdateReminderTextPageHandler(var UpdateReminderText: TestRequestPage "Update Reminder Text")
@@ -897,6 +969,24 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         UpdateReminderText.ReminderLevelNo.SetValue(ReminderLevelNo);
         UpdateReminderText.UpdateAdditionalFee.SetValue(false);
         UpdateReminderText.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BatchCancelIssuedRemindersRequestPageHandler(var BatchCancelIssuedReminders: TestRequestPage "Cancel Issued Reminders")
+    var
+        UseSameDocumentNo: Boolean;
+        UseSamePostingDate: Boolean;
+        NewPostingDate: Date;
+    begin
+        UseSameDocumentNo := LibraryVariableStorage.DequeueBoolean;
+        UseSamePostingDate := LibraryVariableStorage.DequeueBoolean;
+        NewPostingDate := LibraryVariableStorage.DequeueDate;
+        BatchCancelIssuedReminders.UseSameDocumentNo.SetValue(UseSameDocumentNo);
+        BatchCancelIssuedReminders.UseSamePostingDate.SetValue(UseSamePostingDate);
+        if not UseSamePostingDate then
+            BatchCancelIssuedReminders.NewPostingDate.SetValue(NewPostingDate);
+        BatchCancelIssuedReminders.OK.Invoke;
     end;
 }
 
