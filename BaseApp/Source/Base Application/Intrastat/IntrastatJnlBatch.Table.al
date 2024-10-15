@@ -39,9 +39,7 @@ table 262 "Intrastat Jnl. Batch"
             begin
                 TestField(Reported, false);
                 if StrLen("Statistics Period") <> 4 then
-                    Error(
-                      Text000,
-                      FieldCaption("Statistics Period"));
+                    Error(StatPeriodFormatErr);
                 Evaluate(Month, CopyStr("Statistics Period", 1, 2));
                 if (Month < 1) or (Month > 12) then
                     Error(Text001);
@@ -121,7 +119,7 @@ table 262 "Intrastat Jnl. Batch"
     end;
 
     var
-        Text000: Label '%1 must be 4 characters, for example, 9410 for October, 1994.';
+        StatPeriodFormatErr: Label 'You must specify the statistics period in the format MMYY, such as 0122 for January, 2022.';
         Text001: Label 'Please check the month number.';
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
