@@ -831,6 +831,8 @@ page 190 "Incoming Documents"
                         IncomingDocument.SendToOCR(false);
                 end;
             until IncomingDocument.Next() = 0;
+
+        OnAfterIncomingDocumentMultiSelectAction(IncomingDocument, ActionName);
     end;
 
     local procedure AskUserPermission(ActionName: Option): Boolean
@@ -888,6 +890,11 @@ page 190 "Incoming Documents"
     begin
         OCRServiceIsEnabled := OCRIsEnabled;
         ShowOCRSetup := not OCRServiceIsEnabled;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIncomingDocumentMultiSelectAction(var IncomingDocument: Record "Incoming Document"; ActionName: Option)
+    begin
     end;
 }
 

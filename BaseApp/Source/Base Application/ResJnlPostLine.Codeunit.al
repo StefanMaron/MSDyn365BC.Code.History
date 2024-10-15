@@ -139,6 +139,7 @@ codeunit 212 "Res. Jnl.-Post Line"
                 TimeSheetDetail.SetRange("Time Sheet No.", "Time Sheet No.");
                 TimeSheetDetail.SetRange("Time Sheet Line No.", "Time Sheet Line No.");
                 TimeSheetDetail.SetRange(Posted, false);
+                OnPostTimeSheetDetailOnAfterSetTimeSheetDetailFilters(TimeSheetDetail, ResJnlLine2);
                 if TimeSheetDetail.IsEmpty() then begin
                     TimeSheetLine.Posted := true;
                     TimeSheetLine.Modify();
@@ -182,6 +183,11 @@ codeunit 212 "Res. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResLedgEntryInsert(var ResLedgerEntry: Record "Res. Ledger Entry"; ResJournalLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostTimeSheetDetailOnAfterSetTimeSheetDetailFilters(var TimeSheetDetail: Record "Time Sheet Detail"; ResJournalLine: Record "Res. Journal Line")
     begin
     end;
 }

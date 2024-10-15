@@ -4307,19 +4307,22 @@ codeunit 134341 "UT Page Actions & Controls"
         CreateTask."Salesperson Code".SetValue(SalesPerson.Code);
 
         // [THEN] Field 'Salesperson Code' is enabled
-        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
+        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), 'Salesperson Code should be enabled');
 
         // [WHEN] 'Team Task' = True
         CreateTask.TeamTask.SetValue(true);
 
         // [THEN] Field 'Salesperson Code' is enabled
-        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
+        Assert.AreEqual(false, CreateTask."Salesperson Code".Enabled(), 'Salesperson Code should be disable');
+        Assert.AreEqual('', CreateTask."Salesperson Code".Value, 'Salesperson Code should be empty');
 
         // [WHEN] 'Team Task' = True
         CreateTask.TeamTask.SetValue(false);
 
         // [THEN] Field 'Salesperson Code' is enabled
-        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
+        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), 'Salesperson Code should be enabled');
+
+        CreateTask."Salesperson Code".SetValue(SalesPerson.Code); // needed to close page without error message
         CreateTask.OK().Invoke();
     end;
 
@@ -4856,6 +4859,7 @@ codeunit 134341 "UT Page Actions & Controls"
     local procedure CreateInteractionTemplate(var InteractionTemplate: Record "Interaction Template")
     begin
         InteractionTemplate.Init();
+        InteractionTemplate."Correspondence Type (Default)" := "Correspondence Type"::" ";
         InteractionTemplate.Code := LibraryUtility.GenerateGUID;
         InteractionTemplate.Insert(false);
     end;
