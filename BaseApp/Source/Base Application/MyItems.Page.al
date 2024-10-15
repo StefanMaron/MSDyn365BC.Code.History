@@ -21,7 +21,7 @@ page 9152 "My Items"
                         SyncFieldsWithItem();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';

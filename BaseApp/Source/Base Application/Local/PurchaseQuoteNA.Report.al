@@ -511,7 +511,7 @@ report 10123 "Purchase Quote NA"
         trigger OnOpenPage()
         begin
             ArchiveDocument := ArchiveManagement.PurchaseDocArchiveGranule();
-            LogInteraction := SegManagement.FindInteractTmplCode(11) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch.Qte.") <> '';
 
             ArchiveDocumentEnable := ArchiveDocument;
             LogInteractionEnable := LogInteraction;

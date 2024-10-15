@@ -56,13 +56,13 @@ page 36721 "Bank Rec. Check Lines Dyn"
                     ToolTip = 'Specifies the account number that the journal line entry will be posted to.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a description of the transaction on the bank reconciliation line.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

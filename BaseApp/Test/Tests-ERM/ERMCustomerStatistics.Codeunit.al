@@ -94,7 +94,7 @@ codeunit 134389 "ERM Customer Statistics"
     end;
 
     [Test]
-    [HandlerFunctions('NoSeriesListPageHandler,SendNotificationHandler,NotificationDetailsHandler,RecallNotificationHandler')]
+    [HandlerFunctions('NoSeriesPageHandler,SendNotificationHandler,NotificationDetailsHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure CustomerAmountOverdueWarning()
     var
@@ -125,7 +125,7 @@ codeunit 134389 "ERM Customer Statistics"
     end;
 
     [Test]
-    [HandlerFunctions('NoSeriesListPageHandler,SendNotificationHandler,NotificationDetailsHandler,RecallNotificationHandler')]
+    [HandlerFunctions('NoSeriesPageHandler,SendNotificationHandler,NotificationDetailsHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure OverdueAmountForCustomerAfterWarning()
     var
@@ -220,7 +220,6 @@ codeunit 134389 "ERM Customer Statistics"
         BalanceFCY: Decimal;
     begin
         // Test that while opening the page CustStatsByCurrLines from the customer list, proper filter can be applied on that page.
-
         // Setup: Create Customer and Sales Document with or without currency and post it.
         Initialize();
         LibrarySales.CreateCustomer(Customer);
@@ -916,12 +915,19 @@ codeunit 134389 "ERM Customer Statistics"
 
     local procedure Initialize()
     var
+        Currency: Record Currency;
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Customer Statistics");
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Customer Statistics");
+        
+        FindCurrency(Currency);
+        LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<-1Y>', WorkDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+        LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<-2Y>', WorkDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+        LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<-3Y>', WorkDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -1348,9 +1354,9 @@ codeunit 134389 "ERM Customer Statistics"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListPageHandler(var NoSeriesList: TestPage "No. Series")
+    procedure NoSeriesPageHandler(var NoSeriesPage: TestPage "No. Series")
     begin
-        NoSeriesList.OK.Invoke;
+        NoSeriesPage.OK().Invoke();
     end;
 
     [RecallNotificationHandler]

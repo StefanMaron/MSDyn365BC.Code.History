@@ -15,7 +15,7 @@ page 27002 "SAT Payment Method Codes"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the SAT payment method.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies a description the SAT payment method.';

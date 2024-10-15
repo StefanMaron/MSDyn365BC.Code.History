@@ -5,16 +5,10 @@ codeunit 1381 "Customer Templ. Mgt."
     end;
 
     var
-        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records. Do you want to continue?';
-#if not CLEAN19            
-        TemplatesDisabledTxt: Label 'Contact conversion templates are being replaced by customer templates to avoid duplication. We have migrated your existing contact conversion templates to customer templates. Going forward, use only customer templates. Contact conversion templates are no longer used.';
-        LearnMoreTxt: Label 'Learn more';
-        LearnMoreUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2171036', Locked = true;
-        OpenPageTxt: Label 'Open the %1 page', Comment = '%1 = page caption';
-#endif
+        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records in fields that do not already contain data. Do you want to continue?';
         OpenBlankCardQst: Label 'Do you want to open the blank customer card?';
 
-    procedure CreateCustomerFromTemplate(var Customer: Record Customer; var IsHandled: Boolean) Result: Boolean
+    procedure CreateCustomerFromTemplate(var Customer: Record Customer; var IsHandled: Boolean; CustomerTemplCode: Code[20]) Result: Boolean
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         CustomerTempl: Record "Customer Templ.";
@@ -26,8 +20,12 @@ codeunit 1381 "Customer Templ. Mgt."
 
         IsHandled := true;
 
-        if not SelectCustomerTemplate(CustomerTempl) then
-            exit(false);
+        if CustomerTemplCode = '' then begin
+            if not SelectCustomerTemplate(CustomerTempl) then
+                exit(false);
+        end
+        else
+            CustomerTempl.Get(CustomerTemplCode);
 
         Customer.SetInsertFromTemplate(true);
         Customer.Init();
@@ -40,6 +38,11 @@ codeunit 1381 "Customer Templ. Mgt."
 
         OnAfterCreateCustomerFromTemplate(Customer, CustomerTempl);
         exit(true);
+    end;
+
+    procedure CreateCustomerFromTemplate(var Customer: Record Customer; var IsHandled: Boolean): Boolean
+    begin
+        exit(CreateCustomerFromTemplate(Customer, IsHandled, ''));
     end;
 
     procedure ApplyCustomerTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
@@ -373,7 +376,7 @@ codeunit 1381 "Customer Templ. Mgt."
         FieldExclusionList.Add(CustomerTempl.FieldNo("Invoice Disc. Code"));
         FieldExclusionList.Add(CustomerTempl.FieldNo("No. Series"));
         FieldExclusionList.Add(CustomerTempl.FieldNo("Payment Method Code"));
-	FieldExclusionList.Add(CustomerTempl.FieldNo(State));
+        FieldExclusionList.Add(CustomerTempl.FieldNo(State));
 
         OnAfterFillFieldExclusionList(FieldExclusionList);
     end;
@@ -539,32 +542,6 @@ codeunit 1381 "Customer Templ. Mgt."
 
         ShowCustomerTemplList(IsHandled);
     end;
-
-#if not CLEAN19
-    [Obsolete('Will not be needed after customer template table will be removed.', '19.0')]
-    procedure ShowContactConversionTemplatesNotification()
-    var
-        CustomerTemplList: Page "Customer Templ. List";
-        Notification: Notification;
-    begin
-        Notification.Message(TemplatesDisabledTxt);
-        Notification.AddAction(LearnMoreTxt, Codeunit::"Customer Templ. Mgt.", 'OpenLearnMore');
-        Notification.AddAction(StrSubstNo(OpenPageTxt, CustomerTemplList.Caption), Codeunit::"Customer Templ. Mgt.", 'OpenCustomerTemplListPage');
-        Notification.Send();
-    end;
-
-    [Obsolete('Will not be needed after customer template table will be removed.', '19.0')]
-    procedure OpenLearnMore(Notification: Notification)
-    begin
-        Hyperlink(LearnMoreUrlTxt);
-    end;
-
-    [Obsolete('Will not be needed after customer template table will be removed.', '19.0')]
-    procedure OpenCustomerTemplListPage(Notification: Notification)
-    begin
-        Page.Run(Page::"Customer Templ. List");
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetUpdateExistingValuesParam(var Result: Boolean; var IsHandled: Boolean)

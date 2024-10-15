@@ -15,6 +15,7 @@
         CompanyInfo: Record "Company Information";
         SourceCodeSetup: Record "Source Code Setup";
         TypeHelper: Codeunit "Type Helper";
+        EInvoiceCommunication: Codeunit "EInvoice Communication";
         DocNameSpace: Text;
         DocType: Text;
         Text000: Label 'Dear customer, please find invoice number %1 in the attachment.';
@@ -3559,24 +3560,20 @@
     var
         IsolatedCertificate: Record "Isolated Certificate";
         CertificateManagement: Codeunit "Certificate Management";
-        DotNet_ISignatureProvider: Codeunit DotNet_ISignatureProvider;
-        DotNet_SecureString: Codeunit DotNet_SecureString;
     begin
         GetGLSetup();
         if not GLSetup."Sim. Signature" then begin
             IsolatedCertificate.Get(GLSetup."SAT Certificate");
-            CertificateManagement.GetPasswordAsSecureString(DotNet_SecureString, IsolatedCertificate);
 
-            if not SignDataWithCert(DotNet_ISignatureProvider, SignedString,
-                 OriginalString, CertificateManagement.GetCertAsBase64String(IsolatedCertificate), DotNet_SecureString)
+            if not SignDataWithCert(SignedString,
+                 OriginalString, CertificateManagement.GetCertAsBase64String(IsolatedCertificate), CertificateManagement.GetPassword(IsolatedCertificate))
             then begin
                 Session.LogMessage('0000C7Q', SATCertificateNotValidErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
                 Error(SATNotValidErr);
             end;
 
-            CertificateString := DotNet_ISignatureProvider.LastUsedCertificate;
-            SerialNoOfCertificateUsed := CopyStr(DotNet_ISignatureProvider.LastUsedCertificateSerialNo, 1,
-                MaxStrLen(SerialNoOfCertificateUsed));
+            CertificateString := EInvoiceCommunication.LastUsedCertificate();
+            SerialNoOfCertificateUsed := CopyStr(EInvoiceCommunication.LastUsedCertificateSerialNo, 1, MaxStrLen(SerialNoOfCertificateUsed));
         end else begin
             SignedString := OriginalString;
             CertificateString := '';
@@ -3885,10 +3882,14 @@
     local procedure FormatPeriod(Period: Option "Diario","Semanal","Quincenal","Mensual"): Text
     begin
         case Period of
-             Period::Diario: exit('01');
-             Period::Semanal: exit('02');
-             Period::Quincenal: exit('03');
-             Period::Mensual: exit('04'); 
+            Period::Diario:
+                exit('01');
+            Period::Semanal:
+                exit('02');
+            Period::Quincenal:
+                exit('03');
+            Period::Mensual:
+                exit('04');
         end;
     end;
 
@@ -4061,10 +4062,6 @@
         MXElectronicInvoicingSetup: Record "MX Electronic Invoicing Setup";
         TempBlob: Codeunit "Temp Blob";
         CertificateManagement: Codeunit "Certificate Management";
-        EInvoiceObjectFactory: Codeunit "E-Invoice Object Factory";
-        DotNet_SecureString: Codeunit DotNet_SecureString;
-        IWebServiceInvoker: DotNet IWebServiceInvoker;
-        SecureStringPassword: DotNet SecureString;
         Response: Text;
         DocOutStream: OutStream;
         DocInStream: InStream;
@@ -4075,8 +4072,6 @@
             exit;
         if not IsPACEnvironmentEnabled then
             Error(Text014);
-
-        EInvoiceObjectFactory.GetWebServiceInvoker(IWebServiceInvoker);
 
         if MXElectronicInvoicingSetup.Get() then
             if MXElectronicInvoicingSetup."Download XML with Requests" then begin
@@ -4098,8 +4093,9 @@
                         Error(Text009, PACWebServiceDetail.Type, GLSetup.FieldCaption("PAC Code"),
                           GLSetup.FieldCaption("PAC Environment"), GLSetup.TableCaption());
                     end;
-                    IWebServiceInvoker.AddParameter(XMLDoc.InnerXml);
-                    IWebServiceInvoker.AddParameter(false);
+
+                    EInvoiceCommunication.AddParameters(XMLDoc.InnerXml);
+                    EInvoiceCommunication.AddParameters(false);
                 end;
             MethodTypeRef::Cancel:
                 begin
@@ -4108,7 +4104,7 @@
                         Error(Text009, PACWebServiceDetail.Type, GLSetup.FieldCaption("PAC Code"),
                           GLSetup.FieldCaption("PAC Environment"), GLSetup.TableCaption);
                     end;
-                    IWebServiceInvoker.AddParameter(XMLDoc.InnerXml);
+                    EInvoiceCommunication.AddParameters(XMLDoc.InnerXml);
                 end;
             MethodTypeRef::CancelRequest:
                 begin
@@ -4117,7 +4113,7 @@
                         Error(Text009, PACWebServiceDetail.Type, GLSetup.FieldCaption("PAC Code"),
                           GLSetup.FieldCaption("PAC Environment"), GLSetup.TableCaption());
                     end;
-                    IWebServiceInvoker.AddParameter(XMLDoc.InnerXml);
+                    EInvoiceCommunication.AddParameters(XMLDoc.InnerXml);
                 end;
         end;
 
@@ -4127,9 +4123,6 @@
 
         IsolatedCertificate.Get(PACWebService.Certificate);
 
-        CertificateManagement.GetPasswordAsSecureString(DotNet_SecureString, IsolatedCertificate);
-        DotNet_SecureString.GetSecureString(SecureStringPassword);
-
         if PACWebServiceDetail.Address = '' then
             Session.LogMessage('0000C7S', StrSubstNo(NullParameterErr, 'address'), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
         if PACWebServiceDetail."Method Name" = '' then
@@ -4138,8 +4131,9 @@
             Session.LogMessage('0000C7S', StrSubstNo(NullParameterErr, 'certificate isentifier'), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         Session.LogMessage('0000C7V', StrSubstNo(InvokeMethodMsg, MethodType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
-        Response := IWebServiceInvoker.InvokeMethodWithCertificate(PACWebServiceDetail.Address,
-            PACWebServiceDetail."Method Name", CertificateManagement.GetCertAsBase64String(IsolatedCertificate), SecureStringPassword);
+
+        Response := EInvoiceCommunication.InvokeMethodWithCertificate(PACWebServiceDetail.Address,
+            PACWebServiceDetail."Method Name", CertificateManagement.GetCertAsBase64String(IsolatedCertificate), CertificateManagement.GetPassword(IsolatedCertificate));
         Session.LogMessage('0000C7W', StrSubstNo(InvokeMethodSuccessMsg, MethodType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
         if MethodType in [MethodType::Cancel, MethodType::CancelRequest] then
             Response := DelChr(Response, '=', SpecialCharsTxt);
@@ -4255,10 +4249,14 @@
 
     local procedure CreateQRCode(QRCodeInput: Text; var TempBLOB: Codeunit "Temp Blob")
     var
-        EInvoiceObjectFactory: Codeunit "E-Invoice Object Factory";
+        QRCodeProvider: DotNet QRCodeProvider;
+        BlobOutStr: OutStream;
     begin
         Clear(TempBLOB);
-        EInvoiceObjectFactory.GetBarCodeBlob(QRCodeInput, TempBLOB);
+
+        QRCodeProvider := QRCodeProvider.QRCodeProvider();
+        TempBLOB.CreateOutStream(BlobOutStr);
+        QRCodeProvider.GetBarcodeStream(QRCodeInput, BlobOutStr);
     end;
 
     [Obsolete('Replaced with CreateTempDocument', '19.0')]
@@ -4611,8 +4609,6 @@
     var
         IsolatedCertificate: Record "Isolated Certificate";
         CertificateManagement: Codeunit "Certificate Management";
-        DotNet_SecureString: Codeunit DotNet_SecureString;
-        DotNet_ISignatureProvider: Codeunit DotNet_ISignatureProvider;
         SerialNo: Text;
         CertificateString: Text;
         SignedString: Text;
@@ -4622,14 +4618,13 @@
             IsolatedCertificate.Get(GLSetup."SAT Certificate");
             CertificateString := CertificateManagement.GetCertAsBase64String(IsolatedCertificate);
 
-            CertificateManagement.GetPasswordAsSecureString(DotNet_SecureString, IsolatedCertificate);
-            if not SignDataWithCert(DotNet_ISignatureProvider, SignedString, 'DummyString', CertificateString, DotNet_SecureString)
+            if not SignDataWithCert(SignedString, 'DummyString', CertificateString, CertificateManagement.GetPassword(IsolatedCertificate))
             then begin
                 Session.LogMessage('0000C7Q', SATCertificateNotValidErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
                 Error(SATNotValidErr);
             end;
 
-            SerialNo := DotNet_ISignatureProvider.LastUsedCertificateSerialNo;
+            SerialNo := EInvoiceCommunication.LastUsedCertificateSerialNo;
             exit(SerialNo);
         end;
         exit('');
@@ -5854,12 +5849,12 @@ IsVATExemptLine(TempDocumentLine));
             AddElementCFDI(XMLCurrNode, 'Retenciones', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             repeat
-AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
-            AddNodeTrasladoRetentionPerLine(
-                XMLDoc, XMLCurrNode, XMLNewChild,
-                TempDocumentLine.Amount, TempDocumentLineRetention."Retention VAT %",
-                TempDocumentLineRetention."Unit Price/Direct Unit Cost" * TempDocumentLineRetention.Quantity,
-                IsVATExemptLine(TempDocumentLineRetention));
+                AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
+                AddNodeTrasladoRetentionPerLine(
+                    XMLDoc, XMLCurrNode, XMLNewChild,
+                    TempDocumentLine.Amount, TempDocumentLineRetention."Retention VAT %",
+                    TempDocumentLineRetention."Unit Price/Direct Unit Cost" * TempDocumentLineRetention.Quantity,
+                    IsVATExemptLine(TempDocumentLineRetention));
             until TempDocumentLineRetention.Next() = 0;
             XMLCurrNode := XMLCurrNode.ParentNode; // Retenciones
         end;
@@ -6142,7 +6137,7 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
                     AddAttribute(XMLDoc, XMLCurrNode, 'ImporteDR', FormatDecimal(TempVATAmountLine."VAT Amount", 2));
                 end;
                 XMLCurrNode := XMLCurrNode.ParentNode;
-        until TempVATAmountLine.Next() = 0;
+            until TempVATAmountLine.Next() = 0;
 
         XMLCurrNode := XMLCurrNode.ParentNode;
         XMLCurrNode := XMLCurrNode.ParentNode;
@@ -6464,9 +6459,9 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
     end;
 
     [TryFunction]
-    local procedure SignDataWithCert(var DotNet_ISignatureProvider: Codeunit DotNet_ISignatureProvider; var SignedString: Text; OriginalString: Text; Certificate: Text; DotNet_SecureString: Codeunit DotNet_SecureString)
+    local procedure SignDataWithCert(var SignedString: Text; OriginalString: Text; Certificate: Text; Password: Text)
     begin
-        SignedString := DotNet_ISignatureProvider.SignDataWithCertificate(OriginalString, Certificate, DotNet_SecureString);
+        SignedString := EInvoiceCommunication.SignDataWithCertificate(OriginalString, Certificate, Password);
     end;
 
     [Scope('OnPrem')]

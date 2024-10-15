@@ -1,43 +1,26 @@
+#if not CLEAN22
 codeunit 10149 DotNet_ISignatureProvider
 {
-
-    trigger OnRun()
-    begin
-    end;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Signature provider is deprecated, use EInvoice Communication codeunit instead.';
+    ObsoleteTag = '22.0';
 
     var
-        DotNetISignatureProvider: DotNet ISignatureProvider;
+        EInvoiceCommunication: Codeunit "EInvoice Communication";
 
     procedure SignDataWithCertificate(Data: Text; Certificate: Text; DotNet_SecureString: Codeunit DotNet_SecureString): Text
-    var
-        EInvoiceObjectFactory: Codeunit "E-Invoice Object Factory";
-        SecureStringPassword: DotNet SecureString;
     begin
-        EInvoiceObjectFactory.GetSignatureProvider(DotNetISignatureProvider);
-        DotNet_SecureString.GetSecureString(SecureStringPassword);
-        exit(DotNetISignatureProvider.SignDataWithCertificate(Data, Certificate, SecureStringPassword));
+        exit(EInvoiceCommunication.SignDataWithCertificate(Data, Certificate, DotNet_SecureString.GetPlainText()));
     end;
 
     procedure LastUsedCertificate(): Text
     begin
-        exit(DotNetISignatureProvider.LastUsedCertificate);
+        exit(EInvoiceCommunication.LastUsedCertificate());
     end;
 
     procedure LastUsedCertificateSerialNo(): Text
     begin
-        exit(DotNetISignatureProvider.LastUsedCertificateSerialNo);
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetISignatureProvider(var DotNetISignatureProvider2: DotNet ISignatureProvider)
-    begin
-        DotNetISignatureProvider2 := DotNetISignatureProvider;
-    end;
-
-    [Scope('OnPrem')]
-    procedure SetISignatureProvider(var DotNetISignatureProvider2: DotNet ISignatureProvider)
-    begin
-        DotNetISignatureProvider := DotNetISignatureProvider2;
+        exit(EInvoiceCommunication.LastUsedCertificateSerialNo());
     end;
 }
-
+#endif

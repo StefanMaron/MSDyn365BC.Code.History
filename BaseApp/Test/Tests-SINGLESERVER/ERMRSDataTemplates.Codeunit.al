@@ -775,94 +775,6 @@ codeunit 136601 "ERM RS Data Templates"
         Cleanup('', ConfigTemplateHeader.Code);
     end;
 
-#if not CLEAN19
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestFindTemplateBasedOnRecordFindsTheRecord()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        DummyConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        ConfigTmplSelectionRules2: Record "Config. Tmpl. Selection Rules";
-        Item: Record Item;
-        Item2: Record Item;
-        "Order": Integer;
-        RecordFound: Boolean;
-    begin
-        // Setup
-        Initialize();
-
-        Order := 1;
-        SetupItemAndCreateTemplateSelectionRule(Item, ConfigTmplSelectionRules, Order);
-        SetupItemAndCreateTemplateSelectionRule(Item2, ConfigTmplSelectionRules2, Order);
-
-        // Execute
-        RecordFound := DummyConfigTmplSelectionRules.FindTemplateBasedOnRecordFields(Item2, ConfigTemplateHeader);
-
-        // Verify
-        Assert.IsTrue(RecordFound, 'Record should have been found for given filter');
-        Assert.AreEqual(ConfigTmplSelectionRules2."Template Code", ConfigTemplateHeader.Code, 'Wrong template was found');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestFindTemplateBasedOnRecordWithMultiplePossibilitiesFindsTheFirstRecordBasedOnOrder()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        DummyConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        ConfigTmplSelectionRules2: Record "Config. Tmpl. Selection Rules";
-        Item: Record Item;
-        "Order": Integer;
-        RecordFound: Boolean;
-    begin
-        // Setup
-        Initialize();
-
-        Order := 1;
-        SetupItemAndCreateTemplateSelectionRule(Item, ConfigTmplSelectionRules, Order);
-        SetupItemAndCreateTemplateSelectionRule(Item, ConfigTmplSelectionRules2, Order);
-
-        // Execute
-        RecordFound := DummyConfigTmplSelectionRules.FindTemplateBasedOnRecordFields(Item, ConfigTemplateHeader);
-
-        // Verify
-        Assert.IsTrue(RecordFound, 'Record should have been found for given filter');
-        Assert.AreEqual(ConfigTmplSelectionRules."Template Code", ConfigTemplateHeader.Code, 'Wrong template was found');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestFindTemplateBasedOnRecordDoesNotFindTheMatchingRecord()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        DummyConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        ConfigTmplSelectionRules2: Record "Config. Tmpl. Selection Rules";
-        Item: Record Item;
-        Item2: Record Item;
-        "Order": Integer;
-        RecordFound: Boolean;
-    begin
-        // Setup
-        Initialize();
-        ConfigTmplSelectionRules.DeleteAll();
-
-        Order := 1;
-        SetupItemAndCreateTemplateSelectionRule(Item, ConfigTmplSelectionRules, Order);
-        SetupItemAndCreateTemplateSelectionRule(Item2, ConfigTmplSelectionRules2, Order);
-        Item2."Item Category Code" := '';
-        Item2.Modify();
-
-        // Execute
-        RecordFound := DummyConfigTmplSelectionRules.FindTemplateBasedOnRecordFields(Item2, ConfigTemplateHeader);
-
-        // Verify
-        Assert.IsFalse(RecordFound, 'Record should not have been found for given filter');
-        Assert.AreEqual('', ConfigTemplateHeader.Code, 'Template code should not have been set');
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure TestFindTemplateOnEmptyTable()
@@ -906,47 +818,6 @@ codeunit 136601 "ERM RS Data Templates"
         Assert.IsFalse(RecordFound, 'Record should not have been found for given filter');
         Assert.AreEqual('', ConfigTemplateHeader.Code, 'Template code should not have been set');
     end;
-
-#if not CLEAN19
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestDeletingConfigTemplateHeaderRemovesSelections()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        DifferentConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateHeaderDifferentTable: Record "Config. Template Header";
-        ConfigTmplSelectionRulesDifferentTable: Record "Config. Tmpl. Selection Rules";
-        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        DifferentConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-    begin
-        // Setup
-        Initialize();
-
-        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
-        ConfigTemplateHeader."Table ID" := DATABASE::Item;
-        ConfigTemplateHeader.Modify();
-        ConfigTemplateHeaderDifferentTable.Copy(ConfigTemplateHeader);
-        ConfigTemplateHeaderDifferentTable."Table ID" := DATABASE::Customer;
-        LibraryRapidStart.CreateConfigTemplateHeader(DifferentConfigTemplateHeader);
-        DifferentConfigTemplateHeader."Table ID" := DATABASE::Item;
-        DifferentConfigTemplateHeader.Modify();
-
-        LibraryRapidStart.CreateTemplateSelectionRule(ConfigTmplSelectionRules, 1, 'First', 1, PAGE::"Item Entity", ConfigTemplateHeader);
-        LibraryRapidStart.CreateTemplateSelectionRule(
-          ConfigTmplSelectionRulesDifferentTable, 1, 'DifferentTable', 1, PAGE::"Customer Entity", ConfigTemplateHeaderDifferentTable);
-        LibraryRapidStart.CreateTemplateSelectionRule(
-          DifferentConfigTmplSelectionRules, 1, 'NotDeleted', 1, PAGE::"Item Entity", DifferentConfigTemplateHeader);
-
-        // Execute
-        ConfigTemplateHeader.Delete(true);
-
-        // Verify
-        Assert.IsFalse(ConfigTmplSelectionRules.Find, 'Config template rule should have been deleted');
-        Assert.IsFalse(ConfigTmplSelectionRulesDifferentTable.Find, 'Config template rule should have been deleted');
-        Assert.IsTrue(
-          DifferentConfigTmplSelectionRules.Find, 'Config Template Selection rule for different template should not have been deleted');
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2178,37 +2049,6 @@ codeunit 136601 "ERM RS Data Templates"
         ItemLedgerEntry."Item No." := Item."No.";
         ItemLedgerEntry.Insert();
     end;
-
-#if not CLEAN19
-    local procedure SetupItemAndCreateTemplateSelectionRule(var Item: Record Item; var ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules"; var "Order": Integer)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-        ItemCategory: Record "Item Category";
-    begin
-        if Item."No." = '' then
-            LibraryInventory.CreateItem(Item);
-
-        if Item."Item Category Code" = '' then begin
-            LibraryInventory.CreateItemCategory(ItemCategory);
-            Item."Item Category Code" := ItemCategory.Code;
-            Item.Modify(true);
-        end;
-
-        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
-        ConfigTemplateHeader."Table ID" := DATABASE::Item;
-        ConfigTemplateHeader.Modify();
-
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
-        ConfigTemplateLine."Field ID" := Item.FieldNo("Item Category Code");
-        ConfigTemplateLine."Default Value" := ItemCategory.Code;
-        ConfigTemplateLine.Modify(true);
-
-        LibraryRapidStart.CreateTemplateSelectionRule(
-          ConfigTmplSelectionRules, Item.FieldNo("Item Category Code"), ItemCategory.Code, Order, PAGE::"Item Entity", ConfigTemplateHeader);
-        Order += 1;
-    end;
-#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

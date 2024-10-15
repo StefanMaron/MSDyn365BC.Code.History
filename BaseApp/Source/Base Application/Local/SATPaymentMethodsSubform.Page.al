@@ -17,7 +17,7 @@ page 27012 "SAT Payment Methods Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the SAT payment method.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the SAT payment method.';

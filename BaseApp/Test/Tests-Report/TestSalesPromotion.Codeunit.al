@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 codeunit 134603 "Report Sales Promotion Test"
 {
     Subtype = Test;

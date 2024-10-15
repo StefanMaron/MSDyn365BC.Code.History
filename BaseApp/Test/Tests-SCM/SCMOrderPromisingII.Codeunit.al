@@ -1,4 +1,4 @@
-﻿codeunit 137157 "SCM Order Promising II"
+codeunit 137157 "SCM Order Promising II"
 {
     Subtype = Test;
     TestPermissions = Disabled;

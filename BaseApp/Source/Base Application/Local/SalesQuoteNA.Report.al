@@ -626,7 +626,7 @@ report 10076 "Sales Quote NA"
             ArchiveDocument :=
               (SalesSetup."Archive Quotes" = SalesSetup."Archive Quotes"::Question) or
               (SalesSetup."Archive Quotes" = SalesSetup."Archive Quotes"::Always);
-            LogInteraction := SegManagement.FindInteractTmplCode(1) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Qte.") <> '';
 
             ArchiveDocumentEnable := ArchiveDocument;
             LogInteractionEnable := LogInteraction;

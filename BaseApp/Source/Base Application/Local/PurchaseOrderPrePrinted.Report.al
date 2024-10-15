@@ -446,7 +446,7 @@ report 10125 "Purchase Order (Pre-Printed)"
         trigger OnOpenPage()
         begin
             ArchiveDocument := ArchiveManagement.PurchaseDocArchiveGranule();
-            LogInteraction := SegManagement.FindInteractTmplCode(13) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Ord.") <> '';
 
             ArchiveDocumentEnable := ArchiveDocument;
             LogInteractionEnable := LogInteraction;

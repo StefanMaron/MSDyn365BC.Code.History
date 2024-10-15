@@ -2,6 +2,9 @@ table 10144 "Posted Deposit Line"
 {
     Caption = 'Posted Deposit Line';
     LookupPageID = "Posted Deposit Lines";
+    ObsoleteReason = 'Deposits are now on the extension "Bank Deposit". Use/extend Posted Bank Deposit Line. Posted deposits will be kept just for querying historical information.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     fields
     {

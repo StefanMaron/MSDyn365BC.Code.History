@@ -154,10 +154,12 @@ codeunit 1876 "Business Setup Subscribers"
         VATStatementTemplatesShortTitleTxt: Label 'VAT statement templates';
         VATStatementTemplatesDescriptionTxt: Label 'Set up the reports that you use to settle VAT and report to the customs and tax authorities.';
         VATStatementTemplatesKeywordsTxt: Label 'VAT, Statement, Templates';
+#if not CLEAN22
         IntrastatTemplatesTitleTxt: Label 'Intrastat templates';
         IntrastatTemplatesShortTitleTxt: Label 'Intrastat templates';
         IntrastatTemplatesDescriptionTxt: Label 'Define how you want to set up and keep track of journals to report Intrastat.';
         IntrastatTemplatesKeywordsTxt: Label 'Intrastat';
+#endif
         BusinessRelationsTitleTxt: Label 'Business relation types';
         BusinessRelationsShortTitleTxt: Label 'Business relation types';
         BusinessRelationsDescriptionTxt: Label 'Set up the types of business relations specifications that you can list with your contact companies. For example, customer, vendor, lawyer, and so on.';
@@ -230,12 +232,6 @@ codeunit 1876 "Business Setup Subscribers"
         VATReportConfigShortTitleTxt: Label 'VAT report configuration';
         VATReportConfigDescriptionTxt: Label 'Configure the objects that you use to process VAT reports.';
         VATReportConfigKeywordsTxt: Label 'VAT Report, Return, EC Sales List';
-#if not CLEAN19
-        EnvironmentTitleTxt: Label 'Set up a sandbox environment';
-        EnvironmentShortTitleTxt: Label 'Sandbox environments';
-        EnvironmentDescriptionTxt: Label 'Set up a sandbox environment where you can experiment with new capabilities.';
-        EnvironmentKeywordsTxt: Label 'System, Environment, Sandbox';
-#endif
         ICSetupTitleTxt: Label 'Set up intercompany postings';
         ICSetupShortTitleTxt: Label 'Intercompany setup';
         ICSetupDescriptionTxt: Label 'Set up how you want to electronically transfer transactions between the current company and partner companies.';
@@ -269,9 +265,6 @@ codeunit 1876 "Business Setup Subscribers"
     local procedure InsertSetupOnRegisterManualSetup(var Sender: Codeunit "Guided Experience")
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-#if not CLEAN19
-        EnvironmentInfo: Codeunit "Environment Information";
-#endif
         Info: ModuleInfo;
         ManualSetupCategory: Enum "Manual Setup Category";
     begin
@@ -344,12 +337,20 @@ codeunit 1876 "Business Setup Subscribers"
               Page::"Cost Accounting Setup", ManualSetupCategory::Finance, CostAccountingSetupKeywordsTxt);
         end;
 
+#if not CLEAN22
+#pragma warning disable AL0432
         IF ApplicationAreaMgmtFacade.IsAllDisabled() then begin
             Sender.InsertManualSetup(ResponsibilityCentersTitleTxt, ResponsibilityCentersShortTitleTxt, ResponsibilityCentersDescriptionTxt, 10, ObjectType::Page,
               Page::"Responsibility Center List", ManualSetupCategory::Finance, ResponsibilityCentersKeywordsTxt);
             Sender.InsertManualSetup(IntrastatTemplatesTitleTxt, IntrastatTemplatesShortTitleTxt, IntrastatTemplatesDescriptionTxt, 7, ObjectType::Page,
               Page::"Intrastat Journal Templates", ManualSetupCategory::Finance, IntrastatTemplatesKeywordsTxt);
         end;
+#pragma warning restore
+#else
+        if ApplicationAreaMgmtFacade.IsAllDisabled() then
+            Sender.InsertManualSetup(ResponsibilityCentersTitleTxt, ResponsibilityCentersShortTitleTxt, ResponsibilityCentersDescriptionTxt, 10, ObjectType::Page,
+              Page::"Responsibility Center List", ManualSetupCategory::Finance, ResponsibilityCentersKeywordsTxt);
+#endif
 
         // System
         IF ApplicationAreaMgmtFacade.IsAllDisabled() then
@@ -365,12 +366,6 @@ codeunit 1876 "Business Setup Subscribers"
 
             Sender.InsertManualSetup(UsersTitleTxt, UsersShortTitleTxt, UsersDescriptionTxt, 10, ObjectType::Page,
               Page::Users, ManualSetupCategory::System, UsersKeywordsTxt);
-#if not CLEAN19
-            IF EnvironmentInfo.IsSaaS() then
-                Sender.InsertManualSetup(
-                  EnvironmentTitleTxt, EnvironmentShortTitleTxt, EnvironmentDescriptionTxt, 15, ObjectType::Page,
-                  Page::"Sandbox Environment", ManualSetupCategory::System, EnvironmentKeywordsTxt);
-#endif
         end;
 
         // Jobs

@@ -1,14 +1,14 @@
 ﻿codeunit 442 "Sales-Post Prepayments"
 {
-    Permissions = TableData "Sales Line" = imd,
+    Permissions = TableData "Sales Line" = rimd,
 #if not CLEAN20
-                  TableData "Invoice Post. Buffer" = imd,
+                  TableData "Invoice Post. Buffer" = rimd,
 #endif
-                  TableData "Sales Invoice Header" = imd,
-                  TableData "Sales Invoice Line" = imd,
-                  TableData "Sales Cr.Memo Header" = imd,
-                  TableData "Sales Cr.Memo Line" = imd,
-                  TableData "General Posting Setup" = imd;
+                  TableData "Sales Invoice Header" = rimd,
+                  TableData "Sales Invoice Line" = rimd,
+                  TableData "Sales Cr.Memo Header" = rimd,
+                  TableData "Sales Cr.Memo Line" = rimd,
+                  TableData "General Posting Setup" = rimd;
     TableNo = "Sales Header";
 
     trigger OnRun()
@@ -1604,7 +1604,7 @@
             SalesInvHeader."No." := GenJnlLineDocNo;
             SalesInvHeader."Pre-Assigned No. Series" := '';
             SalesInvHeader."Source Code" := SrcCode;
-            SalesInvHeader."User ID" := UserId;
+            SalesInvHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesInvHeader."User ID"));
             SalesInvHeader."No. Printed" := 0;
             SalesInvHeader."Prepayment Invoice" := true;
             SalesInvHeader."Prepayment Order No." := "No.";
@@ -1684,7 +1684,7 @@
             SalesCrMemoHeader."No." := GenJnlLineDocNo;
             SalesCrMemoHeader."Pre-Assigned No. Series" := '';
             SalesCrMemoHeader."Source Code" := SrcCode;
-            SalesCrMemoHeader."User ID" := UserId;
+            SalesCrMemoHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesCrMemoHeader."User ID"));
             SalesCrMemoHeader."No. Printed" := 0;
             SalesCrMemoHeader."Prepayment Credit Memo" := true;
             SalesCrMemoHeader."Prepayment Order No." := "No.";
@@ -2026,12 +2026,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateSalesTaxOnLines(var SalesLine: Record "Sales Line"; var ValidTaxAreaCode: Boolean; CommitIsSuppressed: Boolean)
+    local procedure OnCalcVATAmountLinesOnBeforeUpdateLines(var NewAmount: Decimal; Currency: Record Currency; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcVATAmountLinesOnBeforeUpdateLines(var NewAmount: Decimal; Currency: Record Currency; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateSalesTaxOnLines(var SalesLine: Record "Sales Line"; var ValidTaxAreaCode: Boolean; CommitIsSuppressed: Boolean)
     begin
     end;
 

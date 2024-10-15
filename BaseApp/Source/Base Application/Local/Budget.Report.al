@@ -444,15 +444,6 @@ report 10001 Budget
     protected var
         GLFilter: Text;
 
-
-#if not CLEAN19
-    [Obsolete('Replaced by SetRoundingFactor().', '19.0')]
-    procedure SetParameters(NewRoundingFactor: Option "None","1","1000","1000000")
-    begin
-        RndFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
-    end;
-#endif
-
     procedure SetRoundingFactor(NewRoundingFactor: Enum "Analysis Rounding Factor")
     begin
         RndFactor := NewRoundingFactor;

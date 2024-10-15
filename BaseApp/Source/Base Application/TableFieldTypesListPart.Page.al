@@ -19,7 +19,7 @@ page 9622 "Table Field Types ListPart"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies Name displayed to users.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description.';

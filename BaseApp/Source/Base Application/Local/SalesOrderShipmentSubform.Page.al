@@ -17,7 +17,7 @@ page 10027 "Sales Order Shipment Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -63,7 +63,7 @@ page 10027 "Sales Order Shipment Subform"
                     ToolTip = 'Specifies that the item on the sales line is a catalog item (an item not normally kept in inventory).';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -103,7 +103,7 @@ page 10027 "Sales Order Shipment Subform"
                     ToolTip = 'Specifies the bin from where items on the sales order line are taken from when they are shipped.';
                     Visible = false;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;

@@ -27,6 +27,9 @@ codeunit 10130 "Bank Reconciliation Mgt."
         if not BankAccount.CheckLastStatementNo() then
             exit;
 
+        if not WarnIfOngoingBankReconciliations(BankAccount."No.") then
+            exit;
+
         if AutoMatchSelected() then begin
             BankAccReconciliation2.InsertRec(BankAccReconciliation2."Statement Type"::"Bank Reconciliation", BankAccount."No.");
             if ShareTable then
@@ -163,4 +166,18 @@ codeunit 10130 "Bank Reconciliation Mgt."
         GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Bank Recon. with Auto. Match");
     end;
+
+    local procedure WarnIfOngoingBankReconciliations(BankAccountNoCode: Code[20]): Boolean
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+    begin
+        BankAccReconciliation.SetRange("Bank Account No.", BankAccountNoCode);
+        BankAccReconciliation.SetRange("Statement Type", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        if BankAccReconciliation.IsEmpty() then
+            exit(true);
+        exit(Dialog.Confirm(StrSubstNo(IgnoreExistingBankAccReconciliationAndContinueQst)));
+    end;
+    
+    var
+        IgnoreExistingBankAccReconciliationAndContinueQst: Label 'There are ongoing reconciliations for this bank account. \\Do you want to continue?';
 }

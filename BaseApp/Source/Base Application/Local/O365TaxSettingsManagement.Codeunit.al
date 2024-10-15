@@ -463,7 +463,7 @@ codeunit 10150 "O365 Tax Settings Management"
             exit;
 
         TaxArea.Get(TempSalesTaxSetupWizard."Tax Area Code");
-        NewNativeAPITaxSetup.Id := TaxArea.Id;
+        NewNativeAPITaxSetup.Id := TaxArea.SystemId;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Native - API Tax Setup", 'OnCanDeleteTaxSetup', '', false, false)]

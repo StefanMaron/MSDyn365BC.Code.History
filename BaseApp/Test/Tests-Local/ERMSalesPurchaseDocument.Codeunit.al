@@ -2294,6 +2294,8 @@ codeunit 142053 "ERM Sales/Purchase Document"
     end;
 
     local procedure Initialize()
+    var
+        ICSetup: Record "IC Setup";
     begin
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
@@ -2301,6 +2303,12 @@ codeunit 142053 "ERM Sales/Purchase Document"
         if isInitialized then
             exit;
 
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibraryERMCountryData.CreateVATData();
         LibraryApplicationArea.EnableFoundationSetup();
         LibrarySales.SetStockoutWarning(false);

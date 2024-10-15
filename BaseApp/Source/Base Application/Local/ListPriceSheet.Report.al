@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 report 10148 "List Price Sheet"
 {
     DefaultLayout = RDLC;

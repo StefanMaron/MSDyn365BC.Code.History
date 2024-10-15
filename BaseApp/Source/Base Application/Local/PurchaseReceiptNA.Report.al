@@ -380,7 +380,7 @@ report 10124 "Purchase Receipt NA"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(15) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Rcpt.") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

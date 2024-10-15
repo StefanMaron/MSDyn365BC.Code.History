@@ -91,13 +91,6 @@ page 10900 "IRS 1099 Form-Box Entity"
         end;
     end;
 
-    trigger OnOpenPage()
-    var
-        GraphMgtIRS1099FormBox: Codeunit "Graph Mgt - IRS 1099 Form-Box";
-    begin
-        GraphMgtIRS1099FormBox.UpdateIntegrationRecords(true);
-    end;
-
     var
         TempFieldSet: Record "Field" temporary;
 

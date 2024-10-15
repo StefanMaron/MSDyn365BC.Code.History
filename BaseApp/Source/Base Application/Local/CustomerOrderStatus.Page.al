@@ -23,7 +23,7 @@ page 10025 "Customer Order Status"
                     ApplicationArea = Basic, Suite;
                     SubPageLink = "Sell-to Customer No." = FIELD("No.");
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

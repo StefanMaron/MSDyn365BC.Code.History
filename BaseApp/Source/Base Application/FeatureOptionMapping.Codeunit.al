@@ -1,5 +1,10 @@
+#if not CLEAN22
 codeunit 5408 "Feature - Option Mapping" implements "Feature Data Update"
 {
+    ObsoleteReason = 'Feature OptionMapping will be enabled by default in version 22.0.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+
     procedure IsDataUpdateRequired(): Boolean;
     begin
         CountRecords();
@@ -154,3 +159,4 @@ codeunit 5408 "Feature - Option Mapping" implements "Feature Data Update"
         TempDocumentEntry.Insert();
     end;
 }
+#endif

@@ -146,7 +146,7 @@ report 10477 "Elec. Sales Invoice MX"
                     column(CopyTxt; CopyTxt)
                     {
                     }
-                    column(BillToAddress_1_; BillToAddress[1])
+                    column(BillToAddress_1_; BillToAddressName)
                     {
                     }
                     column(BillToAddress_2_; BillToAddress[2])
@@ -715,6 +715,11 @@ report 10477 "Elec. Sales Invoice MX"
                 FormatAddress.SalesInvBillTo(BillToAddress, "Sales Invoice Header");
                 FormatAddress.SalesInvShipTo(ShipToAddress, ShipToAddress, "Sales Invoice Header");
 
+                if Customer."CFDI Customer Name" <> '' then 
+                    BillToAddressName := Customer."CFDI Customer Name"
+                else
+                    BillToAddressName := BillToAddress[1];
+
                 if "Payment Terms Code" = '' then
                     Clear(PaymentTerms)
                 else
@@ -884,6 +889,7 @@ report 10477 "Elec. Sales Invoice MX"
         CompanyAddress: array[8] of Text[100];
         BillToAddress: array[8] of Text[100];
         ShipToAddress: array[8] of Text[100];
+        BillToAddressName: Text[300];
         CopyTxt: Text[10];
         DescriptionToPrint: Text[210];
         HighDescriptionToPrint: Text[210];
@@ -972,7 +978,7 @@ report 10477 "Elec. Sales Invoice MX"
 
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(4) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Inv.") <> '';
     end;
 
     procedure ConvertAmounttoWords(AmountLoc: Decimal)

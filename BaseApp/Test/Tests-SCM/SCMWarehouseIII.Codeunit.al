@@ -4605,6 +4605,471 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateWhsePickForAsmOrderWithPickOptional()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        AssemblyLine2: Record "Assembly Line";
+        ItemJournalLine: Record "Item Journal Line";
+        WarehousePickHeader: Record "Warehouse Activity Header";
+        WarehousePickLine: Record "Warehouse Activity Line";
+    begin
+        // [Bug 459237] WhsePick/Assembly- system creates warehouse pick for completely posted lines. 
+        Initialize();
+
+        // [GIVEN] An Assembly Order for 2 pieces of the parent item
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), Location.Code, 2, '');
+
+        // [GIVEN] One Assembly Line with "Qty. per" = 1 and location (which has "Require pick" = false) 
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, Location.Code);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        LibraryAssembly.CreateAssemblyLine(
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", 2, 1, '');
+        AssemblyLine.Validate("Location Code", Location.Code);
+        AssemblyLine.Modify();
+
+        // [WHEN] The order is posted for just one item (No pick was created)
+        AssemblyHeader.Validate("Quantity to Assemble", 1);
+        AssemblyHeader.Modify();
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+        AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
+
+        // [THEN] Qty. Picked is updated to 1 as Qty. Picked (0) < Qty. Posted (1)
+        AssemblyLine.Get(AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.");
+        AssemblyLine.TestField(AssemblyLine."Consumed Quantity", 1);
+        AssemblyLine.TestField(AssemblyLine."Qty. Picked", 1);
+
+        // [WHEN] We create a pick for the remaining 1 item to be assemble
+        LibraryAssembly.CreateWhsePick(AssemblyHeader, UserId(), 0, false, false, false);
+        FindPickLine(WarehousePickLine, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyHeader."No.");
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+          WarehousePickHeader, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.",
+          AssemblyLine."Line No.");
+
+        // [THEN] The quantity of the pick is 1
+        Assert.AreEqual(1, WarehousePickLine.Quantity, 'Expected Qty To Pick to be 1, since only 1 item is left to be assembled.');
+
+        // [WHEN] The Pick is registered
+        LibraryWarehouse.RegisterWhseActivity(WarehousePickHeader);
+
+        // [THEN] Qty. Picked is increased by 1.
+        AssemblyLine.Get(AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.");
+        AssemblyLine.TestField(AssemblyLine."Qty. Picked", 2);
+
+        // [GIVEN] The quantity is increased to 3
+        LibraryAssembly.ReopenAO(AssemblyHeader);
+        AssemblyHeader.Validate("Quantity", 3);
+        AssemblyHeader.Modify();
+
+        // [WHEN] The order is posted for one item (Which has just been picked)
+        AssemblyHeader.Validate("Quantity to Assemble", 1);
+        AssemblyHeader.Modify();
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+        AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
+
+        // [THEN] Qty. Picked is still 2, as Qty. Picked (2) = Qty. Posted (2)
+        AssemblyLine.Get(AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.");
+        AssemblyLine.TestField(AssemblyLine."Consumed Quantity", 2);
+        AssemblyLine.TestField(AssemblyLine."Qty. Picked", 2);
+
+        // [WHEN] We create a Warehouse Pick for the remaining 1 item to be assemble
+        LibraryAssembly.CreateWhsePick(AssemblyHeader, UserId(), 0, false, false, false);
+        FindPickLine(WarehousePickLine, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyHeader."No.");
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+          WarehousePickHeader, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.",
+          AssemblyLine."Line No.");
+
+        // [THEN] The quantity of the pick is 1 (One was consumed w.o. pick. One was consumed with pick. One is left to pick)
+        Assert.AreEqual(1, WarehousePickLine.Quantity, 'Expected Qty to pick to be 1, since only 1 item is left to be assembled.');
+
+        // [WHEN] Register the pick
+        LibraryWarehouse.RegisterWhseActivity(WarehousePickHeader);
+
+        // [THEN] Qty. Picked is updated to 3
+        AssemblyLine.Get(AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.");
+        AssemblyLine.TestField(AssemblyLine."Qty. Picked", 3);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RegisterWhsePickNotAllowedFoConsumedItemOnAsmOrderWithPickOptional()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        AssemblyLine2: Record "Assembly Line";
+        ItemJournalLine: Record "Item Journal Line";
+        WarehousePickHeader: Record "Warehouse Activity Header";
+        WarehousePickLine: Record "Warehouse Activity Line";
+    begin
+        // [Bug 459237] WhsePick/Assembly- system creates warehouse pick for completely posted lines.
+        // [SCENARIO] Whse. pick is allowed only for quantity not yet picked or consumed.
+        Initialize();
+
+        // [GIVEN] An Assembly Order for 5 pieces of the parent item
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), Location.Code, 5, '');
+
+        // [GIVEN] One Assembly Line with "Qty. per" = 1 and location (which has "Require pick" = false) 
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, Location.Code);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        LibraryAssembly.CreateAssemblyLine(
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", 2, 1, '');
+        AssemblyLine.Validate("Location Code", Location.Code);
+        AssemblyLine.Modify();
+
+        // [GIVE] Create warehouse pick for the items
+        AssemblyHeader.Validate(Status, AssemblyHeader.Status::Released);
+        AssemblyHeader.Modify();
+        LibraryAssembly.CreateWhsePick(AssemblyHeader, UserId(), 0, false, false, false);
+        FindPickLine(WarehousePickLine, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyHeader."No.");
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+          WarehousePickHeader, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.",
+          AssemblyLine."Line No.");
+
+        // [THEN] The quantity of the pick is 5
+        WarehousePickLine.TestField(WarehousePickLine.Quantity, AssemblyLine.Quantity);
+
+        // [WHEN] Update Quantity to Consume on Assembly header
+        asserterror AssemblyHeader.Validate("Quantity to Assemble", 3);
+
+        // [THEN] Error: active warehouse line exists
+        Assert.ExpectedError('must not be changed');
+
+        // [WHEN] Update Quantity to Consume on Assembly Line
+        asserterror AssemblyLine.Validate("Quantity to Consume", 3);
+
+        // [THEN] Error: active warehouse line exists
+        Assert.ExpectedError('must not be changed');
+
+        // [GIVEN] The order is posted without registering the created picks.
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [WHEN] We register the Warehouse Pick.
+        FindPickLine(WarehousePickLine, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyHeader."No.");
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WarehousePickHeader, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.");
+        asserterror LibraryWarehouse.RegisterWhseActivity(WarehousePickHeader);
+
+        // [THEN] Cannot register pick because the items are already consumed as the assembly line is deleted.
+        Assert.ExpectedError('does not exist');
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalPostOneHandler,ConfirmHandler2,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateWhsePickForProductionOrderWithPickOptional()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemJournalLine: Record "Item Journal Line";
+        WarehousePickHeader: Record "Warehouse Activity Header";
+        WarehousePickLine: Record "Warehouse Activity Line";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        // [Bug 459238] WhsePick/Prod Ord- system creates warehouse pick for completely posted lines. 
+        Initialize();
+
+        // [GIVEN] Inventory of Item on Location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, Location.Code);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] A Production Order with one line with qty 1 of an item
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", LibraryInventory.CreateItemNo(), '', Location.Code, 1);
+
+        // [GIVEN] One Component to the line with Qty. per = 2
+        LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item."No.");
+        ProdOrderComponent.Validate("Quantity per", 2);
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Modify();
+
+        // [WHEN] One component item is consumed via. the Production Journal
+        LibraryVariableStorage.Enqueue(Item."No.");
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderComponent."Prod. Order Line No.");
+
+        // [THEN] Qty. Picked is updated to 1 as Qty. Picked (0) < Qty. Posted (1)
+        ProdOrderComponent.Find('=');
+        ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
+        ProdOrderComponent.TestField("Act. Consumption (Qty)", 1);
+        ProdOrderComponent.TestField("Qty. Picked", 1);
+
+        // [WHEN] We create a Warehouse Pick for the Production Order
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        FindPickLine(WarehousePickLine, Database::"Prod. Order Component", "Production Order Status"::Released.AsInteger(), ProductionOrder."No.");
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WarehousePickHeader, Database::"Prod. Order Component", "Production Order Status"::Released.AsInteger(), ProductionOrder."No.", ProdOrderLine."Line No.");
+
+        // [THEN] The quantity of the pick is 1
+        Assert.AreEqual(1, WarehousePickLine."Qty. (Base)", 'Expected Qty to pick to be 1, since only 1 component item is left to be consumed.');
+
+        // [WHEN] The Pick is registered
+        LibraryWarehouse.RegisterWhseActivity(WarehousePickHeader);
+
+        // [THEN] Qty. Picked is increased by 1, Qty. Picked = 2
+        ProdOrderComponent.Find('=');
+        ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
+        ProdOrderComponent.TestField("Act. Consumption (Qty)", 1);
+        ProdOrderComponent.TestField("Qty. Picked", 2);
+
+        // [GIVEN] The Qty. per (equal to the expected quantity in this case) is increase to 3
+        ProdOrderComponent.Find('=');
+        ProdOrderComponent.Validate("Quantity per", 3);
+        ProdOrderComponent.Modify();
+
+        // [WHEN] One component item is consumed via. the Production Journal
+        LibraryVariableStorage.Enqueue(Item."No.");
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderComponent."Prod. Order Line No.");
+
+        // [THEN] Qty. Picked stays as 2 as Qty. Picked(2) = Qty Posted (2)
+        ProdOrderComponent.Find('=');
+        ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
+        ProdOrderComponent.TestField("Act. Consumption (Qty)", 2);
+        ProdOrderComponent.TestField("Qty. Picked", 2);
+
+        // [WHEN] We create a Warehouse Pick for the Production Order for the remaining 1 qty
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        FindPickLine(WarehousePickLine, Database::"Prod. Order Component", "Production Order Status"::Released.AsInteger(), ProductionOrder."No.");
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WarehousePickHeader, Database::"Prod. Order Component", "Production Order Status"::Released.AsInteger(), ProductionOrder."No.", ProdOrderLine."Line No.");
+
+        // [THEN] The quantity of the pick is 1 (One was consumed w.o. pick. One was consumed with pick. One is left to pick)
+        Assert.AreEqual(1, WarehousePickLine.Quantity, 'Expected Qty to pick to be 1, since only 1 component item is left to be consumed.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalPostHandler,ConfirmHandler2,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RegisterWhsePickNotAllowedFoConsumedItemOnProdCompWithPickOptional()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemJournalLine: Record "Item Journal Line";
+        WarehousePickHeader: Record "Warehouse Activity Header";
+        WarehousePickLine: Record "Warehouse Activity Line";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        // [Bug 459238] WhsePick/Prod Ord- system creates warehouse pick for completely posted lines.
+        // [SCENARIO] Create pick is allowed only for quantity not yet picked or consumed.
+
+        Initialize();
+
+        // [GIVEN] Inventory of Item on Location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, Location.Code);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] A Production Order with one line with qty 1 of an item
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", LibraryInventory.CreateItemNo(), '', Location.Code, 1);
+
+        // [GIVEN] One Component to the line with Qty. per = 5
+        LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item."No.");
+        ProdOrderComponent.Validate("Quantity per", 5);
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Modify();
+
+        // [WHEN] We create a Warehouse Pick for the Production Order
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        FindPickLine(WarehousePickLine, Database::"Prod. Order Component", "Production Order Status"::Released.AsInteger(), ProductionOrder."No.");
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WarehousePickHeader, Database::"Prod. Order Component", "Production Order Status"::Released.AsInteger(), ProductionOrder."No.", ProdOrderLine."Line No.");
+
+        // [THEN] The quantity of the pick is 5
+        Assert.AreEqual(5, WarehousePickLine."Qty. (Base)", 'Expected Qty to pick to be 5.');
+
+        // [GIVEN] All the component items are consumed via. the Production Journal
+        LibraryVariableStorage.Enqueue(Item."No.");
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderComponent."Prod. Order Line No.");
+
+        // [THEN] Qty. Picked is updated to 5 as Qty. Picked (0) < Qty. Posted (5)
+        ProdOrderComponent.Find('=');
+        ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
+        ProdOrderComponent.TestField("Act. Consumption (Qty)", 5);
+        ProdOrderComponent.TestField("Qty. Picked", 5);
+
+        // [WHEN] We register pick for 5 quantity 
+        asserterror LibraryWarehouse.RegisterWhseActivity(WarehousePickHeader);
+
+        // [THEN] Cannot register pick because the items are already consumed.
+        Assert.ExpectedError('is partially or completely consumed');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCheckWhseClassOnLocation()
+    var
+        Location: Record Location;
+        LocationCard: TestPage "Location Card";
+    begin
+        // [Scenario] 'Check Whse. Class' field on the Location card behaves as expected
+        Initialize();
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [WHEN] Location card is opened for the created Location record
+        LocationCard.OpenEdit();
+        LocationCard.GoToRecord(Location);
+
+        // [THEN] 'Bin Mandatory' and 'Check Whse. Class' are false
+        LocationCard."Bin Mandatory".AssertEquals(false);
+        LocationCard."Check Whse. Class".AssertEquals(false);
+
+        // [THEN] 'Check Whse. Class' field is disabled
+        Assert.IsFalse(LocationCard."Check Whse. Class".Enabled(), 'Check Whse. Class field should be disabled.');
+
+        // [WHEN] 'Bin Mandatory' is set to true
+        LocationCard."Bin Mandatory".SetValue(true);
+
+        // [THEN] 'Check Whse. Class' field is still set to false but the field becomes editable
+        LocationCard."Check Whse. Class".AssertEquals(false);
+        Assert.IsTrue(LocationCard."Check Whse. Class".Enabled(), 'Check Whse. Class field should not be disabled.');
+
+        // [WHEN] 'Check Whse. Class' is enabled and 'Bin Mandatory' is disabled
+        LocationCard."Check Whse. Class".SetValue(true);
+        LocationCard."Bin Mandatory".SetValue(false);
+
+        // [THEN] 'Check Whse. Class' is disabled as well and is not editable
+        LocationCard."Check Whse. Class".AssertEquals(false);
+        Assert.IsFalse(LocationCard."Check Whse. Class".Enabled(), 'Check Whse. Class field should be disabled.');
+
+        // [WHEN] 'Directed Put-away and Pick' is enabled
+        LocationCard."Bin Mandatory".SetValue(true);
+        LocationCard."Directed Put-away and Pick".AssertEquals(false);
+        LocationCard."Directed Put-away and Pick".SetValue(true);
+
+        // [THEN] 'Check Whse. Class' is enabled but the field is not editable
+        LocationCard."Check Whse. Class".AssertEquals(true);
+        Assert.IsFalse(LocationCard."Check Whse. Class".Enabled(), 'Check Whse. Class field should be disabled.');
+
+        // [WHEN] 'Directed Put-away and Pick' is disabled
+        LocationCard."Directed Put-away and Pick".SetValue(false);
+
+        // [THEN] 'Check Whse. Class' continues to be enabled but the field turns to be editable
+        LocationCard."Check Whse. Class".AssertEquals(true);
+        Assert.IsTrue(LocationCard."Check Whse. Class".Enabled(), 'Check Whse. Class field should not be disabled.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSpecialEquipmentOnLocation()
+    var
+        Location: Record Location;
+        LocationCard: TestPage "Location Card";
+    begin
+        // [Scenario] 'Special Equipment' field on the Location card behaves as expected
+        Initialize();
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [WHEN] Location card is opened for the created Location record
+        LocationCard.OpenEdit();
+        LocationCard.GoToRecord(Location);
+
+        // [THEN] 'Bin Mandatory' is false and 'Special Equipment' is ''
+        LocationCard."Bin Mandatory".AssertEquals(false);
+        LocationCard."Special Equipment".AssertEquals(false);
+
+        // [THEN] 'Special Equipment' field is disabled
+        Assert.IsFalse(LocationCard."Special Equipment".Enabled(), 'Special Equipment field should be disabled.');
+
+        // [WHEN] 'Bin Mandatory' is set to true
+        LocationCard."Bin Mandatory".SetValue(true);
+
+        // [THEN] 'Special Equipment' field becomes editable
+        Assert.IsTrue(LocationCard."Special Equipment".Enabled(), 'Special Equipment field should not be disabled.');
+    end;
+
+    [Test]
+    procedure RegisterWhsePickWithBreakbulkForConsumption()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Warehouse Pick] [Breakbulk] [Consumption]
+        // [SCENARIO 466792] Register warehouse pick with breakbulk for consumption.
+        Initialize();
+
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, false);
+
+        // [GIVEN] Item "I" with base unit of measure "BOX" and alternate unit of measure "PCS" = 0.1 "BOX".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 0.1);
+
+        // [GIVEN] Post 1 "BOX" to inventory at directed put-away and pick location.
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", LocationWhite.Code, 1, false);
+
+        // [GIVEN] Create production order.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryManufacturing.CreateProdOrderLine(
+          ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ProductionOrder."Source No.", '', LocationWhite.Code, 1);
+
+        // [GIVEN] Add item "I" as component.
+        // [GIVEN] "Quantity Per" = 1 "PCS".
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item."No.");
+        ProdOrderComponent.Validate("Quantity per", 1);
+        ProdOrderComponent.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ProdOrderComponent.Validate("Location Code", LocationWhite.Code);
+        ProdOrderComponent.TestField("Expected Qty. (Base)", 0.1);
+        ProdOrderComponent.Modify();
+
+        // [GIVEN] Create warehouse pick for prod. order component.
+        // [GIVEN] Ensure the pick includes breakbulk lines.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        WarehouseActivityLine.SetFilter("Breakbulk No.", '<>0');
+        FindPickLine(
+          WarehouseActivityLine, Database::"Prod. Order Component", "Production Order Status"::Released.AsInteger(),
+          ProductionOrder."No.");
+
+        // [WHEN] Register the warehouse pick.
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+          WarehouseActivityHeader, Database::"Prod. Order Component", "Production Order Status"::Released.AsInteger(),
+          ProductionOrder."No.", ProdOrderLine."Line No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] The pick has been successfully registered.
+        ProdOrderComponent.Find();
+        ProdOrderComponent.TestField("Qty. Picked", 1);
+        ProdOrderComponent.TestField("Qty. Picked (Base)", 0.1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4661,6 +5126,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateAndUpdateLocation(LocationGreen2, false, true, true, true, false, false);  // Location Green2: Bin Mandatory FALSE, Require Shipment FALSE.
         CreateAndUpdateLocation(LocationOrange2, true, true, false, true, true, true);  // Location Orange2: Bin Mandatory TRUE, Require PIck FALSE.
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationGreen.Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationRed.Code, false);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationSilver.Code, false);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationSilver2.Code, false);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
@@ -4784,6 +5250,15 @@ codeunit 137051 "SCM Warehouse - III"
         ItemJournalLine.Validate("Bin Code", BinCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure FindPickLine(var WarehousePickLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20])
+    begin
+        WarehousePickLine.SetRange("Source Type", SourceType);
+        WarehousePickLine.SetRange("Source Subtype", SourceSubType);
+        WarehousePickLine.SetRange("Activity Type", WarehousePickLine."Action Type"::Place);
+        WarehousePickLine.SetRange("Source No.", SourceNo);
+        WarehousePickLine.FindFirst();
     end;
 
     local procedure UpdateActivityLineAndDeletePartially(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20])
@@ -6438,6 +6913,23 @@ codeunit 137051 "SCM Warehouse - III"
             TestField(Quantity, ExpectedQuantity);
             TestField("Lot No.", ExpectedLotNo);
         end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPostOneHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal."Item No.".SetValue(LibraryVariableStorage.DequeueText());
+        ProductionJournal.Quantity.SetValue(1);
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPostHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal."Item No.".SetValue(LibraryVariableStorage.DequeueText());
+        ProductionJournal.Post.Invoke();
     end;
 
     [ModalPageHandler]

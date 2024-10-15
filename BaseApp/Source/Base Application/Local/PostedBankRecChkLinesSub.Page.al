@@ -74,13 +74,13 @@ page 10126 "Posted Bank Rec. Chk Lines Sub"
                     ToolTip = 'Specifies the Account No. field from the Bank Reconciliation Line table.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a description of the transaction on the bank reconciliation line.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

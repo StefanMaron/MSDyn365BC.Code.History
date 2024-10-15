@@ -19,7 +19,7 @@ page 10010 "Customer Order Lines Status"
                     ToolTip = 'Specifies the type of the document.';
                     Visible = false;
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the record on the document line. ';
@@ -29,7 +29,7 @@ page 10010 "Customer Order Lines Status"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the order line.';
@@ -96,7 +96,7 @@ page 10010 "Customer Order Lines Status"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s unit of measure. ';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity of items on document line.';
