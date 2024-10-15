@@ -27,6 +27,7 @@
                     IsCorrection: Boolean;
                     CountryRegionOfOriginCode: Code[10];
                 begin
+                    Counterparty := CounterpartyInfo;
 #if CLEAN19
                     IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Create Intrastat Decl. Disk", true);
 #else
@@ -39,7 +40,7 @@
                         TestField("Transport Method");
                         TestField("Net Weight");
                         TestField("Total Weight");
-                        if Type = Type::Shipment then
+                        if Counterparty and (Type = Type::Shipment) then
                             TestField("Transaction Specification")
                         else
                             TestField("Transaction Type");
@@ -106,17 +107,17 @@
                     Write('0');
                     Write(PADSTR2("Entry/Exit Point", 2, '0', '<'));
                     Write('00'); // Statistical system
-                    if CounterpartyInfo and (ItemDirection = 7) or ("Transaction Type" = '') then
+                    if CounterpartyInfo and (ItemDirection = 7) then
                         Write(' ')
                     else
                         Write(PADSTR2("Transaction Type", 1, '', '>')); // Transaction code
                     Write(PADSTR2(DelChr("Tariff No."), 8, '0', '<'));
                     Write('00');
-                    Write(Sign(RoundedWeight));
+                    Write(Sign(RoundedWeight, IsCorrection));
                     Write(PADSTR2(Format(RoundedWeight, 0, '<Integer>'), 10, ' ', '<'));
-                    Write(Sign(SpecialUnit));
+                    Write(Sign(SpecialUnit, IsCorrection));
                     Write(PADSTR2(Format(SpecialUnit, 0, '<Integer>'), 10, ' ', '<'));
-                    Write(Sign(Amount));
+                    Write(Sign(Amount, IsCorrection));
                     Write(PADSTR2(Format(Amount, 0, '<Integer>'), 10, ' ', '<'));
                     if IsCorrection then
                         Write('-')
@@ -424,11 +425,11 @@
         ExportFile.Seek(ExportFile.Pos - 1);
     end;
 
-    local procedure Sign(Number: Decimal): Text[1]
+    local procedure Sign(Number: Decimal; IsCorrection: Boolean): Text[1]
     begin
-        if Number < 0 then
+        if (Number < 0) or (Number = 0) and IsCorrection then
             exit('-');
-                    exit('+');
+        exit('+');
     end;
 
     local procedure CrLf() CrLf: Text[2]

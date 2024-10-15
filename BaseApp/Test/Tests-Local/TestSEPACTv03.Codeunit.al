@@ -302,22 +302,41 @@ codeunit 144101 "Test SEPA CT v03"
     var
         PaymentHistoryLine: Record "Payment History Line";
         AddrLine: array[3] of Text[70];
+        AccHoldCountryRegionCode: Code[10];
+        AccountHolderAddress: Text[100];
+        AccountHolderPostCode: Code[20];
+        AccountHolderCity: Text[30];
     begin
+        // [FEATURE] [UT][SEPA]
+        // [SCENARIO 401029] "Payment History Line".GetAccHolderPostalAddr must return correct values
         PaymentHistoryLine.Init();
         Assert.IsFalse(PaymentHistoryLine.GetAccHolderPostalAddr(AddrLine), '0');
 
         PaymentHistoryLine.Init();
-        PaymentHistoryLine."Acc. Hold. Country/Region Code" := 'X';
-        VerifyAccHolderAddr(PaymentHistoryLine, 1, 'X');
+        AccHoldCountryRegionCode := LibraryUtility.GenerateRandomCode(
+            PaymentHistoryLine.FieldNo("Acc. Hold. Country/Region Code"),
+            Database::"Payment History Line");
+        PaymentHistoryLine."Acc. Hold. Country/Region Code" := AccHoldCountryRegionCode;
+        VerifyAccHolderAddr(PaymentHistoryLine, 1, CopyStr(AccHoldCountryRegionCode, 1, 2));
 
         PaymentHistoryLine.Init();
-        PaymentHistoryLine."Account Holder Address" := 'A';
-        VerifyAccHolderAddr(PaymentHistoryLine, 2, 'A');
+        AccountHolderAddress := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(
+            MaxStrLen(PaymentHistoryLine."Account Holder Address"), 1),
+            1, MaxStrLen(PaymentHistoryLine."Account Holder Address"));
+        PaymentHistoryLine."Account Holder Address" := AccountHolderAddress;
+        VerifyAccHolderAddr(PaymentHistoryLine, 2, CopyStr(AccountHolderAddress, 1, 70));
 
         PaymentHistoryLine.Init();
-        PaymentHistoryLine."Account Holder Post Code" := 'Y';
-        PaymentHistoryLine."Account Holder City" := 'Z';
-        VerifyAccHolderAddr(PaymentHistoryLine, 3, 'Y Z');
+        AccountHolderPostCode := LibraryUtility.GenerateRandomCode20(
+            PaymentHistoryLine.FieldNo("Account Holder Post Code"),
+            Database::"Payment History Line");
+        AccountHolderCity := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(
+            MaxStrLen(PaymentHistoryLine."Account Holder City"), 1),
+            1, MaxStrLen(PaymentHistoryLine."Account Holder City"));
+        PaymentHistoryLine."Account Holder Post Code" := AccountHolderPostCode;
+        PaymentHistoryLine."Account Holder City" := AccountHolderCity;
+        VerifyAccHolderAddr(PaymentHistoryLine, 3,
+            CopyStr(StrSubstNo('%1 %2', AccountHolderPostCode, AccountHolderCity), 1, 70));
     end;
 
     [Test]
@@ -2305,7 +2324,7 @@ codeunit 144101 "Test SEPA CT v03"
         exit(DelChr(IBAN));
     end;
 
-    local procedure VerifyAccHolderAddr(PaymentHistoryLine: Record "Payment History Line"; No: Integer; Value: Text[70])
+    local procedure VerifyAccHolderAddr(PaymentHistoryLine: Record "Payment History Line"; No: Integer; Value: Text)
     var
         AddrLine: array[3] of Text[70];
         i: Integer;

@@ -113,6 +113,7 @@ codeunit 144003 "ERM Apply GL Entries"
         ActualResult: Integer;
     begin
         // [SCENARIO 225647] When "Apply Entries" is invoked for the first time on page "Apply General Ledger Entries" for two lines 1 & 2 and then invoked for the second time on only 1st line, then field "Balance" is populated with Amount from 2nd line.
+        // [SCENARIO 402200] Page cursor remains with same position when invoke "Set Applied-to ID" action
         Initialize;
 
         Amount1 := LibraryRandom.RandIntInRange(1, 100);
@@ -124,7 +125,7 @@ codeunit 144003 "ERM Apply GL Entries"
         CreateAndPostGeneralJournalLine(GenJournalLine."Document Type"::" ", Amount2, GLAccountNo);
 
         // [WHEN] On page "Apply General Ledger Entries" "Apply Entries" invoked on both lines 1 & 2, which is followed by invoking "Apply Entries" on the 1st line only
-        ActualResult := ApplyGeneralLedgerEntriesOnTwoLinesAndThenOnFirstLine(GLAccountNo);
+        ActualResult := ApplyGeneralLedgerEntriesOnTwoLinesAndThenOnFirstLine(GLAccountNo, Amount1, Amount2);
 
         // [THEN] On page "Apply General Ledger Entries" Balance = "YY"
         Assert.AreEqual(Amount2, ActualResult, 'Balance is calculated improperly');
@@ -162,6 +163,18 @@ codeunit 144003 "ERM Apply GL Entries"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply GL Entries");
         LibraryVariableStorage.Clear;
+        EnableNewPage();
+    end;
+
+    local procedure EnableNewPage()
+#if not CLEAN19
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        GLSetup."Use New Apply G/L Entries Page" := true;
+        GLSetup.Modify();
+#endif
     end;
 
     local procedure GLEntryApplication(Amount: Decimal; AppliedAmount: Decimal)
@@ -192,21 +205,41 @@ codeunit 144003 "ERM Apply GL Entries"
         GeneralLedgerEntries.ApplyEntries.Invoke;
     end;
 
-    local procedure ApplyGeneralLedgerEntriesOnTwoLinesAndThenOnFirstLine(GLAccountNo: Code[20]): Integer
+    local procedure ApplyGeneralLedgerEntriesOnTwoLinesAndThenOnFirstLine(GLAccountNo: Code[20]; Amount1: Decimal; Amount2: Decimal): Integer
     var
-        ApplyGeneralLedgerEntries: TestPage "Apply General Ledger Entries";
+        GeneralLedgerEntriesApply: TestPage "General Ledger Entries Apply";
     begin
-        ApplyGeneralLedgerEntries.Trap;
+        GeneralLedgerEntriesApply.Trap;
         ApplyGeneralLedgerEntriesToGLAccount(GLAccountNo);
 
-        ApplyGeneralLedgerEntries.SetAppliesToID.Invoke;
-        ApplyGeneralLedgerEntries.Next;
-        ApplyGeneralLedgerEntries.SetAppliesToID.Invoke;
+        GeneralLedgerEntriesApply.Amount.AssertEquals(Amount1);
+        GeneralLedgerEntriesApply.SetAppliesToID.Invoke();
+        GeneralLedgerEntriesApply.Amount.AssertEquals(Amount1);
+        GeneralLedgerEntriesApply.ShowAmount.AssertEquals(Amount1);
+        GeneralLedgerEntriesApply.ShowAppliedAmount.AssertEquals(0);
+        GeneralLedgerEntriesApply.ShowTotalAppliedAmount.AssertEquals(Amount1);
 
-        ApplyGeneralLedgerEntries.First;
-        ApplyGeneralLedgerEntries.SetAppliesToID.Invoke;
+        GeneralLedgerEntriesApply.Next();
+        GeneralLedgerEntriesApply.Amount.AssertEquals(Amount2);
+        GeneralLedgerEntriesApply.SetAppliesToID.Invoke();
+        GeneralLedgerEntriesApply.Amount.AssertEquals(Amount2);
+        GeneralLedgerEntriesApply.ShowAmount.AssertEquals(Amount2);
+        GeneralLedgerEntriesApply.ShowAppliedAmount.AssertEquals(Amount1);
+        GeneralLedgerEntriesApply.ShowTotalAppliedAmount.AssertEquals(Amount1 + Amount2);
 
-        exit(ApplyGeneralLedgerEntries.ShowTotalAppliedAmount.AsInteger);
+        GeneralLedgerEntriesApply.First();
+        GeneralLedgerEntriesApply.Amount.AssertEquals(Amount1);
+        GeneralLedgerEntriesApply.ShowAmount.AssertEquals(Amount1);
+        GeneralLedgerEntriesApply.ShowAppliedAmount.AssertEquals(Amount2);
+        GeneralLedgerEntriesApply.ShowTotalAppliedAmount.AssertEquals(Amount1 + Amount2);
+
+        GeneralLedgerEntriesApply.SetAppliesToID.Invoke();
+        GeneralLedgerEntriesApply.Amount.AssertEquals(Amount1);
+        GeneralLedgerEntriesApply.ShowAmount.AssertEquals(0);
+        GeneralLedgerEntriesApply.ShowAppliedAmount.AssertEquals(0);
+        GeneralLedgerEntriesApply.ShowTotalAppliedAmount.AssertEquals(Amount2);
+
+        exit(GeneralLedgerEntriesApply.ShowTotalAppliedAmount.AsInteger);
     end;
 
     local procedure CreateAndPostGeneralJournalLine(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; GLAccountNo: Code[20])
@@ -304,24 +337,23 @@ codeunit 144003 "ERM Apply GL Entries"
     end;
 
     [PageHandler]
-    [Scope('OnPrem')]
-    procedure ApplyGeneralLedgerEntriesPageHandler(var ApplyGeneralLedgerEntries: TestPage "Apply General Ledger Entries")
+    procedure ApplyGeneralLedgerEntriesPageHandler(var GeneralLedgerEntriesApply: TestPage "General Ledger Entries Apply")
     var
         ShowTotalAppliedAmount: Variant;
     begin
         LibraryVariableStorage.Dequeue(ShowTotalAppliedAmount);
-        ApplyGeneralLedgerEntries.SetAppliesToID.Invoke;
-        ApplyGeneralLedgerEntries.Next;
-        ApplyGeneralLedgerEntries.SetAppliesToID.Invoke;
-        ApplyGeneralLedgerEntries.ShowTotalAppliedAmount.AssertEquals(ShowTotalAppliedAmount);  // Verifying Balance Amount.
-        ApplyGeneralLedgerEntries.PostApplication.Invoke;
+        GeneralLedgerEntriesApply.SetAppliesToID.Invoke();
+        GeneralLedgerEntriesApply.Next();
+        GeneralLedgerEntriesApply.SetAppliesToID.Invoke();
+        GeneralLedgerEntriesApply.ShowTotalAppliedAmount.AssertEquals(ShowTotalAppliedAmount);  // Verifying Balance Amount.
+        GeneralLedgerEntriesApply.First();
+        GeneralLedgerEntriesApply.PostApplication.Invoke();
     end;
 
     [PageHandler]
-    [Scope('OnPrem')]
-    procedure ApplyGeneralLedgerEntriesClosePageHandler(var ApplyGeneralLedgerEntries: TestPage "Apply General Ledger Entries")
+    procedure ApplyGeneralLedgerEntriesClosePageHandler(var GeneralLedgerEntriesApply: TestPage "General Ledger Entries Apply")
     begin
-        ApplyGeneralLedgerEntries.Close;
+        GeneralLedgerEntriesApply.Close();
     end;
 
     [ConfirmHandler]

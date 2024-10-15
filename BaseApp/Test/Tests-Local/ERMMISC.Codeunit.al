@@ -89,7 +89,7 @@
     begin
         // [FEATURE] [Intrastat] [Export]
         // [SCENARIO 379343] : Create Intrastat decl. with length of "Company Information"."VAT Registration No." field 14 characters
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Registration No of 14 symbol length in Company Information
         CountryCode := SetIntrastatDataOnCompanyInfo;
@@ -116,7 +116,7 @@
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Create and Post Service Document with Transaction Mode Code and Bank Account Code.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, DocumentType, CreateItem);
 
         // Exercise.
@@ -139,7 +139,7 @@
         // Purpose of this test is to Verify Payment Discount can be calculated when Document Type = Credit Memo & using the column Applies-To Doc No. in Bank/Giro journal line with posting Sales Return Order.
 
         // Setup: Create and Post Sales Return Order.
-        Initialize;
+        Initialize();
         Amount := CreateAndPostSalesReturnOrder(SalesHeader);
         SalesCrMemoHeader.SetRange("Return Order No.", SalesHeader."No.");
         SalesCrMemoHeader.FindFirst;
@@ -160,7 +160,7 @@
         // Purpose of this test is to Verify Payment Discount can be calculated when Document Type = Credit Memo & using the column Applies-To Doc No. in Bank/Giro journal line with posting Purchase Return Order.
 
         // Setup: Create and Post Purchase Return Order.
-        Initialize;
+        Initialize();
         Amount := CreateAndPostPurchaseReturnOrder(PurchaseHeader);
         PurchCrMemoHdr.SetRange("Return Order No.", PurchaseHeader."No.");
         PurchCrMemoHdr.FindFirst;
@@ -182,7 +182,7 @@
         Filename: Text[250];
     begin
         // [SCENARIO 211360] Intrastat Declaration Disk function exports Journal Lines with filters applied.
-        Initialize;
+        Initialize();
         BindSubscription(ERMMISC);
 
         // [GIVEN] Intrastat Journal "IntJ" batch with template.
@@ -227,7 +227,7 @@
     begin
         // [FEATURE] [G/L Account Where-Used]
         // [SCENARIO 251566] Bank Account Posting Group should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account Posting Group with "Acc.No. Pmt./Rcpt. in Process" = "G"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -263,7 +263,7 @@
     begin
         // [FEATURE] [G/L Account Where-Used]
         // [SCENARIO 251566] G/L Account is shown for all fields in the same table and in another table
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "G" is used in Bank Account Posting Group as "Acc.No. Pmt./Rcpt. in Process" and "G/L Account No."
         LibraryERM.CreateGLAccount(GLAccount);
@@ -310,7 +310,7 @@
     begin
         // [FEATURE] [UT] [Bank/Giro Journal] [CBG Statement]
         // [SCENARIO 271072] When insert CBG Statement for new Template, then CBG Statement."No." always equals to 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Init CBG Statement with "Journal Template Name" = new Gen Journal Template and "No." = 1001
         CBGStatement.Init();
@@ -335,7 +335,7 @@
     begin
         // [FEATURE] [Bank/Giro Journal] [CBG Statement]
         // [SCENARIO 271072] When insert new CBG Statement for the Template, then CBG Statement."No." = Last CBG Statement "No." for the same Template increased by 1.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Template "T"
         GenJnlTemplateName := CreateGenJournalTemplateWithBankAccount(CreateBankAccountNo);
@@ -370,7 +370,7 @@
     begin
         // [FEATURE] [UI] [Bank/Giro Journal]
         // [SCENARIO 271072] Stan creates new Bank/Giro Journal from template without errors on Bank/Giro Journal page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account "B"
         BankAccountNo := CreateBankAccountNo;
@@ -405,7 +405,7 @@
     begin
         // [FEATURE] [UI] [Bank/Giro Journal]
         // [SCENARIO 271072] No is updated on Bank/Giro Journal page when CBG Statement is inserted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Stan created new Bank/Giro Journal from new Template
         GenJnlTemplateName := CreateGenJournalTemplateWithBankAccount(CreateBankAccountNo);
@@ -518,7 +518,7 @@
         RunIntrastatMakeDiskTaxAuth(Filename, false);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
-        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', IntrastatJnlLine."Transaction Type");
+        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', IntrastatJnlLine."Transaction Type", '+');
     end;
 
     [Test]
@@ -548,9 +548,9 @@
         // [THEN] Intrastat Code is exported as Country of Origin (TFS 391822)
         CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
         VerifyTransactionAndPatnerIDInDeclarationFile(
-          Filename, IntrastatJnlLine."Transaction Specification",
-          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
-        CountryRegion."Intrastat Code", ' ');
+            Filename, IntrastatJnlLine."Transaction Specification",
+            PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
+            CountryRegion."Intrastat Code", ' ', '+');
     end;
 
     [Test]
@@ -590,7 +590,7 @@
         VerifyTransactionAndPatnerIDInDeclarationFile(
           Filename, IntrastatJnlLine."Transaction Specification",
           PadStr('', 17 - STRLEN(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
-          IntrastatJnlLine."Country/Region of Origin Code", ' ');
+          IntrastatJnlLine."Country/Region of Origin Code", ' ', '+');
     end;
 
     [Test]
@@ -614,7 +614,7 @@
         RunIntrastatMakeDiskTaxAuth(Filename, false);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
-        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', IntrastatJnlLine."Transaction Type");
+        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', IntrastatJnlLine."Transaction Type", '+');
     end;
 
     [Test]
@@ -645,7 +645,7 @@
         VerifyTransactionAndPatnerIDInDeclarationFile(
           Filename, '  ',
           PadStr('', 17, ' '),
-          '  ', IntrastatJnlLine."Transaction Type");
+          '  ', IntrastatJnlLine."Transaction Type", '+');
     end;
 
     [Test]
@@ -1071,14 +1071,14 @@
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt]
-        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for receipts
+        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for receipts (counterparty = false)
         Initialize();
         EnableAdvancedChecklist();
 
         // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
         PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
-        // [WHEN] Run "Create Intrastat Decl. Disk" report
+        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = false)
         asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
 
         // [THEN] Error log contains 1 error: "Transaction Type must have a value"
@@ -1087,12 +1087,12 @@
 
     [Test]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure CreateDeclReportDoesntCheckForTransactionTypeForShipments()
+    procedure CreateDeclReportChecksForTransactionTypeForShipments()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment]
-        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Type" for shipments
+        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for shipments (counterparty = false)
         // [SCENARIO 395404] Quantity has been printed with positive sign
         Initialize();
         EnableAdvancedChecklist();
@@ -1100,32 +1100,32 @@
         // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Type"
         PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
-        // [WHEN] Run "Create Intrastat Decl. Disk" report
-        RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
+        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = false)
+        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
 
-        // [THEN] Error log contains no error
-        VerifyNoBatchError(IntrastatJnlLine);
+        // [THEN] Error log contains 1 error: "Transaction Type must have a value"
+        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Type"));
     end;
 
     [Test]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure CreateDeclReportChecksForTransactionSpecificationForShipments()
+    procedure CreateDeclReportDoesntCheckForTransactionSpecificationForShipments()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment]
-        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Specification" for shipments
+        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Specification" for shipments (counterparty = false)
         Initialize();
         EnableAdvancedChecklist();
 
         // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Specification"
         PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
-        // [WHEN] Run "Create Intrastat Decl. Disk" report
-        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
+        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = false)
+        RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
 
-        // [THEN] Error log contains 1 error: "Transaction Specification must have a value"
-        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Specification"));
+        // [THEN] Error log contains no error
+        VerifyNoBatchError(IntrastatJnlLine);
     end;
 
     [Test]
@@ -1135,18 +1135,131 @@
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt]
-        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Specification" for receipts
+        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Specification" for receipts (counterparty = false)
         Initialize();
         EnableAdvancedChecklist();
 
         // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Specification"
         PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
-        // [WHEN] Run "Create Intrastat Decl. Disk" report
+        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = false)
         RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
 
         // [THEN] Error log contains no error
         VerifyNoBatchError(IntrastatJnlLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReportChecksForTransactionTypeForReceiptsCounterparty()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt] [Counterparty]
+        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for receipts (counterparty = true)
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
+        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true)
+        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), true);
+
+        // [THEN] Error log contains 1 error: "Transaction Type must have a value"
+        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Type"));
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReportDoesntCheckForTransactionTypeForShipmentsCounterparty()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment] [Counterparty]
+        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Type" for shipments (counterparty = true)
+        // [SCENARIO 395404] Quantity has been printed with positive sign
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Type"
+        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true)
+        RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), true);
+
+        // [THEN] Error log contains no error
+        VerifyNoBatchError(IntrastatJnlLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReportChecksForTransactionSpecificationForShipmentsCounterparty()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment] [Counterparty]
+        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Specification" for shipments (counterparty = true)
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Specification"
+        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true)
+        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), true);
+
+        // [THEN] Error log contains 1 error: "Transaction Specification must have a value"
+        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Specification"));
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReportDoesntCheckForTransactionSpecificationForReceiptsCounterparty()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt] [Counterparty]
+        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Specification" for receipts (counterparty = true)
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Specification"
+        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true)
+        RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), true);
+
+        // [THEN] Error log contains no error
+        VerifyNoBatchError(IntrastatJnlLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReportWithNegativeZeroSSpecialUnitsForCorrection()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemNo: Code[20];
+        Filename: Text;
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment] [Correction]
+        // [SCENARIO 402687] Report 11413 "Create Intrastat Decl. Disk" prints "-0" for the special units in case of correction
+        Initialize();
+
+        // [GIVEN] Intrastat journal line for shipment correction and "Supplementary Units" = false
+        CreatePostPurchaseReturnOrderWithSingleLine(ItemNo);
+        RunSuggestLines(IntrastatJnlLine, ItemNo);
+        IntrastatJnlLine."Transport Method" := LibraryUtility.GenerateGUID();
+        IntrastatJnlLine."Transaction Type" := 'X';
+        IntrastatJnlLine."Entry/Exit Point" := LibraryUtility.GenerateGUID();
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename, false);
+
+        // [THEN] Special Unit value is exposted as "-0"
+        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', 'X', '-');
     end;
 
     local procedure Initialize()
@@ -1788,7 +1901,7 @@
         CustLedgerEntry.TestField("Recipient Bank Account", ServiceHeader."Bank Account Code");
     end;
 
-    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(FileName: Text; ExpectedTransaction: Text; ExpectedPartnedID: Text; ExpectedCountryOfOrigin: Text; ExpectedTransactionType: Text)
+    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(FileName: Text; ExpectedTransaction: Text; ExpectedPartnedID: Text; ExpectedCountryOfOrigin: Text; ExpectedTransactionType: Text; ExpectedSpecialUnitSign: Text)
     var
         DeclFile: File;
         DeclarationString: Text[256];
@@ -1801,7 +1914,7 @@
         Assert.AreEqual(ExpectedPartnedID, CopyStr(DeclarationString, 118, 17), 'Partner ID');
         Assert.AreEqual(ExpectedCountryOfOrigin, CopyStr(DeclarationString, 25, 2), 'Country of Origin');
         Assert.AreEqual(ExpectedTransactionType, CopyStr(DeclarationString, 37, 1), 'Transaction Type');
-        Assert.AreEqual('+', CopyStr(DeclarationString, 59, 1), 'Special Unit + sign'); // TFS 400682
+        Assert.AreEqual(ExpectedSpecialUnitSign, CopyStr(DeclarationString, 59, 1), 'Special Unit + sign'); // TFS 400682, 402687
         Assert.AreEqual('         0', CopyStr(DeclarationString, 60, 10), 'Special Unit value');
         DeclFile.Close();
     end;
