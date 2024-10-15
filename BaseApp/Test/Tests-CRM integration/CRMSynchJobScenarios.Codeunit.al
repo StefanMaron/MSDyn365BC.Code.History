@@ -332,9 +332,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         Assert.AreEqual(2, UnitOfMeasure.Count, 'Expected 2 records to be synchronized');
 
         IntegrationTableMapping.Get(IntegrationTableMapping.Name);
-        Assert.AreEqual(
-          ExpectedLatestDateTime, IntegrationTableMapping."Synch. Modified On Filter",
-          'Expected the latest modified on value to go into the mapping "Synch. Modified On Filter" value.');
+        Assert.IsTrue(IntegrationTableMapping."Synch. Modified On Filter" <= ExpectedLatestDateTime, 'Expected the latest modified on value not to go into the mapping "Synch. Modified On Filter" value.');
 
         UnitOfMeasure.Reset();
         TestIntegrationTable.Reset();
@@ -390,8 +388,8 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] The mapping should be updated with the latest modified date.
         IntegrationTableMapping.Get(IntegrationTableMapping.Name);
-        Assert.AreNotEqual(LastSynchModifiedOn, IntegrationTableMapping."Synch. Modified On Filter",
-          'Did not expect the synch. integration table last modified on filter to change when running the same synch. twice');
+        Assert.AreEqual(LastSynchModifiedOn, IntegrationTableMapping."Synch. Modified On Filter",
+          'Did not expect integration table last modified on filter to change when running the same synch. twice');
     end;
 
     [Test]

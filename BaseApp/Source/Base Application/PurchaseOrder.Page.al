@@ -1,4 +1,4 @@
-page 50 "Purchase Order"
+﻿page 50 "Purchase Order"
 {
     Caption = 'Purchase Order';
     PageType = Document;
@@ -36,6 +36,7 @@ page 50 "Purchase Order"
 
                     trigger OnValidate()
                     begin
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
                         CurrPage.Update();
                     end;
@@ -303,8 +304,8 @@ page 50 "Purchase Order"
             part(PurchLines; "Purchase Order Subform")
             {
                 ApplicationArea = Suite;
-                Editable = "Buy-from Vendor No." <> '';
-                Enabled = "Buy-from Vendor No." <> '';
+                Editable = IsPurchaseLinesEditable;
+                Enabled = IsPurchaseLinesEditable;
                 SubPageLink = "Document No." = FIELD("No.");
                 UpdatePropagation = Both;
             }
@@ -2264,6 +2265,8 @@ page 50 "Purchase Order"
         IsPaymentMethodCodeVisible: Boolean;
         [InDataSet]
         IsPostingGroupEditable: Boolean;
+        [InDataSet]
+        IsPurchaseLinesEditable: Boolean;
         ShouldSearchForVendByName: Boolean;
         IsRemitToCountyVisible: Boolean;
 
@@ -2296,6 +2299,7 @@ page 50 "Purchase Order"
         GLSetup.Get();
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
@@ -2442,6 +2446,8 @@ page 50 "Purchase Order"
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(Rec.RecordId(), CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         ShouldSearchForVendByName := Rec.ShouldSearchForVendorByName(Rec."Buy-from Vendor No.");
         PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
+        if not IsPurchaseLinesEditable then
+            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
 
         OnAfterSetControlAppearance();
     end;
@@ -2487,19 +2493,14 @@ page 50 "Purchase Order"
             ShipToOptions::"Default (Company Address)",
             ShipToOptions::"Custom Address":
                 begin
-                    Rec.Validate("Sell-to Customer No.", '');
-                    Rec.Validate("Location Code", '');
+                    if xRec."Sell-to Customer No." <> '' then
+                        Rec.Validate("Sell-to Customer No.", '');
+                    if xRec."Location Code" <> '' then
+                        Rec.Validate("Location Code", '');
                 end;
             ShipToOptions::Location:
-                begin
+                if xRec."Sell-to Customer No." <> '' then
                     Rec.Validate("Sell-to Customer No.", '');
-                    Rec.Validate("Location Code");
-                end;
-            ShipToOptions::"Customer Address":
-                begin
-                    Rec.Validate("Sell-to Customer No.");
-                    Rec.Validate("Location Code", '');
-                end;
         end;
     end;
 

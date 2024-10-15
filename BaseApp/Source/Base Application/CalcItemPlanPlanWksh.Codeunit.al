@@ -309,7 +309,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePlanThisItem(Item: Record Item; var IsHandled: Boolean; MPS: Boolean; MRP: Boolean; NetChange: Boolean; FromDate: Date; ToDate: Date; UseForecast: Code[10]; RespectPlanningParm: Boolean; var Result: Boolean)
+    local procedure OnBeforePlanThisItem(Item: Record Item; var IsHandled: Boolean; MPS: Boolean; MRP: Boolean; NetChange: Boolean; var FromDate: Date; ToDate: Date; UseForecast: Code[10]; RespectPlanningParm: Boolean; var Result: Boolean)
     begin
     end;
 

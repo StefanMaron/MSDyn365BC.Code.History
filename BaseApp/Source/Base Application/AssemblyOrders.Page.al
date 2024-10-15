@@ -247,7 +247,7 @@ page 902 "Assembly Orders"
                         Caption = 'Lot';
                         Image = LotInfo;
                         RunObject = Page "Item Availability by Lot No.";
-                        RunPageLink = "No." = field("No."),
+                        RunPageLink = "No." = field("Item No."),
                             "Location Filter" = field("Location Code"),
                             "Variant Filter" = field("Variant Code");
                         ToolTip = 'View the current and projected quantity of the item in each lot.';

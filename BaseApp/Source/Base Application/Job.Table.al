@@ -12,7 +12,14 @@ table 167 Job
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "No." <> xRec."No." then begin
                     JobsSetup.Get();
                     NoSeriesMgt.TestManual(JobsSetup."Job Nos.");
@@ -1145,7 +1152,7 @@ table 167 Job
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssistEdit(Rec, OldJob, Result, IsHandled);
+        OnBeforeAssistEdit(Rec, OldJob, Result, IsHandled, NoSeriesMgt);
         if IsHandled then
             exit(Result);
 
@@ -1693,6 +1700,7 @@ table 167 Job
                 DimMgt.DefaultDimOnInsert(JobDefaultDimension);
             until CustDefaultDimension.Next() = 0;
 
+        OnCopyDefaultDimensionsFromCustomerOnBeforeUpdateDefaultDim(Rec, CurrFieldNo);
         DimMgt.UpdateDefaultDim(DATABASE::Job, "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
 
@@ -2524,7 +2532,7 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssistEdit(var Job: Record Job; var OldJob: Record Job; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeAssistEdit(var Job: Record Job; var OldJob: Record Job; var Result: Boolean; var IsHandled: Boolean; var NoSeriesManagement: Codeunit NoSeriesManagement)
     begin
     end;
 
@@ -2605,6 +2613,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToContactNo(var Job: Record Job; xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNo(var Job: Record Job; var IsHandled: Boolean)
     begin
     end;
 
@@ -2701,6 +2714,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestStatusCompleted(var Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyDefaultDimensionsFromCustomerOnBeforeUpdateDefaultDim(var Job: Record Job; CallingFieldNo: Integer)
     begin
     end;
 

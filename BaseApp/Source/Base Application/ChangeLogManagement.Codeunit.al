@@ -321,6 +321,7 @@ codeunit 423 "Change Log Management"
             exit;
 
         xRecRef.Open(RecRef.Number, false, RecRef.CurrentCompany());
+        OnLogModificationOnBeforeCheckSecurityFiltering(xRecRef);
         xRecRef."SecurityFiltering" := SECURITYFILTER::Filtered;
         if xRecRef.ReadPermission then begin
             IsReadable := true;
@@ -597,6 +598,11 @@ codeunit 423 "Change Log Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion; var IsActive: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogModificationOnBeforeCheckSecurityFiltering(var xRecRef: RecordRef)
     begin
     end;
 

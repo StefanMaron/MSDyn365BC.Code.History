@@ -1,4 +1,4 @@
-page 51 "Purchase Invoice"
+﻿page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
     PageType = Document;
@@ -36,6 +36,7 @@ page 51 "Purchase Invoice"
 
                     trigger OnValidate()
                     begin
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
                         CurrPage.Update();
                     end;
@@ -317,8 +318,8 @@ page 51 "Purchase Invoice"
             part(PurchLines; "Purch. Invoice Subform")
             {
                 ApplicationArea = Basic, Suite;
-                Editable = "Buy-from Vendor No." <> '';
-                Enabled = "Buy-from Vendor No." <> '';
+                Editable = IsPurchaseLinesEditable;
+                Enabled = IsPurchaseLinesEditable;
                 SubPageLink = "Document No." = FIELD("No.");
                 UpdatePropagation = Both;
             }
@@ -1705,10 +1706,10 @@ page 51 "Purchase Invoice"
 
     trigger OnAfterGetCurrRecord()
     begin
+        SetControlAppearance();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
-        SetControlAppearance();
         StatusStyleTxt := GetStatusStyleText();
     end;
 
@@ -1829,6 +1830,8 @@ page 51 "Purchase Invoice"
         IsPaymentMethodCodeVisible: Boolean;
         [InDataSet]
         IsPostingGroupEditable: Boolean;
+        [InDataSet]
+        IsPurchaseLinesEditable: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
@@ -1842,6 +1845,7 @@ page 51 "Purchase Invoice"
         GLSetup.Get();
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
     end;
 
     procedure LineModified()
@@ -1985,6 +1989,8 @@ page 51 "Purchase Invoice"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
 
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
+        if not IsPurchaseLinesEditable then
+            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();

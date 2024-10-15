@@ -178,6 +178,7 @@ codeunit 5510 "Production Journal Mgt"
         NeededQty: Decimal;
         OriginalNeededQty: Decimal;
         IsHandled: Boolean;
+        ShouldAdjustQty: Boolean;
     begin
         with ProdOrderComp do begin
             Item.Get("Item No.");
@@ -202,7 +203,9 @@ codeunit 5510 "Production Journal Mgt"
                 if "Location Code" <> Location.Code then
                     if not Location.Get("Location Code") then
                         Clear(Location);
-                if Location."Require Shipment" and Location."Require Pick" then
+                ShouldAdjustQty := Location."Require Shipment" and Location."Require Pick";
+                OnInsertConsumptionItemJnlLineOnAfterCalcShouldAdjustQty(ProdOrderComp, Location, NeededQty, ShouldAdjustQty);
+                if ShouldAdjustQty then
                     AdjustQtyToQtyPicked(NeededQty);
             end;
 
@@ -642,6 +645,11 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertConsumptionJnlLineOnBeforeCheck(ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertConsumptionItemJnlLineOnAfterCalcShouldAdjustQty(ProdOrderComp: Record "Prod. Order Component"; Location: Record Location; var NeededQty: Decimal; var ShouldAdjustQty: Boolean)
     begin
     end;
 

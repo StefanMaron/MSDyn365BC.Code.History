@@ -3,10 +3,10 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
     var
         VATReportHeaderForResponseMessage: Record "VAT Report Header";
         SchemaVersionTxt: Label '2019v13.0', Locked = true;
-        BDDataEndpointTxt: Label 'http://www.nltaxonomie.nl/nt16/bd/20211208/dictionary/bd-data', Locked = true;
-        BDTuplesEndpointTxt: Label 'http://www.nltaxonomie.nl/nt16/bd/20211208/dictionary/bd-tuples', Locked = true;
-        VATDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt16/bd/20211208/entrypoints/bd-rpt-ob-aangifte-2022.xsd', Locked = true;
-        ICPDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt16/bd/20211208/entrypoints/bd-rpt-icp-opgaaf-2022.xsd', Locked = true;
+        BDDataEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-data', Locked = true;
+        BDTuplesEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-tuples', Locked = true;
+        VATDeclarationSchemaEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-ob-aangifte-2023.xsd', Locked = true;
+        ICPDeclarationSchemaEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-icp-opgaaf-2023.xsd', Locked = true;
         CannotDeleteCertificateErr: Label 'You cannot delete certificate since it is used in table %1, field %2.', Comment = '%1 - table caption;%2 - field caption.';
         SubmitErr: Label 'Submission of declaration %1 failed with error code %2 and the following message: \\%3.', Comment = '%1 = Fault.foutcode, %2 = Fault.foutbeschrijving, %3 = message text.';
         WindowStatusMsg: Label 'Submitting Electronic Tax Declaration...\\Status          #1##################', Comment = '%1 - any text that represents the status';
@@ -314,51 +314,71 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
 
     procedure GetSchemaVersion() SchemaVersion: Text[10]
     var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         Handled: Boolean;
     begin
         OnBeforeGetSchemaVersion(Handled, SchemaVersion);
         if Handled then
             exit(SchemaVersion);
+        ElecTaxDeclarationSetup.Get();
+        if ElecTaxDeclarationSetup."Tax Decl. Schema Version" <> '' then
+            exit(ElecTaxDeclarationSetup."Tax Decl. Schema Version");
         exit(SchemaVersionTxt);
     end;
 
     procedure GetBDDataEndpoint() BDDataEndpoint: Text[250]
     var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         Handled: Boolean;
     begin
         OnBeforeGetBDDataEndpoint(Handled, BDDataEndpoint);
         if Handled then
             exit(BDDataEndpoint);
+        ElecTaxDeclarationSetup.Get();
+        if ElecTaxDeclarationSetup."Tax Decl. BD Data Endpoint" <> '' then
+            exit(ElecTaxDeclarationSetup."Tax Decl. BD Data Endpoint");
         exit(BDDataEndpointTxt);
     end;
 
     procedure GetBDTuplesEndpoint() BDTuplesEndpoint: Text[250]
     var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         Handled: Boolean;
     begin
         OnBeforeGetBDTuplesEndpoint(Handled, BDTuplesEndpoint);
         if Handled then
             exit(BDTuplesEndpoint);
+        ElecTaxDeclarationSetup.Get();
+        if ElecTaxDeclarationSetup."Tax Decl. BD Tuples Endpoint" <> '' then
+            exit(ElecTaxDeclarationSetup."Tax Decl. BD Tuples Endpoint");
         exit(BDTuplesEndpointTxt);
     end;
 
     procedure GetVATDeclarationSchemaEndpoint() VATDeclarationSchemaEndpoint: Text[250]
     var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         Handled: Boolean;
     begin
         OnBeforeGetVATDeclarationSchemaEndpoint(Handled, VATDeclarationSchemaEndpoint);
         if Handled then
             exit(VATDeclarationSchemaEndpoint);
+        ElecTaxDeclarationSetup.Get();
+        if ElecTaxDeclarationSetup."Tax Decl. Schema Endpoint" <> '' then
+            exit(ElecTaxDeclarationSetup."Tax Decl. Schema Endpoint");
         exit(VATDeclarationSchemaEndpointTxt);
     end;
 
     procedure GetICPDeclarationSchemaEndpoint() ICPDeclarationSchemaEndpoint: Text[250]
     var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         Handled: Boolean;
     begin
         OnBeforeGetICPDeclarationSchemaEndpoint(Handled, ICPDeclarationSchemaEndpoint);
         if Handled then
             exit(ICPDeclarationSchemaEndpoint);
+        ElecTaxDeclarationSetup.Get();
+        if ElecTaxDeclarationSetup."ICP Decl. Schema Endpoint" <> '' then
+            exit(ElecTaxDeclarationSetup."ICP Decl. Schema Endpoint");
         exit(ICPDeclarationSchemaEndpointTxt);
     end;
 

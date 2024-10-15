@@ -52,8 +52,6 @@ codeunit 1351 "Telemetry Subscribers"
         PurchaseDocumentInformationLbl: Label 'Purchase document posted: %1', Locked = true;
         SalesDocumentInformationLbl: Label 'Sales document posted: %1 ', Locked = true;
         SalesInvoiceInformationLbl: Label 'Sales invoice posted: %1', Locked = true;
-        EmailCategoryLbl: Label 'Email', Locked = true;
-        UserPlansTelemetryLbl: Label 'User with %1 plans opened the %2 page.', Comment = '%1 - User plans; %2 - page name', Locked = true;
         LogNonInventoryUsageLbl: Label 'Non-inventory usage logging', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Conf./Personalization Mgt.", 'OnProfileChanged', '', true, true)]
@@ -633,41 +631,10 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000AHW', StrSubstNo(BankAccountRecTransferToGJMsg, BankAccReconciliationLine.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Sent Emails", 'OnOpenPageEvent', '', false, false)]
-    local procedure LogUserPlansOnOpenSentEmails()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", 'OnSendDailyTelemetry', '', true, true)]
+    local procedure LogDatabaseWaitStatistics()
     begin
-        Session.LogMessage('0000CTU', StrSubstNo(UserPlansTelemetryLbl, GetUserPlans(), 'Sent Emails'), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailCategoryLbl);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Outbox", 'OnOpenPageEvent', '', false, false)]
-    local procedure LogUserPlansOnOpenEmailOutbox()
-    begin
-        Session.LogMessage('0000CTT', StrSubstNo(UserPlansTelemetryLbl, GetUserPlans(), 'Email Oubox'), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailCategoryLbl);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Account Wizard", 'OnOpenPageEvent', '', false, false)]
-    local procedure LogUserPlansOnOpenEmailAccountWizard()
-    begin
-        Session.LogMessage('0000CTJ', StrSubstNo(UserPlansTelemetryLbl, GetUserPlans(), 'Email Account Wizard'), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailCategoryLbl);
-    end;
-
-    local procedure GetUserPlans(): Text
-    var
-        AzureADPlan: Codeunit "Azure AD Plan";
-        UserPlans: List of [Text];
-        UserPlan: Text;
-        ConcatenatedUserPlans: Text;
-        Delimiter: Text;
-    begin
-        AzureADPlan.GetPlanNames(UserSecurityId(), UserPlans);
-
-        ConcatenatedUserPlans := '';
-        Delimiter := ' | ';
-        foreach UserPlan in UserPlans do
-            ConcatenatedUserPlans += UserPlan + Delimiter;
-
-        ConcatenatedUserPlans := '[' + ConcatenatedUserPlans.TrimEnd(Delimiter) + ']';
-        exit(ConcatenatedUserPlans);
+        Codeunit.Run(Codeunit::"Emit Database Wait Statistics");
     end;
 }
 

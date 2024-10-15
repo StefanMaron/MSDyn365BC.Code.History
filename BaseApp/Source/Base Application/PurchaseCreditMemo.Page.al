@@ -1,4 +1,4 @@
-page 52 "Purchase Credit Memo"
+﻿page 52 "Purchase Credit Memo"
 {
     Caption = 'Purchase Credit Memo';
     PageType = Document;
@@ -36,6 +36,7 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnValidate()
                     begin
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
                         CurrPage.Update();
                     end;
@@ -320,8 +321,8 @@ page 52 "Purchase Credit Memo"
             part(PurchLines; "Purch. Cr. Memo Subform")
             {
                 ApplicationArea = Basic, Suite;
-                Editable = "Buy-from Vendor No." <> '';
-                Enabled = "Buy-from Vendor No." <> '';
+                Editable = IsPurchaseLinesEditable;
+                Enabled = IsPurchaseLinesEditable;
                 SubPageLink = "Document No." = FIELD("No.");
                 UpdatePropagation = Both;
             }
@@ -1682,6 +1683,8 @@ page 52 "Purchase Credit Memo"
         IsPaymentMethodCodeVisible: Boolean;
         [InDataSet]
         IsPostingGroupEditable: Boolean;
+        [InDataSet]
+        IsPurchaseLinesEditable: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
@@ -1814,6 +1817,8 @@ page 52 "Purchase Credit Memo"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
 
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
+        if not IsPurchaseLinesEditable then
+            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();

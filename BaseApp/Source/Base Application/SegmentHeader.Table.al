@@ -41,7 +41,7 @@ table 5076 "Segment Header"
         field(4; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -893,30 +893,31 @@ table 5076 "Segment Header"
         InteractionTemplate: Record "Interaction Template";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeUpdateSegHeader(Rec, InteractTmplCode, InteractTmplChange, IsHandled, CurrFieldNo);
+        if not IsHandled then begin
+            if InteractTmplChange then begin
+                Modify();
+                Get("No.");
+                "Interaction Template Code" := InteractTmplCode;
+                "Subject (Default)" := '';
 
-        if InteractTmplChange then begin
-            Modify();
-            Get("No.");
-            "Interaction Template Code" := InteractTmplCode;
-            "Subject (Default)" := '';
+                if InteractionTemplate.Get("Interaction Template Code") then begin
+                    CopyFromTemplate(InteractionTemplate);
+                    if (GetFilter("Campaign No.") = '') and (InteractionTemplate."Campaign No." <> '') then
+                        "Campaign No." := InteractionTemplate."Campaign No.";
 
-            if InteractionTemplate.Get("Interaction Template Code") then begin
-                CopyFromTemplate(InteractionTemplate);
-                if (GetFilter("Campaign No.") = '') and (InteractionTemplate."Campaign No." <> '') then
-                    "Campaign No." := InteractionTemplate."Campaign No.";
-
-                CreateSegInteractions("Interaction Template Code", "No.", 0);
-            end else begin
-                CopyFromTemplate(InteractionTemplate);
-                if GetFilter("Campaign No.") = '' then
-                    "Campaign No." := '';
+                    CreateSegInteractions("Interaction Template Code", "No.", 0);
+                end else begin
+                    CopyFromTemplate(InteractionTemplate);
+                    if GetFilter("Campaign No.") = '' then
+                        "Campaign No." := '';
+                end;
+                OnUpdateSegHeaderOnBeforeSecondModify(Rec);
+                Modify();
+                CalcFields("Attachment No.");
             end;
-
-            Modify();
-            CalcFields("Attachment No.");
         end;
-
         OnAfterUpdateSegHeader(Rec);
     end;
 
@@ -1000,6 +1001,11 @@ table 5076 "Segment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnReuseContactsOnBeforeRefineContactsRun(var RefineContacts: Report "Remove Contacts - Refine"; var SavedSegCriteriaLineAction: Record "Saved Segment Criteria Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSegHeaderOnBeforeSecondModify(var SegmentHeader: Record "Segment Header")
     begin
     end;
 

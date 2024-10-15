@@ -340,7 +340,13 @@
                             trigger OnBeforePassVariable()
                             var
                                 SeparatorText: Text;
+                                IsHandled: Boolean;
                             begin
+                                IsHandled := false;
+                                OnBeforePassVariableRmtInf(PaymentExportData, RemittanceText, IsHandled);
+                                if IsHandled then
+                                    exit;
+
                                 RemittanceText := '';
 
                                 TempPaymentExportRemittanceText.SetRange("Pmt. Export Data Entry No.", PaymentExportData."Entry No.");
@@ -453,6 +459,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSpecifyRemittanceTextSeparatorText(var SeparatorText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePassVariableRmtInf(PaymentExportData: Record "Payment Export Data"; var RemittanceText: Text; var IsHandled: Boolean)
     begin
     end;
 }

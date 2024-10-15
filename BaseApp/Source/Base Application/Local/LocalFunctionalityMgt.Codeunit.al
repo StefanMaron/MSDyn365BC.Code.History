@@ -64,13 +64,11 @@ codeunit 11400 "Local Functionality Mgt."
         exit(true);
     end;
 
-    [Scope('OnPrem')]
     procedure CharacterFilter(Text: Text[250]; "Filter": Text[250]) Res: Text[250]
     begin
         exit(DelChr(Text, '=', DelChr(Text, '=', Filter)));
     end;
 
-    [Scope('OnPrem')]
     procedure ConvertPhoneNumber(PhoneNumber: Text[20]) Res: Text[20]
     begin
         Res := CopyStr(CharacterFilter(PhoneNumber, '+0123456789'), 1, 20);

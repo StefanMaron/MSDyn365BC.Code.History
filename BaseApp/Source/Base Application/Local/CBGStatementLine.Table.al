@@ -690,6 +690,7 @@
     [Scope('OnPrem')]
     procedure InitRecord(LastRecord: Record "CBG Statement Line")
     begin
+        OnBeforeInitRecord(Rec, LastRecord, CBGStatement);
         GetCBGStatementHeader();
 
         "Statement Type" := CBGStatement."Account Type";
@@ -838,50 +839,7 @@
         GenJnlLine."Line No." := 0;
 
         GenJnlLine.Validate("Posting Date", Date);
-        case "Account Type" of
-            "Account Type"::"G/L Account":
-                begin
-                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
-                    case "VAT Type" of
-                        "VAT Type"::Purchase:
-                            if Credit = 0 then
-                                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment
-                            else
-                                GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
-                        "VAT Type"::Sale:
-                            if Debit = 0 then
-                                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment
-                            else
-                                GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
-                    end;
-                end;
-            "Account Type"::Customer:
-                begin
-                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
-                    if Debit = 0 then
-                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment
-                    else
-                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
-                end;
-            "Account Type"::Vendor:
-                begin
-                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
-                    if Credit = 0 then
-                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment
-                    else
-                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
-                end;
-            "Account Type"::Employee:
-                begin
-                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
-                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
-                end;
-            "Account Type"::"Bank Account":
-                begin
-                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Bank Account";
-                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
-                end;
-        end;
+        SetAccountTypeAndDocumentType(GenJnlLine);
 
         GenJnlLine.Validate("Account No.", "Account No.");
 
@@ -915,26 +873,14 @@
             GenJnlLine.Validate("Dimension Set ID", "Dimension Set ID");
 
         GenJnlLine.Validate("Currency Code", CBGStatement.Currency);
-        case "VAT Type" of
-            "VAT Type"::" ":
-                GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::" ";
-            "VAT Type"::Purchase:
-                begin
-                    GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Purchase;
-                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
-                end;
-            "VAT Type"::Sale:
-                begin
-                    GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Sale;
-                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
-                end;
-        end;
+        SetGenPostingTypeAndDocumentType(GenJnlLine);
 
         GenJnlLine."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
         GenJnlLine.Validate("VAT Prod. Posting Group", "VAT Prod. Posting Group");
 
-        if Correction then
+        if Rec.Correction then
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
+        OnCreateGenJournalLineOnAfterSetDocumentTypeForCorrection(Rec, GenJnlLine);
 
         GenJnlLine.Description := Description;
         if "Applies-to Doc. No." <> '' then begin
@@ -952,14 +898,94 @@
             GenJnlLine.Validate("Credit Amount", "Credit Incl. VAT");
         end;
 
-        if GenJnlLine."VAT Calculation Type" <> GenJnlLine."VAT Calculation Type"::"Full VAT" then
-            if ("Debit VAT" <> 0) and ("Debit VAT" <> GenJnlLine."VAT Amount") then
-                GenJnlLine.Validate("VAT Amount", "Debit VAT")
-            else
-                if ("Credit VAT" <> 0) and (-"Credit VAT" <> GenJnlLine."VAT Amount") then
-                    GenJnlLine.Validate("VAT Amount", -"Credit VAT");
+        ValidateVATAmountOnLine(GenJnlLine);
 
         OnAfterCreateGenJournalLine(GenJnlLine, Rec);
+    end;
+
+    local procedure SetAccountTypeAndDocumentType(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        case Rec."Account Type" of
+            Rec."Account Type"::"G/L Account":
+                begin
+                    GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
+                    case Rec."VAT Type" of
+                        Rec."VAT Type"::Purchase:
+                            if Rec.Credit = 0 then
+                                GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment
+                            else
+                                GenJournalLine."Document Type" := GenJournalLine."Document Type"::" ";
+                        Rec."VAT Type"::Sale:
+                            if Rec.Debit = 0 then
+                                GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment
+                            else
+                                GenJournalLine."Document Type" := GenJournalLine."Document Type"::" ";
+                    end;
+                end;
+            Rec."Account Type"::Customer:
+                begin
+                    GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
+                    if Rec.Debit = 0 then
+                        GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment
+                    else
+                        GenJournalLine."Document Type" := GenJournalLine."Document Type"::Refund;
+                end;
+            Rec."Account Type"::Vendor:
+                begin
+                    GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
+                    if Rec.Credit = 0 then
+                        GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment
+                    else
+                        GenJournalLine."Document Type" := GenJournalLine."Document Type"::Refund;
+                end;
+            Rec."Account Type"::Employee:
+                begin
+                    GenJournalLine."Account Type" := GenJournalLine."Account Type"::Employee;
+                    GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
+                end;
+            Rec."Account Type"::"Bank Account":
+                begin
+                    GenJournalLine."Account Type" := GenJournalLine."Account Type"::"Bank Account";
+                    GenJournalLine."Document Type" := GenJournalLine."Document Type"::" ";
+                end;
+        end;
+        OnAfterSetAccountTypeAndDocumentType(Rec, GenJournalLine);
+    end;
+
+    local procedure SetGenPostingTypeAndDocumentType(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        case Rec."VAT Type" of
+            Rec."VAT Type"::" ":
+                GenJournalLine."Gen. Posting Type" := GenJournalLine."Gen. Posting Type"::" ";
+            Rec."VAT Type"::Purchase:
+                begin
+                    GenJournalLine."Gen. Posting Type" := GenJournalLine."Gen. Posting Type"::Purchase;
+                    GenJournalLine."Document Type" := GenJournalLine."Document Type"::Invoice;
+                end;
+            Rec."VAT Type"::Sale:
+                begin
+                    GenJournalLine."Gen. Posting Type" := GenJournalLine."Gen. Posting Type"::Sale;
+                    GenJournalLine."Document Type" := GenJournalLine."Document Type"::Invoice;
+                end;
+        end;
+        OnAfterSetGenPostingTypeAndDocumentType(Rec, GenJournalLine);
+    end;
+
+    local procedure ValidateVATAmountOnLine(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateVATAmountOnLine(Rec, GenJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GenJournalLine."VAT Calculation Type" <> GenJournalLine."VAT Calculation Type"::"Full VAT" then
+            if (Rec."Debit VAT" <> 0) and (Rec."Debit VAT" <> GenJournalLine."VAT Amount") then
+                GenJournalLine.Validate("VAT Amount", Rec."Debit VAT")
+            else
+                if (Rec."Credit VAT" <> 0) and (-Rec."Credit VAT" <> GenJournalLine."VAT Amount") then
+                    GenJournalLine.Validate("VAT Amount", -Rec."Credit VAT");
     end;
 
     local procedure CheckAccountNo()
@@ -979,6 +1005,7 @@
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         UseCurrencyFactor: Decimal;
         IsHandled: Boolean;
+        ShouldSetAmount: Boolean;
     begin
         IsHandled := false;
         OnBeforeReadGenJournalLine(Rec, GenJnlLine, IsHandled);
@@ -989,10 +1016,9 @@
         Correction := GenJnlLine.Correction;
         GetCurrency();
 
-        if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer) or
-           (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) or
-           (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Employee)
-        then begin
+        ShouldSetAmount := GenJnlLine."Account Type" in [GenJnlLine."Account Type"::Customer, GenJnlLine."Account Type"::Vendor, GenJnlLine."Account Type"::Employee];
+        OnReadGenJournalLineOnAfterCalcShouldSetAmount(Rec, GenJnlLine, ShouldSetAmount);
+        if ShouldSetAmount then begin
             case true of
                 CBGStatement.Currency = GenJnlLine."Currency Code":
                     Amount := GenJnlLine.Amount;
@@ -1021,6 +1047,7 @@
         "Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type";
         "Applies-to Doc. No." := GenJnlLine."Applies-to Doc. No.";
         Validate("Applies-to ID", GenJnlLine."Applies-to ID");
+        OnAfterReadGenJournalLine(Rec, GenJnlLine);
     end;
 
     [Scope('OnPrem')]
@@ -1071,7 +1098,13 @@
         VendLedgEntry: Record "Vendor Ledger Entry";
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenAccountEntries(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Account No.");
 
         case "Account Type" of
@@ -1215,7 +1248,7 @@
             GetCurrency();
 
             if "VAT Type" in ["VAT Type"::Purchase, "VAT Type"::Sale] then begin
-                if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
+                if GetVATPostingSetup(VATPostingSetup) then
                     case VATPostingSetup."VAT Calculation Type" of
                         VATPostingSetup."VAT Calculation Type"::"Normal VAT":
                             begin
@@ -1328,6 +1361,12 @@
             CBGStatement.Type::Cash:
                 ID := "Document No.";
         end;
+    end;
+
+    local procedure GetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup") Result: Boolean
+    begin
+        Result := VATPostingSetup.Get(Rec."VAT Bus. Posting Group", Rec."VAT Prod. Posting Group");
+        OnAfterGetVATPostingSetup(VATPostingSetup, Rec, Result);
     end;
 
     local procedure DeleteAppliesToID(var CBGStatementlineRec: Record "CBG Statement Line")
@@ -1704,6 +1743,11 @@
 #endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; CBGStatementLine: Record "CBG Statement Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var CBGStatementLine: Record "CBG Statement Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
@@ -1714,12 +1758,37 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterReadGenJournalLine(var CBGStatementLine: Record "CBG Statement Line"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAccountTypeAndDocumentType(var CBGStatementLine: Record "CBG Statement Line"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetGenPostingTypeAndDocumentType(CBGStatementLine: Record "CBG Statement Line"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAppliesToIDOnValidate(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAccountNo(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitRecord(var CBGStatementLine: Record "CBG Statement Line"; var CBGStatementLineLast: Record "CBG Statement Line"; CBGStatement: Record "CBG Statement")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenAccountEntries(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1745,6 +1814,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateVendorApplyRequirements(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATAmountOnLine(var CBGStatementLine: Record "CBG Statement Line"; var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateGenJournalLineOnAfterSetDocumentTypeForCorrection(CBGStatementLine: Record "CBG Statement Line"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -1775,6 +1854,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAccountNoOnValidate(var CBGStatementLine: Record "CBG Statement Line"; var xCBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReadGenJournalLineOnAfterCalcShouldSetAmount(var CBGStatementLine: Record "CBG Statement Line"; GenJournalLine: Record "Gen. Journal Line"; var ShouldSetAmount: Boolean)
     begin
     end;
 
