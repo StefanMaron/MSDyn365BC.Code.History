@@ -9,6 +9,9 @@
   },
   "folders": [
     {
+      "path": "./reviewglentries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
+    },
+    {
       "path": "./AuditFileExport/Test/Audit File Export Tests"
     },
     {
@@ -30,6 +33,9 @@
       "path": "./DataArchive/test/Data Archive Tests"
     },
     {
+      "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
+    },
+    {
       "path": "./QuickbooksPayrollFileImport/Test/Quickbooks Payroll File Import Tests"
     },
     {
@@ -43,6 +49,12 @@
     },
     {
       "path": "./system application/source/System Application/Email/src/Test Email"
+    },
+    {
+      "path": "./EDocument/Test/E-Document Core Tests"
+    },
+    {
+      "path": "./EDocument/Test/E-Document Core Tests/src/TestImplementations"
     },
     {
       "path": "./MX_DIOT/Test/Tests for MX DIOT Extension"
@@ -214,9 +226,6 @@
     },
     {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
-    },
-    {
-      "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
     },
     {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"

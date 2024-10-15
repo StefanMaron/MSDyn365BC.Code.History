@@ -7,8 +7,10 @@ namespace Microsoft.RoleCenters;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.Period;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
 using Microsoft.Sales.Receivables;
 using System.Environment;
 
@@ -264,6 +266,37 @@ codeunit 1311 "Activities Mgt."
         end
     end;
 
+    procedure CalcNoOfReservedFromStockSalesOrders() Number: Integer
+    var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        SalesHeader: Record "Sales Header";
+    begin
+        Number := 0;
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetLoadFields("Document Type", "No.");
+        if SalesHeader.FindSet() then
+            repeat
+                if SalesHeader.GetQtyReservedFromStockState() = Enum::"Reservation From Stock"::Full then
+                    Number += 1;
+            until SalesHeader.Next() = 0;
+    end;
+
+    procedure DrillDownNoOfReservedFromStockSalesOrders()
+    var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetLoadFields("Document Type", "No.");
+        if SalesHeader.FindSet() then
+            repeat
+                if SalesHeader.GetQtyReservedFromStockState() = Enum::"Reservation From Stock"::Full then
+                    SalesHeader.Mark(true);
+            until SalesHeader.Next() = 0;
+        SalesHeader.MarkedOnly(true);
+        Page.Run(Page::"Sales Order List", SalesHeader);
+    end;
+
     local procedure GetPaidSalesInvoices(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
@@ -340,6 +373,9 @@ codeunit 1311 "Activities Mgt."
 
         if ActivitiesCue.FieldActive("Average Collection Days") then
             ActivitiesCue."Average Collection Days" := CalcAverageCollectionDays();
+
+        if ActivitiesCue.FieldActive("S. Ord. - Reserved From Stock") then
+            ActivitiesCue."S. Ord. - Reserved From Stock" := CalcNoOfReservedFromStockSalesOrders();
 
         ActivitiesCue."Last Date/Time Modified" := CurrentDateTime;
         OnRefreshActivitiesCueDataOnBeforeModify(ActivitiesCue);

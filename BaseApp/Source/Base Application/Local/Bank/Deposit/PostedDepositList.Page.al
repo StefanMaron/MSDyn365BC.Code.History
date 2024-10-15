@@ -5,6 +5,7 @@
 namespace Microsoft.Bank.Deposit;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Reconciliation;
 
 page 10147 "Posted Deposit List"
 {
@@ -132,5 +133,19 @@ page 10147 "Posted Deposit List"
         {
         }
     }
+
+    var
+        NewPostedInBankDepositsNotificationMsg: Label 'Posted deposits are now kept in the Posted Bank Deposits page.';
+
+    trigger OnOpenPage()
+    var
+        Notification: Notification;
+    begin
+        Notification.Message := NewPostedInBankDepositsNotificationMsg;
+        Notification.AddAction('Go to Posted Bank Deposits', Codeunit::"Bank Reconciliation Mgt.", 'OpenPostedBankDepositsPage');
+        Notification.Scope := NotificationScope::LocalScope;
+        Notification.Send();
+    end;
+
 }
 

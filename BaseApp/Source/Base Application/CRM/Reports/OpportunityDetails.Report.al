@@ -10,6 +10,7 @@ report 5068 "Opportunity - Details"
     ApplicationArea = RelationshipMgmt;
     Caption = 'Opportunity - Details';
     UsageCategory = ReportsAndAnalysis;
+    WordMergeDataItem = Opportunity;
 
     dataset
     {

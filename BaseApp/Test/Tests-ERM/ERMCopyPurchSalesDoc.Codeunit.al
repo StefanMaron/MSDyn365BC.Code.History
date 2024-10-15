@@ -32,6 +32,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         InvoiceNoTxt: Label 'Invoice No. %1:';
         WrongCopyPurchaseResourceErr: Label 'Wrong data after copy purchase resource';
         AddrChangedErr: Label 'field on the purchase order %1 must be the same as on sales order %2.', Comment = '%1: Purchase Order No., %2: Sales Order No.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
 #if not CLEAN21
     [Test]
@@ -6727,6 +6728,91 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         VerifyShiptoAddressInSalesDocToCompanyInfo(SalesHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure VerifySalesLineQtyToShipWhenMultipleCreditMemoPost()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales INvoice Header";
+        DocumentNo1: Code[20];
+        DocumentNo2: Code[20];
+    begin
+        // [SCENARIO 484839] Sales Lines are updated wrongly when posting a corrective credit memo - negative quantity shipped.
+        Initialize();
+
+        // [GIVEN] Create a Sales Header with document type Order.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
+
+        // [GIVEN] Create the First Sales Line.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, GetItemNo(), LibraryRandom.RandIntInRange(1, 100));
+
+        // [GIVEN] Create the Second Sales Line & field "Qty. to Ship" assign 0.
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, GetItemNo(), LibraryRandom.RandIntInRange(1, 100));
+        SalesLine1.Validate("Qty. to Ship", 0);
+        SalesLine1.Modify(true);
+
+        // [GIVEN] Create the Third Sales Line & field "Qty. to Ship" assign 0.
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, GetItemNo(), LibraryRandom.RandIntInRange(1, 100));
+        SalesLine2.Validate("Qty. to Ship", 0);
+        SalesLine2.Modify(true);
+
+        // [GIVEN] Create the Forth Sales Line & field "Qty. to Ship" assign 0.
+        LibrarySales.CreateSalesLine(SalesLine3, SalesHeader, SalesLine3.Type::Item, GetItemNo(), LibraryRandom.RandIntInRange(1, 100));
+        SalesLine3.Validate("Qty. to Ship", 0);
+        SalesLine3.Modify(true);
+
+        // [GIVEN] Post Sales Order for First Sales Line.
+        DocumentNo1 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Assign "Qty. to Ship" 0 in Third Line.
+        SalesLine2.Get(SalesLine2."Document Type", SalesHeader."No.", SalesLine2."Line No.");
+        SalesLine2.Validate("Qty. to Ship", 0);
+        SalesLine2.Modify(true);
+
+        // [GIVEN] Assign "Qty. to Ship" 0 in Forth Line.
+        SalesLine3.Get(SalesLine3."Document Type", SalesHeader."No.", SalesLine3."Line No.");
+        SalesLine3.Validate("Qty. to Ship", 0);
+        SalesLine3.Modify(true);
+
+        // [GIVEN] Post Sales Order for Second Line
+        DocumentNo2 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create Corrective Credit Memo, Open Sales Credit Memo Page & Post.
+        SalesInvoiceHeader.Get(DocumentNo2);
+        CreateCorrectiveCreditMemoAndOpenSalesCreditMemoPageAndPost(SalesInvoiceHeader);
+
+        // [GIVEN] Create Corrective Credit Memo, Open Sales Credit Memo Page & Post.
+        SalesInvoiceHeader.Get(DocumentNo1);
+        CreateCorrectiveCreditMemoAndOpenSalesCreditMemoPageAndPost(SalesInvoiceHeader);
+
+        // [VERIFY] The quantity for the sales line and the "Qty. to Ship" for the Second Line must be the same.
+        SalesLine1.Get(SalesLine1."Document Type", SalesHeader."No.", SalesLine1."Line No.");
+        Assert.AreEqual(
+            SalesLine1."Qty. to Ship",
+            SalesLine1.Quantity,
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                SalesLine1.FieldCaption("Qty. to Ship"),
+                SalesLine1.Quantity,
+                SalesLine1.TableCaption()));
+
+        // [VERIFY] Verify Sales Line Quantity and "Qty. to Ship" for First Line must be the same.
+        SalesLine.Get(SalesLine."Document Type", SalesHeader."No.", SalesLine."Line No.");
+        Assert.AreEqual(
+            SalesLine."Qty. to Ship",
+            SalesLine.Quantity,
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                SalesLine.FieldCaption("Qty. to Ship"),
+                SalesLine.Quantity,
+                SalesLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -8279,6 +8365,26 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateCorrectiveCreditMemoAndOpenSalesCreditMemoPageAndPost(SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        SalesHeader: Record "Sales Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.GoToRecord(SalesHeader);
+        SalesCreditMemo.Post.Invoke();
+    end;
+
+    local procedure GetItemNo(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
+        exit(Item."No.");
     end;
 
     [RequestPageHandler]

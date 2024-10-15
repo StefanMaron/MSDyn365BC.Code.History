@@ -8035,6 +8035,69 @@
         asserterror PurchaseOrder.PurchLines."Job Line Type".Value(Format(PurchaseLine."Job Line Type".AsInteger()));
     end;
 
+    [Test]
+    [HandlerFunctions('StandardPurchaseOrderRequestPageHandler')]
+    procedure VerifyPrintPurchaseOrderAfterPostPrepaymentInvoiceAndUpdatePrepaymentPercent()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 479326] Verify Print Purchase Order after Post Prepayment Invoice and update Prepayment Percent
+        Initialize();
+
+        // [GIVEN] Create the Purchase Order
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
+
+        // [GIVEN] Set Prepayment Percent on Purchase Header
+        PurchaseHeader.Validate("Prepayment %", 20);
+        PurchaseHeader."Prepayment Due Date" := CalcDate('<+1M>', WorkDate());
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Post Prepayment
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Verify Print Purchase Order
+        PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
+        Commit();
+        Report.Run(Report::"Standard Purchase - Order", true, false, PurchaseHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyRemitToAddressPopulatedOnPurchaseOrderPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RemitAddress: Record "Remit Address";
+        PurchaseOrderPage: TestPage "Purchase Order";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 480603] Default Remit-to Address is not populating on Purchase Order or Purchase Invoice pages in the Shipment and Payment fasttab
+        Initialize();
+
+        // [GIVEN] Create a new Remit-to address and set Use as default
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, VendorNo);
+        RemitAddress.Default := true;
+        RemitAddress.Modify(true);
+
+        // [GIVEN] Purchase Order with one Item and Remit-to Code
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
+        PurchaseHeader.Validate("Remit-to Code", RemitAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] Open Purchase Order Page
+        PurchaseOrderPage.OpenEdit();
+        PurchaseOrderPage.GotoRecord(PurchaseHeader);
+
+        // [VERIFY] Verify: Remit information filled on Purchase Order Page 
+        PurchaseOrderPage."Remit-to Code".AssertEquals(RemitAddress.Code);
+        PurchaseOrderPage."Remit-to Name".AssertEquals(RemitAddress.Name);
+        PurchaseOrderPage."Remit-to Address".AssertEquals(RemitAddress.Address);
+        PurchaseOrderPage."Remit-to Post Code".AssertEquals(RemitAddress."Post Code");
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11735,6 +11798,12 @@
     procedure PurchaseDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
     begin
         // Close handler
+    end;
+
+    [RequestPageHandler]
+    procedure StandardPurchaseOrderRequestPageHandler(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
+    begin
+        StandardPurchaseOrder.Preview().Invoke();
     end;
 
     [ModalPageHandler]

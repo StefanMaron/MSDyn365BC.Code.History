@@ -2048,6 +2048,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType OneLineShouldBeCopiedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 556740976 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 556740976 - NamedType 1475647686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong data after copy purchase resource]]></Val>
@@ -3317,6 +3326,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Invoice and Reminder - NamedType ReminderLineError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3781175034 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit ERM Invoice and Reminder - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4157697238 - NamedType 1906012420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong invoice discount on statistic general tab.]]></Val>
@@ -3477,6 +3495,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Invoice Discount And VAT - NamedType UpdInvDiscQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 150808602 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit ERM Invoice Discount And VAT - NamedType ValueMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 150808602 - NamedType 2184186873" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5808,6 +5835,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Document - NamedType SalesCaption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 891447087 - NamedType 864063573" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Ship-to Code not matched.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Document - NamedType ShipToCodeMathcedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 891447087 - NamedType 3472498760" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9632,7 +9668,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Over Receipt - NamedType CheckOverReceiptAllowedForWhseReceiptLineErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1: Expected Source Document; %2: Warehouse Receipt No.; %3: Warehouse Receipt Line No.; %4: Actual Source Document]D;]A;(LookupHint=Codeunit Purchase Over Receipt - NamedType CheckOverReceiptAllowedForWhseReceiptLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 516462235 - NamedType 2258814337" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9641,7 +9677,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Over Receipt - NamedType OverReceiptNotificationTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1: Purchase order number]D;]A;(LookupHint=Codeunit Purchase Over Receipt - NamedType OverReceiptNotificationTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 516462235 - NamedType 2204023405" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -11102,6 +11138,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Contracts II - NamedType UnexpectedConfirmTextErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1134171456 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value , %3 = Table Caption]D;]A;(LookupHint=Codeunit Service Contracts II - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1502205507 - NamedType 1314462029" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[NTF_TEST_NTF_TEST]]></Val>
@@ -11723,6 +11768,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Status, %2 - Document Type, %3 - Document No., %4 - Expected Status]D;]A;(LookupHint=Codeunit Service Order Check - NamedType ReleasedStatusErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 414629551 - NamedType 908304621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Service Item Line must exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Check - NamedType ServiceItemLineErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 414629551 - NamedType 3176777329" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You have changed %1 on the %2, but it has not been changed on the existing service lines.\You must update the existing service lines manually.]]></Val>
@@ -11896,7 +11950,7 @@
   </Item>
   <Item ItemId=";Codeunit 70905174 - NamedType 627316390" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are no Warehouse Shipment Lines created.]]></Val>
+      <Val><![CDATA[There are no warehouse shipment lines created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -13406,6 +13460,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Suggest Price Lines UT - NamedType CannotFindDocErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4281799407 - NamedType 2695086759" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Price List Line Exists]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Suggest Price Lines UT - NamedType PriceLineExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4281799407 - NamedType 3053933098" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must not be the same as %2.]]></Val>
@@ -13422,6 +13485,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Suggest Price Lines UT - NamedType SourceGroupUpdateMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4281799407 - NamedType 2811019982" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unit Of Measure Code must have same value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Suggest Price Lines UT - NamedType UnitOfMeasureErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1907926743 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -13980,6 +14052,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value]D;]A;(LookupHint=Codeunit Working On Service Orders - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2266717676 - NamedType 2902813149" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must blank.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Working On Service Orders - NamedType ValueMustBlankErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3468399646 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">

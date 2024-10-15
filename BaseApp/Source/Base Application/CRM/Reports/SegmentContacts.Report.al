@@ -9,6 +9,7 @@ report 5063 "Segment - Contacts"
     DefaultLayout = RDLC;
     RDLCLayout = './CRM/Reports/SegmentContacts.rdlc';
     Caption = 'Segment - Contacts';
+    WordMergeDataItem = "Segment Header";
 
     dataset
     {

@@ -74,7 +74,13 @@ codeunit 9520 "Mail Management"
         BccList: List of [Text];
         SourceTableIDs, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendViaEmailModule(TempEmailItem, CurrentEmailScenario, TempEmailModuleAccount, HideMailDialog, IsHandled, MailSent);
+        if IsHandled then
+            exit(MailSent);
+
         RecipientStringToList(TempEmailItem."Send to", ToList);
         RecipientStringToList(TempEmailItem."Send CC", CcList);
         RecipientStringToList(TempEmailItem."Send BCC", BccList);
@@ -127,7 +133,7 @@ codeunit 9520 "Mail Management"
     local procedure GetAttachmentName(AttachmentNames: List of [Text]; Index: Integer) AttachmentName: Text[250]
     begin
         AttachmentName := CopyStr(AttachmentNames.Get(Index), 1, 250);
-        OnAfterGetAttachmentName(AttachmentNames, Index, AttachmentName);
+        OnAfterGetAttachmentName(AttachmentNames, Index, AttachmentName, TempEmailItem);
     end;
 
     internal procedure RecipientStringToList(DelimitedRecipients: Text; var Recipients: List of [Text])
@@ -397,6 +403,8 @@ codeunit 9520 "Mail Management"
             AttachmentArchiveTempBlob.CreateInStream(AttachmentStream);
             DownloadFromStream(AttachmentStream, SaveFileDialogTitleMsg, '', SaveFileDialogFilterMsg, AttachmentName);
         end;
+
+        OnAfterDownloadPDFAttachment();
     end;
 
     [Scope('OnPrem')]
@@ -575,7 +583,7 @@ codeunit 9520 "Mail Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetAttachmentName(AttachmentNames: List of [Text]; Index: Integer; var AttachmentName: Text[250])
+    local procedure OnAfterGetAttachmentName(AttachmentNames: List of [Text]; Index: Integer; var AttachmentName: Text[250]; var TempEmailItem: Record "Email Item" temporary)
     begin
     end;
 
@@ -616,6 +624,16 @@ codeunit 9520 "Mail Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendViaEmailModuleOnAfterEmailSend(var Message: Codeunit "Email Message"; var TempEmailItem: Record "Email Item" temporary; var MailSent: Boolean; var Cancelled: Boolean; var HideEmailSendingError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendViaEmailModule(var TempEmailItem: Record "Email Item" temporary; EmailScenario: Enum "Email Scenario"; var TempEmailAccount: Record "Email Account" temporary; HideMailDialog: Boolean; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDownloadPDFAttachment()
     begin
     end;
 }

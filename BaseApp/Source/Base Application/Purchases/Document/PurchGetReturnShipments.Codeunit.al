@@ -39,7 +39,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
     begin
         with ReturnShptLine2 do begin
             SetFilter("Return Qty. Shipped Not Invd.", '<>0');
-            OnCreateInvLinesOnAfterReturnShptLine2SetFilters(ReturnShptLine2);
+            OnCreateInvLinesOnAfterReturnShptLine2SetFilters(ReturnShptLine2, PurchHeader);
             if Find('-') then begin
                 PurchLine.LockTable();
                 PurchLine.SetRange("Document Type", PurchHeader."Document Type");
@@ -264,7 +264,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateInvLinesOnAfterReturnShptLine2SetFilters(var ReturnShipmentLine: Record "Return Shipment Line")
+    local procedure OnCreateInvLinesOnAfterReturnShptLine2SetFilters(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

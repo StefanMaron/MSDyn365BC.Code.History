@@ -152,8 +152,10 @@ page 3845 "Scheduled Tasks"
     trigger OnOpenPage()
     var
         AzureUserMgt: Codeunit "Azure AD User Management";
+        JobQueueManagement: Codeunit "Job Queue Management";
     begin
         IsAdmin := AzureUserMgt.IsUserTenantAdmin();
+        JobQueueManagement.TooManyScheduledTasksNotification();
     end;
 
     local procedure GetMarkedTasks(var ScheduledTask: Record "Scheduled Task"): Boolean

@@ -894,9 +894,16 @@ page 9305 "Sales Order List"
                         SalesHeader: Record "Sales Header";
                         SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
                         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
+                        IsHandled: Boolean;
                     begin
                         CurrPage.SetSelectionFilter(SalesHeader);
+                        OnAfterPostingSetSelectionFilter(SalesHeader, Rec);
                         if SalesHeader.Count > 1 then begin
+                            IsHandled := false;
+                            OnBeforePostActionWithMoreThanOneDoc(SalesHeader, BatchProcessingMgt, IsHandled);
+                            if IsHandled then
+                                exit;
+
                             BatchProcessingMgt.SetParametersForPageID(Page::"Sales Order List");
 
                             SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
@@ -1233,6 +1240,7 @@ page 9305 "Sales Order List"
         // Contextual Power BI FactBox: send data to filter the report in the FactBox
         CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection(Rec."No.", false, PowerBIVisible);
 #endif
+        CurrPage.SetSelectionFilter(FilteredSalesHeader);
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetFilterToMultipleValues(FilteredSalesHeader, FilteredSalesHeader.FieldNo("No."));
     end;
 
@@ -1366,6 +1374,16 @@ page 9305 "Sales Order List"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforePrintForUsage(var SalesHeader: Record "Sales Header"; UsageParam: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostActionWithMoreThanOneDoc(var SalesHeader: Record "Sales Header"; var BatchProcessingMgt: Codeunit "Batch Processing Mgt."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostingSetSelectionFilter(var SalesHeaderToPost: Record "Sales Header"; CurrPageSalesHeader: Record "Sales Header")
     begin
     end;
 }

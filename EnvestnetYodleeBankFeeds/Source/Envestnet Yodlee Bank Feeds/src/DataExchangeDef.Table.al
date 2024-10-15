@@ -213,7 +213,8 @@ table 1452 "MS - Yodlee Data Exchange Def"
         BankExportImportSetup: Record "Bank Export/Import Setup";
         DataExchDef: Record "Data Exch. Def";
     begin
-        DataExchDef.Get(GetYodleeAPI11DataExchDefinitionCode());
+        if not DataExchDef.Get(GetYodleeAPI11DataExchDefinitionCode()) then
+            exit;
         if BankExportImportSetup.GET(GetYodleeAPI11DataExchDefinitionCode()) then
             BankExportImportSetup.DELETE(true);
         if BankExportImportSetup.GET(GetYodleeLegacyAPIDataExchDefinitionCode()) then

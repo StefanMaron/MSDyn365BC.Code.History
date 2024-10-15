@@ -41,25 +41,20 @@ page 9848 "User Security Groups Part"
     }
 
     trigger OnOpenPage()
-    begin
-        if not IsInitializedByParentPage then
-            Refresh();
-    end;
-
-    local procedure Refresh()
     var
         SecurityGroup: Codeunit "Security Group";
     begin
-        SecurityGroup.GetMembers(Rec);
+        if not IsInitializedByCaller then
+            SecurityGroup.GetMembers(Rec);
     end;
 
-    internal procedure Refresh(var SecurityGroupMemberBuffer: Record "Security Group Member Buffer")
+    internal procedure GetSourceRecord(var SecurityGroupMemberBuffer: Record "Security Group Member Buffer")
     begin
-        IsInitializedByParentPage := true;
-        Rec.Copy(SecurityGroupMemberBuffer, true);
+        IsInitializedByCaller := true;
+        SecurityGroupMemberBuffer.Copy(Rec, true);
     end;
 
     var
-        IsInitializedByParentPage: Boolean;
+        IsInitializedByCaller: Boolean;
 }
 
