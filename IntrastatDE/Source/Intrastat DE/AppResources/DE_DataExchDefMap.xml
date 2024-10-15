@@ -128,10 +128,10 @@
       <DataExchColumnDef ColumnNo="5" Name="goodsDescription" Show="false" DataType="0" Path="/Item/goodsDescription" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="6" Name="MSConsDestCode" Show="false" DataType="0" Path="/Item/MSConsDestCode" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="7" Name="countryOfOriginCode" Show="false" DataType="0" Path="/Item/countryOfOriginCode" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
-      <DataExchColumnDef ColumnNo="8" Name="netMass" Show="false" DataType="2" Path="/Item/netMass" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
-      <DataExchColumnDef ColumnNo="9" Name="quantityInSU" Show="false" DataType="2" Path="/Item/quantityInSU" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
-      <DataExchColumnDef ColumnNo="10" Name="invoicedAmount" Show="false" DataType="2" Path="/Item/invoicedAmount" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
-      <DataExchColumnDef ColumnNo="11" Name="statisticalValue" Show="false" DataType="2" Path="/Item/statisticalValue" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
+      <DataExchColumnDef ColumnNo="8" Name="netMass" Show="false" DataType="0" Path="/Item/netMass" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
+      <DataExchColumnDef ColumnNo="9" Name="quantityInSU" Show="false" DataType="0" Path="/Item/quantityInSU" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
+      <DataExchColumnDef ColumnNo="10" Name="invoicedAmount" Show="false" DataType="0" Path="/Item/invoicedAmount" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
+      <DataExchColumnDef ColumnNo="11" Name="statisticalValue" Show="false" DataType="0" Path="/Item/statisticalValue" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="12" Name="invoiceNumber" Show="false" DataType="0" Path="/Item/invoiceNumber" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="13" Name="partnerId" Show="false" DataType="0" Path="/Item/partnerId" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="14" Name="NatureOfTransaction" Show="false" DataType="0" Path="/Item/NatureOfTransaction" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
@@ -358,10 +358,10 @@
       <DataExchColumnDef ColumnNo="5" Name="goodsDescription" Show="false" DataType="0" Path="/Item/goodsDescription" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="6" Name="MSConsDestCode" Show="false" DataType="0" Path="/Item/MSConsDestCode" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="7" Name="countryOfOriginCode" Show="false" DataType="0" Path="/Item/countryOfOriginCode" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
-      <DataExchColumnDef ColumnNo="8" Name="netMass" Show="false" DataType="2" Path="/Item/netMass" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
-      <DataExchColumnDef ColumnNo="9" Name="quantityInSU" Show="false" DataType="2" Path="/Item/quantityInSU" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
-      <DataExchColumnDef ColumnNo="10" Name="invoicedAmount" Show="false" DataType="2" Path="/Item/invoicedAmount" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
-      <DataExchColumnDef ColumnNo="11" Name="statisticalValue" Show="false" DataType="2" Path="/Item/statisticalValue" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
+      <DataExchColumnDef ColumnNo="8" Name="netMass" Show="false" DataType="0" Path="/Item/netMass" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
+      <DataExchColumnDef ColumnNo="9" Name="quantityInSU" Show="false" DataType="0" Path="/Item/quantityInSU" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
+      <DataExchColumnDef ColumnNo="10" Name="invoicedAmount" Show="false" DataType="0" Path="/Item/invoicedAmount" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
+      <DataExchColumnDef ColumnNo="11" Name="statisticalValue" Show="false" DataType="0" Path="/Item/statisticalValue" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="12" Name="invoiceNumber" Show="false" DataType="0" Path="/Item/invoiceNumber" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="13" Name="partnerId" Show="false" DataType="0" Path="/Item/partnerId" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
       <DataExchColumnDef ColumnNo="14" Name="NatureOfTransaction" Show="false" DataType="0" Path="/Item/NatureOfTransaction" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" />
