@@ -388,6 +388,8 @@ codeunit 5804 ItemCostManagement
             ExcludeOpenOutbndCosts(Item, AverageCost, AverageCostACY, AverageQty);
         AverageQty := AverageQty + CalculateQuantity(Item);
 
+        OnCalculateAverageCostOnAfterCalcAverageQty(Item, AverageCost, AverageCostACY, AverageQty);
+
         if AverageQty <> 0 then begin
             CostAmt := AverageCost + CalculateCostAmt(Item, true) + CalculateCostAmt(Item, false);
             if (CostAmt > 0) and (CostAmt = GLSetup."Amount Rounding Precision") then
@@ -697,6 +699,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLastAdjEntryAvgCostOnAfterCalcAverageCost(ItemLedgEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry"; var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateAverageCostOnAfterCalcAverageQty(var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal; var AverageQty: Decimal)
     begin
     end;
 

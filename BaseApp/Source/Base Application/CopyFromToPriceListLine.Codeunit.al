@@ -822,13 +822,25 @@ Codeunit 7009 CopyFromToPriceListLine
 #endif
 
     procedure InitLineNo(var PriceListLine: Record "Price List Line")
+    var
+        PriceListManagement: Codeunit "Price List Management";
     begin
         if PriceListLine.IsTemporary then
             PriceListLine."Line No." += 10000
         else begin
             SetPriceListCode(PriceListLine);
             PriceListLine.SetNextLineNo();
+            if GenerateHeader and UseDefaultPriceLists and (PriceListLine."Line No." > GetMaxPriceLineNo()) then begin
+                PriceListLine."Price List Code" :=
+                    PriceListManagement.DefineDefaultPriceList(PriceListLine."Price Type", PriceListLine."Source Group");
+                PriceListLine.SetNextLineNo();
+            end;
         end;
+    end;
+
+    local procedure GetMaxPriceLineNo(): Integer;
+    begin
+        exit(1000000000)
     end;
 
     local procedure SetPriceListCode(var PriceListLine: Record "Price List Line")

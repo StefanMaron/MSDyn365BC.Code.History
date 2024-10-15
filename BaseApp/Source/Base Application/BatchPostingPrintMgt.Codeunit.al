@@ -163,9 +163,6 @@ codeunit 1373 "Batch Posting Print Mgt."
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJrnlLine: Record "Gen. Journal Line";
         GLReg: Record "G/L Register";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        IsHandled: Boolean;
     begin
         if RecRef.Number <> DATABASE::"Gen. Journal Line" then
             exit;
@@ -176,30 +173,65 @@ codeunit 1373 "Batch Posting Print Mgt."
         GeneralLedgerSetup.Get();
         with GenJrnlLine do
             if GLReg.Get(GenJrnlLine."Line No.") then begin
-                if GenJnlTemplate."Cust. Receipt Report ID" <> 0 then begin
-                    CustLedgEntry.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
-                    if GeneralLedgerSetup."Post & Print with Job Queue" then
-                        SchedulePrintJobQueueEntry(GLReg, GenJnlTemplate."Cust. Receipt Report ID", GeneralLedgerSetup."Report Output Type")
-                    else
-                        REPORT.Run(GenJnlTemplate."Cust. Receipt Report ID", false, false, CustLedgEntry);
-                end;
-                if GenJnlTemplate."Vendor Receipt Report ID" <> 0 then begin
-                    VendLedgEntry.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
-                    if GeneralLedgerSetup."Post & Print with Job Queue" then
-                        SchedulePrintJobQueueEntry(GLReg, GenJnlTemplate."Vendor Receipt Report ID", GeneralLedgerSetup."Report Output Type")
-                    else
-                        REPORT.Run(GenJnlTemplate."Vendor Receipt Report ID", false, false, VendLedgEntry);
-                end;
-                if GenJnlTemplate."Posting Report ID" <> 0 then begin
-                    GLReg.SetRecFilter;
-                    OnBeforeGLRegPostingReportPrint(GenJnlTemplate."Posting Report ID", false, false, GLReg, IsHandled);
-                    if not IsHandled then
-                        if GeneralLedgerSetup."Post & Print with Job Queue" then
-                            SchedulePrintJobQueueEntry(GLReg, GenJnlTemplate."Posting Report ID", GeneralLedgerSetup."Report Output Type")
-                        else
-                            REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
-                end;
+                if GenJnlTemplate."Cust. Receipt Report ID" <> 0 then
+                    PrintCustReceiptReport(GLReg, GenJnlTemplate, GeneralLedgerSetup);
+
+                if GenJnlTemplate."Vendor Receipt Report ID" <> 0 then
+                    PrintVendorReceiptReport(GLReg, GenJnlTemplate, GeneralLedgerSetup);
+
+                if GenJnlTemplate."Posting Report ID" <> 0 then
+                    PrintPostingReport(GLReg, GenJnlTemplate, GeneralLedgerSetup);
             end;
+    end;
+
+    local procedure PrintCustReceiptReport(GLReg: Record "G/L Register"; GenJnlTemplate: Record "Gen. Journal Template"; GeneralLedgerSetup: Record "General Ledger Setup")
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintCustReceiptReport(GLReg, GenJnlTemplate, GeneralLedgerSetup, IsHandled);
+        if IsHandled then
+            exit;
+
+        CustLedgEntry.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
+        if GeneralLedgerSetup."Post & Print with Job Queue" then
+            SchedulePrintJobQueueEntry(GLReg, GenJnlTemplate."Cust. Receipt Report ID", GeneralLedgerSetup."Report Output Type")
+        else
+            REPORT.Run(GenJnlTemplate."Cust. Receipt Report ID", false, false, CustLedgEntry);
+    end;
+
+    local procedure PrintVendorReceiptReport(GLReg: Record "G/L Register"; GenJnlTemplate: Record "Gen. Journal Template"; GeneralLedgerSetup: Record "General Ledger Setup")
+    var
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintVendorReceiptReport(GLReg, GenJnlTemplate, GeneralLedgerSetup, IsHandled);
+        if IsHandled then
+            exit;
+
+        VendLedgEntry.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
+        if GeneralLedgerSetup."Post & Print with Job Queue" then
+            SchedulePrintJobQueueEntry(GLReg, GenJnlTemplate."Vendor Receipt Report ID", GeneralLedgerSetup."Report Output Type")
+        else
+            REPORT.Run(GenJnlTemplate."Vendor Receipt Report ID", false, false, VendLedgEntry);
+    end;
+
+    local procedure PrintPostingReport(GLReg: Record "G/L Register"; GenJnlTemplate: Record "Gen. Journal Template"; GeneralLedgerSetup: Record "General Ledger Setup")
+    var
+        IsHandled: Boolean;
+    begin
+        GLReg.SetRecFilter();
+        IsHandled := false;
+        OnBeforeGLRegPostingReportPrint(GenJnlTemplate."Posting Report ID", false, false, GLReg, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GeneralLedgerSetup."Post & Print with Job Queue" then
+            SchedulePrintJobQueueEntry(GLReg, GenJnlTemplate."Posting Report ID", GeneralLedgerSetup."Report Output Type")
+        else
+            REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
     end;
 
     procedure PrintOtherDocuments(var GenJournalLine: Record "Gen. Journal Line"; PrintWHT: Boolean; ScheduleInJobQueue: Boolean)
@@ -281,6 +313,16 @@ codeunit 1373 "Batch Posting Print Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintDocument(ReportUsage: Option; RecVar: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintCustReceiptReport(GLReg: Record "G/L Register"; GenJnlTemplate: Record "Gen. Journal Template"; GeneralLedgerSetup: Record "General Ledger Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintVendorReceiptReport(GLReg: Record "G/L Register"; GenJnlTemplate: Record "Gen. Journal Template"; GeneralLedgerSetup: Record "General Ledger Setup"; var IsHandled: Boolean)
     begin
     end;
 }

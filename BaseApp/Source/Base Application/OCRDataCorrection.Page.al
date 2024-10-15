@@ -99,83 +99,103 @@ page 1272 "OCR Data Correction"
                         field("TempOriginalIncomingDocument.""Vendor Name"""; TempOriginalIncomingDocument."Vendor Name")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Vendor Name';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Vendor VAT Registration No."""; TempOriginalIncomingDocument."Vendor VAT Registration No.")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Vendor VAT Registration No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Vendor IBAN"""; TempOriginalIncomingDocument."Vendor IBAN")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Vendor IBAN';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Vendor Bank Branch No."""; TempOriginalIncomingDocument."Vendor Bank Branch No.")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Vendor Bank Branch No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Vendor Bank Account No."""; TempOriginalIncomingDocument."Vendor Bank Account No.")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Vendor Bank Account No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Vendor Phone No."""; TempOriginalIncomingDocument."Vendor Phone No.")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Vendor Phone No.';
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Vendor Invoice No."""; TempOriginalIncomingDocument."Vendor Invoice No.")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Vendor Invoice No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Order No."""; TempOriginalIncomingDocument."Order No.")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Order No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Document Date"""; TempOriginalIncomingDocument."Document Date")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Document Date';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Due Date"""; TempOriginalIncomingDocument."Due Date")
                         {
                             ApplicationArea = Basic, Suite;
+                            Caption = 'Due Date';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Currency Code"""; TempOriginalIncomingDocument."Currency Code")
                         {
                             ApplicationArea = Suite;
+                            Caption = 'Currency Code';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Amount Incl. VAT"""; TempOriginalIncomingDocument."Amount Incl. VAT")
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatExpression = "Currency Code";
+                            AutoFormatType = 1;
+                            Caption = 'Amount Incl. VAT';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""Amount Excl. VAT"""; TempOriginalIncomingDocument."Amount Excl. VAT")
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatExpression = "Currency Code";
+                            AutoFormatType = 1;
+                            Caption = 'Amount Excl. VAT';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
                         field("TempOriginalIncomingDocument.""VAT Amount"""; TempOriginalIncomingDocument."VAT Amount")
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatExpression = "Currency Code";
+                            AutoFormatType = 1;
+                            Caption = 'VAT Amount';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }

@@ -239,7 +239,7 @@
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the number of units of the item specified on the line.';
 
                     trigger OnValidate()
@@ -271,7 +271,7 @@
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
 
                     trigger OnValidate()
@@ -352,7 +352,7 @@
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
 
                     trigger OnValidate()

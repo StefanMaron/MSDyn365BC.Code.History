@@ -25,7 +25,14 @@ table 5940 "Service Item"
             Caption = 'Serial No.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateSerialNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Serial No." <> xRec."Serial No." then
                     MessageIfServItemLinesExist(FieldCaption("Serial No."));
 
@@ -1196,6 +1203,11 @@ table 5940 "Service Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfCanBeDeleted(var ServiceItem: Record "Service Item"; var Result: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSerialNo(var ServiceItem: Record "Service Item"; var xServiceItem: Record "Service Item"; var IsHandled: Boolean)
     begin
     end;
 }

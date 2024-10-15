@@ -1296,6 +1296,7 @@ table 167 Job
             Direction::Negative:
                 JobLedgEntry.SetFilter("Quantity (Base)", '<0');
         end;
+        OnGetQuantityAvailableOnAfterSetFiltersOnJobLedgerEntry(ItemNo, LocationCode, VariantCode, InEntryType, Direction, JobLedgEntry);
         JobLedgEntry.CalcSums("Quantity (Base)");
         exit(JobLedgEntry."Quantity (Base)");
     end;
@@ -1835,6 +1836,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOverBudgetValue(var Job: Record Job; JobNo: Code[20]; Usage: Boolean; Cost: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetQuantityAvailableOnAfterSetFiltersOnJobLedgerEntry(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; InEntryType: Option; Direction: Option; var JobLedgerEntry: Record "Job Ledger Entry")
     begin
     end;
 
