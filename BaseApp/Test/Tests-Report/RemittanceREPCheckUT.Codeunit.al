@@ -31,7 +31,7 @@ codeunit 133771 "Remittance REP Check UT"
 
         // Setup: Create General Journal Line, Vendor Ledger Entries and Detailed Vendor Ledger Entry.
         Initialize();
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendor);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendor());
         CreateVendorLedgerEntry(
           VendorLedgerEntry, GenJournalLine."Applies-to ID", GenJournalLine."Account No.", VendorLedgerEntry."Document Type");
         CreateVendorLedgerEntry(
@@ -44,7 +44,7 @@ codeunit 133771 "Remittance REP Check UT"
         REPORT.Run(REPORT::"Remittance Advice - Journal");
 
         // Verify: Verify General Journal Line Amount and Print Loop Number on Report - Remittance Advice - Journal.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         LibraryReportDataset.AssertElementWithValueExists('Amt_GenJournalLine', GenJournalLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists('PrintLoopNumber', VendorLedgerEntry.Count);
@@ -83,7 +83,7 @@ codeunit 133771 "Remittance REP Check UT"
 
         // Verify: Verify Vendor No, Vendor Ledger Entry Number and Line Amount with Discount Currency on Report - Remittance Advice - Entries.
         VendorLedgerEntry.CalcFields(Amount);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VendorLedgerEntryVendorNo', VendorLedgerEntry."Vendor No.");
         LibraryReportDataset.AssertElementWithValueExists('LAmountWDiscCur', -(Amount + VendorLedgerEntry2."Pmt. Disc. Rcd.(LCY)"));
         LibraryReportDataset.AssertElementWithValueExists('VendLedgerEntryNo_DtldVendLedgEntry', VendorLedgerEntry2."Entry No.");
@@ -101,7 +101,7 @@ codeunit 133771 "Remittance REP Check UT"
 
         // Setup.
         Initialize();
-        CurrencyCode := LibraryUTUtility.GetNewCode10;
+        CurrencyCode := LibraryUTUtility.GetNewCode10();
 
         // Exercise & Verify: Execute function - CurrencyCode. Verify Currency Code with return value of function.
         Assert.AreEqual(CurrencyCode, RemittanceAdviceEntries.CurrencyCode(CurrencyCode), 'Value must be equal.');
@@ -198,7 +198,7 @@ codeunit 133771 "Remittance REP Check UT"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for Request Page handler - RemittanceAdviceJournalRequestPageHandler or RemittanceAdviceEntriesRequestPageHandler.
         exit(Vendor."No.");
@@ -206,7 +206,7 @@ codeunit 133771 "Remittance REP Check UT"
 
     local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        VendorLedgerEntry."Entry No." := SelectVendorLedgerEntryNo;
+        VendorLedgerEntry."Entry No." := SelectVendorLedgerEntryNo();
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Applies-to ID" := AppliesToID;
         VendorLedgerEntry."Document Type" := DocumentType;
@@ -218,7 +218,7 @@ codeunit 133771 "Remittance REP Check UT"
     var
         VendorLedgerEntry3: Record "Vendor Ledger Entry";
     begin
-        CreateVendorLedgerEntry(VendorLedgerEntry, '', CreateVendor, VendorLedgerEntry."Document Type"::Payment);  // Blank value for Applies To ID.
+        CreateVendorLedgerEntry(VendorLedgerEntry, '', CreateVendor(), VendorLedgerEntry."Document Type"::Payment);  // Blank value for Applies To ID.
         CreateVendorLedgerEntry(
           VendorLedgerEntry2, VendorLedgerEntry."Applies-to ID", VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Document Type");
         VendorLedgerEntry2."Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDec(5, 2);
@@ -234,7 +234,7 @@ codeunit 133771 "Remittance REP Check UT"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry."Entry No." := SelectDetailedVendorLedgerEntryNo;
+        DetailedVendorLedgEntry."Entry No." := SelectDetailedVendorLedgerEntryNo();
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
         DetailedVendorLedgEntry."Document Type" := DocumentType;
         DetailedVendorLedgEntry."Document No." := VendorLedgerEntry."Document No.";
@@ -268,9 +268,9 @@ codeunit 133771 "Remittance REP Check UT"
         GenJournalLine."Account No." := AccountNo;
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
         GenJournalLine."Bal. Account No." := GenJournalLine."Account No.";
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
-        GenJournalLine."Applies-to ID" := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Applies-to ID" := LibraryUTUtility.GetNewCode();
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);
         GenJournalLine.Insert();
 
@@ -283,18 +283,18 @@ codeunit 133771 "Remittance REP Check UT"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
     end;
 
     local procedure CreateGeneralJournalLineWithCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type")
     begin
-        CreateGeneralJournalLine(GenJournalLine, AccountType, CreateVendor);
+        CreateGeneralJournalLine(GenJournalLine, AccountType, CreateVendor());
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
-        GenJournalLine.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        GenJournalLine.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         GenJournalLine.Validate(Amount, 0);
         GenJournalLine.Modify(true);
     end;
@@ -334,7 +334,7 @@ codeunit 133771 "Remittance REP Check UT"
     local procedure VerifyPayedDocumentsAndPartiallyPaid(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         with VendorLedgerEntry do begin
-            LibraryReportDataset.LoadDataSetFile;
+            LibraryReportDataset.LoadDataSetFile();
             SetRange("Vendor No.", GenJournalLine."Account No.");
             FindSet();
             repeat
@@ -342,7 +342,7 @@ codeunit 133771 "Remittance REP Check UT"
                 LibraryReportDataset.AssertElementWithValueExists(
                   'AppliedVendLedgEntryTempRemainingAmt', -("Remaining Amount" - "Amount to Apply"));
                 LibraryReportDataset.AssertElementWithValueExists('AppliedVendLedgEntryTempDocType', Format("Document Type"));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -360,7 +360,7 @@ codeunit 133771 "Remittance REP Check UT"
         RemittanceAdviceJournal.FindVendors.SetFilter("Journal Template Name", JournalTemplateName);
         RemittanceAdviceJournal.FindVendors.SetFilter("Journal Batch Name", JournalBatchName);
         RemittanceAdviceJournal.Vendor.SetFilter("No.", No);
-        RemittanceAdviceJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RemittanceAdviceJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -374,7 +374,7 @@ codeunit 133771 "Remittance REP Check UT"
         LibraryVariableStorage.Dequeue(EntryNo);
         RemittanceAdviceEntries."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
         RemittanceAdviceEntries."Vendor Ledger Entry".SetFilter("Entry No.", Format(EntryNo));
-        RemittanceAdviceEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RemittanceAdviceEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

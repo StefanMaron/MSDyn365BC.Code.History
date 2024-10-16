@@ -10,6 +10,7 @@ using Microsoft.Intercompany.Setup;
 table 424 "IC Comment Line"
 {
     Caption = 'IC Comment Line';
+    DataClassification = CustomerContent;
 
     fields
     {

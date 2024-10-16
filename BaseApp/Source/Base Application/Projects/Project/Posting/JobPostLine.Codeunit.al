@@ -16,6 +16,10 @@ using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
+#if not CLEAN23
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Setup;
+#endif
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 
@@ -133,6 +137,7 @@ codeunit 1001 "Job Post-Line"
     procedure PostInvoiceContractLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     var
         Job: Record Job;
+        JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         DummyJobLedgEntryNo: Integer;
@@ -155,7 +160,12 @@ codeunit 1001 "Job Post-Line"
         IsHandled := false;
         OnPostInvoiceContractLineOnBeforeCheckBillToCustomer(SalesHeader, SalesLine, JobPlanningLine, IsHandled);
         if not IsHandled then
-            SalesHeader.TestField("Bill-to Customer No.", Job."Bill-to Customer No.");
+            if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+                SalesHeader.TestField("Bill-to Customer No.", Job."Bill-to Customer No.")
+            else begin
+                JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+                SalesHeader.TestField("Bill-to Customer No.", JobTask."Bill-to Customer No.");
+            end;
 
         OnPostInvoiceContractLineBeforeCheckJobLine(SalesHeader, SalesLine, JobPlanningLine, JobLineChecked);
         if not JobLineChecked then begin
@@ -470,6 +480,7 @@ codeunit 1001 "Job Post-Line"
     [Obsolete('Replaced by PostJobPurchaseLines().', '19.0')]
     procedure PostPurchaseGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; GLEntryNo: Integer)
     var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         IsHandled: Boolean;
     begin
         TempPurchaseLineJob.Reset();
@@ -480,6 +491,14 @@ codeunit 1001 "Job Post-Line"
         TempPurchaseLineJob.SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
         TempPurchaseLineJob.SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
         TempPurchaseLineJob.SetRange("Dimension Set ID", TempInvoicePostBuffer."Dimension Set ID");
+
+        if TempInvoicePostBuffer."Fixed Asset Line No." <> 0 then begin
+            PurchasesPayablesSetup.SetLoadFields("Copy Line Descr. to G/L Entry");
+            PurchasesPayablesSetup.Get();
+            if PurchasesPayablesSetup."Copy Line Descr. to G/L Entry" then
+                TempPurchaseLineJob.SetRange("Line No.", TempInvoicePostBuffer."Fixed Asset Line No.");
+        end;
+
         OnPostPurchaseGLAccountsOnAfterTempPurchaseLineJobSetFilters(TempPurchaseLineJob, TempInvoicePostBuffer);
         if TempPurchaseLineJob.FindSet() then begin
             repeat
@@ -526,6 +545,8 @@ codeunit 1001 "Job Post-Line"
 #if not CLEAN23
     [Obsolete('Replaced by PostJobSalesLines().', '19.0')]
     procedure PostSalesGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; GLEntryNo: Integer)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         TempSalesLineJob.Reset();
         TempSalesLineJob.SetRange("Job No.", TempInvoicePostBuffer."Job No.");
@@ -534,6 +555,14 @@ codeunit 1001 "Job Post-Line"
         TempSalesLineJob.SetRange("Gen. Prod. Posting Group", TempInvoicePostBuffer."Gen. Prod. Posting Group");
         TempSalesLineJob.SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
         TempSalesLineJob.SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
+
+        if TempInvoicePostBuffer."Fixed Asset Line No." <> 0 then begin
+            SalesReceivablesSetup.SetLoadFields("Copy Line Descr. to G/L Entry");
+            SalesReceivablesSetup.Get();
+            if SalesReceivablesSetup."Copy Line Descr. to G/L Entry" then
+                TempSalesLineJob.SetRange("Line No.", TempInvoicePostBuffer."Fixed Asset Line No.");
+        end;
+
         if TempSalesLineJob.FindSet() then begin
             repeat
                 TempJobJournalLine.Reset();
@@ -578,6 +607,8 @@ codeunit 1001 "Job Post-Line"
 
     local procedure CheckCurrency(Job: Record Job; SalesHeader: Record "Sales Header"; JobPlanningLine: Record "Job Planning Line")
     var
+        JobTask: Record "Job Task";
+        JobInvCurr: Code[10];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -585,7 +616,14 @@ codeunit 1001 "Job Post-Line"
         if IsHandled then
             exit;
 
-        if Job."Invoice Currency Code" = '' then begin
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            JobInvCurr := Job."Invoice Currency Code"
+        else begin
+            JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+            JobInvCurr := JobTask."Invoice Currency Code";
+        end;
+
+        if JobInvCurr = '' then begin
             Job.TestField("Currency Code", SalesHeader."Currency Code");
             Job.TestField("Currency Code", JobPlanningLine."Currency Code");
             SalesHeader.TestField("Currency Code", JobPlanningLine."Currency Code");

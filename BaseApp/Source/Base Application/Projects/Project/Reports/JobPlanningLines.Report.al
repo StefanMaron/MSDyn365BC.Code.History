@@ -6,10 +6,11 @@ using System.Utilities;
 
 report 1006 "Job - Planning Lines"
 {
+    AdditionalSearchTerms = 'Job - Planning Lines';
     DefaultLayout = RDLC;
     RDLCLayout = './Projects/Project/Reports/JobPlanningLines.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Job - Planning Lines';
+    Caption = 'Project - Planning Lines';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -327,7 +328,7 @@ report 1006 "Job - Planning Lines"
         FooterLineDiscountAmount2: Decimal;
         FooterLineAmount1: Decimal;
         FooterLineAmount2: Decimal;
-        JobPlanningLinesCaptionLbl: Label 'Job Planning Lines';
+        JobPlanningLinesCaptionLbl: Label 'Project Planning Lines';
         CurrReportPageNoCaptionLbl: Label 'Page';
         JobPlannLinePlannDtCptnLbl: Label 'Planning Date';
         LineTypeCaptionLbl: Label 'Line Type';

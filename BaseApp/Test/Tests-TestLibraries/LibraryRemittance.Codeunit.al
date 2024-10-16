@@ -44,7 +44,7 @@ codeunit 143009 "Library - Remittance"
         if IsRemittanceSepa then
             CurrencyCode := 'EUR'
         else
-            CurrencyCode := FindForeignCurrencyCode;
+            CurrencyCode := FindForeignCurrencyCode();
 
         CreateForeignRemittanceAccount(RemittanceAgreement.Code, RemittanceAccount, CurrencyCode, IsRemittanceSepa);
         CreateVendorSetupForRemittance(Vendor, RemittanceAccount, IsRemittanceSepa);
@@ -143,7 +143,7 @@ codeunit 143009 "Library - Remittance"
         BankAccount.Validate("Currency Code", CurrencyCode);
         if IsRemittanceSepa then begin
             BankAccount.Validate(IBAN, 'GB 80 RBOS 161732 41116737'); // just needs to be a valid IBAN to pass the checks
-            BankAccount.Validate("Credit Transfer Msg. Nos.", LibraryERM.CreateNoSeriesCode);
+            BankAccount.Validate("Credit Transfer Msg. Nos.", LibraryERM.CreateNoSeriesCode());
         end;
 
         BankAccount.Modify(true);
@@ -313,7 +313,7 @@ codeunit 143009 "Library - Remittance"
         GenJournalLine2.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine2.SetFilter(Amount, '<>0');
         Assert.AreEqual(1, GenJournalLine2.Count, 'Invalid number of payment lines.');
-        Assert.IsTrue(GenJournalLine2.FindFirst, 'Payment line not found.');
+        Assert.IsTrue(GenJournalLine2.FindFirst(), 'Payment line not found.');
         Assert.AreEqual(GenJournalLine.Amount, -GenJournalLine2.Amount, 'Wrong amount');
         case RemittanceAccount.Type of
             RemittanceAccount.Type::Domestic:
@@ -344,12 +344,12 @@ codeunit 143009 "Library - Remittance"
 
         // Execute Export Payments
         LibraryVariableStorage.Enqueue(RemittanceAgreement.Code);
-        FileName := GetTempFileName;
+        FileName := GetTempFileName();
         LibraryVariableStorage.Enqueue(FileName);
         CODEUNIT.Run(CODEUNIT::"Export Payment File (Yes/No)", GenJournalLine);
 
         // Verify
-        Assert.IsFalse(GenJournalLine.FindFirst, 'Payment line found.');
+        Assert.IsFalse(GenJournalLine.FindFirst(), 'Payment line found.');
     end;
 }
 

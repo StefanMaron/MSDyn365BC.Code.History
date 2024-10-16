@@ -4,6 +4,7 @@ table 130404 "CAL Test Method"
 {
     Caption = 'CAL Test Method';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

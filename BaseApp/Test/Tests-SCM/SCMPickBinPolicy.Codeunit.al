@@ -1343,7 +1343,7 @@ codeunit 137290 "SCM Pick Bin Policy"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Pick Bin Policy");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.CreateVATData();
 
         LibrarySetupStorage.SavePurchasesSetup();
@@ -1453,21 +1453,21 @@ codeunit 137290 "SCM Pick Bin Policy"
         InventorySetup: Record "Inventory Setup";
     begin
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
-        LibrarySales.SetOrderNoSeriesInSetup;
+        LibrarySales.SetOrderNoSeriesInSetup();
         InventorySetup.Get();
-        InventorySetup."Inventory Put-away Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        InventorySetup."Inventory Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        InventorySetup."Inventory Put-away Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        InventorySetup."Inventory Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         InventorySetup.Modify(true);
     end;
 
     local procedure ItemJournalSetup(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 

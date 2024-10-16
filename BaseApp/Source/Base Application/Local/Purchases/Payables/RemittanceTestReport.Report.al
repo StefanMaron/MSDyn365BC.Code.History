@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -677,7 +677,6 @@ report 15000002 "Remittance Test Report"
         UnstructuredPaym: Boolean;
         Text037: Label 'It is not required to fill in %1 when the amount is below NOK %2, but recommended.';
         Text038: Label '%1 is missing. This field is required because %2 on line %3 is higher then %4.';
-        Amount: Decimal;
         NumberNo: Integer;
         PageNoCaptionLbl: Label 'Page';
         RemTestReportCaptionLbl: Label 'Remittance Test Report';
@@ -886,27 +885,25 @@ report 15000002 "Remittance Test Report"
     var
         OldDimText: Text[75];
     begin
-        with DimSetEntry do begin
-            Clear(DimText);
-            Continue := false;
-            repeat
-                OldDimText := DimText;
-                if DimText = '' then
-                    DimText := StrSubstNo('%1 - %2', "Dimension Code", "Dimension Value Code")
-                else
-                    DimText :=
-                      StrSubstNo(
-                        '%1; %2 - %3', DimText, "Dimension Code", "Dimension Value Code");
+        Clear(DimText);
+        Continue := false;
+        repeat
+            OldDimText := DimText;
+            if DimText = '' then
+                DimText := StrSubstNo('%1 - %2', DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code")
+            else
+                DimText :=
+                  StrSubstNo(
+                    '%1; %2 - %3', DimText, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
+            NumberNo := Number;
+            if StrLen(DimText) > MaxStrLen(OldDimText) then begin
+                DimText := OldDimText;
                 NumberNo := Number;
-                if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                    DimText := OldDimText;
-                    NumberNo := Number;
-                    Continue := true;
-                    exit;
-                end;
-            until Next() = 0;
-            exit(DimText);
-        end;
+                Continue := true;
+                exit;
+            end;
+        until DimSetEntry.Next() = 0;
+        exit(DimText);
     end;
 }
 

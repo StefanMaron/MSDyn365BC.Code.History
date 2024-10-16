@@ -5,7 +5,7 @@ using Microsoft.Projects.Project.Posting;
 
 page 276 "Job Journal Batches"
 {
-    Caption = 'Job Journal Batches';
+    Caption = 'Project Journal Batches';
     DataCaptionExpression = DataCaption();
     Editable = true;
     PageType = List;
@@ -22,7 +22,7 @@ page 276 "Job Journal Batches"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the name of this job journal. You can enter a maximum of 10 characters, both numbers and letters.';
+                    ToolTip = 'Specifies the name of this project journal. You can enter a maximum of 10 characters, both numbers and letters.';
                 }
                 field(Description; Rec.Description)
                 {

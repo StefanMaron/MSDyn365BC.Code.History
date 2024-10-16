@@ -10,6 +10,7 @@ table 5338 "Integration Synch. Job"
 {
     Caption = 'Integration Synch. Job';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -98,6 +99,10 @@ table 5338 "Integration Synch. Job"
         key(Key4; "Job Queue Log Entry No.")
         {
         }
+        key(Key5; "Integration Table Mapping Name")
+        {
+            SumIndexFields = Failed;
+        }
     }
 
     fieldgroups
@@ -145,14 +150,6 @@ table 5338 "Integration Synch. Job"
         else
             IntegrationSynchJobErrors.SetRange("Source Record ID", RecID);
         exit(IntegrationSynchJobErrors.FindLast());
-    end;
-
-    [Obsolete('Replaced by AreSomeRecordsFailed procedure', '18.0')]
-    procedure AreAllRecordsFailed(): Boolean
-    begin
-        exit(
-          (Deleted = 0) and (Inserted = 0) and (Modified = 0) and
-          (Unchanged = 0) and (Skipped = 0) and (Failed <> 0));
     end;
 
     [Scope('Cloud')]

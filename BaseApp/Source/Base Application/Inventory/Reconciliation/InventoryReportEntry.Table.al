@@ -12,6 +12,7 @@ table 5846 "Inventory Report Entry"
     Caption = 'Inventory Report Entry';
     DrillDownPageID = "Inventory Report Entry";
     LookupPageID = "Inventory Report Entry";
+    DataClassification = CustomerContent;
 
     fields
     {

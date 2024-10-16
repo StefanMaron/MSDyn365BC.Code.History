@@ -8,6 +8,7 @@ table 457 "Posted Approval Comment Line"
     Caption = 'Posted Approval Comment Line';
     DrillDownPageID = "Posted Approval Comments";
     LookupPageID = "Posted Approval Comments";
+    DataClassification = CustomerContent;
 
     fields
     {

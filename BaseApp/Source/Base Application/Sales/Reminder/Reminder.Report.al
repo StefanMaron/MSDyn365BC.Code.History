@@ -20,6 +20,8 @@ using System.Email;
 using System.Globalization;
 using System.Utilities;
 using Microsoft.Utilities;
+using System.Text;
+using Microsoft.Sales.FinanceCharge;
 
 report 117 Reminder
 {
@@ -652,19 +654,19 @@ report 117 Reminder
                 dataitem(LetterText; "Integer")
                 {
                     DataItemTableView = sorting(Number) where(Number = const(1));
-                    column(GreetingText; GreetingLbl)
+                    column(GreetingText; GreetingTxt)
                     {
                     }
                     column(AmtDueText; AmtDueTxt)
                     {
                     }
-                    column(BodyText; BodyLbl)
+                    column(BodyText; BodyTxt)
                     {
                     }
-                    column(ClosingText; ClosingLbl)
+                    column(ClosingText; ClosingTxt)
                     {
                     }
-                    column(DescriptionText; DescriptionLbl)
+                    column(DescriptionText; DescriptionTxt)
                     {
                     }
                     column(TotalRemAmt_IssuedReminderLine; TotalRemAmt)
@@ -675,11 +677,53 @@ report 117 Reminder
                     }
 
                     trigger OnPreDataItem()
+                    var
+                        FinanceChargeTerms: Record "Finance Charge Terms";
+                        ReminderEmailText: Record "Reminder Email Text";
+                        AutoFormat: Codeunit "Auto Format";
+                        ReminderCommunication: Codeunit "Reminder Communication";
+                        AutoFormatType: Enum "Auto Format";
+                        EmailTextInStream: InStream;
+                        EmailTextLine: Text;
                     begin
-                        AmtDueTxt := '';
-                        if Format("Issued Reminder Header"."Due Date") <> '' then
-                            AmtDueTxt := StrSubstNo(AmtDueLbl, "Issued Reminder Header"."Due Date");
+                        if ReminderCommunication.NewReminderCommunicationEnabled() then
+                            ReminderCommunication.PopulateEmailText("Issued Reminder Header", CompanyInfo, GreetingTxt, AmtDueTxt, BodyTxt, ClosingTxt, DescriptionTxt, NNC_TotalInclVAT)
+                        else begin
+                            AmtDueTxt := '';
+                            BodyTxt := '';
+                            GreetingTxt := ReminderEmailText.GetDefaultGreetingLbl();
+                            ClosingTxt := ReminderEmailText.GetDefaultClosingLbl();
+                            DescriptionTxt := ReminderEmailText.GetDescriptionLbl();
+                            if Format("Issued Reminder Header"."Due Date") <> '' then
+                                AmtDueTxt := StrSubstNo(ReminderEmailText.GetAmtDueLbl(), "Issued Reminder Header"."Due Date");
 
+                            if GetEmailTextInStream(EmailTextInStream, "Issued Reminder Header") then begin
+                                AmtDueTxt := '';
+                                BodyTxt := '';
+                                if "Issued Reminder Header"."Fin. Charge Terms Code" <> '' then
+                                    FinanceChargeTerms.Get("Issued Reminder Header"."Fin. Charge Terms Code");
+
+                                while EmailTextInStream.ReadText(EmailTextLine) > 0 do
+                                    BodyTxt += EmailTextLine;
+
+                                BodyTxt := StrSubstNo(
+                                    BodyTxt,
+                                    "Issued Reminder Header"."Document Date",
+                                    "Issued Reminder Header"."Due Date",
+                                    FinanceChargeTerms."Interest Rate",
+                                    Format("Issued Reminder Header"."Remaining Amount", 0,
+                                        AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, "Issued Reminder Header"."Currency Code")),
+                                    "Issued Reminder Header"."Interest Amount",
+                                    "Issued Reminder Header"."Additional Fee",
+                                    Format(NNC_TotalInclVAT, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, "Issued Reminder Header"."Currency Code")),
+                                    "Issued Reminder Header"."Reminder Level",
+                                    "Issued Reminder Header"."Currency Code",
+                                    "Issued Reminder Header"."Posting Date",
+                                    CompanyInfo.Name,
+                                    "Issued Reminder Header"."Add. Fee per Line");
+                            end else
+                                BodyTxt := ReminderEmailText.GetBodyLbl();
+                        end;
                         OnLetterTextOnPreDataItemOnAfterSetAmtDueTxt("Issued Reminder Header", AmtDueTxt);
                     end;
                 }
@@ -692,8 +736,8 @@ report 117 Reminder
                 VATPostingSetup: Record "VAT Posting Setup";
                 DocumentTools: Codeunit DocumentTools;
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
@@ -813,11 +857,14 @@ report 117 Reminder
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
+            if ReportParametersInitialized then
+                LogInteractionEnable := true;
         end;
 
         trigger OnOpenPage()
         begin
+            if ReportParametersInitialized then
+                exit;
             LogInteraction := SegManagement.FindInteractionTemplateCode(Enum::"Interaction Log Entry Document Type"::"Sales Rmdr.") <> '';
             LogInteractionEnable := LogInteraction;
         end;
@@ -869,6 +916,8 @@ report 117 Reminder
                     CompanyInfo3.CalcFields(Picture);
                 end;
         end;
+
+        "Issued Reminder Header".OnGetReportParameters(LogInteraction, ShowNotDueAmounts, ShowMIRLines, Report::Reminder, ReportParametersInitialized);
     end;
 
     trigger OnPostReport()
@@ -882,6 +931,37 @@ report 117 Reminder
                 until "Issued Reminder Header".Next() = 0;
     end;
 
+    local procedure GetEmailTextInStream(var EmailTextInStream: InStream; var IssuedReminderHeader: Record "Issued Reminder Header"): Boolean
+    var
+        ReminderText: Record "Reminder Text";
+        ReminderTextPosition: Enum "Reminder Text Position";
+    begin
+        IssuedReminderHeader.CalcFields("Email Text");
+        ReminderText.SetAutoCalcFields("Email Text");
+
+        // if there is email text on the reminder, prepare to read it                       
+        if IssuedReminderHeader."Email Text".HasValue() then begin
+            IssuedReminderHeader."Email Text".CreateInStream(EmailTextInStream);
+            exit(true);
+        end;
+
+        // otherwise, if there is email text on the reminder level, prepare to read it                       
+        if ReminderText.Get(IssuedReminderHeader."Reminder Terms Code", IssuedReminderHeader."Reminder Level", ReminderTextPosition::"Email Body", 0) then
+            if ReminderText."Email Text".HasValue() then begin
+                ReminderText."Email Text".CreateInStream(EmailTextInstream);
+                exit(true);
+            end;
+
+        // otherwise, if there is email text on the reminder terms, prepare to read it                       
+        if ReminderText.Get(IssuedReminderHeader."Reminder Terms Code", 0, ReminderTextPosition::"Email Body", 0) then
+            if ReminderText."Email Text".HasValue() then begin
+                ReminderText."Email Text".CreateInStream(EmailTextInstream);
+                exit(true)
+            end;
+
+        exit(false)
+    end;
+
     var
         Text000: Label 'Total %1';
         Text001: Label 'Total %1 Incl. VAT';
@@ -893,7 +973,7 @@ report 117 Reminder
         CompanyBankAccount: Record "Bank Account";
         DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
         CustAddr: array[8] of Text[100];
@@ -945,16 +1025,16 @@ report 117 Reminder
         DocDateCaptionLbl: Label 'Document Date';
         HomePageCaptionLbl: Label 'Home Page';
         EMailCaptionLbl: Label 'Email';
-        GreetingLbl: Label 'Hello';
-        AmtDueLbl: Label 'You are receiving this email to formally notify you that payment owed by you is past due. The payment was due on %1. Enclosed is a copy of invoice with the details of remaining amount.', Comment = '%1 = A due date';
-        BodyLbl: Label 'If you have already made the payment, please disregard this email. Thank you for your business.';
-        ClosingLbl: Label 'Sincerely';
-        DescriptionLbl: Label 'Description';
         ContactPhoneNoLbl: Label 'Contact Phone No.';
         ContactMobilePhoneNoLbl: Label 'Contact Mobile Phone No.';
         ContactEmailLbl: Label 'Contact E-Mail';
         AmtDueTxt: Text;
+        GreetingTxt: Text;
+        BodyTxt: Text;
+        ClosingTxt: Text;
+        DescriptionTxt: Text;
         RemainingAmt: Text;
+     	ReportParametersInitialized: Boolean;
         KundeTxt: Text;
         KundeID: Text[25];
 

@@ -34,7 +34,7 @@ codeunit 139019 "Job Queue Category Tests"
 
         // Execution
         LibraryVariableStorage.Enqueue(NewJobQueueCategory.Code);
-        SalesReceivablesSetupPage."Job Queue Category Code".Lookup;
+        SalesReceivablesSetupPage."Job Queue Category Code".Lookup();
 
         // Coming back from the handler
         SalesReceivablesSetupPage."Job Queue Category Code".AssertEquals(NewJobQueueCategory.Code);
@@ -45,8 +45,8 @@ codeunit 139019 "Job Queue Category Tests"
     procedure JobQueueCategoryHandler(var JobQueueCategoryList: TestPage "Job Queue Category List")
     begin
         // Select the new value that was just created
-        JobQueueCategoryList.GotoKey(LibraryVariableStorage.DequeueText);
-        JobQueueCategoryList.OK.Invoke();
+        JobQueueCategoryList.GotoKey(LibraryVariableStorage.DequeueText());
+        JobQueueCategoryList.OK().Invoke();
     end;
 }
 

@@ -78,14 +78,14 @@ codeunit 134126 "ERM Reversal VAT Entries"
         // Setup: Update General Ledger setup and VAT Posting Setup.
         Initialize();
         LibraryERM.FindVATPostingSetup(SavedVATPostingSetup, SavedVATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+        LibraryERM.SetAddReportingCurrency(CreateCurrency());
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
-        UpdateRevChrgVATPostingSetup(LibraryERM.CreateGLAccountNo, true);
+        UpdateRevChrgVATPostingSetup(LibraryERM.CreateGLAccountNo(), true);
 
         // Exercise: Create and Post General Journal Line.
         CreateAndPostGenJournalLines(
-          GenJournalLine, CreateCustomer, GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine, CreateCustomer(), GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Document Type"::Payment);
 
         // Verify: Verify Remaining Amount in Customer Ledger Entry and Additional Currency Amount In G/L Entry.
@@ -111,7 +111,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
 
         // Setup: Find General Journal Batch, take Random Amount for General Journal Line.
         Initialize();
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
         Amount := LibraryRandom.RandDec(100, 3);
         VATAmount := Round(Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"));
@@ -140,7 +140,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         IsInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -176,7 +176,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
     var
         Currency: Record Currency;
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
     end;
@@ -246,7 +246,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY, StrSubstNo(AmountError, GLEntry.FieldCaption(Amount),
+          Amount, GLEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(), StrSubstNo(AmountError, GLEntry.FieldCaption(Amount),
             Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
@@ -257,7 +257,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         AdditionalCurrencyAmount: Decimal;
     begin
         AdditionalCurrencyAmount :=
-          Round(LibraryERM.ConvertCurrency(Amount, '', LibraryERM.GetAddReportingCurrency, WorkDate()));
+          Round(LibraryERM.ConvertCurrency(Amount, '', LibraryERM.GetAddReportingCurrency(), WorkDate()));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DoumentNo);
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.TestField("Remaining Amount", 0);
@@ -267,7 +267,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
+          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, GLEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount,
             GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;

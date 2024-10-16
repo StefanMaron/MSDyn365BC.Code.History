@@ -21,7 +21,7 @@ codeunit 144200 "Recurring Orders Tests"
         if Initialized then
             exit;
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         Initialized := true;
     end;
@@ -42,10 +42,10 @@ codeunit 144200 "Recurring Orders Tests"
 
         // Check that Recurring Groups are only valid for Blanket Orders
         with SalesHeader do
-            for NewDocType := "Document Type"::Quote to "Document Type"::"Return Order" do begin
+            for NewDocType := "Document Type"::Quote.AsInteger() to "Document Type"::"Return Order".AsInteger() do begin
                 Init();
                 Validate("Document Type", NewDocType);
-                if NewDocType = "Document Type"::"Blanket Order" then begin
+                if NewDocType = "Document Type"::"Blanket Order".AsInteger() then begin
                     Validate("Recurring Group Code", RecurringGroup.Code);
                     Assert.AreEqual(RecurringGroup.Code, "Recurring Group Code", '');
                 end else begin
@@ -527,7 +527,7 @@ codeunit 144200 "Recurring Orders Tests"
     begin
         with RecurringGroup do begin
             Init();
-            Code := LibraryUTUtility.GetNewCode10;
+            Code := LibraryUTUtility.GetNewCode10();
             Insert();
         end;
     end;
@@ -559,7 +559,7 @@ codeunit 144200 "Recurring Orders Tests"
             SetCreatingDate(ProcessingDate);
             SetTableView(BlanketSalesHeader);
             UseRequestPage := false;
-            Run;
+            Run();
         end;
 
         with SalesOrderHeader do begin

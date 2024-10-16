@@ -57,12 +57,21 @@ codeunit 8510 "Over-Receipt Mgt."
     end;
 
     procedure UpdatePurchaseLineOverReceiptQuantityFromWarehouseReceiptLine(WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+        UpdatePurchaseLineOverReceiptQuantityFromWarehouseReceiptLine(WarehouseReceiptLine, 0);
+    end;
+
+    internal procedure UpdatePurchaseLineOverReceiptQuantityFromWarehouseReceiptLine(WarehouseReceiptLine: Record "Warehouse Receipt Line"; CalledFromFieldNo: Integer)
     var
         PurchaseLine: Record "Purchase Line";
     begin
         if not IsOverReceiptAllowed() then
             exit;
         if PurchaseLine.Get(WarehouseReceiptLine."Source Subtype", WarehouseReceiptLine."Source No.", WarehouseReceiptLine."Source Line No.") then begin
+            if CalledFromFieldNo <> 0 then begin
+                PurchaseLine.ClearFieldCausedPriceCalculation();
+                PurchaseLine.PlanPriceCalcByField(CalledFromFieldNo);
+            end;
             PurchaseLine.Validate("Over-Receipt Code", WarehouseReceiptLine."Over-Receipt Code");
             PurchaseLine.Validate("Over-Receipt Quantity", WarehouseReceiptLine."Over-Receipt Quantity");
             PurchaseLine.Modify();
@@ -70,6 +79,11 @@ codeunit 8510 "Over-Receipt Mgt."
     end;
 
     procedure UpdatePurchaseLineOverReceiptQuantityFromWarehouseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+        UpdatePurchaseLineOverReceiptQuantityFromWarehouseActivityLine(WarehouseActivityLine, 0)
+    end;
+
+    internal procedure UpdatePurchaseLineOverReceiptQuantityFromWarehouseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; CalledFromFieldNo: Integer)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -86,6 +100,10 @@ codeunit 8510 "Over-Receipt Mgt."
             WarehouseActivityLine.CalcSums("Over-Receipt Quantity");
 
             if (PurchaseLine."Over-Receipt Code" <> WarehouseActivityLine."Over-Receipt Code") or (PurchaseLine."Over-Receipt Quantity" <> WarehouseActivityLine."Over-Receipt Quantity") then begin
+                if CalledFromFieldNo <> 0 then begin
+                    PurchaseLine.ClearFieldCausedPriceCalculation();
+                    PurchaseLine.PlanPriceCalcByField(CalledFromFieldNo);
+                end;
                 PurchaseLine.Validate("Over-Receipt Code", WarehouseActivityLine."Over-Receipt Code");
                 PurchaseLine.Validate("Over-Receipt Quantity", WarehouseActivityLine."Over-Receipt Quantity");
                 PurchaseLine.Modify();

@@ -8,6 +8,7 @@ using Microsoft.Bank.Reconciliation;
 table 276 "Bank Account Statement Line"
 {
     Caption = 'Bank Account Statement Line';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -5,6 +5,7 @@ using Microsoft.Warehouse.Activity;
 table 9058 "Warehouse Worker WMS Cue"
 {
     Caption = 'Warehouse Worker WMS Cue';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -14,7 +15,7 @@ table 9058 "Warehouse Worker WMS Cue"
         }
         field(2; "Unassigned Picks"; Integer)
         {
-            CalcFormula = Count("Warehouse Activity Header" where(Type = filter(Pick),
+            CalcFormula = count("Warehouse Activity Header" where(Type = filter(Pick),
                                                                    "Assigned User ID" = filter(''),
                                                                    "Location Code" = field("Location Filter")));
             Caption = 'Unassigned Picks';
@@ -23,7 +24,7 @@ table 9058 "Warehouse Worker WMS Cue"
         }
         field(3; "My Picks"; Integer)
         {
-            CalcFormula = Count("Warehouse Activity Header" where(Type = filter(Pick),
+            CalcFormula = count("Warehouse Activity Header" where(Type = filter(Pick),
                                                                    "Assigned User ID" = field("User ID Filter"),
                                                                    "Location Code" = field("Location Filter")));
             Caption = 'My Picks';
@@ -32,7 +33,7 @@ table 9058 "Warehouse Worker WMS Cue"
         }
         field(4; "Unassigned Put-aways"; Integer)
         {
-            CalcFormula = Count("Warehouse Activity Header" where(Type = filter("Put-away"),
+            CalcFormula = count("Warehouse Activity Header" where(Type = filter("Put-away"),
                                                                    "Assigned User ID" = filter(''),
                                                                    "Location Code" = field("Location Filter")));
             Caption = 'Unassigned Put-aways';
@@ -41,7 +42,7 @@ table 9058 "Warehouse Worker WMS Cue"
         }
         field(5; "My Put-aways"; Integer)
         {
-            CalcFormula = Count("Warehouse Activity Header" where(Type = filter("Put-away"),
+            CalcFormula = count("Warehouse Activity Header" where(Type = filter("Put-away"),
                                                                    "Assigned User ID" = field("User ID Filter"),
                                                                    "Location Code" = field("Location Filter")));
             Caption = 'My Put-aways';
@@ -50,7 +51,7 @@ table 9058 "Warehouse Worker WMS Cue"
         }
         field(6; "Unassigned Movements"; Integer)
         {
-            CalcFormula = Count("Warehouse Activity Header" where(Type = filter(Movement),
+            CalcFormula = count("Warehouse Activity Header" where(Type = filter(Movement),
                                                                    "Assigned User ID" = filter(''),
                                                                    "Location Code" = field("Location Filter")));
             Caption = 'Unassigned Movements';
@@ -59,7 +60,7 @@ table 9058 "Warehouse Worker WMS Cue"
         }
         field(7; "My Movements"; Integer)
         {
-            CalcFormula = Count("Warehouse Activity Header" where(Type = filter(Movement),
+            CalcFormula = count("Warehouse Activity Header" where(Type = filter(Movement),
                                                                    "Assigned User ID" = field("User ID Filter"),
                                                                    "Location Code" = field("Location Filter")));
             Caption = 'My Movements';

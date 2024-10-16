@@ -16,9 +16,6 @@ using Microsoft.Bank.DirectDebit;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Document;
 using Microsoft.Bank.Payment;
-#if not CLEAN21
-using Microsoft;
-#endif
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {
@@ -63,9 +60,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Return Error");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Type Code Abroad");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"OCR Setup");
-#if not CLEAN21
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Integration Setup");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Recurring Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Recurring Post");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");

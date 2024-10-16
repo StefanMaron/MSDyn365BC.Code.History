@@ -19,6 +19,7 @@ table 5478 "Purch. Inv. Line Aggregate"
     Caption = 'Purch. Inv. Line Aggregate';
     TableType = Temporary;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

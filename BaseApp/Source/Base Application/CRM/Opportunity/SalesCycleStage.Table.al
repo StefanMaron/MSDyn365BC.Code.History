@@ -7,6 +7,7 @@ table 5091 "Sales Cycle Stage"
 {
     Caption = 'Sales Cycle Stage';
     DataCaptionFields = "Sales Cycle Code", Stage, Description;
+    DataClassification = CustomerContent;
     LookupPageID = "Sales Cycle Stages";
 
     fields
@@ -91,7 +92,7 @@ table 5091 "Sales Cycle Stage"
         }
         field(12; "Average No. of Days"; Decimal)
         {
-            CalcFormula = Average("Opportunity Entry"."Days Open" where(Active = const(false),
+            CalcFormula = average("Opportunity Entry"."Days Open" where(Active = const(false),
                                                                          "Sales Cycle Code" = field("Sales Cycle Code"),
                                                                          "Sales Cycle Stage" = field(Stage),
                                                                          "Estimated Close Date" = field("Date Filter")));

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,6 +12,7 @@ using Microsoft.Foundation.Enums;
 table 256 "VAT Statement Line"
 {
     Caption = 'VAT Statement Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -152,7 +153,7 @@ table 256 "VAT Statement Line"
 #if CLEAN23
             TableRelation = "VAT Code";
             ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
+            ObsoleteTag = '26.0';
 #else
             ObsoleteState = Pending;
             ObsoleteTag = '20.0';

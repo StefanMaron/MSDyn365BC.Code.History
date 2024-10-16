@@ -78,35 +78,33 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
     begin
         IssuedReminderHeader."Currency Code" := EInvoiceDocumentEncode.GetEInvoiceCurrencyCode(IssuedReminderHeader."Currency Code");
 
-        with IssuedReminderHeader do begin
-            TempEInvoiceExportHeader.Init();
-            TempEInvoiceExportHeader.ID := 0;
-            TempEInvoiceExportHeader."No." := "No.";
-            TempEInvoiceExportHeader."Bill-to Customer No." := "Customer No.";
-            TempEInvoiceExportHeader."Bill-to Name" := Name;
-            TempEInvoiceExportHeader."Bill-to Address" := Address;
-            TempEInvoiceExportHeader."Bill-to Address 2" := "Address 2";
-            TempEInvoiceExportHeader."Bill-to City" := City;
-            TempEInvoiceExportHeader."Your Reference" := "Your Reference";
-            TempEInvoiceExportHeader."Posting Date" := "Posting Date";
-            TempEInvoiceExportHeader."Currency Code" := "Currency Code";
-            TempEInvoiceExportHeader."VAT Registration No." := "VAT Registration No.";
-            TempEInvoiceExportHeader."Bill-to Post Code" := "Post Code";
-            TempEInvoiceExportHeader."Bill-to County" := County;
-            TempEInvoiceExportHeader."Bill-to Country/Region Code" := "Country/Region Code";
-            TempEInvoiceExportHeader."Sell-to Country/Region Code" := "Country/Region Code";
-            TempEInvoiceExportHeader."Schema Name" := 'Reminder';
-            TempEInvoiceExportHeader."Schema Location" := 'urn:oasis:names:specification:ubl:schema:xsd:Reminder-2 UBL-Reminder-2.0.xsd';
-            TempEInvoiceExportHeader.xmlns := 'urn:oasis:names:specification:ubl:schema:xsd:Reminder-2';
-            TempEInvoiceExportHeader."Customization ID" := 'urn:www.cenbii.eu:transaction:biicoretrdm017:ver1.0' +
-              ':#urn:www.cenbii.eu:profile:biixy:ver1.0#urn:www.difi.no:ehf:purring:ver1';
-            TempEInvoiceExportHeader."Profile ID" := 'urn:www.cenbii.eu:profile:biixy:ver1.0';
-            TempEInvoiceExportHeader."Uses Common Aggregate Comp." := true;
-            TempEInvoiceExportHeader."Uses Common Basic Comp." := true;
-            TempEInvoiceExportHeader."Uses Common Extension Comp." := true;
-            TempEInvoiceExportHeader."Sales Line Found" := true;
-            TempEInvoiceExportHeader.GLN := GLN;
-        end;
+        TempEInvoiceExportHeader.Init();
+        TempEInvoiceExportHeader.ID := 0;
+        TempEInvoiceExportHeader."No." := IssuedReminderHeader."No.";
+        TempEInvoiceExportHeader."Bill-to Customer No." := IssuedReminderHeader."Customer No.";
+        TempEInvoiceExportHeader."Bill-to Name" := IssuedReminderHeader.Name;
+        TempEInvoiceExportHeader."Bill-to Address" := IssuedReminderHeader.Address;
+        TempEInvoiceExportHeader."Bill-to Address 2" := IssuedReminderHeader."Address 2";
+        TempEInvoiceExportHeader."Bill-to City" := IssuedReminderHeader.City;
+        TempEInvoiceExportHeader."Your Reference" := IssuedReminderHeader."Your Reference";
+        TempEInvoiceExportHeader."Posting Date" := IssuedReminderHeader."Posting Date";
+        TempEInvoiceExportHeader."Currency Code" := IssuedReminderHeader."Currency Code";
+        TempEInvoiceExportHeader."VAT Registration No." := IssuedReminderHeader."VAT Registration No.";
+        TempEInvoiceExportHeader."Bill-to Post Code" := IssuedReminderHeader."Post Code";
+        TempEInvoiceExportHeader."Bill-to County" := IssuedReminderHeader.County;
+        TempEInvoiceExportHeader."Bill-to Country/Region Code" := IssuedReminderHeader."Country/Region Code";
+        TempEInvoiceExportHeader."Sell-to Country/Region Code" := IssuedReminderHeader."Country/Region Code";
+        TempEInvoiceExportHeader."Schema Name" := 'Reminder';
+        TempEInvoiceExportHeader."Schema Location" := 'urn:oasis:names:specification:ubl:schema:xsd:Reminder-2 UBL-Reminder-2.0.xsd';
+        TempEInvoiceExportHeader.xmlns := 'urn:oasis:names:specification:ubl:schema:xsd:Reminder-2';
+        TempEInvoiceExportHeader."Customization ID" := 'urn:www.cenbii.eu:transaction:biicoretrdm017:ver1.0' +
+          ':#urn:www.cenbii.eu:profile:biixy:ver1.0#urn:www.difi.no:ehf:purring:ver1';
+        TempEInvoiceExportHeader."Profile ID" := 'urn:www.cenbii.eu:profile:biixy:ver1.0';
+        TempEInvoiceExportHeader."Uses Common Aggregate Comp." := true;
+        TempEInvoiceExportHeader."Uses Common Basic Comp." := true;
+        TempEInvoiceExportHeader."Uses Common Extension Comp." := true;
+        TempEInvoiceExportHeader."Sales Line Found" := true;
+        TempEInvoiceExportHeader.GLN := IssuedReminderHeader.GLN;
 
         // Fill-in header fields related to tax amounts
         FillHeaderTaxAmounts(TempEInvoiceExportHeader);
@@ -135,27 +133,25 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
     var
         Id: Integer;
     begin
-        with IssuedReminderLine do begin
-            Id := 0;
-            if TempEInvoiceExportLine.FindLast() then
-                Id := TempEInvoiceExportLine.ID + 1;
-            TempEInvoiceExportLine.Init();
-            TempEInvoiceExportLine.ID := Id;
-            TempEInvoiceExportLine."Document No." := "Document No.";
-            TempEInvoiceExportLine."Line No." := "Line No.";
-            TempEInvoiceExportLine.Type := Type;
-            TempEInvoiceExportLine."No." := "No.";
-            TempEInvoiceExportLine."Document Type" := "Document Type";
-            TempEInvoiceExportLine.Description := Description;
-            TempEInvoiceExportLine."Remaining Amount" := "Remaining Amount";
-            TempEInvoiceExportLine."VAT %" := "VAT %";
-            TempEInvoiceExportLine.Amount := Amount;
-            TempEInvoiceExportLine."Amount Including VAT" := Amount + "VAT Amount";
-            TempEInvoiceExportLine."VAT Calculation Type" := "VAT Calculation Type";
-            TempEInvoiceExportLine."VAT Identifier" := "VAT Identifier";
-            TempEInvoiceExportLine."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-            TempEInvoiceExportLine.Insert(true);
-        end;
+        Id := 0;
+        if TempEInvoiceExportLine.FindLast() then
+            Id := TempEInvoiceExportLine.ID + 1;
+        TempEInvoiceExportLine.Init();
+        TempEInvoiceExportLine.ID := Id;
+        TempEInvoiceExportLine."Document No." := IssuedReminderLine."Document No.";
+        TempEInvoiceExportLine."Line No." := IssuedReminderLine."Line No.";
+        TempEInvoiceExportLine.Type := IssuedReminderLine.Type.AsInteger();
+        TempEInvoiceExportLine."No." := IssuedReminderLine."No.";
+        TempEInvoiceExportLine."Document Type" := IssuedReminderLine."Document Type";
+        TempEInvoiceExportLine.Description := IssuedReminderLine.Description;
+        TempEInvoiceExportLine."Remaining Amount" := IssuedReminderLine."Remaining Amount";
+        TempEInvoiceExportLine."VAT %" := IssuedReminderLine."VAT %";
+        TempEInvoiceExportLine.Amount := IssuedReminderLine.Amount;
+        TempEInvoiceExportLine."Amount Including VAT" := IssuedReminderLine.Amount + IssuedReminderLine."VAT Amount";
+        TempEInvoiceExportLine."VAT Calculation Type" := IssuedReminderLine."VAT Calculation Type";
+        TempEInvoiceExportLine."VAT Identifier" := IssuedReminderLine."VAT Identifier";
+        TempEInvoiceExportLine."VAT Prod. Posting Group" := IssuedReminderLine."VAT Prod. Posting Group";
+        TempEInvoiceExportLine.Insert(true);
     end;
 
     local procedure IsRoundingLine(IssuedReminderLine: Record "Issued Reminder Line"; CustomerNo: Code[20]): Boolean

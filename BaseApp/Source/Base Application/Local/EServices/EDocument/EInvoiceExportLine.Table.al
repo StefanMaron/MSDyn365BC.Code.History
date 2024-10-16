@@ -10,6 +10,7 @@ using Microsoft.Foundation.Enums;
 table 10605 "E-Invoice Export Line"
 {
     Caption = 'E-Invoice Export Line';
+    DataClassification = CustomerContent;
 
     fields
     {

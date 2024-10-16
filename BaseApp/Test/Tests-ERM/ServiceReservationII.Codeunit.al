@@ -120,7 +120,7 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Item No. on Sales Line.
-        asserterror SalesLine.Validate("No.", LibraryInventory.CreateItemNo);
+        asserterror SalesLine.Validate("No.", LibraryInventory.CreateItemNo());
 
         // 3. Verify: Verify error message.
         Assert.ExpectedError(
@@ -211,7 +211,7 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Item No. on Service Line.
-        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
+        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo());
 
         // 3. Verify: Verify error message.
         Assert.ExpectedError(
@@ -366,7 +366,7 @@ codeunit 136143 "Service Reservation II"
 
         // 2. Exercise.
         ServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
-        UpdateServiceLineQuantity(ServiceLine, ServiceLine.Quantity - LibraryUtility.GenerateRandomFraction);  // Using Random to modify Quantity.
+        UpdateServiceLineQuantity(ServiceLine, ServiceLine.Quantity - LibraryUtility.GenerateRandomFraction());  // Using Random to modify Quantity.
 
         // 3. Verify: Verify Service Line for updated Reserved Quantity.
         VerifyServiceLine(ServiceLine, 0);  // Reserved Quantity must be zero.
@@ -440,7 +440,7 @@ codeunit 136143 "Service Reservation II"
         Initialize();
 
         // [GIVEN] Purchase Order with "Expected Receipt Date" = 10.01
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo());
 
         // [GIVEN] Service Order with "Needed By Date" and "Planning Delivery Date" equal 10.01 and reserved from Purchase Order
         CreateServiceOrder(ServiceLine, PurchaseLine."No.", PurchaseLine.Quantity, ServiceLine."Document Type"::Order);
@@ -516,11 +516,11 @@ codeunit 136143 "Service Reservation II"
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // [WHEN] Open service lines page, set item no. equal to the service item and select new serial no. "S5" on the Service Item Replacement page.
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoKey(ServiceHeader."Document Type", ServiceHeader."No.");
         LibraryVariableStorage.Enqueue(Item."No.");
         LibraryVariableStorage.Enqueue(LastSerialNo);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
 
         // [THEN] Serial no. "S5" is reserved from the inventory for the service line.
         ServiceLine.SetRange("No.", Item."No.");
@@ -530,7 +530,7 @@ codeunit 136143 "Service Reservation II"
         ReservationEntry.FindFirst();
         ReservationEntry.TestField("Serial No.", LastSerialNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -552,7 +552,7 @@ codeunit 136143 "Service Reservation II"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryService.SetupServiceMgtNoSeries();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
@@ -617,7 +617,7 @@ codeunit 136143 "Service Reservation II"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo());
         CreateServiceOrder(ServiceLine, PurchaseLine."No.", PurchaseLine.Quantity, ServiceLine."Document Type"::Order);
     end;
 
@@ -651,7 +651,7 @@ codeunit 136143 "Service Reservation II"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, No, LibraryRandom.RandDec(100, 2) + LibraryUtility.GenerateRandomFraction);
+          SalesLine, SalesHeader, SalesLine.Type::Item, No, LibraryRandom.RandDec(100, 2) + LibraryUtility.GenerateRandomFraction());
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, No));
         SalesLine.Validate("Shipment Date", LibraryRandom.RandDate(-10));  // Update Shipment Date earlier than WORKDATE. Use Random to calculate Date.
@@ -768,8 +768,8 @@ codeunit 136143 "Service Reservation II"
     [Scope('OnPrem')]
     procedure ReserveFromCurrentLineHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -779,23 +779,23 @@ codeunit 136143 "Service Reservation II"
         ExpectedQty: Decimal;
     begin
         if ReserveFromCurrentLine then
-            Reservation."Reserve from Current Line".Invoke
+            Reservation."Reserve from Current Line".Invoke()
         else begin
-            Reservation.CancelReservationCurrentLine.Invoke;
-            Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText);
+            Reservation.CancelReservationCurrentLine.Invoke();
+            Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText());
             Reservation.QtyReservedBase.AssertEquals(0);
             Reservation."Current Reserved Quantity".AssertEquals(0);
-            Reservation.OK.Invoke;
+            Reservation.OK().Invoke();
             exit;
         end;
-        Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText);
+        Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText());
         Reservation.QtyToReserveBase.AssertEquals(QuantityOnServiceLine);
         Reservation.QtyReservedBase.AssertEquals(QuantityOnServiceLine);
-        ExpectedQty := LibraryVariableStorage.DequeueDecimal;
+        ExpectedQty := LibraryVariableStorage.DequeueDecimal();
         Reservation."Total Quantity".AssertEquals(ExpectedQty);
         Reservation."Current Reserved Quantity".AssertEquals(QuantityOnServiceLine);
         Reservation.TotalAvailableQuantity.AssertEquals(ExpectedQty - QuantityOnServiceLine);
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -813,15 +813,15 @@ codeunit 136143 "Service Reservation II"
         ServiceShipmentLine.FindFirst();
 
         GetServiceShipmentLines.SetRecord(ServiceShipmentLine);
-        GetServiceShipmentLines.GetShipmentLines;
+        GetServiceShipmentLines.GetShipmentLines();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceItemReplacementModalPageHandler(var ServiceItemReplacement: TestPage "Service Item Replacement")
     begin
-        ServiceItemReplacement.NewSerialNo.SetValue(LibraryVariableStorage.DequeueText);
-        ServiceItemReplacement.OK.Invoke;
+        ServiceItemReplacement.NewSerialNo.SetValue(LibraryVariableStorage.DequeueText());
+        ServiceItemReplacement.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -831,34 +831,34 @@ codeunit 136143 "Service Reservation II"
         ServiceLine: Record "Service Line";
     begin
         ServiceLines.Type.SetValue(ServiceLine.Type::Item);
-        ServiceLines."No.".SetValue(LibraryVariableStorage.DequeueText);
+        ServiceLines."No.".SetValue(LibraryVariableStorage.DequeueText());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingOption::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             ItemTrackingOption::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQuantityToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 }
 

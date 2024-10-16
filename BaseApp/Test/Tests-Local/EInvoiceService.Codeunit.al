@@ -42,7 +42,7 @@ codeunit 144111 "E-Invoice Service"
         // [FEATURE] [Invoice]
         Initialize();
 
-        XmlFileName := EInvoiceServInvoice;
+        XmlFileName := EInvoiceServInvoice();
 
         EInvoiceXMLXSDValidation.CheckIfFileExists(XmlFileName);
     end;
@@ -62,7 +62,7 @@ codeunit 144111 "E-Invoice Service"
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
-        ServInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
+        ServInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice();
         CompanyInfo.Get();
         ServInvHdr.Get(ServInvoiceNo);
 
@@ -89,7 +89,7 @@ codeunit 144111 "E-Invoice Service"
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
-        ServInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
+        ServInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice();
         ServInvHdr.Get(ServInvoiceNo);
         CompanyInfo.Get();
 
@@ -119,7 +119,7 @@ codeunit 144111 "E-Invoice Service"
         EInvoiceXMLXSDValidation.SetBankInformation(BankAccountNo, '');
 
         // [GIVEN] A posted Service invoice to export
-        XmlFileName := EInvoiceServInvoice;
+        XmlFileName := EInvoiceServInvoice();
 
         // [THEN] IBAN is not present
         NOXMLReadHelper.Initialize(XmlFileName);
@@ -148,7 +148,7 @@ codeunit 144111 "E-Invoice Service"
         // [GIVEN] Company information is set up without BBAN
 
         // [GIVEN] A posted Service invoice to export
-        XmlFileName := EInvoiceServInvoice;
+        XmlFileName := EInvoiceServInvoice();
 
         // [THEN] IBAN is present in the XML file under Invoice->PaymentMeans->PayeeFinancialAccount
         NOXMLReadHelper.Initialize(XmlFileName);
@@ -179,7 +179,7 @@ codeunit 144111 "E-Invoice Service"
         EInvoiceXMLXSDValidation.SetBankInformation(BankAccountNo, IBAN);
 
         // [GIVEN] A posted Service invoice to export
-        XmlFileName := EInvoiceServInvoice;
+        XmlFileName := EInvoiceServInvoice();
 
         // [THEN] Both IBAN and BBAN are present in the XML file under Invoice->PaymentMeans->PayeeFinancialAccount
         NOXMLReadHelper.Initialize(XmlFileName);
@@ -208,7 +208,7 @@ codeunit 144111 "E-Invoice Service"
         // [SCENARIO] Validate the child nodes of 'Delivery', on the Invoice Lines
         Initialize();
 
-        ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
+        ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice();
         XMLFileName := ExecEInvoice(ServiceInvoiceNo);
 
         VerifyDeliveryOnServiceInvoice(XMLFileName, 'cac:InvoiceLine/cac:Delivery/cac:DeliveryLocation/cac:Address', ServiceInvoiceNo);
@@ -221,7 +221,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice]
         Initialize();
-        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceServInvoice);
+        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceServInvoice());
     end;
 
     [Test]
@@ -237,7 +237,7 @@ codeunit 144111 "E-Invoice Service"
         Initialize();
 
         // [GIVEN] A posted service invoice
-        ServiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
+        ServiceNo := EInvoiceServiceHelper.CreateServiceInvoice();
 
         // [WHEN] Posted service invoice is exported
         XmlFileName := ExecEInvoice(ServiceNo);
@@ -264,14 +264,14 @@ codeunit 144111 "E-Invoice Service"
         Initialize();
 
         // [GIVEN] A posted service invoice
-        ServiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
+        ServiceNo := EInvoiceServiceHelper.CreateServiceInvoice();
 
         // [WHEN] Posted service invoice is exported
         XmlFileName := ExecEInvoice(ServiceNo);
         NOXMLReadHelper.Initialize(XmlFileName);
 
         // [THEN] XML File Header element InvoicedQuantity contains attributes: unitCode and listID
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCode', EInvoiceHelper.DefaultUNECERec20Code);
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCode', EInvoiceHelper.DefaultUNECERec20Code());
         NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCodeListID', 'UNECERec20');
     end;
 
@@ -285,7 +285,7 @@ codeunit 144111 "E-Invoice Service"
         // [FEATURE] [Invoice]
         Initialize();
 
-        XmlFileName := EInvoiceServInvoice;
+        XmlFileName := EInvoiceServInvoice();
 
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeAbsence('//cbc:AccountingCostCode');
@@ -490,14 +490,14 @@ codeunit 144111 "E-Invoice Service"
         // [FEATURE] [Invoice]
         Initialize();
 
-        ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
+        ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice();
         XmlFileName := ExecEInvoice(ServiceInvoiceNo);
 
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeValue('//cbc:ProfileID', 'urn:www.cenbii.eu:profile:bii05:ver2.0');
         NOXMLReadHelper.VerifyNodeValue('//cbc:CustomizationID', GetInvoiceCustomizationID(ServiceInvoiceNo));
 
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:BaseQuantity', 'unitCode', EInvoiceHelper.DefaultUNECERec20Code);
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:BaseQuantity', 'unitCode', EInvoiceHelper.DefaultUNECERec20Code());
         NOXMLReadHelper.VerifyAttributeValue('//cbc:BaseQuantity', 'unitCodeListID', 'UNECERec20');
         NOXMLReadHelper.VerifyNodeValue('//cbc:BaseQuantity', '1.00');
     end;
@@ -512,7 +512,7 @@ codeunit 144111 "E-Invoice Service"
         // [FEATURE] [Credit Memo]
         Initialize();
 
-        XmlFileName := EInvoiceServCrMemo;
+        XmlFileName := EInvoiceServCrMemo();
 
         EInvoiceXMLXSDValidation.CheckIfFileExists(XmlFileName);
     end;
@@ -529,7 +529,7 @@ codeunit 144111 "E-Invoice Service"
         // [SCENARIO] Validate the child nodes of 'Delivery', on the CreditNote Lines
         Initialize();
 
-        CrMemoHeaderId := EInvoiceServiceHelper.CreateServiceCrMemo;
+        CrMemoHeaderId := EInvoiceServiceHelper.CreateServiceCrMemo();
         XMLFileName := ExecECrMemo(CrMemoHeaderId);
 
         VerifyDeliveryOnServiceCrMemo(XMLFileName, 'cac:CreditNoteLine/cac:Delivery/cac:DeliveryLocation/cac:Address', CrMemoHeaderId);
@@ -571,7 +571,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Credit Memo]
         Initialize();
-        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceServCrMemo);
+        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceServCrMemo());
     end;
 
     [Test]
@@ -589,7 +589,7 @@ codeunit 144111 "E-Invoice Service"
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
-        ServCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo;
+        ServCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo();
         CompanyInfo.Get();
         ServCrMemoHdr.Get(ServCrMemoNo);
 
@@ -616,7 +616,7 @@ codeunit 144111 "E-Invoice Service"
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
-        ServCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo;
+        ServCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo();
         CompanyInfo.Get();
         ServCrMemoHdr.Get(ServCrMemoNo);
 
@@ -641,7 +641,7 @@ codeunit 144111 "E-Invoice Service"
         Initialize();
 
         // [GIVEN] A posted service invoice
-        ServCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo;
+        ServCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo();
 
         // [WHEN] Posted service invoice is exported
         XmlFileName := ExecECrMemo(ServCrMemoNo);
@@ -666,14 +666,14 @@ codeunit 144111 "E-Invoice Service"
         Initialize();
 
         // [GIVEN] A posted service invoice
-        ServiceNo := EInvoiceServiceHelper.CreateServiceCrMemo;
+        ServiceNo := EInvoiceServiceHelper.CreateServiceCrMemo();
 
         // [WHEN] Posted service invoice is exported
         XmlFileName := ExecECrMemo(ServiceNo);
         NOXMLReadHelper.Initialize(XmlFileName);
 
         // [THEN] XML File element CreditedQuantity contains attributes: unitCode and listID
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCode', EInvoiceHelper.DefaultUNECERec20Code);
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCode', EInvoiceHelper.DefaultUNECERec20Code());
         NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCodeListID', 'UNECERec20');
     end;
 
@@ -687,7 +687,7 @@ codeunit 144111 "E-Invoice Service"
         // [FEATURE] [Credit Memo]
         Initialize();
 
-        XmlFileName := EInvoiceServCrMemo;
+        XmlFileName := EInvoiceServCrMemo();
 
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeAbsence('//cbc:AccountingCostCode');
@@ -863,14 +863,14 @@ codeunit 144111 "E-Invoice Service"
         // [FEATURE] [Credit Memo]
         Initialize();
 
-        ServiceCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo;
+        ServiceCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo();
         XmlFileName := ExecECrMemo(ServiceCrMemoNo);
 
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeValue('//cbc:ProfileID', 'urn:www.cenbii.eu:profile:bii05:ver2.0');
         NOXMLReadHelper.VerifyNodeValue('//cbc:CustomizationID', GetCrMemoCustomizationID(ServiceCrMemoNo));
 
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCode', EInvoiceHelper.DefaultUNECERec20Code);
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCode', EInvoiceHelper.DefaultUNECERec20Code());
         NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCodeListID', 'UNECERec20');
     end;
 
@@ -878,7 +878,7 @@ codeunit 144111 "E-Invoice Service"
     var
         ServiceCrMemoNo: Code[20];
     begin
-        ServiceCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo;
+        ServiceCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo();
         exit(ExecECrMemo(ServiceCrMemoNo));
     end;
 
@@ -886,7 +886,7 @@ codeunit 144111 "E-Invoice Service"
     var
         ServiceInvoiceNo: Code[20];
     begin
-        ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
+        ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice();
         exit(ExecEInvoice(ServiceInvoiceNo));
     end;
 
@@ -895,7 +895,7 @@ codeunit 144111 "E-Invoice Service"
         ServCrMemoHeader: Record "Service Cr.Memo Header";
         Path: Text[250];
     begin
-        Path := EInvoiceHelper.GetTempPath;
+        Path := EInvoiceHelper.GetTempPath();
         EInvoiceServiceHelper.SetupEInvoiceForService(Path);
 
         ServCrMemoHeader.SetRange("No.", ServiceCrMemoNo);
@@ -909,7 +909,7 @@ codeunit 144111 "E-Invoice Service"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         Path: Text[250];
     begin
-        Path := EInvoiceHelper.GetTempPath;
+        Path := EInvoiceHelper.GetTempPath();
         EInvoiceServiceHelper.SetupEInvoiceForService(Path);
 
         ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceNo);
@@ -1040,7 +1040,7 @@ codeunit 144111 "E-Invoice Service"
         EInvoiceHelper.KIDSetup(SalesReceivablesSetup."KID Setup"::"Document No.", 20, 0);
 
         // [GIVEN] Posted Service Invoice No. = "103032"
-        ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
+        ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice();
 
         // [WHEN] Perform "Create Electronic Invoice" on posted Service Invoice
         XmlFileName := ExecEInvoice(ServiceInvoiceNo);
@@ -1061,7 +1061,7 @@ codeunit 144111 "E-Invoice Service"
             exit;
 
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        InitGlobalVATRates;
+        InitGlobalVATRates();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
@@ -1133,7 +1133,7 @@ codeunit 144111 "E-Invoice Service"
     [Scope('OnPrem')]
     procedure ChangeBillToCustomerNoConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, 'Unexpected confirmation message');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Question, 'Unexpected confirmation message');
         Reply := true;
     end;
 }

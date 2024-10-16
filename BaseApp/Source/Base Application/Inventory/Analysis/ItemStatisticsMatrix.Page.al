@@ -45,15 +45,14 @@ page 9223 "Item Statistics Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        with ItemBuffer do
-                            if not (("Line Option" = "Line Option"::"Profit Calculation") and
-                                    ((Rec.Name = FieldCaption("Profit (LCY)")) or (Rec.Name = FieldCaption("Profit %"))) or
-                                    (("Line Option" = "Line Option"::"Cost Specification") and (Rec.Name = FieldCaption("Inventoriable Costs"))))
+                        if not ((ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Profit Calculation") and
+                                    ((Rec.Name = ItemBuffer.FieldCaption("Profit (LCY)")) or (Rec.Name = ItemBuffer.FieldCaption("Profit %"))) or
+                                    ((ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Cost Specification") and (Rec.Name = ItemBuffer.FieldCaption("Inventoriable Costs"))))
                             then begin
-                                SetCommonFilters(ItemBuffer);
-                                SetFilters(ItemBuffer, 0);
-                                DrillDown();
-                            end;
+                            SetCommonFilters(ItemBuffer);
+                            SetFilters(ItemBuffer, 0);
+                            DrillDown();
+                        end;
                     end;
                 }
                 field(Field1; MATRIX_CellData[1])
@@ -614,16 +613,14 @@ page 9223 "Item Statistics Matrix"
         Field31Visible := 31 <= MATRIX_CurrentNoOfMatrixColumn;
         Field32Visible := 32 <= MATRIX_CurrentNoOfMatrixColumn;
 
-        with Item do begin
-            if "No." <> '' then
-                ItemFilter := "No.";
-            if GetFilter("Date Filter") <> '' then
-                DateFilter := GetFilter("Date Filter");
-            if GetFilter("Variant Filter") <> '' then
-                VariantFilter := GetFilter("Variant Filter");
-            if GetFilter("Location Filter") <> '' then
-                LocationFilter := GetFilter("Location Filter");
-        end;
+        if Item."No." <> '' then
+            ItemFilter := Item."No.";
+        if Item.GetFilter("Date Filter") <> '' then
+            DateFilter := Item.GetFilter(Item."Date Filter");
+        if Item.GetFilter("Variant Filter") <> '' then
+            VariantFilter := Item.GetFilter(Item."Variant Filter");
+        if Item.GetFilter("Location Filter") <> '' then
+            LocationFilter := Item.GetFilter(Item."Location Filter");
 
         if ColumnDimCode = '' then
             ColumnDimCode := Text002;
@@ -831,85 +828,76 @@ page 9223 "Item Statistics Matrix"
 
     local procedure CopyDimValueToBuf(var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with ItemBuffer do
-            case "Line Option" of
-                "Line Option"::"Profit Calculation":
-                    case TheDimValue.Number of
-                        1:
-                            InsertRow('1', FieldCaption("Sales (LCY)"), 0, false, TheDimCodeBuf);
-                        2:
-                            InsertRow('2', FieldCaption("COGS (LCY)"), 0, false, TheDimCodeBuf);
-                        3:
-                            InsertRow('3', FieldCaption("Non-Invtbl. Costs (LCY)"), 0, false, TheDimCodeBuf);
-                        4:
-                            InsertRow('4', FieldCaption("Profit (LCY)"), 0, false, TheDimCodeBuf);
-                        5:
-                            InsertRow('5', FieldCaption("Profit %"), 0, false, TheDimCodeBuf);
-                    end;
-                "Line Option"::"Cost Specification":
-                    case TheDimValue.Number of
-                        1:
-                            InsertRow('1', FieldCaption("Inventoriable Costs"), 0, true, TheDimCodeBuf);
-                        2:
-                            InsertRow('2', FieldCaption("Direct Cost (LCY)"), 1, false, TheDimCodeBuf);
-                        3:
-                            InsertRow('3', FieldCaption("Revaluation (LCY)"), 1, false, TheDimCodeBuf);
-                        4:
-                            InsertRow('4', FieldCaption("Rounding (LCY)"), 1, false, TheDimCodeBuf);
-                        5:
-                            InsertRow('5', FieldCaption("Indirect Cost (LCY)"), 1, false, TheDimCodeBuf);
-                        6:
-                            InsertRow('6', FieldCaption("Variance (LCY)"), 1, false, TheDimCodeBuf);
-                        7:
-                            InsertRow('7', FieldCaption("Inventoriable Costs, Total"), 0, true, TheDimCodeBuf);
-                        8:
-                            InsertRow('8', FieldCaption("COGS (LCY)"), 0, true, TheDimCodeBuf);
-                        9:
-                            InsertRow('9', FieldCaption("Inventory (LCY)"), 0, true, TheDimCodeBuf);
-                    end;
-            end;
+        case ItemBuffer."Line Option" of
+            ItemBuffer."Line Option"::"Profit Calculation":
+                case TheDimValue.Number of
+                    1:
+                        InsertRow('1', ItemBuffer.FieldCaption("Sales (LCY)"), 0, false, TheDimCodeBuf);
+                    2:
+                        InsertRow('2', ItemBuffer.FieldCaption("COGS (LCY)"), 0, false, TheDimCodeBuf);
+                    3:
+                        InsertRow('3', ItemBuffer.FieldCaption("Non-Invtbl. Costs (LCY)"), 0, false, TheDimCodeBuf);
+                    4:
+                        InsertRow('4', ItemBuffer.FieldCaption("Profit (LCY)"), 0, false, TheDimCodeBuf);
+                    5:
+                        InsertRow('5', ItemBuffer.FieldCaption("Profit %"), 0, false, TheDimCodeBuf);
+                end;
+            ItemBuffer."Line Option"::"Cost Specification":
+                case TheDimValue.Number of
+                    1:
+                        InsertRow('1', ItemBuffer.FieldCaption("Inventoriable Costs"), 0, true, TheDimCodeBuf);
+                    2:
+                        InsertRow('2', ItemBuffer.FieldCaption("Direct Cost (LCY)"), 1, false, TheDimCodeBuf);
+                    3:
+                        InsertRow('3', ItemBuffer.FieldCaption("Revaluation (LCY)"), 1, false, TheDimCodeBuf);
+                    4:
+                        InsertRow('4', ItemBuffer.FieldCaption("Rounding (LCY)"), 1, false, TheDimCodeBuf);
+                    5:
+                        InsertRow('5', ItemBuffer.FieldCaption("Indirect Cost (LCY)"), 1, false, TheDimCodeBuf);
+                    6:
+                        InsertRow('6', ItemBuffer.FieldCaption("Variance (LCY)"), 1, false, TheDimCodeBuf);
+                    7:
+                        InsertRow('7', ItemBuffer.FieldCaption("Inventoriable Costs, Total"), 0, true, TheDimCodeBuf);
+                    8:
+                        InsertRow('8', ItemBuffer.FieldCaption("COGS (LCY)"), 0, true, TheDimCodeBuf);
+                    9:
+                        InsertRow('9', ItemBuffer.FieldCaption("Inventory (LCY)"), 0, true, TheDimCodeBuf);
+                end;
+        end;
         OnAfterCopyDimValueToBuf(ItemBuffer, TheDimValue, TheDimCodeBuf);
     end;
 
     local procedure CopyAddChargesToBuf(var TheItemCharge: Record "Item Charge"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheItemCharge."No.";
-            Name := CopyStr(
-                StrSubstNo('%1 %2', TheItemCharge."No.", TheItemCharge.Description), 1, 50);
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheItemCharge."No.";
+        TheDimCodeBuf.Name := CopyStr(
+            StrSubstNo('%1 %2', TheItemCharge."No.", TheItemCharge.Description), 1, 50);
     end;
 
     local procedure CopyLocationToBuf(var TheLocation: Record Location; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheLocation.Code;
-            Name := TheLocation.Name;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheLocation.Code;
+        TheDimCodeBuf.Name := TheLocation.Name;
     end;
 
     local procedure CopyPeriodToBuf(var ThePeriod: Record Date; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := Format(ThePeriod."Period Start");
-            "Period Start" := ThePeriod."Period Start";
-            "Period End" := ThePeriod."Period End";
-            Name := ThePeriod."Period Name";
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := Format(ThePeriod."Period Start");
+        TheDimCodeBuf."Period Start" := ThePeriod."Period Start";
+        TheDimCodeBuf."Period End" := ThePeriod."Period End";
+        TheDimCodeBuf.Name := ThePeriod."Period Name";
     end;
 
     protected procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := Code1;
-            Name := CopyStr(Name1, 1, MaxStrLen(Name));
-            Indentation := Indentation1;
-            "Show in Bold" := Bold1;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := Code1;
+        TheDimCodeBuf.Name := CopyStr(Name1, 1, MaxStrLen(TheDimCodeBuf.Name));
+        TheDimCodeBuf.Indentation := Indentation1;
+        TheDimCodeBuf."Show in Bold" := Bold1;
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
@@ -924,13 +912,12 @@ page 9223 "Item Statistics Matrix"
             Calendar.SetRange("Period Start");
         end;
         PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
-        with ItemBuffer do
-            if AmountType = AmountType::"Net Change" then begin
-                SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-                if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                    SetRange("Date Filter", GetRangeMin("Date Filter"));
-            end else
-                SetRange("Date Filter", 0D, Calendar."Period End");
+        if AmountType = AmountType::"Net Change" then begin
+            ItemBuffer.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+            if ItemBuffer.GetRangeMin("Date Filter") = ItemBuffer.GetRangeMax("Date Filter") then
+                ItemBuffer.SetRange("Date Filter", ItemBuffer.GetRangeMin("Date Filter"));
+        end else
+            ItemBuffer.SetRange("Date Filter", 0D, Calendar."Period End");
         InternalDateFilter := ItemBuffer.GetFilter("Date Filter");
     end;
 
@@ -938,53 +925,49 @@ page 9223 "Item Statistics Matrix"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ItemBuffer do begin
-            ValueEntry.SetCurrentKey(
-              "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type", "Variance Type",
-              "Item Charge No.", "Location Code", "Variant Code");
-            if GetFilter("Item Filter") <> '' then
-                CopyFilter("Item Filter", ValueEntry."Item No.");
-            if GetFilter("Date Filter") <> '' then
-                CopyFilter("Date Filter", ValueEntry."Posting Date")
+        ValueEntry.SetCurrentKey(
+            "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type", "Variance Type",
+            "Item Charge No.", "Location Code", "Variant Code");
+        if ItemBuffer.GetFilter("Item Filter") <> '' then
+            ItemBuffer.CopyFilter("Item Filter", ValueEntry."Item No.");
+        if ItemBuffer.GetFilter("Date Filter") <> '' then
+            ItemBuffer.CopyFilter("Date Filter", ValueEntry."Posting Date")
+        else
+            ValueEntry.SetRange("Posting Date", 0D, DMY2Date(31, 12, 9999));
+        if ItemBuffer.GetFilter("Entry Type Filter") <> '' then
+            ItemBuffer.CopyFilter("Entry Type Filter", ValueEntry."Entry Type");
+        if ItemBuffer.GetFilter("Item Ledger Entry Type Filter") <> '' then
+            ItemBuffer.CopyFilter("Item Ledger Entry Type Filter", ValueEntry."Item Ledger Entry Type");
+        if ItemBuffer.GetFilter("Variance Type Filter") <> '' then
+            ItemBuffer.CopyFilter("Variance Type Filter", ValueEntry."Variance Type");
+        if ItemBuffer.GetFilter("Item Charge No. Filter") <> '' then
+            ItemBuffer.CopyFilter("Item Charge No. Filter", ValueEntry."Item Charge No.");
+        if ItemBuffer.GetFilter("Location Filter") <> '' then
+            ItemBuffer.CopyFilter("Location Filter", ValueEntry."Location Code");
+        if ItemBuffer.GetFilter("Variant Filter") <> '' then
+            ItemBuffer.CopyFilter("Variant Filter", ValueEntry."Variant Code");
+        case true of
+            ((ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Profit Calculation") and (Rec.Name = ItemBuffer.FieldCaption("Sales (LCY)"))) or
+          (ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Sales Item Charge Spec."):
+                PAGE.Run(0, ValueEntry, ValueEntry."Sales Amount (Actual)");
+            Rec.Name = ItemBuffer.FieldCaption("Non-Invtbl. Costs (LCY)"):
+                PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Non-Invtbl.)");
             else
-                ValueEntry.SetRange("Posting Date", 0D, DMY2Date(31, 12, 9999));
-            if GetFilter("Entry Type Filter") <> '' then
-                CopyFilter("Entry Type Filter", ValueEntry."Entry Type");
-            if GetFilter("Item Ledger Entry Type Filter") <> '' then
-                CopyFilter("Item Ledger Entry Type Filter", ValueEntry."Item Ledger Entry Type");
-            if GetFilter("Variance Type Filter") <> '' then
-                CopyFilter("Variance Type Filter", ValueEntry."Variance Type");
-            if GetFilter("Item Charge No. Filter") <> '' then
-                CopyFilter("Item Charge No. Filter", ValueEntry."Item Charge No.");
-            if GetFilter("Location Filter") <> '' then
-                CopyFilter("Location Filter", ValueEntry."Location Code");
-            if GetFilter("Variant Filter") <> '' then
-                CopyFilter("Variant Filter", ValueEntry."Variant Code");
-            case true of
-                (("Line Option" = "Line Option"::"Profit Calculation") and (Rec.Name = FieldCaption("Sales (LCY)"))) or
-              ("Line Option" = "Line Option"::"Sales Item Charge Spec."):
-                    PAGE.Run(0, ValueEntry, ValueEntry."Sales Amount (Actual)");
-                Rec.Name = FieldCaption("Non-Invtbl. Costs (LCY)"):
-                    PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Non-Invtbl.)");
-                else
-                    PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Actual)");
-            end;
+                PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Actual)");
         end;
     end;
 
     protected procedure SetCommonFilters(var TheItemBuffer: Record "Item Statistics Buffer")
     begin
-        with TheItemBuffer do begin
-            Reset();
-            if ItemFilter <> '' then
-                SetFilter("Item Filter", ItemFilter);
-            if DateFilter <> '' then
-                SetFilter("Date Filter", DateFilter);
-            if LocationFilter <> '' then
-                SetFilter("Location Filter", LocationFilter);
-            if VariantFilter <> '' then
-                SetFilter("Variant Filter", VariantFilter);
-        end;
+        TheItemBuffer.Reset();
+        if ItemFilter <> '' then
+            TheItemBuffer.SetFilter("Item Filter", ItemFilter);
+        if DateFilter <> '' then
+            TheItemBuffer.SetFilter("Date Filter", DateFilter);
+        if LocationFilter <> '' then
+            TheItemBuffer.SetFilter("Location Filter", LocationFilter);
+        if VariantFilter <> '' then
+            TheItemBuffer.SetFilter("Variant Filter", VariantFilter);
     end;
 
     protected procedure SetFilters(var ItemBuffer: Record "Item Statistics Buffer"; LineOrColumn: Option Line,Column)
@@ -999,137 +982,133 @@ page 9223 "Item Statistics Matrix"
             DimCodeBuf := MatrixRecords[MATRIX_ColumnOrdinal];
             DimOption := ItemBuffer."Column Option";
         end;
-        with ItemBuffer do begin
-            case DimOption of
-                DimOption::Location:
-                    SetRange("Location Filter", DimCodeBuf.Code);
-                DimOption::Period:
-                    if AmountType = AmountType::"Net Change" then
-                        SetRange("Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End")
-                    else
-                        SetRange("Date Filter", 0D, DimCodeBuf."Period End");
-                DimOption::"Profit Calculation",
-              DimOption::"Cost Specification":
-                    case Rec.Name of
-                        FieldCaption("Sales (LCY)"),
-                        FieldCaption("COGS (LCY)"),
-                        FieldCaption("Profit (LCY)"),
-                        FieldCaption("Profit %"):
-                            begin
-                                SetRange("Item Ledger Entry Type Filter", "Item Ledger Entry Type Filter"::Sale);
-                                if DimOption = DimOption::"Profit Calculation" then
-                                    SetFilter("Entry Type Filter", '<>%1', "Entry Type Filter"::Revaluation);
-                                SetRange("Variance Type Filter", "Variance Type Filter"::" ");
-                            end;
-                        FieldCaption("Direct Cost (LCY)"),
-                        FieldCaption("Revaluation (LCY)"),
-                        FieldCaption("Rounding (LCY)"),
-                        FieldCaption("Indirect Cost (LCY)"),
-                        FieldCaption("Variance (LCY)"),
-                        FieldCaption("Inventoriable Costs, Total"):
-                            begin
-                                SetFilter(
-                                  "Item Ledger Entry Type Filter", '<>%1&<>%2',
-                                  "Item Ledger Entry Type Filter"::Sale,
-                                  "Item Ledger Entry Type Filter"::" ");
-                                SetRange("Variance Type Filter", "Variance Type Filter"::" ");
-                                case Rec.Name of
-                                    FieldCaption("Direct Cost (LCY)"):
-                                        SetRange("Entry Type Filter", "Entry Type Filter"::"Direct Cost");
-                                    FieldCaption("Revaluation (LCY)"):
-                                        SetRange("Entry Type Filter", "Entry Type Filter"::Revaluation);
-                                    FieldCaption("Rounding (LCY)"):
-                                        SetRange("Entry Type Filter", "Entry Type Filter"::Rounding);
-                                    FieldCaption("Indirect Cost (LCY)"):
-                                        SetRange("Entry Type Filter", "Entry Type Filter"::"Indirect Cost");
-                                    FieldCaption("Variance (LCY)"):
-                                        begin
-                                            SetRange("Entry Type Filter", "Entry Type Filter"::Variance);
-                                            SetFilter("Variance Type Filter", '<>%1', "Variance Type Filter"::" ");
-                                        end;
-                                    FieldCaption("Inventoriable Costs, Total"):
-                                        SetRange("Variance Type Filter");
-                                end;
-                            end;
-                        else
-                            SetRange("Item Ledger Entry Type Filter");
-                            SetRange("Variance Type Filter");
-                    end;
-                DimOption::"Purch. Item Charge Spec.":
-                    begin
-                        SetRange("Variance Type Filter", "Variance Type Filter"::" ");
-                        SetRange("Item Ledger Entry Type Filter", "Item Ledger Entry Type Filter"::Purchase);
-                        SetRange("Item Charge No. Filter", DimCodeBuf.Code);
-                    end;
-                DimOption::"Sales Item Charge Spec.":
-                    begin
-                        SetRange("Variance Type Filter", "Variance Type Filter"::" ");
-                        SetRange("Item Ledger Entry Type Filter", "Item Ledger Entry Type Filter"::Sale);
-                        SetRange("Item Charge No. Filter", DimCodeBuf.Code);
-                    end;
+        case DimOption of
+            DimOption::Location:
+                ItemBuffer.SetRange("Location Filter", DimCodeBuf.Code);
+            DimOption::Period:
+                if AmountType = AmountType::"Net Change" then
+                    ItemBuffer.SetRange("Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End")
                 else
-                    OnSetFiltersElseCase(ItemBuffer, DimCodeBuf);
-            end;
-            if GetFilter("Item Ledger Entry Type Filter") = '' then
-                SetFilter(
-                  "Item Ledger Entry Type Filter", '<>%1',
-                  "Item Ledger Entry Type Filter"::" ")
+                    ItemBuffer.SetRange("Date Filter", 0D, DimCodeBuf."Period End");
+            DimOption::"Profit Calculation",
+            DimOption::"Cost Specification":
+                case Rec.Name of
+                    ItemBuffer.FieldCaption("Sales (LCY)"),
+                    ItemBuffer.FieldCaption("COGS (LCY)"),
+                    ItemBuffer.FieldCaption("Profit (LCY)"),
+                    ItemBuffer.FieldCaption("Profit %"):
+                        begin
+                            ItemBuffer.SetRange("Item Ledger Entry Type Filter", ItemBuffer."Item Ledger Entry Type Filter"::Sale);
+                            if DimOption = DimOption::"Profit Calculation" then
+                                ItemBuffer.SetFilter("Entry Type Filter", '<>%1', ItemBuffer."Entry Type Filter"::Revaluation);
+                            ItemBuffer.SetRange("Variance Type Filter", ItemBuffer."Variance Type Filter"::" ");
+                        end;
+                    ItemBuffer.FieldCaption("Direct Cost (LCY)"),
+                    ItemBuffer.FieldCaption("Revaluation (LCY)"),
+                    ItemBuffer.FieldCaption("Rounding (LCY)"),
+                    ItemBuffer.FieldCaption("Indirect Cost (LCY)"),
+                    ItemBuffer.FieldCaption("Variance (LCY)"),
+                    ItemBuffer.FieldCaption("Inventoriable Costs, Total"):
+                        begin
+                            ItemBuffer.SetFilter(
+                              ItemBuffer."Item Ledger Entry Type Filter", '<>%1&<>%2',
+                              ItemBuffer."Item Ledger Entry Type Filter"::Sale,
+                              ItemBuffer."Item Ledger Entry Type Filter"::" ");
+                            ItemBuffer.SetRange("Variance Type Filter", ItemBuffer."Variance Type Filter"::" ");
+                            case Rec.Name of
+                                ItemBuffer.FieldCaption("Direct Cost (LCY)"):
+                                    ItemBuffer.SetRange("Entry Type Filter", ItemBuffer."Entry Type Filter"::"Direct Cost");
+                                ItemBuffer.FieldCaption("Revaluation (LCY)"):
+                                    ItemBuffer.SetRange("Entry Type Filter", ItemBuffer."Entry Type Filter"::Revaluation);
+                                ItemBuffer.FieldCaption("Rounding (LCY)"):
+                                    ItemBuffer.SetRange("Entry Type Filter", ItemBuffer."Entry Type Filter"::Rounding);
+                                ItemBuffer.FieldCaption("Indirect Cost (LCY)"):
+                                    ItemBuffer.SetRange("Entry Type Filter", ItemBuffer."Entry Type Filter"::"Indirect Cost");
+                                ItemBuffer.FieldCaption("Variance (LCY)"):
+                                    begin
+                                        ItemBuffer.SetRange("Entry Type Filter", ItemBuffer."Entry Type Filter"::Variance);
+                                        ItemBuffer.SetFilter("Variance Type Filter", '<>%1', ItemBuffer."Variance Type Filter"::" ");
+                                    end;
+                                ItemBuffer.FieldCaption("Inventoriable Costs, Total"):
+                                    ItemBuffer.SetRange("Variance Type Filter");
+                            end;
+                        end;
+                    else
+                        ItemBuffer.SetRange("Item Ledger Entry Type Filter");
+                        ItemBuffer.SetRange("Variance Type Filter");
+                end;
+            DimOption::"Purch. Item Charge Spec.":
+                begin
+                    ItemBuffer.SetRange("Variance Type Filter", ItemBuffer."Variance Type Filter"::" ");
+                    ItemBuffer.SetRange("Item Ledger Entry Type Filter", ItemBuffer."Item Ledger Entry Type Filter"::Purchase);
+                    ItemBuffer.SetRange("Item Charge No. Filter", DimCodeBuf.Code);
+                end;
+            DimOption::"Sales Item Charge Spec.":
+                begin
+                    ItemBuffer.SetRange("Variance Type Filter", ItemBuffer."Variance Type Filter"::" ");
+                    ItemBuffer.SetRange("Item Ledger Entry Type Filter", ItemBuffer."Item Ledger Entry Type Filter"::Sale);
+                    ItemBuffer.SetRange("Item Charge No. Filter", DimCodeBuf.Code);
+                end;
+            else
+                OnSetFiltersElseCase(ItemBuffer, DimCodeBuf);
         end;
+        if ItemBuffer.GetFilter(ItemBuffer."Item Ledger Entry Type Filter") = '' then
+            ItemBuffer.SetFilter(
+              ItemBuffer."Item Ledger Entry Type Filter", '<>%1',
+              ItemBuffer."Item Ledger Entry Type Filter"::" ")
     end;
 
     local procedure Calculate(SetColumnFilter: Boolean) Amount: Decimal
     begin
-        with ItemBuffer do begin
-            case "Line Option" of
-                "Line Option"::"Profit Calculation",
-              "Line Option"::"Cost Specification":
-                    case Rec.Name of
-                        FieldCaption("Sales (LCY)"):
-                            Amount := CalcSalesAmount(SetColumnFilter);
-                        FieldCaption("COGS (LCY)"):
-                            Amount := CalcCostAmount(SetColumnFilter);
-                        FieldCaption("Non-Invtbl. Costs (LCY)"):
-                            Amount := CalcCostAmountNonInvnt(SetColumnFilter);
-                        FieldCaption("Profit (LCY)"):
-                            Amount := CalcSalesAmount(SetColumnFilter) +
-                              CalcCostAmount(SetColumnFilter) +
-                              CalcCostAmountNonInvnt(SetColumnFilter);
-                        FieldCaption("Profit %"):
-                            if CalcSalesAmount(SetColumnFilter) <> 0 then
-                                Amount := Round(100 * (CalcSalesAmount(SetColumnFilter) +
-                                                       CalcCostAmount(SetColumnFilter) +
-                                                       CalcCostAmountNonInvnt(SetColumnFilter)) /
-                                    CalcSalesAmount(SetColumnFilter))
-                            else
-                                Amount := 0;
-                        FieldCaption("Direct Cost (LCY)"), FieldCaption("Revaluation (LCY)"),
-                      FieldCaption("Rounding (LCY)"), FieldCaption("Indirect Cost (LCY)"),
-                      FieldCaption("Variance (LCY)"), FieldCaption("Inventory (LCY)"),
-                      FieldCaption("Inventoriable Costs, Total"):
-                            Amount := CalcCostAmount(SetColumnFilter);
+        case ItemBuffer."Line Option" of
+            ItemBuffer."Line Option"::"Profit Calculation",
+  ItemBuffer."Line Option"::"Cost Specification":
+                case Rec.Name of
+                    ItemBuffer.FieldCaption("Sales (LCY)"):
+                        Amount := CalcSalesAmount(SetColumnFilter);
+                    ItemBuffer.FieldCaption("COGS (LCY)"):
+                        Amount := CalcCostAmount(SetColumnFilter);
+                    ItemBuffer.FieldCaption("Non-Invtbl. Costs (LCY)"):
+                        Amount := CalcCostAmountNonInvnt(SetColumnFilter);
+                    ItemBuffer.FieldCaption("Profit (LCY)"):
+                        Amount := CalcSalesAmount(SetColumnFilter) +
+                          CalcCostAmount(SetColumnFilter) +
+                          CalcCostAmountNonInvnt(SetColumnFilter);
+                    ItemBuffer.FieldCaption("Profit %"):
+                        if CalcSalesAmount(SetColumnFilter) <> 0 then
+                            Amount := Round(100 * (CalcSalesAmount(SetColumnFilter) +
+                                                   CalcCostAmount(SetColumnFilter) +
+                                                   CalcCostAmountNonInvnt(SetColumnFilter)) /
+                                CalcSalesAmount(SetColumnFilter))
                         else
                             Amount := 0;
-                    end;
-                "Line Option"::"Sales Item Charge Spec.":
-                    Amount := CalcSalesAmount(SetColumnFilter);
-                "Line Option"::"Purch. Item Charge Spec.":
-                    Amount := CalcCostAmount(SetColumnFilter);
-            end;
-            if PerUnit then begin
-                if ("Line Option" = "Line Option"::"Profit Calculation") and
-                   (Rec.Name = FieldCaption("Profit %"))
-                then
-                    Qty := 1
-                else
-                    Qty := CalcQty(SetColumnFilter);
-                if Qty <> 0 then
-                    Amount := Amount / Abs(Qty)
-                else
-                    Amount := 0;
-            end;
-            if Rec.Name <> FieldCaption("Profit %") then
-                Amount := MatrixMgt.RoundAmount(Amount, RoundingFactor);
+                    ItemBuffer.FieldCaption("Direct Cost (LCY)"), ItemBuffer.FieldCaption("Revaluation (LCY)"),
+                  ItemBuffer.FieldCaption("Rounding (LCY)"), ItemBuffer.FieldCaption("Indirect Cost (LCY)"),
+                  ItemBuffer.FieldCaption("Variance (LCY)"), ItemBuffer.FieldCaption("Inventory (LCY)"),
+                  ItemBuffer.FieldCaption("Inventoriable Costs, Total"):
+                        Amount := CalcCostAmount(SetColumnFilter);
+                    else
+                        Amount := 0;
+                end;
+            ItemBuffer."Line Option"::"Sales Item Charge Spec.":
+                Amount := CalcSalesAmount(SetColumnFilter);
+            ItemBuffer."Line Option"::"Purch. Item Charge Spec.":
+                Amount := CalcCostAmount(SetColumnFilter);
         end;
+        if PerUnit then begin
+            if (ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Profit Calculation") and
+               (Rec.Name = ItemBuffer.FieldCaption("Profit %"))
+            then
+                Qty := 1
+            else
+                Qty := CalcQty(SetColumnFilter);
+            if Qty <> 0 then
+                Amount := Amount / Abs(Qty)
+            else
+                Amount := 0;
+        end;
+        if Rec.Name <> ItemBuffer.FieldCaption("Profit %") then
+            Amount := MatrixMgt.RoundAmount(Amount, RoundingFactor);
 
         OnAfterCalculate(ItemBuffer, SetColumnFilter, Amount, Rec.Name, CalcSalesAmount(SetColumnFilter));
     end;
@@ -1233,17 +1212,16 @@ page 9223 "Item Statistics Matrix"
 
     local procedure MATRIX_OnDrillDown(_MATRIX_ColumnOrdinal: Integer)
     begin
-        with ItemBuffer do
-            if not (("Line Option" = "Line Option"::"Profit Calculation") and
-                    ((Rec.Name = FieldCaption("Profit (LCY)")) or (Rec.Name = FieldCaption("Profit %"))) or
-                    (("Line Option" = "Line Option"::"Cost Specification") and (Rec.Name = FieldCaption("Inventoriable Costs"))))
+        if not ((ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Profit Calculation") and
+                    ((Rec.Name = ItemBuffer.FieldCaption(ItemBuffer."Profit (LCY)")) or (Rec.Name = ItemBuffer.FieldCaption(ItemBuffer."Profit %"))) or
+                    ((ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Cost Specification") and (Rec.Name = ItemBuffer.FieldCaption(ItemBuffer."Inventoriable Costs"))))
             then begin
-                SetCommonFilters(ItemBuffer);
-                SetFilters(ItemBuffer, 0);
-                MATRIX_ColumnOrdinal := _MATRIX_ColumnOrdinal;
-                SetFilters(ItemBuffer, 1);
-                DrillDown();
-            end;
+            SetCommonFilters(ItemBuffer);
+            SetFilters(ItemBuffer, 0);
+            MATRIX_ColumnOrdinal := _MATRIX_ColumnOrdinal;
+            SetFilters(ItemBuffer, 1);
+            DrillDown();
+        end;
     end;
 
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)

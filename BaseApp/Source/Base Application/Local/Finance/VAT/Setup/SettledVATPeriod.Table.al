@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Setup;
 table 10601 "Settled VAT Period"
 {
     Caption = 'Settled VAT Period';
+    DataClassification = CustomerContent;
 
     fields
     {

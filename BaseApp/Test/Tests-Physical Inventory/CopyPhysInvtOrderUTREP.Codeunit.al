@@ -127,7 +127,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         exit(Item."No.");
     end;
@@ -136,14 +136,14 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
     var
         Location: Record Location;
     begin
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location.Insert();
         exit(Location.Code);
     end;
 
     local procedure CreatePhysicalInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
-        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
+        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode();
         PhysInvtOrderHeader.Insert();
     end;
 
@@ -151,21 +151,21 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
     begin
         PhysInvtOrderLine."Document No." := DocumentNo;
         PhysInvtOrderLine."Line No." := 1;
-        PhysInvtOrderLine."Item No." := CreateItem;
+        PhysInvtOrderLine."Item No." := CreateItem();
         PhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePhysicalInventoryOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
         CreatePhysicalInventoryOrderHeader(PhysInvtOrderHeader);
-        PhysInvtOrderHeader."Location Code" := CreateLocation;
+        PhysInvtOrderHeader."Location Code" := CreateLocation();
         PhysInvtOrderHeader.Modify();
         CreatePhysicalInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.");
     end;
 
     local procedure CreatePostedPhysInventoryOrderHeader(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr")
     begin
-        PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode;
+        PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode();
         PstdPhysInvtOrderHdr.Insert();
     end;
 
@@ -173,8 +173,8 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
     begin
         PstdPhysInvtOrderLine."Document No." := DocumentNo;
         PstdPhysInvtOrderLine."Line No." := 1;
-        PstdPhysInvtOrderLine."Item No." := CreateItem;
-        PstdPhysInvtOrderLine."Location Code" := CreateLocation;
+        PstdPhysInvtOrderLine."Item No." := CreateItem();
+        PstdPhysInvtOrderLine."Location Code" := CreateLocation();
         PstdPhysInvtOrderLine.Insert();
     end;
 
@@ -197,7 +197,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
         LibraryVariableStorage.Dequeue(PhysInvtOrderHeaderNo);
         CopyPhysInvtOrder.DocumentType.SetValue(Format(DocumentType::"Phys. Invt. Order"));
         CopyPhysInvtOrder.DocumentNo.SetValue(PhysInvtOrderHeaderNo);
-        CopyPhysInvtOrder.OK.Invoke;
+        CopyPhysInvtOrder.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -210,7 +210,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
         LibraryVariableStorage.Dequeue(PstdPhysInvtOrderHdrNo);
         CopyPhysInvtOrder.DocumentType.SetValue(Format(DocumentType::"Posted Phys. Invt. Order "));
         CopyPhysInvtOrder.DocumentNo.SetValue(PstdPhysInvtOrderHdrNo);
-        CopyPhysInvtOrder.OK.Invoke;
+        CopyPhysInvtOrder.OK().Invoke();
     end;
 
     [MessageHandler]

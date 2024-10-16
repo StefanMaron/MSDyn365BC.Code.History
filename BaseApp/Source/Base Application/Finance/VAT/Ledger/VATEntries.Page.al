@@ -321,7 +321,7 @@ page 315 "VAT Entries"
                     Window.Open(AdjustTitleMsg + ProgressMsg);
 
                     LastEntryNo := VATEntry."Entry No.";
-                    NoOfBuckets := LastEntryNo DIV SizeOfBucket + 1;
+                    NoOfBuckets := LastEntryNo div SizeOfBucket + 1;
 
                     for BucketIndex := 1 to NoOfBuckets do begin
                         VATEntry.SetRange("Entry No.", (BucketIndex - 1) * SizeOfBucket, BucketIndex * SizeOfBucket);
@@ -357,7 +357,7 @@ page 315 "VAT Entries"
                     AccessByPermission = TableData "Incoming Document" = R;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Select Incoming Document';
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = SelectLineToApply;
                     ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
@@ -373,7 +373,7 @@ page 315 "VAT Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Incoming Document from File';
                     Ellipsis = true;
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = Attach;
                     ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 

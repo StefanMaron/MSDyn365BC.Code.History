@@ -20,6 +20,7 @@ table 5430 "Planning Error Log"
     DrillDownPageID = "Planning Error Log";
     LookupPageID = "Planning Error Log";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -48,17 +48,17 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with OCR set up disabled.
-        DisableOCRSetup;
-        TestEmail := RandomEmail;
+        DisableOCRSetup();
+        TestEmail := RandomEmail();
         CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
 
         // [WHEN] The vendor card is opened up in Office Addin.
         OfficeAddinContext.SetRange(Email, TestEmail);
-        VendorCard.Trap;
+        VendorCard.Trap();
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
 
         // [THEN] SendToOCR action in the addin is not visible.
-        Assert.IsFalse(VendorCard.SendToOCR.Visible, SendToOCRActionNotVisibleMsg);
+        Assert.IsFalse(VendorCard.SendToOCR.Visible(), SendToOCRActionNotVisibleMsg);
     end;
 
     [Test]
@@ -75,16 +75,16 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with OCR set up enabled.
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
 
         // [WHEN] The vendor card is opened up in Office Addin.
         OfficeAddinContext.SetRange(Email, TestEmail);
-        VendorCard.Trap;
+        VendorCard.Trap();
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
 
         // [THEN] SendToOCR action in the addin is visible.
-        Assert.IsTrue(VendorCard.SendToOCR.Visible, SendToOCRActionVisibleMsg);
+        Assert.IsTrue(VendorCard.SendToOCR.Visible(), SendToOCRActionVisibleMsg);
     end;
 
     [Test]
@@ -104,7 +104,7 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         Vendor.SetRange("No.", VendorNo);
         Vendor.Get(VendorNo);
@@ -113,11 +113,11 @@ codeunit 139058 "Office OCR Test"
 
         // [WHEN] The vendor card is opened up in Office Addin.
         OfficeAddinContext.SetRange(Email, TestEmail);
-        VendorCard.Trap;
+        VendorCard.Trap();
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
 
         // [THEN] SendToOCR action in the addin is enabled.
-        Assert.IsTrue(VendorCard.SendToOCR.Enabled, SendToOCRActionEnabledMsg);
+        Assert.IsTrue(VendorCard.SendToOCR.Enabled(), SendToOCRActionEnabledMsg);
     end;
 
     [Test]
@@ -134,16 +134,16 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with OCR set up enabled and an email with no attachments exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
 
         // [WHEN] The vendor card is opened up in Office Addin.
         OfficeAddinContext.SetRange(Email, TestEmail);
-        VendorCard.Trap;
+        VendorCard.Trap();
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
 
         // [THEN] SendToOCR action in the addin is disabled.
-        Assert.IsFalse(VendorCard.SendToOCR.Enabled, SendToOCRActionDisabledMsg);
+        Assert.IsFalse(VendorCard.SendToOCR.Enabled(), SendToOCRActionDisabledMsg);
     end;
 
     [Test]
@@ -166,7 +166,7 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         Vendor.SetRange("No.", VendorNo);
         Vendor.Get(VendorNo);
@@ -174,18 +174,18 @@ codeunit 139058 "Office OCR Test"
         LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
           ExchangeObject.InitiatedAction::InitiateSendToOCR, GetRecRefFromVendorNo(VendorNo));
         // [WHEN] The vendor card is opened up in Office Addin.
-        VendorCard.Trap;
+        VendorCard.Trap();
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
 
         // [THEN] SendToOCR action in the addin is enabled.
         // [WHEN] SendToOCR action is invoked.
-        OfficeOCRIncomingDocuments.Trap;
-        VendorCard.SendToOCR.Invoke;
-        OfficeOCRIncomingDocuments.OK.Invoke;
+        OfficeOCRIncomingDocuments.Trap();
+        VendorCard.SendToOCR.Invoke();
+        OfficeOCRIncomingDocuments.OK().Invoke();
         IncomingDocument.SetRange("Vendor Name", VendorNo);
 
         // [THEN] The attachment is sent to OCR and an incoming document created
-        Assert.IsTrue(IncomingDocument.FindFirst, SendToOCRMsg);
+        Assert.IsTrue(IncomingDocument.FindFirst(), SendToOCRMsg);
     end;
 
     [Test]
@@ -208,14 +208,14 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with or without OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         Vendor.SetRange("No.", VendorNo);
         Vendor.Get(VendorNo);
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] The vendor card is opened up in Office Addin.
-        VendorCard.Trap;
+        VendorCard.Trap();
         LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
           ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNo));
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
@@ -224,9 +224,9 @@ codeunit 139058 "Office OCR Test"
         // [WHEN] SendToIncomingDocuments action is invoked.
         IncomingDocument.SetFilter("Vendor No.", VendorNo);
         InitialIncomingDocCount := IncomingDocument.Count();
-        OfficeOCRIncomingDocuments.Trap;
-        VendorCard.SendToIncomingDocuments.Invoke;
-        OfficeOCRIncomingDocuments.OK.Invoke;
+        OfficeOCRIncomingDocuments.Trap();
+        VendorCard.SendToIncomingDocuments.Invoke();
+        OfficeOCRIncomingDocuments.OK().Invoke();
 
         // [THEN] The attachment is sent to incoming documents
         Assert.AreEqual(InitialIncomingDocCount + 1, IncomingDocument.Count, SendAttachmentToIncomingDocumentMsg);
@@ -253,39 +253,39 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with or without OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         Vendor.SetRange("No.", VendorNo);
         Vendor.Get(VendorNo);
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] The vendor card is opened up in Office Addin.
-        VendorCard.Trap;
+        VendorCard.Trap();
         LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
           ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNo));
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
 
         // [THEN] A vendor card is opened
         // [WHEN] A New Purchase Invoice is created from the vendor card
-        PurchaseInvoice.Trap;
-        VendorCard.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
 
         // [THEN] A Purchase invoice card is opened with "Create Incoming Document from Attachment" action enabled and "View Incoming Document" action disabled
-        Assert.IsTrue(PurchaseInvoice.IncomingDocEmailAttachment.Enabled, PurchaseInvoiceIncomingEmailAttachEnabledMsg);
-        Assert.IsFalse(PurchaseInvoice.IncomingDocCard.Enabled, PurchaseInvoiceViewIncomingDocDisabledMsg);
+        Assert.IsTrue(PurchaseInvoice.IncomingDocEmailAttachment.Enabled(), PurchaseInvoiceIncomingEmailAttachEnabledMsg);
+        Assert.IsFalse(PurchaseInvoice.IncomingDocCard.Enabled(), PurchaseInvoiceViewIncomingDocDisabledMsg);
 
         // [WHEN] SendToIncomingDocuments action is invoked.
-        OfficeOCRIncomingDocuments.Trap;
-        PurchaseInvoice.IncomingDocEmailAttachment.Invoke;
-        OfficeOCRIncomingDocuments.OK.Invoke;
+        OfficeOCRIncomingDocuments.Trap();
+        PurchaseInvoice.IncomingDocEmailAttachment.Invoke();
+        OfficeOCRIncomingDocuments.OK().Invoke();
 
         // [THEN] "View Incoming Document" action in the Purchase Invoice page is enabled
         if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value()) then begin
             PurchaseInvoice.Close();
-            PurchaseInvoice.Trap;
+            PurchaseInvoice.Trap();
             PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
         end;
-        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled, PurchaseInvoiceViewIncomingDocEnabledMsg);
+        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled(), PurchaseInvoiceViewIncomingDocEnabledMsg);
     end;
 
     [Test]
@@ -307,29 +307,29 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with or without OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         Vendor.SetRange("No.", VendorNo);
         Vendor.Get(VendorNo);
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] The vendor card is opened up in Office Addin and there is an approval request workflow.
-        VendorCard.Trap;
-        OfficeOCRIncomingDocuments.Trap;
-        CreateIncomingDocumentWorkflow;
+        VendorCard.Trap();
+        OfficeOCRIncomingDocuments.Trap();
+        CreateIncomingDocumentWorkflow();
         LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
           ExchangeObject.InitiatedAction::InitiateSendToWorkFlow, GetRecRefFromVendorNo(VendorNo));
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
 
         // [THEN] SendIncomingDocApprovalRequest action in the addin is enabled.
         // [WHEN] SendIncomingDocApprovalRequest action is invoked.
-        OfficeOCRIncomingDocuments.Trap;
-        VendorCard.SendIncomingDocApprovalRequest.Invoke;
-        OfficeOCRIncomingDocuments.OK.Invoke;
+        OfficeOCRIncomingDocuments.Trap();
+        VendorCard.SendIncomingDocApprovalRequest.Invoke();
+        OfficeOCRIncomingDocuments.OK().Invoke();
         IncomingDocument.SetRange("Vendor Name", VendorNo);
 
         // [THEN] The attachment is sent to incoming documents
-        Assert.IsTrue(IncomingDocument.FindFirst, SendIncomingDocApprovalRequestMsg);
+        Assert.IsTrue(IncomingDocument.FindFirst(), SendIncomingDocApprovalRequestMsg);
     end;
 
     [Test]
@@ -349,21 +349,21 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with or without OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         Vendor.SetRange("No.", VendorNo);
         Vendor.Get(VendorNo);
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] The vendor card is opened up in Office Addin and there is an approval request workflow.
-        VendorCard.Trap;
-        CreateIncomingDocumentWorkflow;
+        VendorCard.Trap();
+        CreateIncomingDocumentWorkflow();
         LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
           ExchangeObject.InitiatedAction::InitiateSendToOCR, GetRecRefFromVendorNo(VendorNo));
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
 
         // [THEN] SendToOCR action in the addin is not visible.
-        Assert.IsFalse(VendorCard.SendToOCR.Visible, SendToOCRActionNotVisible_WorkflowExistsMsg);
+        Assert.IsFalse(VendorCard.SendToOCR.Visible(), SendToOCRActionNotVisible_WorkflowExistsMsg);
     end;
 
     [Test]
@@ -383,23 +383,23 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookMobileApp);
 
         // [GIVEN] A Vendor in a system with or without OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] The vendor card is opened up in Office Addin.
-        VendorCard.Trap;
+        VendorCard.Trap();
         LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
           ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNo));
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookMobileApp);
 
         // [WHEN] A New Purchase Invoice is created from the vendor card
-        PurchaseInvoice.Trap;
-        VendorCard.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
 
         // [THEN] A Purchase invoice card is opened with "Create from Attachment" action not visible, "Create from File" action is not visible
-        Assert.IsFalse(PurchaseInvoice.IncomingDocEmailAttachment.Visible, PurchaseInvoiceCreateFromAttachmentVisibleMsg);
-        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFile.Visible, PurchaseInvoiceCreateFromFileVisibleMsg);
+        Assert.IsFalse(PurchaseInvoice.IncomingDocEmailAttachment.Visible(), PurchaseInvoiceCreateFromAttachmentVisibleMsg);
+        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFile.Visible(), PurchaseInvoiceCreateFromFileVisibleMsg);
     end;
 
     [Test]
@@ -416,16 +416,16 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookMobileApp);
 
         // [GIVEN] A Vendor in a system with OCR set up enabled.
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
 
         // [WHEN] The vendor card is opened up in Office Addin.
         OfficeAddinContext.SetRange(Email, TestEmail);
-        VendorCard.Trap;
+        VendorCard.Trap();
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookMobileApp);
 
         // [THEN] SendToOCR action in the addin is not visible.
-        Assert.IsFalse(VendorCard.SendToOCR.Visible, SendToOCRActionOfficeMobileVisibleMsg);
+        Assert.IsFalse(VendorCard.SendToOCR.Visible(), SendToOCRActionOfficeMobileVisibleMsg);
     end;
 
     [Test]
@@ -450,42 +450,42 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system with or without OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         Vendor.SetRange("No.", VendorNo);
         Vendor.Get(VendorNo);
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] The vendor card is opened up in Office Addin.
-        VendorCard.Trap;
+        VendorCard.Trap();
         LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
           ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNo));
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
 
         // [THEN] A vendor card is opened
         // [WHEN] A New Purchase Invoice is created from the vendor card
-        PurchaseInvoice.Trap;
-        VendorCard.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
 
         // [THEN] A Purchase invoice card is opened with "Create Incoming Document from Attachment" action enabled and "View Incoming Document" action disabled
-        Assert.IsTrue(PurchaseInvoice.IncomingDocEmailAttachment.Enabled, PurchaseInvoiceIncomingEmailAttachEnabledMsg);
+        Assert.IsTrue(PurchaseInvoice.IncomingDocEmailAttachment.Enabled(), PurchaseInvoiceIncomingEmailAttachEnabledMsg);
 
         // [WHEN] A Purchase invoice card is opened an lines are added
         if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value()) then
             LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
 
         // [WHEN] SendToIncomingDocuments action is invoked.
-        OfficeOCRIncomingDocuments.Trap;
-        PurchaseInvoice.IncomingDocEmailAttachment.Invoke;
-        OfficeOCRIncomingDocuments.OK.Invoke;
+        OfficeOCRIncomingDocuments.Trap();
+        PurchaseInvoice.IncomingDocEmailAttachment.Invoke();
+        OfficeOCRIncomingDocuments.OK().Invoke();
 
         // [THEN] "View Incoming Document" action in the Purchase Invoice page is enabled
         if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value()) then begin
             PurchaseInvoice.Close();
-            PurchaseInvoice.Trap;
+            PurchaseInvoice.Trap();
             PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
         end;
-        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled, PurchaseInvoiceViewIncomingDocEnabledMsg);
+        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled(), PurchaseInvoiceViewIncomingDocEnabledMsg);
     end;
 
     [Test]
@@ -508,14 +508,14 @@ codeunit 139058 "Office OCR Test"
         Initialize(OfficeHostType.OutlookItemRead);
 
         // [GIVEN] A Vendor in a system exists
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         Vendor.SetRange("No.", VendorNo);
         Vendor.Get(VendorNo);
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] The vendor card is opened up in Office Addin.
-        VendorCard.Trap;
+        VendorCard.Trap();
         LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
           ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNo));
         RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
@@ -574,7 +574,7 @@ codeunit 139058 "Office OCR Test"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
@@ -586,7 +586,7 @@ codeunit 139058 "Office OCR Test"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;
@@ -603,7 +603,7 @@ codeunit 139058 "Office OCR Test"
 
     local procedure RandomEmail(): Text[80]
     begin
-        exit(StrSubstNo('%1@%2', CreateGuid, 'contoso.com'));
+        exit(StrSubstNo('%1@%2', CreateGuid(), 'contoso.com'));
     end;
 
     [Scope('OnPrem')]
@@ -676,7 +676,7 @@ codeunit 139058 "Office OCR Test"
         AddinManifestManagement.GetAddinByHostType(OfficeAddin, OfficeHostType);
         OfficeAddinContext.SetRange(Version, OfficeAddin.Version);
 
-        OutlookMailEngine.Trap;
+        OutlookMailEngine.Trap();
         PAGE.Run(PAGE::"Outlook Mail Engine", OfficeAddinContext);
     end;
 
@@ -740,7 +740,7 @@ codeunit 139058 "Office OCR Test"
     [Scope('OnPrem')]
     procedure OfficeAttachmentsPageHandler(var OfficeAttachments: TestPage "Office Attachments")
     begin
-        OfficeAttachments.OK.Invoke();
+        OfficeAttachments.OK().Invoke();
     end;
 
     local procedure CreateIncomingDocumentWorkflow()
@@ -761,15 +761,15 @@ codeunit 139058 "Office OCR Test"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         SecondEvent :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode());
         SecondResponse :=
-          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApproveAllApprovalRequestsCode, SecondEvent);
-        ThirdResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, SecondResponse);
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApproveAllApprovalRequestsCode(), SecondEvent);
+        ThirdResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), SecondResponse);
 
         ThirdEvent :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode, ThirdResponse);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode(), ThirdResponse);
         FourthResponse := LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.CreateApprovalRequestsCode, ThirdEvent);
+            WorkflowResponseHandling.CreateApprovalRequestsCode(), ThirdEvent);
 
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         LibraryWorkflow.InsertPmtLineCreationArgument(FourthResponse, GenJournalBatch."Journal Template Name", GenJournalBatch.Name);

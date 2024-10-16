@@ -15,6 +15,7 @@ using Microsoft.Sales.History;
 using Microsoft.Upgrade;
 using System.Environment;
 using System.Upgrade;
+using Microsoft.Sales.Customer;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Setup;
 using Microsoft.HumanResources.Employee;
@@ -120,6 +121,7 @@ codeunit 9994 "API Data Upgrade"
                     'SALES SHIPMENTS':
                         begin
                             UpgradeSalesShipmentLineDocumentId(false);
+                            UpgradeSalesShipmentCustomerId();
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
                     'PURCHASE ORDERS':
@@ -615,6 +617,39 @@ codeunit 9994 "API Data Upgrade"
         end;
     end;
 
+    procedure UpgradeSalesShipmentCustomerId()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentHeader2: Record "Sales Shipment Header";
+        Customer: Record Customer;
+        Modified: Boolean;
+        RecordCount: Integer;
+    begin
+        SalesShipmentHeader.SetLoadFields("Sell-to Customer No.", "Bill-to Customer No.", "Customer Id", "Bill-to Customer Id");
+        Customer.SetLoadFields("No.", SystemId);
+        if SalesShipmentHeader.FindSet() then
+            repeat
+                if Customer.Get(SalesShipmentHeader."Sell-to Customer No.") then
+                    if SalesShipmentHeader."Customer Id" <> Customer.SystemId then begin
+                        SalesShipmentHeader2 := SalesShipmentHeader;
+                        SalesShipmentHeader2."Customer Id" := Customer.SystemId;
+                        Modified := true;
+                    end;
+                if Customer.Get(SalesShipmentHeader."Bill-to Customer No.") then
+                    if SalesShipmentHeader."Bill-to Customer Id" <> Customer.SystemId then begin
+                        if not Modified then
+                            SalesShipmentHeader2 := SalesShipmentHeader;
+                        SalesShipmentHeader2."Bill-to Customer Id" := Customer.SystemId;
+                        Modified := true;
+                    end;
+                if Modified then begin
+                    SalesShipmentHeader2.Modify();
+                    CountRecordsAndCommit(RecordCount);
+                    Modified := false;
+                end;
+            until SalesShipmentHeader.Next() = 0;
+    end;
+
     procedure UpgradeFixedAssetLocationId()
     var
         FixedAsset: Record "Fixed Asset";
@@ -840,13 +875,15 @@ codeunit 9994 "API Data Upgrade"
         OldId: Guid;
         NewId: Guid;
         Changed: Boolean;
+        ShipmentMethodCode: Code[10];
     begin
         if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FieldNo("Shipment Method Code")) then
             Changed := true;
         CodeFieldRef := TargetRecordRef.Field(SalesOrderEntityBuffer.FieldNo("Shipment Method Code"));
         IdFieldRef := TargetRecordRef.Field(SalesOrderEntityBuffer.FieldNo("Shipment Method Id"));
-        OldId := IdFieldRef.Value;
-        if ShipmentMethod.Get(CodeFieldRef.Value) then
+        OldId := IdFieldRef.Value();
+        ShipmentMethodCode := CodeFieldRef.Value();
+        if ShipmentMethod.Get(ShipmentMethodCode) then
             NewId := ShipmentMethod.SystemId
         else
             NewId := EmptyGuid;
@@ -866,7 +903,7 @@ codeunit 9994 "API Data Upgrade"
         SourceFieldRef := SourceRecordRef.Field(FieldNo);
         TargetFieldRef := TargetRecordRef.Field(FieldNo);
         if TargetFieldRef.Value <> SourceFieldRef.Value then begin
-            TargetFieldRef.Value := SourceFieldRef.Value;
+            TargetFieldRef.Value := SourceFieldRef.Value();
             exit(true);
         end;
         exit(false);

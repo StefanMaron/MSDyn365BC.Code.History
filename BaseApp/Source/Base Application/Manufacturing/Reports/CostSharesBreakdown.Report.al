@@ -519,14 +519,13 @@ report 5848 "Cost Shares Breakdown"
     begin
         RemainingQty := FromItemLedgEntry.Quantity;
 
-        with ItemApplnEntry do
-            if FromItemLedgEntry.Positive then begin
-                if TempCostShareBuffer.Get(FromItemLedgEntry."Entry No.") then
+        if FromItemLedgEntry.Positive then begin
+            if TempCostShareBuffer.Get(FromItemLedgEntry."Entry No.") then
+                exit;
+            if not ItemApplnEntry.AppliedFromEntryExists(FromItemLedgEntry."Entry No.") then
+                if ForwardToAppliedOutbndEntry(FromItemLedgEntry."Entry No.") then
                     exit;
-                if not AppliedFromEntryExists(FromItemLedgEntry."Entry No.") then
-                    if ForwardToAppliedOutbndEntry(FromItemLedgEntry."Entry No.") then
-                        exit;
-            end;
+        end;
 
         if (FromItemLedgEntry."Posting Date" > EndDate) and (EndDate <> 0D) then
             exit;
@@ -539,11 +538,10 @@ report 5848 "Cost Shares Breakdown"
     var
         ItemApplnEntry: Record "Item Application Entry";
     begin
-        with ItemApplnEntry do
-            if AppliedOutbndEntryExists(EntryNo, true, false) then begin
-                ForwardItemLedgEntryCostShare(ItemApplnEntry, EntryNo, false);
-                exit(true);
-            end;
+        if ItemApplnEntry.AppliedOutbndEntryExists(EntryNo, true, false) then begin
+            ForwardItemLedgEntryCostShare(ItemApplnEntry, EntryNo, false);
+            exit(true);
+        end;
         exit(false);
     end;
 
@@ -551,20 +549,18 @@ report 5848 "Cost Shares Breakdown"
     var
         ItemApplnEntry: Record "Item Application Entry";
     begin
-        with ItemApplnEntry do
-            if AppliedInbndEntryExists(EntryNo, true) then
-                ForwardItemLedgEntryCostShare(ItemApplnEntry, EntryNo, true);
+        if ItemApplnEntry.AppliedInbndEntryExists(EntryNo, true) then
+            ForwardItemLedgEntryCostShare(ItemApplnEntry, EntryNo, true);
     end;
 
     local procedure ForwardToInbndTranEntry(EntryNo: Integer): Boolean
     var
         ItemApplnEntry: Record "Item Application Entry";
     begin
-        with ItemApplnEntry do
-            if AppliedInbndTransEntryExists(EntryNo, true) then begin
-                ForwardItemLedgEntryCostShare(ItemApplnEntry, EntryNo, true);
-                exit(true);
-            end;
+        if ItemApplnEntry.AppliedInbndTransEntryExists(EntryNo, true) then begin
+            ForwardItemLedgEntryCostShare(ItemApplnEntry, EntryNo, true);
+            exit(true);
+        end;
         exit(false);
     end;
 
@@ -602,30 +598,28 @@ report 5848 "Cost Shares Breakdown"
                 then
                     AppliedQty := AppliedQty + ItemApplnEntry.Quantity;
 
-                with ToCostShareBuffer do begin
-                    if Quantity < 0 then
-                        "New Quantity" := "New Quantity" - ItemApplnEntry.Quantity;
+                if ToCostShareBuffer.Quantity < 0 then
+                    ToCostShareBuffer."New Quantity" := ToCostShareBuffer."New Quantity" - ItemApplnEntry.Quantity;
 
-                    CostShare := ItemApplnEntry.Quantity / FromCostShareBuffer.Quantity;
-                    UpdateCosts(FromCostShareBuffer, ToCostShareBuffer, CostShare, true);
+                CostShare := ItemApplnEntry.Quantity / FromCostShareBuffer.Quantity;
+                UpdateCosts(FromCostShareBuffer, ToCostShareBuffer, CostShare, true);
 
+                TempCostShareBuffer := ToCostShareBuffer;
+                TempCostShareBuffer.Modify();
+
+                ForwardToAppliedOutbndEntry(ToCostShareBuffer."Item Ledger Entry No.");
+                if ToCostShareBuffer."New Quantity" - ToItemLedgEntry."Remaining Quantity" = 0 then
+                    ForwardToAppliedInbndEntry(ToCostShareBuffer."Item Ledger Entry No.");
+
+                if (ToCostShareBuffer.Quantity < 0) and
+                   (CostSharePrint in [CostSharePrint::Inventory, CostSharePrint::"WIP Inventory"])
+                then begin
+                    TempCostShareBuffer.Find();
+                    ToCostShareBuffer := TempCostShareBuffer;
+                    CostShare := -CostShare;
+                    UpdateCosts(FromCostShareBuffer, ToCostShareBuffer, CostShare, false);
                     TempCostShareBuffer := ToCostShareBuffer;
                     TempCostShareBuffer.Modify();
-
-                    ForwardToAppliedOutbndEntry("Item Ledger Entry No.");
-                    if "New Quantity" - ToItemLedgEntry."Remaining Quantity" = 0 then
-                        ForwardToAppliedInbndEntry("Item Ledger Entry No.");
-
-                    if (Quantity < 0) and
-                       (CostSharePrint in [CostSharePrint::Inventory, CostSharePrint::"WIP Inventory"])
-                    then begin
-                        TempCostShareBuffer.Find();
-                        ToCostShareBuffer := TempCostShareBuffer;
-                        CostShare := -CostShare;
-                        UpdateCosts(FromCostShareBuffer, ToCostShareBuffer, CostShare, false);
-                        TempCostShareBuffer := ToCostShareBuffer;
-                        TempCostShareBuffer.Modify();
-                    end;
                 end;
             end;
         until ItemApplnEntry.Next() = 0;
@@ -637,48 +631,44 @@ report 5848 "Cost Shares Breakdown"
             end else
                 exit;
 
-        with FromCostShareBuffer do begin
-            if (CostSharePrint = CostSharePrint::Inventory) and (Quantity > 0) then begin
-                "New Quantity" := "New Quantity" + AppliedQty;
-                CostShare := AppliedQty / Quantity;
-                UpdateCosts(FromCostShareBuffer, FromCostShareBuffer, CostShare, false);
-            end;
-            TempCostShareBuffer := FromCostShareBuffer;
-            TempCostShareBuffer.Modify();
+        if (CostSharePrint = CostSharePrint::Inventory) and (FromCostShareBuffer.Quantity > 0) then begin
+            FromCostShareBuffer."New Quantity" := FromCostShareBuffer."New Quantity" + AppliedQty;
+            CostShare := AppliedQty / FromCostShareBuffer.Quantity;
+            UpdateCosts(FromCostShareBuffer, FromCostShareBuffer, CostShare, false);
         end;
+        TempCostShareBuffer := FromCostShareBuffer;
+        TempCostShareBuffer.Modify();
     end;
 
     local procedure UpdateCosts(FromCostShareBuffer: Record "Cost Share Buffer"; var ToCostShareBuffer: Record "Cost Share Buffer"; CostShare: Decimal; DirCostIsDiff: Boolean)
     begin
-        with ToCostShareBuffer do begin
-            "New Indirect Cost" := "New Indirect Cost" + CostShare * FromCostShareBuffer."New Indirect Cost";
-            if CostSharePrint = CostSharePrint::Sales then
-                "New Revaluation" := "New Revaluation" + CostShare * FromCostShareBuffer."New Revaluation";
-            "New Rounding" := "New Rounding" + CostShare * FromCostShareBuffer."New Rounding";
-            "New Variance" := "New Variance" + CostShare * FromCostShareBuffer."New Variance";
-            "New Purchase Variance" := "New Purchase Variance" + CostShare * FromCostShareBuffer."New Purchase Variance";
-            "New Material Variance" := "New Material Variance" + CostShare * FromCostShareBuffer."New Material Variance";
-            "New Capacity Variance" := "New Capacity Variance" + CostShare * FromCostShareBuffer."New Capacity Variance";
-            "New Capacity Overhead Variance" :=
-              "New Capacity Overhead Variance" + CostShare * FromCostShareBuffer."New Capacity Overhead Variance";
-            "New Mfg. Overhead Variance" :=
-              "New Mfg. Overhead Variance" + CostShare * FromCostShareBuffer."New Mfg. Overhead Variance";
-            "New Subcontracted Variance" :=
-              "New Subcontracted Variance" + CostShare * FromCostShareBuffer."New Subcontracted Variance";
-            if DirCostIsDiff then
-                "New Direct Cost" := "New Direct Cost" - CostShare *
-                  (FromCostShareBuffer."New Indirect Cost" +
-                   FromCostShareBuffer."New Revaluation" +
-                   FromCostShareBuffer."New Variance" +
-                   FromCostShareBuffer."New Rounding")
-            else
-                "New Direct Cost" := "New Direct Cost" + CostShare * FromCostShareBuffer."New Direct Cost";
-            "New Capacity" := "New Capacity" + CostShare * FromCostShareBuffer."New Capacity";
-            "New Capacity Overhead" := "New Capacity Overhead" + CostShare * FromCostShareBuffer."New Capacity Overhead";
-            "New Material Overhead" := "New Material Overhead" + CostShare * FromCostShareBuffer."New Material Overhead";
-            "New Subcontracted" := "New Subcontracted" + CostShare * FromCostShareBuffer."New Subcontracted";
-            "New Material" := "New Direct Cost" - ("New Capacity" + "New Capacity Overhead" + "New Subcontracted");
-        end;
+        ToCostShareBuffer."New Indirect Cost" := ToCostShareBuffer."New Indirect Cost" + CostShare * FromCostShareBuffer."New Indirect Cost";
+        if CostSharePrint = CostSharePrint::Sales then
+            ToCostShareBuffer."New Revaluation" := ToCostShareBuffer."New Revaluation" + CostShare * FromCostShareBuffer."New Revaluation";
+        ToCostShareBuffer."New Rounding" := ToCostShareBuffer."New Rounding" + CostShare * FromCostShareBuffer."New Rounding";
+        ToCostShareBuffer."New Variance" := ToCostShareBuffer."New Variance" + CostShare * FromCostShareBuffer."New Variance";
+        ToCostShareBuffer."New Purchase Variance" := ToCostShareBuffer."New Purchase Variance" + CostShare * FromCostShareBuffer."New Purchase Variance";
+        ToCostShareBuffer."New Material Variance" := ToCostShareBuffer."New Material Variance" + CostShare * FromCostShareBuffer."New Material Variance";
+        ToCostShareBuffer."New Capacity Variance" := ToCostShareBuffer."New Capacity Variance" + CostShare * FromCostShareBuffer."New Capacity Variance";
+        ToCostShareBuffer."New Capacity Overhead Variance" :=
+          ToCostShareBuffer."New Capacity Overhead Variance" + CostShare * FromCostShareBuffer."New Capacity Overhead Variance";
+        ToCostShareBuffer."New Mfg. Overhead Variance" :=
+          ToCostShareBuffer."New Mfg. Overhead Variance" + CostShare * FromCostShareBuffer."New Mfg. Overhead Variance";
+        ToCostShareBuffer."New Subcontracted Variance" :=
+          ToCostShareBuffer."New Subcontracted Variance" + CostShare * FromCostShareBuffer."New Subcontracted Variance";
+        if DirCostIsDiff then
+            ToCostShareBuffer."New Direct Cost" := ToCostShareBuffer."New Direct Cost" - CostShare *
+              (FromCostShareBuffer."New Indirect Cost" +
+               FromCostShareBuffer."New Revaluation" +
+               FromCostShareBuffer."New Variance" +
+               FromCostShareBuffer."New Rounding")
+        else
+            ToCostShareBuffer."New Direct Cost" := ToCostShareBuffer."New Direct Cost" + CostShare * FromCostShareBuffer."New Direct Cost";
+        ToCostShareBuffer."New Capacity" := ToCostShareBuffer."New Capacity" + CostShare * FromCostShareBuffer."New Capacity";
+        ToCostShareBuffer."New Capacity Overhead" := ToCostShareBuffer."New Capacity Overhead" + CostShare * FromCostShareBuffer."New Capacity Overhead";
+        ToCostShareBuffer."New Material Overhead" := ToCostShareBuffer."New Material Overhead" + CostShare * FromCostShareBuffer."New Material Overhead";
+        ToCostShareBuffer."New Subcontracted" := ToCostShareBuffer."New Subcontracted" + CostShare * FromCostShareBuffer."New Subcontracted";
+        ToCostShareBuffer."New Material" := ToCostShareBuffer."New Direct Cost" - (ToCostShareBuffer."New Capacity" + ToCostShareBuffer."New Capacity Overhead" + ToCostShareBuffer."New Subcontracted");
     end;
 
     local procedure InsertItemLedgEntryCostShare(ItemLedgEntry: Record "Item Ledger Entry")
@@ -689,76 +679,74 @@ report 5848 "Cost Shares Breakdown"
         DirectCostInPeriod: Decimal;
         TotalDirectCost: Decimal;
     begin
-        with TempCostShareBuffer do begin
-            Init();
-            "Item Ledger Entry No." := ItemLedgEntry."Entry No.";
-            "Item No." := ItemLedgEntry."Item No.";
-            Quantity := ItemLedgEntry.Quantity;
-            "Entry Type" := ItemLedgEntry."Entry Type";
-            "Location Code" := ItemLedgEntry."Location Code";
-            "Variant Code" := ItemLedgEntry."Variant Code";
-            "Order Type" := ItemLedgEntry."Order Type";
-            "Order No." := ItemLedgEntry."Order No.";
-            "Order Line No." := ItemLedgEntry."Order Line No.";
-            "Document No." := ItemLedgEntry."Document No.";
-            Description := ItemLedgEntry.Description;
-            "Posting Date" := ItemLedgEntry."Posting Date";
+        TempCostShareBuffer.Init();
+        TempCostShareBuffer."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
+        TempCostShareBuffer."Item No." := ItemLedgEntry."Item No.";
+        TempCostShareBuffer.Quantity := ItemLedgEntry.Quantity;
+        TempCostShareBuffer."Entry Type" := ItemLedgEntry."Entry Type";
+        TempCostShareBuffer."Location Code" := ItemLedgEntry."Location Code";
+        TempCostShareBuffer."Variant Code" := ItemLedgEntry."Variant Code";
+        TempCostShareBuffer."Order Type" := ItemLedgEntry."Order Type";
+        TempCostShareBuffer."Order No." := ItemLedgEntry."Order No.";
+        TempCostShareBuffer."Order Line No." := ItemLedgEntry."Order Line No.";
+        TempCostShareBuffer."Document No." := ItemLedgEntry."Document No.";
+        TempCostShareBuffer.Description := ItemLedgEntry.Description;
+        TempCostShareBuffer."Posting Date" := ItemLedgEntry."Posting Date";
 
-            TotalCost := 0;
-            CostInPeriod := 0;
-            DirectCostInPeriod := 0;
-            TotalDirectCost := 0;
-            ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-            ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-            if EndDate <> 0D then
-                ValueEntry.SetRange("Posting Date", 0D, EndDate);
-            if ValueEntry.Find('-') then
-                repeat
-                    GetValueEntryCostAmts(TempCostShareBuffer, ValueEntry);
+        TotalCost := 0;
+        CostInPeriod := 0;
+        DirectCostInPeriod := 0;
+        TotalDirectCost := 0;
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+        if EndDate <> 0D then
+            ValueEntry.SetRange("Posting Date", 0D, EndDate);
+        if ValueEntry.Find('-') then
+            repeat
+                GetValueEntryCostAmts(TempCostShareBuffer, ValueEntry);
 
-                    if IsInCostingPeriod(ValueEntry."Posting Date") then begin
-                        CostInPeriod := CostInPeriod + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                        if ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost" then
-                            DirectCostInPeriod := DirectCostInPeriod + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                    end;
-                    TotalCost := TotalCost + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+                if IsInCostingPeriod(ValueEntry."Posting Date") then begin
+                    CostInPeriod := CostInPeriod + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
                     if ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost" then
-                        TotalDirectCost := TotalDirectCost + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                until ValueEntry.Next() = 0;
+                        DirectCostInPeriod := DirectCostInPeriod + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+                end;
+                TotalCost := TotalCost + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+                if ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost" then
+                    TotalDirectCost := TotalDirectCost + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+            until ValueEntry.Next() = 0;
 
-            if ItemLedgEntry."Entry Type" in [ItemLedgEntry."Entry Type"::Output,
-                                              ItemLedgEntry."Entry Type"::"Assembly Output"]
-            then
-                UpdateCostShareBufFromInvAdjmtEntryOrder(ItemLedgEntry, TempCostShareBuffer)
-            else
-                "Material Overhead" := "Indirect Cost";
+        if ItemLedgEntry."Entry Type" in [ItemLedgEntry."Entry Type"::Output,
+                                          ItemLedgEntry."Entry Type"::"Assembly Output"]
+        then
+            UpdateCostShareBufFromInvAdjmtEntryOrder(ItemLedgEntry, TempCostShareBuffer)
+        else
+            TempCostShareBuffer."Material Overhead" := TempCostShareBuffer."Indirect Cost";
 
-            Material := "Direct Cost" - (Capacity + "Capacity Overhead" + Subcontracted);
+        TempCostShareBuffer.Material := TempCostShareBuffer."Direct Cost" - (TempCostShareBuffer.Capacity + TempCostShareBuffer."Capacity Overhead" + TempCostShareBuffer.Subcontracted);
 
-            if TotalCost <> 0 then
-                "Share of Cost in Period" := CostInPeriod / TotalCost;
+        if TotalCost <> 0 then
+            TempCostShareBuffer."Share of Cost in Period" := CostInPeriod / TotalCost;
 
-            "New Quantity" := Quantity;
-            "New Direct Cost" := "Direct Cost";
-            "New Indirect Cost" := "Indirect Cost";
-            "New Revaluation" := Revaluation;
-            "New Variance" := Variance;
-            "New Rounding" := Rounding;
+        TempCostShareBuffer."New Quantity" := TempCostShareBuffer.Quantity;
+        TempCostShareBuffer."New Direct Cost" := TempCostShareBuffer."Direct Cost";
+        TempCostShareBuffer."New Indirect Cost" := TempCostShareBuffer."Indirect Cost";
+        TempCostShareBuffer."New Revaluation" := TempCostShareBuffer.Revaluation;
+        TempCostShareBuffer."New Variance" := TempCostShareBuffer.Variance;
+        TempCostShareBuffer."New Rounding" := TempCostShareBuffer.Rounding;
 
-            "New Purchase Variance" := "Purchase Variance";
-            "New Material Variance" := "Material Variance";
-            "New Capacity Variance" := "Capacity Variance";
-            "New Capacity Overhead Variance" := "Capacity Overhead Variance";
-            "New Mfg. Overhead Variance" := "Mfg. Overhead Variance";
-            "New Subcontracted Variance" := "Subcontracted Variance";
+        TempCostShareBuffer."New Purchase Variance" := TempCostShareBuffer."Purchase Variance";
+        TempCostShareBuffer."New Material Variance" := TempCostShareBuffer."Material Variance";
+        TempCostShareBuffer."New Capacity Variance" := TempCostShareBuffer."Capacity Variance";
+        TempCostShareBuffer."New Capacity Overhead Variance" := TempCostShareBuffer."Capacity Overhead Variance";
+        TempCostShareBuffer."New Mfg. Overhead Variance" := TempCostShareBuffer."Mfg. Overhead Variance";
+        TempCostShareBuffer."New Subcontracted Variance" := TempCostShareBuffer."Subcontracted Variance";
 
-            "New Material" := Material;
-            "New Capacity" := Capacity;
-            "New Capacity Overhead" := "Capacity Overhead";
-            "New Material Overhead" := "Material Overhead";
-            "New Subcontracted" := Subcontracted;
-            Insert();
-        end;
+        TempCostShareBuffer."New Material" := TempCostShareBuffer.Material;
+        TempCostShareBuffer."New Capacity" := TempCostShareBuffer.Capacity;
+        TempCostShareBuffer."New Capacity Overhead" := TempCostShareBuffer."Capacity Overhead";
+        TempCostShareBuffer."New Material Overhead" := TempCostShareBuffer."Material Overhead";
+        TempCostShareBuffer."New Subcontracted" := TempCostShareBuffer.Subcontracted;
+        TempCostShareBuffer.Insert();
     end;
 
     local procedure UpdateCostShareBufFromInvAdjmtEntryOrder(ItemLedgEntry: Record "Item Ledger Entry"; var CostShareBuffer: Record "Cost Share Buffer")
@@ -774,19 +762,17 @@ report 5848 "Cost Shares Breakdown"
         OutputQty := CalcInvtAdjmtOrder.CalcOutputQty(InvtAdjmtEntryOrder, false);
         CalcInvtAdjmtOrder.CalcActualUsageCosts(InvtAdjmtEntryOrder, OutputQty, InvtAdjmtEntryOrder);
 
-        with CostShareBuffer do begin
-            Capacity += InvtAdjmtEntryOrder."Single-Level Capacity Cost";
-            "Capacity Overhead" += InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
-            "Material Overhead" += InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
-            Subcontracted += InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
+        CostShareBuffer.Capacity += InvtAdjmtEntryOrder."Single-Level Capacity Cost";
+        CostShareBuffer."Capacity Overhead" += InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
+        CostShareBuffer."Material Overhead" += InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
+        CostShareBuffer.Subcontracted += InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
 
-            if OutputQty <> 0 then begin
-                ShareOfCost := ItemLedgEntry.Quantity / OutputQty;
-                Capacity *= ShareOfCost;
-                "Capacity Overhead" *= ShareOfCost;
-                "Material Overhead" *= ShareOfCost;
-                Subcontracted *= ShareOfCost;
-            end;
+        if OutputQty <> 0 then begin
+            ShareOfCost := ItemLedgEntry.Quantity / OutputQty;
+            CostShareBuffer.Capacity *= ShareOfCost;
+            CostShareBuffer."Capacity Overhead" *= ShareOfCost;
+            CostShareBuffer."Material Overhead" *= ShareOfCost;
+            CostShareBuffer.Subcontracted *= ShareOfCost;
         end;
     end;
 
@@ -796,99 +782,96 @@ report 5848 "Cost Shares Breakdown"
         CostInPeriod: Decimal;
         TotalCost: Decimal;
     begin
-        with TempCostShareBuffer do begin
-            Init();
-            "Capacity Ledger Entry No." := CapLedgEntry."Entry No.";
-            "Item No." := CapLedgEntry."Item No.";
-            Quantity := CapLedgEntry.Quantity;
-            "Entry Type" := "Entry Type"::" ";
-            "Order Type" := CapLedgEntry."Order Type";
-            "Order No." := CapLedgEntry."Order No.";
-            "Order Line No." := CapLedgEntry."Order Line No.";
-            "Document No." := CapLedgEntry."Document No.";
-            Description := CapLedgEntry.Description;
+        TempCostShareBuffer.Init();
+        TempCostShareBuffer."Capacity Ledger Entry No." := CapLedgEntry."Entry No.";
+        TempCostShareBuffer."Item No." := CapLedgEntry."Item No.";
+        TempCostShareBuffer.Quantity := CapLedgEntry.Quantity;
+        TempCostShareBuffer."Entry Type" := TempCostShareBuffer."Entry Type"::" ";
+        TempCostShareBuffer."Order Type" := CapLedgEntry."Order Type";
+        TempCostShareBuffer."Order No." := CapLedgEntry."Order No.";
+        TempCostShareBuffer."Order Line No." := CapLedgEntry."Order Line No.";
+        TempCostShareBuffer."Document No." := CapLedgEntry."Document No.";
+        TempCostShareBuffer.Description := CapLedgEntry.Description;
 
-            TotalCost := 0;
-            CostInPeriod := 0;
-            ValueEntry.SetCurrentKey("Capacity Ledger Entry No.", "Entry Type");
-            ValueEntry.SetRange("Capacity Ledger Entry No.", CapLedgEntry."Entry No.");
-            if EndDate <> 0D then
-                ValueEntry.SetRange("Posting Date", 0D, EndDate);
-            if ValueEntry.Find('-') then
-                repeat
-                    GetValueEntryCostAmts(TempCostShareBuffer, ValueEntry);
+        TotalCost := 0;
+        CostInPeriod := 0;
+        ValueEntry.SetCurrentKey("Capacity Ledger Entry No.", "Entry Type");
+        ValueEntry.SetRange("Capacity Ledger Entry No.", CapLedgEntry."Entry No.");
+        if EndDate <> 0D then
+            ValueEntry.SetRange("Posting Date", 0D, EndDate);
+        if ValueEntry.Find('-') then
+            repeat
+                GetValueEntryCostAmts(TempCostShareBuffer, ValueEntry);
 
-                    if IsInCostingPeriod(ValueEntry."Posting Date") then
-                        CostInPeriod := CostInPeriod + ValueEntry."Cost Amount (Actual)";
-                    TotalCost := TotalCost + ValueEntry."Cost Amount (Actual)";
-                until ValueEntry.Next() = 0;
+                if IsInCostingPeriod(ValueEntry."Posting Date") then
+                    CostInPeriod := CostInPeriod + ValueEntry."Cost Amount (Actual)";
+                TotalCost := TotalCost + ValueEntry."Cost Amount (Actual)";
+            until ValueEntry.Next() = 0;
 
-            if TotalCost <> 0 then
-                "Share of Cost in Period" := CostInPeriod / TotalCost;
+        if TotalCost <> 0 then
+            TempCostShareBuffer."Share of Cost in Period" := CostInPeriod / TotalCost;
 
-            if CapLedgEntry.Subcontracting then
-                Subcontracted := "Direct Cost"
-            else
-                Capacity := "Direct Cost";
-            "Capacity Overhead" := "Indirect Cost";
+        if CapLedgEntry.Subcontracting then
+            TempCostShareBuffer.Subcontracted := TempCostShareBuffer."Direct Cost"
+        else
+            TempCostShareBuffer.Capacity := TempCostShareBuffer."Direct Cost";
+        TempCostShareBuffer."Capacity Overhead" := TempCostShareBuffer."Indirect Cost";
 
-            "New Quantity" := Quantity;
-            "New Direct Cost" := "Direct Cost";
-            "New Indirect Cost" := "Indirect Cost";
-            "New Revaluation" := Revaluation;
-            "New Variance" := Variance;
-            "New Rounding" := Rounding;
+        TempCostShareBuffer."New Quantity" := TempCostShareBuffer.Quantity;
+        TempCostShareBuffer."New Direct Cost" := TempCostShareBuffer."Direct Cost";
+        TempCostShareBuffer."New Indirect Cost" := TempCostShareBuffer."Indirect Cost";
+        TempCostShareBuffer."New Revaluation" := TempCostShareBuffer.Revaluation;
+        TempCostShareBuffer."New Variance" := TempCostShareBuffer.Variance;
+        TempCostShareBuffer."New Rounding" := TempCostShareBuffer.Rounding;
 
-            "New Purchase Variance" := "Purchase Variance";
-            "New Material Variance" := "Material Variance";
-            "New Capacity Variance" := "Capacity Variance";
-            "New Capacity Overhead Variance" := "Capacity Overhead Variance";
-            "New Mfg. Overhead Variance" := "Mfg. Overhead Variance";
-            "New Subcontracted Variance" := "Subcontracted Variance";
+        TempCostShareBuffer."New Purchase Variance" := TempCostShareBuffer."Purchase Variance";
+        TempCostShareBuffer."New Material Variance" := TempCostShareBuffer."Material Variance";
+        TempCostShareBuffer."New Capacity Variance" := TempCostShareBuffer."Capacity Variance";
+        TempCostShareBuffer."New Capacity Overhead Variance" := TempCostShareBuffer."Capacity Overhead Variance";
+        TempCostShareBuffer."New Mfg. Overhead Variance" := TempCostShareBuffer."Mfg. Overhead Variance";
+        TempCostShareBuffer."New Subcontracted Variance" := TempCostShareBuffer."Subcontracted Variance";
 
-            "New Material" := Material;
-            "New Capacity" := Capacity;
-            "New Capacity Overhead" := "Capacity Overhead";
-            "New Material Overhead" := "Material Overhead";
-            "New Subcontracted" := Subcontracted;
-            Insert();
-        end;
+        TempCostShareBuffer."New Material" := TempCostShareBuffer.Material;
+        TempCostShareBuffer."New Capacity" := TempCostShareBuffer.Capacity;
+        TempCostShareBuffer."New Capacity Overhead" := TempCostShareBuffer."Capacity Overhead";
+        TempCostShareBuffer."New Material Overhead" := TempCostShareBuffer."Material Overhead";
+        TempCostShareBuffer."New Subcontracted" := TempCostShareBuffer.Subcontracted;
+        TempCostShareBuffer.Insert();
     end;
 
     local procedure GetValueEntryCostAmts(var CostShareBuf: Record "Cost Share Buffer"; ValueEntry: Record "Value Entry")
     begin
-        with CostShareBuf do
-            case ValueEntry."Entry Type" of
-                ValueEntry."Entry Type"::"Direct Cost":
-                    "Direct Cost" := "Direct Cost" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                ValueEntry."Entry Type"::"Indirect Cost":
-                    "Indirect Cost" := "Indirect Cost" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                ValueEntry."Entry Type"::Variance:
-                    begin
-                        Variance := Variance + ValueEntry."Cost Amount (Actual)";
-                        case ValueEntry."Variance Type" of
-                            ValueEntry."Variance Type"::Purchase:
-                                "Purchase Variance" := "Purchase Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                            ValueEntry."Variance Type"::Material:
-                                "Material Variance" := "Material Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                            ValueEntry."Variance Type"::Capacity:
-                                "Capacity Variance" := "Capacity Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                            ValueEntry."Variance Type"::"Capacity Overhead":
-                                "Capacity Overhead Variance" :=
-                                  "Capacity Overhead Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                            ValueEntry."Variance Type"::"Manufacturing Overhead":
-                                "Mfg. Overhead Variance" :=
-                                  "Mfg. Overhead Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                            ValueEntry."Variance Type"::Subcontracted:
-                                "Subcontracted Variance" :=
-                                  "Subcontracted Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                        end;
+        case ValueEntry."Entry Type" of
+            ValueEntry."Entry Type"::"Direct Cost":
+                CostShareBuf."Direct Cost" := CostShareBuf."Direct Cost" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+            ValueEntry."Entry Type"::"Indirect Cost":
+                CostShareBuf."Indirect Cost" := CostShareBuf."Indirect Cost" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+            ValueEntry."Entry Type"::Variance:
+                begin
+                    CostShareBuf.Variance := CostShareBuf.Variance + ValueEntry."Cost Amount (Actual)";
+                    case ValueEntry."Variance Type" of
+                        ValueEntry."Variance Type"::Purchase:
+                            CostShareBuf."Purchase Variance" := CostShareBuf."Purchase Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+                        ValueEntry."Variance Type"::Material:
+                            CostShareBuf."Material Variance" := CostShareBuf."Material Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+                        ValueEntry."Variance Type"::Capacity:
+                            CostShareBuf."Capacity Variance" := CostShareBuf."Capacity Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+                        ValueEntry."Variance Type"::"Capacity Overhead":
+                            CostShareBuf."Capacity Overhead Variance" :=
+                              CostShareBuf."Capacity Overhead Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+                        ValueEntry."Variance Type"::"Manufacturing Overhead":
+                            CostShareBuf."Mfg. Overhead Variance" :=
+                              CostShareBuf."Mfg. Overhead Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+                        ValueEntry."Variance Type"::Subcontracted:
+                            CostShareBuf."Subcontracted Variance" :=
+                              CostShareBuf."Subcontracted Variance" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
                     end;
-                ValueEntry."Entry Type"::Revaluation:
-                    Revaluation := Revaluation + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                ValueEntry."Entry Type"::Rounding:
-                    Rounding := Rounding + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-            end;
+                end;
+            ValueEntry."Entry Type"::Revaluation:
+                CostShareBuf.Revaluation := CostShareBuf.Revaluation + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+            ValueEntry."Entry Type"::Rounding:
+                CostShareBuf.Rounding := CostShareBuf.Rounding + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+        end;
     end;
 
     local procedure IsInCostingPeriod(PostingDate: Date): Boolean

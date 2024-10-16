@@ -14,6 +14,7 @@ table 15000003 "Remittance Account"
 {
     Caption = 'Remittance Account';
     LookupPageID = "Remittance Account Overview";
+    DataClassification = CustomerContent;
 
     fields
     {

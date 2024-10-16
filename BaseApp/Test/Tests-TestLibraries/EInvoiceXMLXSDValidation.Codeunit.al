@@ -180,7 +180,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
 
         NOXMLReadHelper.GetNodeByXPath('cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity/cbc:CompanyID', Node);
         // UBL 2.1
-        if GetUBLVersionID = '2.1' then begin
+        if GetUBLVersionID() = '2.1' then begin
             NOXMLReadHelper.VerifyAttributeFromNode(Node, 'schemeID', 'NO:ORGNR');
             NOXMLReadHelper.VerifyAttributeFromNode(Node, 'schemeAgencyID', '82');
         end;
@@ -337,7 +337,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
     end;
 
     [Scope('OnPrem')]
-    procedure VerifyVATEntriesCount(DocumentType: Option; DocumentNo: Code[20]; ExpectedVATEntriesCount: Integer; var TempVATEntry: Record "VAT Entry" temporary)
+    procedure VerifyVATEntriesCount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedVATEntriesCount: Integer; var TempVATEntry: Record "VAT Entry" temporary)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -411,7 +411,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
     end;
 
     [Scope('OnPrem')]
-    procedure VerifyZeroVATCategory(XmlFileName: Text; TaxCategory: Text[2]; DocumentNo: Code[20]; DocumentType: Option; SchemaType: Option Invoice,CrMemo,Reminder)
+    procedure VerifyZeroVATCategory(XmlFileName: Text; TaxCategory: Text[2]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; SchemaType: Option Invoice,CrMemo,Reminder)
     var
         TempVATEntry: Record "VAT Entry" temporary;
     begin
@@ -428,7 +428,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
         DescriptionTrimmed: Text[50];
     begin
         GenProductPostingGroup.Init();
-        GenProductPostingGroup.Validate(Code, CopyStr(LibraryUtility.GenerateGUID, 5, 6)); // Currency code must be exactly 3 characters long.
+        GenProductPostingGroup.Validate(Code, CopyStr(LibraryUtility.GenerateGUID(), 5, 6)); // Currency code must be exactly 3 characters long.
         DescriptionTrimmed := CopyStr(Description, 1, 50);
         GenProductPostingGroup.Validate(Description, DescriptionTrimmed);
         GenProductPostingGroup.Insert();

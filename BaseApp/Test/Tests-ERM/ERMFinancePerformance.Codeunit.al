@@ -726,7 +726,7 @@ codeunit 134923 "ERM Finance Performance"
         BusinessChartBuffer: Record "Business Chart Buffer";
     begin
         // [FEATURE] [Chart]
-        Assert.AreEqual(6, BusinessChartBuffer.GetMaxNumberOfMeasures, MaxNumberOfMeasures);
+        Assert.AreEqual(6, BusinessChartBuffer.GetMaxNumberOfMeasures(), MaxNumberOfMeasures);
     end;
 
     [Test]
@@ -738,7 +738,7 @@ codeunit 134923 "ERM Finance Performance"
         // [FEATURE] [Chart]
         asserterror BusinessChartBuffer.RaiseErrorMaxNumberOfMeasuresExceeded();
         Assert.IsTrue(
-          StrPos(GetLastErrorText, StrSubstNo(ErrMaxNumberOfMeasures, BusinessChartBuffer.GetMaxNumberOfMeasures)) > 0,
+          StrPos(GetLastErrorText, StrSubstNo(ErrMaxNumberOfMeasures, BusinessChartBuffer.GetMaxNumberOfMeasures())) > 0,
           MaxNumberOfMeasures);
     end;
 
@@ -795,12 +795,12 @@ codeunit 134923 "ERM Finance Performance"
         SetupMyNotificationsForCredirLimitCheck(MyNotifications);
 
         // [WHEN] Public function MyNotifications.IsEnabledForRecord is invoked for Customer.
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         MyNotifications.IsEnabledForRecord(MyNotifications."Notification Id", Customer);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [THEN] The Lines of MyNotification.IsEnabledForRecord function are processed only once.
-        Verify_MyNotificationIsEnabledForRecord_OnlySingleHits;
+        Verify_MyNotificationIsEnabledForRecord_OnlySingleHits();
     end;
 
     [Test]
@@ -826,12 +826,12 @@ codeunit 134923 "ERM Finance Performance"
         MyNotifications.Modify();
 
         // [WHEN] Public function MyNotifications.IsEnabledForRecord is invoked for Customer.
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         MyNotifications.IsEnabledForRecord(MyNotifications."Notification Id", Customer);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [THEN] The Lines of MyNotification.IsEnabledForRecord function are processed only once.
-        Verify_MyNotificationIsEnabledForRecord_OnlySingleHits;
+        Verify_MyNotificationIsEnabledForRecord_OnlySingleHits();
     end;
 
     [Test]
@@ -847,9 +847,9 @@ codeunit 134923 "ERM Finance Performance"
 
         Initialize();
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         Customer.GetCustNo(LibraryUtility.GenerateGUID());
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         Assert.AreEqual(
           1,
           CodeCoverageMgt.GetNoOfHitsCoverageForObject(
@@ -884,9 +884,9 @@ codeunit 134923 "ERM Finance Performance"
             Customer.Insert();
         end;
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         Customer.GetCustNo(CustFilter);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         Assert.AreEqual(
           1,
           CodeCoverageMgt.GetNoOfHitsCoverageForObject(
@@ -912,9 +912,9 @@ codeunit 134923 "ERM Finance Performance"
 
         Initialize();
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         Vendor.GetVendorNo(LibraryUtility.GenerateGUID());
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         Assert.AreEqual(
           1,
           CodeCoverageMgt.GetNoOfHitsCoverageForObject(
@@ -949,9 +949,9 @@ codeunit 134923 "ERM Finance Performance"
             Vendor.Insert();
         end;
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         Vendor.GetVendorNo(VendFilter);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         Assert.AreEqual(
           1,
           CodeCoverageMgt.GetNoOfHitsCoverageForObject(
@@ -983,9 +983,9 @@ codeunit 134923 "ERM Finance Performance"
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandIntInRange(2, 5));
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         Assert.RecordIsEmpty(CodeCoverage);
     end;
@@ -1010,9 +1010,9 @@ codeunit 134923 "ERM Finance Performance"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLine."No.", LibraryRandom.RandIntInRange(2, 5));
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(PurchaseHeader);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         Assert.RecordIsEmpty(CodeCoverage);
     end;
@@ -1043,9 +1043,9 @@ codeunit 134923 "ERM Finance Performance"
           SalesInvoiceHeader, SalesInvoiceLine, InvoiceSalesLine."Sell-to Customer No.", InvoiceSalesLine."No.");
 
         // [WHEN] Run function from Report 1306 "Standard Sales - Invoice" on a posted "SI", the function collects shipments to a buffer table "Sales Shipment Buffer"
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         SalesShipmentBuffer.GetLinesForSalesInvoiceLine(SalesInvoiceLine, SalesInvoiceHeader);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [THEN] Assuming that "Order No." is blank at "SI", a function must exit early with no buffer records created
         FilterCodeCoverageForObject(CodeCoverage, CodeCoverage."Object Type"::Table, DATABASE::"Sales Shipment Buffer");
@@ -1063,7 +1063,7 @@ codeunit 134923 "ERM Finance Performance"
         CostAccSetup: Record "Cost Accounting Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Finance Performance");
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         CostAccSetup.Get();
         CostAccSetup."Align G/L Account" := CostAccSetup."Align G/L Account"::"No Alignment";
         CostAccSetup.Modify();
@@ -1107,15 +1107,15 @@ codeunit 134923 "ERM Finance Performance"
         AccScheduleLine.FindSet();
         case AccountSchedulesChartSetup."Base X-Axis on" of
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
-            repeat
-                ColumnLayout.FindSet();
                 repeat
-                    MeasureName := CopyStr(AccScheduleLine.Description + ' ' + ColumnLayout."Column Header", 1, MaxStrLen(MeasureName));
-                    CreateOnePerfIndSetupLine(AccountSchedulesChartSetup, AccScheduleLine."Line No.", ColumnLayout."Line No.", MeasureName,
-                      Format(AccScheduleLine."Line No.") + ' ' + Format(ColumnLayout."Line No."),
-                      "Account Schedule Chart Type".FromInteger(LibraryRandom.RandIntInRange(1, 3)));
-                until ColumnLayout.Next() = 0;
-            until AccScheduleLine.Next() = 0;
+                    ColumnLayout.FindSet();
+                    repeat
+                        MeasureName := CopyStr(AccScheduleLine.Description + ' ' + ColumnLayout."Column Header", 1, MaxStrLen(MeasureName));
+                        CreateOnePerfIndSetupLine(AccountSchedulesChartSetup, AccScheduleLine."Line No.", ColumnLayout."Line No.", MeasureName,
+                          Format(AccScheduleLine."Line No.") + ' ' + Format(ColumnLayout."Line No."),
+                          "Account Schedule Chart Type".FromInteger(LibraryRandom.RandIntInRange(1, 3)));
+                    until ColumnLayout.Next() = 0;
+                until AccScheduleLine.Next() = 0;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
                 begin
@@ -1271,7 +1271,7 @@ codeunit 134923 "ERM Finance Performance"
 
         AnalysisViewEntry."Analysis View Code" := AnalysisViewCode;
         AnalysisViewEntry."Account No." := GLAccountNo;
-        AnalysisViewEntry."Account Source" := AnalysisViewType;
+        AnalysisViewEntry."Account Source" := "Analysis Account Source".FromInteger(AnalysisViewType);
         AnalysisViewEntry."Posting Date" := PostingDate;
         AnalysisViewEntry.Amount := Amount;
         AnalysisViewEntry."Entry No." := EntryNo;
@@ -1304,15 +1304,15 @@ codeunit 134923 "ERM Finance Performance"
     var
         ChartOfAccsAnalysisView: TestPage "Chart of Accs. (Analysis View)";
     begin
-        ChartOfAccsAnalysisView.OpenView;
+        ChartOfAccsAnalysisView.OpenView();
         ChartOfAccsAnalysisView.FILTER.SetFilter("No.", No);
-        ChartOfAccsAnalysisView."Budgeted Amount".DrillDown;
+        ChartOfAccsAnalysisView."Budgeted Amount".DrillDown();
     end;
 
     local procedure PostSalesOrderWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 5));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 5));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1328,7 +1328,7 @@ codeunit 134923 "ERM Finance Performance"
         SalesShipmentHeader.FindFirst();
 
         LibrarySales.CreateSalesHeader(InvoiceSalesHeader, InvoiceSalesHeader."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
-        LibrarySales.CreateSalesLine(InvoiceSalesLine, InvoiceSalesHeader, InvoiceSalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
+        LibrarySales.CreateSalesLine(InvoiceSalesLine, InvoiceSalesHeader, InvoiceSalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
         LibraryInventory.CreateItemChargeAssignment(
           ItemChargeAssignmentSales, InvoiceSalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
           SalesShipmentHeader."No.", SalesLine."Line No.", SalesLine."No.");
@@ -1345,7 +1345,7 @@ codeunit 134923 "ERM Finance Performance"
         ToDate: Date;
     begin
         // This function assumes the last account schedule line and the last column layout records are of type formula
-        ClearDrillDownGlobalParams;
+        ClearDrillDownGlobalParams();
 
         NoOfLines := AccScheduleLine.Count();
         NoOfColumns := ColumnLayout.Count();
@@ -1500,7 +1500,7 @@ codeunit 134923 "ERM Finance Performance"
         FromDate: Date;
         ToDate: Date;
     begin
-        ClearDrillDownGlobalParams;
+        ClearDrillDownGlobalParams();
 
         case AccountSchedulesChartSetup."Base X-Axis on" of
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
@@ -1562,8 +1562,8 @@ codeunit 134923 "ERM Finance Performance"
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
     begin
         MyNotifications.InsertDefaultWithTableNum(
-          CustCheckCrLimit.GetCreditLimitNotificationId,
-          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID,
+          CustCheckCrLimit.GetCreditLimitNotificationId(),
+          LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID(),
           DATABASE::Customer);
         MyNotifications.Enabled := true;
         MyNotifications.Modify();
@@ -1749,7 +1749,7 @@ codeunit 134923 "ERM Finance Performance"
                             Assert.AreEqual(PeriodEnd, DT2Date(ActualChartValue), StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1))
                         else
                             Assert.AreEqual(
-                              PeriodPageManagement.CreatePeriodFormat(BusinessChartBuffer."Period Length", PeriodEnd), ActualChartValue,
+                              PeriodPageManagement.CreatePeriodFormat("Analysis Period Type".FromInteger(BusinessChartBuffer."Period Length"), PeriodEnd), ActualChartValue,
                               StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1));
 
                         AccScheduleLine.FindSet();
@@ -2044,7 +2044,7 @@ codeunit 134923 "ERM Finance Performance"
 
     local procedure FilterCodeCoverageForObject(var CodeCoverage: Record "Code Coverage"; ObjectType: Option; ObjectID: Integer)
     begin
-        CodeCoverageMgt.Refresh;
+        CodeCoverageMgt.Refresh();
         with CodeCoverage do begin
             SetRange("Line Type", "Line Type"::Code);
             SetRange("Object Type", ObjectType);
@@ -2170,7 +2170,7 @@ codeunit 134923 "ERM Finance Performance"
           'Unexpected account schedule line selected in the overview page.');
         Assert.AreEqual(
           BusinessChartBuffer."Period Length",
-          AccScheduleOverview.PeriodType.AsInteger,
+          AccScheduleOverview.PeriodType.AsInteger(),
           'Unexpected account schedule period selected in the overview page.');
 
         AccScheduleOverview.Close();
@@ -2187,14 +2187,14 @@ codeunit 134923 "ERM Finance Performance"
     [Scope('OnPrem')]
     procedure CustomerListModalPageHandler(var CustomerList: TestPage "Customer List")
     begin
-        CustomerList.OK.Invoke;
+        CustomerList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorModalPageHandler(var VendorList: TestPage "Vendor List")
     begin
-        VendorList.OK.Invoke;
+        VendorList.OK().Invoke();
     end;
 }
 

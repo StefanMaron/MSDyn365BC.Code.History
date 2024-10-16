@@ -1,7 +1,5 @@
 namespace System.Environment.Configuration;
 
-using System.Environment;
-
 codeunit 9179 "Application Area Mgmt. Facade"
 {
     SingleInstance = true;
@@ -181,12 +179,6 @@ codeunit 9179 "Application Area Mgmt. Facade"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
         exit(ApplicationAreaMgmt.IsInventoryAnalysisEnabled());
-    end;
-
-    [Obsolete('Microsoft Invoicing is not supported in Business Central', '18.0')]
-    procedure IsInvoicingOnlyEnabled(): Boolean
-    begin
-        exit(false);
     end;
 
     procedure IsManufacturingEnabled(): Boolean
@@ -473,35 +465,6 @@ codeunit 9179 "Application Area Mgmt. Facade"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
         ApplicationAreaMgmt.SetHideApplicationAreaError(NewHideApplicationAreaError);
-    end;
-
-    [Obsolete('Use GetExperienceTierCurrentCompany instead', '18.0')]
-    procedure DeprecatedGetExperienceTierCurrentCompany(var ExperienceTier: Option ,,,,,Basic,,,,,,,,,,Essential,,,,,Custom,,,,,Advanced)
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-        ExperienceTierTxt: Text;
-        SaveGlobalLanguage: Integer;
-    begin
-        GetExperienceTierCurrentCompany(ExperienceTierTxt);
-        if (ExperienceTierTxt = '') and EnvironmentInfo.IsSandbox() then
-            ExperienceTier := ExperienceTier::Advanced
-        else begin
-            SaveGlobalLanguage := GlobalLanguage();
-            GlobalLanguage := 1033;
-            Evaluate(ExperienceTier, ExperienceTierTxt);
-            GlobalLanguage := SaveGlobalLanguage;
-        end;
-    end;
-
-    [Obsolete('Use SaveExperienceTierCurrentCompany instead', '18.0')]
-    procedure DeprecatedSetExperienceTierCurrentCompany(ExperienceTier: Option ,,,,,Basic,,,,,,,,,,Essential,,,,,Custom,,,,,Advanced)
-    var
-        SaveGlobalLanguage: Integer;
-    begin
-        SaveGlobalLanguage := GlobalLanguage;
-        GlobalLanguage := 1033;
-        SaveExperienceTierCurrentCompany(Format(ExperienceTier));
-        GlobalLanguage := SaveGlobalLanguage;
     end;
 }
 

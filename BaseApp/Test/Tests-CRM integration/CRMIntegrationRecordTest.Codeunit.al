@@ -23,8 +23,8 @@ codeunit 139161 "CRM Integration Record Test"
         NAVRecordId: RecordID;
         CRMId: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
         LibrarySales.CreateCustomer(Customer);
 
         Assert.IsFalse(
@@ -50,8 +50,8 @@ codeunit 139161 "CRM Integration Record Test"
         CRMId: Guid;
         FoundCRMId: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         LibrarySales.CreateCustomer(Customer);
 
@@ -73,7 +73,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMID: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [GIVEN] A valid CRM Setup
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
@@ -102,7 +102,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMID: Guid;
         NewCRMID: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
         // [GIVEN] A valid CRM Setup
         // [GIVEN] An existing coupling to a record
         // [GIVEN] A new CRMID
@@ -127,7 +127,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMID: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
         // [GIVEN] A valid CRM Setup
         // [GIVEN] An existing coupling to CRM AccountA from CustomerA
         // [GIVEN] An existing coupling to CRM AccountB from CustomerB
@@ -153,7 +153,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMID: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
         // [GIVEN] A valid CRM Setup
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
         LibrarySales.CreateCustomer(Customer);
@@ -197,7 +197,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMID: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
         // [GIVEN] A valid CRM Setup
         // [GIVEN] An existing coupling
         // [GIVEN] A new record
@@ -222,7 +222,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMID: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [GIVEN] A valid CRM setup
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
@@ -257,7 +257,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMID: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [GIVEN] A valid CRM Setup
         // [GIVEN] An existing coupling to CRM AccountA from CustomerA
@@ -270,7 +270,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMID);
 
         LibrarySales.CreateCustomer(NewCustomer);
-        CRMIntegrationRecord.CoupleRecordIdToCRMID(NewCustomer.RecordId, CreateGuid);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(NewCustomer.RecordId, CreateGuid());
 
         asserterror CRMIntegrationRecord.CoupleRecordIdToCRMID(NewCustomer.RecordId, CRMID);
     end;
@@ -285,7 +285,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIDA: Guid;
         CRMIDB: Guid;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [GIVEN] A valid CRM setup
         // [GIVEN] An existing coupling from CRM AccountA to a deleted CustomerA
@@ -341,7 +341,7 @@ codeunit 139161 "CRM Integration Record Test"
         Customer: Record Customer;
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [GIVEN] A valid CRM Setup
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
@@ -374,10 +374,10 @@ codeunit 139161 "CRM Integration Record Test"
     begin
         // [FEATURE] [Skipped Record]
         // [SCENARIO] Removal of the coupled record should mark CRM Integration Record as "Skipped"
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [GIVEN] A valid CRM setup
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ConfigureCRM();
         // [GIVEN] An existing coupling between a Customer and a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
@@ -402,12 +402,12 @@ codeunit 139161 "CRM Integration Record Test"
 
         // [FEATURE] [Sales] [Order]
         // [SCENARIO] Removal of the coupled Sales Order should remove the coupling.
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [GIVEN] A valid CRM setup
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ConfigureCRM();
         // [GIVEN] Sales Order is coupled ot CRMSalesorder
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
         CRMSalesorder.SalesOrderId := CreateGuid();
         CRMSalesorder.Insert();
@@ -431,13 +431,13 @@ codeunit 139161 "CRM Integration Record Test"
     begin
         // [FEATURE] [Modified On]
         // [SCENARIO] Testing if record has changed since last synch.
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [GIVEN] A valid CRM setup
         // [GIVEN] An existing coupling between a Customer and a CRM Account
         // [WHEN] Testing the  coupled records have changed
         // [THEN] Last Modified On is considered newer until set.
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ConfigureCRM();
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
         CRMIntegrationRecord.SetFilter("CRM ID", CRMAccount.AccountId);
@@ -453,7 +453,7 @@ codeunit 139161 "CRM Integration Record Test"
 
         CRMIntegrationRecord.SetLastSynchModifiedOns(
           CRMAccount.AccountId, DATABASE::Customer,
-          CRMAccount.ModifiedOn, Customer.SystemModifiedAt, CreateGuid, 2);
+          CRMAccount.ModifiedOn, Customer.SystemModifiedAt, CreateGuid(), 2);
 
         // [GIVEN] The Last Synch. dates has been set to the respective Modified On values.
         // [WHEN] Testing if the coupled record is newer than long ago (01-01-1900)

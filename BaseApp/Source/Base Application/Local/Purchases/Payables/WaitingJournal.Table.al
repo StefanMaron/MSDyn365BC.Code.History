@@ -34,6 +34,7 @@ table 15000004 "Waiting Journal"
     Caption = 'Waiting Journal';
     DrillDownPageID = "Waiting Journal";
     LookupPageID = "Waiting Journal";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -23,7 +23,7 @@ codeunit 134818 "ERM CA G/L Autotransfer"
         AutotransferFromGL(true);
 
         // Verify:
-        LibraryCostAccounting.ValidateEntriesTransfered;
+        LibraryCostAccounting.ValidateEntriesTransfered();
     end;
 
     [Test]
@@ -35,7 +35,7 @@ codeunit 134818 "ERM CA G/L Autotransfer"
         AutotransferFromGL(false);
 
         // Verify:
-        asserterror LibraryCostAccounting.ValidateEntriesTransfered;
+        asserterror LibraryCostAccounting.ValidateEntriesTransfered();
     end;
 
     [Normal]
@@ -53,7 +53,7 @@ codeunit 134818 "ERM CA G/L Autotransfer"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM CA G/L Autotransfer");
-        TurnOffAlignment;
+        TurnOffAlignment();
 
         if isInitialized then
             exit;

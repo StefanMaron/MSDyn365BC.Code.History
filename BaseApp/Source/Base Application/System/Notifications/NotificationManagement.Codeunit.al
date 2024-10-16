@@ -78,31 +78,30 @@ codeunit 1510 "Notification Management"
     begin
         OnBeforeInsertOverdueEntry(ApprovalEntry, OverdueApprovalEntry);
 
-        with OverdueApprovalEntry do begin
-            Init();
-            "Approver ID" := ApprovalEntry."Approver ID";
-            User.SetRange("User Name", ApprovalEntry."Approver ID");
-            if User.FindFirst() then begin
-                "Sent to Name" := CopyStr(User."Full Name", 1, MaxStrLen("Sent to Name"));
-                UserSetup.Get(User."User Name");
-            end;
-
-            "Table ID" := ApprovalEntry."Table ID";
-            "Document Type" := ApprovalEntry."Document Type";
-            "Document No." := ApprovalEntry."Document No.";
-            "Sent to ID" := ApprovalEntry."Approver ID";
-            "Sent Date" := Today;
-            Sleep(1); // to make sure Time() is different 
-            "Sent Time" := Time;
-            "E-Mail" := UserSetup."E-Mail";
-            "Sequence No." := ApprovalEntry."Sequence No.";
-            "Due Date" := ApprovalEntry."Due Date";
-            "Approval Code" := ApprovalEntry."Approval Code";
-            "Approval Type" := ApprovalEntry."Approval Type";
-            "Limit Type" := ApprovalEntry."Limit Type";
-            "Record ID to Approve" := ApprovalEntry."Record ID to Approve";
-            Insert();
+        OverdueApprovalEntry.Init();
+        OverdueApprovalEntry."Approver ID" := ApprovalEntry."Approver ID";
+        User.SetRange("User Name", ApprovalEntry."Approver ID");
+        if User.FindFirst() then begin
+            OverdueApprovalEntry."Sent to Name" := CopyStr(User."Full Name", 1, MaxStrLen(OverdueApprovalEntry."Sent to Name"));
+            UserSetup.Get(User."User Name");
         end;
+
+        OverdueApprovalEntry."Table ID" := ApprovalEntry."Table ID";
+        OverdueApprovalEntry."Document Type" := ApprovalEntry."Document Type";
+        OverdueApprovalEntry."Document No." := ApprovalEntry."Document No.";
+        OverdueApprovalEntry."Sent to ID" := ApprovalEntry."Approver ID";
+        OverdueApprovalEntry."Sent Date" := Today;
+        Sleep(1);
+        // to make sure Time() is different 
+        OverdueApprovalEntry."Sent Time" := Time;
+        OverdueApprovalEntry."E-Mail" := UserSetup."E-Mail";
+        OverdueApprovalEntry."Sequence No." := ApprovalEntry."Sequence No.";
+        OverdueApprovalEntry."Due Date" := ApprovalEntry."Due Date";
+        OverdueApprovalEntry."Approval Code" := ApprovalEntry."Approval Code";
+        OverdueApprovalEntry."Approval Type" := ApprovalEntry."Approval Type";
+        OverdueApprovalEntry."Limit Type" := ApprovalEntry."Limit Type";
+        OverdueApprovalEntry."Record ID to Approve" := ApprovalEntry."Record ID to Approve";
+        OverdueApprovalEntry.Insert();
     end;
 
     procedure CreateDefaultNotificationTypeSetup(NotificationType: Enum "Notification Entry Type")

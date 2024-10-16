@@ -26,7 +26,7 @@ codeunit 139430 "Permission Test Verification"
 
         // [WHEN] User tries to INSERT data into G/L Entry without indirect permissions
         // [THEN] An error is thrown that you do not have permissions to insert directly into the G/L entry table
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
 
         asserterror GLEntry.Insert();
         Assert.ExpectedError('Sorry, the current permissions prevented the action. (TableData');

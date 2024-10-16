@@ -7,6 +7,7 @@ namespace Microsoft.Bank.DirectDebit;
 table 10607 "Regulatory Reporting Code"
 {
     Caption = 'Regulatory Reporting Code';
+    DataClassification = CustomerContent;
 
     fields
     {

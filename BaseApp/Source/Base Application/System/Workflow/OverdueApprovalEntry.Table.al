@@ -11,6 +11,7 @@ using System.Security.User;
 table 458 "Overdue Approval Entry"
 {
     Caption = 'Overdue Approval Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

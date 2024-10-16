@@ -62,7 +62,7 @@ codeunit 143003 "E-Invoice Helper"
         Currency: Record Currency;
     begin
         Currency.Init();
-        Currency.Validate(Code, CopyStr(LibraryUtility.GenerateGUID, 8, 3)); // Currency code must be exactly 3 characters long.
+        Currency.Validate(Code, CopyStr(LibraryUtility.GenerateGUID(), 8, 3)); // Currency code must be exactly 3 characters long.
         Currency.Insert(true);
         LibraryERM.CreateExchangeRate(Currency.Code, StartingDate, LibraryRandom.RandInt(1000), LibraryRandom.RandInt(1000));
         exit(Currency.Code);
@@ -86,7 +86,7 @@ codeunit 143003 "E-Invoice Helper"
 
         with UnitOfMeasure do begin
             Get(Item."Sales Unit of Measure");
-            "International Standard Code" := DefaultUNECERec20Code;
+            "International Standard Code" := DefaultUNECERec20Code();
             Modify(true);
         end;
 

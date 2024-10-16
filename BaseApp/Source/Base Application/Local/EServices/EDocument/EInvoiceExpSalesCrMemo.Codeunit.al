@@ -52,42 +52,37 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
         EInvoiceExportCommon: Codeunit "E-Invoice Export Common";
     begin
         // Initialize
-        with EInvoiceExportCommon do begin
-            SetEInvoiceCommonTables(TempEInvoiceExportHeader, TempEInvoiceExportLine);
+        EInvoiceExportCommon.SetEInvoiceCommonTables(TempEInvoiceExportHeader, TempEInvoiceExportLine);
+        // Common
+        EInvoiceExportCommon.CreateDocAndRootNode();
+        EInvoiceExportCommon.AddHeaderCommonContent();
+        EInvoiceExportCommon.AddHeaderNote();
+        EInvoiceExportCommon.AddHeaderDocumentCurrencyCode();
+        EInvoiceExportCommon.AddHeaderTaxCurrencyCode();
+        EInvoiceExportCommon.AddHeaderBillingReference();
+        EInvoiceExportCommon.AddHeaderAccountingSupplierParty();
+        EInvoiceExportCommon.AddHeaderAccountingCustomerParty();
+        EInvoiceExportCommon.AddDelivery();
+        EInvoiceExportCommon.AddHeaderTaxExchangeRate();
+        EInvoiceExportCommon.AddHeaderAllowanceCharge();
+        EInvoiceExportCommon.AddHeaderTaxTotal();
+        EInvoiceExportCommon.AddHeaderLegalMonetaryTotal();
+        // Common for invoice and credit memo header
+        TempEInvoiceExportLine.FindSet();
 
-            // Common
-            CreateDocAndRootNode();
-            AddHeaderCommonContent();
-            AddHeaderNote();
-            AddHeaderDocumentCurrencyCode();
-            AddHeaderTaxCurrencyCode();
-            AddHeaderBillingReference();
-            AddHeaderAccountingSupplierParty();
-            AddHeaderAccountingCustomerParty();
-            AddDelivery();
-            AddHeaderTaxExchangeRate();
-            AddHeaderAllowanceCharge();
-            AddHeaderTaxTotal();
-            AddHeaderLegalMonetaryTotal();
+        repeat
+            EInvoiceExportCommon.CreateLineNode(TempEInvoiceExportLine);
+            EInvoiceExportCommon.AddLineInvCrMemoCommonContent();
+            EInvoiceExportCommon.AddDelivery();
+            EInvoiceExportCommon.AddLineTaxTotal();
+            EInvoiceExportCommon.AddLineItem();
+            EInvoiceExportCommon.AddLinePrice();
+        until TempEInvoiceExportLine.Next() = 0;
 
-            // Common for invoice and credit memo header
-            TempEInvoiceExportLine.FindSet();
-
-            repeat
-                CreateLineNode(TempEInvoiceExportLine);
-                AddLineInvCrMemoCommonContent();
-                AddDelivery();
-                AddLineTaxTotal();
-                AddLineItem();
-                AddLinePrice();
-            until TempEInvoiceExportLine.Next() = 0;
-
-            SetEInvoiceCommonTables(TempEInvoiceExportHeader, TempEInvoiceExportLine);
-
-            // Save file
-            SalesReceivablesSetup.Get();
-            SaveToXML(TempEInvoiceTransferFile, SalesReceivablesSetup."E-Invoice Sales Cr. Memo Path", TempEInvoiceExportHeader."No.");
-        end;
+        EInvoiceExportCommon.SetEInvoiceCommonTables(TempEInvoiceExportHeader, TempEInvoiceExportLine);
+        // Save file
+        SalesReceivablesSetup.Get();
+        EInvoiceExportCommon.SaveToXML(TempEInvoiceTransferFile, SalesReceivablesSetup."E-Invoice Sales Cr. Memo Path", TempEInvoiceExportHeader."No.");
     end;
 
     local procedure FillHeaderTableData(var TempEInvoiceExportHeader: Record "E-Invoice Export Header" temporary; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -95,43 +90,36 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
         SalesCommentLine: Record "Sales Comment Line";
         EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
     begin
-        with TempEInvoiceExportHeader do begin
-            Init();
-
-            // header fields related to the source table
-            TransferFields(SalesCrMemoHeader);
-
-            // calculated fields
-            if "Currency Code" = '' then begin
-                GLSetup.Get();
-                "Currency Code" := GLSetup."LCY Code";
-            end;
-
-            if SalesCrMemoHeader."Applies-to Doc. Type" = SalesCrMemoHeader."Applies-to Doc. Type"::Invoice then
-                "Document No." := SalesCrMemoHeader."Applies-to Doc. No.";
-
-            // header fields not related to the source table
-            "Schema Name" := 'CreditNote';
-            "Schema Location" := 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2 UBL-CreditNote-2.0.xsd';
-            xmlns := 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2';
-            "Customization ID" :=
-              'urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:' +
-              'urn:www.cenbii.eu:profile:biixx:ver2.0:extended:' + 'urn:www.difi.no:ehf:kreditnota:ver2.0';
-            "Profile ID" := 'urn:www.cenbii.eu:profile:biixx:ver2.0';
-            "Uses Common Aggregate Comp." := true;
-            "Uses Common Basic Comp." := true;
-            "Uses Common Extension Comp." := false;
-            "Quantity Name" := 'CreditedQuantity';
-
-            // header fields related to tax amounts
-            FillHeaderTaxAmounts(TempEInvoiceExportHeader);
-
-            // custom
-            "Bill-to Country/Region Code" := EInvoiceDocumentEncode.GetEInvoiceCountryRegionCode("Bill-to Country/Region Code");
-            if SalesCommentLine.Get(SalesCommentLine."Document Type"::"Posted Credit Memo", SalesCrMemoHeader."No.", 0, 10000) then
-                Note := SalesCommentLine.Comment;
-            Insert();
+        TempEInvoiceExportHeader.Init();
+        // header fields related to the source table
+        TempEInvoiceExportHeader.TransferFields(SalesCrMemoHeader);
+        // calculated fields
+        if TempEInvoiceExportHeader."Currency Code" = '' then begin
+            GLSetup.Get();
+            TempEInvoiceExportHeader."Currency Code" := GLSetup."LCY Code";
         end;
+
+        if SalesCrMemoHeader."Applies-to Doc. Type" = SalesCrMemoHeader."Applies-to Doc. Type"::Invoice then
+            TempEInvoiceExportHeader."Document No." := SalesCrMemoHeader."Applies-to Doc. No.";
+        // header fields not related to the source table
+        TempEInvoiceExportHeader."Schema Name" := 'CreditNote';
+        TempEInvoiceExportHeader."Schema Location" := 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2 UBL-CreditNote-2.0.xsd';
+        TempEInvoiceExportHeader.xmlns := 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2';
+        TempEInvoiceExportHeader."Customization ID" :=
+          'urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:' +
+          'urn:www.cenbii.eu:profile:biixx:ver2.0:extended:' + 'urn:www.difi.no:ehf:kreditnota:ver2.0';
+        TempEInvoiceExportHeader."Profile ID" := 'urn:www.cenbii.eu:profile:biixx:ver2.0';
+        TempEInvoiceExportHeader."Uses Common Aggregate Comp." := true;
+        TempEInvoiceExportHeader."Uses Common Basic Comp." := true;
+        TempEInvoiceExportHeader."Uses Common Extension Comp." := false;
+        TempEInvoiceExportHeader."Quantity Name" := 'CreditedQuantity';
+        // header fields related to tax amounts
+        FillHeaderTaxAmounts(TempEInvoiceExportHeader);
+        // custom
+        TempEInvoiceExportHeader."Bill-to Country/Region Code" := EInvoiceDocumentEncode.GetEInvoiceCountryRegionCode(TempEInvoiceExportHeader."Bill-to Country/Region Code");
+        if SalesCommentLine.Get(SalesCommentLine."Document Type"::"Posted Credit Memo", SalesCrMemoHeader."No.", 0, 10000) then
+            TempEInvoiceExportHeader.Note := SalesCommentLine.Comment;
+        TempEInvoiceExportHeader.Insert();
     end;
 
     local procedure FillHeaderTaxAmounts(var EInvoiceExportHeader: Record "E-Invoice Export Header")

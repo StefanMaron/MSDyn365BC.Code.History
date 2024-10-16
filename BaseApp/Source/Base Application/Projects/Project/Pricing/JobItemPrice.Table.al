@@ -10,27 +10,28 @@ using Microsoft.Projects.Project.Job;
 
 table 1013 "Job Item Price"
 {
-    Caption = 'Job Item Price';
-#if not CLEAN21
+    Caption = 'Project Item Price';
+#if not CLEAN23
     DrillDownPageID = "Job Item Prices";
     LookupPageID = "Job Item Prices";
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '24.0';
+    ObsoleteTag = '26.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             NotBlank = true;
             TableRelation = Job;
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 GetJob();
@@ -40,10 +41,10 @@ table 1013 "Job Item Price"
         }
         field(2; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 if "Job Task No." <> '' then begin
@@ -58,7 +59,7 @@ table 1013 "Job Item Price"
             Caption = 'Item No.';
             TableRelation = Item;
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 Item.Get("Item No.");
@@ -114,7 +115,7 @@ table 1013 "Job Item Price"
         }
         field(9; Description; Text[100])
         {
-            CalcFormula = Lookup(Item.Description where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Description';
             Editable = false;
             FieldClass = FlowField;
@@ -126,12 +127,12 @@ table 1013 "Job Item Price"
         }
         field(11; "Apply Job Price"; Boolean)
         {
-            Caption = 'Apply Job Price';
+            Caption = 'Apply Project Price';
             InitValue = true;
         }
         field(12; "Apply Job Discount"; Boolean)
         {
-            Caption = 'Apply Job Discount';
+            Caption = 'Apply Project Discount';
             InitValue = true;
         }
     }
@@ -148,7 +149,7 @@ table 1013 "Job Item Price"
     {
     }
 
-#if not CLEAN21
+#if not CLEAN23
     trigger OnInsert()
     begin
         LockTable();

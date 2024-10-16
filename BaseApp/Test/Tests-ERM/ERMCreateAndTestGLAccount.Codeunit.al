@@ -37,7 +37,7 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
         PreviousIndentation := CreateGLAccount(GLAccount);
 
         // Exercise: Indent the GL Account. Create and Post the General Journal Lines using the newly created GL Account.
-        GLAccountIndent.Indent;
+        GLAccountIndent.Indent();
 
         Amount := LibraryRandom.RandInt(100);  // Store Random Amount in a variable and use it in DeltaAssert.
         DeltaAssert.Init();
@@ -47,7 +47,7 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify the Balance Amount in GL Account using DeltaAssert. Verify the Indentation Value for GL Account.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
 
         GLAccount.Get(GLAccount."No.");
         Assert.AreEqual(PreviousIndentation + 1, GLAccount.Indentation, 'Account was not indented correctly.');
@@ -69,7 +69,7 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
         GLAccount[3].GET(CreateGLAccountNo(GLAccountType::"End-Total"));
 
         // [WHEN] G/L Account Indentation is invoked
-        GLAccountIndent.Indent;
+        GLAccountIndent.Indent();
         GLAccount[3].Find();
 
         // [THEN] GL3 Totaling = 'GL1..GL3'
@@ -80,7 +80,7 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
         GLAccount[3].Modify();
 
         // [WHEN] G/L Account Indentation is invoked
-        GLAccountIndent.Indent;
+        GLAccountIndent.Indent();
         GLAccount[3].Find();
 
         // [THEN] GL3 Totaling = 'GL1..GL3'

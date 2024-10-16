@@ -116,32 +116,30 @@ codeunit 10623 "E-Invoice Check Serv. Document"
         EmptyLineFound: Boolean;
     begin
         EmptyLineFound := false;
-        with ServiceLine do begin
-            SetRange("Document Type", ServiceHeader."Document Type");
-            SetRange("Document No.", ServiceHeader."No.");
-            if FindSet() then
-                repeat
-                    if (Type <> Type::" ") and ("No." <> '') and ("Unit of Measure" = '') then
-                        Error(EmptyUnitOfMeasureErr, "Document Type", "Document No.");
-                    if Description = '' then
-                        if (Type <> Type::" ") and ("No." <> '') then
-                            Error(MissingDescriptionErr, "Document Type", "Document No.");
-                    if (Type = Type::" ") or ("No." = '') then
-                        EmptyLineFound := true;
-                    if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order, "Document Type"::"Credit Memo"] then begin
-                        TestField("Unit of Measure Code");
-                        UnitOfMeasure.Get("Unit of Measure Code");
-                        if UnitOfMeasure."International Standard Code" = '' then
-                            Error(
-                              MissingUnitOfMeasureCodeErr, "Unit of Measure Code", UnitOfMeasure.FieldCaption("International Standard Code"),
-                              UnitOfMeasure.TableCaption());
-                    end;
-                until (Next() = 0);
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        if ServiceLine.FindSet() then
+            repeat
+                if (ServiceLine.Type <> ServiceLine.Type::" ") and (ServiceLine."No." <> '') and (ServiceLine."Unit of Measure" = '') then
+                    Error(EmptyUnitOfMeasureErr, ServiceLine."Document Type", ServiceLine."Document No.");
+                if ServiceLine.Description = '' then
+                    if (ServiceLine.Type <> ServiceLine.Type::" ") and (ServiceLine."No." <> '') then
+                        Error(MissingDescriptionErr, ServiceLine."Document Type", ServiceLine."Document No.");
+                if (ServiceLine.Type = ServiceLine.Type::" ") or (ServiceLine."No." = '') then
+                    EmptyLineFound := true;
+                if ServiceLine."Document Type" in [ServiceLine."Document Type"::Invoice, ServiceLine."Document Type"::Order, ServiceLine."Document Type"::"Credit Memo"] then begin
+                    ServiceLine.TestField("Unit of Measure Code");
+                    UnitOfMeasure.Get(ServiceLine."Unit of Measure Code");
+                    if UnitOfMeasure."International Standard Code" = '' then
+                        Error(
+                          MissingUnitOfMeasureCodeErr, ServiceLine."Unit of Measure Code", UnitOfMeasure.FieldCaption("International Standard Code"),
+                          UnitOfMeasure.TableCaption());
+                end;
+            until (ServiceLine.Next() = 0);
 
-            if EmptyLineFound then
-                if not Confirm(EmptyFieldsQst, true, "Document Type", "Document No.") then
-                    Error(PostingWasInterruptedErr);
-        end;
+        if EmptyLineFound then
+            if not Confirm(EmptyFieldsQst, true, ServiceLine."Document Type", ServiceLine."Document No.") then
+                Error(PostingWasInterruptedErr);
     end;
 }
 

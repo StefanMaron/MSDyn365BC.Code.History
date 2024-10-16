@@ -8,7 +8,7 @@ page 9633 "Page Inspection Extensions"
     Caption = 'Page Inspection Extensions';
     PageType = ListPart;
     SourceTable = "NAV App Installed App";
-    SourceTableView = WHERE(Name = FILTER(<> '_Exclude_*'));
+    SourceTableView = where(Name = filter(<> '_Exclude_*'));
     Extensible = false;
 
     layout

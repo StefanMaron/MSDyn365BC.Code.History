@@ -335,7 +335,7 @@ codeunit 144123 "WaitingJournalTable UT"
     [Scope('OnPrem')]
     procedure HandleLookupShortcutDimCode(var DimensionValueList: TestPage "Dimension Value List")
     begin
-        DimensionValueList.OK.Invoke;
+        DimensionValueList.OK().Invoke();
     end;
 
     local procedure VerifyDimensions(var WaitingJournal: Record "Waiting Journal"; DimensionValue: Record "Dimension Value")

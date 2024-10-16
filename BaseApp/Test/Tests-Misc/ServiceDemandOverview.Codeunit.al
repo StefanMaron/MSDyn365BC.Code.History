@@ -41,7 +41,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Demand Overview");
         // Clear the needed globals
-        ClearGlobals;
+        ClearGlobals();
 
         if IsInitialized then
             exit;
@@ -90,9 +90,9 @@ codeunit 136131 "Service Demand Overview"
         CreateSalesDemandAfter(Item."No.", SecondSaleQuantity, GetShipmentDate(SalesOrderNo));
 
         // [WHEN] Open Demand overview and set the needed fields.
-        DemandOverview.OpenEdit;
+        DemandOverview.OpenEdit();
         SetItemOnlyFilter(DemandOverview, Item."No.");
-        DemandOverview.Calculate.Invoke;
+        DemandOverview.Calculate.Invoke();
 
         // [THEN] The number of rows returned and the total sum of quantities returned matches.
         ActualRowCount := 0;
@@ -100,7 +100,7 @@ codeunit 136131 "Service Demand Overview"
             if not DemandOverview.IsExpanded then
                 DemandOverview.Expand(true);
             if DemandOverview.QuantityText.Value <> '' then
-                QuantitySum := QuantitySum + DemandOverview.QuantityText.AsInteger;
+                QuantitySum := QuantitySum + DemandOverview.QuantityText.AsInteger();
             ActualRowCount := ActualRowCount + 1;
         until not DemandOverview.Next();
 
@@ -120,7 +120,7 @@ codeunit 136131 "Service Demand Overview"
         SaleQuantity: Integer;
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO] Sales demand, Supply on workdate, Demand on workdate, workdate + 1, workdate + 2. Start date and end date are both before supply and demand.
+        // [SCENARIO] Sales demand, Supply on WorkDate(), Demand on WorkDate(), WorkDate() + 1, WorkDate() + 2. Start date and end date are both before supply and demand.
 
         Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(100);
@@ -136,11 +136,11 @@ codeunit 136131 "Service Demand Overview"
         SalesOrderNo := CreateSalesDemandAfter(Item."No.", SaleQuantity, GetShipmentDate(SalesOrderNo));
 
         // [WHEN] Open demand overview
-        DemandOverview.OpenView;
+        DemandOverview.OpenView();
 
         // [THEN] When Start Date and end date are before supply and demand no lines are shown.
-        // [THEN] When Start date before supply and demand, end Date on workdate + 1, 6 lines are shown.
-        // [THEN] When Start Date on workdate + 1 and end date is blank, 5 lines are shown.
+        // [THEN] When Start date before supply and demand, end Date on WorkDate() + 1, 6 lines are shown.
+        // [THEN] When Start Date on WorkDate() + 1 and end date is blank, 5 lines are shown.
         // [THEN] When Start Date and end date are after supply and demand no lines are shown.
         // [THEN] When Start Date and end date are blank all lines (8) are shown.
         SetAndVerifyDateFilters(DemandOverview, Item."No.", -10, -8, NoDate, 0);
@@ -177,13 +177,13 @@ codeunit 136131 "Service Demand Overview"
         CreateSalesDemand(Item."No.", SaleQuantity);
 
         // [WHEN] open demand overview page. Set filter on item no and all demand types only.
-        DemandOverview.OpenEdit;
+        DemandOverview.OpenEdit();
         SetItemOnlyFilter(DemandOverview, Item."No.");
-        DemandOverview.Calculate.Invoke;
+        DemandOverview.Calculate.Invoke();
 
         // [THEN] The number of rows returned and the sum of quantities returned.
         VerifyOverviewLineQuantities(DemandOverview, 'Sales', 1, -SaleQuantity);
-        VerifyOverviewLineQuantities(DemandOverview, 'Job', 1, -JobQuantity);
+        VerifyOverviewLineQuantities(DemandOverview, 'Project', 1, -JobQuantity);
         VerifyOverviewLineQuantities(DemandOverview, 'Service', 1, -ServiceQuantity);
         VerifyOverviewLineQuantities(DemandOverview, 'Purchase', 1, PurchaseQuantity);
     end;
@@ -211,9 +211,9 @@ codeunit 136131 "Service Demand Overview"
 
         // [WHEN] Run demand overview for item 2.
         CreateItem(UnusedItem, Item."Reordering Policy"::" ");
-        DemandOverview.OpenEdit;
+        DemandOverview.OpenEdit();
         SetItemOnlyFilter(DemandOverview, UnusedItem."No.");
-        DemandOverview.Calculate.Invoke;
+        DemandOverview.Calculate.Invoke();
 
         // [THEN] No lines are returned when no supply and demand have been created.
         Assert.AreEqual(0, CountOverviewGridLines(DemandOverview), 'Verify no rows are listed when filtering on a unused Item');
@@ -235,7 +235,7 @@ codeunit 136131 "Service Demand Overview"
         Quantity := LibraryRandom.RandInt(12);
 
         // [GIVEN] Create demand of types job, sales, service for item in location A.
-        LocationCode := CreateLocation;
+        LocationCode := CreateLocation();
         CreateItem(Item, Item."Reordering Policy"::" ");
         CreatePurchaseSupplyAtLocation(Item."No.", Quantity, LocationCode);
         CreateJobDemandAtLocation(Item."No.", Quantity, LocationCode);
@@ -243,10 +243,10 @@ codeunit 136131 "Service Demand Overview"
         CreateSalesDemandAtLocation(Item."No.", Quantity, LocationCode);
 
         // [WHEN] Run demand overview for Location B.
-        DemandOverview.OpenEdit;
+        DemandOverview.OpenEdit();
         SetItemOnlyFilter(DemandOverview, Item."No.");
-        DemandOverview.LocationFilter.Value(Format(CreateLocation));
-        DemandOverview.Calculate.Invoke;
+        DemandOverview.LocationFilter.Value(Format(CreateLocation()));
+        DemandOverview.Calculate.Invoke();
 
         // [THEN] No lines are returned when no supply and demand have been created in location B.
         Assert.AreEqual(0, CountOverviewGridLines(DemandOverview), 'Verify no rows are listed when filtering on a unused Location');
@@ -276,13 +276,13 @@ codeunit 136131 "Service Demand Overview"
 
         // [WHEN] Open Demand Overview and set Demand to Variant no. 1 and count lines (count1).
         // [WHEN] Open Demand Overview and set Demand to Variant no. 2 and count lines (count2) .
-        DemandOverview.OpenEdit;
+        DemandOverview.OpenEdit();
         SetItemOnlyFilter(DemandOverview, Item."No.");
         DemandOverview.VariantFilter.Value(Format(GetVariant(Item."No.", 1)));
-        DemandOverview.Calculate.Invoke;
+        DemandOverview.Calculate.Invoke();
         ActualRowsCount := CountOverviewGridLines(DemandOverview);
         DemandOverview.VariantFilter.Value(Format(GetVariant(Item."No.", 2)));
-        DemandOverview.Calculate.Invoke;
+        DemandOverview.Calculate.Invoke();
 
         // [THEN] count1 matches the no. of supply and demand lines created.
         // [THEN] count2 is zero as no lines have been created for variant 2.
@@ -315,7 +315,7 @@ codeunit 136131 "Service Demand Overview"
         // [WHEN] Edit the needed by date in Service line and blank it.
         ServiceOrderNo := CreateServiceDemand(Item."No.", ServiceQuantity);
         OpenFirstServiceLines(ServiceLines, ServiceOrderNo);
-        ServiceLines.First;
+        ServiceLines.First();
         asserterror ServiceLines."Needed by Date".Value := '';
 
         // [THEN] The validation error text is displayed and matches expected.
@@ -1078,7 +1078,7 @@ codeunit 136131 "Service Demand Overview"
         RowsCount: Integer;
     begin
         RowsCount := 0;
-        DemandOverview.First;
+        DemandOverview.First();
         if DemandOverview."Item No.".Value = '' then
             exit(RowsCount);
         repeat
@@ -1087,7 +1087,7 @@ codeunit 136131 "Service Demand Overview"
             RowsCount := RowsCount + 1;
         until not DemandOverview.Next();
 
-        DemandOverview.First;
+        DemandOverview.First();
         exit(RowsCount);
     end;
 
@@ -1391,15 +1391,15 @@ codeunit 136131 "Service Demand Overview"
         ServiceLineToSelect: Record "Service Line";
     begin
         ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceOrderNo);
-        ServiceLinesToReturn.OpenEdit;
+        ServiceLinesToReturn.OpenEdit();
 
         FindServiceLine(ServiceLineToSelect, ServiceLineToSelect."Document Type"::Order, ServiceOrderNo);
 
-        ServiceLinesToReturn.First;
+        ServiceLinesToReturn.First();
         ServiceLinesToReturn.FILTER.SetFilter("Document Type", 'Order');
         ServiceLinesToReturn.FILTER.SetFilter("Document No.", ServiceOrderNo);
         ServiceLinesToReturn.FILTER.SetFilter("Line No.", Format(ServiceLineToSelect."Line No."));
-        ServiceLinesToReturn.First;
+        ServiceLinesToReturn.First();
     end;
 
     local procedure SetItemOnlyFilter(DemandOverview: TestPage "Demand Overview"; ItemNo: Code[20])
@@ -1430,7 +1430,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         SetItemOnlyFilter(DemandOverview, ItemNo);
         SetDateFilters(DemandOverview, StartDateBias, EndDateBias, NoDateBias);
-        DemandOverview.Calculate.Invoke;
+        DemandOverview.Calculate.Invoke();
 
         VerifyOveriewGridForDates(DemandOverview, StartDateBias, EndDateBias, NoDateBias, ExpectedRowsCount);
     end;
@@ -1450,7 +1450,7 @@ codeunit 136131 "Service Demand Overview"
             StartDate := AddBiasToWorkDate(StartDateBias);
         if EndDateBias <> NoDateBias then
             EndDate := AddBiasToWorkDate(EndDateBias);
-        DemandOverview.First;
+        DemandOverview.First();
 
         if DemandOverview."Item No.".Value <> '' then
             repeat
@@ -1474,14 +1474,14 @@ codeunit 136131 "Service Demand Overview"
         ActualRowsCount: Integer;
         QuantitySum: Integer;
     begin
-        DemandOverview.First;
+        DemandOverview.First();
         repeat
             if not DemandOverview.IsExpanded then
                 DemandOverview.Expand(true);
             if Format(DemandOverview.SourceTypeText.Value) = DemandLineType then begin
                 ActualRowsCount := ActualRowsCount + 1;
                 if DemandOverview.QuantityText.Value <> '' then
-                    QuantitySum := QuantitySum + DemandOverview.QuantityText.AsInteger;
+                    QuantitySum := QuantitySum + DemandOverview.QuantityText.AsInteger();
             end;
         until not DemandOverview.Next();
 
@@ -1520,14 +1520,14 @@ codeunit 136131 "Service Demand Overview"
     begin
         // Verify Item No., Service Line, Job Planning Line and Current Reserved Quantity on Reservation Page.
         Reservation.ItemNo.AssertEquals(ItemNo);
-        Reservation.First;
+        Reservation.First();
         SummaryType := CopyStr(StrSubstNo('%1', ServiceLine.TableCaption()), 1, MaxStrLen(SummaryType));
         VerifyReservationLine(Reservation, SummaryType);
         Reservation.Next();
         SummaryType := CopyStr(StrSubstNo('%1, %2', JobPlanningLine.TableCaption(), JobPlanningLine.Status), 1, MaxStrLen(SummaryType));
         VerifyReservationLine(Reservation, SummaryType);
         Reservation.FILTER.SetFilter("Current Reserved Quantity", Format(-OriginalQuantity));
-        Reservation.First;
+        Reservation.First();
     end;
 
     [ModalPageHandler]
@@ -1535,22 +1535,22 @@ codeunit 136131 "Service Demand Overview"
     procedure ReservationActionsPageHandler(var Reservation: TestPage Reservation)
     begin
         // Verify Reserved Quantity on Available Job Planning Lines Page and on Reservation Entries Page.
-        Reservation."Total Quantity".DrillDown;
-        Reservation.TotalReservedQuantity.DrillDown;
+        Reservation."Total Quantity".DrillDown();
+        Reservation.TotalReservedQuantity.DrillDown();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationPageHandlerAvailableToReserve(var Reservation: TestPage Reservation)
     begin
-        Reservation.AvailableToReserve.Invoke;
+        Reservation.AvailableToReserve.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableAssemblyHeadersPageHandler(var AvailableAssemblyHeaders: TestPage "Available - Assembly Headers")
     begin
-        AvailableAssemblyHeaders.Reserve.Invoke;
+        AvailableAssemblyHeaders.Reserve.Invoke();
         AvailableAssemblyHeaders."Reserved Qty. (Base)".AssertEquals(OriginalQuantity);
     end;
 
@@ -1570,14 +1570,14 @@ codeunit 136131 "Service Demand Overview"
     [Scope('OnPrem')]
     procedure AvailableJobPlanningLinesDrillDownPageHandler(var AvailableJobPlanningLines: TestPage "Available - Job Planning Lines")
     begin
-        AvailableJobPlanningLines.ReservedQuantity.DrillDown;  // Current Reserved Quantity
+        AvailableJobPlanningLines.ReservedQuantity.DrillDown();  // Current Reserved Quantity
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableJobPlanningLinesCancelReservationPageHandler(var AvailableJobPlanningLines: TestPage "Available - Job Planning Lines")
     begin
-        AvailableJobPlanningLines.CancelReservation.Invoke;
+        AvailableJobPlanningLines.CancelReservation.Invoke();
         AvailableJobPlanningLines."Reserved Quantity".AssertEquals(0);
     end;
 
@@ -1585,7 +1585,7 @@ codeunit 136131 "Service Demand Overview"
     [Scope('OnPrem')]
     procedure AvailableJobPlanningLinesReservePageHandler(var AvailableJobPlanningLines: TestPage "Available - Job Planning Lines")
     begin
-        AvailableJobPlanningLines.Reserve.Invoke;
+        AvailableJobPlanningLines.Reserve.Invoke();
         AvailableJobPlanningLines."Reserved Quantity".AssertEquals(OriginalQuantity);
     end;
 
@@ -1602,14 +1602,14 @@ codeunit 136131 "Service Demand Overview"
     [Scope('OnPrem')]
     procedure AvailableServiceLinesDrillDownPageHandler(var AvailableServiceLines: TestPage "Available - Service Lines")
     begin
-        AvailableServiceLines.ReservedQuantity.DrillDown;  // Current Reserved Quantity
+        AvailableServiceLines.ReservedQuantity.DrillDown();  // Current Reserved Quantity
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableServiceLinesCancelReservationPageHandler(var AvailableServiceLines: TestPage "Available - Service Lines")
     begin
-        AvailableServiceLines.CancelReservation.Invoke;
+        AvailableServiceLines.CancelReservation.Invoke();
         AvailableServiceLines."Reserved Qty. (Base)".AssertEquals(0);
     end;
 
@@ -1617,7 +1617,7 @@ codeunit 136131 "Service Demand Overview"
     [Scope('OnPrem')]
     procedure AvailableServiceLinesReservePageHandler(var AvailableServiceLines: TestPage "Available - Service Lines")
     begin
-        AvailableServiceLines.Reserve.Invoke;
+        AvailableServiceLines.Reserve.Invoke();
         AvailableServiceLines."Reserved Qty. (Base)".AssertEquals(OriginalQuantity);
     end;
 
@@ -1625,7 +1625,7 @@ codeunit 136131 "Service Demand Overview"
     [Scope('OnPrem')]
     procedure AvailablePurchaseLinesPageHandler(var AvailablePurchaseLines: TestPage "Available - Purchase Lines")
     begin
-        AvailablePurchaseLines.Reserve.Invoke;
+        AvailablePurchaseLines.Reserve.Invoke();
         AvailablePurchaseLines."Reserved Qty. (Base)".AssertEquals(OriginalQuantity);
     end;
 
@@ -1633,7 +1633,7 @@ codeunit 136131 "Service Demand Overview"
     [Scope('OnPrem')]
     procedure AvailableSalesLinesPageHandler(var AvailableSalesLines: TestPage "Available - Sales Lines")
     begin
-        AvailableSalesLines.Reserve.Invoke;
+        AvailableSalesLines.Reserve.Invoke();
         AvailableSalesLines."Reserved Qty. (Base)".AssertEquals(OriginalQuantity);
     end;
 
@@ -1641,7 +1641,7 @@ codeunit 136131 "Service Demand Overview"
     [Scope('OnPrem')]
     procedure AvailableTransferLinesPageHandler(var AvailableTransferLines: TestPage "Available - Transfer Lines")
     begin
-        AvailableTransferLines.Reserve.Invoke;
+        AvailableTransferLines.Reserve.Invoke();
         AvailableTransferLines."Reserved Qty. Inbnd. (Base)".AssertEquals(OriginalQuantity);
     end;
 
@@ -1649,7 +1649,7 @@ codeunit 136131 "Service Demand Overview"
     [Scope('OnPrem')]
     procedure AvailableProdOrderLinesPageHandler(var AvailableProdOrderLines: TestPage "Available - Prod. Order Lines")
     begin
-        AvailableProdOrderLines.Reserve.Invoke;
+        AvailableProdOrderLines.Reserve.Invoke();
         AvailableProdOrderLines."Reserved Qty. (Base)".AssertEquals(OriginalQuantity);
     end;
 

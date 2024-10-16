@@ -1,4 +1,4 @@
-﻿#if not CLEAN21
+﻿#if not CLEAN23
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -8,7 +8,7 @@ namespace Microsoft.Projects.Project.Pricing;
 using Microsoft.Pricing.Calculation;
 page 1011 "Job Resource Prices"
 {
-    Caption = 'Job Resource Prices';
+    Caption = 'Project Resource Prices';
     PageType = List;
     SourceTable = "Job Resource Price";
     ObsoleteState = Pending;
@@ -25,17 +25,17 @@ page 1011 "Job Resource Prices"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the job task if the resource price should only apply to a specific job task.';
+                    ToolTip = 'Specifies the number of the project task if the resource price should only apply to a specific project task.';
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether the price that you are setting up for the job should apply to a resource, to a resource group, or to all resources and resource groups.';
+                    ToolTip = 'Specifies whether the price that you are setting up for the project should apply to a resource, to a resource group, or to all resources and resource groups.';
                 }
                 field("Code"; Rec.Code)
                 {
@@ -65,7 +65,7 @@ page 1011 "Job Resource Prices"
                 field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a line discount percent that applies to this resource, or resource group. This is useful, for example if you want invoice lines for the job to show a discount percent.';
+                    ToolTip = 'Specifies a line discount percent that applies to this resource, or resource group. This is useful, for example if you want invoice lines for the project to show a discount percent.';
                 }
                 field(Description; Rec.Description)
                 {
@@ -75,13 +75,13 @@ page 1011 "Job Resource Prices"
                 field("Apply Job Discount"; Rec."Apply Job Discount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether to apply a discount to the job. Select this field if the discount percent for this resource or resource group should apply to the job, even if the discount percent is zero.';
+                    ToolTip = 'Specifies whether to apply a discount to the project. Select this field if the discount percent for this resource or resource group should apply to the project, even if the discount percent is zero.';
                     Visible = false;
                 }
                 field("Apply Job Price"; Rec."Apply Job Price")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether the price for this resource, or resource group, should apply to the job, even if the price is zero.';
+                    ToolTip = 'Specifies whether the price for this resource, or resource group, should apply to the project, even if the price is zero.';
                     Visible = false;
                 }
             }

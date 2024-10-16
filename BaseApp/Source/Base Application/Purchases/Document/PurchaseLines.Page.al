@@ -144,19 +144,19 @@ page 518 "Purchase Lines"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job. If you fill in this field and the Job Task No. field, then a job ledger entry will be posted together with the purchase line.';
+                    ToolTip = 'Specifies the number of the related project. If you fill in this field and the Project Task No. field, then a project ledger entry will be posted together with the purchase line.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a Job Planning Line together with the posting of a job ledger entry.';
+                    ToolTip = 'Specifies a Project Planning Line together with the posting of a project ledger entry.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")

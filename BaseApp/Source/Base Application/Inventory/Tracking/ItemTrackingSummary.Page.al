@@ -35,7 +35,6 @@ page 6500 "Item Tracking Summary"
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
-                    Visible = PackageTrackingVisible;
                     ToolTip = 'Specifies the package number for which availability is presented in the Item Tracking Summary window.';
                 }
                 field("Warranty Date"; Rec."Warranty Date")
@@ -119,7 +118,7 @@ page 6500 "Item Tracking Summary"
                     ApplicationArea = ItemTracking;
                     Editable = SelectedQuantityEditable;
                     Style = Strong;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies the quantity of each lot or serial number that you want to use to fulfill the demand for the transaction.';
                     Visible = SelectedQuantityVisible;
 
@@ -202,8 +201,9 @@ page 6500 "Item Tracking Summary"
         UpdateSelectedQuantity();
 
         BinContentVisible := CurrBinCode <> '';
-
+#if not CLEAN24
         SetPackageTrackingVisibility();
+#endif
     end;
 
     var
@@ -223,7 +223,10 @@ page 6500 "Item Tracking Summary"
         Selected1Visible: Boolean;
         Undefined1Visible: Boolean;
         SelectedQuantityEditable: Boolean;
+#if not CLEAN24
+        [Obsolete('Package Tracking enabled by default.', '24.0')]
         PackageTrackingVisible: Boolean;
+#endif
 
     procedure SetSources(var ReservEntry: Record "Reservation Entry"; var EntrySummary: Record "Entry Summary")
     var
@@ -437,12 +440,12 @@ page 6500 "Item Tracking Summary"
         CurrPage.Update();
     end;
 
+#if not CLEAN24
     local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
     begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
+        PackageTrackingVisible := true;
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCurrentBinAndItemTrkgCode(var CurrBinCode: Code[20]; var CurrItemTrackingCode: Record "Item Tracking Code"; var BinContentVisible: Boolean; var EntrySummary: Record "Entry Summary"; var ReservationEntry: Record "Reservation Entry")

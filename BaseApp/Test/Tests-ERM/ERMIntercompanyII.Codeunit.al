@@ -70,7 +70,7 @@ codeunit 134152 "ERM Intercompany II"
 
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
-        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
+        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation();
         ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company Information "B", where "IC Partner Code" = "B"
@@ -80,16 +80,16 @@ codeunit 134152 "ERM Intercompany II"
         VendorNo := CreateICVendor(ICPartnerCode[1]);
         CustomerNo := CreateICCustomer(ICPartnerCode[1]);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
         // [GIVEN] Post Sales Order and Purchase Order
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo, CreateItem);
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo, CreateItem());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryLowerPermissions.AddSalesDocsPost();
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, CreateItem);
+          SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, CreateItem());
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] Send Outbox transactions (Sales and Purchase documents) to IC Partner "A" (save to a file)
@@ -97,7 +97,7 @@ codeunit 134152 "ERM Intercompany II"
 
         // [GIVEN] Switch to Company Information "A", where "IC Partner Code" = "A"
         SetCompanyICPartner(ICPartnerCode[1]);
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         DeleteICPartner(ICPartnerCode[1]); // There should be no IC Partner for the Company itself
 
         // [GIVEN] Customer and Vendor, where "IC Partner Code" is "B"
@@ -138,7 +138,7 @@ codeunit 134152 "ERM Intercompany II"
         TestClientType.SetClientType(ClientType::Windows);
 
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
-        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
+        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation();
         ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company, where "IC Partner Code" is "B"
@@ -147,12 +147,12 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Vendor, where "IC Partner Code" is "A"
         VendorNo := CreateICVendor(ICPartnerCode[1]);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
         // [GIVEN] Post Purchase Order
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo, CreateItem);
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo, CreateItem());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [GIVEN] Send Outbox transactions (Purchase document) to IC Partner "A" (save to a file)
@@ -175,7 +175,7 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
-        ICPartnerForCustomerAndVendorError(CreateICPartner);
+        ICPartnerForCustomerAndVendorError(CreateICPartner());
     end;
 
     [Test]
@@ -236,7 +236,7 @@ codeunit 134152 "ERM Intercompany II"
 
         CreateICJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Intercompany);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"IC Partner",
-          CreateICPartner, GenJournalLine."Bal. Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.", 1);
+          CreateICPartner(), GenJournalLine."Bal. Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.", 1);
 
         LibraryLowerPermissions.AddJournalsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
@@ -256,12 +256,12 @@ codeunit 134152 "ERM Intercompany II"
 
         Initialize();
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         CreateICGLAccount(ICGLAccount);
 
         CreateICJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Intercompany);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account",
-          ICGLAccount."Map-to G/L Acc. No.", GenJournalLine."Bal. Account Type"::"IC Partner", CreateICPartner, ICGLAccount."No.", 1);
+          ICGLAccount."Map-to G/L Acc. No.", GenJournalLine."Bal. Account Type"::"IC Partner", CreateICPartner(), ICGLAccount."No.", 1);
 
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddJournalsPost();
@@ -284,13 +284,13 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         SelectGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
-        CustomerNo := CreateICCustomer(CreateICPartner);
+        CustomerNo := CreateICCustomer(CreateICPartner());
 
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, CustomerNo,
           GenJournalLine."Bal. Account Type"::"G/L Account", GLAccount."No.", '', 1);
         CustomerPostingGroup.Get(GenJournalLine."Posting Group");
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
 
         // Exercise: Post IC Journal Line.
@@ -320,13 +320,13 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         SelectGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
-        CustomerNo := CreateICCustomer(CreateICPartner);
+        CustomerNo := CreateICCustomer(CreateICPartner());
 
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Bal. Account Type"::Customer, CustomerNo, '', -1);
         CustomerPostingGroup.Get(GenJournalLine."Posting Group");
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
 
         // Exercise: Post IC Journal Line.
@@ -355,13 +355,13 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         SelectGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
-        VendorNo := CreateICVendor(CreateICPartner);
+        VendorNo := CreateICVendor(CreateICPartner());
 
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, VendorNo,
           GenJournalLine."Bal. Account Type"::"G/L Account", GLAccount."No.", '', -1);
         VendorPostingGroup.Get(GenJournalLine."Posting Group");
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
 
         // Exercise: Post IC Journal Line.
@@ -390,13 +390,13 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         SelectGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
-        VendorNo := CreateICVendor(CreateICPartner);
+        VendorNo := CreateICVendor(CreateICPartner());
 
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Bal. Account Type"::Vendor, VendorNo, '', 1);
         VendorPostingGroup.Get(GenJournalLine."Posting Group");
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
 
         // Exercise: Post IC Journal Line.
@@ -443,7 +443,7 @@ codeunit 134152 "ERM Intercompany II"
         FindICOutboxTransaction(
           ICOutboxTransaction, SalesHeader."No.", ICOutboxTransaction."Document Type"::Order,
           ICOutboxTransaction."Source Type"::"Sales Document");
-        ICOutboxTransaction.ShowDetails;
+        ICOutboxTransaction.ShowDetails();
     end;
 
     [Test]
@@ -459,10 +459,10 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
-        CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateICVendor(CreateICPartner), -1);
+        CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateICVendor(CreateICPartner()), -1);
 
         // Exercise.
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -536,7 +536,7 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
-        CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner, -1);
+        CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner(), -1);
 #if not CLEAN22
         BlockICGLAccount(GenJournalLine."IC Partner G/L Acc. No.");
 #else
@@ -575,7 +575,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup();
         // Exercise.
         asserterror CreateGeneralJournalLine(
-            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"IC Partner", CreateICPartner,
+            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"IC Partner", CreateICPartner(),
             GenJournalLine."Bal. Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.", 1);  // Taking 1 for sign factor.
 
         // Verify: Verify IC G/L Account Blocked error message.
@@ -591,8 +591,8 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxTransaction: Record "IC Outbox Transaction";
     begin
         // Verify Sales Return Order in IC Outbox Transactions after send it for IC with non IC Bill to Customer.
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
@@ -610,14 +610,14 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxTransaction: Record "IC Outbox Transaction";
     begin
         // Verify Sales Credit Memo in IC Outbox Transactions after send it for IC with IC Bill to Customer.
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsPost();
         LibraryLowerPermissions.AddO365Setup();
         SalesDocumentMovedInICOutbox(
-          SalesHeader."Document Type"::"Credit Memo", CreateICCustomer(CreateICPartner),
+          SalesHeader."Document Type"::"Credit Memo", CreateICCustomer(CreateICPartner()),
           ICOutboxTransaction."Document Type"::"Credit Memo");
     end;
 
@@ -630,7 +630,7 @@ codeunit 134152 "ERM Intercompany II"
         // Setup: Create IC Parter, create Sales Document, update Bill-to Customer No. and Send it for IC and post.
         Initialize();
         ICPartnerCode := CreateICPartner();
-        CreateSalesDocument(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode), CreateItem);
+        CreateSalesDocument(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode), CreateItem());
         UpdateSalesDocument(SalesHeader, BillToCustomerNo);
         ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
 
@@ -675,8 +675,8 @@ codeunit 134152 "ERM Intercompany II"
         SalesHeader: Record "Sales Header";
     begin
         // Verify error while post Sales Order with Customer which have blocked IC Partner.
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         PostSalesDocumentWithBlockedICPartner(SalesHeader."Document Type"::Order);
     end;
@@ -688,9 +688,9 @@ codeunit 134152 "ERM Intercompany II"
         SalesHeader: Record "Sales Header";
     begin
         // Verify error while post Sales Credit Memo with Customer which have blocked IC Partner.
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         LibraryLowerPermissions.AddO365Setup();
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         PostSalesDocumentWithBlockedICPartner(SalesHeader."Document Type"::"Credit Memo");
     end;
 
@@ -702,7 +702,7 @@ codeunit 134152 "ERM Intercompany II"
         // Setup: Create IC Parter, create Sales Document and block IC Partner.
         Initialize();
         ICPartnerCode := CreateICPartner();
-        CreateSalesDocument(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode), CreateItem);
+        CreateSalesDocument(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode), CreateItem());
         BlockICPartner(ICPartnerCode);
 
         // Exercise.
@@ -737,7 +737,7 @@ codeunit 134152 "ERM Intercompany II"
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"IC Partner",
           ICPartnerCode, GenJournalLine."Bal. Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.", 1);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddJournalsPost();
         PostAndVerifyICGeneralJournalLine(GenJournalLine, 1);
     end;
@@ -774,7 +774,7 @@ codeunit 134152 "ERM Intercompany II"
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::" ");
         GenJournalLine.Modify(true);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddJournalsPost();
 
         // Exercise: Post IC Journal Line.
@@ -804,7 +804,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
-        PostPurchRetOrderWithICVendor(CreateICVendor(CreateICPartner), true);
+        PostPurchRetOrderWithICVendor(CreateICVendor(CreateICPartner()), true);
     end;
 
     [Test]
@@ -843,7 +843,7 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
 
         ICPartnerCode := CreateICPartner();
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateICVendor(ICPartnerCode), CreateItem);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateICVendor(ICPartnerCode), CreateItem());
         if OtherVendor then
             UpdatePurchaseDocument(PurchaseHeader, PayToVendorNo);
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
@@ -953,7 +953,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // Verify error while post Purchase Order with blocked IC Partner.
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddPurchDocsPost();
         PostPurchDocumentWithBlockedICPartner(PurchaseHeader."Document Type"::Order);
     end;
@@ -967,7 +967,7 @@ codeunit 134152 "ERM Intercompany II"
         // Verify error while post Purchase Return Order with blocked IC Partner.
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         PostPurchDocumentWithBlockedICPartner(PurchaseHeader."Document Type"::"Return Order");
     end;
 
@@ -979,7 +979,7 @@ codeunit 134152 "ERM Intercompany II"
         // Setup: Create IC Parter, create Purchase Document and blocked IC Partner.
         Initialize();
         ICPartnerCode := CreateICPartner();
-        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateICVendor(ICPartnerCode), CreateItem);
+        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateICVendor(ICPartnerCode), CreateItem());
         BlockICPartner(ICPartnerCode);
 
         // Exercise.
@@ -999,7 +999,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddJournalsPost();
-        ICGenJournalLineWithBlockedCustomer(CreateAndUpdateICCustomer(CreateICPartner, Customer.Blocked::All));
+        ICGenJournalLineWithBlockedCustomer(CreateAndUpdateICCustomer(CreateICPartner(), Customer.Blocked::All));
     end;
 
     local procedure ICGenJournalLineWithBlockedCustomer(ICCustomerNo: Code[20])
@@ -1039,7 +1039,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsPost();
         ICPartnerCode := CreateICPartner();
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, CreateICCustomer(ICPartnerCode), CreateItem);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, CreateICCustomer(ICPartnerCode), CreateItem());
         FindAndUpdateSalesLine(SalesLine, SalesHeader);  // Update partial Quantity on Qty. to Invoice.
 
         // Exercise.
@@ -1064,7 +1064,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddJournalsPost();
         LibraryLowerPermissions.AddO365Setup();
-        ICGenJournalLineWithBlockedCustomer(CreateAndUpdateICCustomer(CreateICPartner, Customer.Blocked::Invoice));
+        ICGenJournalLineWithBlockedCustomer(CreateAndUpdateICCustomer(CreateICPartner(), Customer.Blocked::Invoice));
     end;
 
     [Test]
@@ -1078,14 +1078,14 @@ codeunit 134152 "ERM Intercompany II"
         // Verify Sales Return Order in IC Outbox Transactions after send it for IC with IC Bill to Customer.
         Initialize();
 
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddSalesDocsPost();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         SalesDocumentMovedInICOutbox(
-          SalesHeader."Document Type"::"Return Order", CreateICCustomer(CreateICPartner),
+          SalesHeader."Document Type"::"Return Order", CreateICCustomer(CreateICPartner()),
           ICOutboxTransaction."Document Type"::"Return Order");
     end;
 
@@ -1120,7 +1120,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsCreate();
         CreateSendPurchaseDocumentReceiveSalesDocument(
-          PurchaseHeader, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(10, 100), false);
+          PurchaseHeader, SalesHeader, CreateItem(), LibraryRandom.RandIntInRange(10, 100), false);
         VerifySentPurchaseDocumentDates(PurchaseHeader, SalesHeader);
     end;
 
@@ -1169,7 +1169,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate();
         CreateSendPurchaseDocumentReceiveSalesDocument(
-          PurchaseHeader, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(10, 100), false);
+          PurchaseHeader, SalesHeader, CreateItem(), LibraryRandom.RandIntInRange(10, 100), false);
         FindSalesLine(SalesLine, SalesHeader);
         FindPurchLine(PurchaseLine, PurchaseHeader);
 
@@ -1198,7 +1198,7 @@ codeunit 134152 "ERM Intercompany II"
         CreateRoundingSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // [WHEN] Post Sales Invoice
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsPost();
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1236,7 +1236,7 @@ codeunit 134152 "ERM Intercompany II"
         CreateRoundingSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Post Sales Credit Memo
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsPost();
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1286,7 +1286,7 @@ codeunit 134152 "ERM Intercompany II"
         CreateEmptySalesLine(SalesHeader, GLAccountNo);
 
         // [WHEN] Post Sales Invoice
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsPost();
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1326,7 +1326,7 @@ codeunit 134152 "ERM Intercompany II"
         CreateEmptySalesLine(SalesHeader, GLAccountNo);
 
         // [WHEN] Post Sales Cr.Memo Invoice
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsPost();
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1365,7 +1365,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreNearlyEqual(
           SalesLine."Unit Price",
           PurchaseLine."Direct Unit Cost",
-          LibraryERM.GetAmountRoundingPrecision,
+          LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
 
         Assert.AreEqual(SalesLine."Amount Including VAT", PurchaseLine."Line Amount", PurchaseLine.FieldCaption("Line Amount"));
@@ -1392,7 +1392,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddSalesDocsCreate();
         LibraryLowerPermissions.AddPurchDocsCreate();
         CreateSendPurchaseDocumentReceiveSalesDocument(
-          PurchaseHeader, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(10, 100), true);
+          PurchaseHeader, SalesHeader, CreateItem(), LibraryRandom.RandIntInRange(10, 100), true);
 
         // [THEN] Received SalesLine."Unit Price" = 'X'
         // [THEN] Received SalesLine."Line Amount" = 'Y'
@@ -1402,7 +1402,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreNearlyEqual(
           PurchaseLine."Direct Unit Cost",
           SalesLine."Unit Price",
-          LibraryERM.GetAmountRoundingPrecision,
+          LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
 
         Assert.AreEqual(PurchaseLine."Amount Including VAT", SalesLine."Line Amount", SalesLine.FieldCaption("Line Amount"));
@@ -1438,7 +1438,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreNearlyEqual(
           SalesLine."Unit Price",
           PurchaseLine."Direct Unit Cost",
-          LibraryERM.GetAmountRoundingPrecision,
+          LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
 
         Assert.AreEqual(SalesLine."Line Amount", PurchaseLine."Line Amount", PurchaseLine.FieldCaption("Line Amount"));
@@ -1459,13 +1459,13 @@ codeunit 134152 "ERM Intercompany II"
 
         // [GIVEN] Create Purchase Order with "Prices Incl. VAT" = FALSE, "Direct Unit Cost" = 'X', "Line Amount" = 'Y'. Send to IC Partner.
         // [WHEN] Receive IC Partner's Sales Order
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddPurchDocsCreate();
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         CreateSendPurchaseDocumentReceiveSalesDocument(
-          PurchaseHeader, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(10, 100), false);
+          PurchaseHeader, SalesHeader, CreateItem(), LibraryRandom.RandIntInRange(10, 100), false);
 
         // [THEN] Received SalesLine."Unit Price" = 'X'
         // [THEN] Received SalesLine."Line Amount" = 'Y'
@@ -1475,7 +1475,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreNearlyEqual(
           PurchaseLine."Direct Unit Cost",
           SalesLine."Unit Price",
-          LibraryERM.GetAmountRoundingPrecision,
+          LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
 
         Assert.AreEqual(PurchaseLine."Line Amount", SalesLine."Line Amount", SalesLine.FieldCaption("Line Amount"));
@@ -1502,11 +1502,11 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
-        CustomerNo := CreateICCustomer(CreateICPartner);
+        CustomerNo := CreateICCustomer(CreateICPartner());
 
         // [GIVEN] Create Purchase Order "PO" with Quantity = 'X'. Post Receipt.
         // [GIVEN] Create Sales Order ("External Document No." = "PO", Quantity = 'Y', where 'Y' < 'X'). Post Shipment "SS".
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsPost();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
@@ -1549,11 +1549,11 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
-        CustomerNo := CreateICCustomer(CreateICPartner);
+        CustomerNo := CreateICCustomer(CreateICPartner());
 
         // [GIVEN] Create Purchase Return Order"PRO" with Quantity = 'X'. Post Return Shipment.
         // [GIVEN] Create Sales Return Order ("External Document No." = "PRO", Quantity = 'Y', where 'Y' < 'X'). Post Return Receipt "SRR".
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsPost();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddSalesDocsPost();
@@ -1598,11 +1598,11 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
-        CustomerNo := CreateICCustomer(CreateICPartner);
+        CustomerNo := CreateICCustomer(CreateICPartner());
 
         // [GIVEN] Create two Purchase Orders ["PO1";"PO2"] with Quantity = ["X1";"X2"]. Post two Receipts.
         // [GIVEN] Create two Sales Orders ("External Document No." = ["PO1";"PO2"], Quantity = ["Y1";"Y2"], where "Y1" < "X1", "Y2" < "X2"). Post two Shipments ["SS1";"SS2"].
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
         LibraryLowerPermissions.AddSalesDocsPost();
@@ -1650,11 +1650,11 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
-        CustomerNo := CreateICCustomer(CreateICPartner);
+        CustomerNo := CreateICCustomer(CreateICPartner());
 
         // [GIVEN] Create two Purchase Return Orders ["PRO1";"PRO2"] with Quantity = ["X1";"X2"]. Post two Return Shipments.
         // [GIVEN] Create Sales Return Order ("External Document No." = ["PRO1";"PRO2"], Quantity = ["Y1";"Y2"], where "Y1" < "X1", "Y2" < "X2"). Post two Return Receipts ["SRR1";"SRR2"].
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsPost();
         LibraryLowerPermissions.AddSalesDocsPost();
         LibraryLowerPermissions.AddO365Setup();
@@ -1697,7 +1697,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup();
         asserterror CreateSalesDocument(
             SalesHeader, SalesHeader."Document Type"::Order,
-            CreateICCustomer(CreateICPartnerWithCommonItemOutbndType), CreateItem);
+            CreateICCustomer(CreateICPartnerWithCommonItemOutbndType()), CreateItem());
 
         // [THEN] Error occurs: "Common Item No." must be filled
         Assert.ExpectedErrorCode('TestField');
@@ -1722,7 +1722,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup();
         asserterror CreatePurchaseDocument(
             PurchaseHeader, PurchaseHeader."Document Type"::Order,
-            CreateICVendor(CreateICPartnerWithCommonItemOutbndType), CreateItem);
+            CreateICVendor(CreateICPartnerWithCommonItemOutbndType()), CreateItem());
 
         // [THEN] Error occurs: "Common Item No." must be filled
         Assert.ExpectedErrorCode('TestField');
@@ -1740,7 +1740,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Sales] [Common Item]
         // [SCENARIO 372241] IC Outbox Sales Line has "IC Partner Reference"=Item."Common Item No." when send Sales document for IC Partner with Common Item Outbnd Type
         Initialize();
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CommonItemNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Sales document for IC Partner with Common Item Outbnd Type
@@ -1751,7 +1751,7 @@ codeunit 134152 "ERM Intercompany II"
         UpdateCommonItemNo(ItemNo, CommonItemNo);
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Order,
-          CreateICCustomer(CreateICPartnerWithCommonItemOutbndType), ItemNo);
+          CreateICCustomer(CreateICPartnerWithCommonItemOutbndType()), ItemNo);
 
         // [WHEN] Send Sales document to IC Partner
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
@@ -1772,7 +1772,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Purchases] [Common Item]
         // [SCENARIO 372241] IC Outbox Purchase Line has "IC Partner Reference"=Item."Common Item No." when send Purchase document for IC Partner with Common Item Outbnd Type
         Initialize();
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CommonItemNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Purchase document for IC Partner with Common Item Outbnd Type
@@ -1783,7 +1783,7 @@ codeunit 134152 "ERM Intercompany II"
         UpdateCommonItemNo(ItemNo, CommonItemNo);
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::Order,
-          CreateICVendor(CreateICPartnerWithCommonItemOutbndType), ItemNo);
+          CreateICVendor(CreateICPartnerWithCommonItemOutbndType()), ItemNo);
 
         // [WHEN] Send Purchase document to IC Partner
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
@@ -1810,9 +1810,9 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Sales] [Purchases] [Common Item]
         // [SCENARIO 372241] Error occurs when receiving Purchase document from IC Partner with Common Item Outbnd Type and there is no Item related to the Common Item No.
         Initialize();
-        ICPartnerCode := CreateICPartnerWithCommonItemOutbndType;
+        ICPartnerCode := CreateICPartnerWithCommonItemOutbndType();
         VendorNo := CreateICVendor(ICPartnerCode);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CommonItemNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Sales document for IC Partner with Common Item Outbnd Type
@@ -1859,9 +1859,9 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Purchases] [Sales] [Common Item]
         // [SCENARIO 372241] Error occurs when receiving Sales document from IC Partner with Common Item Outbnd Type and there is no Item related to the Common Item No.
         Initialize();
-        ICPartnerCode := CreateICPartnerWithCommonItemOutbndType;
+        ICPartnerCode := CreateICPartnerWithCommonItemOutbndType();
         CustomerNo := CreateICCustomer(ICPartnerCode);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CommonItemNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Purchase document for IC Partner with Common Item Outbnd Type
@@ -1910,9 +1910,9 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Sales] [Purchases] [Common Item]
         // [SCENARIO 372241] Received Purchase Line's Item has Common Item No. when using IC Partner with Common Item Outbnd Type
         Initialize();
-        ICPartnerCode := CreateICPartnerWithCommonItemOutbndType;
+        ICPartnerCode := CreateICPartnerWithCommonItemOutbndType();
         VendorNo := CreateICVendor(ICPartnerCode);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CommonItemNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Sales document for IC Partner with Common Item Outbnd Type
@@ -1957,9 +1957,9 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Purchases] [Sales] [Common Item]
         // [SCENARIO 372241] Received Sales Line's Item has Common Item No. when using IC Partner with Common Item Outbnd Type
         Initialize();
-        ICPartnerCode := CreateICPartnerWithCommonItemOutbndType;
+        ICPartnerCode := CreateICPartnerWithCommonItemOutbndType();
         CustomerNo := CreateICCustomer(ICPartnerCode);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CommonItemNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Purchase document for IC Partner with Common Item Outbnd Type
@@ -2008,7 +2008,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
-        ICPartnerCodeVendor := CreateICPartnerWithInboxTypeFileLocation;
+        ICPartnerCodeVendor := CreateICPartnerWithInboxTypeFileLocation();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
         ICPartnerCodeCustomer := CreateICPartner();
         CustomerNo := CreateICCustomer(ICPartnerCodeCustomer);
@@ -2019,7 +2019,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Send Purchase document to IC Partner
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::Order,
-          VendorNo, CreateItem);
+          VendorNo, CreateItem());
         LibraryLowerPermissions.AddSalesDocsCreate();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         SendICPurchaseDocument(
@@ -2049,10 +2049,10 @@ codeunit 134152 "ERM Intercompany II"
         // [SCENARIO 375321] Validating Unit of Measure Code in Purchase Line job should not change IC Partner Reference
 
         // [GIVEN] Purchase Line where "No." is "G" and "IC Partner Reference" is 'X'
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         ICPartnerCode := CreateICPartner();
         CreateICGLAccountWithDefaultICPartnerGLAccNo(GLAccount);
         CreatePurchInvWithGLAccount(PurchaseHeader, GLAccount, ICPartnerCode);
@@ -2080,10 +2080,10 @@ codeunit 134152 "ERM Intercompany II"
         // [SCENARIO 375321] Validating Unit of Measure Code in Sales Line job should not change IC Partner Reference
 
         // [GIVEN] Sales Line where "No." is "G" and "IC Partner Reference" is 'X'
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         ICPartnerCode := CreateICPartner();
         CreateICGLAccountWithDefaultICPartnerGLAccNo(GLAccount);
         CreateSalesInvWithGLAccount(SalesHeader, GLAccount, ICPartnerCode);
@@ -2120,16 +2120,16 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
-        CustomerNo := CreateICCustomer(CreateICPartner);
+        CustomerNo := CreateICCustomer(CreateICPartner());
 
         // [GIVEN] Created and posted Sales Invoice "SI" with External Document No.
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, CreateItem);
+          SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, CreateItem());
         UpdateSalesDocumentExternalDocumentNo(SalesHeader, ReceivedPurchaseHeader."No.");
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] Sent Sales Invoice "SI". Received Purchase Invoice "PI".
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsPost();
         LibraryLowerPermissions.AddSalesDocsPost();
         SendICSalesInvoice(ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, SalesInvoiceNo, ICPartnerCodeVendor);
@@ -2166,16 +2166,16 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
-        CustomerNo := CreateICCustomer(CreateICPartner);
+        CustomerNo := CreateICCustomer(CreateICPartner());
 
         // [GIVEN] Created and posted Sales Credit Memo "SCM" with External Document No.
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, CreateItem);
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, CreateItem());
         UpdateSalesDocumentExternalDocumentNo(SalesHeader, SalesHeader."No.");
         SalesCreditMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] Sent Credit Memo "SCM". Received Purchase Credit Memo "PCM".
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsPost();
         LibraryLowerPermissions.AddSalesDocsPost();
         SendICSalesCrMemo(ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, SalesCreditMemoNo, ICPartnerCodeVendor);
@@ -2210,7 +2210,7 @@ codeunit 134152 "ERM Intercompany II"
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Opened Customer Ledger Entry within current Accounting Period
-        PostingDate := LibraryFiscalYear.IdentifyOpenAccountingPeriod;
+        PostingDate := LibraryFiscalYear.IdentifyOpenAccountingPeriod();
         CreateCustLedgEntry(Customer."No.", PostingDate, true);
 
         // [WHEN] Validate IC Partner Code on Customer
@@ -2242,7 +2242,7 @@ codeunit 134152 "ERM Intercompany II"
         CustomerICPartnerCode := Customer."IC Partner Code";
 
         // [GIVEN] Closed Customer Ledger Entry within current Accounting Period
-        PostingDate := LibraryFiscalYear.IdentifyOpenAccountingPeriod;
+        PostingDate := LibraryFiscalYear.IdentifyOpenAccountingPeriod();
         CreateCustLedgEntry(Customer."No.", PostingDate, false);
 
         // [WHEN] Validate IC Partner Code on Customer with not confirmed question
@@ -2272,7 +2272,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Opened Vendor Ledger Entry within current Accounting Period
-        PostingDate := LibraryFiscalYear.IdentifyOpenAccountingPeriod;
+        PostingDate := LibraryFiscalYear.IdentifyOpenAccountingPeriod();
         CreateVendorLedgEntry(Vendor."No.", PostingDate, true);
 
         // [WHEN] Validate IC Partner Code of Vendor
@@ -2304,7 +2304,7 @@ codeunit 134152 "ERM Intercompany II"
         VendorICPartnerCode := Vendor."IC Partner Code";
 
         // [GIVEN] Closed Vendor Ledger Entry within current Accounting Period
-        PostingDate := LibraryFiscalYear.IdentifyOpenAccountingPeriod;
+        PostingDate := LibraryFiscalYear.IdentifyOpenAccountingPeriod();
         CreateVendorLedgEntry(Vendor."No.", PostingDate, false);
 
         // [WHEN] Validate IC Partner Code on Vendor with not confirmed question
@@ -2330,10 +2330,10 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Sales Invoice with 35 char length of "External Document No."
         // [GIVEN] Post, send Sales Invoice. Receive Purchase Invoice
         // [GIVEN] Post Purchase Invoice
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
-        LibraryLowerPermissions.AddIntercompanyPostingsSetup;
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddSalesDocsPost();
         PostReceivedPurchInvoice_WideExternalDocNo(ICInboxTransaction);
 
@@ -2394,12 +2394,12 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
 
         CreatePartnerCustomerVendor(ICPartnerVendorCode, VendorNo, CustomerNo);
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, CreateItem);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, CreateItem());
 
         // [GIVEN] Sales Invoice with 35 char length of "External Document No."
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
-        UpdateSalesDocumentExternalDocumentNo(SalesHeader, GenerateExternalDocumentNo);
+        UpdateSalesDocumentExternalDocumentNo(SalesHeader, GenerateExternalDocumentNo());
 
         // [GIVEN] Post, send Sales Invoice.
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2434,16 +2434,16 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Purchase document
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::Order,
-          CreateICVendor(CreateICPartner), CreateItem);
+          CreateICVendor(CreateICPartner()), CreateItem());
 
         // [GIVEN] Send Purchase document to IC Partner
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
 
         // [GIVEN] A new Purchase Document
-        LibraryPurchase.CreatePurchHeader(ToPurchaseHeader, ToPurchaseHeader."Document Type"::Order, CreateICVendor(CreateICPartner));
+        LibraryPurchase.CreatePurchHeader(ToPurchaseHeader, ToPurchaseHeader."Document Type"::Order, CreateICVendor(CreateICPartner()));
 
         // [WHEN] Copy the sent document into new one
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         CopyPurchaseDocument("Purchase Document Type From"::Order, PurchaseHeader, ToPurchaseHeader);
@@ -2477,7 +2477,7 @@ codeunit 134152 "ERM Intercompany II"
         CreatePartnerCustomerVendor(ICPartnerCode, VendorNo, CustomerNo);
 
         // [GIVEN] Ship Sales Order
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, LibraryInventory.CreateItemNo);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, LibraryInventory.CreateItemNo());
         LibrarySales.PostSalesDocument(SalesHeader, true, false); // ship, no invoice
 
         // [GIVEN] Get Sales Invoice from Shippment Lines then Post
@@ -2485,7 +2485,7 @@ codeunit 134152 "ERM Intercompany II"
         SalesInvoiceHeader."No." := LibrarySales.PostSalesDocument(SalesInvoiceHeader, false, true); // No ship, invoice
 
         // [WHEN] Send Sales Invoice to IC Partner
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddSalesDocsCreate();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         SendICSalesDocument(
@@ -2520,7 +2520,7 @@ codeunit 134152 "ERM Intercompany II"
         CreatePartnerCustomerVendor(ICPartnerCode, VendorNo, CustomerNo);
 
         // [GIVEN] Sales Return Order is received.
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo, LibraryInventory.CreateItemNo);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo, LibraryInventory.CreateItemNo());
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] Sales Credit Memo is created via Get Receipt Lines and posted.
@@ -2528,7 +2528,7 @@ codeunit 134152 "ERM Intercompany II"
         SalesHeaderCrMemo."No." := LibrarySales.PostSalesDocument(SalesHeaderCrMemo, false, true);
 
         // [WHEN] Send Sales Credit Memo to IC Partner and receive it as Purchase Credit Memo.
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         SendICSalesDocument(
@@ -2558,11 +2558,11 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
 
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
-        UpdateLCYCodeInGLSetup;
+        UpdateLCYCodeInGLSetup();
 
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
-        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
+        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation();
         ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company Information "B", where "IC Partner Code" = "B"
@@ -2572,11 +2572,11 @@ codeunit 134152 "ERM Intercompany II"
         CustomerNo := CreateICCustomer(ICPartnerCode[1]);
 
         // [WHEN] Post Sales Order
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, CreateItem);
+          SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, CreateItem());
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         GLSetup.Get();
 
@@ -2603,11 +2603,11 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
 
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
-        UpdateLCYCodeInGLSetup;
+        UpdateLCYCodeInGLSetup();
 
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
-        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
+        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation();
         ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company Information "B", where "IC Partner Code" = "B"
@@ -2617,11 +2617,11 @@ codeunit 134152 "ERM Intercompany II"
         CustomerNo := CreateICCustomer(ICPartnerCode[1]);
 
         // [WHEN] Post Sales Credit Memo
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddO365Setup();
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, CreateItem);
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, CreateItem());
         CrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         GLSetup.Get();
         // [THEN] IC Outbox Sales Header for Posted Sales Credit Memo has blank "Currency Code"
@@ -2643,11 +2643,11 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
 
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
-        UpdateLCYCodeInGLSetup;
+        UpdateLCYCodeInGLSetup();
 
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
-        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
+        ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation();
         ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company Information "B", where "IC Partner Code" = "B"
@@ -2657,11 +2657,11 @@ codeunit 134152 "ERM Intercompany II"
         VendorNo := CreateICVendor(ICPartnerCode[1]);
 
         // [WHEN] Post Purchase Order
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddO365Setup();
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo, CreateItem);
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo, CreateItem());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         GLSetup.Get();
 
@@ -2683,15 +2683,15 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
 
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
-        UpdateLCYCodeInGLSetup;
+        UpdateLCYCodeInGLSetup();
 
         // [GIVEN] General Journal Line for IC Partner with "IC Account No." ("IC Partner G/L Acc. No." for CLEAN22 and below) as Balance Account
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
-        CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CreateICCustomer(CreateICPartner), 1);
+        CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CreateICCustomer(CreateICPartner()), 1);
 
         // [WHEN] Post General Journal Line
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -2729,7 +2729,7 @@ codeunit 134152 "ERM Intercompany II"
         CreateSalesDocumentWithExternalDocNoForICCustomer(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // [WHEN] Post the Sales Order with Ship and Invoice option.
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2756,7 +2756,7 @@ codeunit 134152 "ERM Intercompany II"
         CreateSalesDocumentWithExternalDocNoForICCustomer(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
 
         // [WHEN] Post the Sales Return Order with Receive and Invoice option.
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2790,10 +2790,10 @@ codeunit 134152 "ERM Intercompany II"
 
         // [GIVEN] A purchase order and a purchase invoice.
         ItemNo := LibraryInventory.CreateItemNo();
-        VendorNo := CreateICVendor(CreateICPartner);
+        VendorNo := CreateICVendor(CreateICPartner());
         Quantity := LibraryRandom.RandDec(100, 2);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsPost();
         LibraryPurchase.CreatePurchaseDocumentWithItem(InvoicePurchaseHeader, InvoicePurchaseLine,
           InvoicePurchaseHeader."Document Type"::Invoice, VendorNo, ItemNo, Quantity, '', WorkDate());
@@ -2841,10 +2841,10 @@ codeunit 134152 "ERM Intercompany II"
 
         // [GIVEN] A purchase order and a purchase invoice.
         ItemNo := LibraryInventory.CreateItemNo();
-        VendorNo := CreateICVendor(CreateICPartner);
+        VendorNo := CreateICVendor(CreateICPartner());
         Quantity := LibraryRandom.RandDec(100, 2);
 
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryPurchase.CreatePurchaseDocumentWithItem(InvoicePurchaseHeader, InvoicePurchaseLine,
           InvoicePurchaseHeader."Document Type"::Invoice, VendorNo, ItemNo, Quantity, '', WorkDate());
@@ -3116,11 +3116,11 @@ codeunit 134152 "ERM Intercompany II"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader,
           PurchaseHeader."Document Type"::Order,
-          CreateICVendor(CreateICPartner));
+          CreateICVendor(CreateICPartner()));
 
         // [GIVEN] Purchase Line with Item type.
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem,
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(),
           LibraryRandom.RandDecInRange(100, 200, 2));
 
         // [WHEN] Post Purchase Order
@@ -3153,7 +3153,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddPurchDocsPost();
         LibraryLowerPermissions.AddSalesDocsCreate();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
 
         // [GIVEN] G/L Account 'X' with Default IC Partner G/L Account Number = 'Y'.
         // [GIVEN] G/L Account 'Y' with Default IC Partner G/L Account Number = 'X'.
@@ -3213,7 +3213,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddSalesDocsPost();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
 
         // [GIVEN] G/L Account 'X' with Default IC Partner G/L Account Number = 'Y'.
         // [GIVEN] G/L Account 'Y' with Default IC Partner G/L Account Number = 'X'.
@@ -3265,7 +3265,7 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
         LibraryLowerPermissions.AddSalesDocsCreate();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
 
@@ -3298,7 +3298,7 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
 
@@ -3334,7 +3334,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddSalesDocsCreate();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
 
         // [GIVEN] Create Sales Order with "Ship-to Country/Region Code" = "CRC" and "Ship-to County" = "C" and send it to IC Partner
@@ -3372,7 +3372,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
 
         // [GIVEN] Create Purchase Order with "Ship-to Country/Region Code" = "CRC" and "Ship-to County" = "C" and send it to IC Partner
@@ -3412,7 +3412,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddSalesDocsCreate();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsCreate();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
 
         // [GIVEN] IC Partner received Sales Order
         CreateAndSendPurchOrderWithShipToCountryRegionAndCounty(
@@ -3454,7 +3454,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddSalesDocsCreate();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsCreate();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
 
         // [GIVEN] IC Partner received Purchase Order
         CreateAndSendSalesOrderWithShipToCountryRegionAndCounty(
@@ -3491,10 +3491,10 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsCreate();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
 
         // [GIVEN] Create IC Inbox Sales Header with "Ship-to Country/Region Code" = "CRC" and "Ship-to County" = "C"
-        Customer.Get(CreateICCustomer(CreateICPartner));
+        Customer.Get(CreateICCustomer(CreateICPartner()));
         MockICInboxSalesHeaderWithShipToCountryRegionAndCounty(ICInboxSalesHeader, Customer);
 
         // [WHEN] Create Sales Document in codeunit ICInboxOutboxMgt
@@ -3527,7 +3527,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsCreate();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
 
         // [GIVEN] Create IC Inbox Purchase Header with "Ship-to Country/Region Code" = "CRC" and "Ship-to County" = "C"
         MockICInboxPurchHeaderWithShipToCountryRegionAndCounty(ICInboxPurchaseHeader);
@@ -3565,7 +3565,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsCreate();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
 
         // [GIVEN] Create Sales Order with "Ship-to Country/Region Code" = "CRC" and "Ship-to County" = "C" and send to IC Partner
         CreateAndSendSalesOrderWithShipToCountryRegionAndCounty(
@@ -3599,7 +3599,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsCreate();
-        LibraryLowerPermissions.AddeRead;
+        LibraryLowerPermissions.AddeRead();
 
         // [GIVEN] Create Purchase Order with "Ship-to Country/Region Code" = "CRC" and "Ship-to County" = "C" and send it to IC Partner
         CreateAndSendPurchOrderWithShipToCountryRegionAndCounty(
@@ -3894,8 +3894,8 @@ codeunit 134152 "ERM Intercompany II"
 
         // [GIVEN] Purchase Order for IC Vendor and Item "I"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, CreateICVendor(CreateICPartner),
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, CreateICVendor(CreateICPartner()),
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
 
         // [WHEN] Post Purchase Order
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -3921,8 +3921,8 @@ codeunit 134152 "ERM Intercompany II"
 
         // [GIVEN] Sales Order for IC Customer and Item "I"
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateICCustomer(CreateICPartner),
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateICCustomer(CreateICPartner()),
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
 
         // [WHEN] Post Purchase Order
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -3948,7 +3948,7 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
 
         // [GIVEN] Purchase Order for IC Vendor and Item "I"
-        VendorNo := CreateICVendor(CreateICPartner);
+        VendorNo := CreateICVendor(CreateICPartner());
         ItemNo := LibraryInventory.CreateItemNo();
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2),
@@ -3986,7 +3986,7 @@ codeunit 134152 "ERM Intercompany II"
         Initialize();
 
         // [GIVEN] Sales Order for IC Customer and Item "I"
-        CustNo := CreateICCustomer(CreateICPartner);
+        CustNo := CreateICCustomer(CreateICPartner());
         ItemNo := LibraryInventory.CreateItemNo();
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustNo, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2),
@@ -4036,7 +4036,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Sales invoice with Customer
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Sales invoice line with "G/L Account No." = "Z" and IC information: "IC Partner No" = "C", "IC Partner Ref. Type" = "G/L Account", "IC Partner Reference" = "IC G/L Account"
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
@@ -4078,7 +4078,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Purchase invoice line with "G/L Account No." = "Z" and IC information: "IC Partner No" = "C", "IC Partner Ref. Type" = "G/L Account", "IC Partner Reference" = "IC G/L Account"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -4132,9 +4132,9 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Second line: Item = "I2", Unit Price = 41.62, VAT % = 20, Amount Including VAT = 49.94 (the precise amount value is 49.944, but on this line it is rounded down).
         MockICInboxSalesHeaderWithShipToCountryRegionAndCounty(ICInboxSalesHeader, Customer);
         MockICInboxSalesLine(
-          ICInboxSalesLine, ICInboxSalesHeader, ItemNo[1], UnitPrice, Qty, Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision, '>'));
+          ICInboxSalesLine, ICInboxSalesHeader, ItemNo[1], UnitPrice, Qty, Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision(), '>'));
         MockICInboxSalesLine(
-          ICInboxSalesLine, ICInboxSalesHeader, ItemNo[2], UnitPrice, Qty, Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision, '<'));
+          ICInboxSalesLine, ICInboxSalesHeader, ItemNo[2], UnitPrice, Qty, Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision(), '<'));
 
         // [WHEN] Create and release a new sales order from the intercompany inbox.
         ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
@@ -4146,15 +4146,15 @@ codeunit 134152 "ERM Intercompany II"
         SalesLine.SetRange("No.", ItemNo[1]);
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.TestField("Unit Price", UnitPrice);
-        SalesLine.TestField("Amount Including VAT", Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision, '>'));
+        SalesLine.TestField("Amount Including VAT", Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision(), '>'));
 
         SalesLine.SetRange("No.", ItemNo[2]);
         SalesLine.FindFirst();
         SalesLine.TestField("Unit Price", UnitPrice);
-        SalesLine.TestField("Amount Including VAT", Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision, '<'));
+        SalesLine.TestField("Amount Including VAT", Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision(), '<'));
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceIsNotOverriddenWhenSalesLineCreatedFromInbox()
@@ -4178,7 +4178,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Item "I", customer "C".
         // [GIVEN] The price on item "I" for customer "C" is set to 100 LCY.
         ItemNo := LibraryInventory.CreateItemNo();
-        Customer.Get(CreateICCustomer(CreateICPartner));
+        Customer.Get(CreateICCustomer(CreateICPartner()));
         LibrarySales.CreateSalesPrice(
           SalesPrice, ItemNo, SalesPrice."Sales Type"::Customer, Customer."No.", 0D, '', '', '', 0, UnitPrice * 2);
 
@@ -4218,10 +4218,10 @@ codeunit 134152 "ERM Intercompany II"
         CreatePostPurchaseReceiptForNewVendor(PurchaseHeaderToSend, PurchaseHeaderToSend."Document Type"::Order, ICPartnerCodeVendor);
 
         // [GIVEN] Mock send-receive purchase document and use different sales document location
-        MockSendReceivePurchDocument(PurchaseHeaderToSend, SalesHeader, ICPartnerCodeVendor, CreateLocation);
+        MockSendReceivePurchDocument(PurchaseHeaderToSend, SalesHeader, ICPartnerCodeVendor, CreateLocation());
 
         // [GIVEN] Sent Sales Invoice as IC Inbox Purchase Document
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddSalesDocsPost();
         LibraryLowerPermissions.AddO365Setup();
         SendSalesDocumentGetICPurchaseHeader(
@@ -4527,7 +4527,6 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure CreateItemRefWithVariant(ItemNo: Code[20]; CustNo: Code[20]; VendNo: Code[20]): Code[20]
     var
-        DummyItemReference: Record "Item Reference";
         ItemVariant: Record "Item Variant";
         Item: Record Item;
         RefItemNo: Code[20];
@@ -4595,7 +4594,7 @@ codeunit 134152 "ERM Intercompany II"
         ICPartner: Record "IC Partner";
     begin
         with ICPartner do begin
-            Get(CreateICPartner);
+            Get(CreateICPartner());
             Validate("Outbound Sales Item No. Type", "Outbound Sales Item No. Type"::"Common Item No.");
             Validate("Outbound Purch. Item No. Type", "Outbound Purch. Item No. Type"::"Common Item No.");
             Modify();
@@ -4662,7 +4661,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         ICCustomer: Record Customer;
     begin
-        ICCustomer.Get(CreateICCustomer(CreateICPartner));
+        ICCustomer.Get(CreateICCustomer(CreateICPartner()));
         ICCustomer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         ICCustomer.Modify(true);
         exit(ICCustomer."No.");
@@ -4682,7 +4681,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         ICVendor: Record Vendor;
     begin
-        ICVendor.Get(CreateICVendor(CreateICPartner));
+        ICVendor.Get(CreateICVendor(CreateICPartner()));
         ICVendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         ICVendor.Modify(true);
         exit(ICVendor."No.");
@@ -4745,7 +4744,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
-        CustomerNo := CreateICCustomer(CreateICPartner);
+        CustomerNo := CreateICCustomer(CreateICPartner());
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20])
@@ -4789,7 +4788,7 @@ codeunit 134152 "ERM Intercompany II"
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandIntInRange(10, 100));
     end;
 
-    local procedure CreateSalesDocumentWithDeliveryDates(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; var ICPartnerCode: Code[20]; var VendorNo: Code[20]; ItemRef: Boolean; PricesInclVAT: Boolean; OutboundType: Option)
+    local procedure CreateSalesDocumentWithDeliveryDates(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; var ICPartnerCode: Code[20]; var VendorNo: Code[20]; ItemRef: Boolean; PricesInclVAT: Boolean; OutboundType: Enum "IC Outb. Sales Item No. Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -4802,7 +4801,7 @@ codeunit 134152 "ERM Intercompany II"
         SalesHeader.Modify();
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandIntInRange(10, 100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandIntInRange(10, 100));
 
         SalesLine.Validate("Unit Price", SalesLine."Unit Price" + LibraryRandom.RandDec(1000, 2));
         if ItemRef then
@@ -4825,7 +4824,7 @@ codeunit 134152 "ERM Intercompany II"
         ICPartnerCode: Code[20];
     begin
         ICPartnerCode := CreateICPartner();
-        CreateSalesDocument(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode), CreateItem);
+        CreateSalesDocument(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode), CreateItem());
         UpdateSalesDocumentExternalDocumentNo(SalesHeader, LibraryUtility.GenerateGUID());
         FindSalesLine(SalesLine, SalesHeader);
     end;
@@ -4834,11 +4833,11 @@ codeunit 134152 "ERM Intercompany II"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateICCustomer(CreateICPartner));
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateICCustomer(CreateICPartner()));
         SalesHeader.Validate("Prices Including VAT", true);
         SalesHeader.Modify();
 
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), 1);
         SalesLine.Validate("Unit Price", 0.9);
         SalesLine.Modify(true);
     end;
@@ -4848,13 +4847,11 @@ codeunit 134152 "ERM Intercompany II"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandInt(10));
-        with SalesLine do begin
-            Validate("No.", '');
-            Modify(true);
-        end;
+        SalesLine.Validate("No.", '');
+        SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentWithReceiptDates(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; var ICPartnerCode: Code[20]; var CustomerNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; ItemRef: Boolean; PricesInclVAT: Boolean; OutboundType: Option)
+    local procedure CreatePurchaseDocumentWithReceiptDates(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; var ICPartnerCode: Code[20]; var CustomerNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; ItemRef: Boolean; PricesInclVAT: Boolean; OutboundType: Enum "IC Outb. Sales Item No. Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -4890,9 +4887,9 @@ codeunit 134152 "ERM Intercompany II"
     var
         ItemNo: Code[20];
     begin
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CreatePurchaseDocument(PurchaseHeader, DocumentType, VendorNo, ItemNo);
-        UpdatePurchaseDocumentLocation(PurchaseHeader, CreateLocation);
+        UpdatePurchaseDocumentLocation(PurchaseHeader, CreateLocation());
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
     end;
 
@@ -5029,13 +5026,13 @@ codeunit 134152 "ERM Intercompany II"
     var
         ItemNo: Code[20];
     begin
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CreatePurchaseDocument(PurchaseHeader, DocumentType, VendorNo, ItemNo);
-        UpdatePurchaseDocumentLocation(PurchaseHeader, CreateLocation);
+        UpdatePurchaseDocumentLocation(PurchaseHeader, CreateLocation());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         CreateSalesDocument(SalesHeader, DocumentType, CustomerNo, ItemNo);
-        UpdateSalesDocumentLocation(SalesHeader, CreateLocation);
+        UpdateSalesDocumentLocation(SalesHeader, CreateLocation());
         UpdateSalesDocumentExternalDocumentNo(SalesHeader, PurchaseHeader."No.");
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
@@ -5067,7 +5064,7 @@ codeunit 134152 "ERM Intercompany II"
         Qty: Decimal;
         i: Integer;
     begin
-        ItemNo := CreateTrackedItem;
+        ItemNo := CreateTrackedItem();
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo, ItemNo, 5, '', WorkDate());
 
@@ -5110,7 +5107,7 @@ codeunit 134152 "ERM Intercompany II"
         Qty: Decimal;
         i: Integer;
     begin
-        ItemNo := CreateTrackedItem;
+        ItemNo := CreateTrackedItem();
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", VendorNo, ItemNo, 5, '', WorkDate());
 
@@ -5799,10 +5796,10 @@ codeunit 134152 "ERM Intercompany II"
         CreatePartnerCustomerVendor(ICPartnerCodeVendor, VendorNo, CustomerNo);
 
         // Created Sales Invoice
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, CreateItem);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, CreateItem());
 
         // Sales Invoice with 35 char length of "External Document No."
-        UpdateSalesDocumentExternalDocumentNo(SalesHeader, GenerateExternalDocumentNo);
+        UpdateSalesDocumentExternalDocumentNo(SalesHeader, GenerateExternalDocumentNo());
 
         // Post, send Sales Invoice.
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -5952,7 +5949,7 @@ codeunit 134152 "ERM Intercompany II"
         end;
     end;
 
-    local procedure UpdateICPartnerWithOutboundType(ICPartnerCode: Code[20]; OutboundType: Option)
+    local procedure UpdateICPartnerWithOutboundType(ICPartnerCode: Code[20]; OutboundType: Enum "IC Outb. Sales Item No. Type")
     var
         ICPartner: Record "IC Partner";
     begin
@@ -5970,7 +5967,7 @@ codeunit 134152 "ERM Intercompany II"
         FindPurchLine(PurchaseLine, PurchaseHeader);
         CreateItemReference(PurchaseLine."No.", '', PurchaseLine."Unit of Measure Code",
           DummyItemReference."Reference Type"::Vendor, PurchaseLine."Buy-from Vendor No.",
-          LibraryInventory.CreateItemNo);
+          LibraryInventory.CreateItemNo());
         PurchaseLine.Validate("No.");
         PurchaseLine.Modify(true);
     end;
@@ -5983,7 +5980,7 @@ codeunit 134152 "ERM Intercompany II"
         FindSalesLine(SalesLine, SalesHeader);
         CreateItemReference(SalesLine."No.", '', SalesLine."Unit of Measure Code",
           DummyItemReference."Reference Type"::Customer, SalesLine."Sell-to Customer No.",
-          LibraryInventory.CreateItemNo);
+          LibraryInventory.CreateItemNo());
         SalesLine.Validate("No.");
         SalesLine.Modify(true);
     end;
@@ -6160,7 +6157,7 @@ codeunit 134152 "ERM Intercompany II"
           StrSubstNo(
             ValidationErr, ICOutboxJnlLine.FieldCaption("Account No."), ICOutboxJnlLine."Account No.", ICOutboxJnlLine.TableCaption()));
         Assert.AreNearlyEqual(
-          Amount, ICOutboxJnlLine.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, ICOutboxJnlLine.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption()));
     end;
 
@@ -6507,10 +6504,10 @@ codeunit 134152 "ERM Intercompany II"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines.New;
+        ItemTrackingLines.New();
         ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
-        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -6530,9 +6527,9 @@ codeunit 134152 "ERM Intercompany II"
     [Scope('OnPrem')]
     procedure ICOutboxSalesDocHandler(var ICOutboxSalesDoc: TestPage "IC Outbox Sales Doc.")
     begin
-        ICOutboxSalesDoc.ICOutboxSalesLines."IC Partner Reference".AssertEquals(LibraryVariableStorage.DequeueText);
-        ICOutboxSalesDoc.ICOutboxSalesLines.Quantity.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        ICOutboxSalesDoc."IC Partner Code".AssertEquals(LibraryVariableStorage.DequeueText);
+        ICOutboxSalesDoc.ICOutboxSalesLines."IC Partner Reference".AssertEquals(LibraryVariableStorage.DequeueText());
+        ICOutboxSalesDoc.ICOutboxSalesLines.Quantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        ICOutboxSalesDoc."IC Partner Code".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [ConfirmHandler]
@@ -6546,7 +6543,7 @@ codeunit 134152 "ERM Intercompany II"
     [Scope('OnPrem')]
     procedure ConfirmHandlerValidateQuestion(Question: Text; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := false;
     end;
 
@@ -6574,7 +6571,7 @@ codeunit 134152 "ERM Intercompany II"
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"IC Partner",
           ICPartnerCode, GenJournalLine."Bal. Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.", 1);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddJournalsPost();
         PostAndVerifyICGeneralJournalLine(GenJournalLine, 1);
     end;
@@ -6587,7 +6584,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddJournalsPost();
-        ICGenJournalLineWithBlockedCustomer(CreateAndUpdateICCustomerPrivacyBlocked(CreateICPartner));
+        ICGenJournalLineWithBlockedCustomer(CreateAndUpdateICCustomerPrivacyBlocked(CreateICPartner()));
     end;
 
     local procedure CreateAndUpdateICCustomerPrivacyBlocked(ICPartnerCode: Code[20]): Code[20]

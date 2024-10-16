@@ -300,12 +300,12 @@ page 99000898 "Available - Prod. Order Comp."
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateReservFrom(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateReservMgt(var ReservationEntry: Record "Reservation Entry")
     begin
     end;

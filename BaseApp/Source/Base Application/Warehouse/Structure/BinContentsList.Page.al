@@ -138,9 +138,9 @@ page 7305 "Bin Contents List"
             part(Control3; "Lot Numbers by Bin FactBox")
             {
                 ApplicationArea = ItemTracking;
-                SubPageLink = "Item No." = FIELD("Item No."),
-                              "Variant Code" = FIELD("Variant Code"),
-                              "Location Code" = FIELD("Location Code");
+                SubPageLink = "Item No." = field("Item No."),
+                              "Variant Code" = field("Variant Code"),
+                              "Location Code" = field("Location Code");
                 Visible = false;
             }
             systempart(Control1900383207; Links)

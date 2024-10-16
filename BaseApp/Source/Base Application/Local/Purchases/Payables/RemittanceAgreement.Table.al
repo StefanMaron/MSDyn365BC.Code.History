@@ -8,6 +8,7 @@ table 15000000 "Remittance Agreement"
 {
     Caption = 'Remittance Agreement';
     LookupPageID = "Remittance Agreement Overview";
+    DataClassification = CustomerContent;
 
     fields
     {

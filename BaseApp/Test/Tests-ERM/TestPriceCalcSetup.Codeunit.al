@@ -21,8 +21,6 @@ codeunit 134158 "Test Price Calc. Setup"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-        TestPriceCalcSetup: Codeunit "Test Price Calc. Setup";
         IsInitialized: Boolean;
         NotImplementedMethodErr: Label 'Method %1 does not have active implementations for %2 price type.', Comment = '%1 - method name, %2 - price type name';
 
@@ -116,7 +114,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationMgt.Run();
 
         PriceCalculationSetup.SetRange(Method, PriceCalculationSetup.Method::"Lowest Price");
-#if not CLEAN21
+#if not CLEAN23
         Assert.RecordCount(PriceCalculationSetup, 6);
 #else
         Assert.RecordCount(PriceCalculationSetup, 4);
@@ -220,10 +218,8 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
         DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
-        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
-        PriceSourceType: Enum "Price Source Type";
         CustomerNo: Code[20];
         ItemNo: code[20];
     begin
@@ -265,7 +261,6 @@ codeunit 134158 "Test Price Calc. Setup"
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
-        PriceSourceType: Enum "Price Source Type";
         CustomerNo: Code[20];
         ItemNo: code[20];
     begin
@@ -324,7 +319,6 @@ codeunit 134158 "Test Price Calc. Setup"
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
-        PriceSourceType: Enum "Price Source Type";
         CustomerNo: Code[20];
         ItemNo: code[20];
     begin
@@ -379,7 +373,6 @@ codeunit 134158 "Test Price Calc. Setup"
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
-        PriceSourceType: Enum "Price Source Type";
         CustomerNo: Code[20];
         ItemNo: code[20];
     begin
@@ -432,7 +425,6 @@ codeunit 134158 "Test Price Calc. Setup"
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
-        PriceSourceType: Enum "Price Source Type";
         CustomerNo: Code[20];
         ItemNo: code[20];
     begin
@@ -481,7 +473,6 @@ codeunit 134158 "Test Price Calc. Setup"
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
-        PriceSourceType: Enum "Price Source Type";
         CustomerNo: Code[20];
         ItemNo: code[20];
     begin
@@ -527,7 +518,6 @@ codeunit 134158 "Test Price Calc. Setup"
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
-        PriceSourceType: Enum "Price Source Type";
         CustomerNo: Code[20];
         ItemNo: code[20];
     begin
@@ -570,7 +560,6 @@ codeunit 134158 "Test Price Calc. Setup"
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
-        PriceSourceType: Enum "Price Source Type";
         CustomerNo: Code[20];
         ItemNo: code[20];
     begin
@@ -610,7 +599,6 @@ codeunit 134158 "Test Price Calc. Setup"
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
-        PriceSourceType: Enum "Price Source Type";
         CustomerNo: Code[20];
         ItemNo: code[20];
     begin
@@ -677,7 +665,6 @@ codeunit 134158 "Test Price Calc. Setup"
     procedure T020_FindSetupForSalesDocDefaultMethod()
     var
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -705,7 +692,6 @@ codeunit 134158 "Test Price Calc. Setup"
     procedure T021_FindSetupForServiceDocDefaultMethod()
     var
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -733,7 +719,6 @@ codeunit 134158 "Test Price Calc. Setup"
     procedure T022_FindSetupForPurchDocDefaultMethod()
     var
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -761,7 +746,6 @@ codeunit 134158 "Test Price Calc. Setup"
     procedure T023_FindSetupForRequisitionLineDefaultMethod()
     var
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -789,7 +773,6 @@ codeunit 134158 "Test Price Calc. Setup"
     procedure T024_FindSetupForItemJnlLineDefaultMethod()
     var
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -843,10 +826,8 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
-        Method: Enum "Price Calculation Method";
         VendorNo: Code[20];
         ItemNo: code[20];
     begin
@@ -1024,7 +1005,6 @@ codeunit 134158 "Test Price Calc. Setup"
     procedure T040_SalesLineGetsMethodFromSalesSetup()
     var
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         ExpectedMethod: Enum "Price Calculation Method";
     begin
@@ -1048,7 +1028,6 @@ codeunit 134158 "Test Price Calc. Setup"
         Customer: Record Customer;
         CustomerPriceGroup: Record "Customer Price Group";
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         ExpectedMethod: Enum "Price Calculation Method";
     begin
@@ -1081,7 +1060,6 @@ codeunit 134158 "Test Price Calc. Setup"
         Customer: Record Customer;
         CustomerPriceGroup: Record "Customer Price Group";
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         ExpectedMethod: Enum "Price Calculation Method";
     begin
@@ -1116,13 +1094,10 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         PriceCalculationBuffer: Record "Price Calculation Buffer";
-        ResultDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         TempPriceSource: Record "Price Source" temporary;
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
-        PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         PriceType: Enum "Price Type";
-        PriceSourceType: Enum "Price Source Type";
     begin
         // [FEATURE] [Detailed Setup] [UT] [Sales Line]
         SalesHeader."Bill-to Customer No." := LibrarySales.CreateCustomerNo();
@@ -1138,11 +1113,11 @@ codeunit 134158 "Test Price Calc. Setup"
             Testfield("Asset Type", "Asset Type"::Item);
             Testfield("Asset No.", SalesLine."No.");
         end;
-        Assert.AreEqual(PriceCalculationBufferMgt.GetSource(PriceSourceType::Customer), SalesHeader."Bill-to Customer No.", 'Wrong Source Customer');
+        Assert.AreEqual(PriceCalculationBufferMgt.GetSource(Enum::"Price Source Type"::Customer), SalesHeader."Bill-to Customer No.", 'Wrong Source Customer');
         Assert.IsTrue(PriceCalculationBufferMgt.GetSources(TempPriceSource), 'GetSources has failed');
         Assert.RecordCount(TempPriceSource, 2);
         TempPriceSource.FindFirst();
-        TempPriceSource.TestField("Source Type", PriceSourceType::"All Customers");
+        TempPriceSource.TestField("Source Type", Enum::"Price Source Type"::"All Customers");
     end;
 
     [Test]
@@ -1151,14 +1126,10 @@ codeunit 134158 "Test Price Calc. Setup"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PriceCalculationBuffer: Record "Price Calculation Buffer";
-        ResultDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         TempPriceSource: Record "Price Source" temporary;
         PurchaseLinePrice: Codeunit "Purchase Line - Price";
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
-        PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         PriceType: Enum "Price Type";
-        PriceSourceType: Enum "Price Source Type";
-        Result: Boolean;
     begin
         // [FEATURE] [Detailed Setup] [UT] [Purchase Line]
         PurchaseHeader."Buy-from Vendor No." := LibraryPurchase.CreateVendorNo();
@@ -1174,11 +1145,11 @@ codeunit 134158 "Test Price Calc. Setup"
             Testfield("Asset Type", "Asset Type"::"G/L Account");
             Testfield("Asset No.", PurchaseLine."No.");
         end;
-        Assert.AreEqual(PriceCalculationBufferMgt.GetSource(PriceSourceType::Vendor), PurchaseHeader."Buy-from Vendor No.", 'Wrong Source Vendor');
+        Assert.AreEqual(PriceCalculationBufferMgt.GetSource(Enum::"Price Source Type"::Vendor), PurchaseHeader."Buy-from Vendor No.", 'Wrong Source Vendor');
         Assert.IsTrue(PriceCalculationBufferMgt.GetSources(TempPriceSource), 'GetSources has failed');
         Assert.RecordCount(TempPriceSource, 2);
         TempPriceSource.FindFirst();
-        TempPriceSource.TestField("Source Type", PriceSourceType::"All Vendors");
+        TempPriceSource.TestField("Source Type", Enum::"Price Source Type"::"All Vendors");
     end;
 
     [Test]
@@ -1188,13 +1159,10 @@ codeunit 134158 "Test Price Calc. Setup"
         JobJournalLine: Record "Job Journal Line";
         Resource: Record Resource;
         PriceCalculationBuffer: Record "Price Calculation Buffer";
-        ResultDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         TempPriceSource: Record "Price Source" temporary;
         JobJournalLinePrice: Codeunit "Job Journal Line - Price";
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
-        PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         PriceType: Enum "Price Type";
-        PriceSourceType: Enum "Price Source Type";
     begin
         // [FEATURE] [Detailed Setup] [UT] [Job Journal]
         with JobJournalLine do begin
@@ -1219,13 +1187,13 @@ codeunit 134158 "Test Price Calc. Setup"
         Assert.IsTrue(PriceCalculationBufferMgt.GetSources(TempPriceSource), 'GetSources has failed');
         Assert.RecordCount(TempPriceSource, 3);
         TempPriceSource.FindSet();
-        TempPriceSource.TestField("Source Type", PriceSourceType::"All Vendors");
+        TempPriceSource.TestField("Source Type", Enum::"Price Source Type"::"All Vendors");
         TempPriceSource.TestField(Level, 0);
         TempPriceSource.Next();
-        TempPriceSource.TestField("Source Type", PriceSourceType::"All Jobs");
+        TempPriceSource.TestField("Source Type", Enum::"Price Source Type"::"All Jobs");
         TempPriceSource.TestField(Level, 1);
         TempPriceSource.Next();
-        TempPriceSource.TestField("Source Type", PriceSourceType::Job);
+        TempPriceSource.TestField("Source Type", Enum::"Price Source Type"::Job);
         TempPriceSource.TestField("Source No.", Job."No.");
         TempPriceSource.TestField(Level, 2);
     end;
@@ -1449,9 +1417,7 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         RequisitionLine: Record "Requisition Line";
         LastRequisitionLine: Record "Requisition Line";
-        ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionWkshName: Record "Requisition Wksh. Name";
-        VendorNo: Code[20];
         ExpectedMethod: Array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Requisition Line] [UT]
@@ -1477,7 +1443,6 @@ codeunit 134158 "Test Price Calc. Setup"
         LastJobJournalLine: Record "Job Journal Line";
         JobJnlTemplate: Record "Job Journal Template";
         JobJnlBatch: Record "Job Journal Batch";
-        VendorNo: Code[20];
         ExpectedMethod: Array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Journal Line] [UT]
@@ -1505,10 +1470,6 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         Job: Record Job;
         JobJournalLine: Record "Job Journal Line";
-        LastJobJournalLine: Record "Job Journal Line";
-        JobJnlTemplate: Record "Job Journal Template";
-        JobJnlBatch: Record "Job Journal Batch";
-        VendorNo: Code[20];
         ExpectedMethod: Array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Journal Line] [UT]
@@ -1538,10 +1499,6 @@ codeunit 134158 "Test Price Calc. Setup"
         CustomerPriceGroup: Record "Customer Price Group";
         Job: Record Job;
         JobJournalLine: Record "Job Journal Line";
-        LastJobJournalLine: Record "Job Journal Line";
-        JobJnlTemplate: Record "Job Journal Template";
-        JobJnlBatch: Record "Job Journal Batch";
-        VendorNo: Code[20];
         ExpectedMethod: Array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Journal Line] [UT]
@@ -1598,7 +1555,6 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
-        LastJobPlanningLine: Record "Job Planning Line";
         ExpectedMethod: Array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Planning Line] [UT]
@@ -1631,7 +1587,6 @@ codeunit 134158 "Test Price Calc. Setup"
         CustomerPriceGroup: Record "Customer Price Group";
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
-        LastJobPlanningLine: Record "Job Planning Line";
         ExpectedMethod: Array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Planning Line] [UT]
@@ -1831,7 +1786,6 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
-        Method: Enum "Price Calculation Method";
         ExpectedCode: Code[100];
         CustomerNo: Code[20];
         ItemNo: code[20];
@@ -1861,7 +1815,6 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
-        Method: Enum "Price Calculation Method";
         ExpectedCode: Code[100];
         CustomerNo: Code[20];
         ItemNo: code[20];
@@ -1892,7 +1845,6 @@ codeunit 134158 "Test Price Calc. Setup"
         FoundPriceCalculationSetup: Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
-        Method: Enum "Price Calculation Method";
         ExpectedCode: Code[100];
         CustomerNo: Code[20];
         ItemNo: code[20];
@@ -1925,7 +1877,6 @@ codeunit 134158 "Test Price Calc. Setup"
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
-        Method: Enum "Price Calculation Method";
         ExpectedCode: Code[100];
         CustomerNo: Code[20];
         ItemNo: code[20];
@@ -1961,7 +1912,6 @@ codeunit 134158 "Test Price Calc. Setup"
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
-        Method: Enum "Price Calculation Method";
         ExpectedCode: Code[100];
         CustomerNo: Code[20];
         ItemNo: code[20];
@@ -1997,7 +1947,6 @@ codeunit 134158 "Test Price Calc. Setup"
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
-        Method: Enum "Price Calculation Method";
         ExpectedCode: Code[100];
         CustomerNo: Code[20];
         ItemNo: code[20];
@@ -2376,7 +2325,7 @@ codeunit 134158 "Test Price Calc. Setup"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Price Calc. Setup");
         LibraryPriceCalculation.EnableExtendedPriceCalculation();
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Price Calc. Setup");
     end;
 

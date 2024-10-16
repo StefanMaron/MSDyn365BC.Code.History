@@ -9,6 +9,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Location;
@@ -325,7 +326,7 @@ codeunit 10628 "E-Invoice Export Common"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
         VATPercentage: Decimal;
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
+        VATCalculationType: Enum "Tax Calculation Type";
         VATProdPostingGroup: Code[20];
         DiscountAmount: Decimal;
     begin
@@ -358,7 +359,7 @@ codeunit 10628 "E-Invoice Export Common"
                         // Header->AllowanceCharge->TaxCategory
                         AddGroupNode(XMLCurrNode, 'TaxCategory', AggregateCompSpaceNameTxt, CACTxt);
 
-                        AddGroupNodeWithData(XMLCurrNode, 'ID', GetTaxCategoryID(VATPercentage, VATCalculationType, VATProdPostingGroup, true),
+                        AddGroupNodeWithData(XMLCurrNode, 'ID', GetTaxCategoryID(VATPercentage, VATCalculationType.AsInteger(), VATProdPostingGroup, true),
                           BasicCompSpaceNameTxt, CBCTxt);
                         AddAttribute(XMLCurrNode, 'schemeID', 'UNCL5305');
                         XMLCurrNode := XMLCurrNode.ParentNode();
@@ -660,7 +661,7 @@ codeunit 10628 "E-Invoice Export Common"
         AddGroupNodeWithData(
           XMLCurrNode, 'ID',
           GetTaxCategoryID(
-            TempEInvoiceExportLine."VAT %", TempEInvoiceExportLine."VAT Calculation Type",
+            TempEInvoiceExportLine."VAT %", TempEInvoiceExportLine."VAT Calculation Type".AsInteger(),
             TempEInvoiceExportLine."VAT Prod. Posting Group", true),
           BasicCompSpaceNameTxt, CBCTxt);
         AddAttribute(XMLCurrNode, 'schemeID', 'UNCL5305');
@@ -943,20 +944,19 @@ codeunit 10628 "E-Invoice Export Common"
     local procedure FillVATAmountLines(var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
         TempEInvoiceExportLine.SetFilter("VAT Prod. Posting Group", '<>%1', '');
-        with TempEInvoiceExportLine do
-            if FindSet() then
-                repeat
-                    if not TempVATAmountLine.Get("VAT Identifier", "VAT Calculation Type", '', false, false) then begin
-                        TempVATAmountLine.Init();
-                        TempVATAmountLine."VAT Identifier" := "VAT Identifier";
-                        TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                        TempVATAmountLine."VAT %" := "VAT %";
-                        TempVATAmountLine.Insert();
-                    end;
-                    TempVATAmountLine."VAT Base" += Amount;
-                    TempVATAmountLine."VAT Amount" += "Amount Including VAT" - Amount;
-                    TempVATAmountLine.Modify();
-                until Next() = 0;
+        if TempEInvoiceExportLine.FindSet() then
+            repeat
+                if not TempVATAmountLine.Get(TempEInvoiceExportLine."VAT Identifier", TempEInvoiceExportLine."VAT Calculation Type", '', false, false) then begin
+                    TempVATAmountLine.Init();
+                    TempVATAmountLine."VAT Identifier" := TempEInvoiceExportLine."VAT Identifier";
+                    TempVATAmountLine."VAT Calculation Type" := TempEInvoiceExportLine."VAT Calculation Type";
+                    TempVATAmountLine."VAT %" := TempEInvoiceExportLine."VAT %";
+                    TempVATAmountLine.Insert();
+                end;
+                TempVATAmountLine."VAT Base" += TempEInvoiceExportLine.Amount;
+                TempVATAmountLine."VAT Amount" += TempEInvoiceExportLine."Amount Including VAT" - TempEInvoiceExportLine.Amount;
+                TempVATAmountLine.Modify();
+            until TempEInvoiceExportLine.Next() = 0;
     end;
 
     local procedure AreCustomerAndSupplierInSameCountry(): Boolean
@@ -1030,7 +1030,7 @@ codeunit 10628 "E-Invoice Export Common"
         PEPPOLManagement: Codeunit "PEPPOL Management";
     begin
         SalesLine.Quantity := TempEInvoiceExportLine.Quantity;
-        SalesLine.Type := TempEInvoiceExportLine.Type;
+        SalesLine.Type := "Sales Document Type".FromInteger(TempEInvoiceExportLine.Type);
         SalesLine."Unit of Measure Code" := TempEInvoiceExportLine."Unit of Measure Code";
         PEPPOLManagement.GetLineUnitCodeInfo(SalesLine, unitCode, unitCodeListID);
     end;
@@ -1091,7 +1091,7 @@ codeunit 10628 "E-Invoice Export Common"
 
         TaxCategoryID :=
           GetTaxCategoryID(
-            TempVATAmountLine."VAT %", TempVATAmountLine."VAT Calculation Type", TempEInvoiceExportLine."VAT Prod. Posting Group", false);
+            TempVATAmountLine."VAT %", TempVATAmountLine."VAT Calculation Type".AsInteger(), TempEInvoiceExportLine."VAT Prod. Posting Group", false);
         AddGroupNodeWithData(XMLCurrNode, 'ID', TaxCategoryID, BasicCompSpaceNameTxt, CBCTxt);
         AddAttribute(XMLCurrNode, 'schemeID', 'UNCL5305');
         XMLCurrNode := XMLCurrNode.ParentNode();

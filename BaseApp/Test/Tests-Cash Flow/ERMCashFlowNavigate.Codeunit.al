@@ -62,8 +62,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Liquid Funds", GLAccount."No.");
 
         // Navigate
-        CashFlowJournal.OpenEdit;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenEdit();
+        CashFlowJournal.ShowSource.Invoke();
         CashFlowJournal.Close();
         // Verification is done in modal handler function
     end;
@@ -110,8 +110,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine.Modify(true);
 
         // Navigate
-        CashFlowJournal.OpenEdit;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenEdit();
+        CashFlowJournal.ShowSource.Invoke();
         CashFlowJournal.Close();
         // Verification is done in modal handler function
     end;
@@ -151,8 +151,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine.Modify();
 
         // Exercise
-        CashFlowJournal.OpenView;
-        asserterror CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenView();
+        asserterror CashFlowJournal.ShowSource.Invoke();
 
         // Verify
         Assert.ExpectedError(
@@ -180,8 +180,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::Receivables, CustLedgerEntry."Document No.");
 
         // Navigate
-        CashFlowJournal.OpenEdit;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenEdit();
+        CashFlowJournal.ShowSource.Invoke();
         CashFlowJournal.Close();
         // Verification is done in modal handler function
     end;
@@ -219,8 +219,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::Payables, VendLedgEntry."Document No.");
 
         // Navigate
-        CashFlowJournal.OpenEdit;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenEdit();
+        CashFlowJournal.ShowSource.Invoke();
         CashFlowJournal.Close();
 
         // Verification is done in modal handler function
@@ -259,8 +259,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Sales Orders", SalesHeader."No.");
 
         // Exercise
-        CashFlowJournal.OpenView;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenView();
+        CashFlowJournal.ShowSource.Invoke();
 
         // Verify - done in SalesOrderPageHandler
 
@@ -300,8 +300,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Purchase Orders", PurchaseHeader."No.");
 
         // Exercise
-        CashFlowJournal.OpenView;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenView();
+        CashFlowJournal.ShowSource.Invoke();
 
         // Verify - done in PurchaseOrderPageHandler
 
@@ -341,8 +341,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Service Orders", ServiceHeader."No.");
 
         // Exercise
-        CashFlowJournal.OpenView;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenView();
+        CashFlowJournal.ShowSource.Invoke();
 
         // Verify - done in ServiceOrderPageHandler
 
@@ -378,8 +378,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine.Modify();
 
         // Exercise
-        CashFlowJournal.OpenView;
-        asserterror CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenView();
+        asserterror CashFlowJournal.ShowSource.Invoke();
 
         // Verify
         if SourceTableCaption = '' then
@@ -412,8 +412,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Cash Flow Manual Revenue", ExpectedNo);
 
         // Exercise
-        CashFlowJournal.OpenView;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenView();
+        CashFlowJournal.ShowSource.Invoke();
 
         // Verify - done in CFManualRevenuePageHandler
 
@@ -455,8 +455,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Cash Flow Manual Expense", ExpectedNo);
 
         // Exercise
-        CashFlowJournal.OpenView;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenView();
+        CashFlowJournal.ShowSource.Invoke();
 
         // Verify - done in CFManualExpensePageHandler
 
@@ -496,8 +496,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Fixed Assets Budget", ExpectedNo);
 
         // Exercise
-        CashFlowJournal.OpenView;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenView();
+        CashFlowJournal.ShowSource.Invoke();
 
         // Verify - done in FixedAssetCardPageHandler
 
@@ -537,8 +537,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Fixed Assets Disposal", ExpectedNo);
 
         // Exercise
-        CashFlowJournal.OpenView;
-        CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenView();
+        CashFlowJournal.ShowSource.Invoke();
 
         // Verify - done in FixedAssetCardPageHandler
 
@@ -579,8 +579,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertEntryLine(CFForecastEntry, CFForecastEntry."Source Type"::"Sales Orders", SalesHeader."No.");
 
         // Exercise
-        CFLedgerEntries.OpenView;
-        CFLedgerEntries.ShowSource.Invoke;
+        CFLedgerEntries.OpenView();
+        CFLedgerEntries.ShowSource.Invoke();
 
         // Verify - done in SalesOrderPageHandler
 
@@ -618,8 +618,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine.Modify();
 
         // Navigate
-        CashFlowJournal.OpenEdit;
-        asserterror CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenEdit();
+        asserterror CashFlowJournal.ShowSource.Invoke();
         Assert.ExpectedError(StrSubstNo('%1 must have a value', CFWorksheetLine.FieldCaption("G/L Budget Name")));
 
         // Tear down
@@ -636,8 +636,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, "Cash Flow Source Type".FromInteger(LibraryRandom.RandIntInRange(1, MaxSourceType)), '');
 
         // Navigate
-        CashFlowJournal.OpenEdit;
-        asserterror CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenEdit();
+        asserterror CashFlowJournal.ShowSource.Invoke();
         Assert.ExpectedError('Source No. must have a value');
 
         // Tear down
@@ -654,8 +654,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertJournalLine(CFWorksheetLine, "Cash Flow Source Type"::" ", '');
 
         // Navigate
-        CashFlowJournal.OpenEdit;
-        asserterror CashFlowJournal.ShowSource.Invoke;
+        CashFlowJournal.OpenEdit();
+        asserterror CashFlowJournal.ShowSource.Invoke();
         Assert.ExpectedError('Source Type must not be   in Cash Flow');
 
         // Tear down
@@ -676,8 +676,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
             LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account"), 1, MaxStrLen(CFForecastEntry."Source No.")));
 
         // Navigate
-        CFLedgerEntries.OpenView;
-        asserterror CFLedgerEntries.ShowSource.Invoke;
+        CFLedgerEntries.OpenView();
+        asserterror CFLedgerEntries.ShowSource.Invoke();
         Assert.ExpectedError(StrSubstNo('%1 must have a value', CFForecastEntry.FieldCaption("G/L Budget Name")));
 
         // Tear down
@@ -694,8 +694,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertEntryLine(CFForecastEntry, "Cash Flow Source Type".FromInteger(LibraryRandom.RandIntInRange(1, MaxSourceType)), '');
 
         // Navigate
-        CFLedgerEntries.OpenView;
-        asserterror CFLedgerEntries.ShowSource.Invoke;
+        CFLedgerEntries.OpenView();
+        asserterror CFLedgerEntries.ShowSource.Invoke();
         Assert.ExpectedError('Source No. must have a value');
 
         // Tear down
@@ -712,8 +712,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertEntryLine(CFForecastEntry, "Cash Flow Source Type"::" ", '');
 
         // Navigate
-        CFLedgerEntries.OpenView;
-        asserterror CFLedgerEntries.ShowSource.Invoke;
+        CFLedgerEntries.OpenView();
+        asserterror CFLedgerEntries.ShowSource.Invoke();
         Assert.ExpectedError('Source Type must not be   in Cash Flow');
 
         // Tear down
@@ -833,8 +833,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // [SCENARIO 269334] Page Budget use value of G/L Account Filter from function SetGLAccountFilter
         Initialize();
 
-        OpenBudgetPageWithGLAccountFilter;
-        OpenBudgetPageWithGLAccountFilter;
+        OpenBudgetPageWithGLAccountFilter();
+        OpenBudgetPageWithGLAccountFilter();
         // Verification in modal handler function
     end;
 
@@ -849,8 +849,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         InsertEntryLine(CFForecastEntry, SourceType, NonExistingNo);
 
         // Exercise
-        CFLedgerEntries.OpenView;
-        asserterror CFLedgerEntries.ShowSource.Invoke;
+        CFLedgerEntries.OpenView();
+        asserterror CFLedgerEntries.ShowSource.Invoke();
 
         // Verify
         Assert.ExpectedError(
@@ -1004,7 +1004,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     [Scope('OnPrem')]
     procedure VerifyGLBudgetPageHandler(var Budget: TestPage Budget)
     begin
-        Budget.GLAccFilter.AssertEquals(LibraryVariableStorage.DequeueText);
+        Budget.GLAccFilter.AssertEquals(LibraryVariableStorage.DequeueText());
         Budget.Close();
     end;
 }

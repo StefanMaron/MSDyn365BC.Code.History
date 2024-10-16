@@ -31,13 +31,13 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         LibraryUtility: Codeunit "Library - Utility";
     begin
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
     end;
 
     [Test]
@@ -79,7 +79,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         TempPurchaseLine: Record "Purchase Line" temporary;
         TempItem: Record Item temporary;
         TempItemCharge: Record "Item Charge" temporary;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PostedReturnShipmentNo: Code[20];
         PurchaseItemQty: Decimal;
         PurchaseOrderNo: Code[20];
@@ -87,7 +87,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Purchase Return Order.
         Initialize();
-        UpdatePurchasePayableSetup;
+        UpdatePurchasePayableSetup();
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateAndPostPurchaseOrder(TempItem, PurchaseHeader, PurchaseItemQty);
         PurchaseOrderNo := PurchaseHeader."No.";
@@ -117,7 +117,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
                 UpdatePurchaseLine(PurchaseLine, -TempItem."Last Direct Cost", -1);  // Quantity Sign Factor value important for Test.
             end;
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseLine);
-        PostedReturnShipmentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate(), false);
+        PostedReturnShipmentNo := NoSeries.PeekNextNo(PurchaseHeader."Return Shipment No. Series");
 
         // Exercise: Post Purchase Return Order and Run Adjust Cost Item Entries report.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -177,7 +177,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         PurchaseHeader2: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         TempPurchaseLine: Record "Purchase Line" temporary;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PostedReturnShipmentNo: Code[20];
         PurchaseItemQty: Decimal;
         PurchaseOrderNo: Code[20];
@@ -185,7 +185,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Purchase Return Order.
         Initialize();
-        UpdatePurchasePayableSetup;
+        UpdatePurchasePayableSetup();
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateAndPostPurchaseOrder(TempItem, PurchaseHeader, PurchaseItemQty);
         PurchaseOrderNo := PurchaseHeader."No.";
@@ -213,7 +213,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         // Move Negative Lines to a new Purchase Order.
         MoveNegativeLine(PurchaseHeader, PurchaseHeader2, "Purchase Document Type From"::"Return Order", "Purchase Document Type From"::Order);
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseLine);
-        PostedReturnShipmentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate(), false);
+        PostedReturnShipmentNo := NoSeries.PeekNextNo(PurchaseHeader."Return Shipment No. Series");
 
         // Exercise: Post Purchase Return Order and Run Adjust Cost Item Entries report.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -313,7 +313,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         TempPurchaseLine: Record "Purchase Line" temporary;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PostedReturnShipmentNo: Code[20];
         PurchaseItemQty: Decimal;
         PurchaseOrderNo: Code[20];
@@ -321,7 +321,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Credit Memo.
         Initialize();
-        UpdatePurchasePayableSetup;
+        UpdatePurchasePayableSetup();
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateAndPostPurchaseOrder(TempItem, PurchaseHeader, PurchaseItemQty);
         PurchaseOrderNo := PurchaseHeader."No.";
@@ -354,7 +354,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
             CreateItemChargeAssignment(PurchaseLine, PurchaseOrderNo);
         end;
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseLine);
-        PostedReturnShipmentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate(), false);
+        PostedReturnShipmentNo := NoSeries.PeekNextNo(PurchaseHeader."Return Shipment No. Series");
 
         // Exercise: Post Credit Memo and Run Adjust Cost Item Entries report.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -407,9 +407,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         PurchaseHeader2: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         TempPurchaseLine: Record "Purchase Line" temporary;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        ToDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
-        FromDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
+        NoSeries: Codeunit "No. Series";
         PostedReturnShipmentNo: Code[20];
         PurchaseItemQty: Decimal;
         PurchaseOrderNo: Code[20];
@@ -417,7 +415,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Credit Memo.
         Initialize();
-        UpdatePurchasePayableSetup;
+        UpdatePurchasePayableSetup();
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateAndPostPurchaseOrder(TempItem, PurchaseHeader, PurchaseItemQty);
         PurchaseOrderNo := PurchaseHeader."No.";
@@ -444,7 +442,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         // Move Negative Lines to a new Purchase Invoice.
         MoveNegativeLine(PurchaseHeader, PurchaseHeader2, "Purchase Document Type From"::"Credit Memo", "Purchase Document Type From"::Invoice);
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseLine);
-        PostedReturnShipmentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate(), false);
+        PostedReturnShipmentNo := NoSeries.PeekNextNo(PurchaseHeader."Return Shipment No. Series");
 
         // Exercise: Post Credit Memo and Run Adjust Cost Item Entries report.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -465,14 +463,14 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         TempPurchaseLine: Record "Purchase Line" temporary;
         TempItem: Record Item temporary;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PurchaseItemQty: Decimal;
         PostedReturnShipmentNo: Code[20];
         PurchaseOrderNo: Code[20];
     begin
         // Setup: Create required Setups with only Item.
         Initialize();
-        UpdatePurchasePayableSetup;
+        UpdatePurchasePayableSetup();
         CostingMethod[1] := Item."Costing Method"::FIFO;
         CreateItemsAndCopyToTemp(TempItem, 1);  // No of Item = 1
         CreateAndPostPurchaseOrder(TempItem, PurchaseHeader, PurchaseItemQty);
@@ -489,7 +487,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         SelectPurchaseLines(PurchaseLine, PurchaseHeader."No.", PurchaseHeader."Document Type"::"Credit Memo");
         UpdatePurchaseHeader(PurchaseHeader);
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseLine);
-        PostedReturnShipmentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate(), false);
+        PostedReturnShipmentNo := NoSeries.PeekNextNo(PurchaseHeader."Return Shipment No. Series");
 
         SetReasonCode(PurchaseHeader);
         // Exercise: Post Credit Memo and Run Adjust Cost Item Entries report.
@@ -505,7 +503,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Costing Purchase Returns I");
-        ExecuteConfirmHandler;
+        ExecuteConfirmHandler();
 
         if isInitialized then
             exit;

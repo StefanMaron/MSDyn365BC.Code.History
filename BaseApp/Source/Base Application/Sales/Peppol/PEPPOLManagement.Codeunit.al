@@ -773,19 +773,18 @@ codeunit 1605 "PEPPOL Management"
             exit;
         end;
 
-        with SalesLine do
-            case Type of
-                Type::Item, Type::Resource:
-                    if UOM.Get("Unit of Measure Code") then
-                        unitCode := UOM."International Standard Code"
-                    else
-                        Error(NoUnitOfMeasureErr, "Document Type", "Document No.", FieldCaption("Unit of Measure Code"));
-                Type::"G/L Account", Type::"Fixed Asset", Type::"Charge (Item)":
-                    if UOM.Get("Unit of Measure Code") then
-                        unitCode := UOM."International Standard Code"
-                    else
-                        unitCode := UoMforPieceINUNECERec20ListIDTxt;
-            end;
+        case SalesLine.Type of
+            SalesLine.Type::Item, SalesLine.Type::Resource:
+                if UOM.Get(SalesLine."Unit of Measure Code") then
+                    unitCode := UOM."International Standard Code"
+                else
+                    Error(NoUnitOfMeasureErr, SalesLine."Document Type", SalesLine."Document No.", SalesLine.FieldCaption("Unit of Measure Code"));
+            SalesLine.Type::"G/L Account", SalesLine.Type::"Fixed Asset", SalesLine.Type::"Charge (Item)":
+                if UOM.Get(SalesLine."Unit of Measure Code") then
+                    unitCode := UOM."International Standard Code"
+                else
+                    unitCode := UoMforPieceINUNECERec20ListIDTxt;
+        end;
     end;
 
     procedure GetLineInvoicePeriodInfo(var InvLineInvoicePeriodStartDate: Text; var InvLineInvoicePeriodEndDate: Text)
@@ -989,27 +988,25 @@ codeunit 1605 "PEPPOL Management"
     begin
         if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
             VATPostingSetup.Init();
-        with VATAmtLine do begin
-            Init();
-            "VAT Identifier" := FORMAT(SalesLine."VAT %");
-            "VAT Calculation Type" := SalesLine."VAT Calculation Type";
-            "Tax Group Code" := SalesLine."Tax Group Code";
-            "Tax Category" := VATPostingSetup."Tax Category";
-            "VAT %" := SalesLine."VAT %";
-            "VAT Base" := SalesLine.Amount;
-            "Amount Including VAT" := SalesLine."Amount Including VAT";
-            if SalesLine."Allow Invoice Disc." then
-                "Inv. Disc. Base Amount" := SalesLine."Line Amount";
-            "Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
+        VATAmtLine.Init();
+        VATAmtLine."VAT Identifier" := FORMAT(SalesLine."VAT %");
+        VATAmtLine."VAT Calculation Type" := SalesLine."VAT Calculation Type";
+        VATAmtLine."Tax Group Code" := SalesLine."Tax Group Code";
+        VATAmtLine."Tax Category" := VATPostingSetup."Tax Category";
+        VATAmtLine."VAT %" := SalesLine."VAT %";
+        VATAmtLine."VAT Base" := SalesLine.Amount;
+        VATAmtLine."Amount Including VAT" := SalesLine."Amount Including VAT";
+        if SalesLine."Allow Invoice Disc." then
+            VATAmtLine."Inv. Disc. Base Amount" := SalesLine."Line Amount";
+        VATAmtLine."Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
 
-            IsHandled := false;
-            OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine, VATAmtLine, VATPostingSetup, IsHandled);
-            if not IsHandled then
-                if InsertLine() then begin
-                    "Line Amount" += SalesLine."Line Amount";
-                    Modify();
-                end;
-        end;
+        IsHandled := false;
+        OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine, VATAmtLine, VATPostingSetup, IsHandled);
+        if not IsHandled then
+            if VATAmtLine.InsertLine() then begin
+                VATAmtLine."Line Amount" += SalesLine."Line Amount";
+                VATAmtLine.Modify();
+            end;
     end;
 
     procedure GetTaxCategories(SalesLine: Record "Sales Line"; var VATProductPostingGroupCategory: Record "VAT Product Posting Group")
@@ -1113,7 +1110,7 @@ codeunit 1605 "PEPPOL Management"
         exit(GetVATScheme(CountryRegionCode));
     end;
 
-    local procedure GetVATScheme(CountryRegionCode: Code[10]): Text
+    procedure GetVATScheme(CountryRegionCode: Code[10]): Text
     var
         CountryRegion: Record "Country/Region";
         CompanyInfo: Record "Company Information";
@@ -1189,7 +1186,7 @@ codeunit 1605 "PEPPOL Management"
             OutFile.Open(XmlServerPath);
     end;
 
-    local procedure IsRoundingLine(SalesLine: Record "Sales Line"; CustomerNo: Code[20]): Boolean;
+    procedure IsRoundingLine(SalesLine: Record "Sales Line"; CustomerNo: Code[20]): Boolean;
     var
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
@@ -1293,7 +1290,7 @@ codeunit 1605 "PEPPOL Management"
         if FromFieldRef.Length > ToFieldRef.Length then
             exit;
 
-        ToFieldRef.Value := FromFieldRef.Value;
+        ToFieldRef.Value := FromFieldRef.Value();
     end;
 
     procedure FindNextInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer) Found: Boolean
@@ -1524,36 +1521,34 @@ codeunit 1605 "PEPPOL Management"
 
     local procedure ReminderHeaderToSalesHeader(var TempSalesHeader: Record "Sales Header" temporary; IssuedReminderHeader: Record "Issued Reminder Header"; GiroKIDDocType: Integer)
     begin
-        with TempSalesHeader do begin
-            Init();
-            "No." := IssuedReminderHeader."No.";
-            "Document Date" := IssuedReminderHeader."Document Date";
-            "Posting Date" := IssuedReminderHeader."Posting Date";
-            "Due Date" := IssuedReminderHeader."Due Date";
-            "Currency Code" := IssuedReminderHeader."Currency Code";
-            "Bill-to Customer No." := IssuedReminderHeader."Customer No.";
-            "Bill-to Country/Region Code" := IssuedReminderHeader."Country/Region Code";
-            "Bill-to Name" := IssuedReminderHeader.Name;
-            "Bill-to Address" := IssuedReminderHeader.Address;
-            "Bill-to Address 2" := IssuedReminderHeader."Address 2";
-            "Bill-to City" := IssuedReminderHeader.City;
-            "Bill-to Post Code" := IssuedReminderHeader."Post Code";
-            "Bill-to County" := IssuedReminderHeader.County;
-            if IssuedReminderHeader."Your Reference" = '' then
-                "Your Reference" := IssuedReminderHeader."No."
-            else
-                "Your Reference" := IssuedReminderHeader."Your Reference";
-            "Language Code" := IssuedReminderHeader."Language Code";
-            "VAT Registration No." := IssuedReminderHeader."VAT Registration No.";
-            GLN := IssuedReminderHeader.GLN;
-            "Doc. No. Occurrence" := GiroKIDDocType;
-            "Shipment Date" := "Document Date";
-            "Ship-to Address" := "Bill-to Address";
-            "Ship-to City" := "Bill-to City";
-            "Ship-to Post Code" := "Bill-to Post Code";
-            "Ship-to Country/Region Code" := "Bill-to Country/Region Code";
-            Insert();
-        end;
+        TempSalesHeader.Init();
+        TempSalesHeader."No." := IssuedReminderHeader."No.";
+        TempSalesHeader."Document Date" := IssuedReminderHeader."Document Date";
+        TempSalesHeader."Posting Date" := IssuedReminderHeader."Posting Date";
+        TempSalesHeader."Due Date" := IssuedReminderHeader."Due Date";
+        TempSalesHeader."Currency Code" := IssuedReminderHeader."Currency Code";
+        TempSalesHeader."Bill-to Customer No." := IssuedReminderHeader."Customer No.";
+        TempSalesHeader."Bill-to Country/Region Code" := IssuedReminderHeader."Country/Region Code";
+        TempSalesHeader."Bill-to Name" := IssuedReminderHeader.Name;
+        TempSalesHeader."Bill-to Address" := IssuedReminderHeader.Address;
+        TempSalesHeader."Bill-to Address 2" := IssuedReminderHeader."Address 2";
+        TempSalesHeader."Bill-to City" := IssuedReminderHeader.City;
+        TempSalesHeader."Bill-to Post Code" := IssuedReminderHeader."Post Code";
+        TempSalesHeader."Bill-to County" := IssuedReminderHeader.County;
+        if IssuedReminderHeader."Your Reference" = '' then
+            TempSalesHeader."Your Reference" := IssuedReminderHeader."No."
+        else
+            TempSalesHeader."Your Reference" := IssuedReminderHeader."Your Reference";
+        TempSalesHeader."Language Code" := IssuedReminderHeader."Language Code";
+        TempSalesHeader."VAT Registration No." := IssuedReminderHeader."VAT Registration No.";
+        TempSalesHeader.GLN := IssuedReminderHeader.GLN;
+        TempSalesHeader."Doc. No. Occurrence" := GiroKIDDocType;
+        TempSalesHeader."Shipment Date" := TempSalesHeader."Document Date";
+        TempSalesHeader."Ship-to Address" := TempSalesHeader."Bill-to Address";
+        TempSalesHeader."Ship-to City" := TempSalesHeader."Bill-to City";
+        TempSalesHeader."Ship-to Post Code" := TempSalesHeader."Bill-to Post Code";
+        TempSalesHeader."Ship-to Country/Region Code" := TempSalesHeader."Bill-to Country/Region Code";
+        TempSalesHeader.Insert();
     end;
 
     local procedure ReminderLineToSalesLine(var TempSalesLine: Record "Sales Line" temporary; var TempSalesLineInvRounding: Record "Sales Line" temporary; IssuedReminderHeader: Record "Issued Reminder Header"; IssuedReminderLine: Record "Issued Reminder Line")
@@ -1563,36 +1558,34 @@ codeunit 1605 "PEPPOL Management"
         then
             exit;
 
-        with TempSalesLine do begin
-            Init();
-            "Document No." := IssuedReminderLine."Reminder No.";
-            "Bill-to Customer No." := IssuedReminderHeader."Customer No.";
-            "Line No." := IssuedReminderLine."Line No.";
+        TempSalesLine.Init();
+        TempSalesLine."Document No." := IssuedReminderLine."Reminder No.";
+        TempSalesLine."Bill-to Customer No." := IssuedReminderHeader."Customer No.";
+        TempSalesLine."Line No." := IssuedReminderLine."Line No.";
 
-            if IssuedReminderLine.Amount <> 0 then begin
-                Type := Type::"G/L Account";
-                Quantity := 0;
-            end else begin
-                Type := Type::" ";
-                Quantity := 0;
-            end;
-            "No." := IssuedReminderLine."No.";
-            Description := IssuedReminderLine.Description;
-            "Description 2" := IssuedReminderLine."Document No.";
-            "Unit Price" := IssuedReminderLine.Amount;
-            Amount := IssuedReminderLine.Amount;
-            "Amount Including VAT" := IssuedReminderLine.Amount + IssuedReminderLine."VAT Amount";
-            "VAT Bus. Posting Group" := IssuedReminderHeader."VAT Bus. Posting Group";
-            "VAT Prod. Posting Group" := IssuedReminderLine."VAT Prod. Posting Group";
-            "VAT %" := IssuedReminderLine."VAT %";
-            "VAT Calculation Type" := IssuedReminderLine."VAT Calculation Type";
-            "Tax Group Code" := IssuedReminderLine."Tax Group Code";
-            "Outstanding Amount" := IssuedReminderLine."Remaining Amount";
-            if IsRoundingLine(TempSalesLine, IssuedReminderHeader."Customer No.") then
-                GetInvoiceRoundingLine(TempSalesLineInvRounding, TempSalesLine)
-            else
-                Insert();
+        if IssuedReminderLine.Amount <> 0 then begin
+            TempSalesLine.Type := TempSalesLine.Type::"G/L Account";
+            TempSalesLine.Quantity := 0;
+        end else begin
+            TempSalesLine.Type := TempSalesLine.Type::" ";
+            TempSalesLine.Quantity := 0;
         end;
+        TempSalesLine."No." := IssuedReminderLine."No.";
+        TempSalesLine.Description := IssuedReminderLine.Description;
+        TempSalesLine."Description 2" := IssuedReminderLine."Document No.";
+        TempSalesLine."Unit Price" := IssuedReminderLine.Amount;
+        TempSalesLine.Amount := IssuedReminderLine.Amount;
+        TempSalesLine."Amount Including VAT" := IssuedReminderLine.Amount + IssuedReminderLine."VAT Amount";
+        TempSalesLine."VAT Bus. Posting Group" := IssuedReminderHeader."VAT Bus. Posting Group";
+        TempSalesLine."VAT Prod. Posting Group" := IssuedReminderLine."VAT Prod. Posting Group";
+        TempSalesLine."VAT %" := IssuedReminderLine."VAT %";
+        TempSalesLine."VAT Calculation Type" := IssuedReminderLine."VAT Calculation Type";
+        TempSalesLine."Tax Group Code" := IssuedReminderLine."Tax Group Code";
+        TempSalesLine."Outstanding Amount" := IssuedReminderLine."Remaining Amount";
+        if IsRoundingLine(TempSalesLine, IssuedReminderHeader."Customer No.") then
+            GetInvoiceRoundingLine(TempSalesLineInvRounding, TempSalesLine)
+        else
+            TempSalesLine.Insert();
     end;
 
     procedure GetBillingReferenceInfo(var TempSalesLine: Record "Sales Line" temporary; var InvoiceDocRefID: Text)

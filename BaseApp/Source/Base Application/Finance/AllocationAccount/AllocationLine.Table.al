@@ -266,7 +266,7 @@ table 2672 "Allocation Line"
         DimensionManagement.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
 
-    internal procedure GetQuantityPercision(): Decimal
+    internal procedure GetQuantityPrecision(): Decimal
     begin
         exit(0.00001);
     end;

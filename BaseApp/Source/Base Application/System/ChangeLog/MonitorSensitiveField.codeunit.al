@@ -219,7 +219,7 @@ codeunit 1392 "Monitor Sensitive Field"
             ChangeLogSetupField.Validate("Field No.", FieldNo);
             ChangeLogSetupField.Validate(Notify, Notify);
             ChangeLogSetupField.Validate("Monitor Sensitive Field", true);
-            ChangeLogSetupField.validate("Log Deletion", true);
+            ChangeLogSetupField.Validate("Log Deletion", true);
             ChangeLogSetupField.Validate("Log Insertion", true);
             ChangeLogSetupField.Validate("Log Modification", true);
             ChangeLogSetupField.Insert();
@@ -247,7 +247,7 @@ codeunit 1392 "Monitor Sensitive Field"
         FieldMonitoringSetup: Record "Field Monitoring Setup";
     begin
         GetSetupTable(FieldMonitoringSetup);
-        FieldMonitoringSetup.validate("User Id", MonitorUserId);
+        FieldMonitoringSetup.Validate("User Id", MonitorUserId);
         FieldMonitoringSetup.Validate("Email Account Id", EmailAccountId);
         FieldMonitoringSetup.Validate("Email Account Name", EmailAccountName);
         FieldMonitoringSetup.Validate("Email Connector", EmailConnector);

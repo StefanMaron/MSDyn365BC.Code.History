@@ -43,14 +43,14 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode());
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
 
         // Exercise
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        asserterror SalesInvoice.Post.Invoke;
+        asserterror SalesInvoice.Post.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(DocCannotBePostedErr, SalesHeader."Document Type", SalesHeader."No."));
@@ -73,14 +73,14 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode());
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
 
         // Exercise
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        asserterror SalesInvoice.Release.Invoke;
+        asserterror SalesInvoice.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -301,7 +301,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -346,15 +346,15 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         CreateSalesInvWithLine(SalesHeader, LineAmount);
         SetCustomerCreditLimit(SalesHeader, LineAmount / 10);
         Commit();
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesInvoice.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(SalesInvoice.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesInvoice.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror SalesInvoice.SendApprovalRequest.Invoke;
+        asserterror SalesInvoice.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -363,33 +363,33 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         SalesInvoice.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesInvoice.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(SalesInvoice.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(SalesInvoice.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(SalesInvoice.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(SalesInvoice.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesInvoice.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(SalesInvoice.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(SalesInvoice.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(SalesInvoice.Delegate.Visible(), 'Delegate should NOT be visible');
         SalesInvoice.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetSalesDocSalespersonCode(SalesHeader, ApproverUserSetup."Salespers./Purch. Code");
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        SalesInvoice.SendApprovalRequest.Invoke;
+        SalesInvoice.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(SalesInvoice.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesInvoice.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesInvoice.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         SalesInvoice.Close();
@@ -398,13 +398,13 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
 
         // [WHEN] SalesHeader card is opened.
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(SalesInvoice.Approve.Visible, 'Approva should be visible');
-        Assert.IsTrue(SalesInvoice.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(SalesInvoice.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(SalesInvoice.Approve.Visible(), 'Approva should be visible');
+        Assert.IsTrue(SalesInvoice.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(SalesInvoice.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -428,15 +428,15 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         CreateSalesInvWithLine(SalesHeader, LineAmount);
         SetCustomerCreditLimit(SalesHeader, LineAmount / 10);
         Commit();
-        SalesInvoiceList.OpenEdit;
+        SalesInvoiceList.OpenEdit();
         SalesInvoiceList.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesInvoiceList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesInvoiceList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(SalesInvoiceList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesInvoiceList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror SalesInvoiceList.SendApprovalRequest.Invoke;
+        asserterror SalesInvoiceList.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -445,30 +445,30 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         SalesInvoiceList.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
-        SalesInvoiceList.OpenEdit;
+        SalesInvoiceList.OpenEdit();
         SalesInvoiceList.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesInvoiceList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesInvoiceList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(SalesInvoiceList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesInvoiceList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         SalesInvoiceList.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetSalesDocSalespersonCode(SalesHeader, ApproverUserSetup."Salespers./Purch. Code");
-        SalesInvoiceList.OpenEdit;
+        SalesInvoiceList.OpenEdit();
         SalesInvoiceList.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        SalesInvoiceList.SendApprovalRequest.Invoke;
+        SalesInvoiceList.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(SalesInvoiceList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesInvoiceList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesInvoiceList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesInvoiceList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -587,7 +587,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     var
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -625,7 +625,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -655,9 +655,9 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.SendApprovalRequest.Invoke;
+        SalesInvoice.SendApprovalRequest.Invoke();
         SalesInvoice.Close();
     end;
 
@@ -719,9 +719,9 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.Approve.Invoke;
+        SalesInvoice.Approve.Invoke();
         SalesInvoice.Close();
     end;
 
@@ -729,9 +729,9 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.Reject.Invoke;
+        SalesInvoice.Reject.Invoke();
         SalesInvoice.Close();
     end;
 
@@ -739,9 +739,9 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.Delegate.Invoke;
+        SalesInvoice.Delegate.Invoke();
         SalesInvoice.Close();
     end;
 
@@ -749,9 +749,9 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.CancelApprovalRequest.Invoke;
+        SalesInvoice.CancelApprovalRequest.Invoke();
         SalesInvoice.Close();
     end;
 
@@ -778,16 +778,16 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         SalesInvoice: TestPage "Sales Invoice";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
 
-        Assert.AreEqual(CommentActionIsVisible, SalesInvoice.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, SalesInvoice.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            SalesInvoice.Comment.Invoke;
-            if ApprovalComments.First then
+            SalesInvoice.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -807,13 +807,13 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -830,13 +830,13 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -852,14 +852,14 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         SalesInvoice: TestPage "Sales Invoice";
         SalesInvoiceList: TestPage "Sales Invoice List";
     begin
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, SalesInvoice.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, SalesInvoice.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         SalesInvoice.Close();
 
-        SalesInvoiceList.OpenView;
+        SalesInvoiceList.OpenView();
         SalesInvoiceList.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, SalesInvoiceList.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, SalesInvoiceList.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         SalesInvoiceList.Close();
     end;
 }

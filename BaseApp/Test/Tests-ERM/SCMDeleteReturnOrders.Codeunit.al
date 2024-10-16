@@ -125,7 +125,7 @@ codeunit 137040 "SCM Delete Return Orders"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Delete Return Orders");
-        ExecuteConfirmHandler;
+        ExecuteConfirmHandler();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Delete Return Orders");

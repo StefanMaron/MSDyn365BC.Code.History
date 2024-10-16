@@ -239,7 +239,7 @@ codeunit 134380 "ERM Dimension"
         // Verify: Verify there is no remaining General Journal Line after posting.
         GenJournalLine.SetRange("Journal Template Name", JournalTemplate);
         GenJournalLine.SetRange("Journal Batch Name", JournalBatch);
-        Assert.IsFalse(GenJournalLine.FindFirst, GeneralLineMustNotExistError);
+        Assert.IsFalse(GenJournalLine.FindFirst(), GeneralLineMustNotExistError);
 
         // Tear down: Reset Account Type Default Dimension.
         DefaultDimension.Delete(true);
@@ -291,13 +291,13 @@ codeunit 134380 "ERM Dimension"
 
         // Setup: Create General Journal Line by General Journal Page.
         Initialize();
-        DocumentNo := CreateJournalLineByGeneralJournalPage;
+        DocumentNo := CreateJournalLineByGeneralJournalPage();
 
         // Exercise: Set Journal Line Dimensions in EditDimensionSetEntriesPageHandler Function. Post General Journal.
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(JournalBatch);
-        GeneralJournal.Dimensions.Invoke;
-        GeneralJournal.Post.Invoke;
+        GeneralJournal.Dimensions.Invoke();
+        GeneralJournal.Post.Invoke();
 
         // Verify: Verify Posted Journal Line Dimensions.
         VerifyPostedJournalLineDimensions(FindDimensionSetID(DocumentNo), TestDim, TestDimValue);
@@ -427,18 +427,18 @@ codeunit 134380 "ERM Dimension"
         LibraryDim.CreateDefaultDimensionItem(DefaultDimension, Item."No.", TestDim, TestDimValue);
 
         // [GIVEN] Opened page "Item List"
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
         LibraryVariableStorage.Enqueue(TestDim);
         LibraryVariableStorage.Enqueue(TestDimValue);
 
         // [WHEN] Press "Dimensions - Multiple" action on "Item List" page
-        ItemList.DimensionsMultiple.Invoke;
+        ItemList.DimensionsMultiple.Invoke();
 
         // [THEN] "Default Dimensions Multiple" page opens with "Dimension Code" = "X" and "Dimension Value Code" = "X1"
         // Verification done in DefaultDimensionsMultipleModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty; // verifies that all passed values was used in handler
+        LibraryVariableStorage.AssertEmpty(); // verifies that all passed values was used in handler
     end;
 
     [Test]
@@ -464,12 +464,12 @@ codeunit 134380 "ERM Dimension"
         LibraryDim.CreateDefaultDimensionCustomer(DefaultDimension, Customer."No.", TestDim, TestDimValue);
 
         // [GIVEN] Opened page "Customer List"
-        DefaultDimensions.Trap;
-        CustomerList.OpenEdit;
+        DefaultDimensions.Trap();
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
 
         // [WHEN] Press "Dimensions - Single" action on "Customer List" page
-        CustomerList.DimensionsSingle.Invoke;
+        CustomerList.DimensionsSingle.Invoke();
 
         // [THEN] "Default Dimensions" page opens with "Dimension Code" = "X" and "Dimension Value Code" = "X1"
         DefaultDimensions."Dimension Code".AssertEquals(TestDim);
@@ -499,18 +499,18 @@ codeunit 134380 "ERM Dimension"
         LibraryDim.CreateDefaultDimensionCustomer(DefaultDimension, Customer."No.", TestDim, TestDimValue);
 
         // [GIVEN] Opened page "Customer List"
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
         LibraryVariableStorage.Enqueue(TestDim);
         LibraryVariableStorage.Enqueue(TestDimValue);
 
         // [WHEN] Press "Dimensions - Multiple" action on "Customer List" page
-        CustomerList.DimensionsMultiple.Invoke;
+        CustomerList.DimensionsMultiple.Invoke();
 
         // [THEN] "Default Dimensions Multiple" page opens with "Dimension Code" = "X" and "Dimension Value Code" = "X1"
         // Verification done in DefaultDimensionsMultipleModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty; // verifies that all passed values was used in handler
+        LibraryVariableStorage.AssertEmpty(); // verifies that all passed values was used in handler
     end;
 
     [Test]
@@ -536,12 +536,12 @@ codeunit 134380 "ERM Dimension"
         LibraryDim.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", TestDim, TestDimValue);
 
         // [GIVEN] Opened page "Vendor List"
-        DefaultDimensions.Trap;
-        VendorList.OpenEdit;
+        DefaultDimensions.Trap();
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
         // [WHEN] Press "Dimensions - Single" action on "Vendor List" page
-        VendorList.DimensionsSingle.Invoke;
+        VendorList.DimensionsSingle.Invoke();
 
         // [THEN] "Default Dimensions" page opens with "Dimension Code" = "X" and "Dimension Value Code" = "X1"
         DefaultDimensions."Dimension Code".AssertEquals(TestDim);
@@ -571,18 +571,18 @@ codeunit 134380 "ERM Dimension"
         LibraryDim.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", TestDim, TestDimValue);
 
         // [GIVEN] Opened page "Vendor List"
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
         LibraryVariableStorage.Enqueue(TestDim);
         LibraryVariableStorage.Enqueue(TestDimValue);
 
         // [WHEN] Press "Dimensions - Multiple" action on "Vendor List" page
-        VendorList.DimensionsMultiple.Invoke;
+        VendorList.DimensionsMultiple.Invoke();
 
         // [THEN] "Default Dimensions Multiple" page opens with "Dimension Code" = "X" and "Dimension Value Code" = "X1"
         // Verification done in DefaultDimensionsMultipleModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty; // verifies that all passed values was used in handler
+        LibraryVariableStorage.AssertEmpty(); // verifies that all passed values was used in handler
     end;
 
     [Test]
@@ -608,12 +608,12 @@ codeunit 134380 "ERM Dimension"
         LibraryDim.CreateDefaultDimensionItem(DefaultDimension, Item."No.", TestDim, TestDimValue);
 
         // [GIVEN] Opened page "Item List"
-        DefaultDimensions.Trap;
-        ItemList.OpenEdit;
+        DefaultDimensions.Trap();
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         // [WHEN] Press "Dimensions - Single" action on "Item List" page
-        ItemList.DimensionsSingle.Invoke;
+        ItemList.DimensionsSingle.Invoke();
 
         // [THEN] "Default Dimensions" page opens with "Dimension Code" = "X" and "Dimension Value Code" = "X1"
         DefaultDimensions."Dimension Code".AssertEquals(TestDim);
@@ -684,7 +684,7 @@ codeunit 134380 "ERM Dimension"
         DimSetID := LibraryDim.CreateDimSet(DimSetID, DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
 
         // [GIVEN] 118 tables in database which have field related to table "Dimension Set ID"
-        CountOfTablesWithFieldRelatedToDimSetEntryTable := GetCountOfTablesWithFieldRelatedToDimSetEntryTable;
+        CountOfTablesWithFieldRelatedToDimSetEntryTable := GetCountOfTablesWithFieldRelatedToDimSetEntryTable();
 
         // [GIVEN] Number of W1 tables ignored. They are either have "Dimension Set ID" field and do not have shortcut dimensions OR posted tables such as Item Ledger Entry where should be no logic for this field
         CountOfTablesIgnored := 78;
@@ -992,6 +992,149 @@ codeunit 134380 "ERM Dimension"
         SelectedDimension.TestField("Dimension Code", DimSelectionText);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionValueTestAutomaticCreation()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        NewDimSetID: Integer;
+        DimensionCode: Code[20];
+        DimensionValueCode: Code[20];
+    begin
+        // [Given] Dimension and Dimension Value Code
+        DimensionCode := LibraryRandom.RandText(20);
+        DimensionValueCode := LibraryRandom.RandText(20);
+
+        // [When] SetDimensionValue is called 
+        NewDimSetID := DimensionManagement.SetDimensionValue(0, DimensionCode, DimensionValueCode, true, true);
+
+        // [Then] New Dimension Set is created
+        Assert.AreNotEqual(0, NewDimSetID, 'New Dimension Set did not get created');
+
+        // [Then] Dimension gets created
+        Dimension.SetRange(Code, DimensionCode);
+        Assert.RecordIsNotEmpty(Dimension);
+
+        // [Then] Dimension Value gets created
+        DimensionValue.SetRange("Dimension Code", DimensionCode);
+        DimensionValue.SetRange("Code", DimensionValueCode);
+        Assert.RecordIsNotEmpty(DimensionValue);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionValueTestErrorOnMissingDimension()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+        NewDimSetID: Integer;
+        DimensionCode: Code[20];
+        DimensionValueCode: Code[20];
+    begin
+        // [Given] Dimension and Dimension Value Code
+        DimensionCode := LibraryRandom.RandText(20);
+        DimensionValueCode := LibraryRandom.RandText(20);
+
+        // [When] SetDimensionValue is called without auto create of dimension
+        asserterror NewDimSetID := DimensionManagement.SetDimensionValue(0, DimensionCode, DimensionValueCode, false, true);
+
+        Assert.ExpectedError(StrSubstNo('The field Dimension Code of table Dimension Value contains a value (%1) that cannot be found in the related table (Dimension).', DimensionCode));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionValueTestErrorOnMissingDimensionValue()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+        NewDimSetID: Integer;
+        DimensionCode: Code[20];
+        DimensionValueCode: Code[20];
+    begin
+        // [Given] Dimension and Dimension Value Code
+        DimensionCode := LibraryRandom.RandText(20);
+        DimensionValueCode := LibraryRandom.RandText(20);
+
+        // [When] SetDimensionValue is called without auto create of dimension value
+        asserterror NewDimSetID := DimensionManagement.SetDimensionValue(0, DimensionCode, DimensionValueCode, true, false);
+
+        Assert.ExpectedError(StrSubstNo('The field Dimension Value Code of table Dimension Set Entry contains a value (%1) that cannot be found in the related table (Dimension Value).', DimensionValueCode));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionValueTestAutomaticCreationWithNames()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        NewDimSetID: Integer;
+        DimensionCode: Code[20];
+        DimensionValueCode: Code[20];
+        DimensionName: Text[30];
+        DimensionValueName: Text[30];
+    begin
+        // [Given] Dimension and Dimension Value Code
+        DimensionCode := LibraryRandom.RandText(20);
+        DimensionValueCode := LibraryRandom.RandText(20);
+        DimensionName := LibraryRandom.RandText(30);
+        DimensionValueName := LibraryRandom.RandText(30);
+
+        // [When] SetDimensionValue is called 
+        NewDimSetID := DimensionManagement.SetDimensionValue(0, DimensionCode, DimensionName, DimensionValueCode, DimensionValueName, true, true);
+
+        // [Then] New Dimension Set is created
+        Assert.AreNotEqual(0, NewDimSetID, 'New Dimension Set did not get created');
+
+        // [Then] Dimension gets Created with name assigned
+        Dimension.Get(DimensionCode);
+        Assert.AreEqual(DimensionName, Dimension.Name, 'Dimension Name did not get set correctly');
+
+        // [Then] Dimension Value gets Created
+        DimensionValue.Get(DimensionCode, DimensionValueCode);
+        Assert.AreEqual(DimensionValueName, DimensionValue.Name, 'Dimension value Name did not get set correctly');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionValueTestEmptyDimensionCode()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+        NewDimSetID: Integer;
+        DimensionCode: Code[20];
+        DimensionValueCode: Code[20];
+    begin
+        // [Given] Empty Dimension and Dimension Value Code
+        DimensionCode := '';
+        DimensionValueCode := LibraryRandom.RandText(20);
+
+        // [When] SetDimensionValue is called 
+        NewDimSetID := DimensionManagement.SetDimensionValue(0, DimensionCode, DimensionValueCode, true, true);
+
+        // [Then] Dimension Set ID did not get changed
+        Assert.AreEqual(0, NewDimSetID, 'Dimension Set did not get changed');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionValueTestEmptyDimensionValueCode()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+        NewDimSetID: Integer;
+        DimensionCode: Code[20];
+        DimensionValueCode: Code[20];
+    begin
+        // [Given] Dimension and Empty Dimension Value Code
+        DimensionCode := LibraryRandom.RandText(20);
+        DimensionValueCode := '';
+
+        // [When] SetDimensionValue is called 
+        NewDimSetID := DimensionManagement.SetDimensionValue(0, DimensionCode, DimensionValueCode, true, true);
+
+        // [Then] Dimension Set ID did not get changed
+        Assert.AreEqual(0, NewDimSetID, 'Dimension Set did not get changed');
+    end;
+
     local procedure Initialize()
     var
         Dimension: Record Dimension;
@@ -1082,12 +1225,12 @@ codeunit 134380 "ERM Dimension"
         GeneralJournal: TestPage "General Journal";
     begin
         GenJournalBatch.Get(JournalTemplate, JournalBatch);
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
         LibraryPurchase.CreateVendor(Vendor);
         GeneralJournal."Account No.".SetValue(Vendor."No.");
-        DocumentNo := GeneralJournal."Document No.".Value;
+        DocumentNo := GeneralJournal."Document No.".Value();
         GeneralJournal.Close();
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
@@ -1289,10 +1432,10 @@ codeunit 134380 "ERM Dimension"
     begin
         EditDimensionSetEntries."Dimension Code".SetValue(TestDim);
         EditDimensionSetEntries.DimensionValueCode.SetValue(TestDimValue);
-        EditDimensionSetEntries.New;
+        EditDimensionSetEntries.New();
         EditDimensionSetEntries."Dimension Code".SetValue(TestDim2);
         EditDimensionSetEntries.DimensionValueCode.SetValue(TestDim2Value);
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1312,23 +1455,23 @@ codeunit 134380 "ERM Dimension"
     [Scope('OnPrem')]
     procedure SelectDimFromDimValueListModalPageHandler(var DimensionValueList: TestPage "Dimension Value List")
     begin
-        DimensionValueList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        DimensionValueList.OK.Invoke;
+        DimensionValueList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        DimensionValueList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CancelSelectionFromDimValueListModalPageHandler(var DimensionValueList: TestPage "Dimension Value List")
     begin
-        DimensionValueList.Cancel.Invoke;
+        DimensionValueList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DefaultDimensionsMultipleModalPageHandler(var DefaultDimensionsMultiple: TestPage "Default Dimensions-Multiple")
     begin
-        DefaultDimensionsMultiple."Dimension Code".AssertEquals(LibraryVariableStorage.DequeueText);
-        DefaultDimensionsMultiple."Dimension Value Code".AssertEquals(LibraryVariableStorage.DequeueText);
+        DefaultDimensionsMultiple."Dimension Code".AssertEquals(LibraryVariableStorage.DequeueText());
+        DefaultDimensionsMultiple."Dimension Value Code".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetLocalTablesWithDimSetIDValidationIgnored', '', false, false)]

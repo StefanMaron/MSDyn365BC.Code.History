@@ -8,6 +8,7 @@ table 10688 "VAT Note"
 {
     Caption = 'VAT Note';
     LookupPageID = "VAT Notes";
+    DataClassification = CustomerContent;
 
     fields
     {

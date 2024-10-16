@@ -970,7 +970,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             DocumentAttachment.Validate("Document Flow Sales", TempAttachmentEntityBuffer."Document Flow Sales");
 
         if HasRegisteredField(TempAttachmentEntityBuffer.FieldNo("Document Flow Purchase"), TempFieldBuffer) then
-            DocumentAttachment.Validate("Document Flow Purchase", TempAttachmentEntityBuffer."Document Flow Sales");
+            DocumentAttachment.Validate("Document Flow Purchase", TempAttachmentEntityBuffer."Document Flow Purchase");
 
         DocumentAttachment.Insert();
     end;
@@ -1009,7 +1009,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         end;
 
         if HasRegisteredField(TempAttachmentEntityBuffer.FieldNo("Document Flow Purchase"), TempFieldBuffer) then begin
-            DocumentAttachment.Validate("Document Flow Purchase", TempAttachmentEntityBuffer."Document Flow Sales");
+            DocumentAttachment.Validate("Document Flow Purchase", TempAttachmentEntityBuffer."Document Flow Purchase");
             ModifyRecord := true;
         end;
 
@@ -1069,7 +1069,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         MainRecordRef.GetBySystemId(TempAttachmentEntityBuffer."Document Id");
         if not DataTypeManagement.FindFieldByName(MainRecordRef, FieldRefVar, DummySalesHeader.FieldName("No.")) then
             Error(CannotFindParentKeyErr);
-        DocumentAttachment."No." := FieldRefVar.Value;
+        DocumentAttachment."No." := FieldRefVar.Value();
     end;
 
     local procedure LinkNewAttachmentsToDocument(var TempOldAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempNewAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; DocumentId: Guid)

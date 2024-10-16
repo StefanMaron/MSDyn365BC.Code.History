@@ -10,6 +10,7 @@ table 10603 "VAT Period"
 {
     Caption = 'VAT Period';
     LookupPageID = "VAT Periods";
+    DataClassification = CustomerContent;
 
     fields
     {

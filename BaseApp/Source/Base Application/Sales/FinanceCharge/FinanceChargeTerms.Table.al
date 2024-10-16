@@ -5,6 +5,7 @@ table 5 "Finance Charge Terms"
     Caption = 'Finance Charge Terms';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Finance Charge Terms";
+    DataClassification = CustomerContent;
 
     fields
     {

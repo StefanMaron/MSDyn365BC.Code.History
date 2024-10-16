@@ -112,7 +112,9 @@ page 400 "Purchase Invoice Statistics"
             group(Vendor)
             {
                 Caption = 'Vendor';
+#pragma warning disable AA0100
                 field("Vend.""Balance (LCY)"""; Vend."Balance (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

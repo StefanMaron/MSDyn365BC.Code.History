@@ -73,22 +73,20 @@ codeunit 10614 "E-Invoice Check Reminder"
         EmptyLineFound: Boolean;
     begin
         EmptyLineFound := false;
-        with ReminderLine do begin
-            Reset();
-            SetRange("Reminder No.", ReminderHeader."No.");
-            if FindSet() then
-                repeat
-                    if Description = '' then
-                        if (Type <> Type::" ") and ("No." <> '') then
-                            Error(EmptyDescErr, "Reminder No.");
-                    if (Type = Type::" ") or ("No." = '') then
-                        EmptyLineFound := true;
-                until (Next() = 0);
+        ReminderLine.Reset();
+        ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
+        if ReminderLine.FindSet() then
+            repeat
+                if ReminderLine.Description = '' then
+                    if (ReminderLine.Type <> ReminderLine.Type::" ") and (ReminderLine."No." <> '') then
+                        Error(EmptyDescErr, ReminderLine."Reminder No.");
+                if (ReminderLine.Type = ReminderLine.Type::" ") or (ReminderLine."No." = '') then
+                    EmptyLineFound := true;
+            until (ReminderLine.Next() = 0);
 
-            if EmptyLineFound then
-                if not Confirm(EmptyFieldsQst, true, "Reminder No.") then
-                    Error(InterruptedIssuanceErr);
-        end;
+        if EmptyLineFound then
+            if not Confirm(EmptyFieldsQst, true, ReminderLine."Reminder No.") then
+                Error(InterruptedIssuanceErr);
     end;
 }
 

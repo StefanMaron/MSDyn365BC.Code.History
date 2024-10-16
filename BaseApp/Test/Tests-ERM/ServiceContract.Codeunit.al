@@ -121,7 +121,7 @@ codeunit 136100 "Service Contract"
         Initialize();
 
         // Setup: Create Contract and save state for later validation
-        SetupForContractValueCalculate;
+        SetupForContractValueCalculate();
         CreateServiceContract(ServiceContractHeader, false);
         SaveLineAmount(ServiceContractHeader, TempServiceContractLine);
 
@@ -175,7 +175,7 @@ codeunit 136100 "Service Contract"
         ServiceContractHeaderFrom: Record "Service Contract Header";
         ServiceContractHeaderTo: Record "Service Contract Header";
         ServiceContractLineTo: Record "Service Contract Line";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
+        CopyServiceContractMgt: Codeunit "Copy Service Contract Mgt.";
     begin
         // Refresh Shared Fixture
         Initialize();
@@ -185,10 +185,9 @@ codeunit 136100 "Service Contract"
 
         // Excercise: Copy Service Contract using Copy Service Document Report
         CreateServiceContractHeader(ServiceContractHeaderTo, ServiceContractHeaderFrom."Customer No.");
-        CopyDocMgt.CopyServContractLines(ServiceContractHeaderTo,
-          ServiceContractHeaderFrom."Contract Type".AsInteger(),
-          ServiceContractHeaderFrom."Contract No.",
-          ServiceContractLineTo);
+        CopyServiceContractMgt.CopyServiceContractLines(
+            ServiceContractHeaderTo, ServiceContractHeaderFrom."Contract Type",
+            ServiceContractHeaderFrom."Contract No.", ServiceContractLineTo);
 
         // Validate: All data should be the same except Contract No and Line No.
         AssertEqualContract(ServiceContractHeaderTo, ServiceContractHeaderFrom);
@@ -289,7 +288,7 @@ codeunit 136100 "Service Contract"
         Initialize();
 
         // [GIVEN] Service Contract with Starting Date = 26/01/2017, Expiration Date = 31/01/2018, Annual Amount = 1200.
-        CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo);
+        CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo());
         ServiceContractHeader.Validate("Invoice Period", ServiceContractHeader."Invoice Period"::Year);
         ServiceContractHeader.Validate("Expiration Date", CalcDate('<CM+1Y>', ServiceContractHeader."Starting Date"));
         ServiceContractHeader.Modify(true);
@@ -662,7 +661,6 @@ codeunit 136100 "Service Contract"
     var
         ServiceContractHeader: Record "Service Contract Header";
         ServiceHeader: Record "Service Header";
-        CreateContractInvoices: Report "Create Contract Invoices";
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 438613] Dimensions should be copied from Service Contract to Service Invoice
@@ -769,10 +767,10 @@ codeunit 136100 "Service Contract"
     var
         ServiceContract: TestPage "Service Contract";
     begin
-        ServiceContract.OpenEdit;
+        ServiceContract.OpenEdit();
         ServiceContract.FILTER.SetFilter("Contract No.", ContractNo);
-        ServiceContract.CreateServiceInvoice.Invoke;
-        ServiceContract.OK.Invoke;
+        ServiceContract.CreateServiceInvoice.Invoke();
+        ServiceContract.OK().Invoke();
     end;
 
     local procedure ValidateServiceContractAmount(ServiceContractHeader: Record "Service Contract Header")
@@ -870,7 +868,7 @@ codeunit 136100 "Service Contract"
 
     local procedure AssertEqual(Actual: Decimal; Expected: Decimal; ErrorText: Text[250])
     begin
-        Assert.AreNearlyEqual(Expected, Actual, LibraryERM.GetAmountRoundingPrecision * 10, ErrorText)
+        Assert.AreNearlyEqual(Expected, Actual, LibraryERM.GetAmountRoundingPrecision() * 10, ErrorText)
     end;
 
     local procedure AssertEqualServiceItem(ContractNo1: Code[20]; ContractNo2: Code[20])
@@ -1007,7 +1005,7 @@ codeunit 136100 "Service Contract"
         ServiceItem: Record "Service Item";
     begin
         LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
-        ServiceItem.Validate("Item No.", CreateItem);
+        ServiceItem.Validate("Item No.", CreateItem());
         ServiceItem.Validate("Sales Unit Price", ServiceItem."Sales Unit Price" * 12);
         ServiceItem.Modify(true);
         exit(ServiceItem."No.");
@@ -1030,7 +1028,7 @@ codeunit 136100 "Service Contract"
     var
         ServiceContractHeader: Record "Service Contract Header";
     begin
-        CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo);
+        CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo());
         UpdateServiceContractHeader(
           ServiceContractHeader, StartingDate, ServiceContractHeader."Invoice Period"::Quarter, Prepaid, ContractLinesOnInvoice);
         CreateServiceContractLine(
@@ -1073,7 +1071,7 @@ codeunit 136100 "Service Contract"
 
     local procedure CreateSingAndLockServiceContract(var ServiceContractHeader: Record "Service Contract Header") LineAmount: Decimal
     begin
-        CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo);
+        CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo());
         UpdateServiceContractHeader(
           ServiceContractHeader, WorkDate(), ServiceContractHeader."Invoice Period"::Year, true, true);
         Evaluate(ServiceContractHeader."Service Period", '<1Y>');
@@ -1272,7 +1270,7 @@ codeunit 136100 "Service Contract"
     begin
         SalesSetup.Get();
         if SalesSetup."Direct Debit Mandate Nos." = '' then begin
-            SalesSetup."Direct Debit Mandate Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+            SalesSetup."Direct Debit Mandate Nos." := LibraryUtility.GetGlobalNoSeriesCode();
             SalesSetup.Modify();
         end;
     end;
@@ -1323,7 +1321,7 @@ codeunit 136100 "Service Contract"
             repeat
                 Assert.AreEqual(ExpectedAccountNo, "No.", FieldCaption("No."));
                 Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1346,7 +1344,7 @@ codeunit 136100 "Service Contract"
                   ExpectedAmount, Amount,
                   LibraryERM.GetCurrencyAmountRoundingPrecision(ServiceHeader."Currency Code"),
                   FieldCaption(Amount));
-                Next;
+                Next();
             end;
         end;
     end;

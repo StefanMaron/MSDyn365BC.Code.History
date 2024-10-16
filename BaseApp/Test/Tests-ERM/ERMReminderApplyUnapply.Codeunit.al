@@ -97,8 +97,8 @@ codeunit 134012 "ERM Reminder Apply Unapply"
 
         // Setup: Create and Post Sales Orders and Create Remainder.
         Initialize();
-        ReminderHeaderNo := CreateReminderForPostedSalesOrder;
-        ReminderHeaderNo2 := CreateReminderForPostedSalesOrder;
+        ReminderHeaderNo := CreateReminderForPostedSalesOrder();
+        ReminderHeaderNo2 := CreateReminderForPostedSalesOrder();
 
         // Exercise: Run Issue Reminder Report for selected Reminder Header.
         ReminderHeader.SetRange("No.", ReminderHeaderNo);
@@ -127,8 +127,8 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         CreateReminderWithReminderLine(ReminderLine);
 
         // [WHEN] Open reminder page
-        Reminder.Trap;
-        Reminder.OpenView;
+        Reminder.Trap();
+        Reminder.OpenView();
         Reminder.FILTER.SetFilter("No.", ReminderLine."Reminder No.");
 
         // [THEN] Factbox contains relevant information
@@ -162,8 +162,8 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         IssuedReminderLine.FindFirst();
 
         // [WHEN] Open reminder page
-        IssuedReminder.Trap;
-        IssuedReminder.OpenView;
+        IssuedReminder.Trap();
+        IssuedReminder.OpenView();
         IssuedReminder.FILTER.SetFilter("No.", IssuedReminderLine."Reminder No.");
 
         // [THEN] Factbox contains relevant information
@@ -177,10 +177,16 @@ codeunit 134012 "ERM Reminder Apply Unapply"
 
     local procedure Initialize()
     var
+        FeatureKey: Record "Feature Key";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reminder Apply Unapply");
         LibrarySetupStorage.Restore();
+
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -243,9 +249,9 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         Counter: Integer;
     begin
         // Random Quantity for Sales Invoice.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         for Counter := 1 to 2 * LibraryRandom.RandInt(3) do
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(100));
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(100));
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -327,7 +333,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst();
         ReminderMake.Set(Customer, CustLedgerEntry, ReminderHeader, false, false, CustLedgEntryLineFeeOn);
-        ReminderMake.Code;
+        ReminderMake.Code();
     end;
 
     local procedure CreateReminderForPostedSalesOrder(): Code[20]

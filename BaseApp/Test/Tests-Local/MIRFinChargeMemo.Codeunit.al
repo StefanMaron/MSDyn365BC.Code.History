@@ -171,7 +171,7 @@ codeunit 144183 "MIR Fin. Charge Memo"
     var
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         with IssuedFinChargeMemoLine do begin
             SetRange("Finance Charge Memo No.", IssuedFinChargeMemoNo);
@@ -181,7 +181,7 @@ codeunit 144183 "MIR Fin. Charge Memo"
                     LibraryReportDataset.AssertElementWithValueExists('LineNo_IssuFinChrgMemoLine', "Line No.")
                 else
                     LibraryReportDataset.AssertElementWithValueNotExist('LineNo_IssuFinChrgMemoLine', "Line No.")
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -189,7 +189,7 @@ codeunit 144183 "MIR Fin. Charge Memo"
     var
         i: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for i := 1 to ArrayLen(AmountLine) do begin
             LibraryReportValidation.VerifyCellValueOnWorksheet(
               63 + 2 * i, 13, LibraryReportValidation.FormatDecimalValue(AmountLine[i]), '1');
@@ -204,7 +204,7 @@ codeunit 144183 "MIR Fin. Charge Memo"
     var
         i: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for i := 1 to ArrayLen(AmountLine) do begin
             LibraryReportValidation.VerifyCellValueOnWorksheet(64 + i, 13, LibraryReportValidation.FormatDecimalValue(AmountLine[i]), '1');
             Assert.IsFalse(LibraryReportValidation.CheckIfDecimalValueExists(AmountMIRLine[i]), WrongRowErr);
@@ -217,20 +217,20 @@ codeunit 144183 "MIR Fin. Charge Memo"
     [Scope('OnPrem')]
     procedure FinChargeMemoRequestHandler(var FinChargeMemoReport: TestRequestPage "Finance Charge Memo")
     begin
-        FinChargeMemoReport."Issued Fin. Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
+        FinChargeMemoReport."Issued Fin. Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
         FinChargeMemoReport.ShowInternalInformation.SetValue(false);
         FinChargeMemoReport.LogInteraction.SetValue(false);
-        FinChargeMemoReport.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean);
-        FinChargeMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinChargeMemoReport.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean());
+        FinChargeMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FinChargeMemoReqHandler(var FinChargeMemoReport: TestRequestPage "Finance Charge Memo")
     begin
-        FinChargeMemoReport."Issued Fin. Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        FinChargeMemoReport.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean);
-        FinChargeMemoReport.SaveAsExcel(LibraryReportValidation.GetFileName);
+        FinChargeMemoReport."Issued Fin. Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        FinChargeMemoReport.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean());
+        FinChargeMemoReport.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

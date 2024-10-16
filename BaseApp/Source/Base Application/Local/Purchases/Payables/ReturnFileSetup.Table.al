@@ -7,6 +7,7 @@ namespace Microsoft.Purchases.Payables;
 table 15000006 "Return File Setup"
 {
     Caption = 'Return File Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

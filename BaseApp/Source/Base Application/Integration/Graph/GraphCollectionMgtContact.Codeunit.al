@@ -1052,7 +1052,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
             Matches := Regex.Matches(CountryOrRegion, '\b([A-Z])');
             if Matches.Count > 0 then begin
                 foreach Match in Matches do
-                    Abbreviation += Match.Value;
+                    Abbreviation += Match.Value();
                 if CountryRegion.Get(Abbreviation) then
                     exit(CountryRegion.Code);
             end;

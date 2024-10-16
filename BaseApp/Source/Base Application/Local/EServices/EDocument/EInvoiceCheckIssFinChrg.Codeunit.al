@@ -47,14 +47,12 @@ codeunit 10617 "E-Invoice Check Iss. Fin.Chrg."
 
     local procedure CheckFinChargeMemoHeader(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
     begin
-        with IssuedFinChargeMemoHeader do begin
-            TestField(Name);
-            TestField(Address);
-            TestField(City);
-            TestField("Post Code");
-            TestField("Country/Region Code");
-            EInvoiceDocumentEncode.GetEInvoiceCountryRegionCode("Country/Region Code");
-        end;
+        IssuedFinChargeMemoHeader.TestField(Name);
+        IssuedFinChargeMemoHeader.TestField(Address);
+        IssuedFinChargeMemoHeader.TestField(City);
+        IssuedFinChargeMemoHeader.TestField("Post Code");
+        IssuedFinChargeMemoHeader.TestField("Country/Region Code");
+        EInvoiceDocumentEncode.GetEInvoiceCountryRegionCode(IssuedFinChargeMemoHeader."Country/Region Code");
     end;
 }
 

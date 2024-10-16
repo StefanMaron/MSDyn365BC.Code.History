@@ -3,7 +3,7 @@ namespace Microsoft.Finance.Consolidation;
 page 245 "Consolidations in Progress"
 {
     ApplicationArea = All;
-    Caption = 'Consolidations in Progress';
+    Caption = 'Consolidation status';
     SourceTable = "Consolidation Process";
     SourceTableView = order(descending);
     PageType = List;

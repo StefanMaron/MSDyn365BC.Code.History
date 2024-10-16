@@ -483,7 +483,7 @@ page 96 "Sales Cr. Memo Subform"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job. If you fill in this field and the Job Task No. field, then a job ledger entry will be posted together with the sales line.';
+                    ToolTip = 'Specifies the number of the related project. If you fill in this field and the Project Task No. field, then a project ledger entry will be posted together with the sales line.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -494,7 +494,7 @@ page 96 "Sales Cr. Memo Subform"
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Tax Category"; Rec."Tax Category")
@@ -506,7 +506,7 @@ page 96 "Sales Cr. Memo Subform"
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
+                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a project.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
@@ -693,7 +693,9 @@ page 96 "Sales Cr. Memo Subform"
                 group(Control35)
                 {
                     ShowCaption = false;
+#pragma warning disable AA0100
                     field("TotalSalesLine.""Line Amount"""; TotalSalesLine."Line Amount")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         AutoFormatExpression = Currency.Code;
@@ -1082,10 +1084,6 @@ page 96 "Sales Cr. Memo Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -1462,7 +1460,7 @@ page 96 "Sales Cr. Memo Subform"
         OnAfterSetDimensionsVisibility();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;

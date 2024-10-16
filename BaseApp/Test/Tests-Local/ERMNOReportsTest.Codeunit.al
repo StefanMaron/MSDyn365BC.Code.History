@@ -38,7 +38,7 @@ codeunit 144180 "ERM NO Reports Test"
         // Exercise
         RunSalesOrderPickingList(SalesHeader."No.", false);
 
-        Assert.AreEqual(1, CountSalesOrderPickingListSalesLines, 'Expected one line in report with non-empty sales line type');
+        Assert.AreEqual(1, CountSalesOrderPickingListSalesLines(), 'Expected one line in report with non-empty sales line type');
     end;
 
     [Test]
@@ -59,8 +59,8 @@ codeunit 144180 "ERM NO Reports Test"
         RunSalesOrderPickingList(SalesHeader."No.", true);
 
         // Expect 5 lines - 1 header line, 2 sales lines and 2 dimension lines
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(5, LibraryReportDataset.RowCount, 'Expected 5 lines - 1 header line, 2 sales lines and 2 dimension lines');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(5, LibraryReportDataset.RowCount(), 'Expected 5 lines - 1 header line, 2 sales lines and 2 dimension lines');
         // There is a total of 4 line items - 2 from dimensions, 2 for the pick list
         Assert.AreEqual(4, CountLinesInLoadedDataSetFileHavingElement('SalesLine_Type'), 'Expected 4 sales lines in picking list');
         // Two of these lines should be dimension lines
@@ -78,7 +78,7 @@ codeunit 144180 "ERM NO Reports Test"
         // [FEATURE] [Purchase] [Vendor - Balance]
         // Setup.
         Initialize();
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem(), '');
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
@@ -88,8 +88,8 @@ codeunit 144180 "ERM NO Reports Test"
         RunVendorBalance(PurchaseHeader."Buy-from Vendor No.", false, false);
 
         // Verify: Verify Saved Report with Different Fields data.
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Expected one row in the Vendor Balance Report');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'Expected one row in the Vendor Balance Report');
 
         LibraryReportDataset.MoveToRow(1);
 
@@ -113,8 +113,8 @@ codeunit 144180 "ERM NO Reports Test"
         RunVendorBalance(Vendor."No.", false, false);
 
         // Verify: Verify Saved Report with Different Fields data.
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Expected one row in the Vendor Balance Report');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'Expected one row in the Vendor Balance Report');
 
         LibraryReportDataset.MoveToRow(1);
 
@@ -137,8 +137,8 @@ codeunit 144180 "ERM NO Reports Test"
         RunVendorBalance(Vendor."No.", true, false);
 
         // Verify: Verify Saved Report with Different Fields data.
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'Expected zero rows in the Vendor Balance Report');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'Expected zero rows in the Vendor Balance Report');
     end;
 
     [Test]
@@ -159,9 +159,9 @@ codeunit 144180 "ERM NO Reports Test"
         RunVendorAddressList('');
 
         // Verify: Verify Saved Report with Different Fields data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Vendor', Vendor."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Vendor', Vendor."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Addr_Vendor', Vendor.Address);
@@ -182,10 +182,10 @@ codeunit 144180 "ERM NO Reports Test"
         // Exercise.
         RunVendorAddressList(Vendor."No.");
 
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Expected the Vendor Address List to include the vendor with blank address');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'Expected the Vendor Address List to include the vendor with blank address');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Vendor', Vendor."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Addr_Vendor', '');
     end;
@@ -208,9 +208,9 @@ codeunit 144180 "ERM NO Reports Test"
         RunCustomerAddressList('');
 
         // Verify: Verify Saved Report with Different Fields data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Customer', Customer."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Customer', Customer."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Address_Customer', Customer.Address);
@@ -243,11 +243,11 @@ codeunit 144180 "ERM NO Reports Test"
         // Run GLRegister for this entry number
         RunGLRegisterReport(GLRegister);
 
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(3, LibraryReportDataset.RowCount, 'Expected the report to contain 3 lines');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(3, LibraryReportDataset.RowCount(), 'Expected the report to contain 3 lines');
         Assert.AreEqual(0, LibraryReportDataset.Sum('Amount_GLEntry'), 'Expected sum to be zero');
 
-        while LibraryReportDataset.GetNextRow do begin
+        while LibraryReportDataset.GetNextRow() do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('VendorDebit', 0);
             LibraryReportDataset.FindCurrentRowValue('CustomerOrVendor', Result);
             CustomerOrVendor := Result;
@@ -286,10 +286,10 @@ codeunit 144180 "ERM NO Reports Test"
         // [SCENARIO 308897] Usage options for Page "Report Selection - Sales" allows to add for Sales Order Picking List report
         Initialize();
 
-        ReportSelectionSales.OpenEdit;
+        ReportSelectionSales.OpenEdit();
         ReportSelectionSales.ReportUsage.SetValue(ReportUsage::"S.Sales Order Picking List");
         ReportSelectionSales."Report ID".SetValue(REPORT::"Sales Order Picking List");
-        ReportSelectionSales.First;
+        ReportSelectionSales.First();
         ReportSelectionSales."Report ID".AssertEquals(REPORT::"Sales Order Picking List");
         ReportSelectionSales.Close();
     end;
@@ -316,7 +316,7 @@ codeunit 144180 "ERM NO Reports Test"
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount[1]);
 
         // [THEN] IncomeHidden and BalanceHidden are set to FALSE.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('IncomeHidden', false);
         LibraryReportDataset.AssertElementWithValueExists('BalanceHidden', false);
     end;
@@ -342,7 +342,7 @@ codeunit 144180 "ERM NO Reports Test"
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount);
 
         // [THEN] IncomeHidden and BalanceHidden are set to FALSE/TRUE.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('IncomeHidden', false);
         LibraryReportDataset.AssertElementWithValueExists('BalanceHidden', true);
     end;
@@ -368,7 +368,7 @@ codeunit 144180 "ERM NO Reports Test"
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount);
 
         // [THEN] IncomeHidden and BalanceHidden are set to TRUE/FALSE.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('IncomeHidden', true);
         LibraryReportDataset.AssertElementWithValueExists('BalanceHidden', false);
     end;
@@ -398,7 +398,7 @@ codeunit 144180 "ERM NO Reports Test"
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount[1]);
 
         // [THEN] IncomePageNo and BalancePageNo equal to 0 exist, equal to 1 dont.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('IncomePageNo', 0);
         LibraryReportDataset.AssertElementWithValueNotExist('IncomePageNo', 1);
         LibraryReportDataset.AssertElementWithValueExists('BalancePageNo', 0);
@@ -430,7 +430,7 @@ codeunit 144180 "ERM NO Reports Test"
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount[1]);
 
         // [THEN] IncomePageNo and BalancePageNo equal to 0 and 1 exist.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('IncomePageNo', 0);
         LibraryReportDataset.AssertElementWithValueExists('IncomePageNo', 1);
         LibraryReportDataset.AssertElementWithValueExists('BalancePageNo', 0);
@@ -518,7 +518,7 @@ codeunit 144180 "ERM NO Reports Test"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; CurrencyCode: Code[10])
     var
         Vendor: Record Vendor;
     begin
@@ -539,7 +539,7 @@ codeunit 144180 "ERM NO Reports Test"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));  // Use Random Value.
     end;
 
-    local procedure CreateSalesDocumentWithOneItem(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithOneItem(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -551,7 +551,7 @@ codeunit 144180 "ERM NO Reports Test"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(20));
     end;
 
-    local procedure CreateSalesDocumentWithTwoItems(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithTwoItems(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -565,7 +565,7 @@ codeunit 144180 "ERM NO Reports Test"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(20));
     end;
 
-    local procedure CreateSalesDocumentWithVAT(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithVAT(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         GLAccount: Record "G/L Account";
         Item: Record Item;
@@ -669,7 +669,7 @@ codeunit 144180 "ERM NO Reports Test"
 
         // Set Show Internal Information Control1080094
         SalesOrderPickingList.ShowInternalInfo.SetValue(ShowInternalInformation);
-        SalesOrderPickingList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesOrderPickingList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -683,40 +683,40 @@ codeunit 144180 "ERM NO Reports Test"
         ShowOnlyIfNetChange := ShowOnlyIfNetChangeVariant;
 
         VendorBalance.ShowIfNetChange.SetValue(ShowOnlyIfNetChange);
-        VendorBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHVendorAddressList(var VendorAddressList: TestRequestPage "Vendor - Address List")
     begin
-        VendorAddressList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorAddressList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHCustomerAddressList(var CustomerAddressList: TestRequestPage "Customer - Address List")
     begin
-        CustomerAddressList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerAddressList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHGLRegisterCustomerVendor(var GLRegisterCustomerVendor: TestRequestPage "G/L Register Customer/Vendor")
     begin
-        GLRegisterCustomerVendor.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLRegisterCustomerVendor.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure TrialBalancePreviousPeriodRequestPageHandler(var TrialBalancePreviousPeriod: TestRequestPage "Trial Balance/Previous Period")
     begin
-        TrialBalancePreviousPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrialBalancePreviousPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure CountSalesOrderPickingListSalesLines(): Integer
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         exit(CountLinesInLoadedDataSetFileHavingElement('SalesLine_Type'));
     end;
 
@@ -728,7 +728,7 @@ codeunit 144180 "ERM NO Reports Test"
 
         LibraryReportDataset.Reset();
 
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             if LibraryReportDataset.CurrentRowHasElement(ElementName) then
                 LineCount := LineCount + 1;
 

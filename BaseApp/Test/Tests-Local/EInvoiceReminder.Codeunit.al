@@ -35,12 +35,12 @@ codeunit 144118 "E-Invoice Reminder"
     begin
         Initialize();
 
-        XmlFileName := EInvoiceReminder;
+        XmlFileName := EInvoiceReminder();
 
         EInvoiceXMLXSDValidation.CheckIfFileExists(XmlFileName);
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeValue('//cbc:ProfileID', 'urn:www.cenbii.eu:profile:biixy:ver1.0');
-        NOXMLReadHelper.VerifyNodeValue('//cbc:CustomizationID', GetCustomizationID);
+        NOXMLReadHelper.VerifyNodeValue('//cbc:CustomizationID', GetCustomizationID());
     end;
 
     [Test]
@@ -53,7 +53,7 @@ codeunit 144118 "E-Invoice Reminder"
     begin
         Initialize();
 
-        IssuedReminderNo := EInvoiceReminderHelper.CreateReminder;
+        IssuedReminderNo := EInvoiceReminderHelper.CreateReminder();
         AddLinesToIssuedReminder(IssuedReminderNo);
 
         XmlFileName := ExecEInvoiceReminder(IssuedReminderNo);
@@ -67,7 +67,7 @@ codeunit 144118 "E-Invoice Reminder"
     procedure EInvoiceReminderEndpointID()
     begin
         Initialize();
-        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceReminder);
+        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceReminder());
     end;
 
     [Test]
@@ -84,7 +84,7 @@ codeunit 144118 "E-Invoice Reminder"
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
-        IssReminderNo := EInvoiceReminderHelper.CreateReminder;
+        IssReminderNo := EInvoiceReminderHelper.CreateReminder();
         IssReminderHdr.Get(IssReminderNo);
         CompanyInfo.Get();
 
@@ -110,7 +110,7 @@ codeunit 144118 "E-Invoice Reminder"
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
-        IssReminderNo := EInvoiceReminderHelper.CreateReminder;
+        IssReminderNo := EInvoiceReminderHelper.CreateReminder();
         IssReminderHdr.Get(IssReminderNo);
         CompanyInfo.Get();
 
@@ -132,7 +132,7 @@ codeunit 144118 "E-Invoice Reminder"
     begin
         Initialize();
 
-        IssuedReminderNo := EInvoiceReminderHelper.CreateReminder;
+        IssuedReminderNo := EInvoiceReminderHelper.CreateReminder();
 
         XmlFileName := ExecEInvoiceReminder(IssuedReminderNo);
 
@@ -148,7 +148,7 @@ codeunit 144118 "E-Invoice Reminder"
     begin
         Initialize();
 
-        XmlFileName := EInvoiceReminder;
+        XmlFileName := EInvoiceReminder();
 
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeAbsence('//cbc:AccountingCostCode');
@@ -206,7 +206,7 @@ codeunit 144118 "E-Invoice Reminder"
     procedure ValidateEInvReminderFile()
     begin
         Initialize();
-        EInvoiceReminder;
+        EInvoiceReminder();
     end;
 
     [Test]
@@ -269,7 +269,7 @@ codeunit 144118 "E-Invoice Reminder"
         Initialize();
 
         // [GIVEN] Reminder with GLN = '01234123456789' and 'VAT Reg. No.' = 'NO123456000'
-        IssuedReminderHeader.Get(EInvoiceReminderHelper.CreateReminder);
+        IssuedReminderHeader.Get(EInvoiceReminderHelper.CreateReminder());
         IssuedReminderHeader.GLN := LibraryUtility.GenerateGUID();
         IssuedReminderHeader."VAT Registration No." := LibraryUtility.GenerateGUID();
         IssuedReminderHeader.Modify();
@@ -296,7 +296,7 @@ codeunit 144118 "E-Invoice Reminder"
         Initialize();
 
         // [GIVEN] Reminder with GLN = '01234123456789' 'VAT Reg. No.' = blank
-        IssuedReminderHeader.Get(EInvoiceReminderHelper.CreateReminder);
+        IssuedReminderHeader.Get(EInvoiceReminderHelper.CreateReminder());
         IssuedReminderHeader.GLN := LibraryUtility.GenerateGUID();
         IssuedReminderHeader."VAT Registration No." := '';
         IssuedReminderHeader.Modify();
@@ -328,7 +328,7 @@ codeunit 144118 "E-Invoice Reminder"
         CompanyInformation.GLN := LibraryUtility.GenerateGUID();
         CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify();
-        IssuedReminderNo := EInvoiceReminderHelper.CreateReminder;
+        IssuedReminderNo := EInvoiceReminderHelper.CreateReminder();
 
         // [WHEN] Create Electronic Reminder
         XmlFileName := ExecEInvoiceReminder(IssuedReminderNo);
@@ -338,8 +338,8 @@ codeunit 144118 "E-Invoice Reminder"
         NOXMLReadHelper.VerifyNodeValue(
           '//cac:AccountingSupplierParty/cac:Party/cbc:EndpointID',
           EInvoiceDocumentEncode.GetVATRegNo(CompanyInformation."VAT Registration No.", false));
-    end;   
-           
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -347,12 +347,12 @@ codeunit 144118 "E-Invoice Reminder"
         if isInitialized then
             exit;
 
-        InitGlobalVATRates;
+        InitGlobalVATRates();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         isInitialized := true;
     end;
 
-    local procedure AddLineToIssuedReminder(IssuedReminderHeader: Record "Issued Reminder Header"; DocumentType: Integer)
+    local procedure AddLineToIssuedReminder(IssuedReminderHeader: Record "Issued Reminder Header"; DocumentType: Enum "Gen. Journal Document Type")
     var
         IssuedReminderLine: Record "Issued Reminder Line";
         AmountValue: Decimal;
@@ -418,7 +418,7 @@ codeunit 144118 "E-Invoice Reminder"
     var
         IssuedReminderNo: Code[20];
     begin
-        IssuedReminderNo := EInvoiceReminderHelper.CreateReminder;
+        IssuedReminderNo := EInvoiceReminderHelper.CreateReminder();
         exit(ExecEInvoiceReminder(IssuedReminderNo));
     end;
 
@@ -427,7 +427,7 @@ codeunit 144118 "E-Invoice Reminder"
         IssuedReminderHeader: Record "Issued Reminder Header";
         Path: Text[250];
     begin
-        Path := EInvoiceHelper.GetTempPath;
+        Path := EInvoiceHelper.GetTempPath();
         EInvoiceHelper.SetupEInvoiceForSales(Path);
 
         IssuedReminderHeader.SetRange("No.", IssuedReminderNo);
@@ -447,7 +447,7 @@ codeunit 144118 "E-Invoice Reminder"
           'urn:www.cenbii.eu:transaction:biicoretrdm017:ver1.0:#urn:www.cenbii.eu:profile:biixy:ver1.0#urn:www.difi.no:ehf:purring:ver1');
     end;
 
-    local procedure GetDocReferenceTagName(DocType: Integer): Text[100]
+    local procedure GetDocReferenceTagName(DocType: Enum "Gen. Journal Document Type"): Text[100]
     var
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
@@ -521,7 +521,7 @@ codeunit 144118 "E-Invoice Reminder"
                 Node := Node.FirstChild;
                 ReferenceName := Node.Name;
                 Evaluate(IdValue, NOXMLReadHelper.GetElementValueInCurrNode(Node, 'cbc:ID'));
-                Assert.AreEqual(GetDocReferenceTagName(IdValue), ReferenceName, 'Wrong reference name');
+                Assert.AreEqual(GetDocReferenceTagName("Gen. Journal Document Type".FromInteger(IdValue)), ReferenceName, 'Wrong reference name');
             end;
         end;
     end;

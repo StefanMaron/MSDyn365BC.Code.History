@@ -62,7 +62,7 @@ codeunit 144133 "Remittance - Import Bank"
         VerifyImportedLinesDomestic(
           BatchName, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount);
-        VerifyWaitingJournalStatusIsSent;
+        VerifyWaitingJournalStatusIsSent();
         UpdateWorkdate(OldDate);
     end;
 
@@ -110,12 +110,12 @@ codeunit 144133 "Remittance - Import Bank"
           BatchName,
           GenJournalLine."Journal Template Name",
           ExtDocumentNo,
-          WorkDate,
+          WorkDate(),
           NoSeriesLine,
           Vendor."No.",
           RemittanceAccount, Amount, Commission, Rounding);
 
-        VerifyWaitingJournalStatusIsSent;
+        VerifyWaitingJournalStatusIsSent();
         UpdateWorkdate(OldDate);
     end;
 
@@ -165,7 +165,7 @@ codeunit 144133 "Remittance - Import Bank"
         VerifyImportedLinesDomestic(
           ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount);
-        VerifyWaitingJournalStatusIsSent;
+        VerifyWaitingJournalStatusIsSent();
         UpdateWorkdate(OldDate);
     end;
 
@@ -362,7 +362,7 @@ codeunit 144133 "Remittance - Import Bank"
         PaymentJournal: TestPage "Payment Journal";
     begin
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
 
         LibraryVariableStorage.Enqueue(UseControlBatch);
@@ -372,7 +372,7 @@ codeunit 144133 "Remittance - Import Bank"
         if not UseControlBatch then
             LibraryVariableStorage.Enqueue(NoteWithControlReturnFilesAreReadMsg);
         // ImportPaymentOrder action
-        PaymentJournal.ImportReturnData.Invoke;
+        PaymentJournal.ImportReturnData.Invoke();
     end;
 
     local procedure GenerateBankRemittancePaymentFileDomestic(WriteClosingLine: Boolean): Text
@@ -388,12 +388,12 @@ codeunit 144133 "Remittance - Import Bank"
         BankPaymentFile.Create(ServerFileName);
         BankPaymentFile.CreateOutStream(BankPaymentOutputStream);
 
-        WriteBankRecord(GenerateBankRemittanceBatchStartRecord, BankPaymentOutputStream);
+        WriteBankRecord(GenerateBankRemittanceBatchStartRecord(), BankPaymentOutputStream);
         WriteBankRecord(GenerateBankRemittanceTransferRecordDomestic(WorkDate(), ''), BankPaymentOutputStream);
         WriteBankRecord(GenerateInvoiceRecordDomestic(Format(WaitingJournal.Reference), ''), BankPaymentOutputStream);
 
         if WriteClosingLine then
-            WriteBankRecord(GenerateBankRemittanceBatchEndRecord, BankPaymentOutputStream);
+            WriteBankRecord(GenerateBankRemittanceBatchEndRecord(), BankPaymentOutputStream);
 
         BankPaymentFile.Close();
     end;
@@ -412,7 +412,7 @@ codeunit 144133 "Remittance - Import Bank"
         BankPaymentFile.Create(ServeFileName);
         BankPaymentFile.CreateOutStream(BankPaymentOutputStream);
 
-        WriteBankRecord(GenerateBankRemittanceBatchStartRecord, BankPaymentOutputStream);
+        WriteBankRecord(GenerateBankRemittanceBatchStartRecord(), BankPaymentOutputStream);
         WriteBankRecord(
           GenerateBankRemittanceTransferRecordInternational(
             '',
@@ -420,17 +420,17 @@ codeunit 144133 "Remittance - Import Bank"
             WaitingJournal."Currency Factor",
             '123456',
             '123456789012',
-            WorkDate,
+            WorkDate(),
             Commission,
             ''),
           BankPaymentOutputStream);
 
-        WriteBankRecord(GeneratePayeeRecord, BankPaymentOutputStream);
+        WriteBankRecord(GeneratePayeeRecord(), BankPaymentOutputStream);
 
         WriteBankRecord(GenerateInvoiceRecordInternational(Format(WaitingJournal.Reference), ''), BankPaymentOutputStream);
 
         if WriteClosingLine then
-            WriteBankRecord(GenerateBankRemittanceBatchEndRecord, BankPaymentOutputStream);
+            WriteBankRecord(GenerateBankRemittanceBatchEndRecord(), BankPaymentOutputStream);
 
         BankPaymentFile.Close();
     end;
@@ -443,7 +443,7 @@ codeunit 144133 "Remittance - Import Bank"
         Record := PadStr(Record, BankRecordSize, PadCharacter);
         for SubRecordNo := 0 to 3 do begin
             OutputStream.WriteText(CopyStr(Record, (SubRecordNo * 80) + 1, 80));
-            OutputStream.WriteText;
+            OutputStream.WriteText();
         end;
     end;
 
@@ -458,7 +458,7 @@ codeunit 144133 "Remittance - Import Bank"
     var
         "Record": Text;
     begin
-        Record := GenerateBankRemittanceHeader + 'BETFOR00';
+        Record := GenerateBankRemittanceHeader() + 'BETFOR00';
         Record := PadStr(Record, BankRecordSize, PadCharacter);
         exit(Record);
     end;
@@ -474,7 +474,7 @@ codeunit 144133 "Remittance - Import Bank"
     var
         "Record": Text;
     begin
-        Record := GenerateBankRemittanceHeader;
+        Record := GenerateBankRemittanceHeader();
         Record := Record + 'BETFOR21';
         Record := PadStr(Record, 288, PadCharacter) + FormatDate(ValueDate);
         Record := PadStr(Record, 300, PadCharacter) + CancelCause;
@@ -485,7 +485,7 @@ codeunit 144133 "Remittance - Import Bank"
     var
         "Record": Text;
     begin
-        Record := GenerateBankRemittanceHeader;
+        Record := GenerateBankRemittanceHeader();
         Record := Record + 'BETFOR01';
         Record := PadStr(Record, 116, PadCharacter) + PadStr(PaymentCurrency, 3, PadCharacter);
         Record := Record + PadStr(InvoiceCurrency, 3, PadCharacter);
@@ -520,7 +520,7 @@ codeunit 144133 "Remittance - Import Bank"
     var
         "Record": Text;
     begin
-        Record := GenerateBankRemittanceHeader;
+        Record := GenerateBankRemittanceHeader();
         Record := Record + 'BETFOR03';
         exit(Record);
     end;
@@ -530,7 +530,7 @@ codeunit 144133 "Remittance - Import Bank"
     var
         "Record": Text;
     begin
-        Record := GenerateBankRemittanceHeader;
+        Record := GenerateBankRemittanceHeader();
         Record := Record + 'BETFOR23';
         Record := PadStr(Record, 227, PadCharacter) + OwnRef;
         Record := PadStr(Record, 296, PadCharacter) + PadStr(CancelCause, 1, PadCharacter);
@@ -542,7 +542,7 @@ codeunit 144133 "Remittance - Import Bank"
     var
         "Record": Text;
     begin
-        Record := GenerateBankRemittanceHeader;
+        Record := GenerateBankRemittanceHeader();
         Record := Record + 'BETFOR04';
         Record := PadStr(Record, 115, PadCharacter) + OwnRef;
         Record := PadStr(Record, 233, PadCharacter) + PadStr(CancelCause, 1, PadCharacter);
@@ -554,7 +554,7 @@ codeunit 144133 "Remittance - Import Bank"
     var
         "Record": Text;
     begin
-        Record := GenerateBankRemittanceHeader + 'BETFOR99';
+        Record := GenerateBankRemittanceHeader() + 'BETFOR99';
         exit(Record);
     end;
 
@@ -619,7 +619,7 @@ codeunit 144133 "Remittance - Import Bank"
         OldDate := WorkDate();
         WorkDate := NewDate;
         if Date2DWY(NewDate, 1) in [6, 7] then // "Posting Date" and "Pmt. Discount Date" compared works date in CU 15000001
-            WorkDate := WorkDate + 2;
+            WorkDate := WorkDate() + 2;
     end;
 
     local procedure VerifyImportedLinesDomestic(BatchName: Code[10]; TemplateName: Code[10]; DocumentNo: Code[35]; PostingDate: Date; NoSeriesLine: Record "No. Series Line"; VendorAccountNo: Code[20]; RemittanceAccountNo: Code[20]; Amount: Decimal)
@@ -683,7 +683,7 @@ codeunit 144133 "Remittance - Import Bank"
           GenJournalLine."Account Type",
           'Account type was not set to a correct value');
         Assert.AreEqual(DocumentNo, GenJournalLine."Applies-to Doc. No.", 'Applies-to Doc. No. was not set to a correct value');
-        Assert.AreEqual(true, GenJournalLine.IsApplied, 'IsApplied was not set to a correct value');
+        Assert.AreEqual(true, GenJournalLine.IsApplied(), 'IsApplied was not set to a correct value');
         Assert.AreEqual(
           GenJournalLine."Applies-to Doc. Type"::Invoice, GenJournalLine."Applies-to Doc. Type",
           'Applies-to Doc. Type was not set to correct value');
@@ -700,7 +700,7 @@ codeunit 144133 "Remittance - Import Bank"
           GenJournalLine."Account Type",
           'Account type was not set to a correct value');
         Assert.AreEqual('', GenJournalLine."Applies-to Doc. No.", 'Applies-to Doc. No. should be blank');
-        Assert.AreEqual(false, GenJournalLine.IsApplied, 'IsApplied was not set to a correct value');
+        Assert.AreEqual(false, GenJournalLine.IsApplied(), 'IsApplied was not set to a correct value');
         Assert.AreEqual(
           GenJournalLine."Applies-to Doc. Type"::" ", GenJournalLine."Applies-to Doc. Type",
           'Applies-to Doc. Type was not set to correct value');
@@ -773,7 +773,7 @@ codeunit 144133 "Remittance - Import Bank"
 
         // Control108003 is Control Batch filed
         RemPaymentOrderImport.ControlBatch.SetValue(IsControlBatch);
-        RemPaymentOrderImport.OK.Invoke;
+        RemPaymentOrderImport.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -781,7 +781,7 @@ codeunit 144133 "Remittance - Import Bank"
     procedure PaymentOrderSettlStatusHandler(var PaymentOrderSettlStatus: TestPage "Payment Order - Settl. Status")
     begin
         // Page is not testable
-        PaymentOrderSettlStatus.OK.Invoke;
+        PaymentOrderSettlStatus.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -795,7 +795,7 @@ codeunit 144133 "Remittance - Import Bank"
         RemittanceExportBank.RemAgreementCode.Value := RemittanceAgreementCode;
         LibraryVariableStorage.Dequeue(FileName);
         RemittanceExportBank.CurrentFilename.Value := FileName;
-        RemittanceExportBank.OK.Invoke;
+        RemittanceExportBank.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -832,7 +832,7 @@ codeunit 144133 "Remittance - Import Bank"
         SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate());
         SuggestRemittancePayments.Vendor.SetFilter("No.", VendorNo);
         SuggestRemittancePayments.Vendor.SetFilter("Remittance Account Code", RemittanceAccountCode);
-        SuggestRemittancePayments.OK.Invoke;
+        SuggestRemittancePayments.OK().Invoke();
     end;
 }
 

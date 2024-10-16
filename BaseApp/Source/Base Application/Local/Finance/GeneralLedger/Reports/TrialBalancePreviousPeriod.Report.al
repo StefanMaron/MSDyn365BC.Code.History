@@ -163,17 +163,16 @@ report 10601 "Trial Balance/Previous Period"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if NewPageStatus = true then begin
+                    if NewPageStatus then
                         if IncomeOrBalance.Number = "Income/Balance"::"Income Statement" then
                             IncomePageNo += 1
                         else
                             BalancePageNo += 1;
-                    end;
 
                     NewPageStatus := false;
                     CalcFields("Net Change");
 
-                    GLAccountType := "Account Type";
+                    GLAccountType := "Account Type".AsInteger();
 
                     Incoming.Reset();
                     Incoming := "G/L Account";

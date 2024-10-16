@@ -14,7 +14,7 @@ page 658 "Approval Entries"
     PageType = List;
     SourceTable = "Approval Entry";
     SourceTableView = sorting("Table ID", "Document Type", "Document No.", "Date-Time Sent for Approval")
-                      order(Ascending);
+                      order(ascending);
     UsageCategory = Lists;
 
     layout

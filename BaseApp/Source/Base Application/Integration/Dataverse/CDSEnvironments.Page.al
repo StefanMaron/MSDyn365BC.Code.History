@@ -27,11 +27,17 @@ page 7207 "CDS Environments"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
+                field(Linked; Rec.Linked)
+                {
+                    Caption = 'Linked';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies whether the Dataverse environment is the linked environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                }
                 field(Url; Rec.Url)
                 {
                     Caption = 'URL';
                     ApplicationArea = All;
-                    ToolTip = ' Specifies the URL of the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the URL of the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
             }
         }

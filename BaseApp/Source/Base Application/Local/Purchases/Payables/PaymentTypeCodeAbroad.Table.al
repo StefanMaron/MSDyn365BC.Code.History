@@ -9,6 +9,7 @@ table 15000027 "Payment Type Code Abroad"
     Caption = 'Payment Type Code Abroad';
     DrillDownPageID = "Payment Type Codes Abroad";
     LookupPageID = "Payment Type Codes Abroad";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -17,6 +17,7 @@ using Microsoft.Service.History;
 table 6507 "Item Entry Relation"
 {
     Caption = 'Item Entry Relation';
+    DataClassification = CustomerContent;
 
     fields
     {

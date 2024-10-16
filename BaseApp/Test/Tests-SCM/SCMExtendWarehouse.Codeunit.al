@@ -25,6 +25,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         IsInitialized: Boolean;
         ErrorMessageCounter: Integer;
         ROUTING_LINE_10: Label '10';
@@ -51,7 +52,6 @@ codeunit 137030 "SCM Extend Warehouse"
         MSG_THERE_NOTHING_TO_REGISTER: Label 'There is nothing to register.';
         Text003: Label 'The total base quantity to take 10 must be equal to the total base quantity to place 0.';
         Text004: Label 'activities created';
-        Text005: Label 'Warehouse Activity Lines are deleted.';
         Text006: Label 'Do you still want to delete the Warehouse Activity Line';
         MSG_HAS_BEEN_CREATED: Label 'has been created.';
         MSG_UNMATCHED_BIN_CODE: Label 'This change may have caused bin codes on some production order component lines to be different from those on the production order routing line. Do you want to automatically align all of these unmatched bin codes?';
@@ -76,7 +76,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Setup Demonstration data.
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        GlobalSetup;
+        GlobalSetup();
 
         IsInitialized := true;
         Commit();
@@ -90,16 +90,16 @@ codeunit 137030 "SCM Extend Warehouse"
         NoSeriesSetup();
 
         // Journals setup
-        ItemJournalSetup;
-        ConsumptionJournalSetup;
-        OutputJournalSetup;
+        ItemJournalSetup();
+        ConsumptionJournalSetup();
+        OutputJournalSetup();
 
         // Location setup - full WMS location takes time to create
         // for performance reasons create it once and reuse
         LibraryWarehouse.CreateFullWMSLocation(LocationWhite, 10);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, false);
 
-        DisableWarnings;
+        DisableWarnings();
     end;
 
     local procedure DisableWarnings()
@@ -122,11 +122,11 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -160,13 +160,13 @@ codeunit 137030 "SCM Extend Warehouse"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
         ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -1109,7 +1109,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure TestSetup()
     begin
-        ManufacturingSetup;
+        ManufacturingSetup();
         ErrorMessageCounter := 0;
     end;
 
@@ -1119,7 +1119,7 @@ codeunit 137030 "SCM Extend Warehouse"
         BOMHeader: Record "Production BOM Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
 
         // Create Produced item and child
         CreateBOM(BOMHeader, 2, 2);
@@ -1164,7 +1164,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -1229,7 +1229,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -1292,7 +1292,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -1333,7 +1333,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, LocationWhite, false, 1);
@@ -1384,7 +1384,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -1455,7 +1455,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -1519,7 +1519,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FromBin, Location, false, 1);
@@ -1589,7 +1589,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FromBin1, Location, false, 1);
@@ -1641,7 +1641,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
 
         ItemSetup(TestItem, TestItem."Replenishment System"::Purchase, TestItem."Flushing Method"::Manual);
 
@@ -1713,7 +1713,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
 
         // create an internal movement - Error message that Bin mandatory is required should be displayed.
@@ -1768,7 +1768,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -1858,7 +1858,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -1939,7 +1939,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
 
         // clear the warehouse employee entries
         WarehouseEmployee.SetRange("User ID", UserId);
@@ -2001,7 +2001,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -2068,7 +2068,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2112,7 +2112,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2156,7 +2156,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2198,7 +2198,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2244,7 +2244,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin1, Location, false, 1);
@@ -2292,7 +2292,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin1, Location, false, 1);
@@ -2341,7 +2341,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2397,7 +2397,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2418,6 +2418,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // delete the last Take line
         DeleteWhseActivityLine(ProductionOrder, WarehouseActivityLine."Action Type"::Take);
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         // check Inventory Movement
         AssertActivityHdr(WarehouseActivityHeader, Location, WarehouseActivityHeader.Type::"Invt. Movement",
@@ -2454,7 +2455,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2475,6 +2476,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // delete the Place line
         DeleteWhseActivityLine(ProductionOrder, WarehouseActivityLine."Action Type"::Place);
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         // check Inventory Movement has no lines
         AssertActivityHdr(WarehouseActivityHeader, Location, WarehouseActivityHeader.Type::"Invt. Movement",
@@ -2509,7 +2511,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2556,7 +2558,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2627,7 +2629,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ChildItem: Record Item;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2687,7 +2689,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindChild(ParentItem, ChildItem, 1);
@@ -2762,7 +2764,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2846,7 +2848,7 @@ codeunit 137030 "SCM Extend Warehouse"
         RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr.";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2921,7 +2923,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -2984,7 +2986,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ToBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -3029,7 +3031,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -3078,7 +3080,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -3149,7 +3151,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -3227,7 +3229,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -3310,7 +3312,7 @@ codeunit 137030 "SCM Extend Warehouse"
         i: Integer;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC6(ArrayOfItem);
 
         FindBin(FromBin, Location, false, 1);
@@ -3385,7 +3387,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ChildItem: Record Item;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindChild(ParentItem, ChildItem, 1);
@@ -3434,7 +3436,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindChild(ParentItem, ChildItem, 1);
@@ -3504,7 +3506,7 @@ codeunit 137030 "SCM Extend Warehouse"
         OldToBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindChild(ParentItem, ChildItem, 1);
@@ -3582,7 +3584,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ChildItem: Record Item;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindChild(ParentItem, ChildItem, 1);
@@ -3641,7 +3643,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC429(ArrayOfItem, ProductionBOMHeader, RoutingHeader, ArrayOfItem[3]."Flushing Method"::Forward);
 
         // Add inventory
@@ -3728,7 +3730,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
 
         PC429(ArrayOfItem, ProductionBOMHeader, RoutingHeader, ArrayOfItem[3]."Flushing Method"::"Pick + Forward");
 
@@ -3823,7 +3825,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WorkCenter: Record "Work Center";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
 
         PC431(
           ArrayOfItem, ProductionBOMHeader, RoutingHeader,
@@ -3917,7 +3919,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WorkCenter: Record "Work Center";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
 
         PC431(
           ArrayOfItem, ProductionBOMHeader, RoutingHeader,
@@ -4011,7 +4013,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WorkCenter: Record "Work Center";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
 
         PC431(
           ArrayOfItem, ProductionBOMHeader, RoutingHeader,
@@ -4104,7 +4106,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WorkCenter: Record "Work Center";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
 
         PC431(
           ArrayOfItem, ProductionBOMHeader, RoutingHeader,
@@ -4201,7 +4203,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseRequest: Record "Warehouse Request";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         DummyLocation := DummyLocation;
@@ -4860,7 +4862,6 @@ codeunit 137030 "SCM Extend Warehouse"
         ProductionOrder: Record "Production Order";
         ChildItem1: Record Item;
         ChildItem2: Record Item;
-        RoutingLine: Record "Routing Line";
         WorkCenter: array[2] of Record "Work Center";
         MachineCenter: Record "Machine Center";
         ToBin: array[2] of Record Bin;
@@ -4884,20 +4885,9 @@ codeunit 137030 "SCM Extend Warehouse"
         AddInventoryNonDirectLocation(ChildItem1, Location, ToBin[1], 40);
 
         // Create and refresh prod Order - Exercise
-        CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, Location.Code, '');
+        asserterror CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, Location.Code, '');
 
-        // Assert component lines
-        AssertProdOrderComponent(ProductionOrder, ChildItem1."No.", 0, 20, 0, 0, Location.Code, ToBin[1].Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ChildItem2."No.", 20, 20, 0, 0, Location.Code, ToBin[1].Code, 1);
-
-        // Assert prodorder line bin code
-        AssertProdOrderLine(ProductionOrder, ParentItem."No.", 10, Location.Code, FromBin[2].Code, 1);
-
-        // Assert routing lines
-        AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_10, RoutingLine.Type::"Machine Center",
-          MachineCenter."No.", Location.Code, ToBin[1].Code, FromBin[1].Code, OSFBBin[1].Code, 1);
-        AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_20, RoutingLine.Type::"Work Center",
-          WorkCenter[2]."No.", Location.Code, ToBin[2].Code, FromBin[2].Code, OSFBBin[2].Code, 1);
+        Assert.ExpectedError('must not be 0');
     end;
 
     [Test]
@@ -5769,7 +5759,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -5813,7 +5803,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -5879,7 +5869,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -5920,7 +5910,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -5981,7 +5971,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SalesLine: Record "Sales Line";
     begin
         LocationSetup(Location, false, false, false, true, true, 6, 4);
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6033,7 +6023,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6104,7 +6094,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6170,7 +6160,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6211,7 +6201,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6256,7 +6246,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SalesLine: Record "Sales Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6324,7 +6314,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SalesLine: Record "Sales Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6387,7 +6377,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SalesLine: Record "Sales Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6440,7 +6430,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SalesLine: Record "Sales Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6504,7 +6494,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SalesLine: Record "Sales Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6570,7 +6560,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SalesLine: Record "Sales Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FirstBin, Location, false, 1);
@@ -6639,7 +6629,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityHdr: Record "Warehouse Activity Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, true, 1);
@@ -6677,7 +6667,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SecondBin: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBin, Location, true, 1);
@@ -6733,7 +6723,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBinD, Location, true, 1);
@@ -6816,7 +6806,7 @@ codeunit 137030 "SCM Extend Warehouse"
         FourthBinND: Record Bin;
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBinD, Location, true, 1);
@@ -6889,7 +6879,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBinD, Location, true, 1);
@@ -6941,7 +6931,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
 
         FindBin(FirstBinD, Location, true, 1);
@@ -7013,7 +7003,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SalesLine: Record "Sales Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FirstBinD, Location, true, 1);
@@ -7081,7 +7071,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SalesLine: Record "Sales Line";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FirstBinD, Location, true, 1);
@@ -7145,7 +7135,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         // Test setup
-        TestSetup;
+        TestSetup();
         PC5(ParentItem);
 
         FindBin(FirstBinD, Location, true, 1);
@@ -7197,7 +7187,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Setup: Create Production Item. Create Location. Add Inventory for the Child Item.
         Initialize();
-        TestSetup;
+        TestSetup();
         Quantity := LibraryRandom.RandInt(10);
         ParentItem.Init();
         PC5(ParentItem);
@@ -7524,7 +7514,7 @@ codeunit 137030 "SCM Extend Warehouse"
     [Scope('OnPrem')]
     procedure ProdOrderRoutingModalPageHandler(var ProdOrderRouting: TestPage "Prod. Order Routing")
     begin
-        ProdOrderRouting.OK.Invoke;
+        ProdOrderRouting.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -7542,8 +7532,6 @@ codeunit 137030 "SCM Extend Warehouse"
         case ErrorMessageCounter of
             1:
                 Assert.IsTrue(StrPos(Message, Text004) > 0, Message);
-            2:
-                Assert.IsTrue(StrPos(Message, Text005) > 0, Message);
         end;
     end;
 

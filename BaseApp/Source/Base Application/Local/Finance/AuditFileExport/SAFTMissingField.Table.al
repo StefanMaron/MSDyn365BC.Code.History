@@ -10,6 +10,7 @@ table 10628 "SAFT Missing Field"
     ObsoleteState = Removed;
     ObsoleteTag = '17.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

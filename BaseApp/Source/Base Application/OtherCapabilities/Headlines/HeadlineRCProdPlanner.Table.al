@@ -7,6 +7,7 @@ table 1447 "Headline RC Prod. Planner"
     ObsoleteReason = 'Replaced with "RC Headlines User Data" table';
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

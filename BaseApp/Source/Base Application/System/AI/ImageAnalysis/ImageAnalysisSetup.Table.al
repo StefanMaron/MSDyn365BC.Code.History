@@ -7,6 +7,7 @@ table 2020 "Image Analysis Setup"
 {
     Caption = 'Image Analysis Setup';
     DataPerCompany = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -86,7 +87,7 @@ table 2020 "Image Analysis Setup"
         AzureAIService: Enum "Azure AI Service";
     begin
         GetSingleInstance();
-        if (GetApiKey() <> '') and ("Api Uri" <> '') then
+        if (not GetApiKeyAsSecret().IsEmpty()) and ("Api Uri" <> '') then
             exit; // unlimited access for user's own service
 
         AzureAIUsage.IncrementTotalProcessingTime(AzureAIService::"Computer Vision", 1);
@@ -98,7 +99,7 @@ table 2020 "Image Analysis Setup"
         AzureAIService: Enum "Azure AI Service";
 
     begin
-        if (GetApiKey() <> '') and ("Api Uri" <> '') then
+        if (not GetApiKeyAsSecret().IsEmpty()) and ("Api Uri" <> '') then
             exit(false); // unlimited access for user's own service
 
         if AzureAIUsage.IsLimitReached(AzureAIService::"Computer Vision", MaxCallsPerPeriod) then begin
@@ -139,9 +140,20 @@ table 2020 "Image Analysis Setup"
         exit(Regex.IsMatch(LowerCase(ApiUri), '/analyze$'));
     end;
 
+#if not CLEAN24
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Use "SetApiKey(ApiKey: SecretText)" instead.', '24.0')]
     procedure SetApiKey(ApiKey: Text)
+    var
+        ApiKeyAsSecret: SecretText;
+    begin
+        ApiKeyAsSecret := ApiKey;
+        SetApiKey(ApiKeyAsSecret);
+    end;
+#endif
+    [Scope('OnPrem')]
+    procedure SetApiKey(ApiKey: SecretText)
     begin
         if IsNullGuid("Api Key Key") then
             "Api Key Key" := CreateGuid();
@@ -149,11 +161,23 @@ table 2020 "Image Analysis Setup"
         IsolatedStorageManagement.Set("Api Key Key", ApiKey, DATASCOPE::Company);
     end;
 
+#if not CLEAN24
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Replaced by GetApiKeyAsSecret', '24.0')]
     procedure GetApiKey(): Text
     var
         Value: Text;
+    begin
+        IsolatedStorageManagement.Get("Api Key Key", DATASCOPE::Company, Value);
+        exit(Value);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetApiKeyAsSecret(): SecretText
+    var
+        Value: SecretText;
     begin
         IsolatedStorageManagement.Get("Api Key Key", DATASCOPE::Company, Value);
         exit(Value);

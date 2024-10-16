@@ -71,7 +71,7 @@ page 7316 "Warehouse Movement Subform"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the package number to handle in the document.';
-                    Visible = PackageTrackingVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -198,6 +198,34 @@ page 7316 "Warehouse Movement Subform"
                         CallSplitLine();
                     end;
                 }
+                action(FillQtyToHandle)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Autofill Qty. To Handle';
+                    Image = AutofillQtyToHandle;
+                    Gesture = LeftSwipe;
+                    ToolTip = 'Have the system enter the outstanding quantity in the Qty. to Handle field.';
+                    Scope = Repeater;
+
+                    trigger OnAction()
+                    begin
+                        Rec.AutofillQtyToHandleOnLine(Rec);
+                    end;
+                }
+                action(ResetQtyToHandle)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Reset Qty. To Handle';
+                    Image = UndoFluent;
+                    Gesture = RightSwipe;
+                    ToolTip = 'Have the system clear the value in the Qty. To Handle field.';
+                    Scope = Repeater;
+
+                    trigger OnAction()
+                    begin
+                        Rec.DeleteQtyToHandleOnLine(Rec);
+                    end;
+                }
                 action(ChangeUnitOfMeasure)
                 {
                     ApplicationArea = Suite;
@@ -239,11 +267,7 @@ page 7316 "Warehouse Movement Subform"
 
     trigger OnOpenPage()
     begin
-        SetPackageTrackingVisibility();
     end;
-
-    var
-        PackageTrackingVisible: Boolean;
 
     procedure AutofillQtyToHandle()
     var
@@ -353,13 +377,6 @@ page 7316 "Warehouse Movement Subform"
     protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.SaveRecord();
-    end;
-
-    local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
-    begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

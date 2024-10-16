@@ -22,14 +22,14 @@ codeunit 136307 "Job Consumption - Planning"
         PlanningLineQuantity: Decimal;
         TotalQuantity: Decimal;
         LineTypeRef: Option " ",Budget,Billable,"Both Budget and Billable";
-        WrongQtyOnPlanningLineMsg: Label 'Qty. is not transfer to right field on Job Planning Line.';
+        WrongQtyOnPlanningLineMsg: Label 'Qty. is not transfer to right field on Project Planning Line.';
 
     [Test]
     [Scope('OnPrem')]
     procedure TransferScheduledItem()
     begin
         // Transfer a scheduled item line to job journal
-        Transfer2Journal(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, 1)
+        Transfer2Journal(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), 1)
     end;
 
     [Test]
@@ -37,7 +37,7 @@ codeunit 136307 "Job Consumption - Planning"
     procedure TransferScheduledResource()
     begin
         // Transfer a scheduled resource line to job journal
-        Transfer2Journal(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, 1)
+        Transfer2Journal(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), 1)
     end;
 
     [Test]
@@ -45,7 +45,7 @@ codeunit 136307 "Job Consumption - Planning"
     procedure TransferScheduledGL()
     begin
         // Transfer a scheduled GL line to job journal
-        Transfer2Journal(LibraryJob.PlanningLineTypeSchedule, LibraryJob.GLAccountType, 1)
+        Transfer2Journal(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.GLAccountType(), 1)
     end;
 
     [Test]
@@ -53,7 +53,7 @@ codeunit 136307 "Job Consumption - Planning"
     procedure TransferBothItem()
     begin
         // Transfer a both scheduled and contracted item line to job journal
-        Transfer2Journal(LibraryJob.PlanningLineTypeBoth, LibraryJob.ItemType, 1)
+        Transfer2Journal(LibraryJob.PlanningLineTypeBoth(), LibraryJob.ItemType(), 1)
     end;
 
     [Test]
@@ -61,7 +61,7 @@ codeunit 136307 "Job Consumption - Planning"
     procedure TransferBothResource()
     begin
         // Transfer a both scheduled and contracted resource line to job journal
-        Transfer2Journal(LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, 1)
+        Transfer2Journal(LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), 1)
     end;
 
     [Test]
@@ -69,7 +69,7 @@ codeunit 136307 "Job Consumption - Planning"
     procedure TransferBothGL()
     begin
         // Transfer a both scheduled and contracted GL line to job journal
-        Transfer2Journal(LibraryJob.PlanningLineTypeBoth, LibraryJob.GLAccountType, 1)
+        Transfer2Journal(LibraryJob.PlanningLineTypeBoth(), LibraryJob.GLAccountType(), 1)
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 136307 "Job Consumption - Planning"
     procedure TransferContractItem()
     begin
         // Transfer a contracted planning line to job journal
-        Transfer2Journal(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, 1);
+        Transfer2Journal(LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), 1);
     end;
 
     [Test]
@@ -85,7 +85,7 @@ codeunit 136307 "Job Consumption - Planning"
     procedure PTransferScheduledItem()
     begin
         // Partially transfer a scheduled item line to job journal
-        Transfer2Journal(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, LibraryRandom.RandInt(99) / 100)
+        Transfer2Journal(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), LibraryRandom.RandInt(99) / 100)
     end;
 
     [Test]
@@ -184,7 +184,7 @@ codeunit 136307 "Job Consumption - Planning"
         Initialize();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        CreateJobWithWIPMethod(Job, CreateJobWIPMethod, Job."WIP Posting Method"::"Per Job Ledger Entry", true);
+        CreateJobWithWIPMethod(Job, CreateJobWIPMethod(), Job."WIP Posting Method"::"Per Job Ledger Entry", true);
         CreateAndPostJobJournal(Job);
 
         // Exercise: Calculate WIP.
@@ -331,13 +331,13 @@ codeunit 136307 "Job Consumption - Planning"
         BlockJobForAll(Job);
 
         // [WHEN] Opening the Job Planning Lines
-        JobPlanningLines.Trap;
-        JobCard.OpenView;
+        JobPlanningLines.Trap();
+        JobCard.OpenView();
         JobCard.GotoRecord(Job);
-        JobCard.JobPlanningLines.Invoke;
+        JobCard.JobPlanningLines.Invoke();
 
         // [THEN] The page is not editable
-        Assert.IsFalse(JobPlanningLines.Editable, 'Job Planning Lines page should not be editable');
+        Assert.IsFalse(JobPlanningLines.Editable(), 'Job Planning Lines page should not be editable');
     end;
 
     [Test]
@@ -392,7 +392,7 @@ codeunit 136307 "Job Consumption - Planning"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Consumption - Planning");
 
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySales.SetStockoutWarning(false);
@@ -405,9 +405,9 @@ codeunit 136307 "Job Consumption - Planning"
     local procedure CreateUOM(ConsumableType: Enum "Job Planning Line Type"; No: Code[20]): Code[10]
     begin
         case ConsumableType of
-            LibraryJob.ItemType:
+            LibraryJob.ItemType():
                 exit(CreateItemUOM(No));
-            LibraryJob.ResourceType:
+            LibraryJob.ResourceType():
                 exit(CreateResourceUOM(No));
             else
                 Error('Unsupported consumable type: %1', ConsumableType);
@@ -460,7 +460,7 @@ codeunit 136307 "Job Consumption - Planning"
 
     local procedure CreateJobWithMultipleJobTask(var Job: Record Job; var JobTask: Record "Job Task")
     begin
-        CreateJobWithWIPMethod(Job, CreateJobWIPMethod, Job."WIP Posting Method"::"Per Job Ledger Entry", true);
+        CreateJobWithWIPMethod(Job, CreateJobWIPMethod(), Job."WIP Posting Method"::"Per Job Ledger Entry", true);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
@@ -547,7 +547,7 @@ codeunit 136307 "Job Consumption - Planning"
         Job.Get(JobTask."Job No.");
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
         JobPlanningLine.Validate("No.", No);
         JobPlanningLine.Validate("Usage Link", true);
@@ -596,10 +596,10 @@ codeunit 136307 "Job Consumption - Planning"
     var
         JobPlanningLines: TestPage "Job Planning Lines";
     begin
-        JobPlanningLines.OpenEdit;
+        JobPlanningLines.OpenEdit();
         JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
         JobPlanningLines.FILTER.SetFilter("Job Task No.", JobTaskNo);
-        JobPlanningLines.Reserve.Invoke;
+        JobPlanningLines.Reserve.Invoke();
         Commit();
     end;
 
@@ -607,11 +607,11 @@ codeunit 136307 "Job Consumption - Planning"
     var
         JobPlanningLines: TestPage "Job Planning Lines";
     begin
-        JobPlanningLines.OpenEdit;
+        JobPlanningLines.OpenEdit();
         JobPlanningLines.FILTER.SetFilter("Job No.", No);
         JobPlanningLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));  // Used Random values for Quantity.
         JobPlanningLines."Unit Cost".SetValue(LibraryRandom.RandDec(10, 2));  // Used Random values for Unit Cost.
-        JobPlanningLines.OK.Invoke;
+        JobPlanningLines.OK().Invoke();
     end;
 
     local procedure Transfer2Journal(LineType: Enum "Job Planning Line Line Type"; ConsumableType: Enum "Job Planning Line Type"; Fraction: Decimal)
@@ -639,39 +639,34 @@ codeunit 136307 "Job Consumption - Planning"
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(LineType, ConsumableType, JobTask, JobPlanningLine);
 
-        with JobPlanningLine do begin
-            if "Schedule Line" then
-                Validate("Usage Link", true);
-            if ConsumableType <> LibraryJob.GLAccountType then
-                Validate("Unit of Measure Code", CreateUOM(Type, "No."));
-            if ConsumableType = LibraryJob.ItemType then begin
-                Validate("Location Code", LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location));
-                Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, "No."))
-            end;
-            Validate("Qty. to Transfer to Journal", Fraction * Quantity);
-            Modify(true)
+        if JobPlanningLine."Schedule Line" then
+            JobPlanningLine.Validate("Usage Link", true);
+        if ConsumableType <> LibraryJob.GLAccountType() then
+            JobPlanningLine.Validate("Unit of Measure Code", CreateUOM(JobPlanningLine.Type, JobPlanningLine."No."));
+        if ConsumableType = LibraryJob.ItemType() then begin
+            JobPlanningLine.Validate("Location Code", LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location));
+            JobPlanningLine.Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, JobPlanningLine."No."))
         end;
+        JobPlanningLine.Validate("Qty. to Transfer to Journal", Fraction * JobPlanningLine.Quantity);
+        JobPlanningLine.Modify(true);
 
         // Exercise
         JobTransferLine.FromPlanningLineToJnlLine(JobPlanningLine, WorkDate(), LibraryJob.GetJobJournalTemplate(JobJournalTemplate),
           LibraryJob.CreateJobJournalBatch(LibraryJob.GetJobJournalTemplate(JobJournalTemplate), JobJournalBatch), JobJournalLine);
-
         // Verify
-        with JobJournalLine do begin
-            Assert.AreEqual("Job No.", JobPlanningLine."Job No.", FieldCaption("Job No."));
-            Assert.AreEqual("Job Task No.", JobPlanningLine."Job Task No.", FieldCaption("Job Task No."));
-            if JobPlanningLine."Schedule Line" then
-                Assert.AreEqual("Job Planning Line No.", JobPlanningLine."Line No.", FieldCaption("Line No."))
-            else
-                Assert.AreEqual("Job Planning Line No.", 0, FieldCaption("Line No."));
-            Assert.AreEqual("Posting Date", WorkDate(), FieldCaption("Posting Date"));
-            Assert.AreEqual(Type, JobPlanningLine.Type, FieldCaption(Type));
-            Assert.AreEqual("No.", JobPlanningLine."No.", FieldCaption("No."));
-            Assert.AreEqual("Unit of Measure Code", JobPlanningLine."Unit of Measure Code", FieldCaption("Unit of Measure Code"));
-            Assert.AreEqual("Location Code", JobPlanningLine."Location Code", FieldCaption("Location Code"));
-            Assert.AreEqual("Variant Code", JobPlanningLine."Variant Code", FieldCaption("Variant Code"));
-            Assert.AreEqual(Quantity, JobPlanningLine."Qty. to Transfer to Journal", FieldCaption(Quantity))
-        end
+        Assert.AreEqual(JobJournalLine."Job No.", JobPlanningLine."Job No.", JobJournalLine.FieldCaption("Job No."));
+        Assert.AreEqual(JobJournalLine."Job Task No.", JobPlanningLine."Job Task No.", JobJournalLine.FieldCaption("Job Task No."));
+        if JobPlanningLine."Schedule Line" then
+            Assert.AreEqual(JobJournalLine."Job Planning Line No.", JobPlanningLine."Line No.", JobJournalLine.FieldCaption("Line No."))
+        else
+            Assert.AreEqual(JobJournalLine."Job Planning Line No.", 0, JobJournalLine.FieldCaption("Line No."));
+        Assert.AreEqual(JobJournalLine."Posting Date", WorkDate(), JobJournalLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(JobJournalLine.Type, JobPlanningLine.Type, JobJournalLine.FieldCaption(Type));
+        Assert.AreEqual(JobJournalLine."No.", JobPlanningLine."No.", JobJournalLine.FieldCaption("No."));
+        Assert.AreEqual(JobJournalLine."Unit of Measure Code", JobPlanningLine."Unit of Measure Code", JobJournalLine.FieldCaption("Unit of Measure Code"));
+        Assert.AreEqual(JobJournalLine."Location Code", JobPlanningLine."Location Code", JobJournalLine.FieldCaption("Location Code"));
+        Assert.AreEqual(JobJournalLine."Variant Code", JobPlanningLine."Variant Code", JobJournalLine.FieldCaption("Variant Code"));
+        Assert.AreEqual(JobJournalLine.Quantity, JobPlanningLine."Qty. to Transfer to Journal", JobJournalLine.FieldCaption(Quantity))
     end;
 
     local procedure UpdateCustomerWithGenBusPostingGroup(CustomerNo: Code[20]; GenBusinessPostingGroup: Code[20])
@@ -726,7 +721,7 @@ codeunit 136307 "Job Consumption - Planning"
         with JobJournalLine do begin
             LibraryJob.CreateJobJournalLine("Line Type"::" ", JobTask, JobJournalLine);
             Validate(Type, Type::Resource);
-            Validate("No.", LibraryResource.CreateResourceNo);
+            Validate("No.", LibraryResource.CreateResourceNo());
             Validate(Quantity, 1);
             Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
             Modify(true);
@@ -839,8 +834,8 @@ codeunit 136307 "Job Consumption - Planning"
     procedure JobCalculateWIPRequestPageHandler(var JobCalculateWIP: TestRequestPage "Job Calculate WIP")
     begin
         JobCalculateWIP.PostingDate.SetValue(WorkDate());
-        JobCalculateWIP.DocumentNo.SetValue(LibraryUTUtility.GetNewCode);
-        JobCalculateWIP.OK.Invoke;
+        JobCalculateWIP.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
+        JobCalculateWIP.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -854,7 +849,7 @@ codeunit 136307 "Job Consumption - Planning"
     [Scope('OnPrem')]
     procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
-        JobTransferToSalesInvoice.OK.Invoke;
+        JobTransferToSalesInvoice.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -868,7 +863,7 @@ codeunit 136307 "Job Consumption - Planning"
     [Scope('OnPrem')]
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]

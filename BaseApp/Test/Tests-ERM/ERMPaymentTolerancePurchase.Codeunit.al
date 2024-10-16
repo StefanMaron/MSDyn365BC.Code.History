@@ -15,6 +15,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -73,7 +74,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Check Vendor Ledger Entry for Payment Tolerance after posting Purchase Invoice with Currency.
 
         // Create and Post Purchase Invoice with Currency.
-        DocumentNo := CreateAndPostPurchaseDocument(CreateCurrency, "Purchase Document Type"::Invoice);
+        DocumentNo := CreateAndPostPurchaseDocument(CreateCurrency(), "Purchase Document Type"::Invoice);
 
         // Verify: Verify Vendor Ledger Entry Amount.
         ExpectedPmtTolAmount := CalcPaymentTolInvoiceFCY(DocumentNo);
@@ -92,7 +93,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Check Vendor Ledger Entry  for Payment Tolerance after posting Purchase Credit Memo with Currency.
 
         // Create and Post Purchase Credit Memo with Currency.
-        DocumentNo := CreateAndPostPurchaseDocument(CreateCurrency, "Purchase Document Type"::"Credit Memo");
+        DocumentNo := CreateAndPostPurchaseDocument(CreateCurrency(), "Purchase Document Type"::"Credit Memo");
 
         // Verify: Verify Vendor Ledger Entry Amount.
         PurchCrMemoHdr.Get(DocumentNo);
@@ -130,7 +131,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         PurchaseHeader.Validate("Vendor Cr. Memo No.", DocumentNo);
         PurchaseHeader.Modify(true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        ExecuteUIHandler;  // Need to invoke confirmation message everytime to prevent test failures in ES build.
+        ExecuteUIHandler();  // Need to invoke confirmation message everytime to prevent test failures in ES build.
 
         // Verify: Max Payment Tolerance is zero for Credit Memo applied to Invoice.
         VerifyMaxPaymentTolCreditMemo(DocumentNo, 0);
@@ -152,13 +153,13 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Setup: Update General Ledger Setup and Create and Post Purchase invoice and take a Random quantity.
         Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandInt(5)); // Use Random value for Payment Discount.
         PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem,
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(),
           LibraryRandom.RandInt(10));
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem,
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(),
           LibraryRandom.RandInt(10));
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryPurchase.CreatePurchHeader(
@@ -169,7 +170,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Exercise: Create and Post Purchase Credit Memo after Copy Document with Document Type Posted Invoice.
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", DocumentNo, false, true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        ExecuteUIHandler;  // Need to invoke confirmation message everytime to prevent test failures in ES build.
+        ExecuteUIHandler();  // Need to invoke confirmation message everytime to prevent test failures in ES build.
 
         // Verify: Verify Max Payment Tolerance field in Vendor Ledger Entry.
         ExpectedPmtTolAmount := CalcPaymentTolCreditMemoLCY(DocumentNo);
@@ -207,11 +208,104 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        ExecuteUIHandler;  // Need to invoke confirmation message everytime to prevent test failures in ES build.
+        ExecuteUIHandler();  // Need to invoke confirmation message everytime to prevent test failures in ES build.
 
         // Verify: Verify Max Payment Tolerance field in Vendor Ledger Entry.
         ExpectedPmtTolAmount := CalcPaymentTolCreditMemoLCY(DocumentNo);
         VerifyMaxPaymentTolCreditMemo(DocumentNo, ExpectedPmtTolAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentJournaWithDeferralCodeFromPurchaseJournal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DeferralTemplate: Record "Deferral Template";
+        DeferralCode: Code[10];
+    begin
+        Initialize();
+
+        // [GIVEN] deferral template with equal per period method
+        DeferralCode := CreateDeferralTemplate(
+            DeferralTemplate."Calc. Method"::"Equal per Period",
+            DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(2, 5), LibraryUtility.GenerateGUID(), 100);
+
+        // [GIVEN] PurchaseJournal line with Vendor as Bal. Account 
+        CreatePurchJnlLineWithVendorBalAcc(GenJournalLine);
+
+        // [GIVEN] PurchaseJournal line with Deferral Code
+        GenJournalLine.Validate("Deferral Code", DeferralCode);
+        GenJournalLine.Modify();
+
+        // [WHEN] [THEN] Post PurchaseJournal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentJournaWithDeferralCodeFromPurchaseJournalNotValid()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DeferralTemplate: Record "Deferral Template";
+        SourceCodeSetup: Record "Source Code Setup";
+        DeferralCode: Code[10];
+        SameSourceCodeErr: Label 'Journal Source Code %1 is same as Source Code set for Purcase/Sales documents. This is not allowed when using deferrals. If you want to use this journal for deferrals, please update Source Codes on Gen Journal Template and generate line again.', Comment = '%1->Source Code';
+    begin
+        Initialize();
+
+        // [GIVEN] deferral template with equal per period method
+        DeferralCode := CreateDeferralTemplate(
+            DeferralTemplate."Calc. Method"::"Equal per Period",
+            DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(2, 5), LibraryUtility.GenerateGUID(), 100);
+
+        // [GIVEN] PurchaseJournal line with Vendor as Bal. Account 
+        CreatePurchJnlLineWithVendorBalAcc(GenJournalLine);
+
+        // [WHEN] Source Code on the line is same like for Purchase documents
+        SourceCodeSetup.Get();
+        GenJournalLine."Source Code" := SourceCodeSetup.Purchases;
+
+        // [THEN] Error should occur
+        asserterror GenJournalLine.Validate("Deferral Code", DeferralCode);
+        Assert.ExpectedError(StrSubstNo(SameSourceCodeErr, GenJournalLine."Source Code"));
+    end;
+
+    local procedure CreatePurchJnlLineWithVendorBalAcc(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Vendor: Record Vendor;
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        if GenJournalTemplate.Type <> Enum::"Gen. Journal Template Type"::Purchases then begin
+            GenJournalTemplate.Validate("Type", Enum::"Gen. Journal Template Type"::Purchases);
+            GenJournalTemplate.Modify(true);
+        end;
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDecInRange(10, 1000, 2));
+        LibraryPurchase.CreateVendor(Vendor);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
+        GenJournalLine.Validate("Bal. Account No.", Vendor."No.");
+        GenJournalLine.Validate(Amount, -GenJournalLine.Amount);
+        if GenJournalLine."Source Code" <> GenJournalTemplate."Source Code" then
+            GenJournalLine."Source Code" := GenJournalTemplate."Source Code";
+        GenJournalLine.Modify(true);
+    end;
+
+    procedure CreateDeferralTemplate(CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer; PeriodDescription: Text[50]; DeferralPct: Decimal): Code[10]
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        LibraryERM.CreateDeferralTemplate(DeferralTemplate, CalcMethod, StartDate, NumOfPeriods);
+        DeferralTemplate.Validate("Period Description", PeriodDescription);
+        DeferralTemplate.Validate("Deferral %", DeferralPct);
+        DeferralTemplate.Modify(true);
+        exit(DeferralTemplate."Deferral Code");
     end;
 
     local procedure Initialize()
@@ -220,7 +314,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Tolerance Purchase");
         LibrarySetupStorage.Restore();
-        ExecuteUIHandler;  // Need to invoke confirmation message everytime to prevent test failures in ES build.
+        ExecuteUIHandler();  // Need to invoke confirmation message everytime to prevent test failures in ES build.
 
         // Setup demo data.
         if isInitialized then
@@ -298,7 +392,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         PurchaseLine: Record "Purchase Line";
         Counter: Integer;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -307,7 +401,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Use Counter for Creating Multiple Purchase Lines with Random Quantity.
         for Counter := 1 to LibraryRandom.RandInt(3) do begin
             LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(3));
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(3));
             if DocumentType = PurchaseLine."Document Type"::"Credit Memo" then begin
                 PurchaseLine.Validate("Qty. to Receive", 0); // Quantity to Receive must be 0 for Purchase Credit Memo.
                 PurchaseLine.Modify(true);

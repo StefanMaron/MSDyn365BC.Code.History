@@ -336,10 +336,13 @@ codeunit 7110 "Analysis Report Management"
         SetSourceNo(AnalysisLine, CurrentSourceTypeNoFilter);
     end;
 
+#if not CLEAN24
+    [Obsolete('Use "DoLookupSourceNo" with Enum parameter instead.', '24.0')]
     procedure LookupSourceNo(var AnalysisLine: Record "Analysis Line"; CurrentSourceTypeFilter: Option " ",Customer,Vendor,Item; var CurrentSourceTypeNoFilter: Text)
     begin
         DoLookupSourceNo(AnalysisLine, Enum::"Analysis Source Type".FromInteger(CurrentSourceTypeFilter), CurrentSourceTypeNoFilter);
     end;
+#endif
 
     local procedure AccPeriodStartEnd(Formula: Code[20]; Date: Date; var StartDate: Date; var EndDate: Date)
     var
@@ -408,18 +411,16 @@ codeunit 7110 "Analysis Report Management"
         end;
 
         Result := CalcCellValue(AnalysisLine, AnalysisColumn, DrillDown);
-        with AnalysisColumn do begin
-            case Show of
-                Show::"When Positive":
-                    if Result < 0 then
-                        Result := 0;
-                Show::"When Negative":
-                    if Result > 0 then
-                        Result := 0;
-            end;
-            if "Show Opposite Sign" then
-                Result := -Result;
+        case AnalysisColumn.Show of
+            AnalysisColumn.Show::"When Positive":
+                if Result < 0 then
+                    Result := 0;
+            AnalysisColumn.Show::"When Negative":
+                if Result > 0 then
+                    Result := 0;
         end;
+        if AnalysisColumn."Show Opposite Sign" then
+            Result := -Result;
         if AnalysisLine."Show Opposite Sign" then
             Result := -Result;
         exit(Result);
@@ -493,47 +494,45 @@ codeunit 7110 "Analysis Report Management"
             AnalysisLineTemplate.Get(AnalysisLine."Analysis Area", AnalysisLine."Analysis Line Template Name");
 
         if AnalysisColumn."Column Type" <> AnalysisColumn."Column Type"::Formula then begin
-            with ItemStatisticsBuf do begin
-                if AnalysisLine.GetFilter("Source No. Filter") <> '' then
-                    case FilterToValue(AnalysisLine) of
-                        AnalysisLine."Source Type Filter"::Customer:
-                            begin
-                                SetRange("Source Type Filter", "Source Type Filter"::Customer);
-                                SetFilter("Source No. Filter", GetSourceNoFilter(ItemStatisticsBuf, AnalysisLine));
-                            end;
-                        AnalysisLine."Source Type Filter"::Vendor:
-                            begin
-                                SetRange("Source Type Filter", "Source Type Filter"::Vendor);
-                                SetFilter("Source No. Filter", GetSourceNoFilter(ItemStatisticsBuf, AnalysisLine));
-                            end;
-                        AnalysisLine."Source Type Filter"::Item:
-                            SetFilter("Item Filter", GetSourceNoFilter(ItemStatisticsBuf, AnalysisLine));
-                    end;
-                if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                    if GetFilter("Global Dimension 1 Filter") = '' then
-                        AnalysisLine.CopyFilter("Dimension 1 Filter", "Global Dimension 1 Filter");
-                    if GetFilter("Global Dimension 2 Filter") = '' then
-                        AnalysisLine.CopyFilter("Dimension 2 Filter", "Global Dimension 2 Filter");
-                    FilterGroup := 2;
-                    SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, AnalysisLine."Dimension 1 Totaling"));
-                    SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, AnalysisLine."Dimension 2 Totaling"));
-                    FilterGroup := 0;
-                end else begin
-                    SetFilter("Analysis View Filter", AnalysisLineTemplate."Item Analysis View Code");
-                    if GetFilter("Dimension 1 Filter") = '' then
-                        AnalysisLine.CopyFilter("Dimension 1 Filter", "Dimension 1 Filter");
-                    if GetFilter("Dimension 2 Filter") = '' then
-                        AnalysisLine.CopyFilter("Dimension 2 Filter", "Dimension 2 Filter");
-                    if GetFilter("Dimension 3 Filter") = '' then
-                        AnalysisLine.CopyFilter("Dimension 3 Filter", "Dimension 3 Filter");
-                    FilterGroup := 2;
-                    SetFilter("Dimension 1 Filter", GetDimTotalingFilter(1, AnalysisLine."Dimension 1 Totaling"));
-                    SetFilter("Dimension 2 Filter", GetDimTotalingFilter(2, AnalysisLine."Dimension 2 Totaling"));
-                    SetFilter("Dimension 3 Filter", GetDimTotalingFilter(3, AnalysisLine."Dimension 3 Totaling"));
-                    FilterGroup := 0;
+            if AnalysisLine.GetFilter("Source No. Filter") <> '' then
+                case FilterToValue(AnalysisLine) of
+                    AnalysisLine."Source Type Filter"::Customer:
+                        begin
+                            ItemStatisticsBuf.SetRange("Source Type Filter", ItemStatisticsBuf."Source Type Filter"::Customer);
+                            ItemStatisticsBuf.SetFilter("Source No. Filter", GetSourceNoFilter(ItemStatisticsBuf, AnalysisLine));
+                        end;
+                    AnalysisLine."Source Type Filter"::Vendor:
+                        begin
+                            ItemStatisticsBuf.SetRange("Source Type Filter", ItemStatisticsBuf."Source Type Filter"::Vendor);
+                            ItemStatisticsBuf.SetFilter("Source No. Filter", GetSourceNoFilter(ItemStatisticsBuf, AnalysisLine));
+                        end;
+                    AnalysisLine."Source Type Filter"::Item:
+                        ItemStatisticsBuf.SetFilter("Item Filter", GetSourceNoFilter(ItemStatisticsBuf, AnalysisLine));
                 end;
-                AnalysisLine.CopyFilter("Location Filter", "Location Filter");
+            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+                if ItemStatisticsBuf.GetFilter("Global Dimension 1 Filter") = '' then
+                    AnalysisLine.CopyFilter("Dimension 1 Filter", ItemStatisticsBuf."Global Dimension 1 Filter");
+                if ItemStatisticsBuf.GetFilter("Global Dimension 2 Filter") = '' then
+                    AnalysisLine.CopyFilter("Dimension 2 Filter", ItemStatisticsBuf."Global Dimension 2 Filter");
+                ItemStatisticsBuf.FilterGroup := 2;
+                ItemStatisticsBuf.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, AnalysisLine."Dimension 1 Totaling"));
+                ItemStatisticsBuf.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, AnalysisLine."Dimension 2 Totaling"));
+                ItemStatisticsBuf.FilterGroup := 0;
+            end else begin
+                ItemStatisticsBuf.SetFilter("Analysis View Filter", AnalysisLineTemplate."Item Analysis View Code");
+                if ItemStatisticsBuf.GetFilter("Dimension 1 Filter") = '' then
+                    AnalysisLine.CopyFilter("Dimension 1 Filter", ItemStatisticsBuf."Dimension 1 Filter");
+                if ItemStatisticsBuf.GetFilter("Dimension 2 Filter") = '' then
+                    AnalysisLine.CopyFilter("Dimension 2 Filter", ItemStatisticsBuf."Dimension 2 Filter");
+                if ItemStatisticsBuf.GetFilter("Dimension 3 Filter") = '' then
+                    AnalysisLine.CopyFilter("Dimension 3 Filter", ItemStatisticsBuf."Dimension 3 Filter");
+                ItemStatisticsBuf.FilterGroup := 2;
+                ItemStatisticsBuf.SetFilter("Dimension 1 Filter", GetDimTotalingFilter(1, AnalysisLine."Dimension 1 Totaling"));
+                ItemStatisticsBuf.SetFilter("Dimension 2 Filter", GetDimTotalingFilter(2, AnalysisLine."Dimension 2 Totaling"));
+                ItemStatisticsBuf.SetFilter("Dimension 3 Filter", GetDimTotalingFilter(3, AnalysisLine."Dimension 3 Totaling"));
+                ItemStatisticsBuf.FilterGroup := 0;
             end;
+            AnalysisLine.CopyFilter("Location Filter", ItemStatisticsBuf."Location Filter");
             OnCalcItemStatisticsOnAfterSetFilters(ItemStatisticsBuf, AnalysisLine);
 
             case AnalysisColumn."Ledger Entry Type" of
@@ -604,45 +603,43 @@ codeunit 7110 "Analysis Report Management"
 
     procedure SetItemRowFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisLine: Record "Analysis Line")
     begin
-        with AnalysisLine do begin
-            case "Analysis Area" of
-                "Analysis Area"::Sales:
-                    ItemStatisticsBuf.SetRange("Analysis Area Filter", "Analysis Area"::Sales);
-                "Analysis Area"::Purchase:
-                    ItemStatisticsBuf.SetRange("Analysis Area Filter", "Analysis Area"::Purchase);
-                "Analysis Area"::Inventory:
-                    ItemStatisticsBuf.SetRange("Analysis Area Filter", "Analysis Area"::Inventory);
-            end;
-            ItemStatisticsBuf.SetFilter("Budget Filter", GetFilter("Item Budget Filter"));
-            case Type of
-                Type::Item:
-                    ItemStatisticsBuf.SetFilter("Item Filter", Range);
-                Type::Customer:
-                    begin
-                        ItemStatisticsBuf.SetRange("Source Type Filter", ItemStatisticsBuf."Source Type Filter"::Customer);
-                        ItemStatisticsBuf.SetFilter("Source No. Filter", Range);
-                    end;
-                Type::Vendor:
-                    begin
-                        ItemStatisticsBuf.SetRange("Source Type Filter", ItemStatisticsBuf."Source Type Filter"::Vendor);
-                        ItemStatisticsBuf.SetFilter("Source No. Filter", Range);
-                    end;
-                Type::"Sales/Purchase person":
-                    begin
-                        GetSalesSetup();
-                        SetGroupDimFilter(ItemStatisticsBuf, SalesSetup."Salesperson Dimension Code", Range);
-                    end;
-                Type::"Customer Group":
-                    begin
-                        GetSalesSetup();
-                        SetGroupDimFilter(ItemStatisticsBuf, SalesSetup."Customer Group Dimension Code", Range);
-                    end;
-                Type::"Item Group":
-                    begin
-                        GetInventorySetup();
-                        SetGroupDimFilter(ItemStatisticsBuf, InventorySetup."Item Group Dimension Code", Range);
-                    end;
-            end;
+        case AnalysisLine."Analysis Area" of
+            AnalysisLine."Analysis Area"::Sales:
+                ItemStatisticsBuf.SetRange("Analysis Area Filter", AnalysisLine."Analysis Area"::Sales);
+            AnalysisLine."Analysis Area"::Purchase:
+                ItemStatisticsBuf.SetRange("Analysis Area Filter", AnalysisLine."Analysis Area"::Purchase);
+            AnalysisLine."Analysis Area"::Inventory:
+                ItemStatisticsBuf.SetRange("Analysis Area Filter", AnalysisLine."Analysis Area"::Inventory);
+        end;
+        ItemStatisticsBuf.SetFilter("Budget Filter", AnalysisLine.GetFilter(AnalysisLine."Item Budget Filter"));
+        case AnalysisLine.Type of
+            AnalysisLine.Type::Item:
+                ItemStatisticsBuf.SetFilter("Item Filter", AnalysisLine.Range);
+            AnalysisLine.Type::Customer:
+                begin
+                    ItemStatisticsBuf.SetRange("Source Type Filter", ItemStatisticsBuf."Source Type Filter"::Customer);
+                    ItemStatisticsBuf.SetFilter("Source No. Filter", AnalysisLine.Range);
+                end;
+            AnalysisLine.Type::Vendor:
+                begin
+                    ItemStatisticsBuf.SetRange("Source Type Filter", ItemStatisticsBuf."Source Type Filter"::Vendor);
+                    ItemStatisticsBuf.SetFilter("Source No. Filter", AnalysisLine.Range);
+                end;
+            AnalysisLine.Type::"Sales/Purchase person":
+                begin
+                    GetSalesSetup();
+                    SetGroupDimFilter(ItemStatisticsBuf, SalesSetup."Salesperson Dimension Code", AnalysisLine.Range);
+                end;
+            AnalysisLine.Type::"Customer Group":
+                begin
+                    GetSalesSetup();
+                    SetGroupDimFilter(ItemStatisticsBuf, SalesSetup."Customer Group Dimension Code", AnalysisLine.Range);
+                end;
+            AnalysisLine.Type::"Item Group":
+                begin
+                    GetInventorySetup();
+                    SetGroupDimFilter(ItemStatisticsBuf, InventorySetup."Item Group Dimension Code", AnalysisLine.Range);
+                end;
         end;
 
         OnAfterSetItemRowFilters(ItemStatisticsBuf, AnalysisLine);
@@ -654,52 +651,50 @@ codeunit 7110 "Analysis Report Management"
         ToDate: Date;
         FiscalStartDate2: Date;
     begin
-        with AnalysisColumn do begin
-            ItemStatisticsBuf.SetFilter("Entry Type Filter", "Value Entry Type Filter");
-            ItemStatisticsBuf.SetFilter("Item Ledger Entry Type Filter", "Item Ledger Entry Type Filter");
+        ItemStatisticsBuf.SetFilter("Entry Type Filter", AnalysisColumn."Value Entry Type Filter");
+        ItemStatisticsBuf.SetFilter("Item Ledger Entry Type Filter", AnalysisColumn."Item Ledger Entry Type Filter");
 
-            if (Format("Comparison Date Formula") <> '0') and (Format("Comparison Date Formula") <> '') then begin
-                FromDate := CalcDate("Comparison Date Formula", StartDate);
-                if (EndDate = CalcDate('<CM>', EndDate)) and
-                   ((StrPos(Format("Comparison Date Formula"), Text005Tok) > 0) or
-                    (StrPos(Format("Comparison Date Formula"), Text006Tok) > 0) or
-                    (StrPos(Format("Comparison Date Formula"), Text007Tok) > 0))
-                then
-                    ToDate := CalcDate('<CM>', CalcDate("Comparison Date Formula", EndDate))
-                else
-                    ToDate := CalcDate("Comparison Date Formula", EndDate);
+        if (Format(AnalysisColumn."Comparison Date Formula") <> '0') and (Format(AnalysisColumn."Comparison Date Formula") <> '') then begin
+            FromDate := CalcDate(AnalysisColumn."Comparison Date Formula", StartDate);
+            if (EndDate = CalcDate('<CM>', EndDate)) and
+               ((StrPos(Format(AnalysisColumn."Comparison Date Formula"), Text005Tok) > 0) or
+                (StrPos(Format(AnalysisColumn."Comparison Date Formula"), Text006Tok) > 0) or
+                (StrPos(Format(AnalysisColumn."Comparison Date Formula"), Text007Tok) > 0))
+            then
+                ToDate := CalcDate('<CM>', CalcDate(AnalysisColumn."Comparison Date Formula", EndDate))
+            else
+                ToDate := CalcDate(AnalysisColumn."Comparison Date Formula", EndDate);
+            FiscalStartDate2 := AccountingPeriodMgt.FindFiscalYear(ToDate);
+        end else
+            if AnalysisColumn."Comparison Period Formula" <> '' then begin
+                AccPeriodStartEnd(AnalysisColumn."Comparison Period Formula", StartDate, FromDate, ToDate);
                 FiscalStartDate2 := AccountingPeriodMgt.FindFiscalYear(ToDate);
-            end else
-                if "Comparison Period Formula" <> '' then begin
-                    AccPeriodStartEnd("Comparison Period Formula", StartDate, FromDate, ToDate);
-                    FiscalStartDate2 := AccountingPeriodMgt.FindFiscalYear(ToDate);
-                end else begin
-                    FromDate := StartDate;
-                    ToDate := EndDate;
-                    FiscalStartDate2 := FiscalStartDate;
-                end;
-            case "Column Type" of
-                "Column Type"::"Net Change":
-                    ItemStatisticsBuf.SetRange("Date Filter", FromDate, ToDate);
-                "Column Type"::"Balance at Date":
-                    ItemStatisticsBuf.SetRange("Date Filter", 0D, ToDate);
-                "Column Type"::"Beginning Balance":
-                    ItemStatisticsBuf.SetRange(
-                      "Date Filter", 0D, CalcDate('<-1D>', FromDate));
-                "Column Type"::"Year to Date":
-                    ItemStatisticsBuf.SetRange(
-                      "Date Filter", FiscalStartDate2, ToDate);
-                "Column Type"::"Rest of Fiscal Year":
-                    ItemStatisticsBuf.SetRange(
-                      "Date Filter",
-                      CalcDate('<+1D>', ToDate),
-                      AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
-                "Column Type"::"Entire Fiscal Year":
-                    ItemStatisticsBuf.SetRange(
-                      "Date Filter",
-                      FiscalStartDate2,
-                      AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
+            end else begin
+                FromDate := StartDate;
+                ToDate := EndDate;
+                FiscalStartDate2 := FiscalStartDate;
             end;
+        case AnalysisColumn."Column Type" of
+            AnalysisColumn."Column Type"::"Net Change":
+                ItemStatisticsBuf.SetRange("Date Filter", FromDate, ToDate);
+            AnalysisColumn."Column Type"::"Balance at Date":
+                ItemStatisticsBuf.SetRange("Date Filter", 0D, ToDate);
+            AnalysisColumn."Column Type"::"Beginning Balance":
+                ItemStatisticsBuf.SetRange(
+                  "Date Filter", 0D, CalcDate('<-1D>', FromDate));
+            AnalysisColumn."Column Type"::"Year to Date":
+                ItemStatisticsBuf.SetRange(
+                  "Date Filter", FiscalStartDate2, ToDate);
+            AnalysisColumn."Column Type"::"Rest of Fiscal Year":
+                ItemStatisticsBuf.SetRange(
+                  "Date Filter",
+                  CalcDate('<+1D>', ToDate),
+                  AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
+            AnalysisColumn."Column Type"::"Entire Fiscal Year":
+                ItemStatisticsBuf.SetRange(
+                  "Date Filter",
+                  FiscalStartDate2,
+                  AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
         end;
         OnAfterSetItemColumnFilters(ItemStatisticsBuf, AnalysisColumn);
     end;
@@ -954,94 +949,86 @@ codeunit 7110 "Analysis Report Management"
 
     local procedure CalcSalesAmount(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean): Decimal
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange("Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                if Invoiced then begin
-                    CalcFields("Sales Amount (Actual)");
-                    exit("Sales Amount (Actual)");
-                end;
-                CalcFields("Sales Amount (Expected)");
-                exit("Sales Amount (Expected)");
-            end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
             if Invoiced then begin
-                CalcFields("Analysis - Sales Amt. (Actual)");
-                exit("Analysis - Sales Amt. (Actual)");
+                ItemStatisticsBuf.CalcFields("Sales Amount (Actual)");
+                exit(ItemStatisticsBuf."Sales Amount (Actual)");
             end;
-            CalcFields("Analysis - Sales Amt. (Exp)");
-            exit("Analysis - Sales Amt. (Exp)");
+            ItemStatisticsBuf.CalcFields("Sales Amount (Expected)");
+            exit(ItemStatisticsBuf."Sales Amount (Expected)");
         end;
+        if Invoiced then begin
+            ItemStatisticsBuf.CalcFields("Analysis - Sales Amt. (Actual)");
+            exit(ItemStatisticsBuf."Analysis - Sales Amt. (Actual)");
+        end;
+        ItemStatisticsBuf.CalcFields("Analysis - Sales Amt. (Exp)");
+        exit(ItemStatisticsBuf."Analysis - Sales Amt. (Exp)");
     end;
 
     local procedure CalcCostAmount(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean): Decimal
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange("Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                if Invoiced then begin
-                    CalcFields("Cost Amount (Actual)");
-                    exit("Cost Amount (Actual)");
-                end;
-                CalcFields("Cost Amount (Expected)");
-                exit("Cost Amount (Expected)");
-            end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
             if Invoiced then begin
-                CalcFields("Analysis - Cost Amt. (Actual)");
-                exit("Analysis - Cost Amt. (Actual)");
+                ItemStatisticsBuf.CalcFields("Cost Amount (Actual)");
+                exit(ItemStatisticsBuf."Cost Amount (Actual)");
             end;
-            CalcFields("Analysis - Cost Amt. (Exp)");
-            exit("Analysis - Cost Amt. (Exp)");
+            ItemStatisticsBuf.CalcFields("Cost Amount (Expected)");
+            exit(ItemStatisticsBuf."Cost Amount (Expected)");
         end;
+        if Invoiced then begin
+            ItemStatisticsBuf.CalcFields("Analysis - Cost Amt. (Actual)");
+            exit(ItemStatisticsBuf."Analysis - Cost Amt. (Actual)");
+        end;
+        ItemStatisticsBuf.CalcFields("Analysis - Cost Amt. (Exp)");
+        exit(ItemStatisticsBuf."Analysis - Cost Amt. (Exp)");
     end;
 
     local procedure CalcCostAmountNonInvnt(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean): Decimal
     begin
-        with ItemStatisticsBuf do begin
-            SetRange("Item Ledger Entry Type Filter");
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        ItemStatisticsBuf.SetRange("Item Ledger Entry Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange("Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                if Invoiced then begin
-                    CalcFields("Cost Amount (Non-Invtbl.)");
-                    exit("Cost Amount (Non-Invtbl.)");
-                end;
-                exit(0);
-            end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
             if Invoiced then begin
-                CalcFields("Analysis CostAmt.(Non-Invtbl.)");
-                exit("Analysis CostAmt.(Non-Invtbl.)");
+                ItemStatisticsBuf.CalcFields("Cost Amount (Non-Invtbl.)");
+                exit(ItemStatisticsBuf."Cost Amount (Non-Invtbl.)");
             end;
+            exit(0);
+        end;
+        if Invoiced then begin
+            ItemStatisticsBuf.CalcFields("Analysis CostAmt.(Non-Invtbl.)");
+            exit(ItemStatisticsBuf."Analysis CostAmt.(Non-Invtbl.)");
         end;
     end;
 
     local procedure CalcQuantity(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean): Decimal
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange("Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                SetRange("Entry Type Filter");
-                if Invoiced then begin
-                    CalcFields("Invoiced Quantity");
-                    exit("Invoiced Quantity");
-                end;
-                CalcFields(Quantity);
-                exit(Quantity);
-            end;
-            SetRange("Entry Type Filter");
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Entry Type Filter");
             if Invoiced then begin
-                CalcFields("Analysis - Invoiced Quantity");
-                exit("Analysis - Invoiced Quantity");
+                ItemStatisticsBuf.CalcFields("Invoiced Quantity");
+                exit(ItemStatisticsBuf."Invoiced Quantity");
             end;
-            CalcFields("Analysis - Quantity");
-            exit("Analysis - Quantity");
+            ItemStatisticsBuf.CalcFields(Quantity);
+            exit(ItemStatisticsBuf.Quantity);
         end;
+        ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Entry Type Filter");
+        if Invoiced then begin
+            ItemStatisticsBuf.CalcFields("Analysis - Invoiced Quantity");
+            exit(ItemStatisticsBuf."Analysis - Invoiced Quantity");
+        end;
+        ItemStatisticsBuf.CalcFields("Analysis - Quantity");
+        exit(ItemStatisticsBuf."Analysis - Quantity");
     end;
 
     local procedure CalcUnitPrice(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
@@ -1071,18 +1058,16 @@ codeunit 7110 "Analysis Report Management"
     var
         Item: Record Item;
     begin
-        with Item do
-            if Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen("No."))) then
-                exit("Standard Cost");
+        if Item.Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen(Item."No."))) then
+            exit(Item."Standard Cost");
     end;
 
     local procedure CalcIndirectCost(var ItemStatisticsBuf: Record "Item Statistics Buffer") Result: Decimal
     var
         Item: Record Item;
     begin
-        with Item do
-            if Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen("No."))) then
-                Result := "Indirect Cost %";
+        if Item.Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen(Item."No."))) then
+            Result := Item."Indirect Cost %";
         OnAfterCalcIndirectCost(ItemStatisticsBuf, Item, Result);
     end;
 
@@ -1090,56 +1075,49 @@ codeunit 7110 "Analysis Report Management"
     var
         Item: Record Item;
     begin
-        with Item do
-            if Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen("No."))) then
-                exit("Unit Cost");
+        if Item.Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen(Item."No."))) then
+            exit(Item."Unit Cost");
     end;
 
     local procedure CalcBudgetSalesAmount(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter")
-            else
-                SetRange("Item Ledger Entry Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter")
+        else
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Item Ledger Entry Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                CalcFields("Budgeted Sales Amount");
-                exit("Budgeted Sales Amount");
-            end;
-            CalcFields("Analysis - Budgeted Sales Amt.");
-            exit("Analysis - Budgeted Sales Amt.");
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            ItemStatisticsBuf.CalcFields(ItemStatisticsBuf."Budgeted Sales Amount");
+            exit(ItemStatisticsBuf."Budgeted Sales Amount");
         end;
+        ItemStatisticsBuf.CalcFields(ItemStatisticsBuf."Analysis - Budgeted Sales Amt.");
+        exit(ItemStatisticsBuf."Analysis - Budgeted Sales Amt.");
     end;
 
     local procedure CalcBudgetCostAmount(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                CalcFields("Budgeted Cost Amount");
-                exit("Budgeted Cost Amount");
-            end;
-            CalcFields("Analysis - Budgeted Cost Amt.");
-            exit("Analysis - Budgeted Cost Amt.");
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            ItemStatisticsBuf.CalcFields(ItemStatisticsBuf."Budgeted Cost Amount");
+            exit(ItemStatisticsBuf."Budgeted Cost Amount");
         end;
+        ItemStatisticsBuf.CalcFields(ItemStatisticsBuf."Analysis - Budgeted Cost Amt.");
+        exit(ItemStatisticsBuf."Analysis - Budgeted Cost Amt.");
     end;
 
     local procedure CalcBudgetQuantity(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                CalcFields("Budgeted Quantity");
-                exit("Budgeted Quantity");
-            end;
-            CalcFields("Analysis - Budgeted Quantity");
-            exit("Analysis - Budgeted Quantity");
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            ItemStatisticsBuf.CalcFields(ItemStatisticsBuf."Budgeted Quantity");
+            exit(ItemStatisticsBuf."Budgeted Quantity");
         end;
+        ItemStatisticsBuf.CalcFields(ItemStatisticsBuf."Analysis - Budgeted Quantity");
+        exit(ItemStatisticsBuf."Analysis - Budgeted Quantity");
     end;
 
     local procedure DrillDownSalesAmount(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean)
@@ -1147,23 +1125,21 @@ codeunit 7110 "Analysis Report Management"
         ValueEntry: Record "Value Entry";
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                FilterValueEntry(ItemStatisticsBuf, ValueEntry);
-                if Invoiced then
-                    PAGE.Run(0, ValueEntry, ValueEntry."Sales Amount (Actual)")
-                else
-                    PAGE.Run(0, ValueEntry, ValueEntry."Sales Amount (Expected)");
-            end else begin
-                FilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
-                if Invoiced then
-                    PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Sales Amount (Actual)")
-                else
-                    PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Sales Amount (Expected)");
-            end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            FilterValueEntry(ItemStatisticsBuf, ValueEntry);
+            if Invoiced then
+                PAGE.Run(0, ValueEntry, ValueEntry."Sales Amount (Actual)")
+            else
+                PAGE.Run(0, ValueEntry, ValueEntry."Sales Amount (Expected)");
+        end else begin
+            FilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
+            if Invoiced then
+                PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Sales Amount (Actual)")
+            else
+                PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Sales Amount (Expected)");
         end;
     end;
 
@@ -1172,23 +1148,21 @@ codeunit 7110 "Analysis Report Management"
         ValueEntry: Record "Value Entry";
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                FilterValueEntry(ItemStatisticsBuf, ValueEntry);
-                if Invoiced then
-                    PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Actual)")
-                else
-                    PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Expected)");
-            end else begin
-                FilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
-                if Invoiced then
-                    PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Cost Amount (Actual)")
-                else
-                    PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Cost Amount (Expected)");
-            end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            FilterValueEntry(ItemStatisticsBuf, ValueEntry);
+            if Invoiced then
+                PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Actual)")
+            else
+                PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Expected)");
+        end else begin
+            FilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
+            if Invoiced then
+                PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Cost Amount (Actual)")
+            else
+                PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Cost Amount (Expected)");
         end;
     end;
 
@@ -1197,19 +1171,17 @@ codeunit 7110 "Analysis Report Management"
         ValueEntry: Record "Value Entry";
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                FilterValueEntry(ItemStatisticsBuf, ValueEntry);
-                if Invoiced then
-                    PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Non-Invtbl.)");
-            end else begin
-                FilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
-                if Invoiced then
-                    PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Cost Amount (Non-Invtbl.)")
-            end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            FilterValueEntry(ItemStatisticsBuf, ValueEntry);
+            if Invoiced then
+                PAGE.Run(0, ValueEntry, ValueEntry."Cost Amount (Non-Invtbl.)");
+        end else begin
+            FilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
+            if Invoiced then
+                PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Cost Amount (Non-Invtbl.)")
         end;
     end;
 
@@ -1219,27 +1191,25 @@ codeunit 7110 "Analysis Report Management"
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
 
-            SetRange("Entry Type Filter");
+        ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Entry Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                if Invoiced then begin
-                    FilterValueEntry(ItemStatisticsBuf, ValueEntry);
-                    PAGE.Run(0, ValueEntry, ValueEntry."Invoiced Quantity");
-                end else begin
-                    FilterItemLedgEntry(ItemStatisticsBuf, ItemLedgEntry);
-                    PAGE.Run(0, ItemLedgEntry, ItemLedgEntry.Quantity);
-                end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            if Invoiced then begin
+                FilterValueEntry(ItemStatisticsBuf, ValueEntry);
+                PAGE.Run(0, ValueEntry, ValueEntry."Invoiced Quantity");
             end else begin
-                FilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
-                if Invoiced then
-                    PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Invoiced Quantity")
-                else
-                    PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry.Quantity);
+                FilterItemLedgEntry(ItemStatisticsBuf, ItemLedgEntry);
+                PAGE.Run(0, ItemLedgEntry, ItemLedgEntry.Quantity);
             end;
+        end else begin
+            FilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
+            if Invoiced then
+                PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Invoiced Quantity")
+            else
+                PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry.Quantity);
         end;
     end;
 
@@ -1273,30 +1243,24 @@ codeunit 7110 "Analysis Report Management"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            ItemStatisticsBuf.CopyFilter("Item Filter", "No.");
-            PAGE.RunModal(PAGE::"Item Card", Item, "Standard Cost");
-        end;
+        ItemStatisticsBuf.CopyFilter("Item Filter", Item."No.");
+        PAGE.RunModal(PAGE::"Item Card", Item, Item."Standard Cost");
     end;
 
     local procedure DrillDownIndirectCost(var ItemStatisticsBuf: Record "Item Statistics Buffer")
     var
         Item: Record Item;
     begin
-        with Item do begin
-            ItemStatisticsBuf.CopyFilter("Item Filter", "No.");
-            PAGE.RunModal(PAGE::"Item Card", Item, "Indirect Cost %");
-        end;
+        ItemStatisticsBuf.CopyFilter("Item Filter", Item."No.");
+        PAGE.RunModal(PAGE::"Item Card", Item, Item."Indirect Cost %");
     end;
 
     local procedure DrillDownUnitCost(var ItemStatisticsBuf: Record "Item Statistics Buffer")
     var
         Item: Record Item;
     begin
-        with Item do begin
-            ItemStatisticsBuf.CopyFilter("Item Filter", "No.");
-            PAGE.RunModal(PAGE::"Item Card", Item, "Unit Cost");
-        end;
+        ItemStatisticsBuf.CopyFilter("Item Filter", Item."No.");
+        PAGE.RunModal(PAGE::"Item Card", Item, Item."Unit Cost");
     end;
 
     local procedure DrillDownBudgetSalesAmount(var ItemStatisticsBuf: Record "Item Statistics Buffer")
@@ -1304,17 +1268,15 @@ codeunit 7110 "Analysis Report Management"
         ItemBudgetEntry: Record "Item Budget Entry";
         ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry";
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                FilterItemBudgetEntry(ItemStatisticsBuf, ItemBudgetEntry);
-                PAGE.Run(0, ItemBudgetEntry, ItemBudgetEntry."Sales Amount");
-            end else begin
-                FilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
-                PAGE.Run(0, ItemAnalysisViewBudgEntry, ItemAnalysisViewBudgEntry."Sales Amount");
-            end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            FilterItemBudgetEntry(ItemStatisticsBuf, ItemBudgetEntry);
+            PAGE.Run(0, ItemBudgetEntry, ItemBudgetEntry."Sales Amount");
+        end else begin
+            FilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
+            PAGE.Run(0, ItemAnalysisViewBudgEntry, ItemAnalysisViewBudgEntry."Sales Amount");
         end;
     end;
 
@@ -1323,17 +1285,15 @@ codeunit 7110 "Analysis Report Management"
         ItemBudgetEntry: Record "Item Budget Entry";
         ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry";
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                FilterItemBudgetEntry(ItemStatisticsBuf, ItemBudgetEntry);
-                PAGE.Run(0, ItemBudgetEntry, ItemBudgetEntry."Cost Amount");
-            end else begin
-                FilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
-                PAGE.Run(0, ItemAnalysisViewBudgEntry, ItemAnalysisViewBudgEntry."Cost Amount");
-            end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            FilterItemBudgetEntry(ItemStatisticsBuf, ItemBudgetEntry);
+            PAGE.Run(0, ItemBudgetEntry, ItemBudgetEntry."Cost Amount");
+        end else begin
+            FilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
+            PAGE.Run(0, ItemAnalysisViewBudgEntry, ItemAnalysisViewBudgEntry."Cost Amount");
         end;
     end;
 
@@ -1342,239 +1302,227 @@ codeunit 7110 "Analysis Report Management"
         ItemBudgetEntry: Record "Item Budget Entry";
         ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry";
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Source No. Filter") = '' then
-                SetRange("Source Type Filter");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
 
-            if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-                FilterItemBudgetEntry(ItemStatisticsBuf, ItemBudgetEntry);
-                PAGE.Run(0, ItemBudgetEntry, ItemBudgetEntry.Quantity);
-            end else begin
-                FilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
-                PAGE.Run(0, ItemAnalysisViewBudgEntry, ItemAnalysisViewBudgEntry.Quantity);
-            end;
+        if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
+            FilterItemBudgetEntry(ItemStatisticsBuf, ItemBudgetEntry);
+            PAGE.Run(0, ItemBudgetEntry, ItemBudgetEntry.Quantity);
+        end else begin
+            FilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
+            PAGE.Run(0, ItemAnalysisViewBudgEntry, ItemAnalysisViewBudgEntry.Quantity);
         end;
     end;
 
     local procedure FilterValueEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ValueEntry: Record "Value Entry")
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Item Filter") <> '' then
-                CopyFilter("Item Filter", ValueEntry."Item No.");
+        if ItemStatisticsBuf.GetFilter("Item Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Item Filter", ValueEntry."Item No.");
 
-            if GetFilter("Date Filter") <> '' then
-                CopyFilter("Date Filter", ValueEntry."Posting Date");
+        if ItemStatisticsBuf.GetFilter("Date Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Date Filter", ValueEntry."Posting Date");
 
-            if GetFilter("Entry Type Filter") <> '' then
-                CopyFilter("Entry Type Filter", ValueEntry."Entry Type");
+        if ItemStatisticsBuf.GetFilter("Entry Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Entry Type Filter", ValueEntry."Entry Type");
 
-            if GetFilter("Item Ledger Entry Type Filter") <> '' then
-                CopyFilter("Item Ledger Entry Type Filter", ValueEntry."Item Ledger Entry Type");
+        if ItemStatisticsBuf.GetFilter("Item Ledger Entry Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Item Ledger Entry Type Filter", ValueEntry."Item Ledger Entry Type");
 
-            if GetFilter("Location Filter") <> '' then
-                CopyFilter("Location Filter", ValueEntry."Location Code");
+        if ItemStatisticsBuf.GetFilter("Location Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Location Filter", ValueEntry."Location Code");
 
-            if GetFilter("Global Dimension 1 Filter") <> '' then
-                CopyFilter("Global Dimension 1 Filter", ValueEntry."Global Dimension 1 Code");
+        if ItemStatisticsBuf.GetFilter("Global Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 1 Filter", ValueEntry."Global Dimension 1 Code");
 
-            if GetFilter("Global Dimension 2 Filter") <> '' then
-                CopyFilter("Global Dimension 2 Filter", ValueEntry."Global Dimension 2 Code");
+        if ItemStatisticsBuf.GetFilter("Global Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 2 Filter", ValueEntry."Global Dimension 2 Code");
 
-            if GetFilter("Source Type Filter") <> '' then
-                CopyFilter("Source Type Filter", ValueEntry."Source Type");
+        if ItemStatisticsBuf.GetFilter("Source Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Source Type Filter", ValueEntry."Source Type");
 
-            FilterGroup := 2;
-            ValueEntry.FilterGroup := 2;
-            if GetFilter("Global Dimension 1 Filter") <> '' then
-                CopyFilter("Global Dimension 1 Filter", ValueEntry."Global Dimension 1 Code");
-            if GetFilter("Global Dimension 2 Filter") <> '' then
-                CopyFilter("Global Dimension 2 Filter", ValueEntry."Global Dimension 2 Code");
-            FilterGroup := 0;
-            ValueEntry.FilterGroup := 0;
+        ItemStatisticsBuf.FilterGroup := 2;
+        ValueEntry.FilterGroup := 2;
+        if ItemStatisticsBuf.GetFilter("Global Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 1 Filter", ValueEntry."Global Dimension 1 Code");
+        if ItemStatisticsBuf.GetFilter("Global Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 2 Filter", ValueEntry."Global Dimension 2 Code");
+        ItemStatisticsBuf.FilterGroup := 0;
+        ValueEntry.FilterGroup := 0;
 
-            if GetFilter("Source No. Filter") <> '' then begin
-                ValueEntry.SetCurrentKey("Source Type", "Source No.");
-                CopyFilter("Source No. Filter", ValueEntry."Source No.");
-            end else
-                ValueEntry.SetCurrentKey("Item No.", "Posting Date");
-        end;
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") <> '' then begin
+            ValueEntry.SetCurrentKey("Source Type", "Source No.");
+            ItemStatisticsBuf.CopyFilter("Source No. Filter", ValueEntry."Source No.");
+        end else
+            ValueEntry.SetCurrentKey("Item No.", "Posting Date");
 
         OnAfterFilterValueEntry(ItemStatisticsBuf, ValueEntry);
     end;
 
     local procedure FilterItemLedgEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemLedgEntry: Record "Item Ledger Entry")
     begin
-        with ItemStatisticsBuf do begin
-            if GetFilter("Item Filter") <> '' then
-                CopyFilter("Item Filter", ItemLedgEntry."Item No.");
+        if ItemStatisticsBuf.GetFilter("Item Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Item Filter", ItemLedgEntry."Item No.");
 
-            if GetFilter("Date Filter") <> '' then
-                CopyFilter("Date Filter", ItemLedgEntry."Posting Date");
+        if ItemStatisticsBuf.GetFilter("Date Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Date Filter", ItemLedgEntry."Posting Date");
 
-            if GetFilter("Item Ledger Entry Type Filter") <> '' then
-                CopyFilter("Item Ledger Entry Type Filter", ItemLedgEntry."Entry Type");
+        if ItemStatisticsBuf.GetFilter("Item Ledger Entry Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Item Ledger Entry Type Filter", ItemLedgEntry."Entry Type");
 
-            if GetFilter("Location Filter") <> '' then
-                CopyFilter("Location Filter", ItemLedgEntry."Location Code");
+        if ItemStatisticsBuf.GetFilter("Location Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Location Filter", ItemLedgEntry."Location Code");
 
-            if GetFilter("Global Dimension 1 Filter") <> '' then
-                CopyFilter("Global Dimension 1 Filter", ItemLedgEntry."Global Dimension 1 Code");
+        if ItemStatisticsBuf.GetFilter("Global Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 1 Filter", ItemLedgEntry."Global Dimension 1 Code");
 
-            if GetFilter("Global Dimension 2 Filter") <> '' then
-                CopyFilter("Global Dimension 2 Filter", ItemLedgEntry."Global Dimension 2 Code");
+        if ItemStatisticsBuf.GetFilter("Global Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 2 Filter", ItemLedgEntry."Global Dimension 2 Code");
 
-            if GetFilter("Source Type Filter") <> '' then
-                CopyFilter("Source Type Filter", ItemLedgEntry."Source Type");
+        if ItemStatisticsBuf.GetFilter("Source Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Source Type Filter", ItemLedgEntry."Source Type");
 
-            FilterGroup := 2;
-            ItemLedgEntry.FilterGroup := 2;
-            if GetFilter("Global Dimension 1 Filter") <> '' then
-                CopyFilter("Global Dimension 1 Filter", ItemLedgEntry."Global Dimension 1 Code");
-            if GetFilter("Global Dimension 2 Filter") <> '' then
-                CopyFilter("Global Dimension 2 Filter", ItemLedgEntry."Global Dimension 2 Code");
-            FilterGroup := 0;
-            ItemLedgEntry.FilterGroup := 0;
+        ItemStatisticsBuf.FilterGroup := 2;
+        ItemLedgEntry.FilterGroup := 2;
+        if ItemStatisticsBuf.GetFilter("Global Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 1 Filter", ItemLedgEntry."Global Dimension 1 Code");
+        if ItemStatisticsBuf.GetFilter("Global Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 2 Filter", ItemLedgEntry."Global Dimension 2 Code");
+        ItemStatisticsBuf.FilterGroup := 0;
+        ItemLedgEntry.FilterGroup := 0;
 
-            if GetFilter("Source No. Filter") <> '' then begin
-                ItemLedgEntry.SetCurrentKey("Source Type", "Source No.");
-                CopyFilter("Source No. Filter", ItemLedgEntry."Source No.");
-            end else
-                ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
-        end;
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") <> '' then begin
+            ItemLedgEntry.SetCurrentKey("Source Type", "Source No.");
+            ItemStatisticsBuf.CopyFilter("Source No. Filter", ItemLedgEntry."Source No.");
+        end else
+            ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
 
         OnAfterFilterItemLedgEntry(ItemStatisticsBuf, ItemLedgEntry);
     end;
 
     local procedure FilterItemBudgetEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemBudgetEntry: Record "Item Budget Entry")
     begin
-        with ItemStatisticsBuf do begin
-            CopyFilter("Analysis Area Filter", ItemBudgetEntry."Analysis Area");
-            CopyFilter("Budget Filter", ItemBudgetEntry."Budget Name");
+        ItemStatisticsBuf.CopyFilter("Analysis Area Filter", ItemBudgetEntry."Analysis Area");
+        ItemStatisticsBuf.CopyFilter("Budget Filter", ItemBudgetEntry."Budget Name");
 
-            if GetFilter("Item Filter") <> '' then
-                CopyFilter("Item Filter", ItemBudgetEntry."Item No.");
+        if ItemStatisticsBuf.GetFilter("Item Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Item Filter", ItemBudgetEntry."Item No.");
 
-            if GetFilter("Date Filter") <> '' then
-                CopyFilter("Date Filter", ItemBudgetEntry.Date);
+        if ItemStatisticsBuf.GetFilter("Date Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Date Filter", ItemBudgetEntry.Date);
 
-            if GetFilter("Global Dimension 1 Filter") <> '' then
-                CopyFilter("Global Dimension 1 Filter", ItemBudgetEntry."Global Dimension 1 Code");
+        if ItemStatisticsBuf.GetFilter("Global Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 1 Filter", ItemBudgetEntry."Global Dimension 1 Code");
 
-            if GetFilter("Global Dimension 2 Filter") <> '' then
-                CopyFilter("Global Dimension 2 Filter", ItemBudgetEntry."Global Dimension 2 Code");
+        if ItemStatisticsBuf.GetFilter("Global Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 2 Filter", ItemBudgetEntry."Global Dimension 2 Code");
 
-            if GetFilter("Source Type Filter") <> '' then
-                CopyFilter("Source Type Filter", ItemBudgetEntry."Source Type");
+        if ItemStatisticsBuf.GetFilter("Source Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Source Type Filter", ItemBudgetEntry."Source Type");
 
-            FilterGroup := 2;
-            ItemBudgetEntry.FilterGroup := 2;
-            if GetFilter("Global Dimension 1 Filter") <> '' then
-                CopyFilter("Global Dimension 1 Filter", ItemBudgetEntry."Global Dimension 1 Code");
-            if GetFilter("Global Dimension 2 Filter") <> '' then
-                CopyFilter("Global Dimension 2 Filter", ItemBudgetEntry."Global Dimension 2 Code");
-            FilterGroup := 0;
-            ItemBudgetEntry.FilterGroup := 0;
+        ItemStatisticsBuf.FilterGroup := 2;
+        ItemBudgetEntry.FilterGroup := 2;
+        if ItemStatisticsBuf.GetFilter("Global Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 1 Filter", ItemBudgetEntry."Global Dimension 1 Code");
+        if ItemStatisticsBuf.GetFilter("Global Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Global Dimension 2 Filter", ItemBudgetEntry."Global Dimension 2 Code");
+        ItemStatisticsBuf.FilterGroup := 0;
+        ItemBudgetEntry.FilterGroup := 0;
 
-            if GetFilter("Source No. Filter") <> '' then begin
-                ItemBudgetEntry.SetCurrentKey("Analysis Area", "Budget Name", "Source Type", "Source No.");
-                CopyFilter("Source No. Filter", ItemBudgetEntry."Source No.");
-            end else
-                ItemBudgetEntry.SetCurrentKey("Analysis Area", "Budget Name", "Item No.");
-        end;
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") <> '' then begin
+            ItemBudgetEntry.SetCurrentKey("Analysis Area", "Budget Name", "Source Type", "Source No.");
+            ItemStatisticsBuf.CopyFilter("Source No. Filter", ItemBudgetEntry."Source No.");
+        end else
+            ItemBudgetEntry.SetCurrentKey("Analysis Area", "Budget Name", "Item No.");
 
         OnAfterFilterItemBudgetEntry(ItemStatisticsBuf, ItemBudgetEntry);
     end;
 
     local procedure FilterItemAnalyViewEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemAnalysisViewEntry: Record "Item Analysis View Entry")
     begin
-        with ItemStatisticsBuf do begin
-            CopyFilter("Analysis Area Filter", ItemAnalysisViewEntry."Analysis Area");
-            CopyFilter("Analysis View Filter", ItemAnalysisViewEntry."Analysis View Code");
+        ItemStatisticsBuf.CopyFilter("Analysis Area Filter", ItemAnalysisViewEntry."Analysis Area");
+        ItemStatisticsBuf.CopyFilter("Analysis View Filter", ItemAnalysisViewEntry."Analysis View Code");
 
-            if GetFilter("Item Filter") <> '' then
-                CopyFilter("Item Filter", ItemAnalysisViewEntry."Item No.");
+        if ItemStatisticsBuf.GetFilter("Item Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Item Filter", ItemAnalysisViewEntry."Item No.");
 
-            if GetFilter("Date Filter") <> '' then
-                CopyFilter("Date Filter", ItemAnalysisViewEntry."Posting Date");
+        if ItemStatisticsBuf.GetFilter("Date Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Date Filter", ItemAnalysisViewEntry."Posting Date");
 
-            if GetFilter("Entry Type Filter") <> '' then
-                CopyFilter("Entry Type Filter", ItemAnalysisViewEntry."Entry Type");
+        if ItemStatisticsBuf.GetFilter("Entry Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Entry Type Filter", ItemAnalysisViewEntry."Entry Type");
 
-            if GetFilter("Item Ledger Entry Type Filter") <> '' then
-                CopyFilter("Item Ledger Entry Type Filter", ItemAnalysisViewEntry."Item Ledger Entry Type");
+        if ItemStatisticsBuf.GetFilter("Item Ledger Entry Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Item Ledger Entry Type Filter", ItemAnalysisViewEntry."Item Ledger Entry Type");
 
-            if GetFilter("Location Filter") <> '' then
-                CopyFilter("Location Filter", ItemAnalysisViewEntry."Location Code");
+        if ItemStatisticsBuf.GetFilter("Location Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Location Filter", ItemAnalysisViewEntry."Location Code");
 
-            if GetFilter("Dimension 1 Filter") <> '' then
-                CopyFilter("Dimension 1 Filter", ItemAnalysisViewEntry."Dimension 1 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 1 Filter", ItemAnalysisViewEntry."Dimension 1 Value Code");
 
-            if GetFilter("Dimension 2 Filter") <> '' then
-                CopyFilter("Dimension 2 Filter", ItemAnalysisViewEntry."Dimension 2 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 2 Filter", ItemAnalysisViewEntry."Dimension 2 Value Code");
 
-            if GetFilter("Dimension 3 Filter") <> '' then
-                CopyFilter("Dimension 3 Filter", ItemAnalysisViewEntry."Dimension 3 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 3 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 3 Filter", ItemAnalysisViewEntry."Dimension 3 Value Code");
 
-            if GetFilter("Source Type Filter") <> '' then
-                CopyFilter("Source Type Filter", ItemAnalysisViewEntry."Source Type");
+        if ItemStatisticsBuf.GetFilter("Source Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Source Type Filter", ItemAnalysisViewEntry."Source Type");
 
-            if GetFilter("Source No. Filter") <> '' then
-                CopyFilter("Source No. Filter", ItemAnalysisViewEntry."Source No.");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Source No. Filter", ItemAnalysisViewEntry."Source No.");
 
-            FilterGroup := 2;
-            ItemAnalysisViewEntry.FilterGroup := 2;
-            if GetFilter("Dimension 1 Filter") <> '' then
-                CopyFilter("Dimension 1 Filter", ItemAnalysisViewEntry."Dimension 1 Value Code");
-            if GetFilter("Dimension 2 Filter") <> '' then
-                CopyFilter("Dimension 2 Filter", ItemAnalysisViewEntry."Dimension 2 Value Code");
-            if GetFilter("Dimension 3 Filter") <> '' then
-                CopyFilter("Dimension 3 Filter", ItemAnalysisViewEntry."Dimension 3 Value Code");
-            FilterGroup := 0;
-            ItemAnalysisViewEntry.FilterGroup := 0;
-        end;
+        ItemStatisticsBuf.FilterGroup := 2;
+        ItemAnalysisViewEntry.FilterGroup := 2;
+        if ItemStatisticsBuf.GetFilter("Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 1 Filter", ItemAnalysisViewEntry."Dimension 1 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 2 Filter", ItemAnalysisViewEntry."Dimension 2 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 3 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 3 Filter", ItemAnalysisViewEntry."Dimension 3 Value Code");
+        ItemStatisticsBuf.FilterGroup := 0;
+        ItemAnalysisViewEntry.FilterGroup := 0;
 
         OnAfterFilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
     end;
 
     local procedure FilterItemAnalyViewBudgEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry")
     begin
-        with ItemStatisticsBuf do begin
-            CopyFilter("Analysis Area Filter", ItemAnalysisViewBudgEntry."Analysis Area");
-            CopyFilter("Analysis View Filter", ItemAnalysisViewBudgEntry."Analysis View Code");
-            CopyFilter("Budget Filter", ItemAnalysisViewBudgEntry."Budget Name");
+        ItemStatisticsBuf.CopyFilter("Analysis Area Filter", ItemAnalysisViewBudgEntry."Analysis Area");
+        ItemStatisticsBuf.CopyFilter("Analysis View Filter", ItemAnalysisViewBudgEntry."Analysis View Code");
+        ItemStatisticsBuf.CopyFilter("Budget Filter", ItemAnalysisViewBudgEntry."Budget Name");
 
-            if GetFilter("Item Filter") <> '' then
-                CopyFilter("Item Filter", ItemAnalysisViewBudgEntry."Item No.");
+        if ItemStatisticsBuf.GetFilter("Item Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Item Filter", ItemAnalysisViewBudgEntry."Item No.");
 
-            if GetFilter("Date Filter") <> '' then
-                CopyFilter("Date Filter", ItemAnalysisViewBudgEntry."Posting Date");
+        if ItemStatisticsBuf.GetFilter("Date Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Date Filter", ItemAnalysisViewBudgEntry."Posting Date");
 
-            if GetFilter("Dimension 1 Filter") <> '' then
-                CopyFilter("Dimension 1 Filter", ItemAnalysisViewBudgEntry."Dimension 1 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 1 Filter", ItemAnalysisViewBudgEntry."Dimension 1 Value Code");
 
-            if GetFilter("Dimension 2 Filter") <> '' then
-                CopyFilter("Dimension 2 Filter", ItemAnalysisViewBudgEntry."Dimension 2 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 2 Filter", ItemAnalysisViewBudgEntry."Dimension 2 Value Code");
 
-            if GetFilter("Dimension 3 Filter") <> '' then
-                CopyFilter("Dimension 3 Filter", ItemAnalysisViewBudgEntry."Dimension 3 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 3 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 3 Filter", ItemAnalysisViewBudgEntry."Dimension 3 Value Code");
 
-            if GetFilter("Source Type Filter") <> '' then
-                CopyFilter("Source Type Filter", ItemAnalysisViewBudgEntry."Source Type");
+        if ItemStatisticsBuf.GetFilter("Source Type Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Source Type Filter", ItemAnalysisViewBudgEntry."Source Type");
 
-            if GetFilter("Source No. Filter") <> '' then
-                CopyFilter("Source No. Filter", ItemAnalysisViewBudgEntry."Source No.");
+        if ItemStatisticsBuf.GetFilter("Source No. Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Source No. Filter", ItemAnalysisViewBudgEntry."Source No.");
 
-            FilterGroup := 2;
-            ItemAnalysisViewBudgEntry.FilterGroup := 2;
-            if GetFilter("Dimension 1 Filter") <> '' then
-                CopyFilter("Dimension 1 Filter", ItemAnalysisViewBudgEntry."Dimension 1 Value Code");
-            if GetFilter("Dimension 2 Filter") <> '' then
-                CopyFilter("Dimension 2 Filter", ItemAnalysisViewBudgEntry."Dimension 2 Value Code");
-            if GetFilter("Dimension 3 Filter") <> '' then
-                CopyFilter("Dimension 3 Filter", ItemAnalysisViewBudgEntry."Dimension 3 Value Code");
-            FilterGroup := 0;
-            ItemAnalysisViewBudgEntry.FilterGroup := 0;
-        end;
+        ItemStatisticsBuf.FilterGroup := 2;
+        ItemAnalysisViewBudgEntry.FilterGroup := 2;
+        if ItemStatisticsBuf.GetFilter("Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 1 Filter", ItemAnalysisViewBudgEntry."Dimension 1 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 2 Filter", ItemAnalysisViewBudgEntry."Dimension 2 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 3 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 3 Filter", ItemAnalysisViewBudgEntry."Dimension 3 Value Code");
+        ItemStatisticsBuf.FilterGroup := 0;
+        ItemAnalysisViewBudgEntry.FilterGroup := 0;
 
         OnAfterFilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
     end;
@@ -1626,10 +1574,9 @@ codeunit 7110 "Analysis Report Management"
     var
         AnalysisLine2: Record "Analysis Line";
     begin
-        with AnalysisLine2 do
-            for "Source Type Filter" := "Source Type Filter"::" " to "Source Type Filter"::Item do
-                if AnalysisLine.GetFilter("Source Type Filter") = Format("Source Type Filter") then
-                    exit("Source Type Filter");
+        for AnalysisLine2."Source Type Filter" := AnalysisLine2."Source Type Filter"::" " to AnalysisLine2."Source Type Filter"::Item do
+            if AnalysisLine.GetFilter("Source Type Filter") = Format(AnalysisLine2."Source Type Filter") then
+                exit(AnalysisLine2."Source Type Filter");
     end;
 
     local procedure GetSalesSetup()

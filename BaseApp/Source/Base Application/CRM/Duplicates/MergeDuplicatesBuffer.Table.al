@@ -11,6 +11,7 @@ using System.Utilities;
 table 64 "Merge Duplicates Buffer"
 {
     Caption = 'Merge Duplicates Buffer';
+    DataClassification = CustomerContent;
     ReplicateData = false;
 
     fields
@@ -18,7 +19,6 @@ table 64 "Merge Duplicates Buffer"
         field(1; "Table ID"; Integer)
         {
             Caption = 'Table ID';
-            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             begin
@@ -28,7 +28,6 @@ table 64 "Merge Duplicates Buffer"
         field(2; Duplicate; Code[20])
         {
             Caption = 'Duplicate';
-            DataClassification = SystemMetadata;
             TableRelation = if ("Table ID" = const(18)) Customer
             else
             if ("Table ID" = const(23)) Vendor
@@ -46,24 +45,20 @@ table 64 "Merge Duplicates Buffer"
         field(3; Current; Code[20])
         {
             Caption = 'Current';
-            DataClassification = SystemMetadata;
             TableRelation = if ("Table ID" = const(18)) Customer;
         }
         field(4; "Table Name"; Text[30])
         {
             Caption = 'Table Name';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(5; Conflicts; Integer)
         {
             Caption = 'Conflicts';
-            DataClassification = SystemMetadata;
         }
         field(6; "Duplicate Record ID"; RecordID)
         {
             Caption = 'Duplicate Record ID';
-            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -73,7 +68,6 @@ table 64 "Merge Duplicates Buffer"
         field(7; "Current Record ID"; RecordID)
         {
             Caption = 'Current Record ID';
-            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var
@@ -86,7 +80,6 @@ table 64 "Merge Duplicates Buffer"
         field(8; "Conflict Field ID"; Integer)
         {
             Caption = 'Conflict Field ID';
-            DataClassification = SystemMetadata;
         }
     }
 
@@ -277,7 +270,7 @@ table 64 "Merge Duplicates Buffer"
         KeyRef := RecordRef.KeyIndex(1);
         for Index := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(Index);
-            KeyValue[Index] := FieldRef.Value;
+            KeyValue[Index] := FieldRef.Value();
         end;
     end;
 
@@ -418,7 +411,7 @@ table 64 "Merge Duplicates Buffer"
         OnAfterMergeVendors(Rec, Vendor);
     end;
 
-    local procedure MergeRecords(DuplicateRecID: RecordID; CurrentRecID: RecordID; IdFieldId: Integer)
+    procedure MergeRecords(DuplicateRecID: RecordID; CurrentRecID: RecordID; IdFieldId: Integer)
     var
         RecordRef: array[2] of RecordRef;
         KeyValue: array[16] of Variant;
@@ -428,8 +421,8 @@ table 64 "Merge Duplicates Buffer"
     begin
         RecordRef[2].Get(CurrentRecID);
         RecordRef[1].Get(DuplicateRecID);
-        NewSystemID := RecordRef[2].Field(RecordRef[2].SystemIdNo).Value;
-        OldSystemID := RecordRef[1].Field(RecordRef[1].SystemIdNo).Value;
+        NewSystemID := RecordRef[2].Field(RecordRef[2].SystemIdNo).Value();
+        OldSystemID := RecordRef[1].Field(RecordRef[1].SystemIdNo).Value();
 
         OverrideSelectedFields(RecordRef[2], RecordRef[1], false);
 
@@ -519,7 +512,7 @@ table 64 "Merge Duplicates Buffer"
         KeyRef := RecordRef.KeyIndex(1);
         for Index := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(Index);
-            KeyValue := FieldRef.Value;
+            KeyValue := FieldRef.Value();
             if FieldRef.Type in [FieldType::Text, FieldType::Code] then begin
                 TempMergeDuplicatesLineBuffer.Get(TempMergeDuplicatesLineBuffer.Type::Field, "Table ID", FieldRef.Number);
                 if Format(FieldRef.Value) <> TempMergeDuplicatesLineBuffer."Duplicate Value" then

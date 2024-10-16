@@ -77,7 +77,7 @@ codeunit 181 "Copy Gen. Journal Mgt."
         GenJournalLine."Journal Template Name" := CopyGenJournalParameters."Journal Template Name";
         GenJournalLine."Journal Batch Name" := CopyGenJournalParameters."Journal Batch Name";
         if CopyGenJournalParameters."Replace Posting Date" <> 0D then
-            GenJournalLine.validate("Posting Date", CopyGenJournalParameters."Replace Posting Date");
+            GenJournalLine.Validate("Posting Date", CopyGenJournalParameters."Replace Posting Date");
         if CopyGenJournalParameters."Replace Document No." <> '' then
             GenJournalLine."Document No." := CopyGenJournalParameters."Replace Document No.";
         GenJournalLine."Line No." := GenJournalLine.GetNewLineNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");

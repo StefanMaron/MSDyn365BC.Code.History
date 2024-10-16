@@ -12,6 +12,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
 using Microsoft.Pricing.Calculation;
+using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Setup;
@@ -477,7 +478,7 @@ page 47 "Sales Invoice Subform"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the related job. If you fill in this field and the Job Task No. field, then a job ledger entry will be posted together with the sales line.';
+                    ToolTip = 'Specifies the number of the related project. If you fill in this field and the Project Task No. field, then a project ledger entry will be posted together with the sales line.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -489,14 +490,14 @@ page 47 "Sales Invoice Subform"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Job Contract Entry No."; Rec."Job Contract Entry No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the entry number of the job planning line that the sales line is linked to.';
+                    ToolTip = 'Specifies the entry number of the project planning line that the sales line is linked to.';
                     Visible = false;
                 }
                 field("Tax Category"; Rec."Tax Category")
@@ -520,7 +521,7 @@ page 47 "Sales Invoice Subform"
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
+                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a project.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
@@ -580,7 +581,7 @@ page 47 "Sales Invoice Subform"
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
-                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") AND (Rec.Type <> Rec.Type::" ");
+                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") and (Rec.Type <> Rec.Type::" ");
                     ToolTip = 'Specifies the deferral template that governs how revenue earned with this sales document is deferred to the different accounting periods when the good or service was delivered.';
                     Visible = false;
 
@@ -751,7 +752,9 @@ page 47 "Sales Invoice Subform"
                 group(Control33)
                 {
                     ShowCaption = false;
+#pragma warning disable AA0100
                     field("TotalSalesLine.""Line Amount"""; TotalSalesLine."Line Amount")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         AutoFormatExpression = Currency.Code;
@@ -859,7 +862,7 @@ page 47 "Sales Invoice Subform"
                 {
                     Caption = 'F&unctions';
                     Image = "Action";
-#if not CLEAN21
+#if not CLEAN23
                     action("Get &Price")
                     {
                         AccessByPermission = TableData "Sales Price" = R;
@@ -967,6 +970,21 @@ page 47 "Sales Invoice Subform"
                         trigger OnAction()
                         begin
                             GetShipment();
+                            RedistributeTotalsOnAfterValidate();
+                        end;
+                    }
+                    action(GetJobPlanningLines)
+                    {
+                        AccessByPermission = TableData "Job Planning Line" = R;
+                        ApplicationArea = Jobs;
+                        Caption = 'Get &Project Planning Lines';
+                        Ellipsis = true;
+                        Image = JobLines;
+                        ToolTip = 'Select multiple planning lines to the same customer because you want to combine them on one invoice.';
+
+                        trigger OnAction()
+                        begin
+                            GetJobLines();
                             RedistributeTotalsOnAfterValidate();
                         end;
                     }
@@ -1228,10 +1246,6 @@ page 47 "Sales Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -1453,6 +1467,11 @@ page 47 "Sales Invoice Subform"
         CODEUNIT.Run(CODEUNIT::"Sales-Get Shipment", Rec);
     end;
 
+    local procedure GetJobLines()
+    begin
+        Codeunit.Run(Codeunit::"Job-Process Plan. Lines", Rec);
+    end;
+
     procedure InsertExtendedText(Unconditionally: Boolean)
     begin
         OnBeforeInsertExtendedText(Rec);
@@ -1640,7 +1659,7 @@ page 47 "Sales Invoice Subform"
             Rec.Type := Rec.GetDefaultLineType();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
@@ -1650,7 +1669,7 @@ page 47 "Sales Invoice Subform"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterValidateAutoReserve(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;

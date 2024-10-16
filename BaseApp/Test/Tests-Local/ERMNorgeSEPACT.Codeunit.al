@@ -69,18 +69,18 @@ codeunit 144137 "ERM Norge SEPA CT"
         CreatePaymentGenJnlBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2));
-        RegCode := CreateRegRepCode;
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(100, 2));
+        RegCode := CreateRegRepCode();
         LibraryVariableStorage.Enqueue(RegCode);
         Commit();
-        PaymentJournal.Trap;
+        PaymentJournal.Trap();
 
-        GeneralJournalBatches.OpenView;
+        GeneralJournalBatches.OpenView();
         GeneralJournalBatches.FILTER.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
-        GeneralJournalBatches.EditJournal.Invoke;
+        GeneralJournalBatches.EditJournal.Invoke();
 
         PaymentJournal.CurrentJnlBatchName.AssertEquals(GenJournalBatch.Name);
-        PaymentJournal."Regulatory Reporting Codes".Invoke;
+        PaymentJournal."Regulatory Reporting Codes".Invoke();
 
         FilterGenJnlRegRepCode(GenJnlLineRegRepCode, GenJournalLine);
         GenJnlLineRegRepCode.FindFirst();
@@ -102,7 +102,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankExportImportSetup.Insert();
         ThreshAmt := LibraryRandom.RandDec(100, 2);
 
-        BankExportImportSetupPage.OpenEdit;
+        BankExportImportSetupPage.OpenEdit();
         BankExportImportSetupPage.GotoRecord(BankExportImportSetup);
         BankExportImportSetupPage.RegReportingThreshAmtLCY.SetValue(ThreshAmt);
         BankExportImportSetupPage.Close();
@@ -255,7 +255,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankAccount.Get(GenJournalLine."Bal. Account No.");
 
         // [WHEN] Export Gen. Journal Line with SEPA CT pain.001.001.03 port
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJournalLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJournalLine);
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
 
         // [THEN] 'RgltryRptg' tag is not exported
@@ -292,7 +292,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankAccount.Get(GenJournalLine."Bal. Account No.");
 
         // [WHEN] Export Gen. Journal Line with SEPA CT pain.001.001.03 port
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJournalLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJournalLine);
 
         // [THEN] Xml file contains 2 tags 'RgltryRptg' for "G1"
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -331,8 +331,8 @@ codeunit 144137 "ERM Norge SEPA CT"
         Initialize();
 
         // [GIVEN] Vendor with Remittance Account = "A" and Remittance Agreement = "B"
-        VendorNo := CreateVendorWithBankAcc;
-        UpdateVendorWithRemittance(VendorNo, CreateRemittanceAccountWithAgreement);
+        VendorNo := CreateVendorWithBankAcc();
+        UpdateVendorWithRemittance(VendorNo, CreateRemittanceAccountWithAgreement());
 
         // [GIVEN] Posted Purchase Invoice for the vendor
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -381,7 +381,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         // [GIVEN] Payment Journal page is opened for template "T" and batch "B", and record "P" is selected on page
         Commit();
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLinePayment."Journal Batch Name");
         PaymentJournal.GotoRecord(GenJournalLinePayment);
 
@@ -390,7 +390,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         LibraryVariableStorage.Enqueue(GetRemittanceAccountForVendor(GenJournalLineInvoice."Account No."));
         LibraryVariableStorage.Enqueue(WorkDate());
 
-        PaymentJournal.SuggestRemittancePayments.Invoke;
+        PaymentJournal.SuggestRemittancePayments.Invoke();
 
         // [THEN] Created Payment Journal Line has "Balance (LCY)" = 100
         GenJournalLinePayment.SetRange("Account Type", GenJournalLinePayment."Account Type"::Vendor);
@@ -407,7 +407,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         PaymentJournal.Balance.AssertEquals(-GenJournalLineInvoice.Amount);
 
         PaymentJournal.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -451,7 +451,6 @@ codeunit 144137 "ERM Norge SEPA CT"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
         TempPaymentExportData: Record "Payment Export Data" temporary;
-        TempPaymentExportRemittanceText: Record "Payment Export Remittance Text" temporary;
         SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
         KundeID: Code[30];
         ExtDocNo: Code[35];
@@ -462,7 +461,7 @@ codeunit 144137 "ERM Norge SEPA CT"
 
         KundeID := '12345678911';
         ExtDocNo := '0987654321';
-        Vendor.Get(CreateVendorWithBankAcc);
+        Vendor.Get(CreateVendorWithBankAcc());
 
         CreatePaymentGenJnlBatch(GenJournalBatch);
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
@@ -520,7 +519,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankAccount.Get(GenJournalLine."Bal. Account No.");
 
         // [WHEN] Export Gen. Journal Line with SEPA CT pain.001.001.03 port
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJournalLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJournalLine);
 
         // [THEN] Xml file contains 'RgltryRptg' and 'RmtInf' tags
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -550,14 +549,14 @@ codeunit 144137 "ERM Norge SEPA CT"
         // [FEATURE] [Waiting Journal]
         // [SCENARIO 311097] Waiting Journal "SEPA Payment Inf ID" gets updated after the pre-export grouping by date
 
-        // [GIVEN] GenJnl Lines: GJL1 with "Posting Date" := WORKDATE, GJL2 and GJL3 with "Posting Date" := WORKDATE - 1D
+        // [GIVEN] GenJnl Lines: GJL1 with "Posting Date" := WorkDate(), GJL2 and GJL3 with "Posting Date" := WorkDate() - 1D
         CreateGenJnlLineWithDateGrouping(GenJournalLine);
 
         // [WHEN] Export Gen. Journal Line with SEPA CT pain.001.001.03 port
         TempBlob.CreateOutStream(OutStr);
 
         BankAccount.Get(GenJournalLine."Bal. Account No.");
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJournalLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJournalLine);
 
         // [THEN] Xml file contains 2 Payment Groups: first with GJL2 and GJL3, second with GJL1
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -612,7 +611,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankAccount.Get(GenJournalLine."Bal. Account No.");
 
         // [WHEN] Export Gen. Journal Line with SEPA CT pain.001.001.03 port
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJournalLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJournalLine);
 
         // [THEN] Xml file contains 'SCOR' and KID value in structure
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -656,7 +655,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankAccount.Get(GenJournalLine."Bal. Account No.");
 
         // [WHEN] Export Gen. Journal Line with SEPA CT pain.001.001.03 port
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJournalLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJournalLine);
 
         // [THEN] Xml file contains 'SCOR' and External Document No." value in structure
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -687,11 +686,11 @@ codeunit 144137 "ERM Norge SEPA CT"
     var
         VendorNo: Code[20];
     begin
-        VendorNo := CreateVendorWithBankAcc;
-        UpdateVendorWithRemittance(VendorNo, CreateRemittanceAccountWithAgreement);
+        VendorNo := CreateVendorWithBankAcc();
+        UpdateVendorWithRemittance(VendorNo, CreateRemittanceAccountWithAgreement());
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           -LibraryRandom.RandDecInRange(1000, 2000, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -713,7 +712,7 @@ codeunit 144137 "ERM Norge SEPA CT"
             IBAN := 'SE6795000099604247929021';
             "SWIFT Code" := 'NDEASESS';
             "Payment Export Format" := BankExpImpSetup;
-            "Credit Transfer Msg. Nos." := LibraryERM.CreateNoSeriesCode;
+            "Credit Transfer Msg. Nos." := LibraryERM.CreateNoSeriesCode();
             Modify();
             exit("No.");
         end;
@@ -756,7 +755,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         GenJnlLineRegRepCode."Journal Template Name" := GenJournalLine."Journal Template Name";
         GenJnlLineRegRepCode."Journal Batch Name" := GenJournalLine."Journal Batch Name";
         GenJnlLineRegRepCode."Line No." := GenJournalLine."Line No.";
-        GenJnlLineRegRepCode."Reg. Code" := CreateRegRepCode;
+        GenJnlLineRegRepCode."Reg. Code" := CreateRegRepCode();
         GenJnlLineRegRepCode.Insert();
     end;
 
@@ -780,7 +779,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
         GenJournalBatch.Validate("Bal. Account No.", BankAccCode);
         GenJournalBatch.Modify(true);
-        VendorNo := CreateVendorWithBankAcc;
+        VendorNo := CreateVendorWithBankAcc();
         for i := 1 to NumberOfLines do begin
             LibraryERM.CreateGeneralJnlLine(
             GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
@@ -797,7 +796,7 @@ codeunit 144137 "ERM Norge SEPA CT"
     begin
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
         GenJournalBatch.Modify(true);
     end;
 
@@ -809,7 +808,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         VendorBankAccount.IBAN := 'SE6795000099604247929021';
-        VendorBankAccount."Currency Code" := LibraryERM.CreateCurrencyWithRandomExchRates;
+        VendorBankAccount."Currency Code" := LibraryERM.CreateCurrencyWithRandomExchRates();
         VendorBankAccount.Modify();
         Vendor."Preferred Bank Account Code" := VendorBankAccount.Code;
         Vendor.Modify();
@@ -872,7 +871,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
     end;
 
     local procedure RunSuggestVendorPayments(GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20])
@@ -882,7 +881,7 @@ codeunit 144137 "ERM Norge SEPA CT"
     begin
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, false, 0, false, WorkDate(), LibraryUtility.GenerateGUID, false, 0, '', 0);
+          WorkDate(), false, 0, false, WorkDate(), LibraryUtility.GenerateGUID(), false, "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.UseRequestPage(false);
@@ -920,7 +919,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         Assert.AreEqual(GenJnlLineRegRepCode."Reg. Code Description", XMLNode.InnerText, '<RgltryRptg><Dtls><Inf>');
     end;
 
-    local procedure ValidateWaitingJournal(AccountType: Integer; AccountNo: Code[20]; PostingDate: Date; SepaEndToEndId: Text; SepaPmtInfId: Text)
+    local procedure ValidateWaitingJournal(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; SepaEndToEndId: Text; SepaPmtInfId: Text)
     var
         WaitingJournal: Record "Waiting Journal";
     begin
@@ -937,7 +936,7 @@ codeunit 144137 "ERM Norge SEPA CT"
     [Scope('OnPrem')]
     procedure GenJnlRegPerCodesPageHandler(var GenJnlLineRegRepCodes: TestPage "Gen. Jnl. Line Reg. Rep. Codes")
     begin
-        GenJnlLineRegRepCodes."Reg. Code".SetValue(LibraryVariableStorage.DequeueText);
+        GenJnlLineRegRepCodes."Reg. Code".SetValue(LibraryVariableStorage.DequeueText());
         GenJnlLineRegRepCodes.Close();
     end;
 
@@ -945,10 +944,10 @@ codeunit 144137 "ERM Norge SEPA CT"
     [Scope('OnPrem')]
     procedure SuggestRemittancePaymentsRequestPageHandler(var SuggestRemittancePayments: TestRequestPage "Suggest Remittance Payments")
     begin
-        SuggestRemittancePayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        SuggestRemittancePayments.Vendor.SetFilter("Remittance Account Code", LibraryVariableStorage.DequeueText);
-        SuggestRemittancePayments.LastPaymentDate.SetValue(LibraryVariableStorage.DequeueDate);
-        SuggestRemittancePayments.OK.Invoke;
+        SuggestRemittancePayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SuggestRemittancePayments.Vendor.SetFilter("Remittance Account Code", LibraryVariableStorage.DequeueText());
+        SuggestRemittancePayments.LastPaymentDate.SetValue(LibraryVariableStorage.DequeueDate());
+        SuggestRemittancePayments.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -961,8 +960,8 @@ codeunit 144137 "ERM Norge SEPA CT"
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 }
 

@@ -121,7 +121,7 @@ codeunit 9073 "Check Job Jnl. Line. Backgr."
     var
         ID: Integer;
     begin
-        If TempErrorMessage.FindLast() then;
+        if TempErrorMessage.FindLast() then;
         ID := TempErrorMessage.ID + 1;
 
         if TempLineErrorMessage.FindSet() then

@@ -24,13 +24,13 @@ codeunit 139034 "Test My Platform Notifications"
         // if it doesn't exist
         // [GIVEN] No notification
         MyNotifications.DeleteAll();
-        VerifyNotificationDoesNotExist;
+        VerifyNotificationDoesNotExist();
 
         // [WHEN] Opened page "My Notifications"
-        MyNotificationsTestPage.OpenView;
+        MyNotificationsTestPage.OpenView();
 
         // [THEN] The notification is initialized
-        VerifyNotificationExists;
+        VerifyNotificationExists();
     end;
 
     [Test]
@@ -45,8 +45,8 @@ codeunit 139034 "Test My Platform Notifications"
         // [GIVEN] Enabled notification
         MyNotifications.DeleteAll();
         MyNotifications.InsertDefault(WorkDateNotificationIdTxt, '', '', true);
-        VerifyNotificationExists;
-        VerifyNotificationIsEnabled;
+        VerifyNotificationExists();
+        VerifyNotificationIsEnabled();
 
         // [WHEN] Raised GetNotificationStatus Event
         SystemActionTriggers.GetNotificationStatus(WorkDateNotificationIdTxt, Enabled);
@@ -67,8 +67,8 @@ codeunit 139034 "Test My Platform Notifications"
         // [GIVEN] Disabled notification
         MyNotifications.DeleteAll();
         MyNotifications.InsertDefault(WorkDateNotificationIdTxt, '', '', false);
-        VerifyNotificationExists;
-        VerifyNotificationIsDisabled;
+        VerifyNotificationExists();
+        VerifyNotificationIsDisabled();
 
         // [WHEN] Raised GetNotificationStatus Event
         SystemActionTriggers.GetNotificationStatus(WorkDateNotificationIdTxt, Enabled);
@@ -88,14 +88,14 @@ codeunit 139034 "Test My Platform Notifications"
         // for a notification that is not set up, the notification is set up/initialized with a disabled status and the disabled status is returned
         // [GIVEN] No notification
         MyNotifications.DeleteAll();
-        VerifyNotificationDoesNotExist;
+        VerifyNotificationDoesNotExist();
 
         // [WHEN] Raised GetNotificationStatus Event
         SystemActionTriggers.GetNotificationStatus(WorkDateNotificationIdTxt, Enabled);
 
         // [THEN] The notification is initialized/set up and status is disabled
-        VerifyNotificationExists;
-        VerifyNotificationIsDisabled;
+        VerifyNotificationExists();
+        VerifyNotificationIsDisabled();
         Assert.IsFalse(Enabled, 'Notification status must be false for disabled notification');
     end;
 
@@ -110,14 +110,14 @@ codeunit 139034 "Test My Platform Notifications"
         // [GIVEN] Enabled notification
         MyNotifications.DeleteAll();
         MyNotifications.InsertDefault(WorkDateNotificationIdTxt, '', '', true);
-        VerifyNotificationExists;
-        VerifyNotificationIsEnabled;
+        VerifyNotificationExists();
+        VerifyNotificationIsEnabled();
 
         // [WHEN] Raised SetNotificationStatus Event with status disabled
         SystemActionTriggers.SetNotificationStatus(WorkDateNotificationIdTxt, false);
 
         // [THEN] The notification is turned off
-        VerifyNotificationIsDisabled;
+        VerifyNotificationIsDisabled();
     end;
 
     [Test]
@@ -131,14 +131,14 @@ codeunit 139034 "Test My Platform Notifications"
         // [GIVEN] Disabled notification
         MyNotifications.DeleteAll();
         MyNotifications.InsertDefault(WorkDateNotificationIdTxt, '', '', false);
-        VerifyNotificationExists;
-        VerifyNotificationIsDisabled;
+        VerifyNotificationExists();
+        VerifyNotificationIsDisabled();
 
         // [WHEN] Raised SetNotificationStatus Event with status enabled
         SystemActionTriggers.SetNotificationStatus(WorkDateNotificationIdTxt, true);
 
         // [THEN] The notification is turned on
-        VerifyNotificationIsEnabled;
+        VerifyNotificationIsEnabled();
     end;
 
     [Test]
@@ -151,14 +151,14 @@ codeunit 139034 "Test My Platform Notifications"
         // for a notification that is not set up, the notification is set up/initialized with the specified status
         // [GIVEN] No notification
         MyNotifications.DeleteAll();
-        VerifyNotificationDoesNotExist;
+        VerifyNotificationDoesNotExist();
 
         // [WHEN] Raised SetNotificationStatus Event with status disabled
         SystemActionTriggers.SetNotificationStatus(WorkDateNotificationIdTxt, false);
 
         // [THEN] The notification is initialized/set up and status is disabled
-        VerifyNotificationExists;
-        VerifyNotificationIsDisabled;
+        VerifyNotificationExists();
+        VerifyNotificationIsDisabled();
     end;
 
     [Normal]

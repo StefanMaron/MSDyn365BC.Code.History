@@ -9,6 +9,7 @@ table 15000001 "Remittance Payment Order"
     Caption = 'Remittance Payment Order';
     DrillDownPageID = "Remittance Payment Order";
     LookupPageID = "Remittance Payment Order";
+    DataClassification = CustomerContent;
 
     fields
     {

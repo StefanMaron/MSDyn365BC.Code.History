@@ -6,6 +6,7 @@ table 5917 "Fault Reason Code"
     DataCaptionFields = "Code", Description;
     DrillDownPageID = "Fault Reason Codes";
     LookupPageID = "Fault Reason Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

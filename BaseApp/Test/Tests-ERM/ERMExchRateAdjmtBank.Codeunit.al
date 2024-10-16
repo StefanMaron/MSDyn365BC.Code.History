@@ -12,16 +12,13 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
     var
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         AmountErr: Label '%1 field must be %2 in %3 table for %4 field %5.';
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         GLEntryAmountErr: Label '%1 must be %2 in %3.';
         PostingDate: Date;
         SetHandler: Boolean;
@@ -63,7 +60,7 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
           GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount(CreateCurrency));
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount(CreateCurrency()));
         GenJournalLine.Modify(true);
         BankAccount.Get(GenJournalLine."Bal. Account No.");
         BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
@@ -229,7 +226,7 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
     begin
         // Setup: Modify Exchange Rate after Create and Post General Journal Line for Bank.
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(CreateCurrency()),
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), ExchRateAmt);
         FindCurrencyExchRate(CurrencyExchangeRate, GenJournalLine."Currency Code");
         Amount := GenJournalLine.Amount * ExchRateAmt / CurrencyExchangeRate."Exchange Rate Amount";
@@ -267,7 +264,7 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
     begin
         BankAccount.Get(BankAccountNo);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           GenJournalLine."Document Type"::" ", Amount);
         GenJournalLine.Validate("Currency Code", BankAccount."Currency Code");
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
@@ -602,7 +599,7 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
     procedure PostApplicationPageHandler(var PostApplication: TestPage "Post Application")
     begin
         PostApplication.PostingDate.SetValue(Format(PostingDate));
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]

@@ -30,7 +30,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 168591] Domestic customer with high VAT
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
 
         // [GIVEN] Domestic customer with "VAT Settlement Rate" = Normal, "VAT %" = 25
         CustomerNo := CreateCustomer(VATPostingSetup, VATPostingSetup."VAT Settlement Rate"::Normal, BoxNo::"3");
@@ -47,9 +47,9 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 3 (Domestic turnover and withdrawal, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 19 (Tax to pay) = 250
-        VerifyXMLFileHeader;
-        VerifyCompanyInformation;
-        VerifyPeriodInfo;
+        VerifyXMLFileHeader();
+        VerifyCompanyInformation();
+        VerifyPeriodInfo();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(3, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
@@ -1346,9 +1346,9 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPct);
         with VATPostingSetup do begin
             Validate("VAT Settlement Rate", VATSettlementRate);
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
             Validate("Sale VAT Reporting Code", SalesVATReportingCode);
             Validate("Purch. VAT Reporting Code", PurchaseVATReportingCode);
             Modify(true);
@@ -1375,9 +1375,9 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPct);
         with VATPostingSetup do begin
             Validate("VAT Settlement Rate", VATSettlementRate);
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
             Validate("Sales VAT Reporting Code", SalesVATReportingCode);
             Validate("Purchase VAT Reporting Code", PurchaseVATReportingCode);
             Modify(true);
@@ -1646,9 +1646,9 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         TradeSettlement2017.SettlementYear.SetValue(Date2DMY(WorkDate(), 3));
         TradeSettlement2017.SettlementPeriod.SetValue(NorwegianVATTools.VATPeriodNo(WorkDate()));
         TradeSettlement2017.ExportXML.SetValue(true);
-        FileName := LibraryVariableStorage.DequeueText;
+        FileName := LibraryVariableStorage.DequeueText();
         TradeSettlement2017.ClientFileName.SetValue(LibraryVariableStorage.DequeueText());
-        TradeSettlement2017.SaveAsXml(FileName, LibraryVariableStorage.DequeueText);
+        TradeSettlement2017.SaveAsXml(FileName, LibraryVariableStorage.DequeueText());
     end;
 }
 

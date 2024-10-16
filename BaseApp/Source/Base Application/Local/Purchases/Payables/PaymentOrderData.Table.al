@@ -8,6 +8,7 @@ table 15000002 "Payment Order Data"
 {
     Caption = 'Payment Order Data';
     LookupPageID = "Payment Order Data";
+    DataClassification = CustomerContent;
 
     fields
     {

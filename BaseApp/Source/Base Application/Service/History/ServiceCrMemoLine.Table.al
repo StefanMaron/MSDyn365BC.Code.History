@@ -12,6 +12,7 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
@@ -35,6 +36,7 @@ table 5995 "Service Cr.Memo Line"
     DrillDownPageID = "Posted Service Cr. Memo Lines";
     LookupPageID = "Posted Service Cr. Memo Lines";
     PasteIsValid = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -387,6 +389,24 @@ table 5995 "Service Cr.Memo Line"
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
+        }
+        field(5725; "Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'Item Reference No.';
+        }
+        field(5726; "Item Reference Unit of Measure"; Code[10])
+        {
+            Caption = 'Unit of Measure (Item Ref.)';
+            TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."));
+        }
+        field(5727; "Item Reference Type"; Enum "Item Reference Type")
+        {
+            Caption = 'Item Reference Type';
+        }
+        field(5728; "Item Reference Type No."; Code[30])
+        {
+            Caption = 'Item Reference Type No.';
         }
         field(5811; "Appl.-from Item Entry"; Integer)
         {

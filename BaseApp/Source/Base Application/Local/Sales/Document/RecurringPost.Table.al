@@ -7,6 +7,7 @@ namespace Microsoft.Sales.Document;
 table 15000301 "Recurring Post"
 {
     Caption = 'Recurring Post';
+    DataClassification = CustomerContent;
 
     fields
     {

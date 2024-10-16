@@ -21,8 +21,10 @@ page 1818 "Cash Flow Forecast Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT FinalStepVisible;
+                Visible = TopBannerVisible and not FinalStepVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -33,8 +35,10 @@ page 1818 "Cash Flow Forecast Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND FinalStepVisible;
+                Visible = TopBannerVisible and FinalStepVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -175,7 +179,9 @@ page 1818 "Cash Flow Forecast Wizard"
                     {
                         InstructionalText = 'Which type of account do you pay your taxes to?';
                         ShowCaption = false;
+#pragma warning disable AA0100
                         field("DummyCashFlowSetup.""Tax Bal. Account Type"""; DummyCashFlowSetup."Tax Bal. Account Type")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
@@ -194,7 +200,9 @@ page 1818 "Cash Flow Forecast Wizard"
                         InstructionalText = 'What is the number of the account that you pay your taxes to?';
                         ShowCaption = false;
                         Visible = TaxAccountValidType;
+#pragma warning disable AA0100
                         field("DummyCashFlowSetup.""Tax Bal. Account No."""; DummyCashFlowSetup."Tax Bal. Account No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;

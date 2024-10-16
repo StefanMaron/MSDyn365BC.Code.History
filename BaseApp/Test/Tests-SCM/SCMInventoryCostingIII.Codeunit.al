@@ -51,7 +51,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order.
         Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
-          TempReservationEntry, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode), '', 1);  // 1 is Sign Factor.
+          TempReservationEntry, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode()), '', 1);  // 1 is Sign Factor.
         FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, TempReservationEntry."Item No.");
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value for ComfirmHandler.
         EnqueueValuesForPostedItemTrackingLines(TempReservationEntry, UndoReceiptMessage, 1);  // Enqueue value for PostedItemTrackingLinesHandler.
@@ -80,7 +80,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Invoice Purchase Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostPurchaseDocument(PurchaseLine, true);  // True for Invoice.
         LibraryVariableStorage.Enqueue(UndoReceiptMessage);  // Enqueue value for ConfirmHandler.
@@ -108,7 +108,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order.
         Initialize();
         CreatePurchaseDocumentWithTracking(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode),
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode()),
           TrackingOption::AssignSerialNo, '', 1);  // 1 is Sign Factor.
         PostPurchaseDocument(PurchaseLine, false);  // False for Invoice.
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value for ComfirmHandler.
@@ -143,7 +143,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order. Create Purchase Invoice for Charge Item and assign it to previous Posted Receipt.
         Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
-          TempReservationEntry, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode), '', 1);  // 1 is sign factor.
+          TempReservationEntry, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode()), '', 1);  // 1 is sign factor.
         FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, TempReservationEntry."Item No.");
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value for ComfirmHandler.
         EnqueueValuesForPostedItemTrackingLines(TempReservationEntry, UndoReceiptMessage, 1);  // Enqueue value for PostedItemTrackingLinesHandler.
@@ -178,7 +178,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Receive Purchase Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostPurchaseDocument(PurchaseLine, false);  // False for Invoice.
 
@@ -212,7 +212,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order.
         Initialize();
         CreatePurchaseDocumentWithTracking(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode),
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode()),
           TrackingOption::AssignSerialNo, '', 1);  // 1 is Sign Factor.
         PostPurchaseDocument(PurchaseLine, false);  // False for Invoice.
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value for ComfirmHandler.
@@ -239,7 +239,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order.
         Initialize();
         CreatePurchaseDocumentWithTracking(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode),
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode()),
           TrackingOption::AssignSerialNo, '', 1);  // 1 is Sign Factor.
         PostPurchaseDocument(PurchaseLine, false);  // False for Invoice.
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value for ComfirmHandler.
@@ -270,7 +270,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Receive Purchase Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.CreatePurchaseLine(
@@ -300,7 +300,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create Item with Item Tracking Code which is neither SN Specific nor Lot Specific. Create Purchase Order and assign Serial No. Receive Purchase Order.
         Initialize();
         CreatePurchaseDocumentWithTracking(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode),
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode()),
           TrackingOption::AssignSerialNo, AvailabilityWarning, -1);  // -1 is for SignFactor.
 
         // Exercise and Verification.
@@ -320,7 +320,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create Item with Item Tracking Code which is neither SN Specific nor Lot Specific. Create Purchase Order and assign Lot No. Receive Purchase Order.
         Initialize();
         CreatePurchaseDocumentWithTracking(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(false, LibraryUtility.GetGlobalNoSeriesCode, ''),
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(false, LibraryUtility.GetGlobalNoSeriesCode(), ''),
           TrackingOption::AssignLotNo, '', 1);  // 1 is for SignFactor.
 
         // Exercise and Verification.
@@ -342,7 +342,7 @@ codeunit 137288 "SCM Inventory Costing III"
         Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
           TempReservationEntry, PurchaseLine."Document Type"::"Return Order",
-          CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode), AvailabilityWarning, 1);  // 1 is Sign Factor.
+          CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode()), AvailabilityWarning, 1);  // 1 is Sign Factor.
         FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::"Return Order", TempReservationEntry."Item No.");
         EnqueueValuesForPostedItemTrackingLines(TempReservationEntry, UndoReturnShipmentMessage, -1);  // Enqueue value for PostedItemTrackingLinesHandler.
 
@@ -370,7 +370,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Invoice Purchase Return Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostPurchaseDocument(PurchaseLine, true);  // True for Invoice.
         LibraryVariableStorage.Enqueue(UndoReturnShipmentMessage);  // Enqueue value for ConfirmHandler.
@@ -395,7 +395,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Ship Purchase Return Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostPurchaseDocument(PurchaseLine, false);  // Only Ship.
         LibraryVariableStorage.Enqueue(UndoReturnShipmentMessage);  // Enqueue value for ConfirmHandler.
@@ -428,7 +428,7 @@ codeunit 137288 "SCM Inventory Costing III"
         Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
           TempReservationEntry, PurchaseLine."Document Type"::"Return Order",
-          CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode), AvailabilityWarning, 1);  // 1 is Sign Factor.
+          CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode()), AvailabilityWarning, 1);  // 1 is Sign Factor.
         FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::"Return Order", TempReservationEntry."Item No.");
         EnqueueValuesForPostedItemTrackingLines(TempReservationEntry, UndoReturnShipmentMessage, -1);  // Enqueue value for PostedItemTrackingLinesHandler.
         FindReturnShipmentLine(ReturnShipmentLine, PurchaseLine, 1);  // 1 is for Sign Factor.
@@ -462,7 +462,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Ship Purchase Return Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostPurchaseDocument(PurchaseLine, false);  // False for Invoice.
 
@@ -497,7 +497,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Ship Purchase Return Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.CreatePurchaseLine(
@@ -528,7 +528,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Ship Purchase Return Order. Undo Return Shipment and reopen the Purchase Return Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostPurchaseDocument(PurchaseLine, false);  // False for Invoice.
         LibraryVariableStorage.Enqueue(UndoReturnShipmentMessage);  // Enqueue value for ConfirmHandler.
@@ -558,7 +558,7 @@ codeunit 137288 "SCM Inventory Costing III"
         Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
           TempReservationEntry, PurchaseLine."Document Type"::"Return Order",
-          CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode), '', -1);  // -1 is sign factor.
+          CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode()), '', -1);  // -1 is sign factor.
         FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::"Return Order", TempReservationEntry."Item No.");
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value for ComfirmHandler.
         EnqueueValuesForPostedItemTrackingLines(TempReservationEntry, UndoReturnShipmentMessage, 1);  // Enqueue value for PostedItemTrackingLinesHandler.
@@ -600,7 +600,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Post Purchase Order. Create and Ship Sales Order. Undo Sales Shipment.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostPurchaseDocument(PurchaseLine, Invoice);
         CreateShipSalesOrderAndUndoShipment(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity);
@@ -640,7 +640,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Post Purchase Order. Create and Invoice Sales Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostPurchaseDocument(PurchaseLine, Invoice);
         CreateAndPostSalesDocWithApplFromItemEntry(
@@ -676,7 +676,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Receive Purchase Order. Undo Purchase Receipt.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor(), CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostPurchaseDocument(PurchaseLine, false);
         LibraryVariableStorage.Enqueue(UndoReceiptMessage);  // Enqueue for Confirm Handler.
@@ -988,7 +988,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Setup: Create and Ship Sales Order with Serial Tracking.
         Initialize();
         CreateSalesDocument(
-          SalesLine, SalesLine."Document Type"::Order, CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode),
+          SalesLine, SalesLine."Document Type"::Order, CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode()),
           -LibraryRandom.RandInt(5));
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         SalesLine.OpenItemTrackingLines();
@@ -1368,7 +1368,7 @@ codeunit 137288 "SCM Inventory Costing III"
         TrackingOption: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries;
     begin
         CreateSalesDocument(
-          SalesLine, SalesLine."Document Type"::"Return Order", CreateTrackedItem(SNSpecific, '', LibraryUtility.GetGlobalNoSeriesCode),
+          SalesLine, SalesLine."Document Type"::"Return Order", CreateTrackedItem(SNSpecific, '', LibraryUtility.GetGlobalNoSeriesCode()),
           SignFactor * LibraryRandom.RandInt(5));  // Use Random Quantity.
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         if SNSpecific then
@@ -1418,7 +1418,7 @@ codeunit 137288 "SCM Inventory Costing III"
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor, ItemNo, SignFactor * LibraryRandom.RandInt(5));  // Use random value for Quantity.
+        CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor(), ItemNo, SignFactor * LibraryRandom.RandInt(5));  // Use random value for Quantity.
         LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
         Item.Get(ItemNo);
         ItemTrackingCode.Get(Item."Item Tracking Code");
@@ -1448,7 +1448,7 @@ codeunit 137288 "SCM Inventory Costing III"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, No, Quantity);
     end;
 
@@ -1643,7 +1643,7 @@ codeunit 137288 "SCM Inventory Costing III"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo,
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(),
           LibraryRandom.RandInt(5), LibraryRandom.RandDec(10, 2));  // Use Random value for Direct Unit Cost and Quantity.
         LibraryInventory.CreateItemChargeAssignPurchase(ItemChargeAssignmentPurch, PurchaseLine, AppliesToDocType, DocumentNo, LineNo, No);
     end;
@@ -1656,7 +1656,7 @@ codeunit 137288 "SCM Inventory Costing III"
         TrackingOption: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries;
     begin
         CreateAndPostPurchaseDocumentWithTracking(
-          TempReservationEntry, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode), '', 1);  // 1 is Sign Factor.
+          TempReservationEntry, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode()), '', 1);  // 1 is Sign Factor.
         FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, TempReservationEntry."Item No.");
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value.
         CreateSalesOrderWithTracking(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity, TrackingOption::SelectEntries);
@@ -1671,7 +1671,7 @@ codeunit 137288 "SCM Inventory Costing III"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo,
+          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(),
           LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));  // Use Random value for Unit Price.
         SalesLine.Modify(true);
@@ -1896,7 +1896,7 @@ codeunit 137288 "SCM Inventory Costing III"
     [Scope('OnPrem')]
     procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1916,25 +1916,25 @@ codeunit 137288 "SCM Inventory Costing III"
         TrackingOption := OptionValue;  // To convert Variant into Option.
         case TrackingOption of
             OptionString::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             OptionString::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             OptionString::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             OptionString::ShowEntries:
                 begin
                     LibraryVariableStorage.Dequeue(Quantity);  // Dequeue variable.
                     QuantityToHandle := Quantity;  // To convert Variant into Integer.
                     LibraryVariableStorage.Dequeue(Iteration);  // Dequeue variable.
                     IterationCount := Iteration;  // To convert Variant into Integer.
-                    ItemTrackingLines.First;
+                    ItemTrackingLines.First();
                     for Count := 1 to IterationCount do begin
                         ItemTrackingLines."Qty. to Handle (Base)".AssertEquals(QuantityToHandle / IterationCount);
                         ItemTrackingLines.Next();
                     end;
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1951,7 +1951,7 @@ codeunit 137288 "SCM Inventory Costing III"
             OptionString::VerifyEntries:
                 ItemTrackingSummary."Serial No.".AssertEquals('');  // Blank Serial No. as no Item Tracking Lines found.
             OptionString::SelectEntries:
-                ItemTrackingSummary.OK.Invoke;
+                ItemTrackingSummary.OK().Invoke();
         end;
     end;
 
@@ -1962,14 +1962,14 @@ codeunit 137288 "SCM Inventory Costing III"
         Quantity: Variant;
         TrackingCode: Variant;
     begin
-        PostedItemTrackingLines.First;
+        PostedItemTrackingLines.First();
         repeat
             LibraryVariableStorage.Dequeue(TrackingCode);  // Dequeue variable.
             LibraryVariableStorage.Dequeue(Quantity);  // Dequeue variable.
             PostedItemTrackingLines."Serial No.".AssertEquals(TrackingCode);
             PostedItemTrackingLines.Quantity.AssertEquals(Quantity);
         until not PostedItemTrackingLines.Next();
-        PostedItemTrackingLines.OK.Invoke;
+        PostedItemTrackingLines.OK().Invoke();
     end;
 }
 

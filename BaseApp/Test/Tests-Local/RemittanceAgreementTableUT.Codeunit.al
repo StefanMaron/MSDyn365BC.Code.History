@@ -26,9 +26,9 @@ codeunit 144119 "Remittance Agreement Table UT"
         // The OnDelete triggers deletes all Return File Setup record related to the Remittance Agreement.
 
         // Setup
-        ReturnFileSetup."Agreement Code" := LibraryUTUtility.GetNewCode10;
+        ReturnFileSetup."Agreement Code" := LibraryUTUtility.GetNewCode10();
         ReturnFileSetup.Insert();
-        ReturnFileSetup2."Agreement Code" := LibraryUTUtility.GetNewCode10;
+        ReturnFileSetup2."Agreement Code" := LibraryUTUtility.GetNewCode10();
         ReturnFileSetup2.Insert();
         RemittanceAgreement.Init();
         RemittanceAgreement.Code := ReturnFileSetup2."Agreement Code";

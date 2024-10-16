@@ -45,7 +45,7 @@ codeunit 144122 "PostCodesTable UT"
         CreateNewPostCode(PostCode, City);
 
         // Renaming should also be allowed with non-unique city
-        PostCode.Rename(LibraryUTUtility.GetNewCode, City);
+        PostCode.Rename(LibraryUTUtility.GetNewCode(), City);
 
         Assert.AreEqual(City, PostCode.City, 'Expected the City field to remain unchanged when renaming to an existing city name');
     end;
@@ -74,7 +74,7 @@ codeunit 144122 "PostCodesTable UT"
     local procedure CreateNewPostCode(var PostCode: Record "Post Code"; City: Text[30])
     begin
         Clear(PostCode);
-        PostCode.Validate(Code, LibraryUTUtility.GetNewCode);
+        PostCode.Validate(Code, LibraryUTUtility.GetNewCode());
         PostCode.Validate(City, City);
         PostCode.Insert(true);
     end;

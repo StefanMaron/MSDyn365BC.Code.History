@@ -9,7 +9,6 @@ codeunit 131305 "Library - ERM Country Data"
 
     var
         LibraryERM: Codeunit "Library - ERM";
-        LibraryInventory: Codeunit "Library - Inventory";
 
     procedure InitializeCountry()
     begin
@@ -18,7 +17,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateVATData()
     begin
-        CreateMissingVATPostingSetup;
+        CreateMissingVATPostingSetup();
     end;
 
     procedure GetVATCalculationType(): Enum "Tax Calculation Type"
@@ -86,7 +85,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        UpdateAccountsInGeneralPostingSetup();
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -127,7 +126,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateGeneralPostingSetupData()
     begin
-        CreateMissingGeneralPostingSetup;
+        CreateMissingGeneralPostingSetup();
     end;
 
     procedure CreateUnitsOfMeasure()
@@ -171,7 +170,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateVATPostingSetup()
     begin
-        RemoveVATCodesFromVATPostingSetup;
+        RemoveVATCodesFromVATPostingSetup();
     end;
 
     procedure DisableActivateChequeNoOnGeneralLedgerSetup()
@@ -191,7 +190,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateLocalData()
     begin
-        UpdateSettledVATPeriod;
+        UpdateSettledVATPeriod();
     end;
 
     local procedure UpdateAccountsInGeneralPostingSetup()
@@ -230,7 +229,7 @@ codeunit 131305 "Library - ERM Country Data"
                     if "Purchase Variance Account" = '' then
                         Validate("Purchase Variance Account", NormalGeneralPostingSetup."Purchase Variance Account");
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure CreateMissingGeneralPostingSetup()
@@ -305,7 +304,7 @@ codeunit 131305 "Library - ERM Country Data"
                 repeat
                     Validate("VAT Number", '');
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 #else
@@ -319,7 +318,7 @@ codeunit 131305 "Library - ERM Country Data"
                 repeat
                     Validate("VAT Code", '');
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 #endif
@@ -328,7 +327,6 @@ codeunit 131305 "Library - ERM Country Data"
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
         VATProdPostingGroup: Record "VAT Product Posting Group";
-        VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATBusPostingGroup.FindSet();
         repeat
@@ -434,7 +432,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();

@@ -9,40 +9,38 @@ codeunit 401 "Sales Header Apply"
     trigger OnRun()
     begin
         SalesHeader.Copy(Rec);
-        with SalesHeader do begin
-            BilToCustNo := "Bill-to Customer No.";
-            CustLedgEntry.SetCurrentKey("Customer No.", Open);
-            CustLedgEntry.SetRange("Customer No.", BilToCustNo);
-            CustLedgEntry.SetRange(Open, true);
-            OnRunOnAfterFilterCustLedgEntry(CustLedgEntry, SalesHeader);
-            if "Applies-to ID" = '' then
-                "Applies-to ID" := "No.";
-            if "Applies-to ID" = '' then
-                Error(
-                  Text000,
-                  FieldCaption("No."), FieldCaption("Applies-to ID"));
-            ApplyCustEntries.SetSales(SalesHeader, CustLedgEntry, FieldNo("Applies-to ID"));
-            ApplyCustEntries.SetRecord(CustLedgEntry);
-            ApplyCustEntries.SetTableView(CustLedgEntry);
-            ApplyCustEntries.LookupMode(true);
-            OK := ApplyCustEntries.RunModal() = ACTION::LookupOK;
-            Clear(ApplyCustEntries);
-            if not OK then
-                exit;
-            CustLedgEntry.Reset();
-            CustLedgEntry.SetCurrentKey("Customer No.", Open);
-            CustLedgEntry.SetRange("Customer No.", BilToCustNo);
-            CustLedgEntry.SetRange(Open, true);
-            CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            OnRunOnBeforeCustLedgEntryFindFirst(CustLedgEntry);
-            if CustLedgEntry.FindFirst() then begin
-                "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
-                "Applies-to Doc. No." := '';
-            end else
-                "Applies-to ID" := '';
+        BilToCustNo := SalesHeader."Bill-to Customer No.";
+        CustLedgEntry.SetCurrentKey("Customer No.", Open);
+        CustLedgEntry.SetRange("Customer No.", BilToCustNo);
+        CustLedgEntry.SetRange(Open, true);
+        OnRunOnAfterFilterCustLedgEntry(CustLedgEntry, SalesHeader);
+        if SalesHeader."Applies-to ID" = '' then
+            SalesHeader."Applies-to ID" := SalesHeader."No.";
+        if SalesHeader."Applies-to ID" = '' then
+            Error(
+              Text000,
+              SalesHeader.FieldCaption("No."), SalesHeader.FieldCaption("Applies-to ID"));
+        ApplyCustEntries.SetSales(SalesHeader, CustLedgEntry, SalesHeader.FieldNo("Applies-to ID"));
+        ApplyCustEntries.SetRecord(CustLedgEntry);
+        ApplyCustEntries.SetTableView(CustLedgEntry);
+        ApplyCustEntries.LookupMode(true);
+        OK := ApplyCustEntries.RunModal() = ACTION::LookupOK;
+        Clear(ApplyCustEntries);
+        if not OK then
+            exit;
+        CustLedgEntry.Reset();
+        CustLedgEntry.SetCurrentKey("Customer No.", Open);
+        CustLedgEntry.SetRange("Customer No.", BilToCustNo);
+        CustLedgEntry.SetRange(Open, true);
+        CustLedgEntry.SetRange("Applies-to ID", SalesHeader."Applies-to ID");
+        OnRunOnBeforeCustLedgEntryFindFirst(CustLedgEntry);
+        if CustLedgEntry.FindFirst() then begin
+            SalesHeader."Applies-to Doc. Type" := SalesHeader."Applies-to Doc. Type"::" ";
+            SalesHeader."Applies-to Doc. No." := '';
+        end else
+            SalesHeader."Applies-to ID" := '';
 
-            Modify();
-        end;
+        SalesHeader.Modify();
     end;
 
     var

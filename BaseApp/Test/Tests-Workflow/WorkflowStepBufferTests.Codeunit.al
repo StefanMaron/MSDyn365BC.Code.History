@@ -261,7 +261,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         // Validate
         Assert.AreEqual(1, TempWorkflowStepBuffer.Count, 'Wrong number of lines');
 
-        ResponseDescription := GetResponseDescription(WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode);
+        ResponseDescription := GetResponseDescription(WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode());
         TempWorkflowStepBuffer.TestField("Response Description", StrSubstNo(ResponseDescription, TemplateTok, GenJnlBatchTok));
     end;
 
@@ -291,7 +291,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.TestField(Indent, 0);
         TempWorkflowStepBuffer.TestField("Event Description", '');
         TempWorkflowStepBuffer.TestField(Condition, '');
-        ResponseDescription := GetResponseDescription(WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode);
+        ResponseDescription := GetResponseDescription(WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode());
         TempWorkflowStepBuffer.TestField("Response Description", StrSubstNo(ResponseDescription, TemplateTok, GenJnlBatchTok));
         TempWorkflowStepBuffer.TestField("Event Step ID", 0);
         TempWorkflowStepBuffer.TestField("Response Step ID", ResponseWorkflowStep.ID);
@@ -378,7 +378,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
     begin
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
-        LastStepID := FindLastStepID;
+        LastStepID := FindLastStepID();
 
         // Exercise
         TempWorkflowStepBuffer."Workflow Code" := Workflow.Code;
@@ -599,7 +599,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
-        TempWorkflowStepBuffer.MoveLeft;
+        TempWorkflowStepBuffer.MoveLeft();
 
         // Verify
         TempWorkflowStepBuffer.Find();
@@ -632,7 +632,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
-        TempWorkflowStepBuffer.MoveRight;
+        TempWorkflowStepBuffer.MoveRight();
 
         // Verify
         TempWorkflowStepBuffer.Find();
@@ -669,7 +669,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
-        TempWorkflowStepBuffer.MoveLeft;
+        TempWorkflowStepBuffer.MoveLeft();
 
         // Verify
         TempWorkflowStepBuffer.Find();
@@ -706,7 +706,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
-        TempWorkflowStepBuffer.MoveRight;
+        TempWorkflowStepBuffer.MoveRight();
 
         // Verify
         TempWorkflowStepBuffer.Find();
@@ -760,7 +760,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
-        TempWorkflowStepBuffer.MoveRight;
+        TempWorkflowStepBuffer.MoveRight();
 
         // Verify
         TempWorkflowStepBuffer.Find();
@@ -770,7 +770,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.SetRange("Event Step ID", ThirdWorkflowStep.ID);
         TempWorkflowStepBuffer.FindFirst();
 
-        TempWorkflowStepBuffer.MoveLeft;
+        TempWorkflowStepBuffer.MoveLeft();
 
         // Verify
         TempWorkflowStepBuffer.Find();
@@ -833,7 +833,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
-        TempWorkflowStepBuffer.MoveLeft;
+        TempWorkflowStepBuffer.MoveLeft();
 
         // Verify
         TempWorkflowStepBuffer.Find();
@@ -845,13 +845,13 @@ codeunit 134312 "Workflow Step Buffer Tests"
         Assert.AreEqual(ThirdResponseWorkflowStep.ID, TempWorkflowStepBuffer."Previous Workflow Step ID",
           'The last step should point to the third events response');
 
-        TempWorkflowStepBuffer.MoveLeft;
+        TempWorkflowStepBuffer.MoveLeft();
 
         // Exercise
         TempWorkflowStepBuffer.SetRange("Event Step ID", ThirdWorkflowStep.ID);
         TempWorkflowStepBuffer.FindFirst();
 
-        TempWorkflowStepBuffer.MoveRight;
+        TempWorkflowStepBuffer.MoveRight();
 
         // Verify
         TempWorkflowStepBuffer.Find();
@@ -889,7 +889,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
-        TempWorkflowStepBuffer.MoveRight;
+        TempWorkflowStepBuffer.MoveRight();
 
         // Verify
         TempWorkflowStepBuffer.Find();
@@ -924,7 +924,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
-        TempWorkflowStepBuffer.MoveRight;
+        TempWorkflowStepBuffer.MoveRight();
 
         // Verify
         TempWorkflowStepBuffer.SetRange("Event Step ID", EventWorkflowStep2.ID);
@@ -965,7 +965,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.FindFirst();
 
         // Exercise.
-        TempWorkflowStepBuffer.MoveLeft;
+        TempWorkflowStepBuffer.MoveLeft();
 
         // Verify.
         TempWorkflowStepBuffer.Find();
@@ -978,7 +978,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         // Exercise
         TempWorkflowStepBuffer.SetRange("Event Step ID", EventWorkflowStep.ID);
         TempWorkflowStepBuffer.FindFirst();
-        TempWorkflowStepBuffer.MoveRight;
+        TempWorkflowStepBuffer.MoveRight();
 
         // Verify
         EventWorkflowStep.Find();
@@ -1149,7 +1149,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         ResponseStep: Integer;
     begin
-        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode,
+        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode(),
             PreviousStepID);
 
         WorkflowStep.Get(Workflow.Code, ResponseStep);

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -244,6 +244,5 @@ report 10616 "Customer - Open Entries"
         DueDateCaptionLbl: Label 'Due Date';
         CurrCodeCaptionLbl: Label 'Curre Code';
         TotalLCYCaptionLbl: Label 'Total (LCY)';
-        ContinuedCaptionLbl: Label 'Continued';
 }
 

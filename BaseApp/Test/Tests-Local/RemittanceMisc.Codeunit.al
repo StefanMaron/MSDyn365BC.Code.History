@@ -24,7 +24,7 @@ codeunit 144135 "Remittance - Misc"
         KIDNumber: Code[10];
     begin
         // [FEATURE] [Structured Payment]
-        KIDNumber := GetKIDNumber;
+        KIDNumber := GetKIDNumber();
 
         // According to testcases Gen. Journal Line is structured if
         // 1. KID exists
@@ -111,8 +111,8 @@ codeunit 144135 "Remittance - Misc"
         // [GIVEN] Vendor "V" with "Payment Type Code Abroad" = "X", "Specification (Norges Bank)" = "Y"
         CreateVendorWithPmtTypeCodeAbroad(Vendor);
         with GenJournalLine do
-            for DocumentType := "Document Type"::" " to "Document Type"::Reminder do
-                if DocumentType <> "Document Type"::Invoice then begin
+            for DocumentType := "Document Type"::" ".AsInteger() to "Document Type"::Reminder.AsInteger() do
+                if DocumentType <> "Document Type"::Invoice.AsInteger() then begin
                     // [GIVEN] Purchase Journal Line with "Document Type" = " "("Credit Memo", "Finance Charge Memo", Payment, Refund, Reminder), "Account Type" = "Vendor"
                     Init();
                     Validate("Document Type", DocumentType);
@@ -130,7 +130,7 @@ codeunit 144135 "Remittance - Misc"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         with Vendor do begin
-            "Payment Type Code Abroad" := MockPaymentTypeCodeAbroad;
+            "Payment Type Code Abroad" := MockPaymentTypeCodeAbroad();
             "Specification (Norges Bank)" := LibraryUtility.GenerateGUID();
             Modify();
         end;

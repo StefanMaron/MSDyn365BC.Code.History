@@ -42,15 +42,14 @@ codeunit 134231 "ERM Bank Account"
         Evaluate(AccountNo, LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("No."), DATABASE::"Bank Account"));
         Evaluate(AccountName, LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(Name), DATABASE::"Bank Account"));
 
-        LibraryLowerPermissions.SetBanking;
-        with BankAccount do begin
-            "No." := AccountNo;
-            Name := AccountNo;
-            IBAN := FindIBAN;  // Value important for IT.
-            Insert(true);
-        end;
+        LibraryLowerPermissions.SetBanking();
+        BankAccount."No." := AccountNo;
+        BankAccount.Name := AccountNo;
+        BankAccount.IBAN := FindIBAN();
+        // Value important for IT.
+        BankAccount.Insert(true);
 
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         // Verify it exists
         Assert.IsTrue(BankAccount.Get(AccountNo), 'Failed to find newly created bank account');
 
@@ -83,7 +82,7 @@ codeunit 134231 "ERM Bank Account"
         Evaluate(Code, LibraryUtility.GenerateRandomCode(SWIFTCode.FieldNo(Code), DATABASE::"SWIFT Code"));
         Evaluate(Name, LibraryUtility.GenerateRandomCode(SWIFTCode.FieldNo(Name), DATABASE::"SWIFT Code"));
 
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
         SWIFTCode.Code := Code;
         SWIFTCode.Name := Code;
         SWIFTCode.Insert(true);
@@ -113,7 +112,7 @@ codeunit 134231 "ERM Bank Account"
     procedure CheckBankAccIBANConfirmYes()
     begin
         // Purpose of the test is to modify IBAN field of table Bank Account and confirm Yes.
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         AssignBankAccIBANnumber(true);
     end;
 
@@ -123,7 +122,7 @@ codeunit 134231 "ERM Bank Account"
     procedure CheckBankAccIBANConfirmNo()
     begin
         // Purpose of the test is to modify IBAN field of table Bank Account and confirm No.
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         AssignBankAccIBANnumber(false);
     end;
 
@@ -133,7 +132,7 @@ codeunit 134231 "ERM Bank Account"
     procedure CheckVendBankAccIBANConfirmYes()
     begin
         // Purpose of the test is to modify IBAN field of table Vendor Bank Account and confirm Yes.
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         AssignVendBankAccIBANnumber(true);
     end;
 
@@ -143,7 +142,7 @@ codeunit 134231 "ERM Bank Account"
     procedure CheckVendBankAccIBANConfirmNo()
     begin
         // Purpose of the test is to modify IBAN field of table Vendor Bank Account and confirm No.
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         AssignVendBankAccIBANnumber(false);
     end;
 
@@ -166,7 +165,7 @@ codeunit 134231 "ERM Bank Account"
         CreateVendLedgEntry(VendorBankAccount, true);
 
         // [WHEN] Delete Vendor Bank Account "X"
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
         asserterror VendorBankAccount.Delete(true);
 
         // [THEN] Error Message: You cannot delete this bank account because it is associated with one or more open ledger entries.
@@ -192,7 +191,7 @@ codeunit 134231 "ERM Bank Account"
         CreateCustLedgEntry(CustomerBankAccount, true);
 
         // [WHEN] Delete Customer Bank Account "X"
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
         asserterror CustomerBankAccount.Delete(true);
 
         // [THEN] Error Message: You cannot delete this bank account because it is associated with one or more open ledger entries.
@@ -369,17 +368,17 @@ codeunit 134231 "ERM Bank Account"
     begin
         // [FEATURE] [UI] [Application Area]
         // [SCENARIO 203033] Balance lines page part musst be visible in Basic application area setup.
-        LibraryApplicationArea.EnableBasicSetup;
-        BankAccountBalance.OpenView;
+        LibraryApplicationArea.EnableBasicSetup();
+        BankAccountBalance.OpenView();
 
         Assert.IsTrue(
-          BankAccountBalance.BankAccBalanceLines."Period Start".Visible, 'BankAccBalanceLines."Period Start" must be visible');
+          BankAccountBalance.BankAccBalanceLines."Period Start".Visible(), 'BankAccBalanceLines."Period Start" must be visible');
         Assert.IsTrue(
-          BankAccountBalance.BankAccBalanceLines."Period Name".Visible, 'BankAccBalanceLines."Period Name" must be visible');
+          BankAccountBalance.BankAccBalanceLines."Period Name".Visible(), 'BankAccBalanceLines."Period Name" must be visible');
         Assert.IsTrue(
-          BankAccountBalance.BankAccBalanceLines.NetChange.Visible, 'BankAccBalanceLines.NetChange  must be visible');
+          BankAccountBalance.BankAccBalanceLines.NetChange.Visible(), 'BankAccBalanceLines.NetChange  must be visible');
         Assert.IsTrue(
-          BankAccountBalance.BankAccBalanceLines."BankAcc.""Net Change (LCY)""".Visible, 'BankAccBalanceLines.NetChangeLCY must be visible');
+          BankAccountBalance.BankAccBalanceLines."BankAcc.""Net Change (LCY)""".Visible(), 'BankAccBalanceLines.NetChangeLCY must be visible');
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
@@ -443,9 +442,9 @@ codeunit 134231 "ERM Bank Account"
 
         // [WHEN] Bank Account List page opened
         // [THEN] Balance and Balance (LCY) fields are visible.
-        BankAccountList.OpenView;
-        Assert.IsTrue(BankAccountList.BalanceAmt.Visible, 'Balance must be visible');
-        Assert.IsTrue(BankAccountList.BalanceLCY.Visible, 'Balance (LCY) must be visible');
+        BankAccountList.OpenView();
+        Assert.IsTrue(BankAccountList.BalanceAmt.Visible(), 'Balance must be visible');
+        Assert.IsTrue(BankAccountList.BalanceLCY.Visible(), 'Balance (LCY) must be visible');
     end;
 
     [Test]

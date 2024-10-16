@@ -29,16 +29,16 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] User can not start the VAT assisted setup if there is a vat entry.
         // [GIVEN] There is a vat entry.
         VATEntry.Insert();
-        InitTemplates;
+        InitTemplates();
 
         LibraryLowerPermissions.SetO365Setup();
         // [WHEN] open the page.
         VATSetupWizard.OpenNew();
-        SetGLAccounts;
+        SetGLAccounts();
 
         // [THEN] Manual step necessary exit the page on finish.
-        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled, 'Expected that finish action is enabled.');
-        VATSetupWizard.ActionFinish.Invoke;
+        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled(), 'Expected that finish action is enabled.');
+        VATSetupWizard.ActionFinish.Invoke();
     end;
 
     [Test]
@@ -52,16 +52,16 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] User can not start the VAT assisted setup if there is a customer with vat bus. posting group.
         // [GIVEN] There is a customer.
         LibrarySales.CreateCustomer(Customer);
-        InitTemplates;
+        InitTemplates();
 
         LibraryLowerPermissions.SetO365Setup();
         // [WHEN] open the page.
         VATSetupWizard.OpenNew();
-        SetGLAccounts;
+        SetGLAccounts();
 
         // [THEN] Manual step necessary exit the page on finish.
-        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled, 'Expected that finish action is enabled.');
-        VATSetupWizard.ActionFinish.Invoke;
+        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled(), 'Expected that finish action is enabled.');
+        VATSetupWizard.ActionFinish.Invoke();
     end;
 
     [Test]
@@ -75,16 +75,16 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] User can not start the VAT assisted setup if there is a vendor with vat bus posting setup.
         // [GIVEN] There is a Vendor.
         LibraryPurchase.CreateVendor(Vendor);
-        InitTemplates;
+        InitTemplates();
 
         LibraryLowerPermissions.SetO365Setup();
         // [WHEN] open the page.
         VATSetupWizard.OpenNew();
-        SetGLAccounts;
+        SetGLAccounts();
 
         // [THEN] Manual step necessary exit the page on finish.
-        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled, 'Expected that finish action is enabled.');
-        VATSetupWizard.ActionFinish.Invoke;
+        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled(), 'Expected that finish action is enabled.');
+        VATSetupWizard.ActionFinish.Invoke();
     end;
 
     [Test]
@@ -98,16 +98,16 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] User can not start the VAT assisted setup if there is a Item with vat Prod posting setup.
         // [GIVEN] There is a Item.
         LibraryInventory.CreateItem(Item);
-        InitTemplates;
+        InitTemplates();
 
         LibraryLowerPermissions.SetO365Setup();
         // [WHEN] open the page.
         VATSetupWizard.OpenNew();
-        SetGLAccounts;
+        SetGLAccounts();
 
         // [THEN] Manual step necessary exit the page on finish.
-        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled, 'Expected that finish action is enabled.');
-        VATSetupWizard.ActionFinish.Invoke;
+        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled(), 'Expected that finish action is enabled.');
+        VATSetupWizard.ActionFinish.Invoke();
     end;
 
     [Test]
@@ -128,7 +128,7 @@ codeunit 132531 "VAT Assisted Setup"
         // [THEN] VAT posting setup contains all the possible permutaions.
         LibraryVariableStorage.Clear();
         LibraryLowerPermissions.SetO365Setup();
-        VATProductPostingGrpPart.OpenEdit;
+        VATProductPostingGrpPart.OpenEdit();
 
         VATSetupPostingGroups.DeleteAll();
         InsertProdData(LibraryUtility.GenerateRandomCode(VATProductPostingGroup.FieldNo(Code), DATABASE::"VAT Product Posting Group"),
@@ -145,11 +145,11 @@ codeunit 132531 "VAT Assisted Setup"
         Item.Modify();
 
         VATProductPostingGrpPart.FILTER.SetFilter(Selected, Format(true));
-        VATProductPostingGrpPart.First;
+        VATProductPostingGrpPart.First();
 
         LibraryVariableStorage.Enqueue(' delete or modify this VAT record because it is connected to existing item.');
         VATProductPostingGrpPart.Selected.SetValue(Format(false));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -253,30 +253,30 @@ codeunit 132531 "VAT Assisted Setup"
     begin
         // [SCENARIO] User can finish the VAT assisted setup.
         // [GIVEN]
-        InitTemplates;
+        InitTemplates();
         VATEntry.DeleteAll();
         Customer.DeleteAll();
         Vendor.DeleteAll();
         Item.DeleteAll();
-        InitGenPostingGrpsWithRndValue;
+        InitGenPostingGrpsWithRndValue();
         VATSetupWizard.OpenNew();
-        SetGLAccounts;
+        SetGLAccounts();
         VATAssistedSetupBusGrp.FindFirst();
         VATSetupPostingGroups.FindFirst();
         SetBusGrpTemplatesDefaultValue(DATABASE::Customer, VATAssistedSetupBusGrp.Code);
         SetBusGrpTemplatesDefaultValue(DATABASE::Vendor, VATAssistedSetupBusGrp.Code);
         SetProdGrpTemplatesDefaultValue(VATSetupPostingGroups."VAT Prod. Posting Group");
-        SetVATClause;
+        SetVATClause();
 
         LibraryLowerPermissions.SetO365Setup();
         // [WHEN] Navigate to finish and press finish button.
         NavigateToFinish(VATSetupWizard);
-        VATSetupWizard.ActionFinish.Invoke;
+        VATSetupWizard.ActionFinish.Invoke();
 
         // [THEN] VAT posting setup contains all the possible permutaions.
-        AssertVATPostingGroup;
-        AssertTemplates;
-        AssertGenProdBusGrpAreCleared;
+        AssertVATPostingGroup();
+        AssertTemplates();
+        AssertGenProdBusGrpAreCleared();
     end;
 
     [Test]
@@ -299,24 +299,24 @@ codeunit 132531 "VAT Assisted Setup"
         Customer.DeleteAll();
         Vendor.DeleteAll();
         Item.DeleteAll();
-        InitTemplates;
+        InitTemplates();
 
         LibraryLowerPermissions.SetO365Setup();
         VATSetupWizard.OpenNew();
-        UnSelectBusProdPostigGrp;
-        UnsetGLAccounts;
+        UnSelectBusProdPostigGrp();
+        UnsetGLAccounts();
         NavigateNext(VATSetupWizard, 1);
 
         LibraryVariableStorage.Enqueue('You must select at least one VAT business posting group.');
         NavigateNext(VATSetupWizard, 1);// Empty Bus posting Grp notification
-        SelectVATBusPostingGrp;
+        SelectVATBusPostingGrp();
         NavigateNext(VATSetupWizard, 1);
 
         LibraryVariableStorage.Enqueue('You must select at least one item or service.');
         NavigateNext(VATSetupWizard, 1);// Empty Prod posting grp notification
-        SelectVATProdPostingGrp;
+        SelectVATProdPostingGrp();
         VATSetupWizard.VATProdPostGrpPart.Selected.Value(Format(false));
-        SelectVATProdPostingGrp;
+        SelectVATProdPostingGrp();
         NavigateNext(VATSetupWizard, 1);
 
         LibraryVariableStorage.Enqueue(EmptyGLAccountsMsg);
@@ -324,10 +324,10 @@ codeunit 132531 "VAT Assisted Setup"
         NavigateNext(VATSetupWizard, 1);// Second time notification is hidden and user can proceed
 
         NavigateBack(VATSetupWizard);
-        SetGLAccounts;
+        SetGLAccounts();
         NavigateNext(VATSetupWizard, 2);// VAT Clause
 
-        SetInvalidValuseForTemplates;
+        SetInvalidValuseForTemplates();
         LibraryVariableStorage.Enqueue(' is not valid VAT Business group.');
         NavigateNext(VATSetupWizard, 1);// InvalidTemplate values
         SetBusGrpTemplatesDefaultValue(DATABASE::Customer, '');
@@ -343,13 +343,13 @@ codeunit 132531 "VAT Assisted Setup"
         SetProdGrpTemplatesDefaultValue('');
         NavigateNext(VATSetupWizard, 1);
 
-        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled, 'Expected that Finish action is enabled');
-        VATSetupWizard.ActionFinish.Invoke;
+        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled(), 'Expected that Finish action is enabled');
+        VATSetupWizard.ActionFinish.Invoke();
 
-        AssertVATPostingGroup;
-        AssertTemplates;
-        AssertVATClause;
-        LibraryVariableStorage.AssertEmpty;
+        AssertVATPostingGroup();
+        AssertTemplates();
+        AssertVATClause();
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -367,7 +367,7 @@ codeunit 132531 "VAT Assisted Setup"
           , CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50));
         // [WHEN] There is 0 selected VAT business records.
         // [THEN] Validation function should return False
-        Assert.IsFalse(VATAssistedSetupBusGrp.ValidateVATBusGrp, 'Validation should return false');
+        Assert.IsFalse(VATAssistedSetupBusGrp.ValidateVATBusGrp(), 'Validation should return false');
 
         // [WHEN] There is at least 1 selected VAT business record
         VATAssistedSetupBusGrp.Reset();
@@ -376,7 +376,7 @@ codeunit 132531 "VAT Assisted Setup"
         VATAssistedSetupBusGrp.Modify();
 
         // [THEN] Validation function should return True
-        Assert.IsTrue(VATAssistedSetupBusGrp.ValidateVATBusGrp, 'Validation should return True');
+        Assert.IsTrue(VATAssistedSetupBusGrp.ValidateVATBusGrp(), 'Validation should return True');
     end;
 
     [Test]
@@ -394,7 +394,7 @@ codeunit 132531 "VAT Assisted Setup"
           , CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50));
         // [WHEN] There is 0 selected VAT business records.
         // [THEN] Validation function should return False
-        Assert.IsFalse(VATSetupPostingGroups.ValidateVATRates, 'Validation should return false');
+        Assert.IsFalse(VATSetupPostingGroups.ValidateVATRates(), 'Validation should return false');
 
         // [WHEN] There is at least 1 selected VAT business record
         VATSetupPostingGroups.Reset();
@@ -403,7 +403,7 @@ codeunit 132531 "VAT Assisted Setup"
         VATSetupPostingGroups.Modify();
 
         // [THEN] Validation function should return True
-        Assert.IsTrue(VATSetupPostingGroups.ValidateVATRates, 'Validation should return True');
+        Assert.IsTrue(VATSetupPostingGroups.ValidateVATRates(), 'Validation should return True');
     end;
 
     [Test]
@@ -419,7 +419,7 @@ codeunit 132531 "VAT Assisted Setup"
         GLAccount.DeleteAll();
 
         // [WHEN] VAT setup posting group populate function is called
-        VATSetupPostingGroups.PopulateVATProdGroups;
+        VATSetupPostingGroups.PopulateVATProdGroups();
 
         // [THEN] Validation function should return False
         VATSetupPostingGroups.SetFilter("Sales VAT Account", '<>''''');
@@ -559,7 +559,7 @@ codeunit 132531 "VAT Assisted Setup"
         Actual: Text;
     begin
         if Notification.Message <> '' then begin
-            Expected := LibraryVariableStorage.DequeueText;
+            Expected := LibraryVariableStorage.DequeueText();
             Actual := Notification.Message;
             Assert.IsTrue(StrPos(Actual, Expected) > 0, 'Expected a different notification.');
         end;
@@ -574,7 +574,7 @@ codeunit 132531 "VAT Assisted Setup"
         Actual: Text;
     begin
         if Notification.Message <> '' then begin
-            Expected := LibraryVariableStorage.DequeueText;
+            Expected := LibraryVariableStorage.DequeueText();
             Actual := Notification.Message;
             Assert.IsTrue(StrPos(Actual, Expected) > 0, 'Expected a different notification.');
         end;
@@ -604,20 +604,20 @@ codeunit 132531 "VAT Assisted Setup"
         // Item Template
         // Finish
         for I := 1 to Count do begin
-            Assert.IsTrue(VATSetupWizard.ActionNext.Enabled, 'Expected that actionNext is enabled');
-            VATSetupWizard.ActionNext.Invoke;
+            Assert.IsTrue(VATSetupWizard.ActionNext.Enabled(), 'Expected that actionNext is enabled');
+            VATSetupWizard.ActionNext.Invoke();
         end;
     end;
 
     local procedure NavigateBack(var VATSetupWizard: TestPage "VAT Setup Wizard")
     begin
-        VATSetupWizard.ActionBack.Invoke;
+        VATSetupWizard.ActionBack.Invoke();
     end;
 
     local procedure NavigateToFinish(var VATSetupWizard: TestPage "VAT Setup Wizard")
     begin
         NavigateNext(VATSetupWizard, 8);
-        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled, 'Expected that finish action is enabled.');
+        Assert.IsTrue(VATSetupWizard.ActionFinish.Enabled(), 'Expected that finish action is enabled.');
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer; "Code": Code[10])
@@ -725,7 +725,7 @@ codeunit 132531 "VAT Assisted Setup"
                 VATClause.Init();
                 VATClause.Reset();
                 VATClause.SetFilter(Description, VATSetupPostingGroups."VAT Clause Desc");
-                Assert.IsTrue(VATClause.FindFirst, 'Expected that there is vat clause')
+                Assert.IsTrue(VATClause.FindFirst(), 'Expected that there is vat clause')
             end;
         until VATSetupPostingGroups.Next() = 0;
     end;

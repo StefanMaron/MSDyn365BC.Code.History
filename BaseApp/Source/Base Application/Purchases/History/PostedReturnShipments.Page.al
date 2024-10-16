@@ -13,7 +13,7 @@ page 6652 "Posted Return Shipments"
     PageType = List;
     SourceTable = "Return Shipment Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout

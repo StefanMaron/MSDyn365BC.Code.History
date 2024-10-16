@@ -35,9 +35,9 @@ codeunit 144000 "Proportional VAT Test"
         // Check that proportional VAT successfully posted through Purchase Journal with Additional Currency
 
         Initialize();
-        CurrencyCode := SetupAdditionalCurrency;
+        CurrencyCode := SetupAdditionalCurrency();
         LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
-        CreateProportionalVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", GetTFS190253PropVATRate);
+        CreateProportionalVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", GetTFS190253PropVATRate());
         CreatePostGenJnlLines(GenJnlLine, GenPostingSetup, VATPostingSetup, CurrencyCode, '', WorkDate());
         VerifyGLEntryWithNormalVAT(GenJnlLine, VATPostingSetup);
     end;
@@ -56,11 +56,11 @@ codeunit 144000 "Proportional VAT Test"
         // Check that proportional VAT successfully posted through Purchase Invoice with Additional Currency
 
         Initialize();
-        CurrencyCode := SetupAdditionalCurrency;
+        CurrencyCode := SetupAdditionalCurrency();
         LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
 
         CreateProportionalVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", GetTFS190253PropVATRate);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", GetTFS190253PropVATRate());
         CreatePurchDoc(PurchHeader, PurchLine, CurrencyCode, GenPostingSetup, VATPostingSetup);
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         VerifyGLEntryWithReverseChrgVAT(PurchHeader, PurchLine, VATPostingSetup, DocNo);
@@ -85,13 +85,13 @@ codeunit 144000 "Proportional VAT Test"
 
         ExecuteVATReconciliationReport(false, false, GenJnlLine."Journal Batch Name");
 
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be only one line VAT entry.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be only one line VAT entry.');
 
         CalcVATBaseAmount(VATBaseAmount, VATBaseAmountACY, GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount);
         ExpectedAmount := CalcVATAmount(VATBaseAmount, VATPostingSetup);
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAccountNo_GLEntry', GenJnlLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount_GLEntry', ExpectedAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('PurchVAT', ExpectedAmount);
@@ -120,20 +120,20 @@ codeunit 144000 "Proportional VAT Test"
 
         ExecuteVATReconciliationReport(true, true, GenJnlLine."Journal Batch Name");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Find lines of G/L entries
         GeneralLedgerEntry.Init();
         GeneralLedgerEntry.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         PostedGLEntries := GeneralLedgerEntry.Count();
 
-        Assert.AreEqual(PostedGLEntries, LibraryReportDataset.RowCount, 'There should be three lines of VAT entry.');
+        Assert.AreEqual(PostedGLEntries, LibraryReportDataset.RowCount(), 'There should be three lines of VAT entry.');
 
         CalcVATBaseAmount(VATBaseAmount, VATBaseAmountACY, GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount);
         ExpectedPropVATBaseAmount := CalcPropVATBaseAmount(VATBaseAmount, VATPostingSetup);
         ExpectedVATAmount := CalcVATAmount(VATBaseAmount, VATPostingSetup);
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAccountNo_GLEntry', VATPostingSetup."Purchase VAT Account");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount_GLEntry', 0);
         LibraryReportDataset.AssertCurrentRowValueEquals('BaseAmountPurchVAT', 0);
@@ -146,7 +146,7 @@ codeunit 144000 "Proportional VAT Test"
         Assert.AreEqual(ExpectedVATAmount, GeneralLedgerEntry."VAT Amount",
           'The VAT amount for this G/L Entry must be the same as in Report entry');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAccountNo_GLEntry', GeneralLedgerEntry."G/L Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount_GLEntry', ExpectedVATAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('BaseAmountPurchVAT', ExpectedPropVATBaseAmount);
@@ -157,7 +157,7 @@ codeunit 144000 "Proportional VAT Test"
         GeneralLedgerEntry.SetRange("Document Type", GeneralLedgerEntry."Document Type"::Invoice);
         GeneralLedgerEntry.FindFirst();
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAccountNo_GLEntry', GeneralLedgerEntry."G/L Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount_GLEntry', 0);
         LibraryReportDataset.AssertCurrentRowValueEquals('BaseAmountPurchVAT', 0);
@@ -194,10 +194,10 @@ codeunit 144000 "Proportional VAT Test"
         ExecuteVATReconciliationReport(false, false, GenJournalLine."Journal Batch Name");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         BaseAmountSalesVAT := CalcSalesVATAmount(SalesVAT, PostedDocNo);
         LibraryReportDataset.SetRange('DocumentNo_GLEntry', PostedDocNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('BaseAmountSalesVAT', -BaseAmountSalesVAT);
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesVAT', -SalesVAT);
 
@@ -365,7 +365,7 @@ codeunit 144000 "Proportional VAT Test"
           Round(
             GenJournalLine."VAT Amount" * (100 - VATPostingSetup."Proportional Deduction VAT %") / 100);
 
-        Assert.AreEqual(ExpectedDeferralAmount, GenJournalLine.GetDeferralAmount, DeferralAmountErr);
+        Assert.AreEqual(ExpectedDeferralAmount, GenJournalLine.GetDeferralAmount(), DeferralAmountErr);
         VerifyGLEntryDeferrals(
           DeferralTemplate."Deferral Account", GenJournalLine."Document No.",
           ExpectedDeferralAmount, GLEntry."Document Type"::" ", DeferralTemplate."No. of Periods");
@@ -414,7 +414,7 @@ codeunit 144000 "Proportional VAT Test"
         // [FEATURE] [Reverse Charge VAT] [VAT Settlement]
         // [SCENARIO 295010] Calc. and Post VAT Settlement for reverse charge VAT setup with Proportional Deduction VAT
         Initialize();
-        UpdateSettledVATPeriods;
+        UpdateSettledVATPeriods();
 
         // [GIVEN] VAT Posting Setup with "Calc. Proportional Deduction VAT" = TRUE and "Proportional Deduction VAT %" = 10 and "VAT %" = 20%
         CreateProportionalVATPostingSetup(
@@ -458,7 +458,7 @@ codeunit 144000 "Proportional VAT Test"
         // [FEATURE] [Reverse Charge VAT] [VAT Settlement]
         // [SCENARIO 295010] Calc. and Post VAT Settlement for reverse charge VAT setup with Proportional Deduction VAT = 0
         Initialize();
-        UpdateSettledVATPeriods;
+        UpdateSettledVATPeriods();
 
         // [GIVEN] VAT Posting Setup with "Calc. Proportional Deduction VAT" = TRUE and "Proportional Deduction VAT %" = 0 and "VAT %" = 20%
         CreateProportionalVATPostingSetup(
@@ -501,7 +501,7 @@ codeunit 144000 "Proportional VAT Test"
         // [FEATURE] [Reverse Charge VAT] [VAT Settlement]
         // [SCENARIO 295010] Calc. and Post VAT Settlement for reverse charge VAT setup with Proportional Deduction VAT = 100
         Initialize();
-        UpdateSettledVATPeriods;
+        UpdateSettledVATPeriods();
 
         // [GIVEN] VAT Posting Setup with "Calc. Proportional Deduction VAT" = TRUE and "Proportional Deduction VAT %" = 100 and "VAT %" = 20%
         CreateProportionalVATPostingSetup(
@@ -548,7 +548,7 @@ codeunit 144000 "Proportional VAT Test"
         // [FEATURE] [Reverse Charge VAT] [VAT Settlement]
         // [SCENARIO 297117] Calc. and Post VAT Settlement for reverse charge VAT setup with Proportional Deduction VAT 2 VAT Posting Groups
         Initialize();
-        UpdateSettledVATPeriods;
+        UpdateSettledVATPeriods();
 
         // [GIVEN] Two VAT Posting Setup with "Calc. Proportional Deduction VAT" = TRUE and same VAT Business Posting Group
         // [GIVEN] The first VAT Posting Setup has "Proportional Deduction VAT %" = 10 and "VAT %" = 20%
@@ -621,7 +621,7 @@ codeunit 144000 "Proportional VAT Test"
         ExecuteVATReconciliationReport(true, true, GenJnlLine."Journal Batch Name");
 
         // [THEN] BaseAmountPurchVAT in dataset is equal G/L Entry Amount = 100.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('BaseAmountPurchVAT', EntryAmount);
     end;
 
@@ -658,7 +658,7 @@ codeunit 144000 "Proportional VAT Test"
         ExecuteVATReconciliationReport(true, true, GenJnlLine."Journal Batch Name");
 
         // [THEN] BaseAmountSalesVAT in dataset is equal to G/L Entry Amount = 100.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('BaseAmountSalesVAT', -EntryAmount);
     end;
 #endif
@@ -678,7 +678,7 @@ codeunit 144000 "Proportional VAT Test"
         // [SCENARIO 339793] Stan can calculate and post VAT settlement against the proportional VAT entry posted without the associated vendor ledger entry
 
         Initialize();
-        UpdateSettledVATPeriods;
+        UpdateSettledVATPeriods();
 
         // [GIVEN] VAT Posting Setup with "Calc. Proportional Deduction VAT" = TRUE and "Proportional Deduction VAT %" = 10 and "VAT %" = 20%
         CreateProportionalVATPostingSetup(
@@ -733,7 +733,7 @@ codeunit 144000 "Proportional VAT Test"
     end;
 
     [Normal]
-    local procedure CreatePurchInvWithPropVat(var PurchHeader: Record "Purchase Header"; DocumentType: Option; var PurchLine: Record "Purchase Line"; VatPostingSetup: Record "VAT Posting Setup"; DirectUnitCost: Decimal; Quantity: Decimal)
+    local procedure CreatePurchInvWithPropVat(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; var PurchLine: Record "Purchase Line"; VatPostingSetup: Record "VAT Posting Setup"; DirectUnitCost: Decimal; Quantity: Decimal)
     var
         GenPostingSetup: Record "General Posting Setup";
     begin
@@ -762,7 +762,7 @@ codeunit 144000 "Proportional VAT Test"
         GLSetup: Record "General Ledger Setup";
     begin
         GLSetup.Get();
-        GLSetup."Additional Reporting Currency" := CreateCurrencyWithExchRate;
+        GLSetup."Additional Reporting Currency" := CreateCurrencyWithExchRate();
         GLSetup.Modify(true);
         exit(GLSetup."Additional Reporting Currency");
     end;
@@ -773,14 +773,14 @@ codeunit 144000 "Proportional VAT Test"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("Residual Losses Account", LibraryERM.CreateGLAccountNo);
+        Currency.Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Residual Losses Account", LibraryERM.CreateGLAccountNo());
         Currency.Modify(true);
 
         LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
-        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", GetTFS190253ExchRate);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", GetTFS190253ExchRate());
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
         CurrencyExchangeRate.Modify(true);
         exit(Currency.Code);
@@ -797,7 +797,7 @@ codeunit 144000 "Proportional VAT Test"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; EntryAmount: Decimal; GenPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option)
+    local procedure CreateGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; EntryAmount: Decimal; GenPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type")
     begin
         with GenJnlLine do begin
             InitGenJnlLine(GenJnlLine);
@@ -806,8 +806,8 @@ codeunit 144000 "Proportional VAT Test"
               GenJnlLine, "Journal Template Name", "Journal Batch Name", "Document Type"::Invoice, AccountType, AccountNo, -EntryAmount);
 
             LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name", 0,
-              "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, EntryAmount);
+              GenJnlLine, "Journal Template Name", "Journal Batch Name", "Gen. Journal Document Type"::" ",
+              "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), EntryAmount);
             Validate("Gen. Posting Type", GenPostingType);
             Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
             Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -820,8 +820,8 @@ codeunit 144000 "Proportional VAT Test"
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDec(10, 2));
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -836,13 +836,13 @@ codeunit 144000 "Proportional VAT Test"
         VATPostingSetupNew.Insert();
     end;
 
-    local procedure CreateProportionalVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; ProportionalVATPct: Decimal)
+    local procedure CreateProportionalVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; ProportionalVATPct: Decimal)
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATCalculationType, GetTFS190253VATRate);
+          VATPostingSetup, VATCalculationType, GetTFS190253VATRate());
 
         with VATPostingSetup do begin
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
             Validate("Calc. Prop. Deduction VAT", true);
             Validate("Proportional Deduction VAT %", ProportionalVATPct);
             Modify(true);
@@ -867,8 +867,8 @@ codeunit 144000 "Proportional VAT Test"
             Modify(true);
 
             LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name", 0,
-              "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, EntryAmount);
+              GenJnlLine, "Journal Template Name", "Journal Batch Name", "Gen. Journal Document Type"::" ",
+              "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), EntryAmount);
             Validate("Currency Code", CurrencyCode);
             Validate("Posting Date", PostingDate);
             Validate("Gen. Posting Type", "Gen. Posting Type"::Purchase);
@@ -894,7 +894,7 @@ codeunit 144000 "Proportional VAT Test"
               GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
               "Document Type"::Payment, "Account Type"::Customer, CustomerNo, 0);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Modify(true);
             SetAppliesToIDToCashRcptJnl("Document Type"::Payment, "Document No.", GenJnlBatch.Name);
@@ -952,9 +952,9 @@ codeunit 144000 "Proportional VAT Test"
         GenPostingSetup: Record "General Posting Setup";
         CurrencyCode: Code[10];
     begin
-        CurrencyCode := SetupAdditionalCurrency;
+        CurrencyCode := SetupAdditionalCurrency();
         LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
-        CreateProportionalVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", GetTFS190253PropVATRate);
+        CreateProportionalVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", GetTFS190253PropVATRate());
         CreatePostGenJnlLines(GenJnlLine, GenPostingSetup, VATPostingSetup, CurrencyCode, '', WorkDate());
     end;
 
@@ -993,7 +993,7 @@ codeunit 144000 "Proportional VAT Test"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-        Customer.Validate("Payment Terms Code", CreatePaymentTermCode);
+        Customer.Validate("Payment Terms Code", CreatePaymentTermCode());
         Customer.Modify(true);
     end;
 
@@ -1033,7 +1033,7 @@ codeunit 144000 "Proportional VAT Test"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         PurchaseHeader.Validate("Posting Date", CalcDate('<-CM>', WorkDate()));
         PurchaseHeader.Modify(true);
@@ -1046,7 +1046,7 @@ codeunit 144000 "Proportional VAT Test"
         PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         PurchaseLine.Validate("Deferral Code", DeferralTemplateCode);
         PurchaseLine.Modify(true);
-        exit(PurchaseLine.GetDeferralAmount);
+        exit(PurchaseLine.GetDeferralAmount());
     end;
 
     local procedure CreatePurchInvWithVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
@@ -1056,8 +1056,8 @@ codeunit 144000 "Proportional VAT Test"
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
-          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           LibraryRandom.RandIntInRange(100, 200));
         GenJournalLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GenJournalLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -1068,7 +1068,7 @@ codeunit 144000 "Proportional VAT Test"
     local procedure CreateLineWithVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJournalLine, 0, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine, "Gen. Journal Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           LibraryRandom.RandIntInRange(100, 200));
         GenJournalLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GenJournalLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -1130,18 +1130,18 @@ codeunit 144000 "Proportional VAT Test"
         GeneralPostingSetup.Modify(true);
     end;
 
-    local procedure SetAppliesToIDToCashRcptJnl(DocumentType: Option; DocumentNo: Code[20]; JournalBatchName: Code[10])
+    local procedure SetAppliesToIDToCashRcptJnl(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; JournalBatchName: Code[10])
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         Commit();  // Commit is require for opening Cash Receipt Journal Page.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue := JournalBatchName;
         CashReceiptJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
         CashReceiptJournal.FILTER.SetFilter("Document No.", DocumentNo);
-        CashReceiptJournal.First;
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal.First();
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();
+        CashReceiptJournal.OK().Invoke();
     end;
 
     local procedure GetTFS190253VATRate(): Decimal
@@ -1169,21 +1169,21 @@ codeunit 144000 "Proportional VAT Test"
             VATBaseAmountACY := Amount;
             VATBaseAmount :=
               Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', PostingDate),
-                LibraryERM.GetAmountRoundingPrecision);
+                LibraryERM.GetAmountRoundingPrecision());
         end else begin
             VATBaseAmount := Amount;
             VATBaseAmountACY :=
               Round(LibraryERM.ConvertCurrency(Amount, '', GLSetup."Additional Reporting Currency", PostingDate),
-                LibraryERM.GetAmountRoundingPrecision);
+                LibraryERM.GetAmountRoundingPrecision());
         end;
     end;
 
     local procedure CalcPropVATBaseAmount(VATBaseAmount: Decimal; VATPostingSetup: Record "VAT Posting Setup") VATAmount: Decimal
     begin
         VATAmount :=
-          Round(VATBaseAmount * 100 / (100 + VATPostingSetup."VAT %"), LibraryERM.GetAmountRoundingPrecision);
+          Round(VATBaseAmount * 100 / (100 + VATPostingSetup."VAT %"), LibraryERM.GetAmountRoundingPrecision());
         VATAmount :=
-          Round(VATAmount * VATPostingSetup."Proportional Deduction VAT %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(VATAmount * VATPostingSetup."Proportional Deduction VAT %" / 100, LibraryERM.GetAmountRoundingPrecision());
         exit(VATAmount);
     end;
 
@@ -1191,16 +1191,16 @@ codeunit 144000 "Proportional VAT Test"
     var
         RoundingPrecision: Decimal;
     begin
-        RoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+        RoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
         VATAmount := Round(CalcPropVATBaseAmount(VATBaseAmount, VATPostingSetup) * VATPostingSetup."VAT %" / 100, RoundingPrecision);
         exit(VATAmount);
     end;
 
     local procedure CalcVATAmount2(VATBaseAmount: Decimal; VATPostingSetup: Record "VAT Posting Setup"; DeductWithPropVAT: Boolean) VATAmount: Decimal
     begin
-        VATAmount := Round(VATBaseAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision);
+        VATAmount := Round(VATBaseAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision());
         if DeductWithPropVAT then
-            VATAmount := Round(VATAmount * VATPostingSetup."Proportional Deduction VAT %" / 100, LibraryERM.GetAmountRoundingPrecision);
+            VATAmount := Round(VATAmount * VATPostingSetup."Proportional Deduction VAT %" / 100, LibraryERM.GetAmountRoundingPrecision());
         exit(VATAmount);
     end;
 
@@ -1214,7 +1214,7 @@ codeunit 144000 "Proportional VAT Test"
             repeat
                 BaseAmountSalesVAT += Base;
                 SalesVAT += Amount;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1262,7 +1262,7 @@ codeunit 144000 "Proportional VAT Test"
         GLEntry.TestField("Additional-Currency Amount", ExpectedAmountACY);
     end;
 
-    local procedure VerifyGLEntryDeferrals(DeferralAccountNo: Code[20]; DocNo: Code[20]; DeferredAmount: Decimal; DocType: Option; CountOfPeriod: Integer)
+    local procedure VerifyGLEntryDeferrals(DeferralAccountNo: Code[20]; DocNo: Code[20]; DeferredAmount: Decimal; DocType: Enum "Gen. Journal Document Type"; CountOfPeriod: Integer)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1297,8 +1297,8 @@ codeunit 144000 "Proportional VAT Test"
 
     local procedure VerifyVATSettlementDataset(PropDedVATAmount: Decimal; RevChargeVATAmount: Decimal; SettledVATAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('GenJnlLineVATAmount', -PropDedVATAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('GenJnlLine2Amount', RevChargeVATAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', SettledVATAmount);
@@ -1331,7 +1331,7 @@ codeunit 144000 "Proportional VAT Test"
         VATReconciliation.ShowTransWithoutVAT.SetValue(ShowTransactionsWithVAT);
 
         VATReconciliation."G/L Entry".SetFilter("Journal Batch Name", JournalBatchName);
-        VATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 #endif
 
@@ -1339,14 +1339,14 @@ codeunit 144000 "Proportional VAT Test"
     [Scope('OnPrem')]
     procedure ApplyCustEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalcPostVATSettlementReqPageHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
-        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

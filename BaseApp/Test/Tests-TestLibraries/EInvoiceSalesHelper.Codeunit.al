@@ -55,7 +55,7 @@ codeunit 143000 "E-Invoice Sales Helper"
     begin
         EInvoiceHelper.SetCustomer(NewCustomer);
         CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
-        EInvoiceHelper.ClearCustomer;
+        EInvoiceHelper.ClearCustomer();
         SalesHeader."Salesperson Code" := SalesPersonCode;
         NewCustomer."No." := SalesHeader."Bill-to Customer No.";
         exit(PostSalesOrder(SalesHeader));
@@ -87,13 +87,13 @@ codeunit 143000 "E-Invoice Sales Helper"
     begin
         EInvoiceHelper.SetCustomer(NewCustomer);
         CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        EInvoiceHelper.ClearCustomer;
+        EInvoiceHelper.ClearCustomer();
         SalesHeader."Salesperson Code" := SalesPersonCode;
         NewCustomer."No." := SalesHeader."Bill-to Customer No.";
         exit(PostSalesOrder(SalesHeader));
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         HowManyLinesToCreate: Integer;
@@ -108,7 +108,7 @@ codeunit 143000 "E-Invoice Sales Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesDocInForeignCurrency(DocType: Option): Code[20]
+    procedure CreateSalesDocInForeignCurrency(DocType: Enum "Sales Document Type"): Code[20]
     var
         TempCustomer: Record Customer temporary;
         SalesHeader: Record "Sales Header";
@@ -117,7 +117,7 @@ codeunit 143000 "E-Invoice Sales Helper"
         TempCustomer.Validate("Currency Code", EInvoiceHelper.CreateExchangeRate(SalesHeader."Posting Date"));
         EInvoiceHelper.SetCustomer(TempCustomer);
         CreateSalesDoc(SalesHeader, DocType);
-        EInvoiceHelper.ClearCustomer;
+        EInvoiceHelper.ClearCustomer();
         exit(PostSalesOrder(SalesHeader));
     end;
 
@@ -161,7 +161,7 @@ codeunit 143000 "E-Invoice Sales Helper"
         exit(PostSalesOrder(SalesHeader));
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
     begin

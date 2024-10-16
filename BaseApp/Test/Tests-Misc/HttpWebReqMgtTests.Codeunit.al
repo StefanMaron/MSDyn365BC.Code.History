@@ -25,13 +25,13 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
     begin
         // [GIVEN] Everything set up for new request on prem.
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [WHEN] We initialize Http Web Request Management with a new Url.
         HttpWebRequestMgt.Initialize(UrlTok);
 
         // [THEN] Url is changed to a new value.
-        Assert.AreEqual(RewritenUrlTok, HttpWebRequestMgt.GetUrl, 'Url should be changed if rewriten.');
+        Assert.AreEqual(RewritenUrlTok, HttpWebRequestMgt.GetUrl(), 'Url should be changed if rewriten.');
     end;
 
     [Test]
@@ -42,14 +42,14 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
     begin
         // [GIVEN] Everything set up for new request in SaaS.
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [WHEN] We initialize Http Web Request Management with a new Url.
         HttpWebRequestMgt.Initialize(UrlTok);
 
         // [THEN] Url remains identical as it was.
-        Assert.AreEqual(UrlTok, HttpWebRequestMgt.GetUrl, 'Url can not be rewritten in SaaS.');
+        Assert.AreEqual(UrlTok, HttpWebRequestMgt.GetUrl(), 'Url can not be rewritten in SaaS.');
     end;
 
     [Test]
@@ -60,7 +60,7 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
     begin
         // [GIVEN] Everything set up for new request, there are not rewrite subscribers.
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         Initialized := false;
         UnbindSubscription(HttpWebReqMgtTests);
 
@@ -68,7 +68,7 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
         HttpWebRequestMgt.Initialize(UrlTok);
 
         // [THEN] Url should remain identical.
-        Assert.AreEqual(UrlTok, HttpWebRequestMgt.GetUrl, 'Url cannot change if there are not subscribers.');
+        Assert.AreEqual(UrlTok, HttpWebRequestMgt.GetUrl(), 'Url cannot change if there are not subscribers.');
     end;
 
     [Test]
@@ -79,7 +79,7 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
     begin
         // [GIVEN] Everything set up for new request on prem.
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [WHEN] We initialize Http Web Request Management with a new Url and set basic authentication
         HttpWebRequestMgt.Initialize(UrlTok);

@@ -164,13 +164,13 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // 1. Setup: Find Last G/L Entry No.
         Initialize();
-        LastGLEntryNo := GetLastGLEntryNumber;
+        LastGLEntryNo := GetLastGLEntryNumber();
 
         // Create General Journal Line.
         CreateGeneralJournalLineByPage(GeneralJournal);
 
         // 2. Exercise: Post General Journal Line.
-        GeneralJournal.Post.Invoke;
+        GeneralJournal.Post.Invoke();
 
         // 3. Verify: Check Entry No. of G/L Entry must not be increased.
         GLEntry.FindLast();
@@ -190,13 +190,13 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // 1. Setup: Find Last G/L Entry No.
         Initialize();
-        LastGLEntryNo := GetLastGLEntryNumber;
+        LastGLEntryNo := GetLastGLEntryNumber();
 
         // Create General Journal Line.
         CreateGeneralJournalLineByPage(GeneralJournal);
 
         // 2. Exercise: Post General Journal Line.
-        GeneralJournal.Post.Invoke;
+        GeneralJournal.Post.Invoke();
 
         // 3. Verify: Check Entry No. of G/L Entry must not be increased.
         GLEntry.SetFilter("Entry No.", '>%1', LastGLEntryNo);
@@ -220,7 +220,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // 2. Exercise: Open General Journal Page with new Template.
         Commit();  // COMMIT needs before create General Journal.
-        GeneralJournal.OpenEdit;  // Template selection performed in General Journal Template Handler.
+        GeneralJournal.OpenEdit();  // Template selection performed in General Journal Template Handler.
 
         // 3. Verify: Verify General Journal Batch Name on General Journal Page
         GeneralJournal.CurrentJnlBatchName.AssertEquals(GenJournalBatch.Name);
@@ -248,12 +248,12 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // 2. Exercise: Create and post General Line with Account Type as G/L Account and Random Amount.
         Commit();  // COMMIT needs before create General Journal.
-        GeneralJournal.OpenEdit;  // Template selection performed in General Journal Template Handler.
-        DocumentNo := GeneralJournal."Document No.".Value;
+        GeneralJournal.OpenEdit();  // Template selection performed in General Journal Template Handler.
+        DocumentNo := GeneralJournal."Document No.".Value();
         GeneralJournal."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        GeneralJournal."Account No.".SetValue(LibraryERM.CreateGLAccountNo);
+        GeneralJournal."Account No.".SetValue(LibraryERM.CreateGLAccountNo());
         UpdateAmountOnGenJournalLine(GenJournalBatch, GeneralJournal);
-        GeneralJournal.Post.Invoke;
+        GeneralJournal.Post.Invoke();
 
         // 3. Verify: Verify Balance Account on General Journal Page.
         VerifyBalanceAccountOnGLEntry(DocumentNo, GenJournalBatch."Bal. Account No.");
@@ -484,7 +484,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         Initialize();
         SelectAndClearGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLineWithPostingNoSeries(
-          GenJournalLine, GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode, LibraryRandom.RandDec(100, 2));  // General Journal Line with Posting No Series.
+          GenJournalLine, GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode(), LibraryRandom.RandDec(100, 2));  // General Journal Line with Posting No Series.
         CreateGeneralJournalLineWithPostingNoSeries(GenJournalLine, GenJournalBatch, '', -GenJournalLine.Amount);  // General Journal Line without Posting No Series.
 
         // Exercise: Post General Journal Line. It should generate error.
@@ -532,8 +532,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Setup: Create General Journal Lines using No. Series by General Journal Page."Document No." of the Journal Lines will contain different number of digits.
         // Exercise: Post General Journal.
         Initialize();
-        JournalBatchName :=
-          CreateAndPostGeneralJournalLinesUsingNoSeriesByPage(Format(LibraryRandom.RandInt(8)), LibraryRandom.RandIntInRange(10, 20));
+        JournalBatchName := CreateAndPostGeneralJournalLinesUsingNoSeriesByPage(LibraryRandom.RandIntInRange(10, 20));
 
         // Verify: Verify the General Journal had posted successfully to G/L Register.
         VerifyGLRegister(JournalBatchName);
@@ -565,7 +564,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateGeneralJournalLineWithBalanceLine(
           GenJournalBatch, GenJournalLine, DocumentNos[1], DocumentNos[2], WorkDate());
         CreateGeneralJournalLineWithBalanceLine(
-          GenJournalBatch, GenJournalLine, DocumentNos[3], DocumentNos[4], WorkDate + 1);
+          GenJournalBatch, GenJournalLine, DocumentNos[3], DocumentNos[4], WorkDate() + 1);
 
         // [WHEN] General Journal Lines posted
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -600,7 +599,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateGeneralJournalLineWithBalanceLine(
           GenJournalBatch, GenJournalLine, DocumentNos[1], DocumentNos[2], WorkDate());
         CreateGeneralJournalLineWithBalanceLine(
-          GenJournalBatch, GenJournalLine, DocumentNos[3], DocumentNos[4], WorkDate + 1);
+          GenJournalBatch, GenJournalLine, DocumentNos[3], DocumentNos[4], WorkDate() + 1);
 
         // [WHEN] General Journal Lines posted
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -624,10 +623,10 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // [GIVEN] General Journal Batch "N"
         CreateGeneralJournalBatchSuggestBalAmount(GenJournalBatch, false);
 
-        GeneralJournalTemplates.OpenView;
+        GeneralJournalTemplates.OpenView();
         GeneralJournalTemplates.FILTER.SetFilter(Name, GenJournalBatch."Journal Template Name");
-        GeneralJournalBatches.Trap;
-        GeneralJournalTemplates.Batches.Invoke;
+        GeneralJournalBatches.Trap();
+        GeneralJournalTemplates.Batches.Invoke();
 
         // [WHEN] Set "Suggest Balancing Amount" = TRUE on General Journal Batch "N" page
         GeneralJournalBatches."Suggest Balancing Amount".SetValue(true);
@@ -812,7 +811,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // [GIVEN] Gen. Jnl. Line G0001 with Amount 10 with "Bal. Account No." = 2910
         CreateSimpleGenJnlLine(GenJournalLine, GenJournalBatch, LibraryRandom.RandDec(100, 2), BalDocNo);
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
         // [GIVEN] Gen. Jnl. Line G0001 with Amount 20
         CreateSimpleGenJnlLine(LastGenJournalLine, GenJournalBatch, BalAmt, BalDocNo);
@@ -1239,11 +1238,11 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
 
-        GeneralJournalTestPage.Trap;
+        GeneralJournalTestPage.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
 
         GeneralJournalTestPage."<Document No. Simple Page>".SetValue(DocumentNo);
-        GeneralJournalTestPage."Customers Opening balance".Invoke;
+        GeneralJournalTestPage."Customers Opening balance".Invoke();
 
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
         GenJournalLine.SetRange("Document No.", DocumentNo);
@@ -1280,11 +1279,11 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
 
-        GeneralJournalTestPage.Trap;
+        GeneralJournalTestPage.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
 
         GeneralJournalTestPage."<Document No. Simple Page>".SetValue(DocumentNo);
-        GeneralJournalTestPage."Vendors Opening balance".Invoke;
+        GeneralJournalTestPage."Vendors Opening balance".Invoke();
 
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
         GenJournalLine.SetRange("Document No.", DocumentNo);
@@ -1324,11 +1323,11 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
 
-        GeneralJournalTestPage.Trap;
+        GeneralJournalTestPage.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
 
         GeneralJournalTestPage."<Document No. Simple Page>".SetValue(DocumentNo);
-        GeneralJournalTestPage."G/L Accounts Opening balance ".Invoke;
+        GeneralJournalTestPage."G/L Accounts Opening balance ".Invoke();
 
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
         GenJournalLine.SetRange("Document No.", DocumentNo);
@@ -1353,7 +1352,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // [GIVEN] "Bal. Account Type" = "G/L Account", "Bal. Account No." is empty, "Bank Payment Type" = blank / "Manual Check", same "Document No".
         CreateGeneralJournalLinesForManualCheck(
             GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
-            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 1));
+            LibraryPurchase.CreateVendorNo(), GenJnlLine."Bal. Account Type"::"G/L Account", LibraryRandom.RandDec(100, 1));
         DocumentNo := GenJnlLine."Document No.";
 
         // [WHEN] "Gen. Jnl.-Post" codeunit is run for Gen. Journal Lines.
@@ -1364,7 +1363,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // [THEN] Warning with text "When printing checks from lines with Bal. Acc. No blank you will not be able to void the check. Do you want to continue?".
         LibraryVariableStorage.DequeueText();
-        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText());
 
         // [THEN] When accepted, Gen. Journal Lines are posted.
         VerifyGLEntriesCount(DocumentNo, 2);
@@ -1389,7 +1388,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // [GIVEN] "Bal. Account Type" = "G/L Account", "Bal. Account No." is empty, "Bank Payment Type" = blank / "Manual Check", same "Document No".
         CreateGeneralJournalLinesForManualCheck(
             GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
-            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 1));
+            LibraryPurchase.CreateVendorNo(), GenJnlLine."Bal. Account Type"::"G/L Account", LibraryRandom.RandDec(100, 1));
         DocumentNo := GenJnlLine."Document No.";
 
         // [WHEN] "Gen. Jnl.-Post" codeunit is run for Gen. Journal Lines.
@@ -1400,7 +1399,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // [THEN] Warning with text "When printing checks from lines with Bal. Acc. No blank you will not be able to void the check. Do you want to continue?".
         LibraryVariableStorage.DequeueText();
-        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText());
 
         // [THEN] When canceled, Gen. Journal Lines are not posted.
         VerifyGLEntriesCount(DocumentNo, 0);
@@ -1425,7 +1424,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // [GIVEN] "Bal. Account Type" = "G/L Account", "Bal. Account No." is empty, "Bank Payment Type" = blank / "Manual Check", same "Document No".
         CreateGeneralJournalLinesForManualCheck(
             GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
-            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 1));
+            LibraryPurchase.CreateVendorNo(), GenJnlLine."Bal. Account Type"::"G/L Account", LibraryRandom.RandDec(100, 1));
         DocumentNo := GenJnlLine."Document No.";
 
         // [WHEN] "Gen. Jnl.-Post+Print" codeunit is run for Gen. Journal Lines.
@@ -1436,7 +1435,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // [THEN] Warning with text "When printing checks from lines with Bal. Acc. No blank you will not be able to void the check. Do you want to continue?".
         LibraryVariableStorage.DequeueText();
-        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText());
 
         // [THEN] When accepted, Gen. Journal Lines are posted.
         VerifyGLEntriesCount(DocumentNo, 2);
@@ -1461,7 +1460,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // [GIVEN] "Bal. Account Type" = "G/L Account", "Bal. Account No." is empty, "Bank Payment Type" = blank / "Manual Check", same "Document No".
         CreateGeneralJournalLinesForManualCheck(
             GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
-            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 1));
+            LibraryPurchase.CreateVendorNo(), GenJnlLine."Bal. Account Type"::"G/L Account", LibraryRandom.RandDec(100, 1));
         DocumentNo := GenJnlLine."Document No.";
 
         // [WHEN] "Gen. Jnl.-Post+Print" codeunit is run for Gen. Journal Lines.
@@ -1472,7 +1471,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // [THEN] Warning with text "When printing checks from lines with Bal. Acc. No blank you will not be able to void the check. Do you want to continue?".
         LibraryVariableStorage.DequeueText();
-        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText());
 
         // [THEN] When canceled, Gen. Journal Lines are not posted.
         VerifyGLEntriesCount(DocumentNo, 0);
@@ -1488,13 +1487,6 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         LastGenJournalLine: Record "Gen. Journal Line";
-        GenJnlMgmt: Codeunit GenJnlManagement;
-        RecRef: RecordRef;
-        BalDocNo: Code[20];
-        BalAmt: Decimal;
-        BalAmt2: Decimal;
-        ShowBal1: Boolean;
-        ShowBal2: Boolean;
     begin
         // [SCENARIO 441143] Suggest balancing Amount Function should not use the old document no. if total balance of last lines is zero.
         Initialize();
@@ -1594,7 +1586,6 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
             GenJournalBatch,
             Vendor1."No.",
             DocumentNo,
-            WorkDate(),
             GenJournalLine."Bal. Account Type"::"G/L Account",
             GLAccountNo);
 
@@ -1604,7 +1595,6 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
             GenJournalBatch,
             Vendor2."No.",
             DocumentNo,
-            WorkDate() + 1,
             GenJournalLine."Bal. Account Type"::"Bank Account",
             BankAccountNo);
 
@@ -1614,7 +1604,6 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
             GenJournalBatch,
             Vendor3."No.",
             DocumentNo,
-            WorkDate() + 1,
             GenJournalLine."Bal. Account Type"::"G/L Account",
             GLAccountNo);
 
@@ -1624,7 +1613,6 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
             GenJournalBatch,
             Vendor4."No.",
             DocumentNo,
-            WorkDate() - 1,
             GenJournalLine."Bal. Account Type"::"Bank Account",
             BankAccountNo);
 
@@ -1663,7 +1651,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJnlManagement.SetJournalSimplePageModePreference(true, Page::"General Journal");
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
@@ -1721,16 +1709,16 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     local procedure UpdateGeneralBatchNoSeriesAndBalAccount(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         GenJournalBatch.Validate(Description, GenJournalBatch.Name);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalBatchWithNoSeries(var GenJournalBatch: Record "Gen. Journal Batch"; LastNoUsed: Code[20])
+    local procedure CreateGeneralJournalBatchWithNoSeries(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         CreateGeneralJournalBatch(GenJournalBatch);
-        GenJournalBatch.Validate("No. Series", CreateNoSeriesWithLastNoUsed(LastNoUsed));
+        GenJournalBatch.Validate("No. Series", CreateNoSeries());
         GenJournalBatch.Modify(true);
     end;
 
@@ -1782,7 +1770,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // Create General Journal Line.
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         GeneralJournal."Account No.".SetValue(GLAccount."No.");
         UpdateAmountOnGenJournalLine(GenJournalBatch, GeneralJournal);
@@ -1810,7 +1798,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLinesForManualCheck(var GenJnlLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateGeneralJournalLinesForManualCheck(var GenJnlLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; LineAmount: Decimal)
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlTemplate: Record "Gen. Journal Template";
@@ -1825,14 +1813,14 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
             DocumentNo := "Document No.";
             LibraryERM.CreateGeneralJnlLineWithBalAcc(
               GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, DocumentType,
-              "Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, BalAccountType, '', -LineAmount);
+              "Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), BalAccountType, '', -LineAmount);
             Validate("Document No.", DocumentNo);
             Validate("Bank Payment Type", "Bank Payment Type"::"Manual Check");
             Modify(true);
         end;
     end;
 
-    local procedure CreateAndPostGeneralJournalLinesUsingNoSeriesByPage(LastNoUsed: Code[20]; LineCount: Integer): Code[10]
+    local procedure CreateAndPostGeneralJournalLinesUsingNoSeriesByPage(LineCount: Integer): Code[10]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1841,20 +1829,20 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         i: Integer;
     begin
         // Create General Journal Template, General Journal Batch and G/L Account.
-        CreateGeneralJournalBatchWithNoSeries(GenJournalBatch, LastNoUsed);
+        CreateGeneralJournalBatchWithNoSeries(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
 
         // Open General Journal Page and create General Journal Lines.
         Commit(); // As there is a RUNMODAL inside the following call: GeneralJournal.OPENEDIT.
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         for i := 1 to LineCount do begin
             GeneralJournal."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
             GeneralJournal."Account No.".SetValue(GLAccount."No.");
             GeneralJournal.Next();
         end;
         UpdateAmountOnGenJournalLines(GenJournalBatch, GeneralJournal);
-        GeneralJournal.Post.Invoke;
+        GeneralJournal.Post.Invoke();
         exit(GenJournalBatch.Name);
     end;
 
@@ -1862,7 +1850,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amount);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
         GenJournalLine.Validate("Posting No. Series", PostingNoSeries);
         GenJournalLine.Modify(true);
     end;
@@ -1871,7 +1859,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(10, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(10, 2));
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Modify(true);
     end;
@@ -1888,7 +1876,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, GLAmount);
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), GLAmount);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Modify(true);
     end;
@@ -1918,14 +1906,13 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         VATPostingSetup.FindFirst();
     end;
 
-    local procedure CreateNoSeriesWithLastNoUsed(LastNoUsed: Code[20]): Code[10]
+    local procedure CreateNoSeries(): Code[20]
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-        NoSeriesLine.Validate("Last No. Used", LastNoUsed);
         NoSeriesLine.Modify(true);
         exit(NoSeries.Code);
     end;
@@ -2134,15 +2121,15 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-        GeneralJournal.OK.Invoke; // Need to close the Page to ensure changes are reflected on Record Variable.
+        GeneralJournal.OK().Invoke(); // Need to close the Page to ensure changes are reflected on Record Variable.
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
         with GenJournalLine do begin
             repeat
                 Validate(Amount, LibraryRandom.RandDec(100, 2)); // Update Random Amount.
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
     end;
 
@@ -2263,7 +2250,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine.Insert(true);
     end;
 
-    local procedure CreateGeneralJournalLineWithBalAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; DocNo: Code[20]; PostingDate: Date; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
+    local procedure CreateGeneralJournalLineWithBalAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; DocNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(
             GenJournalLine,
@@ -2297,9 +2284,9 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
     local procedure VerifyGenJnlBatchNames(var GeneralJournalBatches: TestPage "General Journal Batches"; BatchNameFirst: Code[10]; BatchNameLast: Code[10])
     begin
-        GeneralJournalBatches.First;
+        GeneralJournalBatches.First();
         GeneralJournalBatches.Description.AssertEquals(BatchNameFirst);
-        GeneralJournalBatches.Last;
+        GeneralJournalBatches.Last();
         GeneralJournalBatches.Description.AssertEquals(BatchNameLast);
     end;
 
@@ -2307,8 +2294,8 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateHandler(var GeneralJournalTemplateHandler: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateHandler.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateHandler.OK.Invoke;
+        GeneralJournalTemplateHandler.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateHandler.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -2335,7 +2322,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     [Scope('OnPrem')]
     procedure ConfirmMessageHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.Enqueue(Question);
     end;
 
@@ -2343,55 +2330,55 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     [Scope('OnPrem')]
     procedure CreateGLAccJournalLinesRequestPageHandler(var CreateGLAccJournalLines: TestRequestPage "Create G/L Acc. Journal Lines")
     begin
-        CreateGLAccJournalLines.DocumentTypes.SetValue(LibraryVariableStorage.DequeueInteger); // Document Type
-        CreateGLAccJournalLines.PostingDate.SetValue(LibraryVariableStorage.DequeueDate); // Posting Date
-        CreateGLAccJournalLines.JournalTemplate.SetValue(LibraryVariableStorage.DequeueText); // Journal Template
-        CreateGLAccJournalLines.BatchName.SetValue(LibraryVariableStorage.DequeueText); // Batch Name
-        CreateGLAccJournalLines.TemplateCode.SetValue(LibraryVariableStorage.DequeueText); // Std. Template Code
-        CreateGLAccJournalLines.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
-        CreateGLAccJournalLines.OK.Invoke;
+        CreateGLAccJournalLines.DocumentTypes.SetValue(LibraryVariableStorage.DequeueInteger()); // Document Type
+        CreateGLAccJournalLines.PostingDate.SetValue(LibraryVariableStorage.DequeueDate()); // Posting Date
+        CreateGLAccJournalLines.JournalTemplate.SetValue(LibraryVariableStorage.DequeueText()); // Journal Template
+        CreateGLAccJournalLines.BatchName.SetValue(LibraryVariableStorage.DequeueText()); // Batch Name
+        CreateGLAccJournalLines.TemplateCode.SetValue(LibraryVariableStorage.DequeueText()); // Std. Template Code
+        CreateGLAccJournalLines.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
+        CreateGLAccJournalLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreateCustomerJournalLinesRequestPageHandler(var CreateCustomerJournalLines: TestRequestPage "Create Customer Journal Lines")
     begin
-        CreateCustomerJournalLines.DocumentTypes.SetValue(LibraryVariableStorage.DequeueInteger); // Document Type
-        CreateCustomerJournalLines.PostingDate.SetValue(LibraryVariableStorage.DequeueDate); // Posting Date
-        CreateCustomerJournalLines.DocumentDate.SetValue(LibraryVariableStorage.DequeueDate); // Document Date
-        CreateCustomerJournalLines.JournalTemplate.SetValue(LibraryVariableStorage.DequeueText); // Template Name
-        CreateCustomerJournalLines.BatchName.SetValue(LibraryVariableStorage.DequeueText); // Batch Name
-        CreateCustomerJournalLines.TemplateCode.SetValue(LibraryVariableStorage.DequeueText); // Std. Template Code
-        CreateCustomerJournalLines.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
-        CreateCustomerJournalLines.OK.Invoke;
+        CreateCustomerJournalLines.DocumentTypes.SetValue(LibraryVariableStorage.DequeueInteger()); // Document Type
+        CreateCustomerJournalLines.PostingDate.SetValue(LibraryVariableStorage.DequeueDate()); // Posting Date
+        CreateCustomerJournalLines.DocumentDate.SetValue(LibraryVariableStorage.DequeueDate()); // Document Date
+        CreateCustomerJournalLines.JournalTemplate.SetValue(LibraryVariableStorage.DequeueText()); // Template Name
+        CreateCustomerJournalLines.BatchName.SetValue(LibraryVariableStorage.DequeueText()); // Batch Name
+        CreateCustomerJournalLines.TemplateCode.SetValue(LibraryVariableStorage.DequeueText()); // Std. Template Code
+        CreateCustomerJournalLines.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
+        CreateCustomerJournalLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreateVendorJournalLinesRequestPageHandler(var CreateVendorJournalLines: TestRequestPage "Create Vendor Journal Lines")
     begin
-        CreateVendorJournalLines.DocumentTypes.SetValue(LibraryVariableStorage.DequeueInteger); // Document Type
-        CreateVendorJournalLines.PostingDate.SetValue(LibraryVariableStorage.DequeueDate); // Posting Date
-        CreateVendorJournalLines.DocumentDate.SetValue(LibraryVariableStorage.DequeueDate); // Document Date
-        CreateVendorJournalLines.JournalTemplate.SetValue(LibraryVariableStorage.DequeueText); // Template Name
-        CreateVendorJournalLines.BatchName.SetValue(LibraryVariableStorage.DequeueText); // Batch Name
-        CreateVendorJournalLines.TemplateCode.SetValue(LibraryVariableStorage.DequeueText); // Std. Template Code
-        CreateVendorJournalLines.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
-        CreateVendorJournalLines.OK.Invoke;
+        CreateVendorJournalLines.DocumentTypes.SetValue(LibraryVariableStorage.DequeueInteger()); // Document Type
+        CreateVendorJournalLines.PostingDate.SetValue(LibraryVariableStorage.DequeueDate()); // Posting Date
+        CreateVendorJournalLines.DocumentDate.SetValue(LibraryVariableStorage.DequeueDate()); // Document Date
+        CreateVendorJournalLines.JournalTemplate.SetValue(LibraryVariableStorage.DequeueText()); // Template Name
+        CreateVendorJournalLines.BatchName.SetValue(LibraryVariableStorage.DequeueText()); // Batch Name
+        CreateVendorJournalLines.TemplateCode.SetValue(LibraryVariableStorage.DequeueText()); // Std. Template Code
+        CreateVendorJournalLines.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
+        CreateVendorJournalLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreateItemJournalLinesRequestPageHandler(var CreateItemJournalLines: TestRequestPage "Create Item Journal Lines")
     begin
-        CreateItemJournalLines.EntryTypes.SetValue(LibraryVariableStorage.DequeueInteger); // Document Type
-        CreateItemJournalLines.PostingDate.SetValue(LibraryVariableStorage.DequeueDate); // Posting Date
-        CreateItemJournalLines.DocumentDate.SetValue(LibraryVariableStorage.DequeueDate); // Document Date
-        CreateItemJournalLines.JournalTemplate.SetValue(LibraryVariableStorage.DequeueText); // Template Name
-        CreateItemJournalLines.BatchName.SetValue(LibraryVariableStorage.DequeueText); // Batch Name
-        CreateItemJournalLines.TemplateCode.SetValue(LibraryVariableStorage.DequeueText); // Std. Template Code
-        CreateItemJournalLines.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
-        CreateItemJournalLines.OK.Invoke;
+        CreateItemJournalLines.EntryTypes.SetValue(LibraryVariableStorage.DequeueInteger()); // Document Type
+        CreateItemJournalLines.PostingDate.SetValue(LibraryVariableStorage.DequeueDate()); // Posting Date
+        CreateItemJournalLines.DocumentDate.SetValue(LibraryVariableStorage.DequeueDate()); // Document Date
+        CreateItemJournalLines.JournalTemplate.SetValue(LibraryVariableStorage.DequeueText()); // Template Name
+        CreateItemJournalLines.BatchName.SetValue(LibraryVariableStorage.DequeueText()); // Batch Name
+        CreateItemJournalLines.TemplateCode.SetValue(LibraryVariableStorage.DequeueText()); // Std. Template Code
+        CreateItemJournalLines.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
+        CreateItemJournalLines.OK().Invoke();
     end;
 
     [ReportHandler]

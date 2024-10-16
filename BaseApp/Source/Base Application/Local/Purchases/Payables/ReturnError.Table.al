@@ -7,6 +7,7 @@ namespace Microsoft.Purchases.Payables;
 table 15000007 "Return Error"
 {
     Caption = 'Return Error';
+    DataClassification = CustomerContent;
 
     fields
     {

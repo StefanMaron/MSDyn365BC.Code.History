@@ -151,7 +151,6 @@ report 15000062 "Remittance - Import (Bank)"
         GenLedgSetup: Record "General Ledger Setup";
         PaymentOrderData: Record "Payment Order Data";
         PaymentOrderData2: Record "Payment Order Data" temporary;
-        NoSeriesControl: Codeunit NoSeriesManagement;
         RemTools: Codeunit "Remittance Tools";
         FileMgt: Codeunit "File Management";
         TxtFile: File;
@@ -503,12 +502,24 @@ report 15000062 "Remittance - Import (Bank)"
     end;
 
     local procedure FindDocumentNo(PostDate: Date)
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if CreateNewDocumentNo then begin
-            Clear(NoSeriesControl);
             TransDocumentNo := '';
-            NoSeriesControl.InitSeries(
-              RemAccount."Document No. Series", '', PostDate, TransDocumentNo, RemAccount."Document No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RemAccount."Document No. Series", '', PostDate, TransDocumentNo, RemAccount."Document No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                TransDocumentNo := NoSeries.GetNextNo(RemAccount."Document No. Series", PostDate);
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RemAccount."Document No. Series", RemAccount."Document No. Series", PostDate, TransDocumentNo);
+            end;
+#endif
             CreateNewDocumentNo := false;
         end;
         // Trans. document no. is now the current document no.
@@ -821,7 +832,7 @@ report 15000062 "Remittance - Import (Bank)"
         Evaluate(Month, CopyStr(DateValue, 3, 2));
         Evaluate(Year, CopyStr(DateValue, 1, 2));
 
-        // Use WorkDate +-50 to determing correct century
+        // Use WorkDate() +-50 to determing correct century
 
         WorkDateYear := Date2DMY(WorkDate(), 3);
         WorkDateYearMin := WorkDateYear - 50;

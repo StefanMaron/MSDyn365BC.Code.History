@@ -145,7 +145,7 @@ codeunit 136601 "ERM RS Data Templates"
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Vendor);
 
-        VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup);
+        VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup());
         CreateConfigTemplateLineForField(
           ConfigTemplateHeader.Code, Vendor.FieldNo("Vendor Posting Group"),
           Vendor.FieldName("Vendor Posting Group"), VendorPostingGroup.Code);
@@ -259,7 +259,7 @@ codeunit 136601 "ERM RS Data Templates"
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Customer);
 
-        CustomerPostingGroup.Get(LibrarySales.FindCustomerPostingGroup);
+        CustomerPostingGroup.Get(LibrarySales.FindCustomerPostingGroup());
         CreateConfigTemplateLineForField(
           ConfigTemplateHeader.Code, Customer.FieldNo("Customer Posting Group"),
           Customer.FieldName("Customer Posting Group"), CustomerPostingGroup.Code);
@@ -305,7 +305,7 @@ codeunit 136601 "ERM RS Data Templates"
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Customer);
 
-        CustomerPostingGroup.Get(LibrarySales.FindCustomerPostingGroup);
+        CustomerPostingGroup.Get(LibrarySales.FindCustomerPostingGroup());
         CreateConfigTemplateLineForField(
           ConfigTemplateHeader.Code, Customer.FieldNo("Customer Posting Group"),
           Customer.FieldName("Customer Posting Group"), CustomerPostingGroup.Code);
@@ -763,9 +763,9 @@ codeunit 136601 "ERM RS Data Templates"
           PaymentTerms.FieldName(Code), PaymentTermsCode);
 
         // 3. Apply Create Instance on created ConfigTemplateHeader
-        ConfigTemplateHeaderPage.OpenView;
+        ConfigTemplateHeaderPage.OpenView();
         ConfigTemplateHeaderPage.GotoRecord(ConfigTemplateHeader);
-        ConfigTemplateHeaderPage.CreateInstance.Invoke;
+        ConfigTemplateHeaderPage.CreateInstance.Invoke();
 
         // 4. Verify Payment Terms record created.
         Assert.IsTrue(PaymentTerms.Get(PaymentTermsCode), StrSubstNo(CreateRecordFailed, PaymentTerms.TableName));
@@ -1056,7 +1056,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize();
 
         // [GIVEN] Purchase Order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line with "Item" and blank "No."
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
@@ -1085,7 +1085,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize();
 
         // [GIVEN] Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sales Line with "Item" and blank "No."
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', 1);
@@ -1208,7 +1208,7 @@ codeunit 136601 "ERM RS Data Templates"
         IntransitLocation.Modify(true);
         LibraryInventory.CreateTransferHeader(
           TransferHeader, LibraryWarehouse.CreateLocation(Location), LibraryWarehouse.CreateLocation(Location), IntransitLocation.Code);
-        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, LibraryInventory.CreateItemNo, 1);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, LibraryInventory.CreateItemNo(), 1);
         TransferLine.Validate("Item No.", '');
         TransferLine.Modify(true);
 
@@ -1235,7 +1235,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [GIVEN] Service Invoice with Line with blank "No."
         LibraryService.CreateServiceHeader(
-          ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+          ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceLineWithQuantity(
           ServiceLine, ServiceHeader, ServiceLine.Type::Item, '', 1);
         ServiceLine.Validate("No.", '');
@@ -1265,7 +1265,7 @@ codeunit 136601 "ERM RS Data Templates"
         // [GIVEN] Production BOM with Line with blank "No."
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, '');
         LibraryManufacturing.CreateProductionBOMLine(
-          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         ProductionBOMLine."No." := ''; // Cannot be validated blank
         ProductionBOMLine.Modify();
 
@@ -1294,7 +1294,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [GIVEN] Service Contract with Line with blank "No."
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
         LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
 
@@ -1319,7 +1319,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize();
 
         // [GIVEN] Assembly Header with blank "Item No."
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo, '', 1, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), '', 1, '');
         AssemblyHeader.Validate("Item No.", '');
         AssemblyHeader.Modify(true);
 
@@ -1345,7 +1345,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize();
 
         // [GIVEN] Assembly Header with line with blank "Item No."
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo, '', 1, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), '', 1, '');
         AssemblyHeader.Validate("Item No.", '');
         AssemblyHeader.Modify(true);
         LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, '', '', 1, 0, '');
@@ -1509,10 +1509,10 @@ codeunit 136601 "ERM RS Data Templates"
         // [WHEN] Copy from CT1 to CT2 (ConfigTemplateListPageHandler)
         LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
         LibraryVariableStorage.Enqueue(FromConfigTemplateLine."Data Template Code");
-        ConfigTemplateHeaderPage.Trap;
-        ConfigTemplateHeaderPage.OpenEdit;
+        ConfigTemplateHeaderPage.Trap();
+        ConfigTemplateHeaderPage.OpenEdit();
         ConfigTemplateHeaderPage.GotoRecord(ConfigTemplateHeader);
-        ConfigTemplateHeaderPage.CopyConfigTemplate.Invoke;
+        ConfigTemplateHeaderPage.CopyConfigTemplate.Invoke();
         // [THEN] CT2 contains the same data as CT1
         VerifyCopiedTemplate(FromConfigTemplateLine."Data Template Code", ConfigTemplateHeader.Code);
     end;
@@ -1542,7 +1542,7 @@ codeunit 136601 "ERM RS Data Templates"
         // [THEN] "Standard Text Codes" page opened (StdTextCodesModalPageHandler)
         VerifyLookupFieldValue(FieldValue);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1570,7 +1570,7 @@ codeunit 136601 "ERM RS Data Templates"
         // [THEN] "G/L Account List" page opened (GLAccountListModalPageHandler)
         VerifyLookupFieldValue(FieldValue);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1598,7 +1598,7 @@ codeunit 136601 "ERM RS Data Templates"
         // [THEN] "Item List" page opened (ItemLookupModalPageHandler)
         VerifyLookupFieldValue(FieldValue);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1626,7 +1626,7 @@ codeunit 136601 "ERM RS Data Templates"
         // [THEN] "Resource List" page opened (ResourceListModalPageHandler)
         VerifyLookupFieldValue(FieldValue);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1654,7 +1654,7 @@ codeunit 136601 "ERM RS Data Templates"
         // [THEN] "Fixed Asset List" page opened (FixedAssetListModalPageHandler)
         VerifyLookupFieldValue(FieldValue);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1682,7 +1682,7 @@ codeunit 136601 "ERM RS Data Templates"
         // [THEN] "Item Charges" page opened (ItemChargesModalPageHandler)
         VerifyLookupFieldValue(FieldValue);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1980,26 +1980,26 @@ codeunit 136601 "ERM RS Data Templates"
     var
         LookupFieldValue: Text;
     begin
-        LookupFieldValue := LibraryVariableStorage.DequeueText;
+        LookupFieldValue := LibraryVariableStorage.DequeueText();
 
         Assert.AreEqual(LookupFieldValue, FieldValue, WrongFieldValueErr);
         Assert.AreNotEqual('', LookupFieldValue, WrongFieldValueErr);
         Assert.AreNotEqual('', FieldValue, WrongFieldValueErr);
     end;
 
-    local procedure ConfigTemplateLine_LookupFields(var ConfigTemplateHeader: Record "Config. Template Header"; LineType: Integer)
+    local procedure ConfigTemplateLine_LookupFields(var ConfigTemplateHeader: Record "Config. Template Header"; LineType: Enum "Config. Template Line Type")
     var
         ConfigTemplateHeaderPage: TestPage "Config. Template Header";
     begin
-        ConfigTemplateHeaderPage.OpenEdit;
+        ConfigTemplateHeaderPage.OpenEdit();
         ConfigTemplateHeaderPage.GotoRecord(ConfigTemplateHeader);
-        ConfigTemplateHeaderPage.ConfigTemplateSubform.New;
+        ConfigTemplateHeaderPage.ConfigTemplateSubform.New();
         ConfigTemplateHeaderPage.ConfigTemplateSubform.Type.SetValue(LineType);
-        if LineType = 0 then
-            ConfigTemplateHeaderPage.ConfigTemplateSubform."Field Name".Lookup
+        if LineType = LineType::Field then
+            ConfigTemplateHeaderPage.ConfigTemplateSubform."Field Name".Lookup()
         else
-            ConfigTemplateHeaderPage.ConfigTemplateSubform."Template Code".Lookup;
-        ConfigTemplateHeaderPage.OK.Invoke;
+            ConfigTemplateHeaderPage.ConfigTemplateSubform."Template Code".Lookup();
+        ConfigTemplateHeaderPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2011,7 +2011,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         Field.Get(DATABASE::Customer, Customer.FieldNo("Prices Including VAT"));
         FieldsLookup.GotoRecord(Field);
-        FieldsLookup.OK.Invoke;
+        FieldsLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2026,7 +2026,7 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateHeader.SetFilter(Code, ConfigTemplateHeaderCode);
         ConfigTemplateHeader.FindFirst();
         ConfigTemplateList.GotoRecord(ConfigTemplateHeader);
-        ConfigTemplateList.OK.Invoke;
+        ConfigTemplateList.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -2061,63 +2061,63 @@ codeunit 136601 "ERM RS Data Templates"
     [Scope('OnPrem')]
     procedure ConfigTemplateListPageHandler(var ConfigTemplateList: TestPage "Config. Template List")
     begin
-        asserterror ConfigTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
-        ConfigTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
-        ConfigTemplateList.OK.Invoke;
+        asserterror ConfigTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        ConfigTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        ConfigTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure StdTextCodesModalPageHandler(var StandardTextCodes: TestPage "Standard Text Codes")
     begin
-        StandardTextCodes.First;
+        StandardTextCodes.First();
         LibraryVariableStorage.Enqueue(StandardTextCodes.Code.Value);
-        StandardTextCodes.OK.Invoke;
+        StandardTextCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GLAccountListModalPageHandler(var GLAccountList: TestPage "G/L Account List")
     begin
-        GLAccountList.First;
+        GLAccountList.First();
         LibraryVariableStorage.Enqueue(GLAccountList."No.".Value);
-        GLAccountList.OK.Invoke;
+        GLAccountList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemLookupModalPageHandler(var ItemLookup: TestPage "Item Lookup")
     begin
-        ItemLookup.First;
+        ItemLookup.First();
         LibraryVariableStorage.Enqueue(ItemLookup."No.".Value);
-        ItemLookup.OK.Invoke;
+        ItemLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceListModalPageHandler(var ResourceList: TestPage "Resource List")
     begin
-        ResourceList.First;
+        ResourceList.First();
         LibraryVariableStorage.Enqueue(ResourceList."No.".Value);
-        ResourceList.OK.Invoke;
+        ResourceList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FixedAssetListModalPageHandler(var FixedAssetList: TestPage "Fixed Asset List")
     begin
-        FixedAssetList.First;
+        FixedAssetList.First();
         LibraryVariableStorage.Enqueue(FixedAssetList."No.".Value);
-        FixedAssetList.OK.Invoke;
+        FixedAssetList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargesModalPageHandler(var ItemCharges: TestPage "Item Charges")
     begin
-        ItemCharges.First;
+        ItemCharges.First();
         LibraryVariableStorage.Enqueue(ItemCharges."No.".Value);
-        ItemCharges.OK.Invoke;
+        ItemCharges.OK().Invoke();
     end;
 }
 

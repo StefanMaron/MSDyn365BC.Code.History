@@ -108,7 +108,7 @@ codeunit 10681 "Electronic VAT Installation"
         if VATReportsConfiguration.Get(VATReportsConfiguration."VAT Report Type"::"VAT Return", ElectronicVATLbl) then
             exit;
         VATReportsConfiguration.Validate("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"VAT Return");
-        VATReportsConfiguration.validate("VAT Report Version", ElectronicVATLbl);
+        VATReportsConfiguration.Validate("VAT Report Version", ElectronicVATLbl);
         VATReportsConfiguration.Validate("Suggest Lines Codeunit ID", Codeunit::"VAT Report Suggest Lines");
         VATReportsConfiguration.Validate("Content Codeunit ID", Codeunit::"Elec. VAT Create Content");
         VATReportsConfiguration.Validate("Submission Codeunit ID", Codeunit::"Elec. VAT Submit Return");

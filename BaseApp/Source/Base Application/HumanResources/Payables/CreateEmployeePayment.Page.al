@@ -217,50 +217,48 @@ page 1191 "Create Employee Payment"
           TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type"::Payment);
         if TempEmplPaymentBuffer.FindSet() then
             repeat
-                with GenJnlLine do begin
-                    Init();
-                    Validate("Journal Template Name", JournalTemplateName);
-                    Validate("Journal Batch Name", JournalBatchName);
-                    LastLineNo := LastLineNo + 10000;
-                    "Line No." := LastLineNo;
-                    "Document Type" := "Document Type"::Payment;
-                    "Posting No. Series" := GenJournalBatch."Posting No. Series";
-                    "Document No." := TempEmplPaymentBuffer."Document No.";
-                    "Account Type" := "Account Type"::Employee;
-                    SetHideValidation(true);
-                    Validate("Posting Date", PostingDate);
-                    Validate("Account No.", TempEmplPaymentBuffer."Employee No.");
+                GenJnlLine.Init();
+                GenJnlLine.Validate("Journal Template Name", JournalTemplateName);
+                GenJnlLine.Validate("Journal Batch Name", JournalBatchName);
+                LastLineNo := LastLineNo + 10000;
+                GenJnlLine."Line No." := LastLineNo;
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+                GenJnlLine."Posting No. Series" := GenJournalBatch."Posting No. Series";
+                GenJnlLine."Document No." := TempEmplPaymentBuffer."Document No.";
+                GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
+                GenJnlLine.SetHideValidation(true);
+                GenJnlLine.Validate("Posting Date", PostingDate);
+                GenJnlLine.Validate("Account No.", TempEmplPaymentBuffer."Employee No.");
 
-                    Employee.Get(TempEmplPaymentBuffer."Employee No.");
+                Employee.Get(TempEmplPaymentBuffer."Employee No.");
 
-                    "Bal. Account Type" := BalAccType::"Bank Account";
-                    Validate("Bal. Account No.", BalAccountNo);
-                    Validate("Currency Code", TempEmplPaymentBuffer."Currency Code");
+                GenJnlLine."Bal. Account Type" := BalAccType::"Bank Account";
+                GenJnlLine.Validate("Bal. Account No.", BalAccountNo);
+                GenJnlLine.Validate("Currency Code", TempEmplPaymentBuffer."Currency Code");
 
-                    CompanyInformation.Get();
-                    "Message to Recipient" := CompanyInformation.Name;
+                CompanyInformation.Get();
+                GenJnlLine."Message to Recipient" := CompanyInformation.Name;
 
-                    "Bank Payment Type" := BankPaymentType;
-                    "Applies-to ID" := "Document No.";
-                    Description := CopyStr(Employee.FullName(), 1, MaxStrLen(Description));
-                    "Source Line No." := TempEmplPaymentBuffer."Employee Ledg. Entry No.";
-                    "Shortcut Dimension 1 Code" := TempEmplPaymentBuffer."Global Dimension 1 Code";
-                    "Shortcut Dimension 2 Code" := TempEmplPaymentBuffer."Global Dimension 2 Code";
-                    "Dimension Set ID" := TempEmplPaymentBuffer."Dimension Set ID";
-                    "Source Code" := GenJournalTemplate."Source Code";
-                    "Reason Code" := GenJournalBatch."Reason Code";
-                    Validate(Amount, TempEmplPaymentBuffer.Amount);
-                    "Applies-to Doc. Type" := TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type";
-                    "Applies-to Doc. No." := TempEmplPaymentBuffer."Employee Ledg. Entry Doc. No.";
-                    Validate("Payment Method Code", TempEmplPaymentBuffer."Payment Method Code");
-                    "Creditor No." := CopyStr(TempEmplPaymentBuffer."Creditor No.", 1, MaxStrLen("Creditor No."));
-                    "Payment Reference" := CopyStr(TempEmplPaymentBuffer."Payment Reference", 1, MaxStrLen("Payment Reference"));
-                    "Exported to Payment File" := TempEmplPaymentBuffer."Exported to Payment File";
-                    "Applies-to Ext. Doc. No." := TempEmplPaymentBuffer."Applies-to Ext. Doc. No.";
+                GenJnlLine."Bank Payment Type" := BankPaymentType;
+                GenJnlLine."Applies-to ID" := GenJnlLine."Document No.";
+                GenJnlLine.Description := CopyStr(Employee.FullName(), 1, MaxStrLen(GenJnlLine.Description));
+                GenJnlLine."Source Line No." := TempEmplPaymentBuffer."Employee Ledg. Entry No.";
+                GenJnlLine."Shortcut Dimension 1 Code" := TempEmplPaymentBuffer."Global Dimension 1 Code";
+                GenJnlLine."Shortcut Dimension 2 Code" := TempEmplPaymentBuffer."Global Dimension 2 Code";
+                GenJnlLine."Dimension Set ID" := TempEmplPaymentBuffer."Dimension Set ID";
+                GenJnlLine."Source Code" := GenJournalTemplate."Source Code";
+                GenJnlLine."Reason Code" := GenJournalBatch."Reason Code";
+                GenJnlLine.Validate(Amount, TempEmplPaymentBuffer.Amount);
+                GenJnlLine."Applies-to Doc. Type" := TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type";
+                GenJnlLine."Applies-to Doc. No." := TempEmplPaymentBuffer."Employee Ledg. Entry Doc. No.";
+                GenJnlLine.Validate("Payment Method Code", TempEmplPaymentBuffer."Payment Method Code");
+                GenJnlLine."Creditor No." := CopyStr(TempEmplPaymentBuffer."Creditor No.", 1, MaxStrLen(GenJnlLine."Creditor No."));
+                GenJnlLine."Payment Reference" := CopyStr(TempEmplPaymentBuffer."Payment Reference", 1, MaxStrLen(GenJnlLine."Payment Reference"));
+                GenJnlLine."Exported to Payment File" := TempEmplPaymentBuffer."Exported to Payment File";
+                GenJnlLine."Applies-to Ext. Doc. No." := TempEmplPaymentBuffer."Applies-to Ext. Doc. No.";
 
-                    UpdateDimensions(GenJnlLine, TempEmplPaymentBuffer);
-                    Insert();
-                end;
+                UpdateDimensions(GenJnlLine, TempEmplPaymentBuffer);
+                GenJnlLine.Insert();
             until TempEmplPaymentBuffer.Next() = 0;
     end;
 
@@ -275,31 +273,29 @@ page 1191 "Create Employee Payment"
         DimSetIDArr: array[10] of Integer;
     begin
         OnBeforeUpdateDimensions(GenJnlLine, TempEmplPaymentBuffer);
-        with GenJnlLine do begin
-            NewDimensionID := "Dimension Set ID";
+        NewDimensionID := GenJnlLine."Dimension Set ID";
 
-            DimBuf.Reset();
-            DimBuf.DeleteAll();
-            DimBufMgt.GetDimensions(TempEmplPaymentBuffer."Dimension Entry No.", DimBuf);
-            if DimBuf.FindSet() then
-                repeat
-                    DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
-                    TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
-                    TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
-                    TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-                    TempDimSetEntry.Insert();
-                until DimBuf.Next() = 0;
-            NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
-            "Dimension Set ID" := NewDimensionID;
+        DimBuf.Reset();
+        DimBuf.DeleteAll();
+        DimBufMgt.GetDimensions(TempEmplPaymentBuffer."Dimension Entry No.", DimBuf);
+        if DimBuf.FindSet() then
+            repeat
+                DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
+                TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
+                TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
+                TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
+                TempDimSetEntry.Insert();
+            until DimBuf.Next() = 0;
+        NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
+        GenJnlLine."Dimension Set ID" := NewDimensionID;
 
-            CreateDimFromDefaultDim(0);
-            if NewDimensionID <> "Dimension Set ID" then
-                AssignCombinedDimensionSetID(GenJnlLine, DimSetIDArr, NewDimensionID);
+        GenJnlLine.CreateDimFromDefaultDim(0);
+        if NewDimensionID <> GenJnlLine."Dimension Set ID" then
+            AssignCombinedDimensionSetID(GenJnlLine, DimSetIDArr, NewDimensionID);
 
-            DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
-            DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
-              "Shortcut Dimension 2 Code");
-        end;
+        DimMgt.GetDimensionSet(TempDimSetEntry, GenJnlLine."Dimension Set ID");
+        DimMgt.UpdateGlobalDimFromDimSetID(GenJnlLine."Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
+          GenJnlLine."Shortcut Dimension 2 Code");
 
         OnAfterUpdateDimensions(GenJnlLine);
     end;
@@ -329,7 +325,7 @@ page 1191 "Create Employee Payment"
     local procedure SetNextNo(GenJournalBatchNoSeries: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         if GenJournalBatchNoSeries = '' then
             NextDocNo := ''
@@ -339,8 +335,7 @@ page 1191 "Create Employee Payment"
             if GenJournalLine.FindLast() then
                 NextDocNo := IncStr(GenJournalLine."Document No.")
             else
-                NextDocNo := NoSeriesMgt.GetNextNo(GenJournalBatchNoSeries, PostingDate, false);
-            Clear(NoSeriesMgt);
+                NextDocNo := NoSeries.PeekNextNo(GenJournalBatchNoSeries, PostingDate);
         end;
     end;
 

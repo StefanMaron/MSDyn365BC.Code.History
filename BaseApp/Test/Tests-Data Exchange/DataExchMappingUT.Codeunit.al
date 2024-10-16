@@ -139,7 +139,7 @@ codeunit 132545 "Data Exch. Mapping UT"
         DataExchLineDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchLineDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
-        DataExchLineDef.Insert
+        DataExchLineDef.Insert();
     end;
 
     local procedure CreateDataExchColumnDef(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchLineDef: Record "Data Exch. Line Def")

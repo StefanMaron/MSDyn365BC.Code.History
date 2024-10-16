@@ -41,8 +41,8 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [SCENARIO] Changes to Purchase Header Buy-from Address fields should propagate to Pay-to Address fields when the field values are equal
         // [GIVEN] Purchase Header with matching Buy-from address fields and Pay-to address fields
         Initialize();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         CreateTempVendor(Vendor);
         CreatePurchaseHeaderForVendor(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
 
@@ -291,7 +291,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should propagate to Ship-to Address fields when the field values are equal
         // [GIVEN] Sales Header with matching Sell-to address fields and Ship-to address fields
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         CreateTempCustomer(Customer);
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
 
@@ -354,7 +354,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         CreateTempCustomer(Customer);
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         ShipToAddress.Address := SalesHeader."Sell-to Address";
         DeltaShipToAddress := ShipToAddress.Address;
         ShipToAddress."Address 2" := SalesHeader."Sell-to Address 2";
@@ -1004,11 +1004,11 @@ codeunit 134772 "Doc. Address Propagation Test"
         LibraryPermissions.CreateWindowsUser(User, UserId);
 
         // [WHEN] My Notifications Page is opened
-        MyNotificationsPage.OpenView;
+        MyNotificationsPage.OpenView();
 
         // [THEN] A notification entry is added to MyNotification for the current user
-        MyNotifications.Get(User."User Name", SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        MyNotifications.Get(User."User Name", SalesHeader.GetModifyCustomerAddressNotificationId);
+        MyNotifications.Get(User."User Name", SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        MyNotifications.Get(User."User Name", SalesHeader.GetModifyCustomerAddressNotificationId());
     end;
 
     [Test]
@@ -1024,7 +1024,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         Initialize();
 
         // [GIVEN] "Ignore Updated Addresses" flag is set.
-        LibrarySales.EnableSalesSetupIgnoreUpdatedAddresses;
+        LibrarySales.EnableSalesSetupIgnoreUpdatedAddresses();
 
         // [GIVEN] Customer with Address, Sales Document for him.
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -1054,7 +1054,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         Initialize();
 
         // [GIVEN] "Ignore Updated Addresses" flag is set.
-        LibraryPurchase.EnablePurchSetupIgnoreUpdatedAddresses;
+        LibraryPurchase.EnablePurchSetupIgnoreUpdatedAddresses();
 
         // [GIVEN] Vendor with Address, Purchase Document for him.
         LibraryPurchase.CreateVendorWithAddress(Vendor);
@@ -1081,15 +1081,15 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [UI] [Sales Receivables Setup]
         // [SCENARIO 263931] "Ignore Updated Addresses" field is visible and editable on Sales Setup page in Basic Application Area setup.
         Initialize();
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [GIVEN] "Ignore Updated Addresses" initial state is FALSE.
-        LibrarySales.DisableSalesSetupIgnoreUpdatedAddresses;
+        LibrarySales.DisableSalesSetupIgnoreUpdatedAddresses();
 
         // [WHEN] Open Sales Setup page, set "Ignore Updated Addresses" flag, close page.
-        SalesSetupPage.OpenEdit;
-        Assert.IsTrue(SalesSetupPage."Ignore Updated Addresses".Visible, '');
-        Assert.IsTrue(SalesSetupPage."Ignore Updated Addresses".Editable, '');
+        SalesSetupPage.OpenEdit();
+        Assert.IsTrue(SalesSetupPage."Ignore Updated Addresses".Visible(), '');
+        Assert.IsTrue(SalesSetupPage."Ignore Updated Addresses".Editable(), '');
         SalesSetupPage."Ignore Updated Addresses".SetValue(true);
         SalesSetupPage.Close();
 
@@ -1097,7 +1097,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         SalesSetup.Get();
         SalesSetup.TestField("Ignore Updated Addresses", true);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1110,15 +1110,15 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [UI] [Purchases Payables Setup]
         // [SCENARIO 263931] "Ignore Updated Addresses" field is visible and editable on Purchases Setup page in Basic Application Area setup.
         Initialize();
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [GIVEN] "Ignore Updated Addresses" initial state is FALSE.
-        LibraryPurchase.DisablePurchSetupIgnoreUpdatedAddresses;
+        LibraryPurchase.DisablePurchSetupIgnoreUpdatedAddresses();
 
         // [WHEN] Open Purchases Setup page, set "Ignore Updated Addresses" flag, close page.
-        PurchasesSetupPage.OpenEdit;
-        Assert.IsTrue(PurchasesSetupPage."Ignore Updated Addresses".Visible, '');
-        Assert.IsTrue(PurchasesSetupPage."Ignore Updated Addresses".Editable, '');
+        PurchasesSetupPage.OpenEdit();
+        Assert.IsTrue(PurchasesSetupPage."Ignore Updated Addresses".Visible(), '');
+        Assert.IsTrue(PurchasesSetupPage."Ignore Updated Addresses".Editable(), '');
         PurchasesSetupPage."Ignore Updated Addresses".SetValue(true);
         PurchasesSetupPage.Close();
 
@@ -1126,7 +1126,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         PurchasesSetup.Get();
         PurchasesSetup.TestField("Ignore Updated Addresses", true);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]

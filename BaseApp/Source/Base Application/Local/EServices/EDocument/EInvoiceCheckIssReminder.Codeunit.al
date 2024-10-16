@@ -47,14 +47,12 @@ codeunit 10618 "E-Invoice Check Iss. Reminder"
 
     local procedure CheckFinChargeMemoHeader(IssuedReminderHeader: Record "Issued Reminder Header")
     begin
-        with IssuedReminderHeader do begin
-            TestField(Name);
-            TestField(Address);
-            TestField(City);
-            TestField("Post Code");
-            TestField("Country/Region Code");
-            EInvoiceDocumentEncode.GetEInvoiceCountryRegionCode("Country/Region Code");
-        end;
+        IssuedReminderHeader.TestField(Name);
+        IssuedReminderHeader.TestField(Address);
+        IssuedReminderHeader.TestField(City);
+        IssuedReminderHeader.TestField("Post Code");
+        IssuedReminderHeader.TestField("Country/Region Code");
+        EInvoiceDocumentEncode.GetEInvoiceCountryRegionCode(IssuedReminderHeader."Country/Region Code");
     end;
 }
 

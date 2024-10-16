@@ -42,71 +42,68 @@ codeunit 7151 ItemAViewEntryToValueEntries
         StartDate := ItemAnalysisViewEntry."Posting Date";
         EndDate := StartDate;
 
-        with ItemAnalysisView do
-            if StartDate < "Starting Date" then
-                StartDate := 0D
-            else
-                if (ItemAnalysisViewEntry."Posting Date" = NormalDate(ItemAnalysisViewEntry."Posting Date")) and
-                   not ("Date Compression" in ["Date Compression"::None, "Date Compression"::Day])
+        if StartDate < ItemAnalysisView."Starting Date" then
+            StartDate := 0D
+        else
+            if (ItemAnalysisViewEntry."Posting Date" = NormalDate(ItemAnalysisViewEntry."Posting Date")) and
+               not (ItemAnalysisView."Date Compression" in [ItemAnalysisView."Date Compression"::None, ItemAnalysisView."Date Compression"::Day])
+            then
+                case ItemAnalysisView."Date Compression" of
+                    ItemAnalysisView."Date Compression"::Week:
+                        EndDate := ItemAnalysisViewEntry."Posting Date" + 6;
+                    ItemAnalysisView."Date Compression"::Month:
+                        EndDate := CalcDate('<+1M-1D>', ItemAnalysisViewEntry."Posting Date");
+                    ItemAnalysisView."Date Compression"::Quarter:
+                        EndDate := CalcDate('<+3M-1D>', ItemAnalysisViewEntry."Posting Date");
+                    ItemAnalysisView."Date Compression"::Year:
+                        EndDate := CalcDate('<+1Y-1D>', ItemAnalysisViewEntry."Posting Date");
+                end;
+
+        ValueEntry.SetCurrentKey("Item No.", ValueEntry."Posting Date");
+        ValueEntry.SetRange("Item No.", ItemAnalysisViewEntry."Item No.");
+        ValueEntry.SetRange("Posting Date", StartDate, EndDate);
+        ValueEntry.SetRange("Entry No.", 0, ItemAnalysisView."Last Entry No.");
+
+        if GetGlobalDimValue(GLSetup."Global Dimension 1 Code", ItemAnalysisViewEntry, GlobalDimValue) then
+            ValueEntry.SetRange("Global Dimension 1 Code", GlobalDimValue)
+        else
+            if ItemAnalysisViewFilter.Get(
+                 ItemAnalysisView."Analysis Area",
+                 ItemAnalysisViewEntry."Analysis View Code",
+                 GLSetup."Global Dimension 1 Code")
+            then
+                ValueEntry.SetFilter("Global Dimension 1 Code", ItemAnalysisViewFilter."Dimension Value Filter");
+
+        if GetGlobalDimValue(GLSetup."Global Dimension 2 Code", ItemAnalysisViewEntry, GlobalDimValue) then
+            ValueEntry.SetRange("Global Dimension 2 Code", GlobalDimValue)
+        else
+            if ItemAnalysisViewFilter.Get(
+                 ItemAnalysisView."Analysis Area",
+                 ItemAnalysisViewEntry."Analysis View Code",
+                 GLSetup."Global Dimension 2 Code")
+            then
+                ValueEntry.SetFilter("Global Dimension 2 Code", ItemAnalysisViewFilter."Dimension Value Filter");
+
+        if ValueEntry.Find('-') then
+            repeat
+                if DimEntryOK(ValueEntry."Dimension Set ID", ItemAnalysisView."Dimension 1 Code", ItemAnalysisViewEntry."Dimension 1 Value Code") and
+                   DimEntryOK(ValueEntry."Dimension Set ID", ItemAnalysisView."Dimension 2 Code", ItemAnalysisViewEntry."Dimension 2 Value Code") and
+                   DimEntryOK(ValueEntry."Dimension Set ID", ItemAnalysisView."Dimension 3 Code", ItemAnalysisViewEntry."Dimension 3 Value Code") and
+                   UpdateItemAnalysisView.DimSetIDInFilter(ValueEntry."Dimension Set ID", ItemAnalysisView)
                 then
-                    case "Date Compression" of
-                        "Date Compression"::Week:
-                            EndDate := ItemAnalysisViewEntry."Posting Date" + 6;
-                        "Date Compression"::Month:
-                            EndDate := CalcDate('<+1M-1D>', ItemAnalysisViewEntry."Posting Date");
-                        "Date Compression"::Quarter:
-                            EndDate := CalcDate('<+3M-1D>', ItemAnalysisViewEntry."Posting Date");
-                        "Date Compression"::Year:
-                            EndDate := CalcDate('<+1Y-1D>', ItemAnalysisViewEntry."Posting Date");
-                    end;
-
-        with ValueEntry do begin
-            SetCurrentKey("Item No.", "Posting Date");
-            SetRange("Item No.", ItemAnalysisViewEntry."Item No.");
-            SetRange("Posting Date", StartDate, EndDate);
-            SetRange("Entry No.", 0, ItemAnalysisView."Last Entry No.");
-
-            if GetGlobalDimValue(GLSetup."Global Dimension 1 Code", ItemAnalysisViewEntry, GlobalDimValue) then
-                SetRange("Global Dimension 1 Code", GlobalDimValue)
-            else
-                if ItemAnalysisViewFilter.Get(
-                     ItemAnalysisView."Analysis Area",
-                     ItemAnalysisViewEntry."Analysis View Code",
-                     GLSetup."Global Dimension 1 Code")
-                then
-                    SetFilter("Global Dimension 1 Code", ItemAnalysisViewFilter."Dimension Value Filter");
-
-            if GetGlobalDimValue(GLSetup."Global Dimension 2 Code", ItemAnalysisViewEntry, GlobalDimValue) then
-                SetRange("Global Dimension 2 Code", GlobalDimValue)
-            else
-                if ItemAnalysisViewFilter.Get(
-                     ItemAnalysisView."Analysis Area",
-                     ItemAnalysisViewEntry."Analysis View Code",
-                     GLSetup."Global Dimension 2 Code")
-                then
-                    SetFilter("Global Dimension 2 Code", ItemAnalysisViewFilter."Dimension Value Filter");
-
-            if Find('-') then
-                repeat
-                    if DimEntryOK("Dimension Set ID", ItemAnalysisView."Dimension 1 Code", ItemAnalysisViewEntry."Dimension 1 Value Code") and
-                       DimEntryOK("Dimension Set ID", ItemAnalysisView."Dimension 2 Code", ItemAnalysisViewEntry."Dimension 2 Value Code") and
-                       DimEntryOK("Dimension Set ID", ItemAnalysisView."Dimension 3 Code", ItemAnalysisViewEntry."Dimension 3 Value Code") and
-                       UpdateItemAnalysisView.DimSetIDInFilter("Dimension Set ID", ItemAnalysisView)
+                    if ((ItemAnalysisView."Analysis Area" = ItemAnalysisView."Analysis Area"::Sales) and
+                        (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Sale) and
+                        (ValueEntry."Entry Type" <> ValueEntry."Entry Type"::Revaluation)) or
+                       ((ItemAnalysisView."Analysis Area" = ItemAnalysisView."Analysis Area"::Purchase) and
+                        (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Purchase)) or
+                       ((ItemAnalysisView."Analysis Area" = ItemAnalysisView."Analysis Area"::Inventory) and
+                        (ValueEntry."Item Ledger Entry Type" <> ValueEntry."Item Ledger Entry Type"::" "))
                     then
-                        if ((ItemAnalysisView."Analysis Area" = ItemAnalysisView."Analysis Area"::Sales) and
-                            ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Sale) and
-                            ("Entry Type" <> "Entry Type"::Revaluation)) or
-                           ((ItemAnalysisView."Analysis Area" = ItemAnalysisView."Analysis Area"::Purchase) and
-                            ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Purchase)) or
-                           ((ItemAnalysisView."Analysis Area" = ItemAnalysisView."Analysis Area"::Inventory) and
-                            ("Item Ledger Entry Type" <> "Item Ledger Entry Type"::" "))
-                        then
-                            if not TempValueEntry.Get("Entry No.") then begin
-                                TempValueEntry := ValueEntry;
-                                TempValueEntry.Insert();
-                            end;
-                until Next() = 0;
-        end;
+                        if not TempValueEntry.Get(ValueEntry."Entry No.") then begin
+                            TempValueEntry := ValueEntry;
+                            TempValueEntry.Insert();
+                        end;
+            until ValueEntry.Next() = 0;
 
         OnAfterGetValueEntries(ValueEntry, ItemAnalysisView, ItemAnalysisViewEntry, GlobalDimValue);
     end;

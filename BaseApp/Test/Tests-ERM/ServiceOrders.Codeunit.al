@@ -21,6 +21,7 @@ codeunit 136101 "Service Orders"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
+        LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -67,7 +68,6 @@ codeunit 136101 "Service Orders"
         RoundingTo0Err: Label 'Rounding of the field';
         RoundingErr: Label 'is of lesser precision than expected';
         RoundingBalanceErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
-        InvalidDiscCodeErr: Label 'Invalid Invoice Disc. Code';
         UnitCostErr: Label 'Unit Cost are Not equal.';
         AvailableExpectedQuantityErr: Label 'Available expected quantity must be %1.', Comment = '%1=Value';
 
@@ -452,7 +452,7 @@ codeunit 136101 "Service Orders"
         Clear(ServiceItem);
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLine."Line No.");
 
         // [WHEN] Post Service Order as Ship.
@@ -542,7 +542,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Create Customer Template.
         Initialize();
-        CreateCustomerTemplate;
+        CreateCustomerTemplate();
 
         // [WHEN] Create Customer from Service Order.
         CreateServiceHeaderWithName(ServiceHeader);
@@ -600,7 +600,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Create Customer Template, Create Customer from service Order.
         Initialize();
-        CreateCustomerTemplate;
+        CreateCustomerTemplate();
         CreateServiceHeaderWithName(ServiceHeader);
         Commit();
         ServOrderManagement.CreateNewCustomer(ServiceHeader);
@@ -689,7 +689,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 21728] Test Service Order - Response Time Report.
 
         // [GIVEN] Create Service Order - Service Header, Service Item Line, Service Line and Post it as Ship.
-        CreateServiceHeaderRespCenter(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        CreateServiceHeaderRespCenter(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
         // [WHEN] Save Service Order - Response Time Report as XML and XLSX in local Temp folder.
@@ -743,7 +743,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 21728] Test Service Profit(Resp. Centers) Report.
 
         // [GIVEN] Create Service Order - Service Header, Service Item Line, Service Line and Post it as Ship and Invoice.
-        CreateServiceHeaderRespCenter(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        CreateServiceHeaderRespCenter(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // [WHEN] Save Service Profit(Resp. Centers) Report as XML and XLSX in local Temp folder.
@@ -772,7 +772,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 21728] Test Service Profit(Serv. Orders) Report.
 
         // [GIVEN] Create Service Order - Service Header, Service Item Line, Service Line and Post it as Ship and Invoice.
-        CreateServiceHeaderRespCenter(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        CreateServiceHeaderRespCenter(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // [WHEN] Save Service Profit(Serv. Orders) Report as XML and XLSX in local Temp folder.
@@ -1063,7 +1063,7 @@ codeunit 136101 "Service Orders"
         ResourceNo := Resource."No.";
 
         // [WHEN] Change Resource No. on Service Order Allocation.
-        ServiceOrderAllocation.Get(LibraryVariableStorage.DequeueInteger);
+        ServiceOrderAllocation.Get(LibraryVariableStorage.DequeueInteger());
         Resource.Next();
         ServiceOrderAllocation.Validate("Resource No.", Resource."No.");
 
@@ -1099,7 +1099,7 @@ codeunit 136101 "Service Orders"
         AllocateResource(Resource, ServiceItemLine);
 
         // [WHEN] Cancel Resource Allocation.
-        ServiceOrderAllocation.Get(LibraryVariableStorage.DequeueInteger);
+        ServiceOrderAllocation.Get(LibraryVariableStorage.DequeueInteger());
         ServAllocationManagement.CancelAllocation(ServiceOrderAllocation);
 
         // [THEN] Verify Service Document Log for Cancel Resource Allocation.
@@ -1179,7 +1179,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Create Customer Template.
         Initialize();
-        CreateCustomerTemplate;
+        CreateCustomerTemplate();
 
         // [WHEN] Create Customer from Service Order.
         CreateServiceHeaderWithName(ServiceHeader);
@@ -1276,7 +1276,7 @@ codeunit 136101 "Service Orders"
         ModifyServiceContractHeader(ServiceContractHeader);
         SignServContractDoc.SignContract(ServiceContractHeader);
         CreateOrderWithContract(ServiceHeader, ServiceLine, ServiceContractHeader);
-        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
         ServiceLine.Modify(true);
 
         // [WHEN] Post Service Order as Ship and Consume.
@@ -1346,7 +1346,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Create New Service Item.
         Initialize();
-        CreateServiceItemWithGroup(ServiceItem, LibrarySales.CreateCustomerNo);
+        CreateServiceItemWithGroup(ServiceItem, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Create a new Service Order.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
@@ -1374,7 +1374,7 @@ codeunit 136101 "Service Orders"
         // 1. Setup: Find Customer and Item,Create Service Item and Service Item Component.
         Initialize();
         LibraryInventory.CreateItem(Item);
-        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo, Item."No.");
+        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo(), Item."No.");
         LibraryService.CreateServiceItemComponent(ServiceItemComponent, ServiceItem."No.", ServiceItemComponent.Type::Item, Item."No.");
 
         // 2. Exercise: Create and Post Service Order.
@@ -1484,9 +1484,9 @@ codeunit 136101 "Service Orders"
         CreateAndPostSalesOrder(Customer."No.");
 
         // [WHEN] Create Service Order from Customer Card.
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
         CustomerCard.FILTER.SetFilter("No.", Customer."No.");
-        CustomerCard.NewServiceOrder.Invoke;
+        CustomerCard.NewServiceOrder.Invoke();
 
         // [THEN] Verify through the SendNotificationHandler.
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -1566,7 +1566,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Create User Setup.
         Initialize();
-        ResponsibilityCenterCode := CreateResponsibilityCenterAndUserSetup;
+        ResponsibilityCenterCode := CreateResponsibilityCenterAndUserSetup();
         LibrarySales.CreateCustomer(Customer);
 
         // 2. Exercise.
@@ -1601,7 +1601,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Create User Setup, Service Order and Service Line.
         Initialize();
-        ResponsibilityCenterCode := CreateResponsibilityCenterAndUserSetup;
+        ResponsibilityCenterCode := CreateResponsibilityCenterAndUserSetup();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader, Customer."No.");
@@ -1641,9 +1641,9 @@ codeunit 136101 "Service Orders"
         LibraryVariableStorage.Enqueue(ServiceLine."Posting Date");
 
         // 2. Exercise.
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", ServiceHeader."No.");
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
 
         // [THEN] Validate Posting Date on Service Line.
         // Verification done in Page Handler.
@@ -1688,7 +1688,7 @@ codeunit 136101 "Service Orders"
         // [GIVEN] Modify General Ledger Setup, create Customer with Payment Method Code with a balance account and create Service Order.
         Initialize();
         LibraryERM.SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Application Rounding Precision.
-        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount, 0);  // Taken Zero value for Currency Application Rounding Precision.
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount(), 0);  // Taken Zero value for Currency Application Rounding Precision.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         LibraryInventory.CreateItem(Item);
@@ -1807,14 +1807,14 @@ codeunit 136101 "Service Orders"
         CreateServiceOrder(ServiceHeader, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         OpenServiceOrderPage(ServiceOrder, ServiceHeader."No.");
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
         GetServiceLine(ServiceLine, ServiceHeader);
         CopyServiceLine(TempServiceLine, ServiceLine);
-        ServiceOrder.OK.Invoke;
+        ServiceOrder.OK().Invoke();
 
         // [WHEN] Open Service Lines page.
         OpenServiceOrderPage(ServiceOrder, ServiceHeader."No.");
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
 
         // [THEN] Verify sequence of lines in ServiceLinesSequenceHandler.
     end;
@@ -1946,7 +1946,7 @@ codeunit 136101 "Service Orders"
         Assert.AreEqual(1, VATEntry.Count, StrSubstNo(NoOfLinesErr, VATEntry.TableCaption(), 1));  // Only one VAT Entry should be created.
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          -VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          -VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             VATAmountErr, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption(), VATEntry.FieldCaption("Entry No."),
             VATEntry."Entry No.", VATAmount));
@@ -2044,13 +2044,13 @@ codeunit 136101 "Service Orders"
         CreateServItemLineDescription(ServiceItemLine);
 
         // [WHEN] Open Service Order Page.
-        ServiceOrderPage.OpenEdit;
+        ServiceOrderPage.OpenEdit();
         ServiceOrderPage.FILTER.SetFilter("No.", ServiceItemLine."Document No.");
-        ServiceOrderPage.First;
-        ServiceOrderPage.ServItemLines.ServiceItemNo.Lookup;
+        ServiceOrderPage.First();
+        ServiceOrderPage.ServItemLines.ServiceItemNo.Lookup();
 
         // [THEN] Verification of new Service Item on the created Service Line through the look up button.
-        ServiceItem.Get(LibraryVariableStorage.DequeueText);
+        ServiceItem.Get(LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -2204,12 +2204,12 @@ codeunit 136101 "Service Orders"
         // [GIVEN] Create Service Order.
         Initialize();
         CreateServiceOrderWithServiceItem(ServiceItemLine);
-        ResourceAllocations.OpenEdit;
+        ResourceAllocations.OpenEdit();
         ResourceAllocations.FILTER.SetFilter("Document No.", ServiceItemLine."Document No.");
         ResourceAllocations.FILTER.SetFilter("Service Item No.", ServiceItemLine."Service Item No.");
 
         // [WHEN] Call "Res.Group Availability" action on Resource Allocations page.
-        ResourceAllocations.ResGroupAvailability.Invoke;
+        ResourceAllocations.ResGroupAvailability.Invoke();
 
         // [THEN] Verify as no error occurs when Showmatrix is call in ResGrAvailabilityServiceHandler.
     end;
@@ -2394,7 +2394,7 @@ codeunit 136101 "Service Orders"
         LibraryVariableStorage.Enqueue(ServiceLine."No.");
 
         // [WHEN] Invoke Service Lines.
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
 
         // [THEN] Verification done in ServiceLinesSubformHandler.
     end;
@@ -2424,7 +2424,7 @@ codeunit 136101 "Service Orders"
         LibraryVariableStorage.Enqueue(Item."No.");
 
         // [WHEN] Invoke Balnk Service Item Service Lines.
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
 
         // [THEN] Verification done in ServiceLinesSubformHandler.
     end;
@@ -2444,7 +2444,7 @@ codeunit 136101 "Service Orders"
         // [WHEN] Create Service order with large random values.
         CreateServiceDocument(
           ServiceHeader, ServiceHeader."Document Type"::Order,
-          LibrarySales.CreateCustomerNo, LibraryInventory.CreateItem(Item),
+          LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItem(Item),
           LibraryRandom.RandIntInRange(10000000, 2147483647),
           LibraryRandom.RandDecInRange(0, 1, 3));
 
@@ -2578,18 +2578,18 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Customer "C" with "Credit Limit" = "A"
         // [GIVEN] Service Order for customer "C" with total amount = "A". Service Line "Quantity" = 1, "Unit Price" = "X"
-        CreateServiceOrderWithItem(ServiceHeader, LibrarySales.CreateCustomerNo, '', LibraryInventory.CreateItemNo, 1);
+        CreateServiceOrderWithItem(ServiceHeader, LibrarySales.CreateCustomerNo(), '', LibraryInventory.CreateItemNo(), 1);
         UpdateCustomerCreditLimit(
           ServiceHeader."Customer No.", CalcTotalLineAmount(ServiceHeader."Document Type", ServiceHeader."No."));
         GetServiceLine(ServiceLine, ServiceHeader);
 
         // [GIVEN] Modify Service Line "Unit Price" = "X" + 0.01 (through the Service Line page)
-        LibraryVariableStorage.Enqueue(ServiceLine."Unit Price" + LibraryERM.GetAmountRoundingPrecision);
+        LibraryVariableStorage.Enqueue(ServiceLine."Unit Price" + LibraryERM.GetAmountRoundingPrecision());
         LibraryVariableStorage.Enqueue(ServiceHeader."Customer No.");
         UnitPrice := ServiceLine."Unit Price";
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         ServiceOrder.Close();
         // [GIVEN] Credit Limit warning page is opened for customer "C"
         // "CheckCreditLimit_ReplyYes_MPH" handler
@@ -2598,7 +2598,7 @@ codeunit 136101 "Service Orders"
         // [THEN] No error occurs and Service Line "Unit Price" = "X" + 0.01
         ServiceLine.Find();
         Assert.AreEqual(
-          UnitPrice + LibraryERM.GetAmountRoundingPrecision,
+          UnitPrice + LibraryERM.GetAmountRoundingPrecision(),
           ServiceLine."Unit Price",
           ServiceLine.FieldCaption("Unit Price"));
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -2621,13 +2621,13 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Customer "C" with "Credit Limit" = "A"
         // [GIVEN] Service Order for customer "C" with total amount = "A". Service Line "Quantity" = 1, "Unit Price" = "X"
-        CreateServiceOrderWithItem(ServiceHeader, LibrarySales.CreateCustomerNo, '', LibraryInventory.CreateItemNo, 1);
+        CreateServiceOrderWithItem(ServiceHeader, LibrarySales.CreateCustomerNo(), '', LibraryInventory.CreateItemNo(), 1);
         UpdateCustomerCreditLimit(
           ServiceHeader."Customer No.", CalcTotalLineAmount(ServiceHeader."Document Type", ServiceHeader."No."));
         // [GIVEN] Modify Service Line "Unit Price" = "X" + 0.01
         GetServiceLine(ServiceLine, ServiceHeader);
         UpdateServiceLine(
-          ServiceLine, ServiceLine."Service Item Line No.", 1, ServiceLine."Unit Price" + LibraryERM.GetAmountRoundingPrecision);
+          ServiceLine, ServiceLine."Service Item Line No.", 1, ServiceLine."Unit Price" + LibraryERM.GetAmountRoundingPrecision());
         // [GIVEN] Credit Limit warning page is opened for customer "C"
         // "CheckCreditLimitHandler" handler
 
@@ -2655,7 +2655,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Customer "C" with "Credit Limit" = "A"
         // [GIVEN] Service Order for customer "C" with total amount = "A". Service Line "Quantity" = 1, "Unit Price" = "X"
-        CreateServiceOrderWithItem(ServiceHeader, LibrarySales.CreateCustomerNo, '', LibraryInventory.CreateItemNo, 1);
+        CreateServiceOrderWithItem(ServiceHeader, LibrarySales.CreateCustomerNo(), '', LibraryInventory.CreateItemNo(), 1);
         UpdateCustomerCreditLimit(
           ServiceHeader."Customer No.", CalcTotalLineAmount(ServiceHeader."Document Type", ServiceHeader."No."));
         // [GIVEN] Modify Service Line "Unit Price" = 0
@@ -2665,9 +2665,9 @@ codeunit 136101 "Service Orders"
 
         // [WHEN] Modify Service Line "Unit Price" = "X" (through the Service Line page)
         LibraryVariableStorage.Enqueue(UnitPrice);
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         ServiceOrder.Close();
 
         // [THEN] Credit Limit warning page is not opened and ServiceLine."Unit Price" = "X"
@@ -2695,17 +2695,17 @@ codeunit 136101 "Service Orders"
         // [GIVEN] Customer with Credit Limit
         // [GIVEN] Service Order (used Location with "Require Shipment" = TRUE). Service Line "Quantity" = 1.
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
-        CreateServiceOrderWithItem(ServiceHeader, LibrarySales.CreateCustomerNo, Location.Code, LibraryInventory.CreateItemNo, 1);
+        CreateServiceOrderWithItem(ServiceHeader, LibrarySales.CreateCustomerNo(), Location.Code, LibraryInventory.CreateItemNo(), 1);
         UpdateCustomerCreditLimit(
           ServiceHeader."Customer No.", CalcTotalLineAmount(ServiceHeader."Document Type", ServiceHeader."No."));
         GetServiceLine(ServiceLine, ServiceHeader);
         Quantity := ServiceLine.Quantity;
         // [GIVEN] Modify Service Line "Quantity" = 2 (through the Service Line page)
-        LibraryVariableStorage.Enqueue(Quantity + LibraryERM.GetAmountRoundingPrecision);
+        LibraryVariableStorage.Enqueue(Quantity + LibraryERM.GetAmountRoundingPrecision());
         LibraryVariableStorage.Enqueue(ServiceHeader."Customer No.");
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         ServiceOrder.Close();
         // [GIVEN] Credit Limit warning page is opened
 
@@ -2715,7 +2715,7 @@ codeunit 136101 "Service Orders"
         // [THEN] No error occurs and Service Line "Quantity" = 2. No more credit limit warning page is shown.
         ServiceLine.Find();
         Assert.AreEqual(
-          Quantity + LibraryERM.GetAmountRoundingPrecision,
+          Quantity + LibraryERM.GetAmountRoundingPrecision(),
           ServiceLine.Quantity,
           ServiceLine.FieldCaption("Unit Price"));
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -2736,7 +2736,7 @@ codeunit 136101 "Service Orders"
 
         // Create and Ship Service Order. Set Unit Price more than Credit Limit.
         CreateServiceOrderWithItem(ServiceHeader, CustomerNo, '', ItemNo, 1);
-        CreditLimit := CalcTotalLineAmount(ServiceHeader."Document Type", ServiceHeader."No.") - LibraryERM.GetAmountRoundingPrecision;
+        CreditLimit := CalcTotalLineAmount(ServiceHeader."Document Type", ServiceHeader."No.") - LibraryERM.GetAmountRoundingPrecision();
         UpdateCustomerCreditLimit(ServiceHeader."Customer No.", CreditLimit);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         TotalAmount := CalcTotalLineAmount(ServiceHeader."Document Type", ServiceHeader."No.");
@@ -2833,7 +2833,7 @@ codeunit 136101 "Service Orders"
             Validate("Document Type", ServiceHeader."Document Type");
             Validate("Document No.", ServiceHeader."No.");
             Validate("Service Item No.", ServiceItem."No.");
-            Validate("Loaner No.", CreateLoaner);
+            Validate("Loaner No.", CreateLoaner());
         end;
 
         // [WHEN] Answer yes on the confirmation dialog when inserting Service Item Line
@@ -2860,7 +2860,7 @@ codeunit 136101 "Service Orders"
         ReceiveLoanerOnServiceOrder(ServiceItemLine, ServiceItemLine."Service Item No.");
 
         // [GIVEN] Change Loaner No. from "A" to "B"
-        ServiceItemLine.Validate("Loaner No.", CreateLoaner);
+        ServiceItemLine.Validate("Loaner No.", CreateLoaner());
 
         // [WHEN] Answer yes on the confirmation dialog "Do you want to lend?"
         ServiceItemLine.Modify(true);
@@ -2916,10 +2916,10 @@ codeunit 136101 "Service Orders"
         OpenServiceOrderPage(ServiceOrder, ServiceHeader."No.");
         // [WHEN] User adds Service Line for each Service Item Line
         for i := 1 to NoOfServiceItemLines do begin
-            ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
+            ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
             ServiceOrder.ServItemLines.Next();
         end;
-        ServiceOrder.OK.Invoke;
+        ServiceOrder.OK().Invoke();
         // [THEN] No error message appears and Service Line linked with last Service Item Line exists
         VerifyLinkedServiceLineExists(
           ServiceHeader."Document Type", ServiceHeader."No.",
@@ -2949,7 +2949,7 @@ codeunit 136101 "Service Orders"
         NoOfInsertFees := 16;
         LibraryVariableStorage.Enqueue(NoOfInsertFees);
         // [WHEN] User inserts 16 Travel Fees, 16th Line "Line No." should have value of already existing line
-        asserterror ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
+        asserterror ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
         // [THEN] Error message appears that user cannot anymore insert lines at current position, not that the line already exists
         Assert.ExpectedError(StrSubstNo(ThereIsNotEnoughSpaceToInsertErr, ServiceLine.TableCaption()));
     end;
@@ -3045,7 +3045,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Service order with items "X", "Y"
         CreateServiceOrderWithItem(
-          ServiceHeader, LibrarySales.CreateCustomerNo, '', ItemNo[1], LibraryRandom.RandIntInRange(10, 20));
+          ServiceHeader, LibrarySales.CreateCustomerNo(), '', ItemNo[1], LibraryRandom.RandIntInRange(10, 20));
         AddServiceLine(ServiceLine, ServiceHeader, ItemNo[2]);
 
         // [GIVEN] Insert "X", "Y" extended texts into service order lines
@@ -3218,9 +3218,9 @@ codeunit 136101 "Service Orders"
         // [GIVEN] Service Invoice
         GLSetup.Get();
         LibraryService.CreateServiceHeader(
-          ServHeader, ServHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+          ServHeader, ServHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         if GLSetup."Journal Templ. Name Mandatory" then
-            ServHeader.Validate("Posting No.", LibraryUtility.GenerateGUID)
+            ServHeader.Validate("Posting No.", LibraryUtility.GenerateGUID())
         else begin
             ServHeader.Validate("No. Series", ServiceMgtSetup."Posted Service Invoice Nos.");
             ServHeader.Validate("Posting No. Series", ServiceMgtSetup."Service Invoice Nos.");
@@ -3251,7 +3251,7 @@ codeunit 136101 "Service Orders"
         Initialize();
 
         // [GIVEN] Service Order with 4 Service Item Lines: "A", "B", "C", "D".
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         for i := 1 to ArrayLen(ServiceItemLine) do
             CreateServiceItemLineWithServiceItem(ServiceItemLine[i], ServiceHeader);
 
@@ -3263,10 +3263,10 @@ codeunit 136101 "Service Orders"
         CreateServiceLineWithLineNoSet(ServiceLine, ServiceHeader, ServiceItemLine[3], 10001);
 
         // [WHEN] Open "Service Lines" page for Service Item Line "D" (Service Order -> Lines -> Order -> Service Lines)
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
         ServiceOrder.ServItemLines.GotoRecord(ServiceItemLine[4]);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
 
         // [WHEN] Create a new Service Line through the page.
         // ServiceLinesNewLine_MPH
@@ -3292,7 +3292,7 @@ codeunit 136101 "Service Orders"
         Initialize();
 
         // [GIVEN] Service Quote with 3 Service Item Lines: "A", "B", "C".
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
         for i := 1 to ArrayLen(ServiceItemLine) do
             CreateServiceItemLineWithServiceItem(ServiceItemLine[i], ServiceHeader);
 
@@ -3302,10 +3302,10 @@ codeunit 136101 "Service Orders"
         CreateServiceLineWithLineNoSet(ServiceLine, ServiceHeader, ServiceItemLine[2], 20000);
 
         // [WHEN] Open "Service Quote Lines" page for Service Item Line "C" (Service Quote -> Lines -> Quote -> Service Lines)
-        ServiceQuote.OpenEdit;
+        ServiceQuote.OpenEdit();
         ServiceQuote.GotoRecord(ServiceHeader);
         ServiceQuote.ServItemLine.GotoRecord(ServiceItemLine[3]);
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
 
         // [WHEN] Create a new Service Line through the page.
         // ServiceQuoteLinesNewLine_MPH
@@ -3330,7 +3330,7 @@ codeunit 136101 "Service Orders"
         Initialize();
 
         // [GIVEN] Service Order with Service Item Lines
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateServiceItemLineWithServiceItem(ServiceItemLine, ServiceHeader);
 
         // [GIVEN] Service Line for Service Item Line. Service Line "Line No." = 10000
@@ -3339,12 +3339,12 @@ codeunit 136101 "Service Orders"
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceItemLine."Service Item No.");
 
         // [GIVEN] Open "Service Lines" page for Service Item Line for Service Line with "Line No." = 20000 (Service Order -> Lines -> Order -> Service Lines)
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
         ServiceOrder.ServItemLines.GotoRecord(ServiceItemLine);
 
         // [WHEN] Create a new Service Line Standard Text with Extended Text through the page Service Lines
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
 
         // [THEN] Extended Text Line No. = 15000
         FindServiceLineWithExtText(ServiceLine, ServiceHeader, ServiceItemLine."Line No.");
@@ -3383,7 +3383,7 @@ codeunit 136101 "Service Orders"
         // [GIVEN] Standard Text (Code = "ST1", Description = "SD1") with Extended Text "ET1".
         // [GIVEN] Standard Text (Code = "ST2", Description = "SD2") with Extended Text "ET2".
         // [GIVEN] Service Order with line: "Type" = "", "No." = "ST1"
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         MockServiceLine(ServiceLine, ServiceHeader);
         ValidateServiceLineStandardCode(ServiceLine, LibrarySales.CreateStandardTextWithExtendedText(StandardText, ExtendedText));
 
@@ -3410,7 +3410,7 @@ codeunit 136101 "Service Orders"
         Initialize();
 
         // [GIVEN] Service Quote with "Document Date" = 01.07.16
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
         DocDate := LibraryRandom.RandDate(100);
         ServiceHeader."Document Date" := DocDate;
         ServiceHeader.Modify();
@@ -3445,14 +3445,14 @@ codeunit 136101 "Service Orders"
         LibraryInventory.CreateNonStockItemWithItemTemplateCode(NonstockItem, ItemTempl.Code);
 
         // [GIVEN] Service Header
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(NonstockItem."Entry No.");
 
         // [GIVEN] Service Line with "Type" = Item
         MockServiceLineWithTypeItem(ServiceLine, ServiceHeader);
 
         // [WHEN] Call the "Nonstock Item" action from the service line and select item "I".
-        ServiceLine.ShowNonstock;
+        ServiceLine.ShowNonstock();
 
         // [THEN] The value of "No." in the service line is populated with new Nonstock Item's "No."
         ServiceLine.TestField("No.");
@@ -3480,14 +3480,14 @@ codeunit 136101 "Service Orders"
         ItemTempl.Modify(true);
 
         // [GIVEN] Service Header
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(NonstockItem."Entry No.");
 
         // [GIVEN] Service Line with "Type" = Item
         MockServiceLineWithTypeItem(ServiceLine, ServiceHeader);
 
         // [WHEN] Call "Nonstock Item" action
-        asserterror ServiceLine.ShowNonstock;
+        asserterror ServiceLine.ShowNonstock();
 
         // [THEN] "Default Value must have a value in Config." error appears
         Assert.ExpectedError(EmptyGenProdPostingGroupErr);
@@ -3515,14 +3515,14 @@ codeunit 136101 "Service Orders"
         ItemTempl.Modify(true);
 
         // [GIVEN] Service Header
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(NonstockItem."Entry No.");
 
         // [GIVEN] Service Line with "Type" = Item
         MockServiceLineWithTypeItem(ServiceLine, ServiceHeader);
 
         // [WHEN] Call "Nonstock Item" action
-        asserterror ServiceLine.ShowNonstock;
+        asserterror ServiceLine.ShowNonstock();
 
         // [THEN] "Default Value must have a value in Config." error appears
         Assert.ExpectedError(EmptyInventoryPostingGroupErr);
@@ -3596,13 +3596,13 @@ codeunit 136101 "Service Orders"
         UpdateServiceLineQtyToShipInvoice(ServiceLine, ServiceLine.Quantity);
 
         // [GIVEN] Open Service Order page and apply filter "Completely Shipped" = "No"
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", ServiceHeader."No.");
         ServiceOrder.FILTER.SetFilter("Completely Shipped", 'No');
 
         // [WHEN] Ship the Service Order
         LibraryVariableStorage.Enqueue(1); // Post = Ship
-        ServiceOrder.Post.Invoke;
+        ServiceOrder.Post.Invoke();
 
         // [THEN] Service Order's "Customer No." = "X"
         ServiceHeader.Find();
@@ -3676,7 +3676,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Service Order "SO" with Service Item Line with Service Line
         CreateServiceOrderWithItem(
-          ServiceHeader, LibrarySales.CreateCustomerNo, '', LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          ServiceHeader, LibrarySales.CreateCustomerNo(), '', LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Service Item Line with "Service Item No." = '' for "SO"
         CreateServiceItemLineWithServiceItemNo(ServiceItemLine, ServiceHeader, '');
@@ -3834,7 +3834,7 @@ codeunit 136101 "Service Orders"
         ServiceHeader.TestField("Bill-to Customer No.", BillToCustNo);
 
         // [THEN] No other confirmations pop up and no errors
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -4078,14 +4078,14 @@ codeunit 136101 "Service Orders"
             Init();
             "Document Type" := ServiceHeader."Document Type";
             "Document No." := ServiceHeader."No.";
-            "Line No." := GetLineNo;
+            "Line No." := GetLineNo();
             Insert();
             TestField("Line No.", 10000);
 
             Init();
             "Document Type" := ServiceHeader."Document Type";
             "Document No." := ServiceHeader."No.";
-            "Line No." := GetLineNo;
+            "Line No." := GetLineNo();
 
             TestField("Line No.", 20000);
         end;
@@ -4147,7 +4147,7 @@ codeunit 136101 "Service Orders"
             ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 0);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure CorrectCalculationLineDiscountForServiceLineWithSalesPrice()
@@ -4216,11 +4216,11 @@ codeunit 136101 "Service Orders"
         Initialize();
 
         // [GIVEN] Create Customer With "Payment Method Code"
-        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount, 0);
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount(), 0);
 
         // [GIVEN] Create Service Order
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader, '');
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
 
         // [GIVEN] Changed "Payment Method Code" to empty in Service Header
@@ -4250,11 +4250,11 @@ codeunit 136101 "Service Orders"
         Initialize();
 
         // [GIVEN] Create Customer With "Payment Method Code"
-        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount, 0);
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount(), 0);
 
         // [GIVEN] Create Service Order
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader, '');
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
 
         // [GIVEN] Changed "Payment Method Code" to empty in Service Header
@@ -4282,11 +4282,11 @@ codeunit 136101 "Service Orders"
         Initialize();
 
         // [GIVEN] Created Customer with "Payment Method Code"
-        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount, 0);
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount(), 0);
 
         // [GIVEN] Created Service Order with lines
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader, Customer."No.");
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
 
         // [WHEN] Change "Payment Method Code" to empty
@@ -4862,13 +4862,13 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Customer "C" with "Payment Method Code" = "GIRO"
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Method Code", FindPaymentMethodWithBalanceAccount);
+        Customer.Validate("Payment Method Code", FindPaymentMethodWithBalanceAccount());
         Customer.Modify();
 
         // [GIVEN] Service Order for customer "C"
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader, Customer."No.");
         LibraryService.CreateServiceLine(
-          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
         // [GIVEN] Sales line has 100% line discount
         ServiceLine.Validate("Line Discount %", 100);
@@ -4899,7 +4899,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Service Order "SO" with Service Item Line with Service Line "1" for customer "C1"
         CreateServiceOrderWithItem(
-          ServiceHeader, LibrarySales.CreateCustomerNo, '', LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+          ServiceHeader, LibrarySales.CreateCustomerNo(), '', LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         // [GIVEN] Create service line "2"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         // [GIVEN] Delete service line "1"
@@ -4966,6 +4966,74 @@ codeunit 136101 "Service Orders"
         ServiceHeader.TestField("Dimension Set ID", DimensionSetID);
         ServiceHeader.TestField("Shortcut Dimension 1 Code", DimensionValueCode[1]);
         ServiceHeader.TestField("Shortcut Dimension 2 Code", DimensionValueCode[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceQuoteMakeOrderPostInvoice()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        Resource: Record Resource;
+        ServiceItem: Record "Service Item";
+        NoSeries: Record "No. Series";
+        Customer: Record Customer;
+        NoSeriesUpdated: Boolean;
+    begin
+        // [SCENARIO 341380] Service Quote "Make Order" should Create Service Order; During the posting process, system will copy Quote No. on posted document
+        Initialize();
+
+        // [GIVEN] New customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] New Service Quote with Service Item Line 
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, Customer."No.");
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+
+        // [GIVEN] New Resource as a Service Line
+        LibraryResource.FindResource(Resource);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, Resource."No.");
+        UpdateServiceLine(ServiceLine, ServiceItemLine."Line No.", LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Created Service Order from Service Quote
+        LibraryService.CreateOrderFromQuote(ServiceHeader);
+        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
+        ServiceHeader.SetRange("Customer No.", Customer."No.");
+        ServiceHeader.FindFirst();
+        ServiceHeader.TestField("Quote No.");
+
+        //IT layer issue    
+        ServiceHeader.TestField("Posting No. Series");
+        NoSeries.Get(ServiceHeader."Posting No. Series");
+        if not NoSeries."Date Order" then begin
+            NoSeriesUpdated := true;
+            NoSeries."Date Order" := true;
+            NoSeries.Modify();
+        end;
+
+        // [WHEN] Post Service Order
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Service Invoice and Service Shipment created with Quote No.
+        ServiceInvoiceHeader.SetCurrentKey("Order No.");
+        ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
+        ServiceInvoiceHeader.FindLast();
+        ServiceInvoiceHeader.TestField("Quote No.", ServiceHeader."Quote No.");
+
+        ServiceShipmentHeader.SetCurrentKey("Order No.");
+        ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
+        ServiceShipmentHeader.FindLast();
+        ServiceShipmentHeader.TestField("Quote No.", ServiceHeader."Quote No.");
+
+        if NoSeriesUpdated then begin
+            NoSeries.Get(NoSeries.Code);
+            NoSeries."Date Order" := false;
+            NoSeries.Modify();
+        end;
     end;
 
     [Test]
@@ -5140,7 +5208,7 @@ codeunit 136101 "Service Orders"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryService.SetupServiceMgtNoSeries();
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
-        UpdateCustNoSeries;
+        UpdateCustNoSeries();
         IsInitialized := true;
         Commit();
 
@@ -5164,6 +5232,131 @@ codeunit 136101 "Service Orders"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Country/Region Code", CountryRegion.Code);
         Customer.Modify(true);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler,ConfirmHandlerTRUE')]
+    procedure ShippingInvoicingServiceOrderWithPostingPolicy()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+        ServiceLine: Record "Service Line";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        ShipInvoiceConfirmQst: Label 'Do you want to post the shipment and invoice?';
+    begin
+        // [FEATURE] [Posting Selection] [Order]
+        // [SCENARIO 480943] Shipping and invoicing service order with "Prohibited" and "Mandatory" settings of invoice posting policy.
+        Initialize();
+
+        // [GIVEN] new Customer 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] new Service Item
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        // [GIVEN] new Service Order with Service Item Line
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineToShipAndInvoice(ServiceLine, ServiceHeader, ServiceItem."No.");
+        ServiceHeader.SetRange("No.", ServiceHeader."No.");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+
+        // [GIVEN] user allowed just to ship
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        // [GIVEN] posting shipment 
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
+        LibraryVariableStorage.Enqueue(1); //ship
+        OpenServiceOrderPageAndPost(ServiceHeader, true);
+
+        // [GIVEN] user allowed just to ship and invoice
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+
+        // [WHEN] posting shipment and invoice
+        LibraryVariableStorage.Enqueue(ShipInvoiceConfirmQst);
+        OpenServiceOrderPageAndPost(ServiceHeader, false);
+
+        // [THEN] All Service Line posted
+        Assert.IsFalse(ServiceLine.Find(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+
+        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Allowed);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTRUE')]
+    procedure ShippingInvoicingServiceOrderWithPostingPolicyMandatory()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+        ServiceLine: Record "Service Line";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        ShipInvoiceConfirmQst: Label 'Do you want to post the shipment and invoice?';
+    begin
+        // [FEATURE] [Posting Selection] [Order]
+        // [SCENARIO 480943] Shipping and invoicing service order with "Prohibited" and "Mandatory" settings of invoice posting policy.
+        Initialize();
+
+        // [GIVEN] new Customer 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] new Service Item
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        // [GIVEN] new Service Order with Service Item Line
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineToShipAndInvoice(ServiceLine, ServiceHeader, ServiceItem."No.");
+        ServiceHeader.SetRange("No.", ServiceHeader."No.");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
+        // [GIVEN] user allowed just to ship and invoice
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+
+        // [WHEN] posting shipment and invoice
+        LibraryVariableStorage.Enqueue(ShipInvoiceConfirmQst);
+        OpenServiceOrderPageAndPost(ServiceHeader, false);
+
+        // [THEN] All Service Line posted
+        Assert.IsFalse(ServiceLine.Find(), '');
+        LibraryVariableStorage.AssertEmpty();
+
+        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Allowed);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTRUE(Question: Text[1024]; var Reply: Boolean)
+    var
+        ExpectedMessage: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedMessage);  // Dequeue variable.
+        Assert.IsTrue(StrPos(Question, ExpectedMessage) > 0, Question);
+        Reply := true;
+    end;
+
+    local procedure CreateUserSetupWithPostingPolicy(InvoicePostingPolicy: Enum "Invoice Posting Policy")
+    var
+        UserSetup: Record "User Setup";
+    begin
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup.Validate("Service Invoice Posting Policy", InvoicePostingPolicy);
+        UserSetup.Modify(true);
+    end;
+
+    local procedure OpenServiceOrderPageAndPost(var ServiceHeader: Record "Service Header"; ClosePage: Boolean)
+    var
+        ServiceOrder: TestPage "Service Order";
+    begin
+        ServiceOrder.OpenEdit();
+        ServiceOrder.GotoRecord(ServiceHeader);
+        ServiceOrder.Post.Invoke();
+        if ClosePage then
+            ServiceOrder.Close();
     end;
 
     [Scope('OnPrem')]
@@ -5199,7 +5392,7 @@ codeunit 136101 "Service Orders"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryERM.SetInvRoundingPrecisionLCY(
-          LibraryRandom.RandInt(5) + LibraryUtility.GenerateRandomFraction);
+          LibraryRandom.RandInt(5) + LibraryUtility.GenerateRandomFraction());
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -5233,7 +5426,7 @@ codeunit 136101 "Service Orders"
         LibraryVariableStorage.Enqueue(Resource."No.");
         Clear(ServiceOrderSubform);
         ServiceOrderSubform.SetRecord(ServiceItemLine);
-        ServiceOrderSubform.AllocateResource;
+        ServiceOrderSubform.AllocateResource();
     end;
 
     local procedure AssignLoanerOnServiceItemLine(var ServiceItemLine: Record "Service Item Line")
@@ -5280,7 +5473,7 @@ codeunit 136101 "Service Orders"
         BinContent: Record "Bin Content";
         LibraryWarehouse: Codeunit "Library - Warehouse";
     begin
-        LibraryWarehouse.CreateBin(Bin, CreateLocationWithBinMandatory, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, CreateLocationWithBinMandatory(), LibraryUtility.GenerateGUID(), '', '');
         LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
         BinContent.Validate(Default, true);
         BinContent.Modify(true);
@@ -5338,7 +5531,7 @@ codeunit 136101 "Service Orders"
 
     local procedure CreateAndShipServiceOrderWithPostingDate(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; PostingDate: Date)
     begin
-        CreateServiceOrderWithItem(ServiceHeader, CustomerNo, '', LibraryInventory.CreateItemNo, 1);
+        CreateServiceOrderWithItem(ServiceHeader, CustomerNo, '', LibraryInventory.CreateItemNo(), 1);
         ServiceHeader.Validate("Posting Date", PostingDate);
         ServiceHeader.Modify(true);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -5552,7 +5745,7 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceContractHeader."Customer No.");
         UpdateContractOnServiceHeader(ServiceHeader, ServiceContractHeader."Contract No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLine."Line No.");
     end;
 
@@ -5647,6 +5840,19 @@ codeunit 136101 "Service Orders"
         ServiceLine.Modify(true);
     end;
 
+    local procedure CreateServiceLineToShipAndInvoice(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20])
+    var
+        Item: Record Item;
+        Quantity: Decimal;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Service Item No.", ServiceItemNo);
+        Quantity := LibraryRandom.RandInt(10);  // Use Random For Quantity and Quantity to Consume.
+        ServiceLine.Validate(Quantity, Quantity);
+        ServiceLine.Modify(true);
+    end;
+
     local procedure CreateServiceLineWithLineNoSet(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemLine: Record "Service Item Line"; LineNo: Integer)
     begin
         Clear(ServiceLine);
@@ -5700,7 +5906,7 @@ codeunit 136101 "Service Orders"
     var
         ServiceItem: Record "Service Item";
     begin
-        CreateServiceItem(ServiceItem, ServiceHeader."Customer No.", LibraryInventory.CreateItemNo);
+        CreateServiceItem(ServiceItem, ServiceHeader."Customer No.", LibraryInventory.CreateItemNo());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
     end;
 
@@ -5755,7 +5961,7 @@ codeunit 136101 "Service Orders"
         ServiceOrderSubform: Page "Service Order Subform";
     begin
         ServiceOrderSubform.SetRecord(ServiceItemLine);
-        ServiceOrderSubform.CreateServiceItem;
+        ServiceOrderSubform.CreateServiceItem();
     end;
 
     local procedure CreateServiceHeaderWithName(var ServiceHeader: Record "Service Header")
@@ -5931,13 +6137,13 @@ codeunit 136101 "Service Orders"
     var
         ServiceLine: Record "Service Line";
     begin
-        CreateServiceInvoiceWithServiceLine(ServiceHeader, ServiceLine, LibrarySales.CreateCustomerNo);
+        CreateServiceInvoiceWithServiceLine(ServiceHeader, ServiceLine, LibrarySales.CreateCustomerNo());
     end;
 
     local procedure CreateServiceInvoiceWithServiceLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; CustomerNo: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
     end;
 
     local procedure CreateServiceInvoiceWithUniqueDescriptionLines(var ServiceHeader: record "Service Header"; var TempServiceLine: Record "Service Line" temporary; Type: Enum "Service Line Type")
@@ -5945,15 +6151,15 @@ codeunit 136101 "Service Orders"
         ServiceLine: Record "Service Line";
         i: Integer;
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         FOR i := 1 TO LibraryRandom.RandIntInRange(3, 7) DO BEGIN
             CASE Type OF
                 ServiceLine.Type::"G/L Account":
                     LibraryService.CreateServiceLine(
-                      ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+                      ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
                 ServiceLine.Type::Item:
                     LibraryService.CreateServiceLine(
-                      ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+                      ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
             END;
             ServiceLine.Description :=
               COPYSTR(
@@ -5997,7 +6203,7 @@ codeunit 136101 "Service Orders"
     local procedure CreateServiceDocWithIncreasedAmount(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; DocType: Enum "Service Document Type"; CustNo: Code[20]; Amount: Decimal)
     begin
         LibraryService.CreateServiceHeader(ServHeader, DocType, CustNo);
-        LibraryService.CreateServiceLine(ServLine, ServHeader, ServLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        LibraryService.CreateServiceLine(ServLine, ServHeader, ServLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
         ServLine.Validate(Quantity, 1);
         ServLine.Validate("Unit Price", Amount + LibraryRandom.RandDec(100, 2));
         ServLine.Modify(true);
@@ -6020,7 +6226,7 @@ codeunit 136101 "Service Orders"
     local procedure ChangeCustomerOnServiceQuote(var ServiceHeader: Record "Service Header")
     begin
         // Select different Customer from Service Header Customer No.
-        ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo);
+        ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
         ServiceHeader.Modify(true);
     end;
 
@@ -6096,7 +6302,7 @@ codeunit 136101 "Service Orders"
         ServiceItemWorksheet.ServInvLines."No.".SetValue(ItemNo);
         ServiceItemWorksheet.ServInvLines.Description.SetValue(
           LibraryUtility.GenerateRandomCode(ServiceLine.FieldNo(Description), DATABASE::"Service Line"));
-        ServiceItemWorksheet.ServInvLines.New;
+        ServiceItemWorksheet.ServInvLines.New();
     end;
 
     local procedure CreateServiceDocumentWithInvoiceDiscount(var ServiceLine: Record "Service Line") ServiceCharge: Decimal
@@ -6139,7 +6345,7 @@ codeunit 136101 "Service Orders"
         LineDiscountPercent := LibraryRandom.RandInt(100);
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader, '');
         LibraryService.CreateServiceLine(
-          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
         ServiceLine.Validate("Line Discount %", LineDiscountPercent);
         ServiceLine.Modify(true);
@@ -6210,7 +6416,7 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        ServiceItemLine.Validate("Loaner No.", CreateLoaner);
+        ServiceItemLine.Validate("Loaner No.", CreateLoaner());
         ServiceItemLine.Modify(true);
     end;
 
@@ -6270,7 +6476,7 @@ codeunit 136101 "Service Orders"
 
     local procedure OpenServiceOrderPage(var ServiceOrder: TestPage "Service Order"; DocumentNo: Code[20])
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", DocumentNo);
     end;
 
@@ -6278,10 +6484,10 @@ codeunit 136101 "Service Orders"
     var
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", No);
-        ServiceInvoice.ServLines.GetShipmentLines.Invoke;
-        ServiceInvoice.OK.Invoke;
+        ServiceInvoice.ServLines.GetShipmentLines.Invoke();
+        ServiceInvoice.OK().Invoke();
     end;
 
     local procedure ChangeCustomerNo(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20])
@@ -6295,7 +6501,7 @@ codeunit 136101 "Service Orders"
     var
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", No);
         ServiceInvoice.ServLines."Unit Price".SetValue(ServiceInvoice.ServLines."Unit Price".Value);
     end;
@@ -6338,9 +6544,9 @@ codeunit 136101 "Service Orders"
         ServiceOrder: TestPage "Service Order";
     begin
         ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceOrderNo);
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
     end;
 
     local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type")
@@ -6464,7 +6670,7 @@ codeunit 136101 "Service Orders"
         Clear(PostedServiceShptSubform);
         PostedServiceShptSubform.SetTableView(ServiceShipmentItemLine);
         PostedServiceShptSubform.SetRecord(ServiceShipmentItemLine);
-        PostedServiceShptSubform.ReceiveLoaner;
+        PostedServiceShptSubform.ReceiveLoaner();
     end;
 
     local procedure ReceiveLoanerOnServiceOrder(var ServiceItemLine: Record "Service Item Line"; ServiceItemNo: Code[20])
@@ -6627,7 +6833,7 @@ codeunit 136101 "Service Orders"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
     end;
 
@@ -6645,7 +6851,7 @@ codeunit 136101 "Service Orders"
     local procedure SetPostedInvoiceNosEqualInvoiceNosInServSetup(var ServiceMgtSetup: Record "Service Mgt. Setup")
     begin
         ServiceMgtSetup.Get();
-        ServiceMgtSetup.Validate("Posted Service Invoice Nos.", LibraryERM.CreateNoSeriesCode);
+        ServiceMgtSetup.Validate("Posted Service Invoice Nos.", LibraryERM.CreateNoSeriesCode());
         ServiceMgtSetup.Validate("Service Invoice Nos.", ServiceMgtSetup."Posted Service Invoice Nos.");
         ServiceMgtSetup.Modify(true);
     end;
@@ -6786,7 +6992,7 @@ codeunit 136101 "Service Orders"
         repeat
             OutStandingAmount := (1 + ServiceLine."VAT %" / 100) * Quantity * UnitPrice;
             Assert.AreNearlyEqual(
-              OutStandingAmount, ServiceLine."Outstanding Amount", LibraryERM.GetAmountRoundingPrecision,
+              OutStandingAmount, ServiceLine."Outstanding Amount", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(WrongValueErr, ServiceLine.FieldCaption("Outstanding Amount"), OutStandingAmount, ServiceLine.TableCaption()));
         until ServiceLine.Next() = 0;
     end;
@@ -6807,7 +7013,7 @@ codeunit 136101 "Service Orders"
                 GLAmt += GLEntry.Amount;
             until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
-          TotalOutStandingAmount, GLAmt, LibraryERM.GetAmountRoundingPrecision,
+          TotalOutStandingAmount, GLAmt, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(WrongValueErr, GLEntry.FieldCaption(Amount), GLAmt, GLEntry.TableCaption()));
     end;
 
@@ -6853,7 +7059,7 @@ codeunit 136101 "Service Orders"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          DiscountAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          DiscountAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(DiscountAmountErr, GLEntry.FieldCaption(Amount), DiscountAmount, GLEntry.TableCaption()));
     end;
 
@@ -7033,7 +7239,7 @@ codeunit 136101 "Service Orders"
             ActualNoOfEntries := Count;
             repeat
                 TestField("Unit Price", -ServiceContractLine."Line Value" / 12);
-            until Next = 0;
+            until Next() = 0;
         end;
         Assert.AreEqual(ExpectedNoOfEntries, ActualNoOfEntries, NoOfEntriesMsg);
     end;
@@ -7093,7 +7299,7 @@ codeunit 136101 "Service Orders"
         ServiceInvHeader.SetRange("Order No.", ServiceDocNo);
         ServiceInvHeader.FindLast();
 
-        ServiceInvStatistics.OpenView;
+        ServiceInvStatistics.OpenView();
         ServiceInvStatistics.GotoRecord(ServiceInvHeader);
 
         ServiceInvStatistics.VATAmount.AssertEquals(VATAmount);
@@ -7108,13 +7314,11 @@ codeunit 136101 "Service Orders"
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
         ServiceCrMemoHeader.FindFirst();
 
-        ServiceCreditMemoStatistics.OpenView;
+        ServiceCreditMemoStatistics.OpenView();
         ServiceCreditMemoStatistics.GotoRecord(ServiceCrMemoHeader);
 
-        with ServiceCreditMemoStatistics.Subform do begin
-            First;
-            FILTER.SetFilter("VAT Amount", '>0');
-        end;
+        ServiceCreditMemoStatistics.Subform.First();
+        ServiceCreditMemoStatistics.Subform.FILTER.SetFilter("VAT Amount", '>0');
     end;
 
     local procedure VerifyNextInvoiceDateAndAmountToPeriod(ServiceInvoicePeriod: Enum "Service Contract Header Invoice Period"; Formula: Integer; EndingDate: Date)
@@ -7141,7 +7345,7 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
 
         // Verify: Verify Amount Per Period and Next Invoice Date on Service Contract Header After Changing Line Value and Service Invoicce Period on Service Contract Lines.
-        ServiceContract.OpenView;
+        ServiceContract.OpenView();
         ServiceContract.FILTER.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
         ServiceContract.ServContractLines."Line Value".SetValue(Amount);
         ServiceContract.InvoicePeriod.SetValue(ServiceInvoicePeriod);
@@ -7255,12 +7459,12 @@ codeunit 136101 "Service Orders"
     local procedure VerifyAmountInclVATOfCreditLimitDetails(ExpectedAmount: Decimal)
     begin
         Assert.AreEqual(
-          ExpectedAmount, LibraryVariableStorage.DequeueDecimal,
+          ExpectedAmount, LibraryVariableStorage.DequeueDecimal(),
           'Incorrect outstanding amount on Credit Limit Details page');
         Assert.AreEqual(
-          ExpectedAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect total amount on Credit Limit Details page');
+          ExpectedAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect total amount on Credit Limit Details page');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure VerifyServiceLinePostingDate(ServiceHeader: Record "Service Header")
@@ -7327,14 +7531,14 @@ codeunit 136101 "Service Orders"
         VATPostingSetup: Record "VAT Posting Setup";
         Item: Record Item;
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryInventory.CreateItem(Item);
         if not VATPostingSetup.Get(ServiceHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group") then
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, ServiceHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerNo: Code[20]; ItemNo: Code[20])
     begin
         SalesLineDiscount.Init();
@@ -7361,9 +7565,6 @@ codeunit 136101 "Service Orders"
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";
-        LocationA: Record Location;
-        LocationB: Record Location;
-        LocationTransit: Record Location;
     begin
         Initialize();
 
@@ -7518,7 +7719,7 @@ codeunit 136101 "Service Orders"
         ServiceOrderAllocation.Init();
         ResourceAllocations.GetRecord(ServiceOrderAllocation);
         ServiceOrderAllocation.Validate(
-          "Resource No.", CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(ServiceOrderAllocation."Resource No.")));
+          "Resource No.", CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ServiceOrderAllocation."Resource No.")));
         ServiceOrderAllocation.Validate("Allocation Date", WorkDate());
         ServiceOrderAllocation.Modify(true);
 
@@ -7546,7 +7747,7 @@ codeunit 136101 "Service Orders"
         ServiceItemComponent: Record "Service Item Component";
     begin
         // Modal form handler. Return Action as LookupOK for first record found.
-        ServiceItemComponent.SetRange("Parent Service Item No.", LibraryVariableStorage.DequeueText);
+        ServiceItemComponent.SetRange("Parent Service Item No.", LibraryVariableStorage.DequeueText());
         ServiceItemComponent.FindFirst();
         ServiceItemComponentList.SetRecord(ServiceItemComponent);
         Response := ACTION::LookupOK;
@@ -7556,15 +7757,15 @@ codeunit 136101 "Service Orders"
     [Scope('OnPrem')]
     procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
-        Choice := LibraryVariableStorage.DequeueInteger;
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PageHandlerServiceLines(var ServiceLines: TestPage "Service Lines")
     begin
-        ServiceLines."Posting Date".AssertEquals(LibraryVariableStorage.DequeueDate);
-        ServiceLines.OK.Invoke;
+        ServiceLines."Posting Date".AssertEquals(LibraryVariableStorage.DequeueDate());
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7593,7 +7794,7 @@ codeunit 136101 "Service Orders"
     [Scope('OnPrem')]
     procedure ServiceItemWorksheet_ValidateFaultReasonCode_MPH(var ServiceItemWorksheet: TestPage "Service Item Worksheet")
     begin
-        ServiceItemWorksheet.ServInvLines."Fault Reason Code".SetValue(LibraryVariableStorage.DequeueText);
+        ServiceItemWorksheet.ServInvLines."Fault Reason Code".SetValue(LibraryVariableStorage.DequeueText());
     end;
 
     [ModalPageHandler]
@@ -7610,8 +7811,8 @@ codeunit 136101 "Service Orders"
         ServiceItemCardPage: TestPage "Service Item Card";
     begin
         ServiceItemCardPage.OpenNew();
-        ServiceItemCardPage.Description.Activate;
-        ServiceItemList.OK.Invoke;
+        ServiceItemCardPage.Description.Activate();
+        ServiceItemList.OK().Invoke();
         LibraryVariableStorage.Enqueue(ServiceItemCardPage."No.".Value); // Format required for Testpage variable.
     end;
 
@@ -7621,7 +7822,7 @@ codeunit 136101 "Service Orders"
     begin
         // Verify sequence of Service Lines.
         repeat
-            ServiceLines.Description.AssertEquals(LibraryVariableStorage.DequeueText);
+            ServiceLines.Description.AssertEquals(LibraryVariableStorage.DequeueText());
         until ServiceLines.Next() = true;
     end;
 
@@ -7632,14 +7833,14 @@ codeunit 136101 "Service Orders"
         ViewBy: Option Day,Week,Month;
     begin
         ResGrAvailabilityService.PeriodType.SetValue(ViewBy::Month);
-        ResGrAvailabilityService.ShowMatrix.Invoke;
+        ResGrAvailabilityService.ShowMatrix.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResGrAvailServMatrixHandler(var ResGrAvailServMatrix: TestPage "Res. Gr. Avail. (Serv.) Matrix")
     begin
-        ResGrAvailServMatrix.OK.Invoke;
+        ResGrAvailServMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7673,16 +7874,16 @@ codeunit 136101 "Service Orders"
     [Scope('OnPrem')]
     procedure ServiceLinesValidateUnitPrice_MPH(var ServiceLines: TestPage "Service Lines")
     begin
-        ServiceLines."Unit Price".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ServiceLines.OK.Invoke;
+        ServiceLines."Unit Price".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceLinesValidateQuantity_MPH(var ServiceLines: TestPage "Service Lines")
     begin
-        ServiceLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
-        ServiceLines.OK.Invoke;
+        ServiceLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        ServiceLines.OK().Invoke();
         LibraryVariableStorage.Enqueue(1); // dummy enqueue for handler call's count
     end;
 
@@ -7690,9 +7891,9 @@ codeunit 136101 "Service Orders"
     [Scope('OnPrem')]
     procedure ServiceLinesNewLineWithExtendedText(var ServiceLines: TestPage "Service Lines")
     begin
-        ServiceLines.New;
-        ServiceLines."No.".SetValue(CreateStandardTextWithExtendedText);
-        ServiceLines.OK.Invoke;
+        ServiceLines.New();
+        ServiceLines."No.".SetValue(CreateStandardTextWithExtendedText());
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7701,10 +7902,10 @@ codeunit 136101 "Service Orders"
     var
         ServiceLine: Record "Service Line";
     begin
-        ServiceLines.New;
+        ServiceLines.New();
         ServiceLines.Type.SetValue(ServiceLine.Type::Item);
-        ServiceLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        ServiceLines.OK.Invoke;
+        ServiceLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7713,17 +7914,17 @@ codeunit 136101 "Service Orders"
     var
         ServiceLine: Record "Service Line";
     begin
-        ServiceQuoteLines.New;
+        ServiceQuoteLines.New();
         ServiceQuoteLines.Type.SetValue(ServiceLine.Type::Item);
-        ServiceQuoteLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        ServiceQuoteLines.OK.Invoke;
+        ServiceQuoteLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        ServiceQuoteLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetServiceShipmentLinesHandler(var GetServiceShipmentLines: TestPage "Get Service Shipment Lines")
     begin
-        GetServiceShipmentLines.OK.Invoke;
+        GetServiceShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7737,14 +7938,14 @@ codeunit 136101 "Service Orders"
         LibraryVariableStorage.Dequeue(NoOfInsertFees);
         NoOfFeesToInsert := NoOfInsertFees;
         for i := 1 to NoOfFeesToInsert do
-            ServiceItemWorksheet.ServInvLines."Insert Travel Fee".Invoke;
+            ServiceItemWorksheet.ServInvLines."Insert Travel Fee".Invoke();
     end;
 
     [MessageHandler]
     [Scope('OnPrem')]
     procedure ExactMessageHandler(Message: Text)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     [RecallNotificationHandler]
@@ -7763,8 +7964,8 @@ codeunit 136101 "Service Orders"
     [Scope('OnPrem')]
     procedure NonstockItemListModalPageHandler(var NonstockItemList: TestPage "Catalog Item List")
     begin
-        NonstockItemList.GotoKey(LibraryVariableStorage.DequeueText);
-        NonstockItemList.OK.Invoke;
+        NonstockItemList.GotoKey(LibraryVariableStorage.DequeueText());
+        NonstockItemList.OK().Invoke();
     end;
 
     [SendNotificationHandler]
@@ -7773,7 +7974,7 @@ codeunit 136101 "Service Orders"
     var
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
     begin
-        Assert.AreEqual(Notification.GetData('No.'), LibraryVariableStorage.DequeueText, 'Customer No. was different than expected');
+        Assert.AreEqual(Notification.GetData('No.'), LibraryVariableStorage.DequeueText(), 'Customer No. was different than expected');
         CustCheckCrLimit.ShowNotificationDetails(Notification);
     end;
 

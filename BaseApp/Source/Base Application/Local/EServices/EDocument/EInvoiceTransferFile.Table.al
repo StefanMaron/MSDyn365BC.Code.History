@@ -7,6 +7,7 @@ namespace Microsoft.EServices.EDocument;
 table 10606 "E-Invoice Transfer File"
 {
     Caption = 'E-Invoice Transfer File';
+    DataClassification = CustomerContent;
 
     fields
     {

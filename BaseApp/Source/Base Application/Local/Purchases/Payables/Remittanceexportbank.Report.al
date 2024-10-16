@@ -999,46 +999,43 @@ report 15000050 "Remittance - export (Bank)"
 
         // Get creditor:
         Vendor.Get(GenJournalLineRec."Account No.");
-
         // Convert BOLS text code-optionfield to correct code:
-        with JournalRec do begin
-            case "BOLS Text Code" of
-                "BOLS Text Code"::"Transfer without advice":
-                    TextCode := '600';
-                "BOLS Text Code"::"KID transfer":
-                    TextCode := '601';
-                "BOLS Text Code"::"Transfer with advice":
-                    TextCode := '602';
-                "BOLS Text Code"::"Money order":
-                    TextCode := '603';
-                "BOLS Text Code"::Salary:
-                    TextCode := '604';
-                "BOLS Text Code"::"Seaman's pay":
-                    TextCode := '605';
-                "BOLS Text Code"::"Agricultural settlement":
-                    TextCode := '606';
-                "BOLS Text Code"::"Pension/ Social security":
-                    TextCode := '607';
-                "BOLS Text Code"::"Advice sent from institution other than BBS":
-                    TextCode := '608';
-                "BOLS Text Code"::Tax:
-                    TextCode := '609';
-                "BOLS Text Code"::"Free text mass payment":
-                    TextCode := '621';
-                "BOLS Text Code"::"Free text":
-                    TextCode := '622';
-                "BOLS Text Code"::"Self-produced money order":
-                    TextCode := '630';
-            end;
-
-            if KID <> '' then
-                TextCode := '601'
-            else
-                if "External Document No." <> '' then
-                    TextCode := '600'
-                else
-                    TextCode := '602';
+        case JournalRec."BOLS Text Code" of
+            JournalRec."BOLS Text Code"::"Transfer without advice":
+                TextCode := '600';
+            JournalRec."BOLS Text Code"::"KID transfer":
+                TextCode := '601';
+            JournalRec."BOLS Text Code"::"Transfer with advice":
+                TextCode := '602';
+            JournalRec."BOLS Text Code"::"Money order":
+                TextCode := '603';
+            JournalRec."BOLS Text Code"::Salary:
+                TextCode := '604';
+            JournalRec."BOLS Text Code"::"Seaman's pay":
+                TextCode := '605';
+            JournalRec."BOLS Text Code"::"Agricultural settlement":
+                TextCode := '606';
+            JournalRec."BOLS Text Code"::"Pension/ Social security":
+                TextCode := '607';
+            JournalRec."BOLS Text Code"::"Advice sent from institution other than BBS":
+                TextCode := '608';
+            JournalRec."BOLS Text Code"::Tax:
+                TextCode := '609';
+            JournalRec."BOLS Text Code"::"Free text mass payment":
+                TextCode := '621';
+            JournalRec."BOLS Text Code"::"Free text":
+                TextCode := '622';
+            JournalRec."BOLS Text Code"::"Self-produced money order":
+                TextCode := '630';
         end;
+
+        if JournalRec.KID <> '' then
+            TextCode := '601'
+        else
+            if JournalRec."External Document No." <> '' then
+                TextCode := '600'
+            else
+                TextCode := '602';
 
         // Format YYMMDD (with leading 0, if possible):
         Y := CopyStr(Format(Date2DMY(GenJournalLineRec."Posting Date", 3), 4), 3, 2);  // Years only (not centuries)
@@ -1069,8 +1066,9 @@ report 15000050 "Remittance - export (Bank)"
         InitLine(PaymentOrderData);
         PaymentOrderData.Data :=
           DueDate + // Payment date YYMMDD.
-          PadStr(GenJournalLineRec."Account No.", 30) + // Own ref. PaymOrder. Users own id. Not in use!
-                                                        // - Own ref i PAYFOR23 is used in return.
+          PadStr(GenJournalLineRec."Account No.", 30) +
+          // Own ref. PaymOrder. Users own id. Not in use!
+          // - Own ref i PAYFOR23 is used in return.
           ' ' + // Reserved. 1 char.
           RecipientAccount + // Recipients account.
           PadStr(Vendor.Name, 30) + // Recipients name.

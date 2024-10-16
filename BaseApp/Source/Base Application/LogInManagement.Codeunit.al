@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -58,6 +58,7 @@ codeunit 40 LogInManagement
     var
         ClientTypeManagement: Codeunit "Client Type Management";
         AzureADPlan: Codeunit "Azure AD Plan";
+        ExperienceTier: Codeunit "Experience Tier";
         CurrentDate: Date;
     begin
         OnShowTermsAndConditions();
@@ -69,7 +70,8 @@ codeunit 40 LogInManagement
             if GetCurrentDateInUserTimeZone(CurrentDate) then
                 WorkDate := CurrentDate;
 
-        AzureADPlan.CheckMixedPlans();
+        if AzureADPlan.CheckMixedPlansExist() then
+            ExperienceTier.CheckExperienceTier();
     end;
 
     procedure CompanyClose()
@@ -272,7 +274,9 @@ codeunit 40 LogInManagement
         CurrentDate := DT2Date(TypeHelper.GetCurrentDateTimeInUserTimeZone());
     end;
 
+#pragma warning disable AS0105
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterInitialization', '', false, false)]
+#pragma warning restore AS0105
     local procedure OnCompanyOpen()
     begin
         CompanyOpen();

@@ -1,6 +1,8 @@
 namespace Microsoft.Finance.Dimension;
 
+#pragma warning disable AL0659
 enum 136 "Dimension Set Entry Buffer Parent Type"
+#pragma warning restore AL0659
 {
     Extensible = true;
 

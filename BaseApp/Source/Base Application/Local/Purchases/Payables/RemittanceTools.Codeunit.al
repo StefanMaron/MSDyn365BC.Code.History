@@ -616,7 +616,7 @@ codeunit 15000002 "Remittance Tools"
     var
         WaitingJournal: Record "Waiting Journal";
         RemAccount: Record "Remittance Account";
-        NrSerieControl: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NextLineNo: Integer;
         NextDocumentNo: Code[20];
     begin
@@ -633,10 +633,7 @@ codeunit 15000002 "Remittance Tools"
         WaitingJournal.SetRange("Payment Order ID - Sent", PaymOrder.ID);
         if WaitingJournal.FindSet() then
             repeat
-                // Init document no.
-                Clear(NrSerieControl);
-                NextDocumentNo := '';
-                NextDocumentNo := NrSerieControl.GetNextNo(RemAccount."Document No. Series", WorkDate(), true);
+                NextDocumentNo := NoSeries.GetNextNo(RemAccount."Document No. Series");
 
                 GenJnlLine.Validate("Line No.", NextLineNo);
                 NextLineNo := NextLineNo + 10000;

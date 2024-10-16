@@ -251,7 +251,7 @@ codeunit 137043 "SCM General Journal"
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Modify(true);
     end;
 
@@ -289,11 +289,11 @@ codeunit 137043 "SCM General Journal"
 
         CreateGenJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibrarySales.CreateCustomerNo, '', LibraryRandom.RandDec(100, 2));
+          LibrarySales.CreateCustomerNo(), '', LibraryRandom.RandDec(100, 2));
 
         CreateGenJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, GenJournalLine."Bal. Account Type"::"Bank Account",
-          LibraryPurchase.CreateVendorNo, '', LibraryRandom.RandDec(100, 2));
+          LibraryPurchase.CreateVendorNo(), '', LibraryRandom.RandDec(100, 2));
         CreateStandardGenlJournalCode(StandardGeneralJournalCode);
         LibraryInventory.SaveAsStandardJournal(GenJournalBatch, StandardGeneralJournalCode, true);
     end;

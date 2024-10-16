@@ -86,18 +86,17 @@ codeunit 8810 "Customer Layout - Statement"
 
         RunImmediately := Confirm(ConfirmRunRepInBackgroundQst);
         CheckReportRunningInBackground();
-        with JobQueueEntry do begin
-            Init();
-            Scheduled := false;
-            Status := Status::"On Hold";
-            Description := RunCustomerStatementsTxt;
-            "Object ID to Run" := CODEUNIT::"Customer Statement via Queue";
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            Insert(true); // it is required due to MODIFY called inside SetReportParameters
-            SetXmlContent(RequestParameters);
-            if RunImmediately then
-                SetStatus(Status::Ready);
-        end;
+        JobQueueEntry.Init();
+        JobQueueEntry.Scheduled := false;
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+        JobQueueEntry.Description := RunCustomerStatementsTxt;
+        JobQueueEntry."Object ID to Run" := CODEUNIT::"Customer Statement via Queue";
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry.Insert(true);
+        // it is required due to MODIFY called inside SetReportParameters
+        JobQueueEntry.SetXmlContent(RequestParameters);
+        if RunImmediately then
+            JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
     end;
 
     [Scope('OnPrem')]

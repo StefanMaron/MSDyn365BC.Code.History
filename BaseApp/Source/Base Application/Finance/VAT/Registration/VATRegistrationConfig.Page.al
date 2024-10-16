@@ -32,7 +32,7 @@ page 248 "VAT Registration Config"
                 field(ServiceEndpoint; Rec."Service Endpoint")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = NOT Rec.Enabled;
+                    Editable = not Rec.Enabled;
                     ToolTip = 'Specifies the endpoint of the VAT registration number validation service.';
                 }
                 field(Enabled; Rec.Enabled)

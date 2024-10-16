@@ -25,7 +25,7 @@ codeunit 144184 "NO UI Tests"
         Initialize();
         LibraryApplicationArea.EnableFoundationSetup();
         CompanyInformation.OpenView();
-        Assert.IsTrue(CompanyInformation."Registration No.".Visible, 'Registration no. field is not visible.');
+        Assert.IsTrue(CompanyInformation."Registration No.".Visible(), 'Registration no. field is not visible.');
         CompanyInformation.Close();
 
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -40,7 +40,7 @@ codeunit 144184 "NO UI Tests"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"NO UI Tests");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"NO UI Tests");
     end;
 }

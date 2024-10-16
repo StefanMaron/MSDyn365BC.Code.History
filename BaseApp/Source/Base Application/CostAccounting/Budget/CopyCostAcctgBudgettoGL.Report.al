@@ -227,29 +227,27 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
         DimSetEntry: Record "Dimension Set Entry";
     begin
         GLSetup.Get();
-        with GLBudgetEntry do begin
-            GLBudgetName.Get("Budget Name");
+        GLBudgetName.Get(GLBudgetEntry."Budget Name");
 
-            "Global Dimension 1 Code" := '';
-            "Global Dimension 2 Code" := '';
-            "Budget Dimension 1 Code" := '';
-            "Budget Dimension 2 Code" := '';
-            "Budget Dimension 3 Code" := '';
-            "Budget Dimension 4 Code" := '';
+        GLBudgetEntry."Global Dimension 1 Code" := '';
+        GLBudgetEntry."Global Dimension 2 Code" := '';
+        GLBudgetEntry."Budget Dimension 1 Code" := '';
+        GLBudgetEntry."Budget Dimension 2 Code" := '';
+        GLBudgetEntry."Budget Dimension 3 Code" := '';
+        GLBudgetEntry."Budget Dimension 4 Code" := '';
 
-            if DimSetEntry.Get("Dimension Set ID", GLSetup."Global Dimension 1 Code") then
-                "Global Dimension 1 Code" := DimSetEntry."Dimension Value Code";
-            if DimSetEntry.Get("Dimension Set ID", GLSetup."Global Dimension 2 Code") then
-                "Global Dimension 2 Code" := DimSetEntry."Dimension Value Code";
-            if DimSetEntry.Get("Dimension Set ID", GLBudgetName."Budget Dimension 1 Code") then
-                "Budget Dimension 1 Code" := DimSetEntry."Dimension Value Code";
-            if DimSetEntry.Get("Dimension Set ID", GLBudgetName."Budget Dimension 2 Code") then
-                "Budget Dimension 2 Code" := DimSetEntry."Dimension Value Code";
-            if DimSetEntry.Get("Dimension Set ID", GLBudgetName."Budget Dimension 3 Code") then
-                "Budget Dimension 3 Code" := DimSetEntry."Dimension Value Code";
-            if DimSetEntry.Get("Dimension Set ID", GLBudgetName."Budget Dimension 4 Code") then
-                "Budget Dimension 4 Code" := DimSetEntry."Dimension Value Code";
-        end;
+        if DimSetEntry.Get(GLBudgetEntry."Dimension Set ID", GLSetup."Global Dimension 1 Code") then
+            GLBudgetEntry."Global Dimension 1 Code" := DimSetEntry."Dimension Value Code";
+        if DimSetEntry.Get(GLBudgetEntry."Dimension Set ID", GLSetup."Global Dimension 2 Code") then
+            GLBudgetEntry."Global Dimension 2 Code" := DimSetEntry."Dimension Value Code";
+        if DimSetEntry.Get(GLBudgetEntry."Dimension Set ID", GLBudgetName."Budget Dimension 1 Code") then
+            GLBudgetEntry."Budget Dimension 1 Code" := DimSetEntry."Dimension Value Code";
+        if DimSetEntry.Get(GLBudgetEntry."Dimension Set ID", GLBudgetName."Budget Dimension 2 Code") then
+            GLBudgetEntry."Budget Dimension 2 Code" := DimSetEntry."Dimension Value Code";
+        if DimSetEntry.Get(GLBudgetEntry."Dimension Set ID", GLBudgetName."Budget Dimension 3 Code") then
+            GLBudgetEntry."Budget Dimension 3 Code" := DimSetEntry."Dimension Value Code";
+        if DimSetEntry.Get(GLBudgetEntry."Dimension Set ID", GLBudgetName."Budget Dimension 4 Code") then
+            GLBudgetEntry."Budget Dimension 4 Code" := DimSetEntry."Dimension Value Code";
     end;
 
     [IntegrationEvent(false, false)]

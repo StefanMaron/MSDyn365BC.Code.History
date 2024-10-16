@@ -31,7 +31,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
 
         // [GIVEN] OCR Setup with "Divergence Account No." = "G"
         OCRSetup.Get();
-        OCRSetup.Validate("Divergence Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        OCRSetup.Validate("Divergence Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         OCRSetup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
@@ -57,15 +57,15 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
 
         // [GIVEN] OCR Setup with "Divergence Account No." = "G"
         OCRSetup.Get();
-        OCRSetup.Validate("Divergence Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        OCRSetup.Validate("Divergence Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         OCRSetup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
-        OCRSetupPage.Trap;
+        OCRSetupPage.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(OCRSetup."Divergence Account No.");
 
         // [THEN] OCR Setup page opened
-        OCRSetupPage.OK.Invoke;
+        OCRSetupPage.OK().Invoke();
     end;
 
     [Test]
@@ -106,7 +106,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
         CreateRemittanceAccount(RemittanceAccount);
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
-        RemittanceAccountOverview.Trap;
+        RemittanceAccountOverview.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(RemittanceAccount."Round off/Divergence Acc. No.");
 
         // [THEN] Remittance Account Overview page opened with Code = "RA"
@@ -134,28 +134,28 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
 
     local procedure ValidateWhereUsedRecord(ExpectedTableCaption: Text; ExpectedFieldCaption: Text; ExpectedLineValue: Text)
     begin
-        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText, InvalidTableCaptionErr);
-        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText, InvalidFieldCaptionErr);
-        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText, InvalidLineValueErr);
+        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText(), InvalidTableCaptionErr);
+        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText(), InvalidFieldCaptionErr);
+        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText(), InvalidLineValueErr);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
+        GLAccountWhereUsedList.First();
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Table Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Field Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.Line.Value);
-        GLAccountWhereUsedList.OK.Invoke;
+        GLAccountWhereUsedList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedShowDetailsHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
-        GLAccountWhereUsedList.ShowDetails.Invoke;
+        GLAccountWhereUsedList.First();
+        GLAccountWhereUsedList.ShowDetails.Invoke();
     end;
 }
 

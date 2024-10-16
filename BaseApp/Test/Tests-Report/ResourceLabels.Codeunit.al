@@ -106,7 +106,7 @@ codeunit 136904 "Resource - Labels"
         RunContactLabelsReport(FilterExpression, LabelFormatFrom);
 
         // 3. Verify: Check that the report is generated properly.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyContactLabels(Contact, ContactLabelAddrCap);
         VerifyContactLabels(Contact2, ContactLabelAddrCap);
         VerifyContactLabels(Contact3, ContactLabelAddrCap);
@@ -190,7 +190,7 @@ codeunit 136904 "Resource - Labels"
         RunSegmentLabelsReport(FilterExpression, LabelFormatFrom);
 
         // 3. Verify: Check that the report is generated properly.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyContactLabels(Contact, SegmentLabelAddrCap);
         VerifyContactLabels(Contact2, SegmentLabelAddrCap);
         VerifyContactLabels(Contact3, SegmentLabelAddrCap);
@@ -226,7 +226,7 @@ codeunit 136904 "Resource - Labels"
         ServiceItemLineLabels.Run();
 
         // 3. Verify: Check that the report is generated properly.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyServiceItemLineLabels(ServiceItemLine);
     end;
 
@@ -300,7 +300,7 @@ codeunit 136904 "Resource - Labels"
         RunEmployeeLabelsReport(FilterExpression, AddrFormatFrom, LabelFormatFrom);
 
         // 3. Verify: Check that the report is generated properly.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyEmployeeLabels(Employee);
         VerifyEmployeeLabels(Employee2);
         VerifyEmployeeLabels(Employee3);
@@ -387,7 +387,7 @@ codeunit 136904 "Resource - Labels"
         RunEmployeeLabelsReport(FilterExpression, AddrFormatFrom, LabelFormatFrom);
 
         // 3. Verify: Check that the report is generated properly.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyAlternativeAddress(AlternativeAddress);
         VerifyAlternativeAddress(AlternativeAddress2);
         VerifyAlternativeAddress(AlternativeAddress3);
@@ -559,7 +559,7 @@ codeunit 136904 "Resource - Labels"
             Column += 1;
             XmlElementName := StrSubstNo(EmployeeAddrCap, Column, Row);
             LibraryReportDataset.SetRangeWithTrimmedValues(XmlElementName, AlternativeAddress."Employee No.", true);
-            Found := LibraryReportDataset.GetNextRow;
+            Found := LibraryReportDataset.GetNextRow();
         end;
 
         Assert.IsTrue(Found, AlternativeAddress."Employee No.");
@@ -603,7 +603,7 @@ codeunit 136904 "Resource - Labels"
             Column += 1;
             XmlElementName := StrSubstNo(ElementCaption, Column, Row);
             LibraryReportDataset.SetRange(XmlElementName, Contact."No.");
-            Found := LibraryReportDataset.GetNextRow;
+            Found := LibraryReportDataset.GetNextRow();
         end;
 
         Assert.IsTrue(Found, Contact."No.");
@@ -646,7 +646,7 @@ codeunit 136904 "Resource - Labels"
             Column += 1;
             XmlElementName := StrSubstNo(EmployeeAddrCap, Column, Row);
             LibraryReportDataset.SetRangeWithTrimmedValues(XmlElementName, Employee."No.", true);
-            Found := LibraryReportDataset.GetNextRow;
+            Found := LibraryReportDataset.GetNextRow();
         end;
 
         Assert.IsTrue(Found, Employee."No.");
@@ -685,7 +685,7 @@ codeunit 136904 "Resource - Labels"
         XmlElementName := ServiceitemLabelAddrCap;
         LibraryReportDataset.SetRange(StrSubstNo(XmlElementName, Column, Row),
           ServiceItemLine.FieldCaption("Document No.") + ' ' + ServiceItemLine."Document No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, ServiceItemLine."Document No.");
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), ServiceItemLine."Document No.");
 
         Row += 1;
         LibraryReportDataset.AssertCurrentRowValueEquals(StrSubstNo(XmlElementName, Column, Row),
@@ -700,28 +700,28 @@ codeunit 136904 "Resource - Labels"
     [Scope('OnPrem')]
     procedure EmployeeLablesReportsHandler(var EmployeeLabelsRequestPage: TestRequestPage "Employee - Labels")
     begin
-        EmployeeLabelsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeLabelsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ContactLabelsReportsHandler(var ContactLabelsRequestPage: TestRequestPage "Contact - Labels")
     begin
-        ContactLabelsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ContactLabelsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SegmentLabelReportsHandler(var SegmentLabelsRequestPage: TestRequestPage "Segment - Labels")
     begin
-        SegmentLabelsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SegmentLabelsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SerivceItemLabelsReportsHandler(var ServiceItemlineLabelsRequestPage: TestRequestPage "Service Item Line Labels")
     begin
-        ServiceItemlineLabelsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceItemlineLabelsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

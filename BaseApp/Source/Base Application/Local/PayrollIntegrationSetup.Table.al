@@ -7,14 +7,11 @@ namespace Microsoft;
 table 15000200 "Payroll Integration Setup"
 {
     Caption = 'Payroll Integration Setup';
+    ReplicateData = false;
     ObsoleteReason = 'the feature converted into an extension';
-#if not CLEAN21
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '24.0';
-#endif
+    DataClassification = CustomerContent;
 
     fields
     {

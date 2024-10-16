@@ -253,6 +253,7 @@ page 1310 "O365 Activities"
                     DrillDownPageID = "Integration Synch. Error List";
                     ToolTip = 'Specifies the number of errors related to data integration.';
                     Visible = ShowIntegrationErrorsCue;
+                    StyleExpr = IntegrationErrorsCue;
                 }
                 field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
                 {
@@ -261,6 +262,7 @@ page 1310 "O365 Activities"
                     DrillDownPageID = "CRM Skipped Records";
                     ToolTip = 'Specifies the number of errors that occurred in the latest synchronization of coupled data between Business Central and Dynamics 365 Sales.';
                     Visible = ShowD365SIntegrationCues;
+                    StyleExpr = CoupledErrorsCue;
                 }
             }
             cuegroup("Get started")
@@ -384,19 +386,18 @@ page 1310 "O365 Activities"
     trigger OnOpenPage()
     var
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        NewRecord: Boolean;
     begin
         Rec.Reset();
         if not Rec.Get() then begin
             Rec.Init();
             Rec.Insert();
             Commit();
-            NewRecord := true;
         end;
 
         Rec.SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
@@ -408,11 +409,20 @@ page 1310 "O365 Activities"
         ShowAwaitingIncomingDoc := OCRServiceMgt.OcrServiceIsEnable();
         ShowIntercompanyActivities := false;
         ShowDocumentsPendingDocExchService := false;
-        ShowProductVideosActivities := ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone;
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
         ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
         ShowIntegrationErrorsCue := ShowDataIntegrationCues and (not ShowD365SIntegrationCues);
+
+        if IntegrationSynchJobErrors.IsEmpty() then
+            IntegrationErrorsCue := 'Favorable'
+        else
+            IntegrationErrorsCue := 'Unfavorable';
+        CRMIntegrationRecord.SetRange(Skipped, true);
+        if CRMIntegrationRecord.IsEmpty() then
+            CoupledErrorsCue := 'Favorable'
+        else
+            CoupledErrorsCue := 'Unfavorable';
+
         RoleCenterNotificationMgt.ShowNotifications();
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
 
@@ -424,7 +434,6 @@ page 1310 "O365 Activities"
         CuesAndKpis: Codeunit "Cues And KPIs";
         O365GettingStartedMgt: Codeunit "O365 Getting Started Mgt.";
         ClientTypeManagement: Codeunit "Client Type Management";
-        EnvironmentInfo: Codeunit "Environment Information";
         Camera: Codeunit Camera;
         [RunOnClient]
         [WithEvents]
@@ -436,8 +445,6 @@ page 1310 "O365 Activities"
         ShowDocumentsPendingDocExchService: Boolean;
         ShowAwaitingIncomingDoc: Boolean;
         ShowIntercompanyActivities: Boolean;
-        ShowProductVideosActivities: Boolean;
-        ShowIntelligentCloud: Boolean;
         TileGettingStartedVisible: Boolean;
         ReplayGettingStartedVisible: Boolean;
         HideSatisfactionSurvey: Boolean;
@@ -451,6 +458,8 @@ page 1310 "O365 Activities"
         TaskIdCalculateCue: Integer;
         PBTTelemetryCategoryLbl: Label 'PBT', Locked = true;
         PBTTelemetryMsgTxt: Label 'PBT errored with code %1 and text %2. The call stack is as follows %3.', Locked = true;
+        IntegrationErrorsCue: Text;
+        CoupledErrorsCue: Text;
 
     procedure CalculateCueFieldValues()
     begin
@@ -472,20 +481,20 @@ page 1310 "O365 Activities"
             else
                 TASKSCHEDULER.CreateTask(CODEUNIT::"Activities Mgt.", 0, true, CompanyName, CurrentDateTime);
 
-        IsHandled := TRUE;
+        IsHandled := true;
     end;
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
     var
         O365ActivitiesDictionary: Codeunit "O365 Activities Dictionary";
     begin
-        if (TaskId = TaskIdCalculateCue) THEN BEGIN
+        if (TaskId = TaskIdCalculateCue) then begin
             Rec.LockTable(true);
             Rec.Get();
             O365ActivitiesDictionary.FillActivitiesCue(Results, Rec);
             Rec."Last Date/Time Modified" := CurrentDateTime;
             Rec.Modify(true);
-        END
+        end
     end;
 
     local procedure SetActivityGroupVisibility()

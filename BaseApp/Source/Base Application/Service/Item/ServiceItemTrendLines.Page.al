@@ -34,7 +34,9 @@ page 5984 "Service Item Trend Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
+#pragma warning disable AA0100
                 field("ServItem.""Prepaid Amount"""; Rec."Prepaid Income")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Prepayments;
                     Caption = 'Prepaid Income';
@@ -45,7 +47,9 @@ page 5984 "Service Item Trend Lines"
                         ShowServLedgEntries(false);
                     end;
                 }
+#pragma warning disable AA0100
                 field("ServItem.""Invoiced Amount"""; Rec."Posted Income")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Posted Income';
@@ -57,7 +61,9 @@ page 5984 "Service Item Trend Lines"
                         ShowServLedgEntries(true);
                     end;
                 }
+#pragma warning disable AA0100
                 field("ServItem.""Parts Used"""; Rec."Parts Used")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Parts Used';
@@ -69,7 +75,9 @@ page 5984 "Service Item Trend Lines"
                         ShowServLedgEntriesByType(ServLedgEntry.Type::Item);
                     end;
                 }
+#pragma warning disable AA0100
                 field("ServItem.""Resources Used"""; Rec."Resources Used")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Resources Used';
@@ -81,7 +89,9 @@ page 5984 "Service Item Trend Lines"
                         ShowServLedgEntriesByType(ServLedgEntry.Type::Resource);
                     end;
                 }
+#pragma warning disable AA0100
                 field("ServItem.""Cost Used"""; Rec."Cost Used")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Cost Used';

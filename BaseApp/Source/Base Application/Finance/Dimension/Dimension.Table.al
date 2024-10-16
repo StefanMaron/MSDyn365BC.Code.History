@@ -17,6 +17,7 @@ table 348 Dimension
     DataCaptionFields = "Code", Name;
     DrillDownPageID = "Dimension List";
     LookupPageID = "Dimension List";
+    DataClassification = CustomerContent;
 
     fields
     {

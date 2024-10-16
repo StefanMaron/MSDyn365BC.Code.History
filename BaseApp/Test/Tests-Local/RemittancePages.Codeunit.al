@@ -51,8 +51,8 @@ codeunit 144134 "Remittance - Pages"
           LibraryUtility.GenerateRandomCode(
             RemittanceAgreement.FieldNo("BBS Customer Unit ID"),
             DATABASE::"Remittance Agreement");
-        PaymentFileName := LibraryRemittance.GetTempFileName;
-        ReturnFileName := LibraryRemittance.GetTempFileName;
+        PaymentFileName := LibraryRemittance.GetTempFileName();
+        ReturnFileName := LibraryRemittance.GetTempFileName();
 
         // Execute
         RemittanceAgreementCard.OpenNew();
@@ -72,16 +72,16 @@ codeunit 144134 "Remittance - Pages"
         RemittanceAgreementCard."Receipt Return Required".SetValue(true);
         RemittanceAgreementCard."On Hold Rejection Code".Value := 'RF';
 
-        ReturnFileSetupList.Trap;
-        RemittanceAgreementCard."Return File Setup List".Invoke;
+        ReturnFileSetupList.Trap();
+        RemittanceAgreementCard."Return File Setup List".Invoke();
 
-        ReturnFileSetupList.New;
+        ReturnFileSetupList.New();
         ReturnFileSetupList.FileName.Value :=
           CopyStr(ReturnFileName, 1, MaxStrLen(ReturnFileSetup."Return File Name"));
-        ReturnFileSetupList.OK.Invoke;
+        ReturnFileSetupList.OK().Invoke();
 
         RemittanceAgreementCard."New Document Per.".Value := Format(RemittanceAgreement."New Document Per."::Date);
-        RemittanceAgreementCard.OK.Invoke;
+        RemittanceAgreementCard.OK().Invoke();
 
         // Verify
         Assert.IsTrue(RemittanceAgreement.Get(Code), 'Remittance Agreement not found.');
@@ -99,7 +99,7 @@ codeunit 144134 "Remittance - Pages"
         ReturnFileSetup.FindFirst();
         Assert.AreEqual(ReturnFileName, ReturnFileSetup."Return File Name", 'ReturnFileName');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -119,8 +119,8 @@ codeunit 144134 "Remittance - Pages"
         RemittanceAccount.Code := LibraryUtility.GenerateRandomCode(RemittanceAccount.FieldNo(Code), DATABASE::"Remittance Account");
         LibraryERM.FindBankAccount(BankAccount);
         RemittanceAccount."Bank Account No." := '79900503534'; // Number with special format and checksum.
-        RemittanceAccount."Document No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
-        RemittanceAccount."Return Journal Template Name" := FindPaymentGenJournalTemplate;
+        RemittanceAccount."Document No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
+        RemittanceAccount."Return Journal Template Name" := FindPaymentGenJournalTemplate();
         RemittanceAccount."Return Journal Name" := FindGenJournalBatchName(RemittanceAccount."Return Journal Template Name");
         RemittanceAccount."Recipient ref. 1 - Invoice" := 'PAYMENT OF INVOICE %2';
         RemittanceAccount."Recipient ref. 2 - Invoice" := 'OUR ACCOUNT NO. %3';
@@ -155,7 +155,7 @@ codeunit 144134 "Remittance - Pages"
         RemittanceAccountCard."Recipient ref. 2 - Cr. Memo".Value := RemittanceAccount."Recipient ref. 2 - Cr. Memo";
         RemittanceAccountCard."Recipient ref. 3 - Cr. Memo".Value := RemittanceAccount."Recipient ref. 3 - Cr. Memo";
 
-        RemittanceAccountCard.OK.Invoke;
+        RemittanceAccountCard.OK().Invoke();
 
         // Verify
         RemittanceAccount2.Get(RemittanceAccount.Code);
@@ -198,11 +198,11 @@ codeunit 144134 "Remittance - Pages"
         LibraryRemittance.CreateRemittanceAgreement(RemittanceAgreement, RemittanceAgreement."Payment System"::"DnB Telebank");
 
         RemittanceAccount.Code := LibraryUtility.GenerateRandomCode(RemittanceAccount.FieldNo(Code), DATABASE::"Remittance Account");
-        RemittanceAccount."Currency Code" := LibraryRemittance.FindForeignCurrencyCode;
+        RemittanceAccount."Currency Code" := LibraryRemittance.FindForeignCurrencyCode();
         LibraryERM.FindBankAccount(BankAccount);
         RemittanceAccount."Bank Account No." := '79900503534'; // Number with special format and checksum.
-        RemittanceAccount."Document No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
-        RemittanceAccount."Return Journal Template Name" := FindPaymentGenJournalTemplate;
+        RemittanceAccount."Document No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
+        RemittanceAccount."Return Journal Template Name" := FindPaymentGenJournalTemplate();
         RemittanceAccount."Return Journal Name" := FindGenJournalBatchName(RemittanceAccount."Return Journal Template Name");
         RemittanceAccount."Recipient Ref. Abroad" := 'PAYMENT INVOICE %2';
         LibraryERM.FindGLAccount(GLAccount);
@@ -227,7 +227,7 @@ codeunit 144134 "Remittance - Pages"
         RemittanceAccountCard."Currency Code".Value := RemittanceAccount."Currency Code";
         RemittanceAccountCard."Recipient Ref. Abroad".Value := 'PAYMENT INVOICE %2';
 
-        RemittanceAccountCard.OK.Invoke;
+        RemittanceAccountCard.OK().Invoke();
 
         // Verify
         RemittanceAccount2.Get(RemittanceAccount.Code);
@@ -273,16 +273,16 @@ codeunit 144134 "Remittance - Pages"
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
         VendorCard."Gen. Bus. Posting Group".Value := GeneralPostingSetup."Gen. Bus. Posting Group";
         VendorCard."VAT Bus. Posting Group".Value := VATPostingSetup."VAT Bus. Posting Group";
-        VendorCard."Vendor Posting Group".Value := LibraryPurchase.FindVendorPostingGroup;
-        VendorCard."Payment Terms Code".Value := LibraryERM.FindPaymentTermsCode;
+        VendorCard."Vendor Posting Group".Value := LibraryPurchase.FindVendorPostingGroup();
+        VendorCard."Payment Terms Code".Value := LibraryERM.FindPaymentTermsCode();
         VendorCard.Remittance.SetValue(true);
 
         LibraryVariableStorage.Enqueue(RemittanceAccount.Code);
-        VendorCard."Remittance Account Code".Lookup;
+        VendorCard."Remittance Account Code".Lookup();
         VendorCard."Recipient Bank Account No.".Value := '53371228280'; // Number must follow certain rules and checksum.
 
-        RemittanceInfo.Trap;
-        VendorCard."Remittance Info".Invoke;
+        RemittanceInfo.Trap();
+        VendorCard."Remittance Info".Invoke();
 
         RemittanceInfo."Remittance Account Code".AssertEquals(RemittanceAccount.Code);
         RemittanceInfo."Remittance Agreement Code".AssertEquals(RemittanceAgreement.Code);
@@ -298,10 +298,10 @@ codeunit 144134 "Remittance - Pages"
         // RemittanceInfo."Recipient ref. 2 - cred.".ASSERTEQUALS('VALUE');
         // RemittanceInfo."Recipient ref. 3 - cred.".ASSERTEQUALS('VALUE');
 
-        RemittanceInfo.OK.Invoke;
-        VendorCard.OK.Invoke;
+        RemittanceInfo.OK().Invoke();
+        VendorCard.OK().Invoke();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -321,7 +321,7 @@ codeunit 144134 "Remittance - Pages"
         LibraryTemplates.EnableTemplatesFeature();
         // This test case is used to check if a new (Foreign) Vendor can be created and set up to use Remittance.
         // Values are from the manuel testcases.
-        CurrencyCode := LibraryRemittance.FindForeignCurrencyCode;
+        CurrencyCode := LibraryRemittance.FindForeignCurrencyCode();
         LibraryRemittance.CreateRemittanceAgreement(RemittanceAgreement, RemittanceAgreement."Payment System"::"DnB Telebank");
         LibraryRemittance.CreateForeignRemittanceAccount(RemittanceAgreement.Code, RemittanceAccount, CurrencyCode, false);
         VendorTempl.DeleteAll(true);
@@ -336,16 +336,16 @@ codeunit 144134 "Remittance - Pages"
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
         VendorCard."Gen. Bus. Posting Group".Value := GeneralPostingSetup."Gen. Bus. Posting Group";
         VendorCard."VAT Bus. Posting Group".Value := VATPostingSetup."VAT Bus. Posting Group";
-        VendorCard."Vendor Posting Group".Value := LibraryPurchase.FindVendorPostingGroup;
-        VendorCard."Payment Terms Code".Value := LibraryERM.FindPaymentTermsCode;
+        VendorCard."Vendor Posting Group".Value := LibraryPurchase.FindVendorPostingGroup();
+        VendorCard."Payment Terms Code".Value := LibraryERM.FindPaymentTermsCode();
         VendorCard.Remittance.SetValue(true);
 
         LibraryVariableStorage.Enqueue(RemittanceAccount.Code);
-        VendorCard."Remittance Account Code".Lookup;
+        VendorCard."Remittance Account Code".Lookup();
         VendorCard."Recipient Bank Account No.".Value := '53371228280'; // Number must follow certain rules and checksum.
 
-        RemittanceInfo.Trap;
-        VendorCard."Remittance Info".Invoke;
+        RemittanceInfo.Trap();
+        VendorCard."Remittance Info".Invoke();
 
         RemittanceInfo."Remittance Account Code".AssertEquals(RemittanceAccount.Code);
         RemittanceInfo."Remittance Agreement Code".AssertEquals(RemittanceAgreement.Code);
@@ -361,10 +361,10 @@ codeunit 144134 "Remittance - Pages"
         // RemittanceInfo."Recipient ref. 2 - cred.".ASSERTEQUALS('VALUE');
         // RemittanceInfo."Recipient ref. 3 - cred.".ASSERTEQUALS('VALUE');
 
-        RemittanceInfo.OK.Invoke;
-        VendorCard.OK.Invoke;
+        RemittanceInfo.OK().Invoke();
+        VendorCard.OK().Invoke();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -451,7 +451,7 @@ codeunit 144134 "Remittance - Pages"
     begin
         LibraryVariableStorage.Dequeue(City);
         PostCodes.FindFirstField(City, City);
-        PostCodes.OK.Invoke;
+        PostCodes.OK().Invoke();
     end;
 
     local procedure PostPurchaseJournal(GLAccNo: Code[20]; VendorNo: Code[20])
@@ -476,7 +476,7 @@ codeunit 144134 "Remittance - Pages"
     begin
         LibraryVariableStorage.Dequeue(AccountCode);
         RemittanceAccountOVerview.GotoKey(AccountCode);
-        RemittanceAccountOVerview.OK.Invoke;
+        RemittanceAccountOVerview.OK().Invoke();
     end;
 }
 

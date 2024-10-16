@@ -55,7 +55,7 @@ codeunit 137161 "SCM Warehouse Orders"
         isInitialized: Boolean;
         PostJournalLinesConfirmationQst: Label 'Do you want to post the journal lines';
         ReservationEntryForItemLedgerEntryErr: Label 'Reservation Entry for Item Ledger Entry must not exist.';
-        ConfirmLinkToEmptyLineMsg: Label 'Usage will not be linked to the job planning line because the Line Type field is empty';
+        ConfirmLinkToEmptyLineMsg: Label 'Usage will not be linked to the project planning line because the Line Type field is empty';
         WrongNoOfRecordsErr: Label 'The list must contain %1 records', Comment = '%1 = Record count';
         InsufficientQtyItemTrkgErr: Label 'Item tracking defined for source line %1 of %2 %3 amounts to more than the quantity you have entered.';
         DialogCodeErr: Label 'Dialog';
@@ -230,7 +230,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // [GIVEN] Create Item with Lot specific tracking. Update Inventory using Warehouse Journal. Create Pick from Warehouse Internal Pick.
         Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
-        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // True for Lot.
+        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');  // True for Lot.
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandInt(5) + 1);
         FindPickBin(Bin, LocationWhite.Code);
         LotNo := UpdateInventoryUsingWarehouseJournalWithLotItemTracking(Item, Bin, Quantity, Item."Base Unit of Measure");
@@ -278,7 +278,7 @@ codeunit 137161 "SCM Warehouse Orders"
         QuantityPer := LibraryRandom.RandInt(10);
         Quantity := Quantity + LibraryRandom.RandInt(10);  // Greater value required for Quantity.
         CreateItemWithProductionBOM(ParentItem, ChildItem, QuantityPer);
-        LibraryWarehouse.CreateBin(Bin, LocationYellow.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, LocationYellow.Code, LibraryUtility.GenerateGUID(), '', '');
         LibraryPurchase.CreateVendor(Vendor);
         LotNo :=
           CreateAndPostPurchaseOrderWithLotItemTracking(
@@ -425,7 +425,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // [SCENARIO 264160] Test the Available Quantity to Pick on Pick Worksheet Line after Partially Register Put Away with Item as Reserve Always.
 
         Initialize();
-        AvailableQuantityToPickOnPickWorksheetAfterRegisterPartialPutAwayAndRegisterPick;
+        AvailableQuantityToPickOnPickWorksheetAfterRegisterPartialPutAwayAndRegisterPick();
     end;
 
     [Test]
@@ -509,8 +509,8 @@ codeunit 137161 "SCM Warehouse Orders"
         // Setup: Create Bin for two Silver Locations. Create and post Item Journal line.
         Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
-        LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID, '', '');
-        LibraryWarehouse.CreateBin(Bin2, LocationYellow.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(Bin2, LocationYellow.Code, LibraryUtility.GenerateGUID(), '', '');
         CreateItemWithVendorNoAndReorderingPolicy(Item, '', Item."Reordering Policy"::" ");
         CreateAndPostItemJournalLine(Item."No.", Quantity, LocationYellow.Code, Bin2.Code);
 
@@ -540,7 +540,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // [GIVEN] Create Bin. Create Job with Job Task. Create Purchase Order. Update Bin Code, Job No. and Job Task No. on Purchase Line.
         Initialize();
         LibraryInventory.CreateItem(Item);
-        LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID(), '', '');
         CreateJobWithJobTask(JobTask);
         CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, '', Item."No.", LibraryRandom.RandDec(10, 2), LocationSilver.Code, false);
@@ -593,7 +593,7 @@ codeunit 137161 "SCM Warehouse Orders"
         Quantity := LibraryRandom.RandDec(10, 2);
         Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);  // Greater value required for Quantity.
         LotNo := CreateItemAndRegisterWarehouseJournalLineWithItemTracking(Bin, Item, Quantity, LocationWhite.Code);
-        LibraryWarehouse.CreateBin(Bin2, LocationWhite.Code, LibraryUtility.GenerateGUID, Bin."Zone Code", Bin."Bin Type Code");
+        LibraryWarehouse.CreateBin(Bin2, LocationWhite.Code, LibraryUtility.GenerateGUID(), Bin."Zone Code", Bin."Bin Type Code");
         LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectLotNo);  // Enqueue for WhseItemTrackingLinesHandler.
         LibraryVariableStorage.Enqueue(LotNo);  // Enqueue for WhseItemTrackingLinesHandler.
 
@@ -741,7 +741,7 @@ codeunit 137161 "SCM Warehouse Orders"
         if ShowError then begin
             // Exercise.
             OpenInventoryPickPageAndAutoFillQtyToHandle(InventoryPick, SalesHeader."No.");
-            asserterror InventoryPick.PostAndPrint.Invoke;
+            asserterror InventoryPick.PostAndPrint.Invoke();
 
             // Verify: Verify error message.
             Assert.ExpectedError(StrSubstNo(EmailBlankErr, Contact."No."));
@@ -784,7 +784,7 @@ codeunit 137161 "SCM Warehouse Orders"
         Commit();
 
         // Verify.
-        asserterror SalesHeader.CreateInvtPutAwayPick;
+        asserterror SalesHeader.CreateInvtPutAwayPick();
         Assert.ExpectedError(ExpectedWarehousePickErrMsg);
     end;
 
@@ -871,7 +871,7 @@ codeunit 137161 "SCM Warehouse Orders"
         Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, Item."No.",
+          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), Item."No.",
           LibraryRandom.RandIntInRange(100, 200), LocationWhite.Code, false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         CreateWarehouseReceipt(PurchaseHeader);
@@ -934,7 +934,7 @@ codeunit 137161 "SCM Warehouse Orders"
         QtyPerUOM := LibraryRandom.RandIntInRange(10, 20);
         QtyOnStock := 2 * LibraryRandom.RandIntInRange(10, 50);
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, Item."No.",
+          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), Item."No.",
           QtyOnStock * QtyPerUOM, LocationWhite.Code, false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         CreateWarehouseReceipt(PurchaseHeader);
@@ -986,7 +986,7 @@ codeunit 137161 "SCM Warehouse Orders"
         asserterror LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
 
         // [THEN] Verify that it is not allowed to refresh Production Order with reserved components whenever CalcLines and CalcComps checkmarks are selected
-        VerifyCalcReservedCompError;
+        VerifyCalcReservedCompError();
     end;
 
     [Test]
@@ -1006,7 +1006,7 @@ codeunit 137161 "SCM Warehouse Orders"
         asserterror LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, false, true, true, false);
 
         // [THEN] Verify that it is not allowed to refresh Production Order with reserved components whenever CalcComps checkmark is selected
-        VerifyCalcReservedCompError;
+        VerifyCalcReservedCompError();
     end;
 
     [Test]
@@ -1230,7 +1230,7 @@ codeunit 137161 "SCM Warehouse Orders"
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, LocationBlue.Code, Item."No.", '');
         SKU.Validate("Reordering Policy", SKU."Reordering Policy"::"Lot-for-Lot");
         SKU.Validate("Replenishment System", SKU."Replenishment System"::Purchase);
-        SKU.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        SKU.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         SKU.Modify(true);
 
         Qty := LibraryRandom.RandInt(100);
@@ -1238,7 +1238,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [GIVEN] Sales order for item "I" on "SILVER" location. "Quantity" = 10.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty, LocationSilver.Code, 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", Qty, LocationSilver.Code, 0D);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Calulate requisition plan for "I" and carry out.
@@ -1296,14 +1296,14 @@ codeunit 137161 "SCM Warehouse Orders"
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
 
         LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Sales order for item "I" on "SILVER" location. "Quantity" = 10.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.",
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.",
           LibraryRandom.RandInt(100), LocationSilver.Code, 0D);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -1360,14 +1360,14 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [GIVEN] Location "L" with "Use Cross-Docking" option enabled
         // [GIVEN] Purchase order on the location "L". Order has 2 lines: first line for 10 pcs of item "I", second line - for 30 pcs.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         Qty := LibraryRandom.RandInt(20);
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, Item."No.", Qty, LocationWhite.Code, false);
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, Item."No.", Qty * 3, LocationWhite.Code, false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Sales order on location "L". Two lines, both for 15 pcs of item "I".
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesHeader, SalesLine, Item."No.", (Qty * 4) / 2, LocationWhite.Code);
         CreateSalesLine(SalesHeader, SalesLine, Item."No.", (Qty * 4) / 2, LocationWhite.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1381,9 +1381,9 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [WHEN] Select the first warehouse receipt line and invoke lookup on the "Qty. to Cross-Doc" field
         LibraryVariableStorage.Enqueue(2);
-        WhseReceiptSubform.OpenView;
+        WhseReceiptSubform.OpenView();
         WhseReceiptSubform.GotoRecord(WarehouseReceiptLine);
-        WhseReceiptSubform."Qty. to Cross-Dock".Lookup;
+        WhseReceiptSubform."Qty. to Cross-Dock".Lookup();
 
         // [THEN] Page "Cross-Dock Opportunities" is displayed. The list contains two records.
         // Verified in CrossDockOpportunitiesPageHandler
@@ -1392,12 +1392,12 @@ codeunit 137161 "SCM Warehouse Orders"
         LibraryVariableStorage.Enqueue(2);
         WarehouseReceiptLine.Next();
         WhseReceiptSubform.GotoRecord(WarehouseReceiptLine);
-        WhseReceiptSubform."Qty. to Cross-Dock".Lookup;
+        WhseReceiptSubform."Qty. to Cross-Dock".Lookup();
 
         // [THEN] Page "Cross-Dock Opportunities" is displayed. The list contains two records.
         // Verified in CrossDockOpportunitiesPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1425,7 +1425,7 @@ codeunit 137161 "SCM Warehouse Orders"
         ItemNo := LibraryInventory.CreateItemNo();
 
         // [GIVEN] Service Order.
-        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
@@ -1433,7 +1433,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // [GIVEN] two lines with item "I", location = "White", and "Needed by Date" is within the cross-docking period;
         // [GIVEN] each of other three lines are either with another item, another location, or the date is outside the cross-docking period.
         CreateServiceLine(
-          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", LibraryInventory.CreateItemNo, LocationWhite.Code, WorkDate(), Qty); // item <> "I"
+          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", LibraryInventory.CreateItemNo(), LocationWhite.Code, WorkDate(), Qty); // item <> "I"
         CreateServiceLine(
           ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, LocationWhite.Code, WorkDate(), Qty); // item = "I", location = "White", date in cross-docking period
         CreateServiceLine(
@@ -1445,13 +1445,13 @@ codeunit 137161 "SCM Warehouse Orders"
 
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
-        // [GIVEN] Sales Order with item = "I", location = "White", receipt date = WORKDATE, quantity = "Q".
+        // [GIVEN] Sales Order with item = "I", location = "White", receipt date = WorkDate(), quantity = "Q".
         CreateAndReleaseSalesOrder(SalesHeader, ServiceItem."Customer No.", ItemNo, Qty, LocationWhite.Code);
 
-        // [GIVEN] Released Purchase Order with item = "I", location = "White", receipt date = WORKDATE, quantity is large enough to supply both the service and the sales orders.
+        // [GIVEN] Released Purchase Order with item = "I", location = "White", receipt date = WorkDate(), quantity is large enough to supply both the service and the sales orders.
         // [GIVEN] Warehouse receipt is created for the order.
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, ItemNo,
+          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), ItemNo,
           LibraryRandom.RandIntInRange(100, 200), LocationWhite.Code, false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         CreateWarehouseReceipt(PurchaseHeader);
@@ -1509,7 +1509,7 @@ codeunit 137161 "SCM Warehouse Orders"
         CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(ItemNo, AvailToPickQty, Location.Code);
 
         // [GIVEN] Service order with two service lines, each for ("Q" / 2) pcs. Overall demand for the service order is "Q" > "q".
-        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, Location.Code, WorkDate(), ServLineQty);
@@ -1525,7 +1525,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // [GIVEN] Another purchase order with quantity large enough to supply the service order.
         // [GIVEN] Warehouse receipt is created for the order.
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, ItemNo,
+          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), ItemNo,
           LibraryRandom.RandIntInRange(200, 400), Location.Code, false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         CreateWarehouseReceipt(PurchaseHeader);
@@ -1637,7 +1637,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // [SCENARIO 286154] Posting warehouse entries for item with "Order Tracking Policy" = "Tracking Only" when residual surplus exists
         // [SCENARIO 286154] Quantity is adjusted from warehouse and item journals.
         Initialize();
-        SkipManualReservation;
+        SkipManualReservation();
 
         // [GIVEN] Item with "Order Tracking Policy" = "Tracking Only"
         InitItemQuantityForResidualSales(Quantity, SalesQty1, SalesQty2);
@@ -1650,17 +1650,17 @@ codeunit 137161 "SCM Warehouse Orders"
         FindPickBin(BinWhite, LocationWhite.Code);
         for i := 1 to ArrayLen(Bin) do begin
             LibraryWarehouse.CreateBin(
-              Bin[i], LocationWhite.Code, LibraryUtility.GenerateGUID, BinWhite."Zone Code", BinWhite."Bin Type Code");
+              Bin[i], LocationWhite.Code, LibraryUtility.GenerateGUID(), BinWhite."Zone Code", BinWhite."Bin Type Code");
             LotNo[i] := UpdateInventoryUsingWarehouseJournalWithLotItemTracking(Item, Bin[i], Quantity[i], Item."Base Unit of Measure");
         end;
 
         // [GIVEN] Sales Order 1 with Quantity = 120 auto-reserved and relesed
         // [GIVEN] Reserved: "Lot1"/Quantity = 60; "Lot2"/Quantity = 60;
-        CreateAndReleaseSalesOrderWithReserve(SalesHeader, LibrarySales.CreateCustomerNo, Item."No.", SalesQty1, LocationWhite.Code);
+        CreateAndReleaseSalesOrderWithReserve(SalesHeader, LibrarySales.CreateCustomerNo(), Item."No.", SalesQty1, LocationWhite.Code);
 
         // [GIVEN] Sales Order 2 with Quantity = 800 auto-reserved and relesed
         // [GIVEN] Reserved: "Lot2"/Quantity = 60; "Lot3"/Quantity = 180; "Lot4"/Quantity = 180;  residual surplus = -380
-        CreateAndReleaseSalesOrderWithReserve(SalesHeader2, LibrarySales.CreateCustomerNo, Item."No.", SalesQty2, LocationWhite.Code);
+        CreateAndReleaseSalesOrderWithReserve(SalesHeader2, LibrarySales.CreateCustomerNo(), Item."No.", SalesQty2, LocationWhite.Code);
 
         // [GIVEN] Registered warehouse pick and shipment for Sales Order 1 with "Lot4", Quantity = 120
         // [GIVEN] Reserved for Sales Order 2: "Lot1"/Quantity = 60; "Lot2"/Quantity = 120; "Lot3"/Quantity = 180; "Lot4"/Quantity = 60;  residual surplus = -380
@@ -1722,7 +1722,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // [SCENARIO 286154] Posting warehouse entries for item with "Order Tracking Policy" = "Tracking Only" when residual surplus exists
         // [SCENARIO 286154] Quantity is adjusted from warehouse and item journals and production order
         Initialize();
-        SkipManualReservation;
+        SkipManualReservation();
 
         // [GIVEN] Item with "Order Tracking Policy" = "Tracking Only"
         InitItemQuantityForResidualSales(Quantity, SalesQty1, SalesQty2);
@@ -1734,16 +1734,16 @@ codeunit 137161 "SCM Warehouse Orders"
         FindPickBin(BinWhite, LocationWhite.Code);
         for i := 1 to ArrayLen(Bin) - 1 do begin
             LibraryWarehouse.CreateBin(
-              Bin[i], LocationWhite.Code, LibraryUtility.GenerateGUID, BinWhite."Zone Code", BinWhite."Bin Type Code");
+              Bin[i], LocationWhite.Code, LibraryUtility.GenerateGUID(), BinWhite."Zone Code", BinWhite."Bin Type Code");
             LotNo[i] := UpdateInventoryUsingWarehouseJournalWithLotItemTracking(Item, Bin[i], Quantity[i], Item."Base Unit of Measure");
         end;
         // [GIVEN] "Lot4"/"Bin4" for Prod. Order created
-        LibraryWarehouse.CreateBin(Bin[4], LocationWhite.Code, LibraryUtility.GenerateGUID, BinWhite."Zone Code", BinWhite."Bin Type Code");
+        LibraryWarehouse.CreateBin(Bin[4], LocationWhite.Code, LibraryUtility.GenerateGUID(), BinWhite."Zone Code", BinWhite."Bin Type Code");
         LotNo[4] := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Sales Order 1 with Quantity = 120 auto-reserved and relesed
         // [GIVEN] Reserved: "Lot1"/Quantity = 60; "Lot2"/Quantity = 60;
-        CreateAndReleaseSalesOrderWithReserve(SalesHeader, LibrarySales.CreateCustomerNo, Item."No.", SalesQty1, LocationWhite.Code);
+        CreateAndReleaseSalesOrderWithReserve(SalesHeader, LibrarySales.CreateCustomerNo(), Item."No.", SalesQty1, LocationWhite.Code);
 
         // [GIVEN] Posted production order for "Bin4"/"Lot4"/Quantity = 180
         LibraryManufacturing.CreateProductionOrder(
@@ -1754,17 +1754,17 @@ codeunit 137161 "SCM Warehouse Orders"
         LibraryManufacturing.CreateProdOrderLine(
           ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item."No.", '', LocationWhite.Code, Quantity[4]);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
-        ProdOrderLineList.OpenEdit;
+        ProdOrderLineList.OpenEdit();
         ProdOrderLineList.FILTER.SetFilter("Item No.", Item."No.");
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignManualLotNo);
         LibraryVariableStorage.Enqueue(LotNo[4]);
         LibraryVariableStorage.Enqueue(Quantity[4]);
-        ProdOrderLineList.ShowTrackingLines.Invoke;
+        ProdOrderLineList.ShowTrackingLines.Invoke();
         LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
 
         // [GIVEN] Sales Order 2 with Quantity = 800 auto-reserved and relesed
         // [GIVEN] Reserved: "Lot2"/Quantity = 60; "Lot3"/Quantity = 180; "Lot4"/Quantity = 180;  residual surplus = -380
-        CreateAndReleaseSalesOrderWithReserve(SalesHeader2, LibrarySales.CreateCustomerNo, Item."No.", SalesQty2, LocationWhite.Code);
+        CreateAndReleaseSalesOrderWithReserve(SalesHeader2, LibrarySales.CreateCustomerNo(), Item."No.", SalesQty2, LocationWhite.Code);
 
         // [GIVEN] Registered warehouse pick and shipment for Sales Order 1 with "Lot4", Quantity = 120
         // [GIVEN] Reserved for Sales Order 2: "Lot1"/Quantity = 60; "Lot2"/Quantity = 120; "Lot3"/Quantity = 180; "Lot4"/Quantity = 60;  residual surplus = -380
@@ -1801,7 +1801,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // [FEATURE] [Item Tracking] [Untracked Surplus]
         // [SCENARIO 286154] Caculate and delete reqiusition line for item with "Order Tracking Policy" = "Tracking Only" when residual surplus exists
         Initialize();
-        SkipManualReservation;
+        SkipManualReservation();
 
         // [GIVEN] Item with "Order Tracking Policy" = "Tracking Only"
         Quantity := LibraryRandom.RandIntInRange(100, 200);
@@ -1811,11 +1811,11 @@ codeunit 137161 "SCM Warehouse Orders"
         // [GIVEN] Posted warehouse and item entries for "Bin1"/"Lot1"/Quantity = 60
         FindPickBin(BinWhite, LocationWhite.Code);
         LibraryWarehouse.CreateBin(
-          Bin, LocationWhite.Code, LibraryUtility.GenerateGUID, BinWhite."Zone Code", BinWhite."Bin Type Code");
+          Bin, LocationWhite.Code, LibraryUtility.GenerateGUID(), BinWhite."Zone Code", BinWhite."Bin Type Code");
         UpdateInventoryUsingWarehouseJournalWithLotItemTracking(Item, Bin, Quantity, Item."Base Unit of Measure");
 
         // [GIVEN] Sales Order with Quantity = 200 auto-reserved and relesed
-        CreateAndReleaseSalesOrderWithReserve(SalesHeader, LibrarySales.CreateCustomerNo, Item."No.", SalesQty, LocationWhite.Code);
+        CreateAndReleaseSalesOrderWithReserve(SalesHeader, LibrarySales.CreateCustomerNo(), Item."No.", SalesQty, LocationWhite.Code);
 
         // [GIVEN] Calculate requisition plan for the item
         LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate(), WorkDate());
@@ -1855,12 +1855,12 @@ codeunit 137161 "SCM Warehouse Orders"
         CreateItemWithItemTrackingCodeAndOrderTrackingForLot(Item);
 
         // [GIVEN] Released Sales Order with 4 PCS of the Item
-        CreateAndReleaseSalesOrder(SalesHeader, LibrarySales.CreateCustomerNo, Item."No.", Quantity[3], LocationWhite.Code);
+        CreateAndReleaseSalesOrder(SalesHeader, LibrarySales.CreateCustomerNo(), Item."No.", Quantity[3], LocationWhite.Code);
 
         // [GIVEN] Registered Warehouse Item Journal and posted Whse Adjustment for the Item with lots:
         // [GIVEN] Lot "L1" Qty = 2, Lot "L2" Qty = 3, Lot "L3" Qty = 4 (Reservation Entries for Lots "L1" and "L2" had Status updated to Tracking)
         FindPickBin(BinWhite, LocationWhite.Code);
-        LibraryWarehouse.CreateBin(Bin, LocationWhite.Code, LibraryUtility.GenerateGUID, BinWhite."Zone Code", BinWhite."Bin Type Code");
+        LibraryWarehouse.CreateBin(Bin, LocationWhite.Code, LibraryUtility.GenerateGUID(), BinWhite."Zone Code", BinWhite."Bin Type Code");
         for Index := 1 to ArrayLen(LotNo) do
             LotNo[Index] := UpdateInventoryUsingWarehouseJournalWithLotItemTracking(Item, Bin, Quantity[Index], Item."Base Unit of Measure");
 
@@ -1917,12 +1917,12 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [GIVEN] Registered Warehouse Item Journal and posted Whse Adjustment for the Item with lots "L1" Qty = 4, Lot "L2" Qty = 3
         FindPickBin(BinWhite, LocationWhite.Code);
-        LibraryWarehouse.CreateBin(Bin, LocationWhite.Code, LibraryUtility.GenerateGUID, BinWhite."Zone Code", BinWhite."Bin Type Code");
+        LibraryWarehouse.CreateBin(Bin, LocationWhite.Code, LibraryUtility.GenerateGUID(), BinWhite."Zone Code", BinWhite."Bin Type Code");
         for Index := 1 to ArrayLen(LotNo) do
             LotNo[Index] := UpdateInventoryUsingWarehouseJournalWithLotItemTracking(Item, Bin, Quantity[Index], Item."Base Unit of Measure");
 
         // [GIVEN] Released Sales Order 1001 with 3 PCS of the Item (Sales Line had No. = 10000)
-        CreateAndReleaseSalesOrder(SalesHeader, LibrarySales.CreateCustomerNo, Item."No.", Quantity[2], LocationWhite.Code);
+        CreateAndReleaseSalesOrder(SalesHeader, LibrarySales.CreateCustomerNo(), Item."No.", Quantity[2], LocationWhite.Code);
 
         // [GIVEN] Stan set Item Tracking for Sales Order with Lot "L2" Qty = 3
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
@@ -1977,7 +1977,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [GIVEN] Sales order with two item lines - "A" and "B".
         // [GIVEN] Release the sales order and create warehouse shipment.
-        CreateSalesHeaderWithShipmentDate(SalesHeader, LibrarySales.CreateCustomerNo, WorkDate());
+        CreateSalesHeaderWithShipmentDate(SalesHeader, LibrarySales.CreateCustomerNo(), WorkDate());
         CreateSalesLine(SalesHeader, SalesLine, Item[1]."No.", Qty, LocationWhite.Code);
         CreateSalesLine(SalesHeader, SalesLine, Item[2]."No.", Qty, LocationWhite.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1995,14 +1995,14 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [WHEN] Select warehouse receipt line for item "A" and invoke lookup on the "Qty. to Cross-Doc" field.
         LibraryVariableStorage.Enqueue(1);
-        WhseReceiptSubform.OpenView;
+        WhseReceiptSubform.OpenView();
         WhseReceiptSubform.FILTER.SetFilter("Item No.", Item[1]."No.");
-        WhseReceiptSubform."Qty. to Cross-Dock".Lookup;
+        WhseReceiptSubform."Qty. to Cross-Dock".Lookup();
 
         // [THEN] Page "Cross-Dock Opportunities" is displayed. The list contains only one record.
         // Verified in CrossDockOpportunitiesPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2029,7 +2029,7 @@ codeunit 137161 "SCM Warehouse Orders"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         // [GIVEN] Bin "B1" set up as Dedicated and used on "Receipt Bin Code" for the Location
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
         Bin.Validate(Dedicated, true);
         Bin.Modify(true);
         Location.Validate("Receipt Bin Code", Bin.Code);
@@ -2037,7 +2037,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [GIVEN] Item created with fixed default bin content for bin "B2" on the Location
         LibraryInventory.CreateItem(Item);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
         LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
         BinContent.Validate(Fixed, true);
         BinContent.Validate(Default, true);
@@ -2051,7 +2051,7 @@ codeunit 137161 "SCM Warehouse Orders"
           Item."No.", 2 * Quantity + Quantity2, Location.Code, 2 * Quantity);  // Calculated Value Required.
 
         // [GIVEN] Warehouse Shipment for a Sales Order with 5 PCS of Item created and released
-        CreateAndReleaseSalesOrder(SalesHeader, LibrarySales.CreateCustomerNo, Item."No.", Quantity, Location.Code);
+        CreateAndReleaseSalesOrder(SalesHeader, LibrarySales.CreateCustomerNo(), Item."No.", Quantity, Location.Code);
         CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
 
         // [WHEN] Get Warehouse Shipment on the Pick Worksheet
@@ -2323,7 +2323,7 @@ codeunit 137161 "SCM Warehouse Orders"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -2645,7 +2645,7 @@ codeunit 137161 "SCM Warehouse Orders"
     begin
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);  // Enqueue for ItemTrackingPageHandler.
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, VendorNo, ItemNo, Quantity, LocationCode, true);  // Value required for the test. TRUE for Tracking.
-        LotNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(LotNo));
+        LotNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LotNo));
         UpdateBinCodeOnPurchaseLine(PurchaseLine, BinCode);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post as RECEIVE.
     end;
@@ -2774,7 +2774,7 @@ codeunit 137161 "SCM Warehouse Orders"
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, ItemNo, Quantity, LocationCode, true);  // Use Tracking as TRUE.
         UpdatePlanningFlexibilityOnPurchaseLine(PurchaseLine);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        LotNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(LotNo));
+        LotNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LotNo));
     end;
 
     local procedure CreateAndReleaseSalesOrderWithMultipleLinesAndReservation(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; Quantity2: Decimal)
@@ -2869,7 +2869,7 @@ codeunit 137161 "SCM Warehouse Orders"
         PurchaseLine: Record "Purchase Line";
         SalesHeader: Record "Sales Header";
     begin
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, Item."No.", Qty, LocationCode, false);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), Item."No.", Qty, LocationCode, false);
         CreateReleasedSalesOrder(SalesHeader, Item."No.", Item."Base Unit of Measure", Qty, LocationCode, true);
         CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader[1], SalesHeader);
         SalesOrderNo[1] := SalesHeader."No.";
@@ -2930,7 +2930,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
     local procedure CreateItemWithItemTrackingCodeAndOrderTrackingForLot(var Item: Record Item)
     begin
-        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');
+        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');
         Item."Order Tracking Policy" := Item."Order Tracking Policy"::"Tracking Only";
         Item."Reordering Policy" := Item."Reordering Policy"::"Lot-for-Lot";
         Item.Modify();
@@ -2941,7 +2941,7 @@ codeunit 137161 "SCM Warehouse Orders"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         CreateItemWithVendorNoAndReorderingPolicy(Item, '', Item."Reordering Policy"::Order);
-        CreateItemWithVendorNoAndReorderingPolicy(ComponentItem, LibraryPurchase.CreateVendorNo, ComponentItem."Reordering Policy"::Order);
+        CreateItemWithVendorNoAndReorderingPolicy(ComponentItem, LibraryPurchase.CreateVendorNo(), ComponentItem."Reordering Policy"::Order);
         Quantity := LibraryRandom.RandInt(100);
         CreateAndCertifyBOM(ProductionBOMHeader, Item."Base Unit of Measure", ComponentItem."No.", Quantity);
         UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
@@ -2953,7 +2953,7 @@ codeunit 137161 "SCM Warehouse Orders"
     begin
         CreateItemWithVendorNoAndReorderingPolicy(ParentItem, '', ParentItem."Reordering Policy"::" ");
         UpdateReplenishmentSystemAsProdOrderOnItem(ParentItem);
-        CreateItemWithItemTrackingCode(ChildItem, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // True for Lot.
+        CreateItemWithItemTrackingCode(ChildItem, true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');  // True for Lot.
         CreateAndCertifyBOM(ProductionBOMHeader, ChildItem."Base Unit of Measure", ChildItem."No.", QuantityPer);
         UpdateProductionBOMOnItem(ParentItem, ProductionBOMHeader."No.");
     end;
@@ -2977,7 +2977,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
     local procedure CreateLotForLotItem(var Item: Record Item)
     begin
-        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // True for Lot.
+        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');  // True for Lot.
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Validate(Reserve, Item.Reserve::Never);
         Item.Modify(true);
@@ -2999,7 +2999,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // Purchase Order for Item with Qty = "Y"
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, ItemNo, QtyOnPO, LocationCode, false);
+          PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), ItemNo, QtyOnPO, LocationCode, false);
 
         // Sales Order for Item with Partial Reserved Qty = "Q", where "Q" = "X" + "Y"
         // Released Warehouse Shipment
@@ -3131,7 +3131,7 @@ codeunit 137161 "SCM Warehouse Orders"
     var
         PurchaseLine2: Record "Purchase Line";
     begin
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, ItemNo, Quantity, LocationCode, false);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), ItemNo, Quantity, LocationCode, false);
         CreatePurchaseLine(PurchaseHeader, PurchaseLine2, ItemNo2, Quantity, LocationCode, UseTracking);
     end;
 
@@ -3145,7 +3145,7 @@ codeunit 137161 "SCM Warehouse Orders"
         CreateSalesLine(SalesHeader, SalesLine, ItemNo, Quantity, LocationCode);
         with SalesLine do begin
             Validate("Unit of Measure Code", UOMCode);
-            Validate("Shipment Date", WorkDate + LibraryRandom.RandInt(5));
+            Validate("Shipment Date", WorkDate() + LibraryRandom.RandInt(5));
             Modify();
             if DoReserve then
                 ShowReservation();
@@ -3209,7 +3209,7 @@ codeunit 137161 "SCM Warehouse Orders"
         DequeueVariable: Variant;
         ItemTrackingMode: Option AssignLotNo,SelectLotNo;
     begin
-        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // TRUE for Lot.
+        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');  // TRUE for Lot.
         FindPickBin(Bin, LocationCode);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);  // Enqueue for WhseItemTrackingLinesHandler.
         CreateAndRegisterWarehouseJournalLine(Bin, Item, Quantity, Item."Base Unit of Measure", true);  // TRUE for Tracking.
@@ -3276,7 +3276,7 @@ codeunit 137161 "SCM Warehouse Orders"
         RequisitionLine: Record "Requisition Line";
     begin
         LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate(), WorkDate());
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
 
         FindPurchaseLine(PurchaseLine, Item."No.");
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -3520,8 +3520,6 @@ codeunit 137161 "SCM Warehouse Orders"
     end;
 
     local procedure InitItemQuantityForResidualSales(var Quantity: array[4] of Decimal; var SalesQty1: Decimal; var SalesQty2: Decimal)
-    var
-        i: Integer;
     begin
         Quantity[1] := 60;
         Quantity[2] := 120;
@@ -3540,9 +3538,9 @@ codeunit 137161 "SCM Warehouse Orders"
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order",
           SourceNo, WarehouseActivityLine."Activity Type"::"Invt. Pick");
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
-        InventoryPick.OpenEdit;
+        InventoryPick.OpenEdit();
         InventoryPick.FILTER.SetFilter("No.", WarehouseActivityHeader."No.");
-        InventoryPick.AutofillQtyToHandle.Invoke;
+        InventoryPick.AutofillQtyToHandle.Invoke();
     end;
 
     local procedure PostInventoryAdjustmentWithTracking(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; LotNo: Code[50])
@@ -3792,13 +3790,13 @@ codeunit 137161 "SCM Warehouse Orders"
 
     local procedure UpdateEMailOnCustomer(Customer: Record Customer)
     begin
-        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         Customer.Modify(true);
     end;
 
     local procedure UpdateEmailOnContact(Contact: Record Contact)
     begin
-        Contact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        Contact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         Contact.Modify(true);
     end;
 
@@ -4014,7 +4012,7 @@ codeunit 137161 "SCM Warehouse Orders"
         if MoveNext then
             WhseWorksheetLine.Next();
         WhseWorksheetLine.TestField(Quantity, Quantity);
-        Assert.AreEqual(AvailableQtyToPick, WhseWorksheetLine.AvailableQtyToPick, QuantityMustBeSameErr);
+        Assert.AreEqual(AvailableQtyToPick, WhseWorksheetLine.AvailableQtyToPick(), QuantityMustBeSameErr);
     end;
 
     local procedure VerifyQtyToHandleOnPickWorksheetLine(WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10]; WhseDocumentNo: Code[20]; ExpectedQtyToHandle: Decimal)
@@ -4200,68 +4198,68 @@ codeunit 137161 "SCM Warehouse Orders"
         DateCompressWhseEntries.PeriodLength.SetValue(DateComprRegister."Period Length"::Year);
         DateCompressWhseEntries.SerialNo.SetValue(false);
         DateCompressWhseEntries.LotNo.SetValue(true);
-        DateCompressWhseEntries.OK.Invoke;
+        DateCompressWhseEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Auto Reserve".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Auto Reserve".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure HandlePickSelectionPage(var PickSelectionTestPage: TestPage "Pick Selection")
     begin
-        PickSelectionTestPage.OK.Invoke;
+        PickSelectionTestPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingMode := LibraryVariableStorage.DequeueInteger;
+        ItemTrackingMode := LibraryVariableStorage.DequeueInteger();
         case ItemTrackingMode of
             ItemTrackingMode::AssignLotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;
+                    ItemTrackingLines."Assign Lot No.".Invoke();
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
                 end;
             ItemTrackingMode::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             ItemTrackingMode::AssignSerialNo:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;
-                    ItemTrackingLines.First;
+                    ItemTrackingLines."Assign Serial No.".Invoke();
+                    ItemTrackingLines.First();
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Serial No.".Value);
                 end;
             ItemTrackingMode::AssignManualLotNo:
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PartialReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.Last;
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.First;
-        Reservation."Auto Reserve".Invoke;
-        Reservation.OK.Invoke;
+        Reservation.Last();
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.First();
+        Reservation."Auto Reserve".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4269,11 +4267,11 @@ codeunit 137161 "SCM Warehouse Orders"
     procedure ProductionJournalHandler(var ProductionJournal: TestPage "Production Journal")
     begin
         ProductionJournal.FILTER.SetFilter("Entry Type", ProductionJournal."Entry Type".GetOption(6));  // Value 6 is used for Consumption.
-        ProductionJournal.ItemTrackingLines.Invoke;
+        ProductionJournal.ItemTrackingLines.Invoke();
         LibraryVariableStorage.Enqueue(PostJournalLinesConfirmationQst);  // Enqueue for ConfirmHandler.
         LibraryVariableStorage.Enqueue(JournalLinesPostedMsg);  // Enqueue for MessageHandler.
-        ProductionJournal.Post.Invoke;
-        ProductionJournal.OK.Invoke;
+        ProductionJournal.Post.Invoke();
+        ProductionJournal.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4283,8 +4281,8 @@ codeunit 137161 "SCM Warehouse Orders"
         ProductionJournal.FILTER.SetFilter("Entry Type", ProductionJournal."Entry Type".GetOption(7));  // Output.
         LibraryVariableStorage.Enqueue(PostJournalLinesConfirmationQst);  // Enqueue for ConfirmHandler.
         LibraryVariableStorage.Enqueue(JournalLinesPostedMsg);  // Enqueue for MessageHandler.
-        ProductionJournal.Post.Invoke;
-        ProductionJournal.OK.Invoke;
+        ProductionJournal.Post.Invoke();
+        ProductionJournal.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4297,7 +4295,7 @@ codeunit 137161 "SCM Warehouse Orders"
     begin
         LibraryVariableStorage.Dequeue(DequeueVariable);
         ItemTrackingMode := DequeueVariable;
-        TrackingQuantity := WhseItemTrackingLines.Quantity3.AsDEcimal;
+        TrackingQuantity := WhseItemTrackingLines.Quantity3.AsDecimal();
         case ItemTrackingMode of
             ItemTrackingMode::AssignLotNo:
                 begin
@@ -4312,14 +4310,14 @@ codeunit 137161 "SCM Warehouse Orders"
                     WhseItemTrackingLines.Quantity.SetValue(TrackingQuantity);
                 end;
         end;
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhseSourceCreateDocumentHandler(var WhseSourceCreateDocument: TestRequestPage "Whse.-Source - Create Document")
     begin
-        WhseSourceCreateDocument.OK.Invoke;
+        WhseSourceCreateDocument.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4329,8 +4327,8 @@ codeunit 137161 "SCM Warehouse Orders"
         RecCount: Integer;
         ExpectedRecCount: Integer;
     begin
-        ExpectedRecCount := LibraryVariableStorage.DequeueInteger;
-        if CrossDockOpportunities.First then begin
+        ExpectedRecCount := LibraryVariableStorage.DequeueInteger();
+        if CrossDockOpportunities.First() then begin
             RecCount := 1;
             while CrossDockOpportunities.Next() do
                 RecCount += 1;

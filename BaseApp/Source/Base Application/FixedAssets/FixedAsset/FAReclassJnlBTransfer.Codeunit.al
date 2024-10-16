@@ -25,41 +25,39 @@ codeunit 5645 "FA Reclass. Jnl.-B.Transfer"
 
     local procedure "Code"()
     begin
-        with FAReclassJnlBatch do begin
-            FAReclassJnlTempl.Get("Journal Template Name");
+        FAReclassJnlTempl.Get(FAReclassJnlBatch."Journal Template Name");
 
-            if not Confirm(Text000, false) then
-                exit;
+        if not Confirm(Text000, false) then
+            exit;
 
-            Find('-');
-            repeat
-                FAReclassJnlLine."Journal Template Name" := "Journal Template Name";
-                FAReclassJnlLine."Journal Batch Name" := Name;
-                FAReclassJnlLine."Line No." := 1;
+        FAReclassJnlBatch.Find('-');
+        repeat
+            FAReclassJnlLine."Journal Template Name" := FAReclassJnlBatch."Journal Template Name";
+            FAReclassJnlLine."Journal Batch Name" := FAReclassJnlBatch.Name;
+            FAReclassJnlLine."Line No." := 1;
 
-                Clear(FAReclassTransferBatch);
-                if FAReclassTransferBatch.Run(FAReclassJnlLine) then
-                    Mark(false)
-                else begin
-                    Mark(true);
-                    JournalWithErrors := true;
-                end;
-            until Next() = 0;
-
-            if not JournalWithErrors then
-                Message(Text001)
-            else
-                Message(
-                  Text002 +
-                  Text003);
-
-            if not Find('=><') then begin
-                Reset();
-                FilterGroup := 2;
-                SetRange("Journal Template Name", "Journal Template Name");
-                FilterGroup := 0;
-                Name := '';
+            Clear(FAReclassTransferBatch);
+            if FAReclassTransferBatch.Run(FAReclassJnlLine) then
+                FAReclassJnlBatch.Mark(false)
+            else begin
+                FAReclassJnlBatch.Mark(true);
+                JournalWithErrors := true;
             end;
+        until FAReclassJnlBatch.Next() = 0;
+
+        if not JournalWithErrors then
+            Message(Text001)
+        else
+            Message(
+              Text002 +
+              Text003);
+
+        if not FAReclassJnlBatch.Find('=><') then begin
+            FAReclassJnlBatch.Reset();
+            FAReclassJnlBatch.FilterGroup := 2;
+            FAReclassJnlBatch.SetRange("Journal Template Name", FAReclassJnlBatch."Journal Template Name");
+            FAReclassJnlBatch.FilterGroup := 0;
+            FAReclassJnlBatch.Name := '';
         end;
     end;
 }

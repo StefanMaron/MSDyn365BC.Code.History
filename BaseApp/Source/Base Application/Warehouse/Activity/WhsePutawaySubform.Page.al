@@ -2,7 +2,6 @@
 
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
 
@@ -255,6 +254,34 @@ page 5771 "Whse. Put-away Subform"
                         CurrPage.Update(false);
                     end;
                 }
+                action(FillQtyToHandle)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Autofill Qty. To Handle';
+                    Image = AutofillQtyToHandle;
+                    Gesture = LeftSwipe;
+                    ToolTip = 'Have the system enter the outstanding quantity in the Qty. to Handle field.';
+                    Scope = Repeater;
+
+                    trigger OnAction()
+                    begin
+                        Rec.AutofillQtyToHandleOnLine(Rec);
+                    end;
+                }
+                action(ResetQtyToHandle)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Reset Qty. To Handle';
+                    Image = UndoFluent;
+                    Gesture = RightSwipe;
+                    ToolTip = 'Have the system clear the value in the Qty. To Handle field.';
+                    Scope = Repeater;
+
+                    trigger OnAction()
+                    begin
+                        Rec.DeleteQtyToHandleOnLine(Rec);
+                    end;
+                }
                 action(ChangeUnitOfMeasure)
                 {
                     ApplicationArea = Suite;
@@ -403,7 +430,9 @@ page 5771 "Whse. Put-away Subform"
 
     trigger OnOpenPage()
     begin
+#if not CLEAN24
         SetPackageTrackingVisibility();
+#endif
     end;
 
     var
@@ -415,7 +444,10 @@ page 5771 "Whse. Put-away Subform"
         BinCodeEditable: Boolean;
         HideBinFields: Boolean;
         QtyToHandleEditable: Boolean;
+#if not CLEAN24
+        [Obsolete('Package Tracking enabled by default.', '24.0')]
         PackageTrackingVisible: Boolean;
+#endif
 
     local procedure ShowSourceLine()
     begin
@@ -520,12 +552,12 @@ page 5771 "Whse. Put-away Subform"
         CurrPage.Update(true);
     end;
 
+#if not CLEAN24
     local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
     begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
+        PackageTrackingVisible := true;
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnBeforeRecAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")

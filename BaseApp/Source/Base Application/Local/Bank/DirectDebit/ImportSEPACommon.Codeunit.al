@@ -27,7 +27,6 @@ codeunit 10635 "Import SEPA Common"
         ReceiptReturnNeededErr: Label 'cannot be %1. Receipt return must be imported before settling', Comment = '%1 is the value of the remittance status';
         RemittanceVendorsTxt: Label 'Remittance: Vendors %1', Comment = '%1 is the value of the date';
         RemittanceDateTxt: Label 'Remittance: Vendors %1', Comment = '%1 is the value of the date';
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         DateChangedTxt: Label 'Due date changed from %1 to %2.', Comment = '%1 is the value of the initial due date. %2 is the value of the new due date.';
         XpathNotFoundErr: Label '%1 not found in the XML file.', Comment = '%1 is the Xpath that was not found in the XML file.';
         TransactionRejectedMsg: Label 'The transaction was rejected.';
@@ -386,12 +385,24 @@ codeunit 10635 "Import SEPA Common"
     end;
 
     local procedure FindDocumentNo(PostDate: Date; RemittanceAccount: Record "Remittance Account"; CreateNewDocumentNo: Boolean; var TransDocumentNo: Code[20])
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if CreateNewDocumentNo then begin
-            Clear(NoSeriesManagement);
             TransDocumentNo := '';
-            NoSeriesManagement.InitSeries(
-              RemittanceAccount."Document No. Series", '', PostDate, TransDocumentNo, RemittanceAccount."Document No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RemittanceAccount."Document No. Series", '', PostDate, TransDocumentNo, RemittanceAccount."Document No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                TransDocumentNo := NoSeries.GetNextNo(RemittanceAccount."Document No. Series", PostDate);
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RemittanceAccount."Document No. Series", RemittanceAccount."Document No. Series", PostDate, TransDocumentNo);
+            end;
+#endif
             CreateNewDocumentNo := false;
         end;
         // Trans. document no. is now the current document no.

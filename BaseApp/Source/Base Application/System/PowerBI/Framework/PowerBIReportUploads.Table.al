@@ -10,6 +10,7 @@ table 6307 "Power BI Report Uploads"
 {
     Caption = 'Power BI Report Uploads';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

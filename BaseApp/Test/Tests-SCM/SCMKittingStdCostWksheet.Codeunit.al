@@ -148,30 +148,30 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         StdCostWorksheet.DeleteAll(true);
         Commit();
 
-        StdCostWorksheetPage.OpenEdit;
+        StdCostWorksheetPage.OpenEdit();
         Commit();
 
         if Suggest then begin
-            StdCostWorksheetPage."Suggest I&tem Standard Cost".Invoke; // Suggest item standard cost for leaves.
+            StdCostWorksheetPage."Suggest I&tem Standard Cost".Invoke(); // Suggest item standard cost for leaves.
 
             // Verify: Suggested item cost is correct.
             VerifyStdCostWksheetLine(StdCostWorksheet.Type::Item, GLBCompItemNo, false, GLBRoundingMethod);
 
-            StdCostWorksheetPage."Suggest &Capacity Standard Cost".Invoke; // Suggest work center / machine center / resource standard cost.
+            StdCostWorksheetPage."Suggest &Capacity Standard Cost".Invoke(); // Suggest work center / machine center / resource standard cost.
 
             // Verify: Suggested resource cost is correct.
             VerifyStdCostWksheetLine(StdCostWorksheet.Type::Resource, GLBDirectResourceNo, false, GLBRoundingMethod);
         end;
 
         if Rollup then begin
-            StdCostWorksheetPage."Roll Up Standard Cost".Invoke; // Rollup standard cost for the top item.
+            StdCostWorksheetPage."Roll Up Standard Cost".Invoke(); // Rollup standard cost for the top item.
 
             // Verify: Rollup standard cost is correct for top item.
             VerifyStdCostWksheetLine(StdCostWorksheet.Type::Item, GLBParentItemNo, false, '');
         end;
 
         if Implement then begin
-            StdCostWorksheetPage."&Implement Standard Cost Changes".Invoke; // Implement standard cost change for top item.
+            StdCostWorksheetPage."&Implement Standard Cost Changes".Invoke(); // Implement standard cost change for top item.
 
             // Verify: Changes were implemented in the item/resource cards. Revaluation Jnl Line was generated correctly.
             VerifyCard(BOMComponent.Type::Item, GLBParentItemNo);
@@ -181,7 +181,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
             VerifyRevalJnlLine(GLBParentItemNo);
         end;
 
-        StdCostWorksheetPage.OK.Invoke;
+        StdCostWorksheetPage.OK().Invoke();
     end;
 
     local procedure VerifyStdCostWksheetLine(Type: Option; No: Code[20]; Implemented: Boolean; RndMethodCode: Code[10])
@@ -216,14 +216,14 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                         GetTree(
                           TempItem, TempResource, RolledUpMaterialCost, RolledUpCapacityCost, RolledUpCapOvhd, SglLevelMaterialCost,
                           SglLevelCapCost, SglLevelCapOvhd, Item), RndMethodCode), StdCostWorksheet."New Standard Cost",
-                      LibraryERM.GetAmountRoundingPrecision, 'Std. cost Adj factor:' + Format(GLBStandardCostAdj));
+                      LibraryERM.GetAmountRoundingPrecision(), 'Std. cost Adj factor:' + Format(GLBStandardCostAdj));
                     Assert.AreNearlyEqual(
                       GetRoundedAmount(StdCostWorksheet."Indirect Cost %" * GLBIndirectCostAdj, RndMethodCode),
-                      StdCostWorksheet."New Indirect Cost %", LibraryERM.GetAmountRoundingPrecision,
+                      StdCostWorksheet."New Indirect Cost %", LibraryERM.GetAmountRoundingPrecision(),
                       'Ind. cost Adj factor:' + Format(GLBIndirectCostAdj));
                     Assert.AreNearlyEqual(
                       GetRoundedAmount(StdCostWorksheet."Overhead Rate" * GLBOverheadRateAdj, RndMethodCode),
-                      StdCostWorksheet."New Overhead Rate", LibraryERM.GetAmountRoundingPrecision,
+                      StdCostWorksheet."New Overhead Rate", LibraryERM.GetAmountRoundingPrecision(),
                       'Ovhd. Rate Adj factor:' + Format(GLBOverheadRateAdj));
                     Assert.AreNearlyEqual(
                       SglLevelMaterialCost, StdCostWorksheet."New Single-Lvl Material Cost", 1, 'Incorrect sgl. level Material Cost.');
@@ -254,13 +254,13 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
 
                     Assert.AreNearlyEqual(
                       GetRoundedAmount(StdCostWorksheet."Standard Cost" * GLBStandardCostAdj, RndMethodCode),
-                      StdCostWorksheet."New Standard Cost", LibraryERM.GetAmountRoundingPrecision,
+                      StdCostWorksheet."New Standard Cost", LibraryERM.GetAmountRoundingPrecision(),
                       'Unit cost Adj factor:' + Format(GLBStandardCostAdj));
                     Assert.AreNearlyEqual(
                       GetRoundedAmount(StdCostWorksheet."Indirect Cost %" * GLBIndirectCostAdj, RndMethodCode),
-                      StdCostWorksheet."New Indirect Cost %", LibraryERM.GetAmountRoundingPrecision,
+                      StdCostWorksheet."New Indirect Cost %", LibraryERM.GetAmountRoundingPrecision(),
                       'Ind. cost Adj factor:' + Format(GLBIndirectCostAdj));
-                    Assert.AreNearlyEqual(0, StdCostWorksheet."New Overhead Rate", LibraryERM.GetAmountRoundingPrecision, '');
+                    Assert.AreNearlyEqual(0, StdCostWorksheet."New Overhead Rate", LibraryERM.GetAmountRoundingPrecision(), '');
                 end;
         end;
     end;
@@ -284,14 +284,14 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
             Assert.AreEqual(1, ItemJournalLine.Count, 'Filters:' + ItemJournalLine.GetFilters);
             ItemJournalLine.FindFirst();
             Assert.AreNearlyEqual(
-              StdCostWorksheet."Standard Cost", ItemJournalLine."Unit Cost (Calculated)", LibraryERM.GetAmountRoundingPrecision,
+              StdCostWorksheet."Standard Cost", ItemJournalLine."Unit Cost (Calculated)", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(ERRWrongCost, ItemJournalLine.FieldCaption("Unit Cost (Calculated)")));
             Assert.AreNearlyEqual(
-              StdCostWorksheet."New Standard Cost", ItemJournalLine."Unit Cost (Revalued)", LibraryERM.GetAmountRoundingPrecision,
+              StdCostWorksheet."New Standard Cost", ItemJournalLine."Unit Cost (Revalued)", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(ERRWrongCost, ItemJournalLine.FieldCaption("Unit Cost (Revalued)")));
             Assert.AreNearlyEqual(
               StdCostWorksheet."New Standard Cost" * ItemJournalLine."Quantity (Base)", ItemJournalLine."Inventory Value (Revalued)",
-              LibraryERM.GetAmountRoundingPrecision,
+              LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(ERRWrongCost, ItemJournalLine.FieldCaption("Inventory Value (Revalued)")));
         end;
     end;
@@ -463,7 +463,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                 end;
         end;
 
-        RoundingPrecision := LibraryERM.GetUnitAmountRoundingPrecision;
+        RoundingPrecision := LibraryERM.GetUnitAmountRoundingPrecision();
         RolledUpMaterialCost := Round(RolledUpMaterialCost, RoundingPrecision);
         RolledUpCapacityCost := Round(RolledUpCapacityCost, RoundingPrecision);
         RolledUpCapOvhd := Round(RolledUpCapOvhd, RoundingPrecision);
@@ -544,7 +544,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         SuggestItemStandardCost."RoundingMethod[3]".SetValue(GLBRoundingMethod);
 
         SuggestItemStandardCost.Item.SetFilter("No.", GLBCompItemNo);
-        SuggestItemStandardCost.OK.Invoke;
+        SuggestItemStandardCost.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -561,7 +561,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         SuggestWorkMachCtrResStdCost."Work Center".SetFilter("No.", '-');
         SuggestWorkMachCtrResStdCost."Machine Center".SetFilter("No.", '-');
         SuggestWorkMachCtrResStdCost.Resource.SetFilter("No.", GLBDirectResourceNo);
-        SuggestWorkMachCtrResStdCost.OK.Invoke;
+        SuggestWorkMachCtrResStdCost.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -570,7 +570,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
     begin
         RollUpStandardCost.CalculationDate.SetValue(WorkDate());
         RollUpStandardCost.Item.SetFilter("No.", GLBParentItemNo);
-        RollUpStandardCost.OK.Invoke;
+        RollUpStandardCost.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -590,7 +590,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         ImplementStdCostChange."Standard Cost Worksheet".SetFilter(Type, '');
         ImplementStdCostChange."Standard Cost Worksheet".SetFilter(
           "No.", GLBParentItemNo + '|' + GLBCompItemNo + '|' + GLBDirectResourceNo);
-        ImplementStdCostChange.OK.Invoke;
+        ImplementStdCostChange.OK().Invoke();
     end;
 
     [MessageHandler]

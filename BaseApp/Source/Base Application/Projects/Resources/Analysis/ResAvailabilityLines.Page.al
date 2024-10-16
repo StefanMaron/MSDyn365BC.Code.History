@@ -43,12 +43,14 @@ page 361 "Res. Availability Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the total capacity for the corresponding time period.';
                 }
+#pragma warning disable AA0100
                 field("Resource.""Qty. on Order (Job)"""; Rec."Qty. on Order (Job)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Qty. on Order (Job)';
+                    Caption = 'Qty. on Order (Project)';
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies the amount of measuring units allocated to jobs with the status order.';
+                    ToolTip = 'Specifies the amount of measuring units allocated to projects with the status order.';
                 }
                 field(CapacityAfterOrders; Rec."Availability After Orders")
                 {
@@ -57,21 +59,25 @@ page 361 "Res. Availability Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies capacity minus the quantity on order.';
                 }
+#pragma warning disable AA0100
                 field("Resource.""Qty. Quoted (Job)"""; Rec."Job Quotes Allocation")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Quotes Allocation';
+                    Caption = 'Project Quotes Allocation';
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies the amount of measuring units allocated to jobs with the status quote.';
+                    ToolTip = 'Specifies the amount of measuring units allocated to projects with the status quote.';
                 }
                 field(CapacityAfterQuotes; Rec."Availability After Quotes")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Availability After Quotes';
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies capacity, minus quantity on order (Job), minus quantity on service order, minus job quotes allocation. ';
+                    ToolTip = 'Specifies capacity, minus quantity on order (Project), minus quantity on service order, minus project quotes allocation. ';
                 }
+#pragma warning disable AA0100
                 field("Resource.""Qty. on Service Order"""; Rec."Qty. on Service Order")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. on Service Order';
@@ -91,7 +97,7 @@ page 361 "Res. Availability Lines"
                     AutoFormatType = 1;
                     DecimalPlaces = 0 : 5;
                     Caption = 'Net Availability';
-                    ToolTip = 'Specifies capacity, minus the quantity on order, minus the jobs quotes allocation.';
+                    ToolTip = 'Specifies capacity, minus the quantity on order, minus the projects quotes allocation.';
                 }
             }
         }
@@ -180,7 +186,7 @@ page 361 "Res. Availability Lines"
         OnAfterCalcLine(Resource, CapacityAfterOrders, CapacityAfterQuotes, NetAvailability, Rec);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalcLine(var Resource: Record Resource; var CapacityAfterOrders: Decimal; var CapacityAfterQuotes: Decimal; var NetAvailability: Decimal; var ResAvailabilityBuffer: Record "Res. Availability Buffer")
     begin
     end;

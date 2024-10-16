@@ -111,7 +111,7 @@ table 10686 "Elec. VAT Setup"
 
     [NonDebuggable]
     [Scope('OnPrem')]
-    procedure SetToken(var TokenKey: Guid; TokenValue: Text)
+    procedure SetToken(var TokenKey: Guid; TokenValue: SecretText)
     begin
         if IsNullGuid(TokenKey) then
             TokenKey := CreateGuid();
@@ -121,10 +121,10 @@ table 10686 "Elec. VAT Setup"
 
     [NonDebuggable]
     [Scope('OnPrem')]
-    procedure GetToken(TokenKey: Guid) TokenValue: Text
+    procedure GetToken(TokenKey: Guid) TokenValue: SecretText
     begin
         if not HasToken(TokenKey) then
-            exit('');
+            exit;
 
         IsolatedStorage.Get(TokenKey, DataScope::Company, TokenValue);
     end;

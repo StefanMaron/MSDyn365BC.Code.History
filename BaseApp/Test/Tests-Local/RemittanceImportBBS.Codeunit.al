@@ -67,7 +67,7 @@ codeunit 144131 "Remittance - Import BBS"
           BatchName, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Payment);
-        VerifyWaitingJournalStatusIsSent;
+        VerifyWaitingJournalStatusIsSent();
         UpdateWorkdate(OldDate);
     end;
 
@@ -122,7 +122,7 @@ codeunit 144131 "Remittance - Import BBS"
           ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::" ");
-        VerifyWaitingJournalStatusIsSent;
+        VerifyWaitingJournalStatusIsSent();
         UpdateWorkdate(OldDate);
     end;
 
@@ -317,7 +317,7 @@ codeunit 144131 "Remittance - Import BBS"
         PaymentJournal: TestPage "Payment Journal";
     begin
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
 
         LibraryVariableStorage.Enqueue(UseControlBatch);
@@ -327,7 +327,7 @@ codeunit 144131 "Remittance - Import BBS"
         if not UseControlBatch then
             LibraryVariableStorage.Enqueue(NoteWithControlReturnFilesAreReadMsg);
         // ImportPaymentOrder action
-        PaymentJournal.ImportReturnData.Invoke;
+        PaymentJournal.ImportReturnData.Invoke();
     end;
 
     local procedure GenerateCorrectBBSRemittancePaymentFile(Amount: Decimal; DataRecipient: Text[8]): Text
@@ -354,24 +354,24 @@ codeunit 144131 "Remittance - Import BBS"
         BBSPaymentFile.CreateOutStream(BBSPaymentOutputStream);
 
         BBSPaymentOutputStream.WriteText(GenerateBBSRemittanceStartRecordShipmentLine('1234567', DataRecipient));
-        BBSPaymentOutputStream.WriteText;
+        BBSPaymentOutputStream.WriteText();
 
         BBSPaymentOutputStream.WriteText(GenerateBBSRemittanceStartRecordPaymentOrderLine('1234567'));
-        BBSPaymentOutputStream.WriteText;
+        BBSPaymentOutputStream.WriteText();
 
         BBSPaymentOutputStream.WriteText(
           GenerateBBSRemittanceTransactionRecordAmountEntry1Line('1234567', WorkDate(), Amount));
-        BBSPaymentOutputStream.WriteText;
+        BBSPaymentOutputStream.WriteText();
 
         BBSPaymentOutputStream.WriteText(GenerateBBSRemittanceTransactionRecordAmountEntry2Line(WaitingJournal."BBS Referance"));
-        BBSPaymentOutputStream.WriteText;
+        BBSPaymentOutputStream.WriteText();
 
-        BBSPaymentOutputStream.WriteText(GenerateBBSRemittanceEndPaymentOrderLine);
-        BBSPaymentOutputStream.WriteText;
+        BBSPaymentOutputStream.WriteText(GenerateBBSRemittanceEndPaymentOrderLine());
+        BBSPaymentOutputStream.WriteText();
 
         if WriteClosingLine then begin
-            BBSPaymentOutputStream.WriteText(GenerateBBSRemittanceEndShipmentLine);
-            BBSPaymentOutputStream.WriteText;
+            BBSPaymentOutputStream.WriteText(GenerateBBSRemittanceEndShipmentLine());
+            BBSPaymentOutputStream.WriteText();
         end;
 
         BBSPaymentFile.Close();
@@ -568,7 +568,7 @@ codeunit 144131 "Remittance - Import BBS"
         WaitingJournal.Modify(true);
     end;
 
-    local procedure VerifyBBSImportedLines(BatchName: Code[10]; TemplateName: Code[10]; DocumentNo: Code[35]; PostingDate: Date; NoSeriesLine: Record "No. Series Line"; VendorAccountNo: Code[20]; RemittanceAccountNo: Code[20]; Amount: Decimal; PaymentDocType: Option; BalanceDocType: Option)
+    local procedure VerifyBBSImportedLines(BatchName: Code[10]; TemplateName: Code[10]; DocumentNo: Code[35]; PostingDate: Date; NoSeriesLine: Record "No. Series Line"; VendorAccountNo: Code[20]; RemittanceAccountNo: Code[20]; Amount: Decimal; PaymentDocType: Enum "Gen. Journal Document Type"; BalanceDocType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -592,7 +592,7 @@ codeunit 144131 "Remittance - Import BBS"
         Assert.AreEqual(0, GenJournalLine.Count, 'There should be no lines created');
     end;
 
-    local procedure VerifyPaymentLine(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; NoSeriesLine: Record "No. Series Line"; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[35]; DocumentType: Option)
+    local procedure VerifyPaymentLine(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; NoSeriesLine: Record "No. Series Line"; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[35]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         Assert.AreEqual(PostingDate, GenJournalLine."Posting Date", 'Posting date was not set to a correct value');
         Assert.AreEqual(DocumentType, GenJournalLine."Document Type", 'Document Type was set to wrong value');
@@ -611,10 +611,10 @@ codeunit 144131 "Remittance - Import BBS"
           'Applies-to Date was not set to correct value');
         Assert.AreEqual(DocumentNo, GenJournalLine."Applies-to Doc. No.", 'Applies-to Doc. No. was not set to a correct value');
         Assert.AreEqual(false, GenJournalLine."Has Payment Export Error", 'Has payment export error was not set to correct value');
-        Assert.AreEqual(true, GenJournalLine.IsApplied, 'IsApplied was not set to a correct value');
+        Assert.AreEqual(true, GenJournalLine.IsApplied(), 'IsApplied was not set to a correct value');
     end;
 
-    local procedure VerifyBalancingLine(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; NoSeriesLine: Record "No. Series Line"; AccountNo: Code[20]; Amount: Decimal; DocumentType: Option)
+    local procedure VerifyBalancingLine(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; NoSeriesLine: Record "No. Series Line"; AccountNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     begin
         Assert.AreEqual(PostingDate, GenJournalLine."Posting Date", 'Posting date was not set to a correct value');
         Assert.AreEqual(DocumentType, GenJournalLine."Document Type", 'Document Type should be blank');
@@ -632,7 +632,7 @@ codeunit 144131 "Remittance - Import BBS"
           'Applies-to Date was not set to correct value');
         Assert.AreEqual('', GenJournalLine."Applies-to Doc. No.", 'Applies-to Doc. No. should be blank');
         Assert.AreEqual(false, GenJournalLine."Has Payment Export Error", 'Has payment export error was not set to correct value');
-        Assert.AreEqual(false, GenJournalLine.IsApplied, 'IsApplied was not set to a correct value');
+        Assert.AreEqual(false, GenJournalLine.IsApplied(), 'IsApplied was not set to a correct value');
     end;
 
     local procedure VerifyWaitingJournalStatusIsSent()
@@ -659,7 +659,7 @@ codeunit 144131 "Remittance - Import BBS"
         OldDate := WorkDate();
         WorkDate := NewDate;
         if Date2DWY(NewDate, 1) in [6, 7] then // "Posting Date" and "Pmt. Discount Date" compared works date in CU 15000001
-            WorkDate := WorkDate + 2;
+            WorkDate := WorkDate() + 2;
     end;
 
     [RequestPageHandler]
@@ -672,7 +672,7 @@ codeunit 144131 "Remittance - Import BBS"
 
         // Control108003 is Control Batch filed
         RemPaymentOrderImport.ControlBatch.SetValue(IsControlBatch);
-        RemPaymentOrderImport.OK.Invoke;
+        RemPaymentOrderImport.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -680,7 +680,7 @@ codeunit 144131 "Remittance - Import BBS"
     procedure PaymentOrderSettlStatusHandler(var PaymentOrderSettlStatus: TestPage "Payment Order - Settl. Status")
     begin
         // Page is not testable
-        PaymentOrderSettlStatus.OK.Invoke;
+        PaymentOrderSettlStatus.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -694,7 +694,7 @@ codeunit 144131 "Remittance - Import BBS"
         RemittanceExportBBS.RemAgreementCode.Value := RemittanceAgreementCode;
         LibraryVariableStorage.Dequeue(FileName);
         RemittanceExportBBS.CurrentFilename.Value := FileName;
-        RemittanceExportBBS.OK.Invoke;
+        RemittanceExportBBS.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -731,7 +731,7 @@ codeunit 144131 "Remittance - Import BBS"
         SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate());
         SuggestRemittancePayments.Vendor.SetFilter("No.", VendorNo);
         SuggestRemittancePayments.Vendor.SetFilter("Remittance Account Code", RemittanceAccountCode);
-        SuggestRemittancePayments.OK.Invoke;
+        SuggestRemittancePayments.OK().Invoke();
     end;
 }
 

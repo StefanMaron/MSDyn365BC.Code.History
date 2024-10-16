@@ -9,6 +9,7 @@ table 474 "Job Queue Log Entry"
     Caption = 'Job Queue Log Entry';
     ReplicateData = false;
     CompressionType = Page;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -47,7 +48,7 @@ table 474 "Job Queue Log Entry"
         }
         field(8; "Object Caption to Run"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = field("Object Type to Run"),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = field("Object Type to Run"),
                                                                            "Object ID" = field("Object ID to Run")));
             Caption = 'Object Caption to Run';
             FieldClass = FlowField;

@@ -438,23 +438,21 @@ report 5605 "Fixed Asset - Book Value 01"
         j: Integer;
     begin
         i := PostingType + 3;
-        with FAPostingTypeSetup do begin
-            case PostingType of
-                PostingType::"Write-Down":
-                    Get(DeprBookCode, "FA Posting Type"::"Write-Down");
-                PostingType::Appreciation:
-                    Get(DeprBookCode, "FA Posting Type"::Appreciation);
-                PostingType::"Custom 1":
-                    Get(DeprBookCode, "FA Posting Type"::"Custom 1");
-                PostingType::"Custom 2":
-                    Get(DeprBookCode, "FA Posting Type"::"Custom 2");
-            end;
-            if "Depreciation Type" then
-                j := 2
-            else
-                if "Acquisition Type" then
-                    j := 1;
+        case PostingType of
+            PostingType::"Write-Down":
+                FAPostingTypeSetup.Get(DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Write-Down");
+            PostingType::Appreciation:
+                FAPostingTypeSetup.Get(DeprBookCode, FAPostingTypeSetup."FA Posting Type"::Appreciation);
+            PostingType::"Custom 1":
+                FAPostingTypeSetup.Get(DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Custom 1");
+            PostingType::"Custom 2":
+                FAPostingTypeSetup.Get(DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Custom 2");
         end;
+        if FAPostingTypeSetup."Depreciation Type" then
+            j := 2
+        else
+            if FAPostingTypeSetup."Acquisition Type" then
+                j := 1;
         if j > 0 then begin
             StartAmounts[j] := StartAmounts[j] + StartAmounts[i];
             StartAmounts[i] := 0;
@@ -539,29 +537,28 @@ report 5605 "Fixed Asset - Book Value 01"
             GroupNetChangeAmounts[j] := 0;
             GroupDisposalAmounts[j] := 0;
         end;
-        with "Fixed Asset" do
-            case GroupTotals of
-                GroupTotals::"FA Class":
-                    GroupHeadLine := Format("FA Class Code");
-                GroupTotals::"FA Subclass":
-                    GroupHeadLine := Format("FA Subclass Code");
-                GroupTotals::"FA Location":
-                    GroupHeadLine := Format("FA Location Code");
-                GroupTotals::"Main Asset":
-                    begin
-                        FA."Main Asset/Component" := FA."Main Asset/Component"::"Main Asset";
-                        GroupHeadLine :=
-                          Format(StrSubstNo('%1 %2', Format(FA."Main Asset/Component"), "Component of Main Asset"));
-                        if "Component of Main Asset" = '' then
-                            GroupHeadLine := Format(StrSubstNo('%1 %2', GroupHeadLine, '*****'));
-                    end;
-                GroupTotals::"Global Dimension 1":
-                    GroupHeadLine := Format("Global Dimension 1 Code");
-                GroupTotals::"Global Dimension 2":
-                    GroupHeadLine := Format("Global Dimension 2 Code");
-                GroupTotals::"FA Posting Group":
-                    GroupHeadLine := Format("FA Posting Group");
-            end;
+        case GroupTotals of
+            GroupTotals::"FA Class":
+                GroupHeadLine := Format("Fixed Asset"."FA Class Code");
+            GroupTotals::"FA Subclass":
+                GroupHeadLine := Format("Fixed Asset"."FA Subclass Code");
+            GroupTotals::"FA Location":
+                GroupHeadLine := Format("Fixed Asset"."FA Location Code");
+            GroupTotals::"Main Asset":
+                begin
+                    FA."Main Asset/Component" := FA."Main Asset/Component"::"Main Asset";
+                    GroupHeadLine :=
+                      Format(StrSubstNo('%1 %2', Format(FA."Main Asset/Component"), "Fixed Asset"."Component of Main Asset"));
+                    if "Fixed Asset"."Component of Main Asset" = '' then
+                        GroupHeadLine := Format(StrSubstNo('%1 %2', GroupHeadLine, '*****'));
+                end;
+            GroupTotals::"Global Dimension 1":
+                GroupHeadLine := Format("Fixed Asset"."Global Dimension 1 Code");
+            GroupTotals::"Global Dimension 2":
+                GroupHeadLine := Format("Fixed Asset"."Global Dimension 2 Code");
+            GroupTotals::"FA Posting Group":
+                GroupHeadLine := Format("Fixed Asset"."FA Posting Group");
+        end;
         if GroupHeadLine = '' then
             GroupHeadLine := Format('*****');
     end;

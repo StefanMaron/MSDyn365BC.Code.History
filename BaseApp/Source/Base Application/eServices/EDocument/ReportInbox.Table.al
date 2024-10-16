@@ -5,6 +5,7 @@ using System.Reflection;
 table 477 "Report Inbox"
 {
     Caption = 'Report Inbox';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -50,7 +51,7 @@ table 477 "Report Inbox"
         }
         field(9; "Report Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Report ID")));
             Caption = 'Report Name';
             Editable = false;

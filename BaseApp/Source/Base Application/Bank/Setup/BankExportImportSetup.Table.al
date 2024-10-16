@@ -10,6 +10,7 @@ table 1200 "Bank Export/Import Setup"
     DataCaptionFields = "Code", Name;
     DrillDownPageID = "Bank Export/Import Setup";
     LookupPageID = "Bank Export/Import Setup";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -45,7 +46,7 @@ table 1200 "Bank Export/Import Setup"
 #pragma warning disable AS0086
         field(5; "Processing Codeunit Name"; Text[249])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Processing Codeunit ID")));
             Caption = 'Processing Codeunit Name';
             Editable = false;
@@ -60,7 +61,7 @@ table 1200 "Bank Export/Import Setup"
 #pragma warning disable AS0086
         field(7; "Processing XMLport Name"; Text[249])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(XMLport),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(XMLport),
                                                                            "Object ID" = field("Processing XMLport ID")));
             Caption = 'Processing XMLport Name';
             Editable = false;
@@ -78,7 +79,7 @@ table 1200 "Bank Export/Import Setup"
         }
         field(9; "Data Exch. Def. Name"; Text[100])
         {
-            CalcFormula = Lookup("Data Exch. Def".Name where(Code = field("Data Exch. Def. Code")));
+            CalcFormula = lookup("Data Exch. Def".Name where(Code = field("Data Exch. Def. Code")));
             Caption = 'Data Exch. Def. Name';
             Editable = false;
             FieldClass = FlowField;
@@ -96,7 +97,7 @@ table 1200 "Bank Export/Import Setup"
 #pragma warning disable AS0086
         field(12; "Check Export Codeunit Name"; Text[249])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Check Export Codeunit")));
             Caption = 'Check Export Codeunit Name';
             Editable = false;

@@ -88,14 +88,14 @@ codeunit 144182 "ERM NO Reports 3 Test"
         NumberOfEntries := CustLedgerEntry.Count();
         Assert.AreEqual(2, NumberOfEntries, 'Two sales orders with one line each are posted so two customer ledger entries.');
 
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(NumberOfEntries, LibraryReportDataset.RowCount, 'There should be the number of customer ledger entries.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(NumberOfEntries, LibraryReportDataset.RowCount(), 'There should be the number of customer ledger entries.');
 
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetFilter("Customer No.", Customer."No.");
         CustLedgerEntry.FindSet();
 
-        while LibraryReportDataset.GetNextRow do begin
+        while LibraryReportDataset.GetNextRow() do begin
             CustLedgerEntry.CalcFields(Amount);
             LibraryReportDataset.AssertCurrentRowValueEquals('Amt_CustLedgEntry', CustLedgerEntry.Amount);
             CustLedgerEntry.CalcFields("Remaining Amount");
@@ -133,21 +133,21 @@ codeunit 144182 "ERM NO Reports 3 Test"
         NumberOfLedgerEntries := VendLedgerEntry.Count();
         Assert.AreEqual(2, NumberOfLedgerEntries, 'Two purchase orders with one lines each should give 2 vendor ledger entries');
 
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(NumberOfLedgerEntries, LibraryReportDataset.RowCount, 'There should be the same amount as vendor ledger entries.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(NumberOfLedgerEntries, LibraryReportDataset.RowCount(), 'There should be the same amount as vendor ledger entries.');
 
         VendLedgerEntry.Reset();
         VendLedgerEntry.SetFilter("Vendor No.", Vendor."No.");
         VendLedgerEntry.FindSet();
         // [THEN] Lines contains correct Amount, "Remainiong Amount", "Vendor Name", "Document No." is 'A1'/'A2'
-        while LibraryReportDataset.GetNextRow do begin
+        while LibraryReportDataset.GetNextRow() do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo_VendorLedgerEntry', VendLedgerEntry."Document No.");
             VendLedgerEntry.CalcFields(Amount);
             LibraryReportDataset.AssertCurrentRowValueEquals('Amount_VendorLedgerEntry', VendLedgerEntry.Amount);
             VendLedgerEntry.CalcFields("Remaining Amount");
             LibraryReportDataset.AssertCurrentRowValueEquals('RemainingAmount_VendorLedgerEntry', VendLedgerEntry."Remaining Amount");
             LibraryReportDataset.AssertCurrentRowValueEquals('VendorName', Vendor.Name);
-            VendLedgerEntry.Next
+            VendLedgerEntry.Next();
         end;
     end;
 
@@ -178,21 +178,21 @@ codeunit 144182 "ERM NO Reports 3 Test"
         NumberOfLedgerEntries := VendLedgerEntry.Count();
         Assert.AreEqual(2, NumberOfLedgerEntries, 'Two purchase orders with one lines each should give 2 vendor ledger entries');
 
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(NumberOfLedgerEntries, LibraryReportDataset.RowCount, 'There should be the same amount as vendor ledger entries.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(NumberOfLedgerEntries, LibraryReportDataset.RowCount(), 'There should be the same amount as vendor ledger entries.');
 
         VendLedgerEntry.Reset();
         VendLedgerEntry.SetFilter("Vendor No.", Vendor."No.");
         VendLedgerEntry.FindSet();
         // [THEN] Lines contains correct Amount, "Remainiong Amount", "Vendor Name", "Document No." is 'E1'/'E2'
-        while LibraryReportDataset.GetNextRow do begin
+        while LibraryReportDataset.GetNextRow() do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo_VendorLedgerEntry', VendLedgerEntry."External Document No.");
             VendLedgerEntry.CalcFields(Amount);
             LibraryReportDataset.AssertCurrentRowValueEquals('Amount_VendorLedgerEntry', VendLedgerEntry.Amount);
             VendLedgerEntry.CalcFields("Remaining Amount");
             LibraryReportDataset.AssertCurrentRowValueEquals('RemainingAmount_VendorLedgerEntry', VendLedgerEntry."Remaining Amount");
             LibraryReportDataset.AssertCurrentRowValueEquals('VendorName', Vendor.Name);
-            VendLedgerEntry.Next
+            VendLedgerEntry.Next();
         end;
     end;
 
@@ -321,11 +321,11 @@ codeunit 144182 "ERM NO Reports 3 Test"
         // Excercise
         RunReportCollectionList(IssuedReminderHeader);
         // Verify: That the reminder collection letters are correct.
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(2, LibraryReportDataset.RowCount, 'There should be only a given set of reminder lines.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(2, LibraryReportDataset.RowCount(), 'There should be only a given set of reminder lines.');
 
         Count := 1;
-        while LibraryReportDataset.GetNextRow do begin
+        while LibraryReportDataset.GetNextRow() do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('Amount_IssuedReminderLine', ReminderLineAmountArray[Count]);
             LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmount_IssuedReminderLine', ReminderLineOrigAmountArray[Count]);
             LibraryReportDataset.AssertCurrentRowValueEquals('ReminderTotal', ReminderLineReminderTotalArray[Count]);
@@ -388,7 +388,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         LibraryVariableStorage.Dequeue(IssuedReminderHeaderNo);
 
         IssuedReminder."Issued Reminder Header".SetFilter("No.", IssuedReminderHeaderNo);
-        IssuedReminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IssuedReminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure RunReportCustomerOpenEntries(Customer: Record Customer)
@@ -407,7 +407,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         LibraryVariableStorage.Dequeue(CustomerNo);
 
         CustomerEntry.Customer.SetFilter("No.", CustomerNo);
-        CustomerEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure RunReportVendorOpenEntries(Vendor: Record Vendor; UseExternalDocNo: Boolean)
@@ -427,8 +427,8 @@ codeunit 144182 "ERM NO Reports 3 Test"
         LibraryVariableStorage.Dequeue(VendorNo);
 
         VendorEntry.Vendor.SetFilter("No.", VendorNo);
-        VendorEntry.UseExternalDocNo.SetValue(Format(LibraryVariableStorage.DequeueBoolean));
-        VendorEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorEntry.UseExternalDocNo.SetValue(Format(LibraryVariableStorage.DequeueBoolean()));
+        VendorEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

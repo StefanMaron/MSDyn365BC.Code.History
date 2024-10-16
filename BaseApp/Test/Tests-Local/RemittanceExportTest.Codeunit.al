@@ -66,9 +66,9 @@ codeunit 144129 "Remittance - Export Test"
 
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
-        VerifyBBSExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID);
+        VerifyBBSExportFileWithSinglePayment(RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         UpdateWorkdate(OldDate);
     end;
 
@@ -97,15 +97,15 @@ codeunit 144129 "Remittance - Export Test"
           RemittanceAccount,
           Vendor,
           GenJournalLine);
-        GenJournalLine.Validate(KID, GetKIDNumber);
+        GenJournalLine.Validate(KID, GetKIDNumber());
         GenJournalLine.Modify(true);
         BatchName := LibraryRemittance.PostGenJournalLine(GenJournalLine);
 
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
-        VerifyBBSExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID);
+        VerifyBBSExportFileWithSinglePayment(RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         UpdateWorkdate(OldDate);
     end;
 
@@ -144,9 +144,9 @@ codeunit 144129 "Remittance - Export Test"
 
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
-        VerifyBBSExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID);
+        VerifyBBSExportFileWithSinglePayment(RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         UpdateWorkdate(OldDate);
     end;
 
@@ -178,9 +178,9 @@ codeunit 144129 "Remittance - Export Test"
 
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
-        VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
+        VerifyBankExportFileWithSinglePayment(RemittanceAgreement, RemittanceAccount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         UpdateWorkdate(OldDate);
     end;
 
@@ -209,15 +209,15 @@ codeunit 144129 "Remittance - Export Test"
           RemittanceAccount,
           Vendor,
           GenJournalLine);
-        GenJournalLine.Validate(KID, GetKIDNumber);
+        GenJournalLine.Validate(KID, GetKIDNumber());
         GenJournalLine.Modify(true);
         BatchName := LibraryRemittance.PostGenJournalLine(GenJournalLine);
 
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
-        VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
+        VerifyBankExportFileWithSinglePayment(RemittanceAgreement, RemittanceAccount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         UpdateWorkdate(OldDate);
     end;
 
@@ -251,9 +251,9 @@ codeunit 144129 "Remittance - Export Test"
 
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
-        VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
+        VerifyBankExportFileWithSinglePayment(RemittanceAgreement, RemittanceAccount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -282,18 +282,18 @@ codeunit 144129 "Remittance - Export Test"
 
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
-        LastPaymentOrderID := LibraryRemittance.GetLastPaymentOrderID;
+        LastPaymentOrderID := LibraryRemittance.GetLastPaymentOrderID();
 
-        RemittancePaymentOrder.OpenEdit;
+        RemittancePaymentOrder.OpenEdit();
         RemittancePaymentOrder.GotoKey(LastPaymentOrderID);
 
-        FileName2 := LibraryRemittance.GetTempFileName;
+        FileName2 := LibraryRemittance.GetTempFileName();
         LibraryVariableStorage.Enqueue(FileName2);
-        RemittancePaymentOrder.ExportPaymentFile.Invoke; // Manual Export.
+        RemittancePaymentOrder.ExportPaymentFile.Invoke(); // Manual Export.
 
-        CompareFiles(FileName, FileName2);
+        CompareFiles(); // -> this does absolutely nothing.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -322,9 +322,9 @@ codeunit 144129 "Remittance - Export Test"
 
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
-        VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
+        VerifyBankExportFileWithSinglePayment(RemittanceAgreement, RemittanceAccount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -358,13 +358,13 @@ codeunit 144129 "Remittance - Export Test"
         Commit();
 
         LibraryVariableStorage.Enqueue(RemittanceAgreement.Code);
-        FileName := LibraryRemittance.GetTempFileName;
+        FileName := LibraryRemittance.GetTempFileName();
         LibraryVariableStorage.Enqueue(FileName);
 
         asserterror CODEUNIT.Run(CODEUNIT::"Export Payment File (Yes/No)", GenJournalLine);
         Assert.AreEqual(StrSubstNo(TC60551ExpectedErr, GenJournalLine."Line No."), GetLastErrorText, 'Wrong Error Message');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -397,13 +397,13 @@ codeunit 144129 "Remittance - Export Test"
         Commit();
 
         LibraryVariableStorage.Enqueue(RemittanceAgreement.Code);
-        FileName := LibraryRemittance.GetTempFileName;
+        FileName := LibraryRemittance.GetTempFileName();
         LibraryVariableStorage.Enqueue(FileName);
 
         asserterror CODEUNIT.Run(CODEUNIT::"Export Payment File (Yes/No)", GenJournalLine);
         Assert.AreEqual(StrSubstNo(TC60552ExpectedErr, GenJournalLine."Line No."), GetLastErrorText, 'Wrong Error Message');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -476,25 +476,25 @@ codeunit 144129 "Remittance - Export Test"
 
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
-        LibraryVariableStorage.Enqueue(LibraryRemittance.GetLastPaymentOrderID);
+        LibraryVariableStorage.Enqueue(LibraryRemittance.GetLastPaymentOrderID());
         REPORT.Run(REPORT::"Waiting Jnl - paym. overview", true);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
-        WaitingJournal.SetRange(Reference, LibraryRemittance.GetLastPaymentOrderID);
+        WaitingJournal.SetRange(Reference, LibraryRemittance.GetLastPaymentOrderID());
         WaitingJournal.FindFirst();
         RemittancePaymentOrder.Get(WaitingJournal."Payment Order ID - Sent");
 
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'The should only be one line in the Waiting Journal with the Document No.');
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'The should only be one line in the Waiting Journal with the Document No.');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.GetElementValueInCurrentRow('Amount_WaitingJournal', Amount);
         Assert.AreEqual(WaitingJournal.Amount, Amount, 'Amount');
         LibraryReportDataset.GetElementValueInCurrentRow('PaymOrderDate', v);
         Evaluate(dt, v, 9);
         Assert.AreEqual(RemittancePaymentOrder.Date, DT2Date(dt), 'PaymentOrderDate');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -513,18 +513,18 @@ codeunit 144129 "Remittance - Export Test"
         Initialize();
 
         // Setup.
-        DeleteRemittancePaymentOrders;
+        DeleteRemittancePaymentOrders();
         CreateRemittancePaymentOrder(Amount, Reference, 1);
         Commit();
 
         // Execute
         REPORT.Run(REPORT::"Rem. payment order status", true);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify
-        Assert.AreEqual(4, LibraryReportDataset.RowCount, 'RowCount');
+        Assert.AreEqual(4, LibraryReportDataset.RowCount(), 'RowCount');
         for i := State::Sent to State::Rejected do begin
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
 
             LibraryReportDataset.GetElementValueInCurrentRow('NumberSent_RemittancePmtOrder', v);
             Assert.AreEqual(1, v, 'Number Sent');
@@ -542,7 +542,7 @@ codeunit 144129 "Remittance - Export Test"
         end;
 
         // TearDown
-        DeleteRemittancePaymentOrders;
+        DeleteRemittancePaymentOrders();
     end;
 
     [Test]
@@ -559,13 +559,13 @@ codeunit 144129 "Remittance - Export Test"
         Initialize();
 
         // [GIVEN] Remittance Payment Order with 2 payments of each type Sent, Approved, Settled, Rejected
-        DeleteRemittancePaymentOrders;
+        DeleteRemittancePaymentOrders();
         LineCnt := LibraryRandom.RandIntInRange(2, 5);
         CreateRemittancePaymentOrder(Amount, Reference, LineCnt);
         Commit();
 
         // [WHEN] Run Rem. Payment Order Status report
-        RemPaymentOrderStatus.SaveAsExcel(LibraryReportValidation.GetFileName);
+        RemPaymentOrderStatus.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // [THEN] Number of payments of each type Sent, Approved, Settled, Rejected is printed as 2
         LibraryReportValidation.VerifyCellValue(6, 6, 'Number Sent');
@@ -584,7 +584,7 @@ codeunit 144129 "Remittance - Export Test"
         LibraryReportValidation.VerifyCellValue(27, 11, Format(Amount[4]));
 
         // TearDown
-        DeleteRemittancePaymentOrders;
+        DeleteRemittancePaymentOrders();
     end;
 
     [Test]
@@ -837,7 +837,7 @@ codeunit 144129 "Remittance - Export Test"
         // [THEN] Exactly one header exists in export file
         VerifyRemittanceExportFileExactlyOneHeaderExists(FileName, HeaderSequenceLineNo, InvoicesCount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -861,7 +861,7 @@ codeunit 144129 "Remittance - Export Test"
 
         // [WHEN] Export Gen. Journal Line with SEPA Credit Transfer XML port
         BankAccount.Get(GenJnlLine."Bal. Account No.");
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
         TempBlob.CreateInStream(InStr);
 
         // [THEN] The <InstrPrty> is "HIGH" if Urgent is True in General Journal Line
@@ -889,7 +889,7 @@ codeunit 144129 "Remittance - Export Test"
 
         // [WHEN] Export Gen. Journal Line with SEPA Credit Transfer XML port
         BankAccount.Get(GenJnlLine."Bal. Account No.");
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
         TempBlob.CreateInStream(InStr);
 
         // [THEN] The <InstrPrty> is "NORM" if Urgent is false in General Journal Line
@@ -947,7 +947,7 @@ codeunit 144129 "Remittance - Export Test"
         // [WHEN] Export the line to SEPA CT file
         TempBlob.CreateOutStream(OutStr);
         BankAccount.Get(GenJournalLine."Bal. Account No.");
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJournalLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJournalLine);
 
         // [THEN] Xml contains tag "//SchmeNm" is empty and contains subtag <Cd> with "BANK" value
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -1003,11 +1003,11 @@ codeunit 144129 "Remittance - Export Test"
         LastPaymentOrderID: Integer;
     begin
         // Setup
-        LastPaymentOrderID := LibraryRemittance.GetLastPaymentOrderID;
+        LastPaymentOrderID := LibraryRemittance.GetLastPaymentOrderID();
 
         FileName := LibraryRemittance.ExecuteRemittanceExportPaymentFile(LibraryVariableStorage,
             RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
-        VerifyRemittanceExport(FileName, LastPaymentOrderID, GenJournalLine);
+        VerifyRemittanceExport(LastPaymentOrderID, GenJournalLine);
         exit(FileName);
     end;
 
@@ -1060,13 +1060,13 @@ codeunit 144129 "Remittance - Export Test"
         GenJournalLine.DeleteAll();
         CreateGenJournalBatchWithTemplate(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           LibraryRandom.RandIntInRange(10, 100));
         GenJournalLine.Validate("Recipient Bank Account", CreateVendorBankAccountWithIBAN(GenJournalLine."Account No."));
         GenJournalLine.Validate("Currency Code", GeneralLedgerSetup.GetCurrencyCode('EUR')); // "Currency Code" have to equal 'EUR' according of checking "Gen. Journal Line" in codeunit 1223 "SEPA CT-Check Line"
         GenJournalLine.Validate(Amount, LibraryRandom.RandDec(1000, 2));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateBankAccountWithExportImportSetup);
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccountWithExportImportSetup());
         GenJournalLine.Modify();
     end;
 
@@ -1082,7 +1082,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
         GenJournalBatch.Modify(true);
     end;
 
@@ -1117,8 +1117,8 @@ codeunit 144129 "Remittance - Export Test"
         LibraryUtility.FillFieldMaxText(BankAccount, BankAccount.FieldNo("Bank Account No."));
         BankAccount.Get(BankAccount."No.");
         BankAccount.IBAN := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account");
-        BankAccount."Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        BankAccount."Payment Export Format" := CreateBankExportImportSetup;
+        BankAccount."Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        BankAccount."Payment Export Format" := CreateBankExportImportSetup();
         BankAccount.Modify();
         exit(BankAccount."No.");
     end;
@@ -1171,14 +1171,14 @@ codeunit 144129 "Remittance - Export Test"
         exit(Vendor."Remittance Account Code");
     end;
 
-    local procedure VerifyRemittanceExport(ExportFileName: Text; LastPaymentOrderID: Integer; GenJournalLine: Record "Gen. Journal Line")
+    local procedure VerifyRemittanceExport(LastPaymentOrderID: Integer; GenJournalLine: Record "Gen. Journal Line")
     var
         RemittancePaymentOrder: Record "Remittance Payment Order";
         WaitingJournal: Record "Waiting Journal";
     begin
         // Remittance Exporting creates an entry in the Remittance Payment Order table.
         // with information about the export (type, date, comment).
-        Assert.AreEqual(LastPaymentOrderID + 1, LibraryRemittance.GetLastPaymentOrderID, 'Payment Order not created');
+        Assert.AreEqual(LastPaymentOrderID + 1, LibraryRemittance.GetLastPaymentOrderID(), 'Payment Order not created');
 
         Assert.IsTrue(RemittancePaymentOrder.Get(LastPaymentOrderID + 1), 'Payment Order not found.');
         Assert.AreEqual(RemittancePaymentOrder.Type::Export, RemittancePaymentOrder.Type, 'Wrong Payment Order Type');
@@ -1187,21 +1187,21 @@ codeunit 144129 "Remittance - Export Test"
 
         // The exported file must be equal to corresponding lines in
         // PaymentOrderData
-        VerifyCorrespondenceToPaymentOrderData(ExportFileName, RemittancePaymentOrder.ID);
+        VerifyCorrespondenceToPaymentOrderData(RemittancePaymentOrder.ID);
 
-        VerifyFileLinesAgainstCRLF(ExportFileName, RemittancePaymentOrder.ID);
+        VerifyFileLinesAgainstCRLF(RemittancePaymentOrder.ID);
 
         // Check the payment lines are moved to Waiting Journal
         WaitingJournal.SetRange("Payment Order ID - Sent", RemittancePaymentOrder.ID);
         Assert.AreEqual(1, WaitingJournal.Count, 'Invalid number of lines in Waiting Journal');
-        Assert.IsTrue(WaitingJournal.FindFirst, 'Waiting Journal Record not found');
+        Assert.IsTrue(WaitingJournal.FindFirst(), 'Waiting Journal Record not found');
         Assert.AreEqual(WaitingJournal."Remittance Status"::Sent, WaitingJournal."Remittance Status", 'Remittance Status incorrect');
         Assert.AreEqual(GenJournalLine."Remittance Agreement Code", WaitingJournal."Remittance Agreement Code",
           'Wrong Remittance Agreement Code');
         Assert.AreEqual(GenJournalLine.Amount, WaitingJournal.Amount, 'Waiting Journal amount differ from payment');
     end;
 
-    local procedure VerifyBankExportFileWithSinglePayment(FileName: Text; RemittanceAgreement: Record "Remittance Agreement"; RemittanceAccount: Record "Remittance Account")
+    local procedure VerifyBankExportFileWithSinglePayment(RemittanceAgreement: Record "Remittance Agreement"; RemittanceAccount: Record "Remittance Account")
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
         ExportFile: File;
@@ -1214,9 +1214,9 @@ codeunit 144129 "Remittance - Export Test"
         CountTrans: Integer;
         ServerFileName: Text;
     begin
-        LibraryRemittance.GetGenJournalLinesFromWaitingJournal(LibraryRemittance.GetLastPaymentOrderID, TempGenJournalLine);
+        LibraryRemittance.GetGenJournalLinesFromWaitingJournal(LibraryRemittance.GetLastPaymentOrderID(), TempGenJournalLine);
 
-        GetInStreamWithoutCRNL(Ins, ExportFile, FileName);
+        GetInStreamWithoutCRNL(Ins, ExportFile);
 
         DailyNo := RemittanceAgreement."Latest Daily Sequence No.";
         GlobalNo := RemittanceAgreement."Latest Sequence No.";
@@ -1366,7 +1366,7 @@ codeunit 144129 "Remittance - Export Test"
             AssertFill(Ins, 40 * 3);
             AssertValue(Ins, GenJournalLine.KID, 27, 'KID');
         end;
-        AssertValue(Ins, Format(LibraryRemittance.GetLastPaymentOrderID), 30, 'Own ref. Waiting Journal Ref');
+        AssertValue(Ins, Format(LibraryRemittance.GetLastPaymentOrderID()), 30, 'Own ref. Waiting Journal Ref');
         AssertValue(Ins, FormatDecStr(GenJournalLine."Amount (LCY)", 15), 0, 'Amount (LCY)');
         if GenJournalLine."Amount (LCY)" < 0 then
             AssertValue(Ins, 'K', 0, 'Credit Code')
@@ -1517,7 +1517,7 @@ codeunit 144129 "Remittance - Export Test"
                 RecipientRef := GenJournalLine."Recipient Ref. Abroad";
 
         AssertValue(Ins, RecipientRef, 35, 'Recipient Ref');
-        AssertValue(Ins, Format(LibraryRemittance.GetLastPaymentOrderID), 35, 'OwnRef');
+        AssertValue(Ins, Format(LibraryRemittance.GetLastPaymentOrderID()), 35, 'OwnRef');
         AssertValue(Ins, FormatDecStr(GenJournalLine.Amount, 15), 0, 'Amount');
         AssertBoolean(Ins, GenJournalLine.Amount < 0, 'K', 'D', 'DebitCredit code');
         AssertValue(Ins, GenJournalLine."Payment Type Code Abroad", 6, 'Payment Type Abroad');
@@ -1578,7 +1578,7 @@ codeunit 144129 "Remittance - Export Test"
         AssertFill(Ins, 6);
     end;
 
-    local procedure VerifyBBSExportFileWithSinglePayment(FileName: Text; RemittanceAgreement: Record "Remittance Agreement"; RemittanceAccount: Record "Remittance Account"; PaymentOrderID: Integer)
+    local procedure VerifyBBSExportFileWithSinglePayment(RemittanceAgreement: Record "Remittance Agreement"; RemittanceAccount: Record "Remittance Account"; PaymentOrderID: Integer)
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
         Vendor: Record Vendor;
@@ -1602,7 +1602,7 @@ codeunit 144129 "Remittance - Export Test"
         BBSPaymentOrderNo := RemittanceAgreement."Latest BBS Payment Order No.";
         LibraryRemittance.GetGenJournalLinesFromWaitingJournal(PaymentOrderID, TempGenJournalLine);
 
-        GetInStreamWithoutCRNL(Ins, ExportFile, FileName);
+        GetInStreamWithoutCRNL(Ins, ExportFile);
 
         VerifyRecordType10(Ins, PaymentOrderID, RemittanceAgreement, ShipNoOfTrans, ShipNoOfRec);
         VerifyRecordType20(Ins, RemittanceAccount, BBSPaymentOrderNo, PaymentOrderNoOfTrans, PaymentOrderNoOfRec, ShipNoOfRec);
@@ -1647,7 +1647,7 @@ codeunit 144129 "Remittance - Export Test"
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
         GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
@@ -1705,7 +1705,7 @@ codeunit 144129 "Remittance - Export Test"
         ShipNoOfRec += 1;
         AssertValue(Ins, Format(TransNo), -7, 'TransNo');
         AssertValue(Ins, Vendor.Name, 10, 'ShortName');
-        AssertValue(Ins, Format(LibraryRemittance.GetLastPaymentOrderID), -25, 'BBSOwnRef');
+        AssertValue(Ins, Format(LibraryRemittance.GetLastPaymentOrderID()), -25, 'BBSOwnRef');
         AssertFill(Ins, 25);
         AssertFill0(Ins, 5);
     end;
@@ -1794,14 +1794,14 @@ codeunit 144129 "Remittance - Export Test"
         AssertFill0(Ins, 33);
     end;
 
-    local procedure VerifyCorrespondenceToPaymentOrderData(ExportFileName: Text; RemittancePaymentOrderID: Integer)
+    local procedure VerifyCorrespondenceToPaymentOrderData(RemittancePaymentOrderID: Integer)
     var
         PaymentOrderData: Record "Payment Order Data";
         ExportFile: File;
         Ins: InStream;
         String: Text[80];
     begin
-        GetInStreamWithoutCRNL(Ins, ExportFile, ExportFileName);
+        GetInStreamWithoutCRNL(Ins, ExportFile);
 
         PaymentOrderData.SetRange("Payment Order No.", RemittancePaymentOrderID);
         PaymentOrderData.SetRange("Empty Line", false);
@@ -1813,7 +1813,7 @@ codeunit 144129 "Remittance - Export Test"
         ExportFile.Close();
     end;
 
-    local procedure VerifyFileLinesAgainstCRLF(FileName: Text; RemittancePaymentOrderID: Integer)
+    local procedure VerifyFileLinesAgainstCRLF(RemittancePaymentOrderID: Integer)
     var
         PaymentOrderData: Record "Payment Order Data";
         TempFile: File;
@@ -1979,10 +1979,8 @@ codeunit 144129 "Remittance - Export Test"
         Assert.AreEqual(SkipCount, Ins.Read(result, SkipCount), 'Buffer underflow');
     end;
 
-    local procedure CompareFiles(Expected: Text; Actual: Text)
+    local procedure CompareFiles()
     var
-        ExpectedFile: File;
-        ActualFile: File;
         ExpectedIns: InStream;
         ActualIns: InStream;
         ExpectedRead: Integer;
@@ -2074,7 +2072,7 @@ codeunit 144129 "Remittance - Export Test"
         Reference := WaitingJournal.Reference;
     end;
 
-    local procedure GetInStreamWithoutCRNL(var ClearedInstream: InStream; var TempFile: File; FileName: Text)
+    local procedure GetInStreamWithoutCRNL(var ClearedInstream: InStream; var TempFile: File)
     var
         FileMgt: Codeunit "File Management";
         OutStream: OutStream;
@@ -2153,7 +2151,7 @@ codeunit 144129 "Remittance - Export Test"
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
               GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Bal. Account Type"::"G/L Account",
-              LibraryERM.CreateGLAccountNo, -LibraryRandom.RandDecInRange(1000, 2000, 2));
+              LibraryERM.CreateGLAccountNo(), -LibraryRandom.RandDecInRange(1000, 2000, 2));
             GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
             GenJournalLine.Modify(true);
         end;
@@ -2165,7 +2163,7 @@ codeunit 144129 "Remittance - Export Test"
         FileName: Text;
     begin
         LibraryVariableStorage.Enqueue(RemittanceAgreementCode);
-        FileName := LibraryRemittance.GetTempFileName;
+        FileName := LibraryRemittance.GetTempFileName();
         LibraryVariableStorage.Enqueue(FileName);
         LibraryVariableStorage.Enqueue(ExpectedMessage);
         LibraryVariableStorage.Enqueue(ConfirmAnswer);
@@ -2205,7 +2203,7 @@ codeunit 144129 "Remittance - Export Test"
         OldDate := WorkDate();
         WorkDate := NewDate;
         if Date2DWY(NewDate, 1) in [6, 7] then // "Posting Date" and "Pmt. Discount Date" compared works date in CU 15000001
-            WorkDate := WorkDate + 2;
+            WorkDate := WorkDate() + 2;
     end;
 
     local procedure UpdateBatchBankPaymentExportFormat(TemplateName: Code[10]; BatchName: Code[10])
@@ -2232,7 +2230,7 @@ codeunit 144129 "Remittance - Export Test"
         SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate());
         SuggestRemittancePayments.Vendor.SetFilter("No.", VendorNo);
         SuggestRemittancePayments.Vendor.SetFilter("Remittance Account Code", RemittanceAccountCode);
-        SuggestRemittancePayments.OK.Invoke;
+        SuggestRemittancePayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2246,7 +2244,7 @@ codeunit 144129 "Remittance - Export Test"
         RemittanceExportBank.RemAgreementCode.Value := RemittanceAgreementCode;
         LibraryVariableStorage.Dequeue(FileName);
         RemittanceExportBank.CurrentFilename.Value := FileName;
-        RemittanceExportBank.OK.Invoke;
+        RemittanceExportBank.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2260,7 +2258,7 @@ codeunit 144129 "Remittance - Export Test"
         RemittanceExportBBS.RemAgreementCode.Value := RemittanceAgreementCode;
         LibraryVariableStorage.Dequeue(FileName);
         RemittanceExportBBS.CurrentFilename.Value := FileName;
-        RemittanceExportBBS.OK.Invoke;
+        RemittanceExportBBS.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2271,7 +2269,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         LibraryVariableStorage.Dequeue(FileName);
         RemPaymOrderManExportHandler.Filename.Value := FileName;
-        RemPaymOrderManExportHandler.OK.Invoke;
+        RemPaymOrderManExportHandler.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2282,22 +2280,22 @@ codeunit 144129 "Remittance - Export Test"
     begin
         LibraryVariableStorage.Dequeue(v);
         WaitingJnlPaymOverview."Waiting Journal".SetFilter(Reference, Format(v));
-        WaitingJnlPaymOverview.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WaitingJnlPaymOverview.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RemPaymentOrderStatusHandler(var RemPaymentOrderStatus: TestRequestPage "Rem. payment order status")
     begin
-        RemPaymentOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RemPaymentOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerForExportPayment(Message: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]

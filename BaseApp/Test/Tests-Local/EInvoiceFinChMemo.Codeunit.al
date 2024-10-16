@@ -34,7 +34,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     begin
         Initialize();
 
-        XmlFileName := EInvoiceFinChMemo;
+        XmlFileName := EInvoiceFinChMemo();
 
         EInvoiceXMLXSDValidation.CheckIfFileExists(XmlFileName);
         NOXMLReadHelper.Initialize(XmlFileName);
@@ -54,7 +54,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     begin
         Initialize();
 
-        IssuedFinChMemoNo := EInvoiceFinChMemoHelper.CreateFinChMemo;
+        IssuedFinChMemoNo := EInvoiceFinChMemoHelper.CreateFinChMemo();
         AddLinesToIssuedFinChMemo(IssuedFinChMemoNo);
 
         XmlFileName := ExecEInvoiceFinChMemo(IssuedFinChMemoNo);
@@ -68,7 +68,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     procedure EInvoiceFinChMemoEndpointID()
     begin
         Initialize();
-        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceFinChMemo);
+        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceFinChMemo());
     end;
 
     [Test]
@@ -81,7 +81,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     begin
         Initialize();
 
-        IssuedFinChMemoNo := EInvoiceFinChMemoHelper.CreateFinChMemo;
+        IssuedFinChMemoNo := EInvoiceFinChMemoHelper.CreateFinChMemo();
 
         XmlFileName := ExecEInvoiceFinChMemo(IssuedFinChMemoNo);
 
@@ -103,7 +103,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
 
-        FinchNo := EInvoiceFinChMemoHelper.CreateFinChMemo;
+        FinchNo := EInvoiceFinChMemoHelper.CreateFinChMemo();
         CompanyInfo.Get();
         FinChHdr.Get(FinchNo);
         Cust.Get(FinChHdr."Customer No.");
@@ -131,7 +131,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
 
-        FinchNo := EInvoiceFinChMemoHelper.CreateFinChMemo;
+        FinchNo := EInvoiceFinChMemoHelper.CreateFinChMemo();
         CompanyInfo.Get();
         FinChHdr.Get(FinchNo);
         Cust.Get(FinChHdr."Customer No.");
@@ -201,7 +201,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     begin
         Initialize();
 
-        XmlFileName := EInvoiceFinChMemo;
+        XmlFileName := EInvoiceFinChMemo();
 
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeAbsence('//cbc:AccountingCostCode');
@@ -214,7 +214,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     procedure ValidateEInvFinChMemoFile()
     begin
         Initialize();
-        EInvoiceFinChMemo;
+        EInvoiceFinChMemo();
     end;
 
     local procedure AddLinesToIssuedFinChMemo(IssuedFinChMemoNo: Code[20])
@@ -232,7 +232,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         AddLineToIssuedFinChMemo(IssuedFinChMemoHeader, IssuedFinChMemoLine."Document Type"::Refund);
     end;
 
-    local procedure AddLineToIssuedFinChMemo(IssuedFinChMemoHeader: Record "Issued Fin. Charge Memo Header"; DocumentType: Integer)
+    local procedure AddLineToIssuedFinChMemo(IssuedFinChMemoHeader: Record "Issued Fin. Charge Memo Header"; DocumentType: Enum "Gen. Journal Document Type")
     var
         IssuedFinChMemoLine: Record "Issued Fin. Charge Memo Line";
         AmountValue: Decimal;
@@ -256,7 +256,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     var
         IssuedFinChargeMemoNo: Code[20];
     begin
-        IssuedFinChargeMemoNo := EInvoiceFinChMemoHelper.CreateFinChMemo;
+        IssuedFinChargeMemoNo := EInvoiceFinChMemoHelper.CreateFinChMemo();
         exit(ExecEInvoiceFinChMemo(IssuedFinChargeMemoNo));
     end;
 
@@ -265,7 +265,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         Path: Text[250];
     begin
-        Path := EInvoiceHelper.GetTempPath;
+        Path := EInvoiceHelper.GetTempPath();
         EInvoiceHelper.SetupEInvoiceForSales(Path);
 
         IssuedFinChargeMemoHeader.SetRange("No.", IssuedFinChargeMemoNo);
@@ -274,7 +274,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         exit(Path + IssuedFinChargeMemoNo + '.xml');
     end;
 
-    local procedure GetDocReferenceTagName(DocType: Integer): Text[100]
+    local procedure GetDocReferenceTagName(DocType: Enum "Gen. Journal Document Type"): Text[100]
     var
         IssuedFinChMemoLine: Record "Issued Fin. Charge Memo Line";
     begin
@@ -307,7 +307,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         if isInitialized then
             exit;
 
-        InitGlobalVATRates;
+        InitGlobalVATRates();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         isInitialized := true;
     end;
@@ -349,7 +349,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
                 Node := Node.FirstChild;
                 ReferenceName := Node.Name;
                 Evaluate(IdValue, NOXMLReadHelper.GetElementValueInCurrNode(Node, 'cbc:ID'));
-                Assert.AreEqual(GetDocReferenceTagName(IdValue), ReferenceName, 'Wrong reference name');
+                Assert.AreEqual(GetDocReferenceTagName("Gen. Journal Document Type".FromInteger(IdValue)), ReferenceName, 'Wrong reference name');
             end;
         end;
     end;

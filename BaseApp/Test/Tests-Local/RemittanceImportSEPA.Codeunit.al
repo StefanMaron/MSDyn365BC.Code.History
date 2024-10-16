@@ -194,12 +194,12 @@ codeunit 144136 "Remittance - Import SEPA"
           BatchName,
           GenJournalLine."Journal Template Name",
           ExtDocumentNo,
-          WorkDate,
+          WorkDate(),
           DocumentNo,
           Vendor."No.",
           RemittanceAccount, Amount);
 
-        Cleanup(FilePath, OldDate);
+        Cleanup(OldDate);
     end;
 
     [Test]
@@ -252,7 +252,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", BatchName); // Clear all lines, it must be blank before import
         ClearAllGenJournalLines(GenJournalBatch);
-        FilePath := GenerateCAMT054File;
+        FilePath := GenerateCAMT054File();
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
         NbRemittancePaymentOrders := RemittancePaymentOrderSent.Count();
 
@@ -278,12 +278,12 @@ codeunit 144136 "Remittance - Import SEPA"
           BatchName,
           GenJournalLine."Journal Template Name",
           ExtDocumentNo,
-          WorkDate,
+          WorkDate(),
           DocumentNo,
           Vendor."No.",
           RemittanceAccount, Amount);
 
-        Cleanup(FilePath, OldDate);
+        Cleanup(OldDate);
     end;
 
     [Test]
@@ -342,7 +342,7 @@ codeunit 144136 "Remittance - Import SEPA"
           ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), DocumentNo, Vendor."No.",
           RemittanceAccount, Amount);
 
-        Cleanup(FilePath, OldDate);
+        Cleanup(OldDate);
     end;
 
     [Test]
@@ -390,7 +390,7 @@ codeunit 144136 "Remittance - Import SEPA"
         Assert.ExpectedError('Import is cancelled');
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
-        Cleanup(FilePath, OldDate);
+        Cleanup(OldDate);
     end;
 
     [Test]
@@ -435,7 +435,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
-        Cleanup(FilePath, OldDate);
+        Cleanup(OldDate);
     end;
 
     [Test]
@@ -475,7 +475,7 @@ codeunit 144136 "Remittance - Import SEPA"
         RemittanceAccount.Modify();
 
         // [GIVEN] Return File
-        FilePath := GenerateCAMT054File;
+        FilePath := GenerateCAMT054File();
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
 
         // [WHEN] Perform import from Return File with Control Batch checked.
@@ -484,7 +484,7 @@ codeunit 144136 "Remittance - Import SEPA"
         // [THEN] Return Data is not imported.
         VerifyNoLinesAreImported(ImportGenJournalBatch.Name, ImportGenJournalBatch."Journal Template Name");
 
-        Cleanup(FilePath, OldDate);
+        Cleanup(OldDate);
     end;
 
     [Test]
@@ -506,20 +506,20 @@ codeunit 144136 "Remittance - Import SEPA"
         // [GIVEN] Payment Journal with two lines:
         // [GIVEN] First line has two export processing errors "ERR1-1", "ERR1-2"
         // [GIVEN] Second line has two export processing errors "ERR2-1", "ERR2-2"
-        GeneralJournalTemplates.OpenView;
+        GeneralJournalTemplates.OpenView();
         GeneralJournalTemplates.FILTER.SetFilter(Type, '4'); // Payment
-        GeneralJournalBatches.Trap;
+        GeneralJournalBatches.Trap();
         GeneralJournalTemplates.Batches.Invoke();
         GenJournalLine.Init();
-        GenJournalLine."Journal Template Name" := GeneralJournalTemplates.Name.Value;
-        GenJournalLine."Journal Batch Name" := GeneralJournalBatches.Name.Value;
+        GenJournalLine."Journal Template Name" := GeneralJournalTemplates.Name.Value();
+        GenJournalLine."Journal Batch Name" := GeneralJournalBatches.Name.Value();
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         ClearAllGenJournalLines(GenJournalBatch);
         CreateGeneralJnlLineWithPmtExportErrors(GenJournalLine, FirstLineErrorText);
         CreateGeneralJnlLineWithPmtExportErrors(GenJournalLine, SecondLineErrorText);
 
         // [WHEN] Open Payment journal page
-        PaymentJournal.Trap;
+        PaymentJournal.Trap();
         GeneralJournalBatches.EditJournal.Invoke();
 
         // [THEN] Payment journal error factbox shows "ERR1-1", "ERR1-2" for the first line, "ERR2-1", "ERR2-2" for the second line
@@ -582,7 +582,7 @@ codeunit 144136 "Remittance - Import SEPA"
         CurrencyFactor := LibraryRandom.RandDecInRange(10, 20, 4);
         Amount := LibraryRandom.RandDecInRange(100, 200, 2);
         UpdateWaitingJournalCurrencyAndAmount(
-          WaitingJournal, CreateCurrency, CurrencyFactor, Amount, ROUND(Amount / CurrencyFactor));
+          WaitingJournal, CreateCurrency(), CurrencyFactor, Amount, ROUND(Amount / CurrencyFactor));
 
         // [WHEN] Invoke UpdateWaitingJournal in codeunit "Import SEPA Common"
         InvokeUpdateWaitingJournal(WaitingJournal, GenJournalLine);
@@ -609,7 +609,7 @@ codeunit 144136 "Remittance - Import SEPA"
         Initialize();
         EnqueueConfirmImportWithDiffExchRate(true);
 
-        Assert.IsTrue(ImportSEPACommon.ConfirmImportExchRateDialog, '');
+        Assert.IsTrue(ImportSEPACommon.ConfirmImportExchRateDialog(), '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -626,7 +626,7 @@ codeunit 144136 "Remittance - Import SEPA"
         Initialize();
         EnqueueConfirmImportWithDiffExchRate(false);
 
-        asserterror ImportSEPACommon.ConfirmImportExchRateDialog;
+        asserterror ImportSEPACommon.ConfirmImportExchRateDialog();
 
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(ImportCancelledErr);
@@ -692,7 +692,7 @@ codeunit 144136 "Remittance - Import SEPA"
         // [GIVEN] CAMT054 file with source currency = "EUR", target currency = "USD", SrcAmt = 200, TrgtAmt = 500, Factor = 0.4
         FilePath :=
           WriteCamtFiletoDiskWithCustomAmountDetails(
-            WaitingJournal, CurrencyCode, LibraryUtility.GenerateGUID, CurrencyFactor + 1, Amount + 1, AmountLCY + 1);
+            WaitingJournal, CurrencyCode, LibraryUtility.GenerateGUID(), CurrencyFactor + 1, Amount + 1, AmountLCY + 1);
 
         // [WHEN] Import the file, accept import summary confirm (1 settled)
         EnqueueConfirmImport(FilePath, 0, 0, 1, true);
@@ -729,7 +729,7 @@ codeunit 144136 "Remittance - Import SEPA"
         // [GIVEN] CAMT054 file with source currency = "USD", target currency = "NOK", SrcAmt = 200, TrgtAmt = 500, Factor = 0.4
         FilePath :=
           WriteCamtFiletoDiskWithCustomAmountDetails(
-            WaitingJournal, LibraryUtility.GenerateGUID, LCYCode, CurrencyFactor + 1, Amount + 1, AmountLCY + 1);
+            WaitingJournal, LibraryUtility.GenerateGUID(), LCYCode, CurrencyFactor + 1, Amount + 1, AmountLCY + 1);
 
         // [WHEN] Import the file, accept import summary confirm (1 settled)
         EnqueueConfirmImport(FilePath, 0, 0, 1, true);
@@ -1123,7 +1123,7 @@ codeunit 144136 "Remittance - Import SEPA"
         GetWaitingJournal(WaitingJournal);
         VerifyReturnError(WaitingJournal.Reference, StrSubstNo('Code: %1 Message: "%2".', ReasonText, AdditionalInfo));
 
-        Cleanup(FilePath, OldDate);
+        Cleanup(OldDate);
     end;
 
     [Test]
@@ -1174,7 +1174,7 @@ codeunit 144136 "Remittance - Import SEPA"
         GetWaitingJournal(WaitingJournal);
         VerifyReturnError(WaitingJournal.Reference, StrSubstNo('Message: "%1".', AdditionalInfo));
 
-        Cleanup(FilePath, OldDate);
+        Cleanup(OldDate);
     end;
 
     [Test]
@@ -1222,7 +1222,7 @@ codeunit 144136 "Remittance - Import SEPA"
         GetWaitingJournal(WaitingJournal);
         VerifyReturnError(WaitingJournal.Reference, TransactionRejectedMsg);
 
-        Cleanup(FilePath, OldDate);
+        Cleanup(OldDate);
     end;
 
     local procedure Initialize()
@@ -1257,7 +1257,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         Initialize();
         LCYCode := LibraryUtility.GenerateGUID();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         AmountLCY := LibraryRandom.RandDecInRange(10000, 20000, 2);
         CurrencyFactor := Amount / AmountLCY;
@@ -1270,7 +1270,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         Initialize();
         LCYCode := LibraryUtility.GenerateGUID();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         for i := 1 to ARRAYLEN(Amount) do begin
             Amount[i] := LibraryRandom.RandDecInRange(1000, 2000, 2);
             AmountLCY[i] := LibraryRandom.RandDecInRange(10000, 20000, 2);
@@ -1302,7 +1302,7 @@ codeunit 144136 "Remittance - Import SEPA"
     local procedure CreateCurrency(): Code[10]
     begin
         exit(LibraryERM.CreateCurrencyWithExchangeRate(
-            WorkDate, LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(1, 10, 2)));
+            WorkDate(), LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(1, 10, 2)));
     end;
 
     local procedure GetWaitingJournal(var WaitingJournal: Record "Waiting Journal")
@@ -1344,7 +1344,7 @@ codeunit 144136 "Remittance - Import SEPA"
               GenJournalLine, "Journal Template Name", "Journal Batch Name", "Document Type"::Payment, "Account Type"::Vendor, '', 0);
         for i := 1 to ArrayLen(ErrorText) do begin
             ErrorText[i] := LibraryUtility.GenerateGUID();
-            PaymentJnlExportErrorText.CreateNew(GenJournalLine, ErrorText[i], LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
+            PaymentJnlExportErrorText.CreateNew(GenJournalLine, ErrorText[i], LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
         end;
     end;
 
@@ -1423,11 +1423,12 @@ codeunit 144136 "Remittance - Import SEPA"
         WaitingJournal: Record "Waiting Journal";
     begin
         GetWaitingJournal(WaitingJournal);
-        exit(WriteCamtFiletoDisk(WaitingJournal, WORKDATE, 'BOOK'));
+        exit(WriteCamtFiletoDisk(WaitingJournal, WorkDate(), 'BOOK'));
     end;
 
-    local procedure GetClientFileFromServerFile(ServerFileName: Text) ClientFileName: Text
+    local procedure GetClientFileFromServerFile(): Text
     begin
+        // how do any of these tests work? 
     end;
 
     local procedure UpdateXmlFileBasedOnNames(var XMLBuffer: Record "XML Buffer"; NameToSearch: Text[250]; ValueToUse: Text[250])
@@ -1469,11 +1470,11 @@ codeunit 144136 "Remittance - Import SEPA"
         GenJournalLine.Modify(true);
 
         // Execute Export Payments
-        SEPACTExportFile.EnableExportToServerFile;
+        SEPACTExportFile.EnableExportToServerFile();
         SEPACTExportFile.Run(GenJournalLine);
 
         // Verify the payment line created by the suggestion is deleted
-        Assert.IsFalse(GenJournalLine.FindFirst, 'Payment line found.');
+        Assert.IsFalse(GenJournalLine.FindFirst(), 'Payment line found.');
 
         // Generate the Bank Payment file
         // Suprisingly report is ignoring amount from the file
@@ -1486,7 +1487,7 @@ codeunit 144136 "Remittance - Import SEPA"
         OldDate := WorkDate();
         WorkDate := NewDate;
         if Date2DWY(NewDate, 1) in [6, 7] then // "Posting Date" and "Pmt. Discount Date" compared works date in CU 15000001
-            WorkDate := WorkDate + 2;
+            WorkDate := WorkDate() + 2;
     end;
 
     local procedure MockWaitingJournal(var WaitingJournal: Record "Waiting Journal"; var GenJournalLine: Record "Gen. Journal Line")
@@ -1563,7 +1564,7 @@ codeunit 144136 "Remittance - Import SEPA"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
-        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
         GenJournalBatch.Modify(true);
         exit(LibraryUtility.GetNextNoFromNoSeries(GenJournalBatch."No. Series", WorkDate()));
     end;
@@ -1591,7 +1592,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         ImportSEPACommon.UpdateWaitingJournal(
           WaitingJournal, MappedTransactionStatus::Settled, '', '', RemittancePaymentOrder,
-          WorkDate, GenJournalLine, AccountCurrency, NumberApproved, NumberSettled, NumberRejected,
+          WorkDate(), GenJournalLine, AccountCurrency, NumberApproved, NumberSettled, NumberRejected,
           TransDocumentNo, BalanceEntryAmountLCY, MoreReturnJournals, First, LatestDate, LatestVend, LatestRemittanceAccount,
           LatestRemittanceAgreement, LatestCurrencyCode, CreateNewDocumentNo, false, BalanceEntryAmount);
     end;
@@ -1627,7 +1628,7 @@ codeunit 144136 "Remittance - Import SEPA"
         TempNameValueBuffer.Init();
         TempNameValueBuffer.ID += 1;
         TempNameValueBuffer.Name := CopyStr(Name, 1, MaxStrLen(TempNameValueBuffer.Name));
-        TempNameValueBuffer.Insert;
+        TempNameValueBuffer.Insert();
     end;
 
     local procedure VerifyImportedLinesInternational(BatchName: Code[10]; TemplateName: Code[10]; ExtDocumentNo: Code[35]; PostingDate: Date; DocumentNo: Code[20]; VendorAccountNo: Code[20]; RemittanceAccount: Record "Remittance Account"; Amount: Decimal)
@@ -1666,7 +1667,7 @@ codeunit 144136 "Remittance - Import SEPA"
           GenJournalLine."Account Type",
           'Account type was not set to a correct value');
         Assert.AreEqual(ExtDocumentNo, GenJournalLine."Applies-to Doc. No.", 'Applies-to Doc. No. was not set to a correct value');
-        Assert.AreEqual(true, GenJournalLine.IsApplied, 'IsApplied was not set to a correct value');
+        Assert.AreEqual(true, GenJournalLine.IsApplied(), 'IsApplied was not set to a correct value');
         Assert.AreEqual(
           GenJournalLine."Applies-to Doc. Type"::Invoice, GenJournalLine."Applies-to Doc. Type",
           'Applies-to Doc. Type was not set to correct value');
@@ -1683,7 +1684,7 @@ codeunit 144136 "Remittance - Import SEPA"
           GenJournalLine."Account Type",
           'Account type was not set to a correct value');
         Assert.AreEqual('', GenJournalLine."Applies-to Doc. No.", 'Applies-to Doc. No. should be blank');
-        Assert.AreEqual(false, GenJournalLine.IsApplied, 'IsApplied was not set to a correct value');
+        Assert.AreEqual(false, GenJournalLine.IsApplied(), 'IsApplied was not set to a correct value');
         Assert.AreEqual(
           GenJournalLine."Applies-to Doc. Type"::" ", GenJournalLine."Applies-to Doc. Type",
           'Applies-to Doc. Type was not set to correct value');
@@ -1904,7 +1905,7 @@ codeunit 144136 "Remittance - Import SEPA"
         WriteCamtFile_FinishEntry(OutStream);
         WriteCamtFile_FinishFile(OutStream);
         OutFile.Close();
-        exit(GetClientFileFromServerFile(ServerFileName));
+        exit(GetClientFileFromServerFile());
     end;
 
     local procedure WriteCamtFiletoDiskWithCustomAmountDetails(WaitingJournal: Record "Waiting Journal"; SrcCcy: Text; TrgtCcy: Text; XchgRate: Decimal; SrcAmt: Decimal; TrgtAmt: Decimal): Text
@@ -1918,12 +1919,12 @@ codeunit 144136 "Remittance - Import SEPA"
         OutFile.Create(ServerFileName);
         OutFile.CreateOutStream(OutStream);
         WriteCamtFile_StartFile(OutStream);
-        WriteCamtFile_StartEntry(OutStream, WaitingJournal, WORKDATE, 'BOOK');
+        WriteCamtFile_StartEntry(OutStream, WaitingJournal, WorkDate(), 'BOOK');
         WriteCamtFile_AmountDetails_Custom(OutStream, SrcCcy, TrgtCcy, 1 / XchgRate, SrcAmt, TrgtAmt);
         WriteCamtFile_FinishEntry(OutStream);
         WriteCamtFile_FinishFile(OutStream);
         OutFile.Close();
-        exit(GetClientFileFromServerFile(ServerFileName));
+        exit(GetClientFileFromServerFile());
     end;
 
     local procedure WriteCamtFiletoDiskWithTwoCustomAmountDetails(WaitingJournal: array[2] of Record "Waiting Journal"; SrcCcy: Text; TrgtCcy: Text; XchgRate: array[2] of Decimal; SrcAmt: array[2] of Decimal; TrgtAmt: array[2] of Decimal): Text
@@ -1940,14 +1941,14 @@ codeunit 144136 "Remittance - Import SEPA"
         WriteCamtFile_StartFile(OutStream);
 
         for i := 1 to ARRAYLEN(WaitingJournal) do begin
-            WriteCamtFile_StartEntry(OutStream, WaitingJournal[i], WORKDATE, 'BOOK');
+            WriteCamtFile_StartEntry(OutStream, WaitingJournal[i], WorkDate(), 'BOOK');
             WriteCamtFile_AmountDetails_Custom(OutStream, SrcCcy, TrgtCcy, 1 / XchgRate[i], SrcAmt[i], TrgtAmt[i]);
             WriteCamtFile_FinishEntry(OutStream);
         end;
 
         WriteCamtFile_FinishFile(OutStream);
         OutFile.Close();
-        exit(GetClientFileFromServerFile(ServerFileName));
+        exit(GetClientFileFromServerFile());
     end;
 
     local procedure WriteCamtFile_StartFile(var OutStream: OutStream)
@@ -2211,7 +2212,7 @@ codeunit 144136 "Remittance - Import SEPA"
         SuggestRemittancePayments.OK().Invoke();
     end;
 
-    local procedure Cleanup(FilePath: Text; OldDate: Date)
+    local procedure Cleanup(OldDate: Date)
     begin
         UpdateWorkdate(OldDate);
     end;

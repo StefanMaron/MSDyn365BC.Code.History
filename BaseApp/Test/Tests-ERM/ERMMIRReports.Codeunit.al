@@ -506,7 +506,7 @@ codeunit 134928 "ERM MIR Reports"
     var
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         with IssuedFinChargeMemoLine do begin
             SetRange("Finance Charge Memo No.", IssuedFinChargeMemoNo);
@@ -516,7 +516,7 @@ codeunit 134928 "ERM MIR Reports"
                     LibraryReportDataset.AssertElementWithValueExists('LineNo_IssuFinChrgMemoLine', "Line No.")
                 else
                     LibraryReportDataset.AssertElementWithValueNotExist('LineNo_IssuFinChrgMemoLine', "Line No.")
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -524,7 +524,7 @@ codeunit 134928 "ERM MIR Reports"
     var
         i: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for i := 1 to ArrayLen(AmountLine) do begin
             Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(AmountLine[i]), AmountNotFoundErr);
             Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(AmountMIRLine[i]), AmountNotFoundErr);
@@ -536,7 +536,7 @@ codeunit 134928 "ERM MIR Reports"
     var
         i: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for i := 1 to ArrayLen(AmountLine) do begin
             Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(AmountLine[i]), AmountNotFoundErr);
             Assert.IsFalse(LibraryReportValidation.CheckIfDecimalValueExists(AmountMIRLine[i]), WrongRowErr);
@@ -548,47 +548,47 @@ codeunit 134928 "ERM MIR Reports"
     [Scope('OnPrem')]
     procedure FinChargeMemoRequestHandler(var FinChargeMemoReport: TestRequestPage "Finance Charge Memo")
     begin
-        FinChargeMemoReport."Issued Fin. Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
+        FinChargeMemoReport."Issued Fin. Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
         FinChargeMemoReport.ShowInternalInformation.SetValue(false);
         FinChargeMemoReport.LogInteraction.SetValue(false);
-        FinChargeMemoReport.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean);
-        FinChargeMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinChargeMemoReport.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean());
+        FinChargeMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FinChargeMemoReqHandler(var FinChargeMemoReport: TestRequestPage "Finance Charge Memo")
     begin
-        FinChargeMemoReport."Issued Fin. Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        FinChargeMemoReport.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean);
-        FinChargeMemoReport.SaveAsExcel(LibraryReportValidation.GetFileName);
+        FinChargeMemoReport."Issued Fin. Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        FinChargeMemoReport.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean());
+        FinChargeMemoReport.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FinChargeMemoTestReqHandler(var FinanceChargeMemoTest: TestRequestPage "Finance Charge Memo - Test")
     begin
-        FinanceChargeMemoTest."Finance Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        FinanceChargeMemoTest.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean);
-        FinanceChargeMemoTest.SaveAsExcel(LibraryReportValidation.GetFileName);
+        FinanceChargeMemoTest."Finance Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        FinanceChargeMemoTest.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean());
+        FinanceChargeMemoTest.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReminderTestReqHandler(var ReminderTest: TestRequestPage "Reminder - Test")
     begin
-        ReminderTest."Reminder Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ReminderTest.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean);
-        ReminderTest.SaveAsExcel(LibraryReportValidation.GetFileName);
+        ReminderTest."Reminder Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ReminderTest.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean());
+        ReminderTest.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReminderReqHandler(var Reminder: TestRequestPage Reminder)
     begin
-        Reminder."Issued Reminder Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        Reminder.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean);
-        Reminder.SaveAsExcel(LibraryReportValidation.GetFileName);
+        Reminder."Issued Reminder Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Reminder.ShowMIR.SetValue(LibraryVariableStorage.DequeueBoolean());
+        Reminder.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

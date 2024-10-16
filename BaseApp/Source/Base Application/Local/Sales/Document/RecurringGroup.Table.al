@@ -12,6 +12,7 @@ table 15000300 "Recurring Group"
 {
     Caption = 'Recurring Group';
     LookupPageID = "Recurring Group Overview";
+    DataClassification = CustomerContent;
 
     fields
     {

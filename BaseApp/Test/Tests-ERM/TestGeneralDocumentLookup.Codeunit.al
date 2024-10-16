@@ -92,8 +92,8 @@ codeunit 134850 "Test General Document Lookup"
         // [SCENARIO 288426] Existing No. in Purchase Line with G/L Account type won't be updated from validation of Description with another "No." value
 
         // [GIVEN] G/L Accounts X1 and X2
-        GLAccount[1].Get(LibraryERM.CreateGLAccountWithPurchSetup);
-        GLAccount[2].Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount[1].Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAccount[2].Get(LibraryERM.CreateGLAccountWithPurchSetup());
 
         // [GIVEN] Purchase order with one line
         CreatePurchaseOrderWithLine(PurchaseHeader, PurchaseLine);
@@ -122,10 +122,10 @@ codeunit 134850 "Test General Document Lookup"
         // [SCENARIO 296402] Existing No. in Sales Line with G/L Account type won't be updated from validation of Description with another "No." value
 
         // [GIVEN] G/L Account with No = 8310 and Name 'Software'
-        GLAccount[1].Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount[1].Get(LibraryERM.CreateGLAccountWithSalesSetup());
 
         // [GIVEN] Other G/L Account with Name = 'Postage'
-        GLAccount[2].Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount[2].Get(LibraryERM.CreateGLAccountWithSalesSetup());
 
         // [GIVEN] Sales Line with Type G/L Account and <blank> No
         CreateSalesInvoiceWithLineTypeGLAccountAndBlankNo(SalesLine);
@@ -235,12 +235,12 @@ codeunit 134850 "Test General Document Lookup"
 
     local procedure CreatePurchPostingGLAccountWithName(GLAccountName: Text[100]; Blocked: Boolean; DirectPosting: Boolean): Code[20]
     begin
-        exit(UpdateGLAccountNameDirectPostingAndBlocked(LibraryERM.CreateGLAccountWithPurchSetup, GLAccountName, Blocked, DirectPosting));
+        exit(UpdateGLAccountNameDirectPostingAndBlocked(LibraryERM.CreateGLAccountWithPurchSetup(), GLAccountName, Blocked, DirectPosting));
     end;
 
     local procedure CreateSalesPostingGLAccountWithName(GLAccountName: Text[100]; Blocked: Boolean; DirectPosting: Boolean): Code[20]
     begin
-        exit(UpdateGLAccountNameDirectPostingAndBlocked(LibraryERM.CreateGLAccountWithSalesSetup, GLAccountName, Blocked, DirectPosting));
+        exit(UpdateGLAccountNameDirectPostingAndBlocked(LibraryERM.CreateGLAccountWithSalesSetup(), GLAccountName, Blocked, DirectPosting));
     end;
 
     local procedure UpdateGLAccountNameDirectPostingAndBlocked(GLAccountNo: Code[20]; GLAccountName: Text[100]; Blocked: Boolean; DirectPosting: Boolean): Code[20]
@@ -259,7 +259,7 @@ codeunit 134850 "Test General Document Lookup"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", '', 0);
         PurchaseLine.Validate("No.", '');
         PurchaseLine.Modify(true);
@@ -269,7 +269,7 @@ codeunit 134850 "Test General Document Lookup"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", '', 0);
         SalesLine.Validate("No.", '');
         SalesLine.Modify(true);
@@ -277,7 +277,7 @@ codeunit 134850 "Test General Document Lookup"
 
     local procedure CreatePurchaseOrderWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
         PurchaseLine.Validate(Type, PurchaseLine.Type::"G/L Account");
         PurchaseLine.Modify(true);

@@ -38,32 +38,30 @@ codeunit 10630 "Export EHF Reminder"
             TempRecordExportBuffer.Insert();
         until RecRef.Next() = 0;
 
-        with TempRecordExportBuffer do begin
-            FindSet();
-            repeat
-                RecRef.Get(RecordID);
-                case RecRef.Number() of
-                    DATABASE::"Issued Reminder Header":
-                        begin
-                            RecRef.SetTable(IssuedReminderHeader);
-                            GenerateXMLFile(TempBlob, IssuedReminderHeader);
-                            SetFileContent(TempBlob);
-                            ClientFileName := GetClientFileName(IssuedReminderHeader.TableCaption(), IssuedReminderHeader."No.");
-                            ZipFileName := GetZipFileName(IssuedReminderHeader.TableCaption(), IssuedReminderHeader."No.");
-                            Modify();
-                        end;
-                    DATABASE::"Issued Fin. Charge Memo Header":
-                        begin
-                            RecRef.SetTable(IssuedFinChargeMemoHeader);
-                            GenerateXMLFile(TempBlob, IssuedFinChargeMemoHeader);
-                            SetFileContent(TempBlob);
-                            ClientFileName := GetClientFileName(IssuedFinChargeMemoHeader.TableCaption(), IssuedFinChargeMemoHeader."No.");
-                            ZipFileName := GetZipFileName(IssuedFinChargeMemoHeader.TableCaption(), IssuedFinChargeMemoHeader."No.");
-                            Modify();
-                        end;
-                end;
-            until Next() = 0;
-        end;
+        TempRecordExportBuffer.FindSet();
+        repeat
+            RecRef.Get(TempRecordExportBuffer.RecordID);
+            case RecRef.Number() of
+                DATABASE::"Issued Reminder Header":
+                    begin
+                        RecRef.SetTable(IssuedReminderHeader);
+                        GenerateXMLFile(TempBlob, IssuedReminderHeader);
+                        TempRecordExportBuffer.SetFileContent(TempBlob);
+                        TempRecordExportBuffer.ClientFileName := GetClientFileName(IssuedReminderHeader.TableCaption(), IssuedReminderHeader."No.");
+                        TempRecordExportBuffer.ZipFileName := GetZipFileName(IssuedReminderHeader.TableCaption(), IssuedReminderHeader."No.");
+                        TempRecordExportBuffer.Modify();
+                    end;
+                DATABASE::"Issued Fin. Charge Memo Header":
+                    begin
+                        RecRef.SetTable(IssuedFinChargeMemoHeader);
+                        GenerateXMLFile(TempBlob, IssuedFinChargeMemoHeader);
+                        TempRecordExportBuffer.SetFileContent(TempBlob);
+                        TempRecordExportBuffer.ClientFileName := GetClientFileName(IssuedFinChargeMemoHeader.TableCaption(), IssuedFinChargeMemoHeader."No.");
+                        TempRecordExportBuffer.ZipFileName := GetZipFileName(IssuedFinChargeMemoHeader.TableCaption(), IssuedFinChargeMemoHeader."No.");
+                        TempRecordExportBuffer.Modify();
+                    end;
+            end;
+        until TempRecordExportBuffer.Next() = 0;
 
         SendElectronically(TempRecordExportBuffer);
     end;

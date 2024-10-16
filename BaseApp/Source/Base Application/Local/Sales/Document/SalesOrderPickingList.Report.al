@@ -566,25 +566,23 @@ report 10606 "Sales Order Picking List"
 
     local procedure GetDimText() DimText: Text[120]
     begin
-        with DimSetEntry do begin
-            Clear(DimText);
-            Continue := false;
-            repeat
-                OldDimText := DimText;
-                if DimText = '' then
-                    DimText := StrSubstNo('%1 %2', "Dimension Code", "Dimension Value Code")
-                else
-                    DimText :=
-                      StrSubstNo(
-                        '%1, %2 %3', DimText, "Dimension Code", "Dimension Value Code");
-                if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                    DimText := OldDimText;
-                    Continue := true;
-                    exit;
-                end;
-            until Next() = 0;
-            exit(DimText);
-        end;
+        Clear(DimText);
+        Continue := false;
+        repeat
+            OldDimText := DimText;
+            if DimText = '' then
+                DimText := StrSubstNo('%1 %2', DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code")
+            else
+                DimText :=
+                  StrSubstNo(
+                    '%1, %2 %3', DimText, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
+            if StrLen(DimText) > MaxStrLen(OldDimText) then begin
+                DimText := OldDimText;
+                Continue := true;
+                exit;
+            end;
+        until DimSetEntry.Next() = 0;
+        exit(DimText);
     end;
 }
 

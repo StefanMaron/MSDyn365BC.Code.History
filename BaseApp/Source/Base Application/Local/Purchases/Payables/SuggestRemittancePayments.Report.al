@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,7 +7,6 @@ namespace Microsoft.Purchases.Payables;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Purchases.Vendor;
@@ -245,8 +244,6 @@ report 15000001 "Suggest Remittance Payments"
         VendLedgEntry2: Record "Vendor Ledger Entry";
         Vend3: Record Vendor;
         DimMgt: Codeunit DimensionManagement;
-        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         RemTools: Codeunit "Remittance Tools";
         Window: Dialog;
         UsePaymentDisc: Boolean;
@@ -283,14 +280,14 @@ report 15000001 "Suggest Remittance Payments"
     end;
 
     local procedure ValidatePostingDate()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         if GenJnlBatch."No. Series" = '' then
             NextDocNo := ''
-        else begin
-            NextDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, false);
-            Clear(NoSeriesMgt);
-        end;
+        else
+            NextDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", PostingDate);
     end;
 
     [Scope('OnPrem')]
@@ -326,23 +323,22 @@ report 15000001 "Suggest Remittance Payments"
     var
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
     begin
-        with GenJnlLine do begin
-            Validate("Posting Date", CalcPostingdate(VendLedgEntry));
-            if VendLedgEntry.Positive then // Cr.Memo
-                "Document Type" := "Document Type"::" "
-            else
-                "Document Type" := "Document Type"::Payment;
-            "Account Type" := "Account Type"::Vendor;
-            Validate("Account No.", VendLedgEntry."Vendor No.");
-            Validate("Currency Code", VendLedgEntry."Currency Code");
-            VendLedgEntry.CalcFields("Remaining Amount");
+        GenJnlLine.Validate("Posting Date", CalcPostingdate(VendLedgEntry));
+        if VendLedgEntry.Positive then
+            // Cr.Memo
+            GenJnlLine."Document Type" := GenJnlLine."Document Type"::" "
+        else
+            GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
+        GenJnlLine.Validate("Account No.", VendLedgEntry."Vendor No.");
+        GenJnlLine.Validate("Currency Code", VendLedgEntry."Currency Code");
+        VendLedgEntry.CalcFields("Remaining Amount");
 
-            if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(GenJnlLine, VendLedgEntry, 0, false) then
-                Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
-            else
-                Amount := -VendLedgEntry."Remaining Amount";
-            Validate(Amount);
-        end;
+        if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(GenJnlLine, VendLedgEntry, 0, false) then
+            GenJnlLine.Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
+        else
+            GenJnlLine.Amount := -VendLedgEntry."Remaining Amount";
+        GenJnlLine.Validate(Amount);
 
         if UsePriority then
             PayableVendLedgEntry.Priority := Vendor.Priority
@@ -465,77 +461,76 @@ report 15000001 "Suggest Remittance Payments"
         TempVendorPaymentBuffer.SetCurrentKey("Document No.");
         if TempVendorPaymentBuffer.Find('-') then
             repeat
-                with GenJnlLine do begin
-                    Init();
-                    Window.Update(1, TempVendorPaymentBuffer."Vendor No.");
-                    LastLineNo := LastLineNo + 10000;
-                    "Line No." := LastLineNo;
+                GenJnlLine.Init();
+                Window.Update(1, TempVendorPaymentBuffer."Vendor No.");
+                LastLineNo := LastLineNo + 10000;
+                GenJnlLine."Line No." := LastLineNo;
 
-                    VendLedgEntry2.Get(TempVendorPaymentBuffer."Vendor Ledg. Entry No.");
-                    Validate("Posting Date", CalcPostingdate(VendLedgEntry2));
-                    if VendLedgEntry2.Positive then begin // Cr.Memo
-                        "Document Type" := "Document Type"::" ";
-                        StartText := Text15000000;
-                    end else begin
-                        "Document Type" := "Document Type"::Payment;
-                        StartText := Text15000001;
-                    end;
-
-                    "Posting No. Series" := GenJnlBatch."Posting No. Series";
-                    if (TempVendorPaymentBuffer."Vendor No." = OldTempVendorPaymentBuffer."Vendor No.") and
-                       (TempVendorPaymentBuffer."Currency Code" = OldTempVendorPaymentBuffer."Currency Code")
-                    then
-                        "Document No." := OldTempVendorPaymentBuffer."Document No."
-                    else begin
-                        "Document No." := NextDocNo;
-                        NextDocNo := IncStr(NextDocNo);
-                        OldTempVendorPaymentBuffer := TempVendorPaymentBuffer;
-                        OldTempVendorPaymentBuffer."Document No." := "Document No.";
-                    end;
-                    "Account Type" := "Account Type"::Vendor;
-                    Validate("Account No.", TempVendorPaymentBuffer."Vendor No.");
-                    "Bal. Account Type" := BalAccType;
-                    Validate("Bal. Account No.", BalAccNo);
-                    Validate("Currency Code", TempVendorPaymentBuffer."Currency Code");
-                    "Bank Payment Type" := BankPmtType;
-
-                    VendLedgEntry2.Get(TempVendorPaymentBuffer."Vendor Ledg. Entry No.");
-                    // Find VendLedg.Entry. Need "External Document No."
-                    Description :=
-                      CopyStr(
-                        StrSubstNo(
-                          Text15000002,
-                          StartText, VendLedgEntry2."Document Type", VendLedgEntry2."Document No.",
-                          VendLedgEntry2."External Document No."), 1, MaxStrLen(Description));
-                    Vend3.Get(VendLedgEntry2."Vendor No.");
-                    Validate("Remittance Account Code", Vend3."Remittance Account Code");
-                    Validate("Payment Due Date", VendLedgEntry2."Due Date");
-                    Validate("External Document No.", VendLedgEntry2."External Document No.");
-
-                    "Shortcut Dimension 1 Code" := TempVendorPaymentBuffer."Global Dimension 1 Code";
-                    "Shortcut Dimension 2 Code" := TempVendorPaymentBuffer."Global Dimension 2 Code";
-                    "Source Code" := GenJnlTemplate."Source Code";
-                    "Reason Code" := GenJnlBatch."Reason Code";
-                    "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
-                    "Bal. Account No." := '';
-                    Validate(Amount, TempVendorPaymentBuffer.Amount);
-                    "Applies-to Doc. Type" := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type";
-                    "Applies-to Doc. No." := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No.";
-                    RemTools.CreateJournalData(GenJnlLine, VendLedgEntry2);
-                    "Payment Type Code Abroad" := VendLedgEntry2."Payment Type Code Abroad";
-                    "Specification (Norges Bank)" := VendLedgEntry2."Specification (Norges Bank)";
-
-                    "Dimension Set ID" := TempVendorPaymentBuffer."Dimension Set ID";
-                    UpdateDimensions(GenJnlLine);
-#if not CLEAN22
-                    TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
-                    OnBeforeGenJnlLineInsert(GenJnlLine, TempPaymentBuffer);
-                    TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
-#endif
-                    OnBeforeGenJnlLineInsertVendorPaymentBuffer(GenJnlLine, TempVendorPaymentBuffer);
-                    Insert();
-                    GenJnlLineInserted := true;
+                VendLedgEntry2.Get(TempVendorPaymentBuffer."Vendor Ledg. Entry No.");
+                GenJnlLine.Validate("Posting Date", CalcPostingdate(VendLedgEntry2));
+                if VendLedgEntry2.Positive then begin
+                    // Cr.Memo
+                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
+                    StartText := Text15000000;
+                end else begin
+                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+                    StartText := Text15000001;
                 end;
+
+                GenJnlLine."Posting No. Series" := GenJnlBatch."Posting No. Series";
+                if (TempVendorPaymentBuffer."Vendor No." = OldTempVendorPaymentBuffer."Vendor No.") and
+                   (TempVendorPaymentBuffer."Currency Code" = OldTempVendorPaymentBuffer."Currency Code")
+                then
+                    GenJnlLine."Document No." := OldTempVendorPaymentBuffer."Document No."
+                else begin
+                    GenJnlLine."Document No." := NextDocNo;
+                    NextDocNo := IncStr(NextDocNo);
+                    OldTempVendorPaymentBuffer := TempVendorPaymentBuffer;
+                    OldTempVendorPaymentBuffer."Document No." := GenJnlLine."Document No.";
+                end;
+                GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
+                GenJnlLine.Validate("Account No.", TempVendorPaymentBuffer."Vendor No.");
+                GenJnlLine."Bal. Account Type" := BalAccType;
+                GenJnlLine.Validate("Bal. Account No.", BalAccNo);
+                GenJnlLine.Validate("Currency Code", TempVendorPaymentBuffer."Currency Code");
+                GenJnlLine."Bank Payment Type" := BankPmtType;
+
+                VendLedgEntry2.Get(TempVendorPaymentBuffer."Vendor Ledg. Entry No.");
+                // Find VendLedg.Entry. Need "External Document No."
+                GenJnlLine.Description :=
+                  CopyStr(
+                    StrSubstNo(
+                      Text15000002,
+                      StartText, VendLedgEntry2."Document Type", VendLedgEntry2."Document No.",
+                      VendLedgEntry2."External Document No."), 1, MaxStrLen(GenJnlLine.Description));
+                Vend3.Get(VendLedgEntry2."Vendor No.");
+                GenJnlLine.Validate("Remittance Account Code", Vend3."Remittance Account Code");
+                GenJnlLine.Validate("Payment Due Date", VendLedgEntry2."Due Date");
+                GenJnlLine.Validate("External Document No.", VendLedgEntry2."External Document No.");
+
+                GenJnlLine."Shortcut Dimension 1 Code" := TempVendorPaymentBuffer."Global Dimension 1 Code";
+                GenJnlLine."Shortcut Dimension 2 Code" := TempVendorPaymentBuffer."Global Dimension 2 Code";
+                GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
+                GenJnlLine."Reason Code" := GenJnlBatch."Reason Code";
+                GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
+                GenJnlLine."Bal. Account No." := '';
+                GenJnlLine.Validate(Amount, TempVendorPaymentBuffer.Amount);
+                GenJnlLine."Applies-to Doc. Type" := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type";
+                GenJnlLine."Applies-to Doc. No." := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No.";
+                RemTools.CreateJournalData(GenJnlLine, VendLedgEntry2);
+                GenJnlLine."Payment Type Code Abroad" := VendLedgEntry2."Payment Type Code Abroad";
+                GenJnlLine."Specification (Norges Bank)" := VendLedgEntry2."Specification (Norges Bank)";
+
+                GenJnlLine."Dimension Set ID" := TempVendorPaymentBuffer."Dimension Set ID";
+                UpdateDimensions(GenJnlLine);
+#if not CLEAN22
+                TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
+                OnBeforeGenJnlLineInsert(GenJnlLine, TempPaymentBuffer);
+                TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
+#endif
+                OnBeforeGenJnlLineInsertVendorPaymentBuffer(GenJnlLine, TempVendorPaymentBuffer);
+                GenJnlLine.Insert();
+                GenJnlLineInserted := true;
             until TempVendorPaymentBuffer.Next() = 0;
     end;
 
@@ -623,15 +618,13 @@ report 15000001 "Suggest Remittance Payments"
         DimSetID: Integer;
         DimSetIDArr: array[10] of Integer;
     begin
-        with GenJnlLine do begin
-            DimSetID := "Dimension Set ID";
-            CreateDimFromDefaultDim(FieldNo("Account No."));
-            if DimSetID <> "Dimension Set ID" then begin
-                DimSetIDArr[1] := "Dimension Set ID";
-                DimSetIDArr[2] := DimSetID;
-                "Dimension Set ID" :=
-                  DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            end;
+        DimSetID := GenJnlLine."Dimension Set ID";
+        GenJnlLine.CreateDimFromDefaultDim(GenJnlLine.FieldNo("Account No."));
+        if DimSetID <> GenJnlLine."Dimension Set ID" then begin
+            DimSetIDArr[1] := GenJnlLine."Dimension Set ID";
+            DimSetIDArr[2] := DimSetID;
+            GenJnlLine."Dimension Set ID" :=
+              DimMgt.GetCombinedDimensionSetID(DimSetIDArr, GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code");
         end;
     end;
 

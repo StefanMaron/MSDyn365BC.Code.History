@@ -8,6 +8,7 @@ table 259 "Transport Method"
 {
     Caption = 'Transport Method';
     LookupPageID = "Transport Methods";
+    DataClassification = CustomerContent;
 
     fields
     {

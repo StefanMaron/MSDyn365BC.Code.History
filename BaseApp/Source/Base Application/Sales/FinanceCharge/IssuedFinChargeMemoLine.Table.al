@@ -13,6 +13,7 @@ using Microsoft.Utilities;
 table 305 "Issued Fin. Charge Memo Line"
 {
     Caption = 'Issued Fin. Charge Memo Line';
+    DataClassification = CustomerContent;
 
     fields
     {

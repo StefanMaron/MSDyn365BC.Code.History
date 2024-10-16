@@ -11,7 +11,7 @@ report 9000 "Add/Subtract Permission Set"
     {
         dataitem(SourcePermissionSet; "Aggregate Permission Set")
         {
-            DataItemTableView = sorting(Scope, "App ID", "Role ID") order(Ascending);
+            DataItemTableView = sorting(Scope, "App ID", "Role ID") order(ascending);
 
             trigger OnAfterGetRecord()
             var

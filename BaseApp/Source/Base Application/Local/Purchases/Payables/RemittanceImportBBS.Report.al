@@ -136,7 +136,6 @@ report 15000063 "Remittance - Import (BBS)"
         CurrentJournal: Record "Gen. Journal Line";
         PaymentOrderData: Record "Payment Order Data";
         PaymentOrderData2: Record "Payment Order Data" temporary;
-        NoSeriesControl: Codeunit NoSeriesManagement;
         RemTools: Codeunit "Remittance Tools";
         FileMgt: Codeunit "File Management";
         TxtFile: File;
@@ -307,12 +306,23 @@ report 15000063 "Remittance - Import (BBS)"
     end;
 
     local procedure FindDocumentNo(PostDate: Date)
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if CreateNewDocumentNo then begin
-            Clear(NoSeriesControl);
             TransDocumentNo := '';
-            NoSeriesControl.InitSeries(
-              RemAccount."Document No. Series", '', PostDate, TransDocumentNo, RemAccount."Document No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RemAccount."Document No. Series", '', PostDate, TransDocumentNo, RemAccount."Document No. Series", IsHandled);
+            if not IsHandled then
+#endif
+                TransDocumentNo := NoSeries.GetNextNo(RemAccount."Document No. Series", PostDate);
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RemAccount."Document No. Series", RemAccount."Document No. Series", PostDate, TransDocumentNo);
+#endif
             CreateNewDocumentNo := false;
         end;
         // TransDocumentNo is now current Document no.

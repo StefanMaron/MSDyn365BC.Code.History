@@ -88,9 +88,9 @@ codeunit 137414 "SCM Item Categories"
         CreateItemCategoryHierarchy(2);
 
         // [WHEN] The user
-        ItemCategories.OpenEdit;
+        ItemCategories.OpenEdit();
         ExpandTreeStructure(ItemCategories);
-        ItemCategories.First;
+        ItemCategories.First();
         ItemCategories.Next();
         SecondItemCategory.Get(ItemCategories.Code.Value);
         ItemCategoryCard.Trap();
@@ -143,9 +143,9 @@ codeunit 137414 "SCM Item Categories"
         CreateItemCategoryHierarchy(2);
 
         // [WHEN] The user try to set a parent category to one of its children
-        ItemCategories.OpenEdit;
+        ItemCategories.OpenEdit();
         ExpandTreeStructure(ItemCategories);
-        ItemCategories.First;
+        ItemCategories.First();
         FirstItemCategory.Get(ItemCategories.Code.Value);
         ItemCategories.Next();
         SecondItemCategory.Get(ItemCategories.Code.Value);
@@ -210,8 +210,8 @@ codeunit 137414 "SCM Item Categories"
         LastItemCategory.Rename(NewItemCategoryCode);
 
         // [THEN] the last item should be shown at the beginning of the list and the tree structure should be reserved
-        ItemCategories.OpenEdit;
-        ItemCategories.First;
+        ItemCategories.OpenEdit();
+        ItemCategories.First();
         Assert.AreEqual(
           NewItemCategoryCode, ItemCategories.Code.Value, StrSubstNo(RenamingErr, ItemCategories.Code.Value, NewItemCategoryCode));
         CheckItemCategoryTreePresentation();
@@ -239,7 +239,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories.Edit().Invoke();
         LibraryVariableStorage.Enqueue(StrSubstNo(DeleteQst, ItemCategories.Code));
         LibraryVariableStorage.Enqueue(true);
-        ItemCategoryCard.Delete.Invoke;
+        ItemCategoryCard.Delete.Invoke();
 
         // [THEN] the item category should be deleted and the tree structure should be reserved
         Assert.IsFalse(ItemCategories.GotoRecord(ItemCategory), StrSubstNo(CategoryNotDeletedErr, ItemCategory.Code));
@@ -295,8 +295,8 @@ codeunit 137414 "SCM Item Categories"
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, '');
 
         // [THEN] the item attribute should show in the card and in the factbox
-        ItemCategories.OpenView;
-        ItemCategories.ItemAttributesFactbox.First;
+        ItemCategories.OpenView();
+        ItemCategories.ItemAttributesFactbox.First();
         ItemCategories.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCategories.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
         ItemCategories.ItemAttributesFactbox.Last();
@@ -343,8 +343,8 @@ codeunit 137414 "SCM Item Categories"
         FirstItemAttributeValue.Delete();
 
         // [THEN] the item attribute should show in the card and in the factbox
-        ItemCategories.OpenView;
-        ItemCategories.ItemAttributesFactbox.First;
+        ItemCategories.OpenView();
+        ItemCategories.ItemAttributesFactbox.First();
         ItemCategories.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCategories.ItemAttributesFactbox.Value.AssertEquals('');
 
@@ -420,10 +420,10 @@ codeunit 137414 "SCM Item Categories"
         AssignItemAttributeValueToCategory(ChildItemCategory, LastItemAttribute, '');
 
         // [THEN] the inherited attributes should show in the card and in the factbox
-        ItemCategories.OpenView;
+        ItemCategories.OpenView();
         ExpandTreeStructure(ItemCategories);
         ItemCategories.GotoRecord(ChildItemCategory);
-        ItemCategories.ItemAttributesFactbox.First;
+        ItemCategories.ItemAttributesFactbox.First();
         ItemCategories.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCategories.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
 
@@ -431,9 +431,9 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCategories.ItemAttributesFactbox.Value.AssertEquals('');
 
-        ItemCategoryCard.OpenView;
+        ItemCategoryCard.OpenView();
         ItemCategoryCard.GotoRecord(ChildItemCategory);
-        ItemCategoryCard.Attributes.First;
+        ItemCategoryCard.Attributes.First();
         Assert.AreEqual(FirstItemAttribute.Name, ItemCategoryCard.Attributes."Attribute Name".Value, '');
         Assert.AreEqual(FirstItemAttributeValue.Value, ItemCategoryCard.Attributes.Value.Value, '');
         Assert.AreEqual(FirstItemCategory.Code, ItemCategoryCard.Attributes."Inherited-From Key Value".Value, '');
@@ -477,9 +477,9 @@ codeunit 137414 "SCM Item Categories"
         AssignItemAttributeValueToCategory(SecondItemCategory, LastItemAttribute, '');
 
         // [THEN] the inherited attributes should be updated in the card when you change the parent
-        ItemCategoryCard.OpenEdit;
+        ItemCategoryCard.OpenEdit();
         ItemCategoryCard.GotoRecord(ChildItemCategory);
-        ItemCategoryCard.Attributes.First;
+        ItemCategoryCard.Attributes.First();
         Assert.AreEqual(FirstItemAttribute.Name, ItemCategoryCard.Attributes."Attribute Name".Value, '');
         Assert.AreEqual(FirstItemCategory.Code, ItemCategoryCard.Attributes."Inherited-From Key Value".Value, '');
 
@@ -487,7 +487,7 @@ codeunit 137414 "SCM Item Categories"
           StrSubstNo(DeleteItemInheritedParentCategoryAttributesQst, ItemCategoryCard.Code.Value, ItemCategoryCard."Parent Category".Value));
         LibraryVariableStorage.Enqueue(true);
         ItemCategoryCard."Parent Category".SetValue(SecondItemCategory.Code);
-        ItemCategoryCard.Attributes.First;
+        ItemCategoryCard.Attributes.First();
         Assert.AreEqual(LastItemAttribute.Name, ItemCategoryCard.Attributes."Attribute Name".Value, '');
         Assert.AreEqual(SecondItemCategory.Code, ItemCategoryCard.Attributes."Inherited-From Key Value".Value, '');
     end;
@@ -566,12 +566,12 @@ codeunit 137414 "SCM Item Categories"
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(ChildItemCategory, LastItemAttribute, LastItemAttributeValue);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
         ItemCard."Item Category Code".SetValue(ChildItemCategory.Code);
 
         // [THEN] the inherited attributes should show in the card and in the factbox
-        ItemCard.ItemAttributesFactbox.First;
+        ItemCard.ItemAttributesFactbox.First();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
         ItemCard.ItemAttributesFactbox.Next();
@@ -614,12 +614,12 @@ codeunit 137414 "SCM Item Categories"
 
         SetItemAttributeValue(Item, LastItemAttributeValue);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
         ItemCard."Item Category Code".SetValue(FirstItemCategory.Code);
 
         // [THEN] the inherited attributes should show in the card and in the factbox
-        ItemCard.ItemAttributesFactbox.First;
+        ItemCard.ItemAttributesFactbox.First();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(LastItemAttributeValue.Value);
         ItemCard.ItemAttributesFactbox.Next();
@@ -674,10 +674,10 @@ codeunit 137414 "SCM Item Categories"
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, LastItemAttributeValue);
 
         // [THEN] Both attributes "X1" and "X2" with their values "Y1" and "Y2" are assigned to items "I1", "I2", "I3".
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         for i := 1 to ArrayLen(Item) do begin
             ItemCard.GotoRecord(Item[i]);
-            ItemCard.ItemAttributesFactbox.First;
+            ItemCard.ItemAttributesFactbox.First();
             ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
             ItemCard.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
             ItemCard.ItemAttributesFactbox.Next();
@@ -719,7 +719,7 @@ codeunit 137414 "SCM Item Categories"
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, LastItemAttributeValue);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
         ItemCard."Item Category Code".SetValue(FirstItemCategory.Code);
         ItemCard.Close();
@@ -729,9 +729,9 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeManagement.DeleteCategoryItemsAttributeValueMapping(FirstItemAttributeValue, FirstItemCategory.Code);
 
         // [THEN] the inherited attributes should show in the card and in the factbox
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(Item);
-        ItemCard.ItemAttributesFactbox.First;
+        ItemCard.ItemAttributesFactbox.First();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(LastItemAttributeValue);
     end;
@@ -771,7 +771,7 @@ codeunit 137414 "SCM Item Categories"
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, '');
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(FirstItem);
         ItemCard."Item Category Code".SetValue(FirstItemCategory.Code);
         ItemCard.Close();
@@ -783,15 +783,15 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard.Attributes.Value.SetValue(LastItemAttributeValue);
         ItemCategoryCard.Close();
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(SecondItem);
         ItemCard."Item Category Code".SetValue(FirstItemCategory.Code);
         ItemCard.Close();
 
         // [THEN] the inherited attributes should show in the card and in the factbox
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(FirstItem);
-        ItemCard.ItemAttributesFactbox.First;
+        ItemCard.ItemAttributesFactbox.First();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
         ItemCard.ItemAttributesFactbox.Next();
@@ -799,7 +799,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.ItemAttributesFactbox.Value.AssertEquals('');
 
         ItemCard.GotoRecord(SecondItem);
-        ItemCard.ItemAttributesFactbox.First;
+        ItemCard.ItemAttributesFactbox.First();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
         ItemCard.ItemAttributesFactbox.Next();
@@ -846,12 +846,12 @@ codeunit 137414 "SCM Item Categories"
         AssignItemAttributeValueToCategory(FirstParentItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(SecondParentItemCategory, LastItemAttribute, LastItemAttributeValue);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
         ItemCard."Item Category Code".SetValue(ChildItemCategory.Code);
         ItemCard.Close();
 
-        ItemCategoryCard.OpenEdit;
+        ItemCategoryCard.OpenEdit();
         ItemCategoryCard.GotoRecord(ChildItemCategory);
         LibraryVariableStorage.Enqueue(
           StrSubstNo(DeleteItemInheritedParentCategoryAttributesQst, ChildItemCategory.Code, FirstParentItemCategory.Code));
@@ -860,9 +860,9 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard.Close();
 
         // [THEN] the inherited attributes should show in the card and in the factbox
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(Item);
-        ItemCard.ItemAttributesFactbox.First;
+        ItemCard.ItemAttributesFactbox.First();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(LastItemAttributeValue);
     end;
@@ -904,12 +904,12 @@ codeunit 137414 "SCM Item Categories"
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(SecondItemCategory, LastItemAttribute, LastItemAttributeValue);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(FirstItem);
         ItemCard."Item Category Code".SetValue(FirstItemCategory.Code);
         ItemCard.Close();
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(FirstItem);
         LibraryVariableStorage.Enqueue(StrSubstNo(DeleteAttributesInheritedFromOldCategoryQst, FirstItemCategory.Code));
         LibraryVariableStorage.Enqueue(true);
@@ -919,9 +919,9 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.Close();
 
         // [THEN] the inherited attributes should show in the card and in the factbox
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(FirstItem);
-        ItemCard.ItemAttributesFactbox.First;
+        ItemCard.ItemAttributesFactbox.First();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(LastItemAttributeValue);
     end;
@@ -1045,9 +1045,9 @@ codeunit 137414 "SCM Item Categories"
 
         // [WHEN] Assign blank decimal attribute '' to Item
         LibraryVariableStorage.Enqueue(ItemAttribute.Name);
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
-        ItemList.Attributes.Invoke;
+        ItemList.Attributes.Invoke();
 
         // [THEN] Item is mapped with blank "Item Attribute Value" with "ID" = 2
         FilterItemAttributeValueMapping(ItemAttributeValueMapping, DATABASE::Item, Item."No.", ItemAttribute.ID);
@@ -1079,7 +1079,7 @@ codeunit 137414 "SCM Item Categories"
         SetItemCategoryAttributeValue(ItemCategory, ItemAttributeName, AttributeTextValue);
 
         // [WHEN] "CAT" is selected on "Item Categories Page".
-        ItemCategories.OpenView;
+        ItemCategories.OpenView();
         ItemCategories.GotoRecord(ItemCategory);
 
         // [THEN] ItemAttributesFactbox shows "AAA" with Name and Value with Unit of Measure.
@@ -1112,7 +1112,7 @@ codeunit 137414 "SCM Item Categories"
         SetItemCategoryAttributeValue(ItemCategory, ItemAttributeName, AttributeTextValue);
 
         // [WHEN] When "Item" is selected on "Item List" Page.
-        ItemList.OpenView;
+        ItemList.OpenView();
         ItemList.GotoRecord(Item);
 
         // [THEN] ItemAttributesFactbox displays "AAA" with Name and Value with Unit of Measure.
@@ -1146,9 +1146,9 @@ codeunit 137414 "SCM Item Categories"
         SetItemCategoryAttributeValue(ItemCategory, ItemAttributeName, AttributeTextValue);
 
         // [WHEN] "Item Attribute Values" page is opened from "Item List" page.
-        ItemList.OpenView;
+        ItemList.OpenView();
         ItemList.GotoRecord(Item);
-        ItemList.Attributes.Invoke;
+        ItemList.Attributes.Invoke();
         ItemList.Close();
 
         // [THEN] "Item Attribute Values" page is populated with "AAA" Name and Value via the ItemAttributeValueEditorWithVerificationHandler.
@@ -1578,7 +1578,7 @@ codeunit 137414 "SCM Item Categories"
         RestoredItemsQty := LibraryVariableStorage.DequeueInteger();
         Assert.AreEqual(3, RestoredItemsQty, 'Expected items in ItemList lookup page (when the attribute filter is cleared) = 3');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NameValueBuffer.DeleteAll();
     end;
 
@@ -1940,7 +1940,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategory.Code := NewCode;
         ItemCategory.Insert(true);
 
-        ItemCategories.OpenView;
+        ItemCategories.OpenView();
         ItemCategories.First();
         ItemCategories.Code.AssertEquals(NewCode);
 
@@ -1982,7 +1982,7 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ItemAttributeValueID);
         Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2019,7 +2019,7 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ItemAttributeValueID);
         Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2061,7 +2061,7 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ItemAttributeValueID);
         Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2103,7 +2103,7 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ItemAttributeValueID);
         Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2224,12 +2224,12 @@ codeunit 137414 "SCM Item Categories"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
         ItemAttributeValue.CalcFields("Attribute Name");
         LibraryVariableStorage.Enqueue(ItemAttributeValue."Attribute Name");
         LibraryVariableStorage.Enqueue(ItemAttributeValue.Value);
-        ItemCard.Attributes.Invoke;
+        ItemCard.Attributes.Invoke();
     end;
 
     local procedure SetItemCategoryWithAttributeDefaultValueOnItem(var Item: Record Item; ItemAttributeID: Integer): Integer
@@ -2285,7 +2285,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard.Code.SetValue(ItemCategoryCode);
         ItemCategoryCard.Description.SetValue(Format(ItemCategoryCode + ItemCategoryCode));
         ItemCategoryCard."Parent Category".SetValue(ParentCategory);
-        ItemCategoryCard.OK.Invoke;
+        ItemCategoryCard.OK().Invoke();
     end;
 
     local procedure CreateItemCategoryRec(var ItemCategory: Record "Item Category"; ParentCategoryCode: Code[20])
@@ -2455,9 +2455,9 @@ codeunit 137414 "SCM Item Categories"
         FirstAttributeValueName: Text;
         SecondAttributeValueName: Text;
     begin
-        ItemAttributeValues.Trap;
-        ItemAttributes.ItemAttributeValues.Invoke;
-        ItemAttributeValues.First;
+        ItemAttributeValues.Trap();
+        ItemAttributes.ItemAttributeValues.Invoke();
+        ItemAttributeValues.First();
         FirstAttributeValueName := LibraryUtility.GenerateGUID();
         ItemAttributeValues.Value.SetValue(FirstAttributeValueName);
         ItemAttributeValues.Next();
@@ -2554,9 +2554,9 @@ codeunit 137414 "SCM Item Categories"
         PreviousItemCategory: Record "Item Category";
         ItemCategories: TestPage "Item Categories";
     begin
-        ItemCategories.OpenView;
+        ItemCategories.OpenView();
         ExpandTreeStructure(ItemCategories);
-        ItemCategories.First;
+        ItemCategories.First();
         repeat
             ItemCategory.Get(ItemCategories.Code.Value);
             if ItemCategory.Indentation = PreviousItemCategory.Indentation then
@@ -2680,13 +2680,13 @@ codeunit 137414 "SCM Item Categories"
     begin
         LibraryVariableStorage.Enqueue(CountItemsFilteredOnPage(ItemList));
 
-        ItemList.FilterByAttributes.Invoke;
+        ItemList.FilterByAttributes.Invoke();
         LibraryVariableStorage.Enqueue(CountItemsFilteredOnPage(ItemList));
 
-        ItemList.ClearAttributes.Invoke;
+        ItemList.ClearAttributes.Invoke();
         LibraryVariableStorage.Enqueue(CountItemsFilteredOnPage(ItemList));
 
-        ItemList.OK.Invoke;
+        ItemList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2695,11 +2695,11 @@ codeunit 137414 "SCM Item Categories"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        FilterItemsbyAttribute.First;
+        FilterItemsbyAttribute.First();
         NameValueBuffer.FindFirst();
         FilterItemsbyAttribute.Attribute.SetValue := NameValueBuffer.Name;
         FilterItemsbyAttribute.Value.SetValue := NameValueBuffer.Value;
-        FilterItemsbyAttribute.OK.Invoke;
+        FilterItemsbyAttribute.OK().Invoke();
     end;
 }
 

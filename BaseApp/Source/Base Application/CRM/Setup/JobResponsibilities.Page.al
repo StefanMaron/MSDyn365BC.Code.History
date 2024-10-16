@@ -57,7 +57,7 @@ page 5080 "Job Responsibilities"
         {
             group("&Job Responsibility")
             {
-                Caption = '&Job Responsibility';
+                Caption = '&Job responsibility';
                 Image = Job;
                 action("C&ontacts")
                 {

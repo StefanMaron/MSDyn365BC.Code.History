@@ -26,7 +26,9 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the credit memo number.';
                 }
+#pragma warning disable AA0100
                 field("PurchCrMemoHeader.""Posting Date"""; PurchCrMemoHeader."Posting Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Caption = 'Posting Date';
@@ -153,14 +155,18 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
                     Caption = 'Line Amount';
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
+#pragma warning disable AA0100
                 field("PurchCrMemoHeader.""Currency Code"""; PurchCrMemoHeader."Currency Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Currency Code';
                     ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("PurchCrMemoHeader.""Prices Including VAT"""; PurchCrMemoHeader."Prices Including VAT")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Prices Including VAT';
@@ -194,7 +200,7 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
@@ -369,15 +375,13 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
 
     local procedure IsShowRec(PurchCrMemoLine2: Record "Purch. Cr. Memo Line") Result: Boolean
     begin
-        with PurchCrMemoLine2 do begin
-            if "Document No." <> PurchCrMemoHeader."No." then
-                PurchCrMemoHeader.Get("Document No.");
-            if PurchCrMemoHeader."Prepayment Credit Memo" then
-                exit(false);
+        if PurchCrMemoLine2."Document No." <> PurchCrMemoHeader."No." then
+            PurchCrMemoHeader.Get(PurchCrMemoLine2."Document No.");
+        if PurchCrMemoHeader."Prepayment Credit Memo" then
+            exit(false);
 
-            Result := true;
-            OnAfterIsShowRec(PurchCrMemoLine2, Result);
-        end;
+        Result := true;
+        OnAfterIsShowRec(PurchCrMemoLine2, Result);
     end;
 
     procedure GetSelectedLine(var FromPurchCrMemoLine: Record "Purch. Cr. Memo Line")

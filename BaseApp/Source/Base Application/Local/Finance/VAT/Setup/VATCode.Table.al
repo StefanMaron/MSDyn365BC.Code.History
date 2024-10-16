@@ -16,6 +16,7 @@ table 10602 "VAT Code"
     ObsoleteState = Pending;
     ObsoleteTag = '23.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

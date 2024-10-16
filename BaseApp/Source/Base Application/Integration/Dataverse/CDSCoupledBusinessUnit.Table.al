@@ -9,6 +9,7 @@ table 7201 "CDS Coupled Business Unit"
     Access = Internal;
     Caption = 'Dataverse Coupled Business Unit';
     DataPerCompany = false;
+    DataClassification = CustomerContent;
 
     fields
     {

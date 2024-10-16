@@ -506,6 +506,7 @@ codeunit 144130 "Remittance - Test Report"
         if isInitialized then
             exit;
 
+        LibraryERM.SetEnableDataCheck(false);
         isInitialized := true;
         NoErrorsExpected := 0;
         LineErrorElementName := 'ErrorTextNumber_ErrorLoopPayment';
@@ -589,11 +590,11 @@ codeunit 144130 "Remittance - Test Report"
         // Cannot run report if there are transactions pending        
         Commit();
 
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
 
         // Invoke test action
-        PaymentJournal.TestReport.Invoke;
+        PaymentJournal.TestReport.Invoke();
     end;
 
     [RequestPageHandler]
@@ -601,14 +602,14 @@ codeunit 144130 "Remittance - Test Report"
     procedure RemittanceTestReportHandler(var RemittanceTestReport: TestRequestPage "Remittance Test Report")
     begin
         RemittanceTestReport.ShowPaymentInfo.SetValue(true);
-        RemittanceTestReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RemittanceTestReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VerifyNoOfErrorsInTestReport(ExpectedNumberOfErrors: Integer)
     var
         ErrorsCount: Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ErrorsCount :=
           CountErrorsInTestReportDataset(LineErrorElementName) + CountErrorsInTestReportDataset(TransactionErrorElementName);
         Assert.AreEqual(ExpectedNumberOfErrors, ErrorsCount, 'Wrong nubmer of errors found');
@@ -629,7 +630,7 @@ codeunit 144130 "Remittance - Test Report"
         Count := 0;
         LibraryReportDataset.Reset();
 
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             if LibraryReportDataset.CurrentRowHasElement(ElementName) then begin
                 LibraryReportDataset.GetElementValueInCurrentRow(ElementName, NotificationTextVariant);
                 NotificationText := NotificationTextVariant;

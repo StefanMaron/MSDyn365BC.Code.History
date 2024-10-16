@@ -37,7 +37,7 @@ codeunit 144181 "ERM NO KID Reports"
         Initialize();
 
         // [GIVEN] Sales Setup has settings in KID Setup
-        ResetSalesSetupKID;
+        ResetSalesSetupKID();
 
         // [GIVEN] Posted Sales Invoice
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -48,7 +48,7 @@ codeunit 144181 "ERM NO KID Reports"
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] KundeID and KundeIDCaption are printed in the report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('KundeIDCaption', '');
         LibraryReportDataset.AssertElementWithValueExists('KundeID', '');
     end;
@@ -65,10 +65,10 @@ codeunit 144181 "ERM NO KID Reports"
         // [FEATURE] [Finance Charge Memo]
         // [SCENARIO 332472] Finance Charge Memo printing without Kunde ID
         Initialize();
-        ResetSalesSetupKID;
+        ResetSalesSetupKID();
 
         // [GIVEN] Issued Finance Charge Memo for a Customer
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
         FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
         IssuedFinChargeMemoNo := IssueAndGetFinChargeMemoNo(FinChargeMemoNo);
 
@@ -92,10 +92,10 @@ codeunit 144181 "ERM NO KID Reports"
         // [FEATURE] [Reminder]
         // [SCENARIO 332472] Reminder report printing without Kunde ID
         Initialize();
-        ResetSalesSetupKID;
+        ResetSalesSetupKID();
 
         // [GIVEN] Issued Reminder
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
         ReminderNo := CreateReminder(GenJournalLine."Document No.", GenJournalLine."Account No.");
         IssuedReminderNo := IssueReminderAndGetIssuedNo(ReminderNo);
 
@@ -123,10 +123,10 @@ codeunit 144181 "ERM NO KID Reports"
         Initialize();
 
         // [GIVEN] Sales Setup has settings in KID Setup
-        UpdateSalesSetupKID;
+        UpdateSalesSetupKID();
 
         // [GIVEN] Issued Finance Charge Memo for a Customer
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
         FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
         IssuedFinChargeMemoNo := IssueAndGetFinChargeMemoNo(FinChargeMemoNo);
 
@@ -152,10 +152,10 @@ codeunit 144181 "ERM NO KID Reports"
         Initialize();
 
         // [GIVEN] Sales Setup has settings in KID Setup
-        UpdateSalesSetupKID;
+        UpdateSalesSetupKID();
 
         // [GIVEN] Issued Reminder
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
         ReminderNo := CreateReminder(GenJournalLine."Document No.", GenJournalLine."Account No.");
         IssuedReminderNo := IssueReminderAndGetIssuedNo(ReminderNo);
 
@@ -182,7 +182,7 @@ codeunit 144181 "ERM NO KID Reports"
         Initialize();
 
         // [GIVEN] Sales Setup has settings in KID Setup
-        UpdateSalesSetupKID;
+        UpdateSalesSetupKID();
 
         // [GIVEN] Posted Sales Invoice
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -193,7 +193,7 @@ codeunit 144181 "ERM NO KID Reports"
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] KundeID and KundeIDCaption are printed in the report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('KundeIDCaption', KundeIDTxt);
         LibraryReportDataset.AssertElementWithValueExists(
           'KundeID', GetKundeID(1, SalesInvoiceHeader."No.", SalesInvoiceHeader."Bill-to Customer No."));
@@ -255,7 +255,7 @@ codeunit 144181 "ERM NO KID Reports"
             exit;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibrarySetupStorage.SaveSalesSetup;
+        LibrarySetupStorage.SaveSalesSetup();
         IsInitialized := true;
     end;
 
@@ -295,7 +295,7 @@ codeunit 144181 "ERM NO KID Reports"
         ReminderLevel.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", ReminderLevel."Reminder Terms Code");
-        Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms);
+        Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -339,7 +339,7 @@ codeunit 144181 "ERM NO KID Reports"
         ReminderHeader.Validate("Document Date", DocumentDate);
         ReminderHeader.Modify(true);
         ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgEntryLineFeeOn);
-        ReminderMake.Code;
+        ReminderMake.Code();
         exit(ReminderHeader."No.");
     end;
 
@@ -382,10 +382,10 @@ codeunit 144181 "ERM NO KID Reports"
     local procedure IssueAndGetFinChargeMemoNo(No: Code[20]) IssuedDocNo: Code[20]
     var
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         FinanceChargeMemoHeader.Get(No);
-        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate(), false);
+        IssuedDocNo := NoSeries.PeekNextNo(FinanceChargeMemoHeader."Issuing No. Series");
         IssueFinChargeMemo(FinanceChargeMemoHeader);
     end;
 
@@ -408,10 +408,10 @@ codeunit 144181 "ERM NO KID Reports"
     local procedure IssueReminderAndGetIssuedNo(ReminderNo: Code[20]) IssuedReminderNo: Code[20]
     var
         ReminderHeader: Record "Reminder Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         ReminderHeader.Get(ReminderNo);
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
+        IssuedReminderNo := NoSeries.PeekNextNo(ReminderHeader."Issuing No. Series");
         IssueReminder(ReminderHeader);
     end;
 
@@ -456,12 +456,12 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         GeneralLedgerSetup.Get();
         LineAmount := FindFinChargeMemoLine(IssuedFinChargeMemoLine, No, IssuedFinChargeMemoLine.Type::"Customer Ledger Entry");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('KundeIDCaption', KundeIDCaption);
         LibraryReportDataset.AssertElementWithValueExists('KundeID', KundeID);
         LibraryReportDataset.SetRange('DocDt_IssuFinChrgMemoLine', Format(IssuedFinChargeMemoLine."Document Date"));
         Assert.IsTrue(
-          LibraryReportDataset.GetNextRow,
+          LibraryReportDataset.GetNextRow(),
           StrSubstNo(RowNotFoundErr, 'DocDate_IssuedFinChrgMemoLine', Format(IssuedFinChargeMemoLine."Document Date")));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_IssuFinChrgMemoLine', IssuedFinChargeMemoLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_IssuFinChrgMemoLine', IssuedFinChargeMemoLine.Amount);
@@ -469,7 +469,7 @@ codeunit 144181 "ERM NO KID Reports"
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Desc_IssuFinChrgMemoLine', AddnlFeeTxt);
         Assert.IsTrue(
-          LibraryReportDataset.GetNextRow,
+          LibraryReportDataset.GetNextRow(),
           StrSubstNo(RowNotFoundErr, 'Desc_IssuFinChrgMemoLine', AddnlFeeTxt));
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_IssuFinChrgMemoLine', IssuedFinChargeMemoLine.Amount);
         LibraryReportDataset.Reset();
@@ -485,12 +485,12 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         IssuedReminderLine.SetRange("Reminder No.", No);
         IssuedReminderLine.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('KundeIDCaption', KundeIDCaption);
         LibraryReportDataset.AssertElementWithValueExists('KundeID', KundeID);
         LibraryReportDataset.SetRange('DocDate_IssuedReminderLine', Format(IssuedReminderLine."Document Date"));
         Assert.IsTrue(
-          LibraryReportDataset.GetNextRow,
+          LibraryReportDataset.GetNextRow(),
           StrSubstNo(RowNotFoundErr, 'DocDate_IssuedReminderLine', Format(IssuedReminderLine."Document Date")));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_IssuedReminderLine', IssuedReminderLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt_IssuedReminderLine', IssuedReminderLine."Original Amount");
@@ -512,7 +512,7 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         LibraryVariableStorage.Dequeue(ReminderNo);
         Reminder."Issued Reminder Header".SetFilter("No.", ReminderNo);
-        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -526,14 +526,14 @@ codeunit 144181 "ERM NO KID Reports"
         FinanceChargeMemo."Issued Fin. Charge Memo Header".SetFilter("No.", IssuedFinChargeMemoNo);
         FinanceChargeMemo.ShowInternalInformation.SetValue(false);
         FinanceChargeMemo.LogInteraction.SetValue(false);
-        FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceReqPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
-        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

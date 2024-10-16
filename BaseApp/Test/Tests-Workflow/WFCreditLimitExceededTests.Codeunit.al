@@ -33,7 +33,7 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
 
         LineAmount := LibraryRandom.RandIntInRange(1, 1000);
         CreateCustomerAndSalesLineAndExecuteWorkflow(
-          LineAmount, LineAmount / 10, WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode);
+          LineAmount, LineAmount / 10, WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -51,7 +51,7 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
 
         LineAmount := LibraryRandom.RandIntInRange(1, 1000);
         CreateCustomerAndSalesLineAndExecuteWorkflow(LineAmount, LineAmount * 10,
-          WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode);
+          WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
     end;
 
     [Test]
@@ -68,7 +68,7 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
 
         LineAmount := LibraryRandom.RandIntInRange(1, 1000);
         CreateCustomerAndSalesLineAndExecuteWorkflow(LineAmount, 0,
-          WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode);
+          WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
     end;
 
     local procedure CreateCustomerAndSalesLineAndExecuteWorkflow(LineAmount: Integer; CreditLimit: Decimal; WorkflowEvent: Code[128])
@@ -95,9 +95,9 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
 
         // Execute
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.SalesLines.GotoRecord(SalesLine);
         SalesInvoice.SalesLines."Unit Price".SetValue(LineAmount);

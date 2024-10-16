@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 table 10608 "Gen. Jnl. Line Reg. Rep. Code"
 {
     Caption = 'Gen. Jnl. Line Reg. Rep. Code';
+    DataClassification = CustomerContent;
 
     fields
     {

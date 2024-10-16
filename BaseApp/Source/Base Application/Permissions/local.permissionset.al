@@ -3,7 +3,6 @@ namespace System.Security.AccessControl;
 using Microsoft.EServices.EDocument;
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Purchases.Payables;
-using Microsoft;
 using Microsoft.Sales.Document;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.Reporting;
@@ -21,9 +20,6 @@ permissionset 1001 "LOCAL"
                   tabledata "OCR Setup" = RIMD,
                   tabledata "Payment Order Data" = RIMD,
                   tabledata "Payment Type Code Abroad" = RIMD,
-#if not CLEAN21
-                  tabledata "Payroll Integration Setup" = RIMD,
-#endif
                   tabledata "Recurring Group" = RIMD,
                   tabledata "Recurring Post" = RIMD,
                   tabledata "Regulatory Reporting Code" = RIMD,

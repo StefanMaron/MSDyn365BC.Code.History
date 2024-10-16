@@ -11,6 +11,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 table 15000100 "OCR Setup"
 {
     Caption = 'OCR Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

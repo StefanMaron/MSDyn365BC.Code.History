@@ -1,6 +1,7 @@
 table 132510 TestTableA
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

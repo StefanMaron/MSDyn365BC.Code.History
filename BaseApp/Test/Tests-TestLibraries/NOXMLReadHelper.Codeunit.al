@@ -98,7 +98,7 @@ codeunit 143001 "NO XML Read Helper"
         Actual: Text;
     begin
         GetAttributeFromElement(ElementName, AttributeName, Attribute);
-        Actual := Attribute.Value;
+        Actual := Attribute.Value();
         Assert.AreEqual(Expected, Actual,
           StrSubstNo('Unexpected value in xml file for Attribute <%1>', AttributeName));
     end;
@@ -240,7 +240,7 @@ codeunit 143001 "NO XML Read Helper"
     begin
         Attribute := Node.Attributes.GetNamedItem(AttributeName);
         Assert.IsFalse(IsNull(Attribute), StrSubstNo(MissingAttributeErr, AttributeName, Node.Name));
-        Actual := Attribute.Value;
+        Actual := Attribute.Value();
         Assert.AreEqual(AttributeExpectedValue, Actual, StrSubstNo(UnexpectedAttributeValueErr, AttributeName));
     end;
 

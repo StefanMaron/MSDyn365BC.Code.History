@@ -74,22 +74,20 @@ codeunit 10613 "E-Invoice Check Fin. Chrg.Memo"
         EmptyLineFound: Boolean;
     begin
         EmptyLineFound := false;
-        with FinChargeMemoLine do begin
-            Reset();
-            SetRange("Finance Charge Memo No.", FinChargeMemoHeader."No.");
-            if FindSet() then
-                repeat
-                    if Description = '' then
-                        if (Type <> Type::" ") and ("No." <> '') then
-                            Error(EmptyDescErr, "Finance Charge Memo No.");
-                    if (Type = Type::" ") or ("No." = '') then
-                        EmptyLineFound := true;
-                until (Next() = 0);
+        FinChargeMemoLine.Reset();
+        FinChargeMemoLine.SetRange("Finance Charge Memo No.", FinChargeMemoHeader."No.");
+        if FinChargeMemoLine.FindSet() then
+            repeat
+                if FinChargeMemoLine.Description = '' then
+                    if (FinChargeMemoLine.Type <> FinChargeMemoLine.Type::" ") and (FinChargeMemoLine."No." <> '') then
+                        Error(EmptyDescErr, FinChargeMemoLine."Finance Charge Memo No.");
+                if (FinChargeMemoLine.Type = FinChargeMemoLine.Type::" ") or (FinChargeMemoLine."No." = '') then
+                    EmptyLineFound := true;
+            until (FinChargeMemoLine.Next() = 0);
 
-            if EmptyLineFound then
-                if not Confirm(EmptyFieldsQst, true, "Finance Charge Memo No.") then
-                    Error(InterruptedIssuanceErr);
-        end;
+        if EmptyLineFound then
+            if not Confirm(EmptyFieldsQst, true, FinChargeMemoLine."Finance Charge Memo No.") then
+                Error(InterruptedIssuanceErr);
     end;
 }
 

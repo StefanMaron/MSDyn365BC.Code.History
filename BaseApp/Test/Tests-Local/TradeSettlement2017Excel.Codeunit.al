@@ -49,7 +49,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         VerifyBoxVATBaseAndAmount(3, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
         // [THEN] Report has title "Trade settlement VAT" and all labels printed // TFS 263371
-        VerifyTradeSettlementReportLabels;
+        VerifyTradeSettlementReportLabels();
     end;
 
     [Test]
@@ -1102,7 +1102,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         RunTradeSettlement2017Report(VATEntry);
 
         // [THEN] The report shows the VAT Entry with blank "VAT Bus. Posting Group", VAT Amount = "X".
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueOnWorksheet(
           LibraryReportValidation.FindRowNoFromColumnNoAndValue(1, 'Total Sale'), 12,
           LibraryReportValidation.FormatDecimalValue(VATEntry.Amount), '1');
@@ -1151,9 +1151,9 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPct);
         with VATPostingSetup do begin
             Validate("VAT Settlement Rate", VATSettlementRate);
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
             Validate("Sale VAT Reporting Code", SalesVATReportingCode);
             Validate("Purch. VAT Reporting Code", PurchaseVATReportingCode);
             Modify(true);
@@ -1180,9 +1180,9 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPct);
         with VATPostingSetup do begin
             Validate("VAT Settlement Rate", VATSettlementRate);
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
             Validate("Sales VAT Reporting Code", SalesVATReportingCode);
             Validate("Purchase VAT Reporting Code", PurchaseVATReportingCode);
             Modify(true);
@@ -1291,7 +1291,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
 
     local procedure OpenExcel()
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         StartingRowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(1, ReportBoxALbl);
     end;
 
@@ -1416,7 +1416,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         TradeSettlement2017.SettlementYear.SetValue(Date2DMY(WorkDate(), 3));
         TradeSettlement2017.SettlementPeriod.SetValue(NorwegianVATTools.VATPeriodNo(WorkDate()));
         TradeSettlement2017.ExportXML.SetValue(false);
-        TradeSettlement2017.SaveAsExcel(LibraryReportValidation.GetFileName);
+        TradeSettlement2017.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

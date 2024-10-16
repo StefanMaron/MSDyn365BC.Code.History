@@ -21,10 +21,14 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         Trace: Codeunit Trace;
         GlobalRequestBodyInStream: InStream;
         HttpWebResponse: DotNet HttpWebResponse;
+        [NonDebuggable]
         GlobalPassword: Text;
         GlobalURL: Text;
+        [NonDebuggable]
         GlobalUsername: Text;
+        [NonDebuggable]
         GlobalBasicUsername: Text;
+        [NonDebuggable]
         GlobalBasicPassword: Text;
         GlobalSoapAction: Text;
         GlobalStreamEncoding: TextEncoding;
@@ -50,7 +54,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         InvalidTokenFormatErr: Label 'The token must be in JWS or JWE Compact Serialization Format.';
 
     [TryFunction]
-    [Scope('OnPrem')]
+    [NonDebuggable]
     procedure SendRequestToWebService()
     var
         WebRequestHelper: Codeunit "Web Request Helper";
@@ -89,6 +93,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         HttpWebRequest.AutomaticDecompression := DecompressionMethods.GZip;
     end;
 
+    [NonDebuggable]
     local procedure CreateSoapRequest(RequestOutStream: OutStream; BodyContentInStream: InStream; Username: Text; Password: Text)
     var
         XmlDoc: DotNet XmlDocument;
@@ -117,28 +122,26 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         PasswordXmlNode: DotNet XmlNode;
     begin
         XmlDoc := XmlDoc.XmlDocument();
-        with XMLDOMMgt do begin
-            AddRootElementWithPrefix(XmlDoc, 'Envelope', 's', SoapNamespaceTxt, EnvelopeXmlNode);
-            AddAttribute(EnvelopeXmlNode, 'xmlns:u', SecurityUtilityNamespaceTxt);
+        XMLDOMMgt.AddRootElementWithPrefix(XmlDoc, 'Envelope', 's', SoapNamespaceTxt, EnvelopeXmlNode);
+        XMLDOMMgt.AddAttribute(EnvelopeXmlNode, 'xmlns:u', SecurityUtilityNamespaceTxt);
 
-            AddElementWithPrefix(EnvelopeXmlNode, 'Header', '', 's', SoapNamespaceTxt, HeaderXmlNode);
+        XMLDOMMgt.AddElementWithPrefix(EnvelopeXmlNode, 'Header', '', 's', SoapNamespaceTxt, HeaderXmlNode);
 
-            if (Username <> '') or (Password <> '') then begin
-                AddElementWithPrefix(HeaderXmlNode, 'Security', '', 'o', SecurityExtensionNamespaceTxt, SecurityXmlNode);
-                AddAttributeWithPrefix(SecurityXmlNode, 'mustUnderstand', 's', SoapNamespaceTxt, '1');
+        if (Username <> '') or (Password <> '') then begin
+            XMLDOMMgt.AddElementWithPrefix(HeaderXmlNode, 'Security', '', 'o', SecurityExtensionNamespaceTxt, SecurityXmlNode);
+            XMLDOMMgt.AddAttributeWithPrefix(SecurityXmlNode, 'mustUnderstand', 's', SoapNamespaceTxt, '1');
 
-                AddElementWithPrefix(SecurityXmlNode, 'UsernameToken', '', 'o', SecurityExtensionNamespaceTxt, UsernameTokenXmlNode);
-                AddAttributeWithPrefix(UsernameTokenXmlNode, 'Id', 'u', SecurityUtilityNamespaceTxt, CreateUUID());
+            XMLDOMMgt.AddElementWithPrefix(SecurityXmlNode, 'UsernameToken', '', 'o', SecurityExtensionNamespaceTxt, UsernameTokenXmlNode);
+            XMLDOMMgt.AddAttributeWithPrefix(UsernameTokenXmlNode, 'Id', 'u', SecurityUtilityNamespaceTxt, CreateUUID());
 
-                AddElementWithPrefix(UsernameTokenXmlNode, 'Username', Username, 'o', SecurityExtensionNamespaceTxt, TempXmlNode);
-                AddElementWithPrefix(UsernameTokenXmlNode, 'Password', Password, 'o', SecurityExtensionNamespaceTxt, PasswordXmlNode);
-                AddAttribute(PasswordXmlNode, 'Type', UsernameTokenNamepsaceTxt);
-            end;
-
-            AddElementWithPrefix(EnvelopeXmlNode, 'Body', '', 's', SoapNamespaceTxt, BodyXmlNode);
-            AddAttribute(BodyXmlNode, 'xmlns:xsi', SchemaInstanceNamespaceTxt);
-            AddAttribute(BodyXmlNode, 'xmlns:xsd', SchemaNamespaceTxt);
+            XMLDOMMgt.AddElementWithPrefix(UsernameTokenXmlNode, 'Username', Username, 'o', SecurityExtensionNamespaceTxt, TempXmlNode);
+            XMLDOMMgt.AddElementWithPrefix(UsernameTokenXmlNode, 'Password', Password, 'o', SecurityExtensionNamespaceTxt, PasswordXmlNode);
+            XMLDOMMgt.AddAttribute(PasswordXmlNode, 'Type', UsernameTokenNamepsaceTxt);
         end;
+
+        XMLDOMMgt.AddElementWithPrefix(EnvelopeXmlNode, 'Body', '', 's', SoapNamespaceTxt, BodyXmlNode);
+        XMLDOMMgt.AddAttribute(BodyXmlNode, 'xmlns:xsi', SchemaInstanceNamespaceTxt);
+        XMLDOMMgt.AddAttribute(BodyXmlNode, 'xmlns:xsd', SchemaNamespaceTxt);
     end;
 
     local procedure CreateUUID(): Text
@@ -181,13 +184,11 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         TraceLogXmlDocToTempFile(ResponseBodyXMLDoc, 'ResponseBodyContent');
     end;
 
-    [Scope('OnPrem')]
     procedure GetResponseContent(var ResponseBodyInStream: InStream)
     begin
         TempBlobResponseBody.CreateInStream(ResponseBodyInStream, GlobalStreamEncoding);
     end;
 
-    [Scope('OnPrem')]
     procedure ProcessFaultResponse(SupportInfo: Text)
     var
         WebRequestHelper: Codeunit "Web Request Helper";
@@ -220,6 +221,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         Error(ErrorText);
     end;
 
+    [NonDebuggable]
     procedure SetGlobals(RequestBodyInStream: InStream; URL: Text; Username: Text; Password: Text)
     begin
         GlobalRequestBodyInStream := RequestBodyInStream;
@@ -237,6 +239,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         TraceLogEnabled := false;
     end;
 
+    [NonDebuggable]
     procedure SetBasicCredentials(Username: Text; Password: Text)
     begin
         GlobalBasicUsername := Username;
@@ -291,7 +294,8 @@ codeunit 1290 "SOAP Web Service Request Mgt."
             Trace.LogXmlDocToTempFile(XmlDoc, Name);
     end;
 
-    local procedure AddBasicAuthorizationHeader(Uri: Text; Username: Text; Password: Text; VAR DotNet_HttpWebRequest: DotNet HttpWebRequest);
+    [NonDebuggable]
+    local procedure AddBasicAuthorizationHeader(Uri: Text; Username: Text; Password: Text; var DotNet_HttpWebRequest: DotNet HttpWebRequest);
     var
         DotNet_Uri: DotNet Uri;
         DotNet_CredentialCache: DotNet CredentialCache;
@@ -309,7 +313,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     end;
 
     local procedure AddSoapActionHeader(SoapAction: Text; var DotNet_HttpWebRequest: DotNet HttpWebRequest);
-    var
     begin
         if (SoapAction = '') then
             exit;
@@ -332,6 +335,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         GlobalProgressDialogEnabled := false;
     end;
 
+    [NonDebuggable]
     procedure HasJWTExpired(JsonWebToken: Text): Boolean
     var
         WebTokenAsJson: Text;
@@ -343,6 +347,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         exit(GetTokenDateTimeValue(WebTokenAsJson, 'exp') < CurrentDateTime);
     end;
 
+    [NonDebuggable]
     procedure GetTokenValue(WebTokenAsJson: Text; ClaimType: Text): Text
     var
         JSONManagement: Codeunit "JSON Management";
@@ -355,6 +360,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
             exit(ClaimValue);
     end;
 
+    [NonDebuggable]
     procedure GetTokenDateTimeValue(WebTokenAsJson: Text; ClaimType: Text): DateTime
     var
         TypeHelper: Codeunit "Type Helper";
@@ -366,6 +372,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     end;
 
     [TryFunction]
+    [NonDebuggable]
     procedure GetTokenDetailsAsJson(JsonWebToken: Text; var WebTokenAsJson: Text)
     var
         JSONManagement: Codeunit "JSON Management";
@@ -389,6 +396,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     end;
 
     [TryFunction]
+    [NonDebuggable]
     procedure GetTokenDetailsAsNameBuffer(JsonWebToken: Text; var Buffer: Record "Name/Value Buffer")
     var
         JwtSecurityTokenHandler: DotNet JwtSecurityTokenHandler;

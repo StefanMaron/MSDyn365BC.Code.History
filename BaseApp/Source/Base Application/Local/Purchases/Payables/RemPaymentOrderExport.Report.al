@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -70,7 +70,6 @@ report 15000061 "Rem. Payment Order  - Export"
         OFile: File;
         CurrentFilename: Text[250];
         DataOut: Text[80];
-        TEXT15000000: Label 'The %1 file already exists. Do you want to replace the existing file?';
         ServerFileName: Text;
 
     [Scope('OnPrem')]

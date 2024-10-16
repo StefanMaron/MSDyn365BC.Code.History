@@ -40,7 +40,7 @@ codeunit 144001 "VAT Tools Test"
 
         // Verify that Settled VAT Periods are updated when the VAT is settled through Calc. and Post VAT Settlement report
         CreateAndPostSalesInvoice(WorkDate());
-        CalcAndPostVATSettlement(WorkDate(), WorkDate(), WorkDate, true);
+        CalcAndPostVATSettlement(WorkDate(), WorkDate(), WorkDate(), true);
 
         asserterror CreateAndPostSalesInvoice(WorkDate());
 
@@ -85,10 +85,10 @@ codeunit 144001 "VAT Tools Test"
 
         VerifyApplication(InvoiceNo, PaymentNo);
 
-        DeleteSettledVATPeriods;
+        DeleteSettledVATPeriods();
 
         if UserSetupCreated then
-            DeleteUserSetup;
+            DeleteUserSetup();
     end;
 
     [Test]
@@ -108,7 +108,7 @@ codeunit 144001 "VAT Tools Test"
 
         VerifyApplication(InvoiceNo, PaymentNo);
 
-        DeleteSettledVATPeriods;
+        DeleteSettledVATPeriods();
     end;
 
     [Test]
@@ -132,7 +132,7 @@ codeunit 144001 "VAT Tools Test"
         CreateOrUpdateSettledVATPeriod(SettledVATPeriod, OneYearAhead);
         Assert.IsTrue(SettledVATPeriod.Closed, 'Expected VAT Period to be closed');
 
-        DeleteSettledVATPeriods;
+        DeleteSettledVATPeriods();
     end;
 
     [Test]
@@ -155,8 +155,8 @@ codeunit 144001 "VAT Tools Test"
         // [WHEN] run "Trade Settlement" report on open settlements
         ExecuteTradeSettlementReport(InvoiceNo, OpenClosedSelection::Open); // Open
         // [THEN] Should be only one open VAT entry
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be only one open VAT entry.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be only one open VAT entry.');
         LibraryReportDataset.Reset();
 
         // [GIVEN] Close open settlements
@@ -166,15 +166,15 @@ codeunit 144001 "VAT Tools Test"
         // [WHEN] run "Trade Settlement" report on open settlements
         ExecuteTradeSettlementReport(InvoiceNo, OpenClosedSelection::Open); // Open
         // [THEN] Should be zero open VAT entries
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'There should be zero open VAT entries.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'There should be zero open VAT entries.');
         LibraryReportDataset.Reset();
 
         // [WHEN] run "Trade Settlement" report on closed settlements
         ExecuteTradeSettlementReport(InvoiceNo, OpenClosedSelection::Closed); // Closed
         // [THEN] Should be only one closed VAT entry
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be only one closed VAT entry.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be only one closed VAT entry.');
 
         // Load the current VAT entry
         VATEntry.Init();
@@ -182,7 +182,7 @@ codeunit 144001 "VAT Tools Test"
         VATEntry.FindFirst();
 
         // [THEN] Validate the values: BaseWithoutVAT, TotalSale that are generated in the report OnAfterGetRecord
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_VATEntry', VATEntry."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATBusPostGroup_VATEntry', VATEntry."VAT Bus. Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATProdPostGroup_VATEntry', VATEntry."VAT Prod. Posting Group");
@@ -194,7 +194,7 @@ codeunit 144001 "VAT Tools Test"
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesTaxMedium', 0.0);
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesTaxHigh', 0.0);
 
-        DeleteSettledVATPeriods;
+        DeleteSettledVATPeriods();
     end;
 
     [Test]
@@ -217,8 +217,8 @@ codeunit 144001 "VAT Tools Test"
         // [WHEN] run "Trade Settlement" report on open settlements
         ExecuteTradeSettlementReport(InvoiceNo, OpenClosedSelection::Open); // Open
         // [THEN] Should be only one open VAT entry
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be only one open VAT entry.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be only one open VAT entry.');
         LibraryReportDataset.Reset();
 
         // [GIVEN] Close opened settlements.
@@ -228,15 +228,15 @@ codeunit 144001 "VAT Tools Test"
         // [WHEN] run "Trade Settlement" report on open settlements
         ExecuteTradeSettlementReport(InvoiceNo, OpenClosedSelection::Open); // Open
         // [THEN] Should be zero open VAT entries
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'There should be zero open VAT entries.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'There should be zero open VAT entries.');
         LibraryReportDataset.Reset();
 
         // [WHEN] run "Trade Settlement" report on closed settlements
         ExecuteTradeSettlementReport(InvoiceNo, OpenClosedSelection::Closed); // Closed
         // [THEN] Should be only one closed VAT entry
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be only one closed VAT entry.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be only one closed VAT entry.');
 
         // Load the current VAT entry
         VATEntry.Init();
@@ -244,7 +244,7 @@ codeunit 144001 "VAT Tools Test"
         VATEntry.FindFirst();
 
         // [THEN] Validate the values: BaseWithVAT, TotalSale, SalesTaxHigh that are generated in the report OnAfterGetRecord
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_VATEntry', VATEntry."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATBusPostGroup_VATEntry', VATEntry."VAT Bus. Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATProdPostGroup_VATEntry', VATEntry."VAT Prod. Posting Group");
@@ -256,7 +256,7 @@ codeunit 144001 "VAT Tools Test"
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesTaxMedium', 0.0);
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesTaxHigh', -VATEntry.Amount);
 
-        DeleteSettledVATPeriods;
+        DeleteSettledVATPeriods();
     end;
 
     [Test]
@@ -279,8 +279,8 @@ codeunit 144001 "VAT Tools Test"
         // [WHEN] run "Trade Settlement" report on open settlements
         ExecuteTradeSettlementReport(InvoiceNo, OpenClosedSelection::Open); // Open
         // [THEN] Should be only one open VAT entry
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be only one open VAT entry.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be only one open VAT entry.');
         LibraryReportDataset.Reset();
 
         // [GIVEN] Close opened settlements.
@@ -290,15 +290,15 @@ codeunit 144001 "VAT Tools Test"
         // [WHEN] run "Trade Settlement" report on open settlements
         ExecuteTradeSettlementReport(InvoiceNo, OpenClosedSelection::Open); // Open
         // [THEN] Should be zero open VAT entries
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'There should be zero open VAT entries.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'There should be zero open VAT entries.');
         LibraryReportDataset.Reset();
 
         // [WHEN] run "Trade Settlement" report on closed settlements
         ExecuteTradeSettlementReport(InvoiceNo, OpenClosedSelection::Closed); // Closed
         // [THEN] Should be only one closed VAT entry
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be only one closed VAT entry.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be only one closed VAT entry.');
 
         // Load the current VAT entry
         VATEntry.Init();
@@ -306,7 +306,7 @@ codeunit 144001 "VAT Tools Test"
         VATEntry.FindFirst();
 
         // [THEN] Validate the values: BaseWithVAT, PurchaseTaxHigh that are generated in the report OnAfterGetRecord
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_VATEntry', VATEntry."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATBusPostGroup_VATEntry', VATEntry."VAT Bus. Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('VATProdPostGroup_VATEntry', VATEntry."VAT Prod. Posting Group");
@@ -318,7 +318,7 @@ codeunit 144001 "VAT Tools Test"
         LibraryReportDataset.AssertCurrentRowValueEquals('PurchaseTaxMedium', 0.0);
         LibraryReportDataset.AssertCurrentRowValueEquals('PurchaseTaxHigh', VATEntry.Amount);
 
-        DeleteSettledVATPeriods;
+        DeleteSettledVATPeriods();
     end;
 
     [Test]
@@ -453,7 +453,7 @@ codeunit 144001 "VAT Tools Test"
         // [GIVEN] Close Income Statement Journal Lines for closed Settled VAT period
         PostingDate := LibraryRandom.RandDate(10);
         PrepareSettledVATPeriodWithApplicationAlwaysAllowed(PostingDate, false, false);
-        CreateCloseIncomeStatementGenJnlLines(GenJournalLine, LibraryUtility.GenerateGUID, PostingDate);
+        CreateCloseIncomeStatementGenJnlLines(GenJournalLine, LibraryUtility.GenerateGUID(), PostingDate);
 
         // [WHEN] Post gen. journal lines
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -462,7 +462,7 @@ codeunit 144001 "VAT Tools Test"
         Assert.ExpectedError(
           StrSubstNo(SettledAndClosedVATPeriodErr, Date2DMY(PostingDate, 3), NorwegianVATTools.VATPeriodNo(PostingDate)));
 
-        DeleteUserSetup;
+        DeleteUserSetup();
     end;
 
     [Test]
@@ -490,7 +490,7 @@ codeunit 144001 "VAT Tools Test"
         // [THEN] Gen. journal are posted
         VerifyGLEntriesExist(DocumentNo);
 
-        DeleteUserSetup;
+        DeleteUserSetup();
     end;
 
     [Test]
@@ -518,7 +518,7 @@ codeunit 144001 "VAT Tools Test"
         // [THEN] Gen. journal are posted
         VerifyGLEntriesExist(DocumentNo);
 
-        DeleteUserSetup;
+        DeleteUserSetup();
     end;
 
     [Test]
@@ -550,7 +550,7 @@ codeunit 144001 "VAT Tools Test"
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-        // [GIVEN] Post three negative inventory adjustments, each for 1 pc, amount = 3.33, posting date = WORKDATE + 1 month.
+        // [GIVEN] Post three negative inventory adjustments, each for 1 pc, amount = 3.33, posting date = WorkDate() + 1 month.
         for i := 1 to 3 do begin
             LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', -1);
             ItemJournalLine.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
@@ -998,7 +998,7 @@ codeunit 144001 "VAT Tools Test"
         LibraryReportDataset.Reset();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-        DeleteSettledVATPeriods;
+        DeleteSettledVATPeriods();
 
         LibraryRandom.SetSeed(1);
 
@@ -1021,7 +1021,7 @@ codeunit 144001 "VAT Tools Test"
         CustLedgerEntry.CalcFields(Amount);
         PaymentNo := CreateAndPostGenJnlLine(CustLedgerEntry."Customer No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry.Amount);
 
-        CalcAndPostVATSettlement(WorkDate(), WorkDate(), WorkDate, true);
+        CalcAndPostVATSettlement(WorkDate(), WorkDate(), WorkDate(), true);
 
         ApplyCustomerEntries(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
     end;
@@ -1074,7 +1074,7 @@ codeunit 144001 "VAT Tools Test"
             LibraryERM.FindVATBusinessPostingGroup(VATBusPostingGroup);
             LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
-            VATPostingSetup."Purchase VAT Account" := CreateGLAccount;
+            VATPostingSetup."Purchase VAT Account" := CreateGLAccount();
             VATPostingSetup."VAT %" := 25;
             VATPostingSetup.Modify();
             CreatePurchDoc(PurchHeader, PurchLine, GeneralPostingSetup, VATPostingSetup);
@@ -1115,7 +1115,7 @@ codeunit 144001 "VAT Tools Test"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         CalcPostVATSettlement.InitializeRequest(
-          StartingDate, EndingDate, PostingDate, LibraryUtility.GenerateGUID, GLAccount."No.", false, Post);
+          StartingDate, EndingDate, PostingDate, LibraryUtility.GenerateGUID(), GLAccount."No.", false, Post);
         CalcPostVATSettlement.SetInitialized(false);
         Commit();
         CalcPostVATSettlement.Run();
@@ -1159,7 +1159,7 @@ codeunit 144001 "VAT Tools Test"
 
     local procedure CreateGLAccWithSetup(GenProdPostGroupCode: Code[20]; VATProdPostGroupCode: Code[20]) GLAccNo: Code[20]
     begin
-        GLAccNo := CreateGLAccount;
+        GLAccNo := CreateGLAccount();
         UpdateGLAccWithSetup(GLAccNo, GenProdPostGroupCode, VATProdPostGroupCode);
         exit(GLAccNo);
     end;
@@ -1184,7 +1184,7 @@ codeunit 144001 "VAT Tools Test"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; AccountType: Option; Amount: Decimal)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1197,7 +1197,7 @@ codeunit 144001 "VAT Tools Test"
         end;
     end;
 
-    local procedure CreateAndPostGenJnlLine(AccountNo: Code[20]; AccountType: Option; Amount: Decimal): Code[20]
+    local procedure CreateAndPostGenJnlLine(AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1212,12 +1212,12 @@ codeunit 144001 "VAT Tools Test"
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
         SourceCodeSetup.Get();
         UpdateGenJnlLine(GenJournalLine, DocumentNo, PostingDate, SourceCodeSetup."Close Income Statement");
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, -GenJournalLine.Amount);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), -GenJournalLine.Amount);
         UpdateGenJnlLine(GenJournalLine, DocumentNo, PostingDate, SourceCodeSetup."Close Income Statement");
     end;
 
@@ -1243,7 +1243,7 @@ codeunit 144001 "VAT Tools Test"
         GenJournalLine.Modify();
     end;
 
-    local procedure ApplyCustomerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyCustomerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
@@ -1266,7 +1266,7 @@ codeunit 144001 "VAT Tools Test"
         Customer.FindSet();
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -1286,7 +1286,7 @@ codeunit 144001 "VAT Tools Test"
         Item.FindSet();
     end;
 
-    local procedure FindVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VendLedgerEntry.SetRange("Document Type", DocumentType);
         VendLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -1482,7 +1482,7 @@ codeunit 144001 "VAT Tools Test"
     [Scope('OnPrem')]
     procedure CalcAndPostVATSettlementHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
-        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -1509,14 +1509,14 @@ codeunit 144001 "VAT Tools Test"
         SelectionOption: Enum "VAT Statement Report Selection";
     begin
         DocumentNoFiltering := LibraryVariableStorage.DequeueText();
-        SelectionOption := LibraryVariableStorage.DequeueInteger();
+        SelectionOption := "VAT Statement Report Selection".FromInteger(LibraryVariableStorage.DequeueInteger());
         // SettlementPeriod
         VATPeriod.Reset();
         VATPeriod.FindFirst();
         TradeSettlement.SettlementPeriod.SetValue(VATPeriod."Period No.");
         // SettlementYear
         ExpectedYear := Date2DMY(WorkDate(), 3);
-        Assert.AreEqual(ExpectedYear, TradeSettlement.SettlementYear.AsInteger, 'The settlement year should be from current workdate');
+        Assert.AreEqual(ExpectedYear, TradeSettlement.SettlementYear.AsInteger(), 'The settlement year should be from current workdate');
         TradeSettlement.SettlementYear.SetValue(ExpectedYear);
         // StartDate
         // TradeSettlement.Control1080117
@@ -1528,7 +1528,7 @@ codeunit 144001 "VAT Tools Test"
         TradeSettlement.Selection.SetValue(SelectionOption); // TradeSettlement.Control1080123::"Open and Closed");
 
         TradeSettlement."VAT Entry".SetFilter("Document No.", DocumentNoFiltering);
-        TradeSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TradeSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

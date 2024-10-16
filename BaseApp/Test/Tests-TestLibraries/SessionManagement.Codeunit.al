@@ -25,7 +25,7 @@ codeunit 132455 "Session Management"
         Stopped: Integer;
     begin
         ActiveSession.SetRange("Client Type", ClientType);
-        ActiveSession.SetRange("Server Instance ID", ServiceInstanceId);
+        ActiveSession.SetRange("Server Instance ID", ServiceInstanceId());
 
         Stopped := 0;
         if ActiveSession.FindSet() then
@@ -44,7 +44,7 @@ codeunit 132455 "Session Management"
         StartDateTime: DateTime;
     begin
         ActiveSession.SetRange("Client Type", ActiveSession."Client Type"::Background);
-        ActiveSession.SetRange("Server Instance ID", ServiceInstanceId);
+        ActiveSession.SetRange("Server Instance ID", ServiceInstanceId());
 
         StartDateTime := CurrentDateTime;
         while ActiveSession.FindFirst() do begin

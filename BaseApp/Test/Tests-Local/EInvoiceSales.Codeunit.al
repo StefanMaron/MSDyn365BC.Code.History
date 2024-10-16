@@ -46,7 +46,7 @@ codeunit 144103 "E-Invoice Sales"
         // [FEATURE] [Invoice]
         Initialize();
 
-        XmlFileName := EInvoiceSalesInvoice;
+        XmlFileName := EInvoiceSalesInvoice();
 
         EInvoiceXMLXSDValidation.CheckIfFileExists(XmlFileName);
     end;
@@ -69,7 +69,7 @@ codeunit 144103 "E-Invoice Sales"
         EInvoiceXMLXSDValidation.SetBankInformation(BankAccountNo, '');
 
         // [GIVEN] A posted sales invoice to export
-        XmlFileName := EInvoiceSalesInvoice;
+        XmlFileName := EInvoiceSalesInvoice();
 
         // [THEN] IBAN is not present
         NOXMLReadHelper.Initialize(XmlFileName);
@@ -98,7 +98,7 @@ codeunit 144103 "E-Invoice Sales"
         EInvoiceXMLXSDValidation.SetBankInformation('', IBAN);
 
         // [GIVEN] A posted sales invoice to export
-        XmlFileName := EInvoiceSalesInvoice;
+        XmlFileName := EInvoiceSalesInvoice();
 
         // [THEN] IBAN is present in the XML file under Invoice->PaymentMeans->PayeeFinancialAccount
         NOXMLReadHelper.Initialize(XmlFileName);
@@ -128,7 +128,7 @@ codeunit 144103 "E-Invoice Sales"
         EInvoiceXMLXSDValidation.SetBankInformation(BankAccountNo, IBAN);
 
         // [GIVEN] A posted sales invoice to export
-        XmlFileName := EInvoiceSalesInvoice;
+        XmlFileName := EInvoiceSalesInvoice();
 
         // [THEN] Both IBAN and BBAN are present in the XML file under Invoice->PaymentMeans->PayeeFinancialAccount
         NOXMLReadHelper.Initialize(XmlFileName);
@@ -156,7 +156,7 @@ codeunit 144103 "E-Invoice Sales"
         // Validate the child nodes of 'Delivery', on the Invoice Lines
         Initialize();
 
-        SalesInvoiceHeaderId := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesInvoiceHeaderId := EInvoiceSalesHelper.CreateSalesInvoice();
         XMLFileName := ExecEInvoice(SalesInvoiceHeaderId);
 
         VerifyDeliveryOnSalesInvoice(XMLFileName, 'cac:InvoiceLine/cac:Delivery/cac:DeliveryLocation/cac:Address', SalesInvoiceHeaderId);
@@ -179,7 +179,7 @@ codeunit 144103 "E-Invoice Sales"
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
 
-        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice();
         CompanyInfo.Get();
         SalesInvHdr.Get(SalesNo);
 
@@ -207,7 +207,7 @@ codeunit 144103 "E-Invoice Sales"
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
 
-        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice();
         CompanyInfo.Get();
         SalesInvHdr.Get(SalesNo);
 
@@ -226,7 +226,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         Initialize();
-        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceSalesInvoice);
+        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceSalesInvoice());
     end;
 
     [Test]
@@ -242,7 +242,7 @@ codeunit 144103 "E-Invoice Sales"
         Initialize();
 
         // [GIVEN] A posted sales invoice
-        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice();
 
         // [WHEN] Posted sales invoice is exported
         XmlFileName := ExecEInvoice(SalesNo);
@@ -269,15 +269,15 @@ codeunit 144103 "E-Invoice Sales"
         Initialize();
 
         // [GIVEN] A posted sales invoice
-        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice();
 
         // [WHEN] Posted sales invoice is exported
         XmlFileName := ExecEInvoice(SalesNo);
         NOXMLReadHelper.Initialize(XmlFileName);
 
         // [THEN] XML File Header element InvoicedQuantity contains attributes: unitCode and listID
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCode', EInvoiceSalesHelper.DefaultUNECERec20Code);
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCodeListID', GetDefaultUnitCodeListID);
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCode', EInvoiceSalesHelper.DefaultUNECERec20Code());
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCodeListID', GetDefaultUnitCodeListID());
     end;
 
     [Test]
@@ -288,7 +288,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         Initialize();
-        asserterror EInvoiceSalesHelper.CreateSalesInvoiceNoUNECECode;
+        asserterror EInvoiceSalesHelper.CreateSalesInvoiceNoUNECECode();
         Assert.ExpectedError(
           StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption()));
     end;
@@ -303,7 +303,7 @@ codeunit 144103 "E-Invoice Sales"
         // [FEATURE] [Invoice]
         Initialize();
 
-        XmlFileName := EInvoiceSalesInvoice;
+        XmlFileName := EInvoiceSalesInvoice();
 
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeAbsence('//cbc:AccountingCostCode');
@@ -320,7 +320,7 @@ codeunit 144103 "E-Invoice Sales"
         // [FEATURE] [Credit Memo]
         Initialize();
 
-        XmlFileName := EInvoiceSalesCrMemo;
+        XmlFileName := EInvoiceSalesCrMemo();
 
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeAbsence('//cbc:AccountingCostCode');
@@ -555,7 +555,7 @@ codeunit 144103 "E-Invoice Sales"
         // [FEATURE] [Invoice]
         Initialize();
 
-        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesNo := EInvoiceSalesHelper.CreateSalesInvoice();
         XmlFileName := ExecEInvoice(SalesNo);
 
         NOXMLReadHelper.Initialize(XmlFileName);
@@ -563,8 +563,8 @@ codeunit 144103 "E-Invoice Sales"
         NOXMLReadHelper.VerifyNodeValue('//cbc:ProfileID', 'urn:www.cenbii.eu:profile:bii04:ver2.0');
         NOXMLReadHelper.VerifyNodeValue('//cbc:CustomizationID', GetInvoiceCustomizationID(SalesNo));
 
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:BaseQuantity', 'unitCode', EInvoiceSalesHelper.DefaultUNECERec20Code);
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:BaseQuantity', 'unitCodeListID', GetDefaultUnitCodeListID);
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:BaseQuantity', 'unitCode', EInvoiceSalesHelper.DefaultUNECERec20Code());
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:BaseQuantity', 'unitCodeListID', GetDefaultUnitCodeListID());
         NOXMLReadHelper.VerifyNodeValue('//cbc:BaseQuantity', '1.00');
     end;
 
@@ -578,7 +578,7 @@ codeunit 144103 "E-Invoice Sales"
         // [FEATURE] [Credit Memo]
         Initialize();
 
-        XmlFileName := EInvoiceSalesCrMemo;
+        XmlFileName := EInvoiceSalesCrMemo();
 
         EInvoiceXMLXSDValidation.CheckIfFileExists(XmlFileName);
     end;
@@ -595,7 +595,7 @@ codeunit 144103 "E-Invoice Sales"
         // [SCENARIO] Validate the child nodes of 'Delivery', on the CreditNote Lines
         Initialize();
 
-        SalesCrMemoHeaderId := EInvoiceSalesHelper.CreateSalesCrMemo;
+        SalesCrMemoHeaderId := EInvoiceSalesHelper.CreateSalesCrMemo();
         XMLFileName := ExecECrMemo(SalesCrMemoHeaderId);
 
         VerifyDeliveryOnSalesCrMemo(XMLFileName, 'cac:CreditNoteLine/cac:Delivery/cac:DeliveryLocation/cac:Address', SalesCrMemoHeaderId);
@@ -608,7 +608,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         Initialize();
-        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceSalesCrMemo);
+        EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceSalesCrMemo());
     end;
 
     [Test]
@@ -626,7 +626,7 @@ codeunit 144103 "E-Invoice Sales"
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
 
-        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo;
+        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo();
         CompanyInfo.Get();
         SalesHdr.Get(SalesNo);
 
@@ -654,7 +654,7 @@ codeunit 144103 "E-Invoice Sales"
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
 
-        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo;
+        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo();
         CompanyInfo.Get();
         SalesHdr.Get(SalesNo);
 
@@ -679,7 +679,7 @@ codeunit 144103 "E-Invoice Sales"
         Initialize();
 
         // [GIVEN] A posted sales invoice
-        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo;
+        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo();
 
         // [WHEN] Posted sales invoice is exported
         XmlFileName := ExecECrMemo(SalesNo);
@@ -704,15 +704,15 @@ codeunit 144103 "E-Invoice Sales"
         Initialize();
 
         // [GIVEN] A posted sales invoice
-        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo;
+        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo();
 
         // [WHEN] Posted sales invoice is exported
         XmlFileName := ExecECrMemo(SalesNo);
         NOXMLReadHelper.Initialize(XmlFileName);
 
         // [THEN] XML File Header element CreditedQuantity contains attributes: unitCode and listID
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCode', EInvoiceSalesHelper.DefaultUNECERec20Code);
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCodeListID', GetDefaultUnitCodeListID);
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCode', EInvoiceSalesHelper.DefaultUNECERec20Code());
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCodeListID', GetDefaultUnitCodeListID());
     end;
 
     [Test]
@@ -723,7 +723,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         Initialize();
-        asserterror EInvoiceSalesHelper.CreateSalesCrMemoNoUNECECode;
+        asserterror EInvoiceSalesHelper.CreateSalesCrMemoNoUNECECode();
         Assert.ExpectedError(
           StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption()));
     end;
@@ -956,12 +956,12 @@ codeunit 144103 "E-Invoice Sales"
         // [FEATURE] [Credit Memo]
         Initialize();
 
-        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo;
+        SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo();
         XmlFileName := ExecECrMemo(SalesNo);
 
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeValue('//cbc:ProfileID', 'urn:www.cenbii.eu:profile:biixx:ver2.0');
-        NOXMLReadHelper.VerifyNodeValue('//cbc:CustomizationID', GetCrMemoCustomizationID);
+        NOXMLReadHelper.VerifyNodeValue('//cbc:CustomizationID', GetCrMemoCustomizationID());
     end;
 
     [Test]
@@ -1030,10 +1030,10 @@ codeunit 144103 "E-Invoice Sales"
 
         // [GIVEN] Company information "VAT Registration No."  = "GB123456789"
         // [GIVEN] Customer "VAT Registration No."  = "012345678"
-        VATRegNo := EInvoiceXMLXSDValidation.SetRandomVATRegNoInCompanyInfo;
+        VATRegNo := EInvoiceXMLXSDValidation.SetRandomVATRegNoInCompanyInfo();
 
         // [GIVEN] A posted sales invoice to export
-        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice();
         SalesInvoiceHeader.Get(SalesInvoiceNo);
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
 
@@ -1069,7 +1069,7 @@ codeunit 144103 "E-Invoice Sales"
         Initialize();
 
         // [GIVEN] A posted sales invoice where "Your Reference" is blank
-        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice();
         SalesInvoiceHeader.Get(SalesInvoiceNo);
         SalesInvoiceHeader."Your Reference" := '';
         SalesInvoiceHeader.Modify();
@@ -1118,7 +1118,7 @@ codeunit 144103 "E-Invoice Sales"
         CompanyInformation."SWIFT Code" := '';
         CompanyInformation.Modify(true);
 
-        asserterror EInvoiceCheckSalesInvoice.CheckCompanyInfo;
+        asserterror EInvoiceCheckSalesInvoice.CheckCompanyInfo();
 
         Assert.ExpectedErrorCode(TestFieldErrorCodeTok);
         Assert.ExpectedError(SwiftCodeErr);
@@ -1142,7 +1142,7 @@ codeunit 144103 "E-Invoice Sales"
         LibraryERM.SetInvRoundingPrecisionLCY(1.0);
 
         // [GIVEN] A posted sales invoice
-        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice();
 
         GLEntry.SetRange("Document No.", SalesInvoiceNo);
         GLEntry.SetFilter(Amount, '>%1', 0);
@@ -1263,7 +1263,7 @@ codeunit 144103 "E-Invoice Sales"
         EInvoiceHelper.KIDSetup(SalesReceivablesSetup."KID Setup"::"Document No.", 20, 0);
 
         // [GIVEN] Posted Sales Invoice No. = "103032"
-        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice();
 
         // [WHEN] Perform "Create Electronic Invoice" on posted Sales Invoice
         XmlFileName := ExecEInvoice(SalesInvoiceNo);
@@ -1372,8 +1372,8 @@ codeunit 144103 "E-Invoice Sales"
 
         // [THEN] XML File Header element <InvoicedQuantity> contains default attributes unitCode = 'EA' and listID
         NOXMLReadHelper.Initialize(XmlFileName);
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCode', GetDefaultUnitCode);
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCodeListID', GetDefaultUnitCodeListID);
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCode', GetDefaultUnitCode());
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:InvoicedQuantity', 'unitCodeListID', GetDefaultUnitCodeListID());
     end;
 
     [Test]
@@ -1397,8 +1397,8 @@ codeunit 144103 "E-Invoice Sales"
 
         // [THEN] XML File Header element <CreditedQuantity> contains default attributes unitCode = 'EA' and listID
         NOXMLReadHelper.Initialize(XmlFileName);
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCode', GetDefaultUnitCode);
-        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCodeListID', GetDefaultUnitCodeListID);
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCode', GetDefaultUnitCode());
+        NOXMLReadHelper.VerifyAttributeValue('//cbc:CreditedQuantity', 'unitCodeListID', GetDefaultUnitCodeListID());
     end;
 
     [Test]
@@ -1463,15 +1463,15 @@ codeunit 144103 "E-Invoice Sales"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibrarySetupStorage.Restore();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         if isInitialized then
             exit;
 
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        InitGlobalVATRates;
-        ConfigureVATPostingSetup;
-        SetCompanySwiftCode;
+        InitGlobalVATRates();
+        ConfigureVATPostingSetup();
+        SetCompanySwiftCode();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -1540,7 +1540,7 @@ codeunit 144103 "E-Invoice Sales"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePostSalesDocumentWithGLAccount(DocumentType: Option): Code[20]
+    local procedure CreatePostSalesDocumentWithGLAccount(DocumentType: Enum "Sales Document Type"): Code[20]
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -1552,7 +1552,7 @@ codeunit 144103 "E-Invoice Sales"
         SalesHeader.Modify();
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit of Measure Code", '');
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Modify(true);
@@ -1563,7 +1563,7 @@ codeunit 144103 "E-Invoice Sales"
     var
         SalesCrMemoNo: Code[20];
     begin
-        SalesCrMemoNo := EInvoiceSalesHelper.CreateSalesCrMemo;
+        SalesCrMemoNo := EInvoiceSalesHelper.CreateSalesCrMemo();
         exit(ExecECrMemo(SalesCrMemoNo));
     end;
 
@@ -1571,7 +1571,7 @@ codeunit 144103 "E-Invoice Sales"
     var
         SalesInvoiceNo: Code[20];
     begin
-        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice;
+        SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice();
         exit(ExecEInvoice(SalesInvoiceNo));
     end;
 
@@ -1580,7 +1580,7 @@ codeunit 144103 "E-Invoice Sales"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Path: Text[250];
     begin
-        Path := EInvoiceHelper.GetTempPath;
+        Path := EInvoiceHelper.GetTempPath();
         EInvoiceHelper.SetupEInvoiceForSales(Path);
 
         SalesInvoiceHeader.SetRange("No.", SalesInvoiceNo);
@@ -1594,7 +1594,7 @@ codeunit 144103 "E-Invoice Sales"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         Path: Text[250];
     begin
-        Path := EInvoiceHelper.GetTempPath;
+        Path := EInvoiceHelper.GetTempPath();
         EInvoiceHelper.SetupEInvoiceForSales(Path);
 
         SalesCrMemoHeader.SetRange("No.", SalesCrMemoNo);

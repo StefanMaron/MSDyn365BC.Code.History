@@ -246,7 +246,6 @@ codeunit 138200 "Normal DemoData"
     [Scope('OnPrem')]
     procedure JobDefaultDimension()
     var
-
         Job: Record Job;
     begin
         // [FEATURE] [Job] [Dimensions]
@@ -306,7 +305,9 @@ codeunit 138200 "Normal DemoData"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
     [Test]
+    [Obsolete('Not Used.', '22.0')]
     procedure AdvancedIntrastatChecklist()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -322,6 +323,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
     end;
+#pragma warning restore AS0072
 #endif
 
     [Test]

@@ -33,7 +33,9 @@ page 6061 "Contract Trend Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
+#pragma warning disable AA0100
                 field("ServContract.""Contract Prepaid Amount"""; Rec."Prepaid Income")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Prepayments;
                     Caption = 'Prepaid Income';
@@ -54,7 +56,9 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
+#pragma warning disable AA0100
                 field("ServContract.""Contract Invoice Amount"""; Rec."Posted Income")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Posted Income';
@@ -74,7 +78,9 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
+#pragma warning disable AA0100
                 field("ServContract.""Contract Cost Amount"""; Rec."Posted Cost")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Posted Cost';
@@ -93,7 +99,9 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
+#pragma warning disable AA0100
                 field("ServContract.""Contract Discount Amount"""; Rec."Discount Amount")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Discount Amount';

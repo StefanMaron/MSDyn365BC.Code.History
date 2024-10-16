@@ -7,6 +7,7 @@ namespace Microsoft.EServices.EDocument;
 table 10604 "E-Invoice Export Header"
 {
     Caption = 'E-Invoice Export Header';
+    DataClassification = CustomerContent;
 
     fields
     {

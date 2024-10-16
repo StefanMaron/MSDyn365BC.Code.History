@@ -8,6 +8,7 @@ table 823 "Name/Value Buffer"
 {
     Caption = 'Name/Value Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

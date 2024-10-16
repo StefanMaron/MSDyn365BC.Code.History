@@ -4,12 +4,12 @@ using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Segment;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
 using Microsoft.Sales.Customer;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Sales.Pricing;
 #endif
 using System.Utilities;
@@ -59,46 +59,41 @@ codeunit 7030 "Campaign Target Group Mgt"
         CampaignTargetGr.LockTable();
         Found := false;
 
-        with SegLine do begin
-            SetCurrentKey("Campaign No.");
-            SetRange("Campaign No.", Campaign."No.");
-            SetRange("Campaign Target", true);
-
-            if Find('-') then begin
-                Found := true;
-                i := 0;
-                Window.Open(
-                  Text006 +
-                  Text007);
-                NoOfRecords := Count;
-                repeat
-                    i := i + 1;
-                    AddSegLinetoTargetGr(SegLine);
-                    Window.Update(1, Round(i / NoOfRecords * 10000, 1));
-                until Next() = 0;
-                Window.Close();
-            end;
+        SegLine.SetCurrentKey("Campaign No.");
+        SegLine.SetRange("Campaign No.", Campaign."No.");
+        SegLine.SetRange("Campaign Target", true);
+        if SegLine.Find('-') then begin
+            Found := true;
+            i := 0;
+            Window.Open(
+              Text006 +
+              Text007);
+            NoOfRecords := SegLine.Count;
+            repeat
+                i := i + 1;
+                AddSegLinetoTargetGr(SegLine);
+                Window.Update(1, Round(i / NoOfRecords * 10000, 1));
+            until SegLine.Next() = 0;
+            Window.Close();
         end;
 
-        with InteractLogEntry do begin
-            SetCurrentKey("Campaign No.", "Campaign Target");
-            SetRange("Campaign No.", Campaign."No.");
-            SetRange("Campaign Target", true);
-            SetRange(Postponed, false);
-            if Find('-') then begin
-                Found := true;
-                i := 0;
-                Window.Open(
-                  Text006 +
-                  Text008);
-                NoOfRecords := Count;
-                repeat
-                    i := i + 1;
-                    AddInteractionLogEntry(InteractLogEntry);
-                    Window.Update(1, Round(i / NoOfRecords * 10000, 1));
-                until Next() = 0;
-                Window.Close();
-            end;
+        InteractLogEntry.SetCurrentKey("Campaign No.", "Campaign Target");
+        InteractLogEntry.SetRange("Campaign No.", Campaign."No.");
+        InteractLogEntry.SetRange("Campaign Target", true);
+        InteractLogEntry.SetRange(Postponed, false);
+        if InteractLogEntry.Find('-') then begin
+            Found := true;
+            i := 0;
+            Window.Open(
+              Text006 +
+              Text008);
+            NoOfRecords := InteractLogEntry.Count;
+            repeat
+                i := i + 1;
+                AddInteractionLogEntry(InteractLogEntry);
+                Window.Update(1, Round(i / NoOfRecords * 10000, 1));
+            until InteractLogEntry.Next() = 0;
+            Window.Close();
         end;
         if Found then begin
             Commit();
@@ -128,136 +123,128 @@ codeunit 7030 "Campaign Target Group Mgt"
 
     procedure AddSegLinetoTargetGr(SegLine: Record "Segment Line")
     begin
-        with SegLine do
-            if ("Campaign No." <> '') and "Campaign Target" then begin
-                ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
-                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                ContBusRel.SetRange("Contact No.", "Contact Company No.");
-                if ContBusRel.FindFirst() then
-                    InsertTargetGroup(CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
-                else
-                    InsertTargetGroup(
-                      CampaignTargetGr.Type::Contact, "Contact Company No.", "Campaign No.");
-                OnAfterAddSegLineToTargetGroup(CampaignTargetGr, SegLine);
-            end;
+        if (SegLine."Campaign No." <> '') and SegLine."Campaign Target" then begin
+            ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
+            ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+            ContBusRel.SetRange("Contact No.", SegLine."Contact Company No.");
+            if ContBusRel.FindFirst() then
+                InsertTargetGroup(CampaignTargetGr.Type::Customer, ContBusRel."No.", SegLine."Campaign No.")
+            else
+                InsertTargetGroup(
+                  CampaignTargetGr.Type::Contact, SegLine."Contact Company No.", SegLine."Campaign No.");
+            OnAfterAddSegLineToTargetGroup(CampaignTargetGr, SegLine);
+        end;
     end;
 
     procedure DeleteSegfromTargetGr(SegLine: Record "Segment Line")
     var
         SegLine2: Record "Segment Line";
     begin
-        with SegLine do
-            if "Campaign No." <> '' then begin
-                SegLine2.SetCurrentKey("Campaign No.", "Contact Company No.", "Campaign Target");
-                SegLine2.SetRange("Campaign No.", "Campaign No.");
-                SegLine2.SetRange("Contact Company No.", "Contact Company No.");
-                SegLine2.SetRange("Campaign Target", true);
+        if SegLine."Campaign No." <> '' then begin
+            SegLine2.SetCurrentKey("Campaign No.", "Contact Company No.", "Campaign Target");
+            SegLine2.SetRange("Campaign No.", SegLine."Campaign No.");
+            SegLine2.SetRange("Contact Company No.", SegLine."Contact Company No.");
+            SegLine2.SetRange("Campaign Target", true);
 
-                InteractLogEntry.SetCurrentKey("Campaign No.", "Contact Company No.", "Campaign Target");
-                InteractLogEntry.SetRange("Campaign No.", "Campaign No.");
-                InteractLogEntry.SetRange("Contact Company No.", "Contact Company No.");
-                InteractLogEntry.SetRange("Campaign Target", true);
-                InteractLogEntry.SetRange(Postponed, false);
+            InteractLogEntry.SetCurrentKey("Campaign No.", "Contact Company No.", "Campaign Target");
+            InteractLogEntry.SetRange("Campaign No.", SegLine."Campaign No.");
+            InteractLogEntry.SetRange("Contact Company No.", SegLine."Contact Company No.");
+            InteractLogEntry.SetRange("Campaign Target", true);
+            InteractLogEntry.SetRange(Postponed, false);
 
-                if SegLine2.Count + InteractLogEntry.Count = 1 then begin
-                    ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
-                    ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                    ContBusRel.SetRange("Contact No.", "Contact Company No.");
+            if SegLine2.Count + InteractLogEntry.Count = 1 then begin
+                ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
+                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+                ContBusRel.SetRange("Contact No.", SegLine."Contact Company No.");
 
-                    if ContBusRel.FindFirst() then begin
-                        if CampaignTargetGr.Get(
-                             CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
-                        then
-                            CampaignTargetGr.Delete();
-                    end else
-                        if CampaignTargetGr.Get(
-                             CampaignTargetGr.Type::Contact, "Contact No.", "Campaign No.")
-                        then
-                            CampaignTargetGr.Delete();
-                end;
+                if ContBusRel.FindFirst() then begin
+                    if CampaignTargetGr.Get(
+                         CampaignTargetGr.Type::Customer, ContBusRel."No.", SegLine."Campaign No.")
+                    then
+                        CampaignTargetGr.Delete();
+                end else
+                    if CampaignTargetGr.Get(
+                         CampaignTargetGr.Type::Contact, SegLine."Contact No.", SegLine."Campaign No.")
+                    then
+                        CampaignTargetGr.Delete();
             end;
+        end;
     end;
 
     procedure AddInteractionLogEntry(InteractionLogEntry: Record "Interaction Log Entry")
     begin
-        with InteractionLogEntry do
-            if ("Campaign No." <> '') and "Campaign Target" then begin
-                ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
-                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                ContBusRel.SetRange("Contact No.", "Contact Company No.");
-                if ContBusRel.FindFirst() then
-                    InsertTargetGroup(CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
-                else
-                    InsertTargetGroup(
-                      CampaignTargetGr.Type::Contact, "Contact Company No.", "Campaign No.");
-            end;
+        if (InteractionLogEntry."Campaign No." <> '') and InteractionLogEntry."Campaign Target" then begin
+            ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
+            ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+            ContBusRel.SetRange("Contact No.", InteractionLogEntry."Contact Company No.");
+            if ContBusRel.FindFirst() then
+                InsertTargetGroup(CampaignTargetGr.Type::Customer, ContBusRel."No.", InteractionLogEntry."Campaign No.")
+            else
+                InsertTargetGroup(
+                  CampaignTargetGr.Type::Contact, InteractionLogEntry."Contact Company No.", InteractionLogEntry."Campaign No.");
+        end;
     end;
 
     procedure DeleteContfromTargetGr(InteractLogEntry: Record "Interaction Log Entry")
     var
         InteractLogEntry2: Record "Interaction Log Entry";
     begin
-        with InteractLogEntry do
-            if "Campaign No." <> '' then begin
-                InteractLogEntry2.SetCurrentKey("Campaign No.", "Contact Company No.", "Campaign Target");
-                InteractLogEntry2.SetRange("Campaign No.", "Campaign No.");
-                InteractLogEntry2.SetRange("Contact Company No.", "Contact Company No.");
-                InteractLogEntry2.SetRange("Campaign Target", true);
-                InteractLogEntry2.SetRange(Postponed, false);
+        if InteractLogEntry."Campaign No." <> '' then begin
+            InteractLogEntry2.SetCurrentKey("Campaign No.", "Contact Company No.", "Campaign Target");
+            InteractLogEntry2.SetRange("Campaign No.", InteractLogEntry."Campaign No.");
+            InteractLogEntry2.SetRange("Contact Company No.", InteractLogEntry."Contact Company No.");
+            InteractLogEntry2.SetRange("Campaign Target", true);
+            InteractLogEntry2.SetRange(Postponed, false);
 
-                SegLine.SetCurrentKey("Campaign No.", "Contact Company No.", "Campaign Target");
-                SegLine.SetRange("Campaign No.", "Campaign No.");
-                SegLine.SetRange("Contact Company No.", "Contact Company No.");
-                SegLine.SetRange("Campaign Target", true);
+            SegLine.SetCurrentKey("Campaign No.", "Contact Company No.", "Campaign Target");
+            SegLine.SetRange("Campaign No.", InteractLogEntry."Campaign No.");
+            SegLine.SetRange("Contact Company No.", InteractLogEntry."Contact Company No.");
+            SegLine.SetRange("Campaign Target", true);
 
-                if InteractLogEntry2.Count + Count = 1 then begin
-                    ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
-                    ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                    ContBusRel.SetRange("Contact No.", "Contact Company No.");
+            if InteractLogEntry2.Count + InteractLogEntry.Count = 1 then begin
+                ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
+                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+                ContBusRel.SetRange("Contact No.", InteractLogEntry."Contact Company No.");
 
-                    if ContBusRel.FindFirst() then begin
-                        if CampaignTargetGr.Get(
-                             CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
-                        then
-                            CampaignTargetGr.Delete();
-                    end else
-                        if CampaignTargetGr.Get(
-                             CampaignTargetGr.Type::Contact, "Contact No.", "Campaign No.")
-                        then
-                            CampaignTargetGr.Delete();
-                end;
+                if ContBusRel.FindFirst() then begin
+                    if CampaignTargetGr.Get(
+                         CampaignTargetGr.Type::Customer, ContBusRel."No.", InteractLogEntry."Campaign No.")
+                    then
+                        CampaignTargetGr.Delete();
+                end else
+                    if CampaignTargetGr.Get(
+                         CampaignTargetGr.Type::Contact, InteractLogEntry."Contact No.", InteractLogEntry."Campaign No.")
+                    then
+                        CampaignTargetGr.Delete();
             end;
+        end;
     end;
 
     procedure ConverttoCustomer(Contact: Record Contact; Customer: Record Customer)
     var
         CampaignTargetGr2: Record "Campaign Target Group";
     begin
-        with Contact do begin
-            CampaignTargetGr2.SetCurrentKey("No.");
-            CampaignTargetGr2.SetRange("No.", "No.");
-            if CampaignTargetGr2.Find('-') then
-                repeat
-                    InsertTargetGroup(
-                      CampaignTargetGr2.Type::Customer, Customer."No.", CampaignTargetGr2."Campaign No.");
-                    CampaignTargetGr2.Delete();
-                until CampaignTargetGr2.Next() = 0;
-        end;
+        CampaignTargetGr2.SetCurrentKey("No.");
+        CampaignTargetGr2.SetRange("No.", Contact."No.");
+        if CampaignTargetGr2.Find('-') then
+            repeat
+                InsertTargetGroup(
+                  CampaignTargetGr2.Type::Customer, Customer."No.", CampaignTargetGr2."Campaign No.");
+                CampaignTargetGr2.Delete();
+            until CampaignTargetGr2.Next() = 0;
     end;
 
     procedure ConverttoContact(Cust: Record Customer; CompanyContNo: Code[20])
     var
         CampaignTargetGr2: Record "Campaign Target Group";
     begin
-        with Cust do begin
-            CampaignTargetGr2.SetRange("No.", "No.");
-            if CampaignTargetGr2.Find('-') then
-                repeat
-                    InsertTargetGroup(
-                      CampaignTargetGr2.Type::Contact, CompanyContNo, CampaignTargetGr2."Campaign No.");
-                    CampaignTargetGr2.Delete();
-                until CampaignTargetGr2.Next() = 0;
-        end;
+        CampaignTargetGr2.SetRange("No.", Cust."No.");
+        if CampaignTargetGr2.Find('-') then
+            repeat
+                InsertTargetGroup(
+                  CampaignTargetGr2.Type::Contact, CompanyContNo, CampaignTargetGr2."Campaign No.");
+                CampaignTargetGr2.Delete();
+            until CampaignTargetGr2.Next() = 0;
     end;
 
     local procedure InsertTargetGroup(Type: Option; No: Code[20]; CampaignNo: Code[20])
@@ -271,11 +258,11 @@ codeunit 7030 "Campaign Target Group Mgt"
     local procedure NoPriceDiscForCampaign(CampaignNo: Code[20]): Boolean
     var
         PriceListLine: Record "Price List Line";
-#if not CLEAN21
+#if not CLEAN23
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
 #endif
     begin
-#if not CLEAN21
+#if not CLEAN23
         if not PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
             exit(NoPriceDiscV15ForCampaign(CampaignNo));
 #endif
@@ -284,7 +271,7 @@ codeunit 7030 "Campaign Target Group Mgt"
         exit(PriceListLine.IsEmpty());
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by NoPriceDiscForCampaign', '17.0')]
     local procedure NoPriceDiscV15ForCampaign(CampaignNo: Code[20]): Boolean;
     var

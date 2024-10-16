@@ -66,7 +66,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
         // 3. Verify: Test that the values of Bill-to Customer No.,Bill-to Name,Source Code in Sales Invoice Nos. Report
         // must match in Corresponding Sales Invoice Header Table values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesInvoiceNumber(SalesHeader);
     end;
 
@@ -96,7 +96,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         RunSalesInvoiceNos(PostedInvoiceNo);
 
         // 3. Verify: Verify Warning Message of Sales Invoice Nos. Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(DocumentOrderErrorTxt));
     end;
 
@@ -122,7 +122,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
         // 3. Verify: Verify that the values of Bill-to Customer No.,Bill-to Name,Source Code in Sales Credit Memo Nos. Report
         // must match in Corresponding Sales Credit Memo Header Table values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesCreditMemo(SalesHeader);
     end;
 
@@ -152,7 +152,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         RunSalesCrMemoNos(PostedCrMemoNo);
 
         // 3. Verify: Verify Warning Message of Sales Credit Memo Nos Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(DocumentOrderErrorTxt));
     end;
 
@@ -174,7 +174,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         BlanketSalesOrderReport(SalesHeader."No.", false);
 
         // Verify: Verify Amount on Blanket Sales Order Report when no option is set.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('LineAmountRL_SalesLine', SalesLine."Line Amount");
     end;
 
@@ -196,7 +196,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         BlanketSalesOrderReport(SalesHeader."No.", false);
 
         // Verify: Verify VAT Amount on Blanket Sales Order Report when no option is set.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VATAmount', Round(SalesLine."Line Amount" * SalesLine."VAT %" / 100));
     end;
 
@@ -228,7 +228,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         BlanketSalesOrderReport(SalesHeader."No.", true);
 
         // Verify: Verify Dimension on Blanket Sales Order Report when Show Internal Information option is True.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         RowValueSet := StrSubstNo(HeaderDimensionTxt, DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
         LibraryReportDataset.AssertElementWithValueExists('DimText', RowValueSet);
     end;
@@ -260,7 +260,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         RunReturnOrderConfirmation(SalesHeader, false, false);
 
         // 3. Verify: Verify Sales Line and VAT Amount Line Values on Return Order Confirmation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesLineOnReport(SalesLine);
         VerifyVATAmountLineOnReport(TempVATAmountLine);
     end;
@@ -290,7 +290,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         RunReturnOrderConfirmation(SalesHeader, true, false);
 
         // Verify: Verify Dimension on Return Order Confirmation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('DimText',
           StrSubstNo(HeaderDimensionTxt, DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code"));
     end;
@@ -371,17 +371,17 @@ codeunit 134390 "ERM Sales Doc. Reports"
         CustomerSummaryAging.Run();
 
         // Verify: Verify Saved Report Data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Amount2 := FindDetailedCustomerLedgerEntry(CustomerNo2);
         Amount3 := FindDetailedCustomerLedgerEntry(SalesLine."Sell-to Customer No.");
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.FindCurrentRowValue('CustBalanceDueLCY_1_', ReportValue);
-        Assert.AreNearlyEqual(-Amount2, ReportValue, LibraryERM.GetAmountRoundingPrecision, SameAmountErrorTxt);
+        Assert.AreNearlyEqual(-Amount2, ReportValue, LibraryERM.GetAmountRoundingPrecision(), SameAmountErrorTxt);
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.FindCurrentRowValue('CustBalanceDueLCY_2_', ReportValue);
-        Assert.AreNearlyEqual(-Amount3, ReportValue, LibraryERM.GetAmountRoundingPrecision, SameAmountErrorTxt);
+        Assert.AreNearlyEqual(-Amount3, ReportValue, LibraryERM.GetAmountRoundingPrecision(), SameAmountErrorTxt);
     end;
 
     [Test]
@@ -405,8 +405,8 @@ codeunit 134390 "ERM Sales Doc. Reports"
         REPORT.Run(REPORT::"Archived Sales Order", true, false, SalesHeaderArchive);
 
         // Verify: VAT Amount is correct.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('VATAmount_Control134', Round(VATAmount, LibraryERM.GetAmountRoundingPrecision));
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('VATAmount_Control134', Round(VATAmount, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     [Test]
@@ -472,18 +472,18 @@ codeunit 134390 "ERM Sales Doc. Reports"
         Initialize();
 
         // [GIVEN] Sales return order with "Sell-to Customer No." = "Cust1" and "Bill-to Customer No." = "Cust2"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(10, 100));
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "Return Order Confirmation"
         RunReturnOrderConfirmation(SalesHeader, false, false);
 
         // [THEN] Caption of Sell-to Customer No. = "Sell-to Customer No."
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueOnWorksheet(80, 1, SalesHeader.FieldCaption("Sell-to Customer No."), '1');
     end;
 
@@ -501,7 +501,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         RunReturnOrderConfirmation(SalesHeader, false, false);
 
         // Verify: Check VAT Amount on Sales Return Order Confirmation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         for i := 1 to LineCount do
             LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATAmt', VATAmount[i]);
     end;
@@ -530,9 +530,9 @@ codeunit 134390 "ERM Sales Doc. Reports"
         CreateSalesDocumentWithAmount(
           SalesHeaderCrMemo,
           SalesHeaderCrMemo."Document Type"::"Credit Memo",
-          CreateCurrencyAndExchangeRate,
-          LibraryInventory.CreateItemNo,
-          LibrarySales.CreateCustomerNo,
+          CreateCurrencyAndExchangeRate(),
+          LibraryInventory.CreateItemNo(),
+          LibrarySales.CreateCustomerNo(),
           Amount,
           ItemsCount);
         CrMemoDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderCrMemo, true, true);
@@ -542,7 +542,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
           SalesHeaderInvoice,
           SalesHeaderInvoice."Document Type"::Invoice,
           '',
-          LibraryInventory.CreateItemNo,
+          LibraryInventory.CreateItemNo(),
           SalesHeaderCrMemo."Sell-to Customer No.",
           Amount,
           ItemsCount);
@@ -591,9 +591,9 @@ codeunit 134390 "ERM Sales Doc. Reports"
         CreateSalesDocumentWithAmount(
           SalesHeaderCrMemo,
           SalesHeaderCrMemo."Document Type"::"Credit Memo",
-          CreateCurrencyAndExchangeRate,
-          LibraryInventory.CreateItemNo,
-          LibrarySales.CreateCustomerNo,
+          CreateCurrencyAndExchangeRate(),
+          LibraryInventory.CreateItemNo(),
+          LibrarySales.CreateCustomerNo(),
           Amount,
           ItemsCount);
         CrMemoDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderCrMemo, true, true);
@@ -603,7 +603,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
           SalesHeaderInvoice,
           SalesHeaderInvoice."Document Type"::Invoice,
           '',
-          LibraryInventory.CreateItemNo,
+          LibraryInventory.CreateItemNo(),
           SalesHeaderCrMemo."Sell-to Customer No.",
           Amount,
           ItemsCount);
@@ -653,8 +653,8 @@ codeunit 134390 "ERM Sales Doc. Reports"
           SalesHeaderCrMemo,
           SalesHeaderCrMemo."Document Type"::"Credit Memo",
           '',
-          LibraryInventory.CreateItemNo,
-          LibrarySales.CreateCustomerNo,
+          LibraryInventory.CreateItemNo(),
+          LibrarySales.CreateCustomerNo(),
           Amount,
           ItemsCount);
         CrMemoDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderCrMemo, true, true);
@@ -664,7 +664,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
           SalesHeaderInvoice,
           SalesHeaderInvoice."Document Type"::Invoice,
           '',
-          LibraryInventory.CreateItemNo,
+          LibraryInventory.CreateItemNo(),
           SalesHeaderCrMemo."Sell-to Customer No.",
           Amount,
           ItemsCount);
@@ -702,14 +702,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         Initialize();
 
         // [GIVEN] Create Sales Invoice with GL and Amount will be 0.
-        CreateSalesDocumentWithZeroAmount(
-          SalesHeaderInvoice,
-          SalesHeaderInvoice."Document Type"::Invoice,
-          '',
-          '',
-          LibrarySales.CreateCustomerNo,
-          0,
-          1);
+        CreateSalesDocumentWithZeroAmount(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, '', LibrarySales.CreateCustomerNo(), 1);
 
         // [THEN] Post Sale Invoice of 0 amount
         InvoiceDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
@@ -764,7 +757,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SalesHeader.Validate("Due Date", DueDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         Amount := SalesLine."Amount Including VAT";
@@ -782,7 +775,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateVATPostingSetup(VATPostingSetup, OldVATPercent, 0);
 
-        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
         VATIdentifier := CreateSalesDocumentWithNormalVAT(VATPostingSetup, SalesHeader, SalesLine, DocumentType, Currency.Code);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         UpdateVATPostingSetup(VATPostingSetup, OldVATPercent, OldVATPercent);
@@ -810,7 +803,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(VATPostingSetup."VAT Bus. Posting Group"));
-        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
         UpdatePurchaseDocument(PurchaseHeader, Currency.Code, VendorCrMemoNo);
 
         // Use Random Number Generator for Quantity.
@@ -1096,7 +1089,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryVariableStorage.Enqueue(ShowEntriesWithZeroBalance);
 
         // Exercise.
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(CustomerBalanceToDate);
         Customer.SetRange("No.", SalesHeader."Bill-to Customer No.");
         Customer.SetRange("Date Filter", SalesHeader."Posting Date");
@@ -1163,7 +1156,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
     local procedure VerifySalesCreditMemoReport(VATIdentifier: Code[20]; VATAmount: Decimal)
     begin
         with LibraryReportDataset do begin
-            LoadDataSetFile;
+            LoadDataSetFile();
             AssertElementWithValueExists('VATAmtLineVATIdentifier', VATIdentifier);
             AssertElementWithValueExists('VATAmtLineVATAmt', VATAmount);
             AssertElementWithValueExists('VATIdentifier_VATCounterLCY', VATIdentifier);
@@ -1174,7 +1167,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
     local procedure VerifyPurchaseCreditMemoReport(VATIdentifier: Code[20]; VATAmount: Decimal)
     begin
         with LibraryReportDataset do begin
-            LoadDataSetFile;
+            LoadDataSetFile();
             AssertElementWithValueExists('VATAmtLineVATIdentifier_VATCounter', VATIdentifier);
             AssertElementWithValueExists('VATAmountLineVATAmount', VATAmount);
             AssertElementWithValueExists('VATAmtLineVATIdentifier_VATCounterLCY', VATIdentifier);
@@ -1186,9 +1179,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
        var SalesHeader: Record "Sales Header";
        DocumentType: Enum "Sales Document Type";
        CurrencyCode: Code[10];
-       GlAccountNo: Code[20];
        CustomerNo: Code[20];
-       DirectUnitCost: Decimal;
        Quantity: Integer)
     var
         SalesLine: Record "Sales Line";
@@ -1218,56 +1209,56 @@ codeunit 134390 "ERM Sales Doc. Reports"
     [Scope('OnPrem')]
     procedure ReportHandlerBlanketSalesOrder(var BlanketSalesOrder: TestRequestPage "Blanket Sales Order")
     begin
-        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReportHandlerSalesCrMemoNos(var SalesCrMemoNos: TestRequestPage "Sales Credit Memo Nos.")
     begin
-        SalesCrMemoNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesCrMemoNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReportHandlerSalesInvoiceNos(var SalesInvoiceNos: TestRequestPage "Sales Invoice Nos.")
     begin
-        SalesInvoiceNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReportHandlerReturnOrderConfirmation(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
     begin
-        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RepHandlerReturnOrderConfirmation(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
     begin
-        ReturnOrderConfirmation.SaveAsExcel(LibraryReportValidation.GetFileName);
+        ReturnOrderConfirmation.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReportHandlerCustomerSummaryAging(var CustomerSummaryAging: TestRequestPage "Customer - Summary Aging")
     begin
-        CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReportHandlerArchivedSalesOrder(var ArchivedSalesOrder: TestRequestPage "Archived Sales Order")
     begin
-        ArchivedSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ArchivedSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReportHandlerPurchCreditMemo(var PurchaseCreditMemo: TestRequestPage "Purchase - Credit Memo")
     begin
-        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1281,8 +1272,8 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryVariableStorage.Dequeue(Unapplied);
         CustomerBalancetoDate.PrintAmountInLCY.SetValue(AmountLCY);
         CustomerBalancetoDate.PrintUnappliedEntries.SetValue(Unapplied);
-        CustomerBalancetoDate.ShowEntriesWithZeroBalance.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CustomerBalancetoDate.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerBalancetoDate.ShowEntriesWithZeroBalance.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CustomerBalancetoDate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

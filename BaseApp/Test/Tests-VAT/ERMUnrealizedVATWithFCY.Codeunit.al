@@ -67,7 +67,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Unrealized VAT With FCY");
-        SetUnrealizedVATTypeToBlank;
+        SetUnrealizedVATTypeToBlank();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
@@ -281,7 +281,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         CreateAndPostGenJournalLine(
           GenJournalLine, SalesHeader."Document Type", GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.",
           CurrencyCode2, AmountToPost / PartialPaymentFactor, PaymentDate, DocumentOption::Sales);
-        TransactionNo := GetNextTransactionNo;
+        TransactionNo := GetNextTransactionNo();
         ApplyAndPostCustomerEntry(
           PostedDocumentNo, SalesHeader."Document Type", GenJournalLine."Document No.", GenJournalLine."Document Type");
 
@@ -325,7 +325,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
           CurrencyCode, FCYAmount / PartialPaymentFactor, WorkDate(), DocumentOption::Sales);
         // Exercise
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        TransactionNo := GetNextTransactionNo;
+        TransactionNo := GetNextTransactionNo();
         ApplyAndPostCustomerEntry(
           PostedDocumentNo, SalesHeader."Document Type", GenJournalLine."Document No.", GenJournalLine."Document Type");
 
@@ -379,7 +379,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         CreateAndPostGenJournalLine(
           GenJournalLine, SalesHeader."Document Type", GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.",
           CurrencyCode2, AmountToPost - PartialPaymentAmount, PaymentDate, DocumentOption::Sales);
-        TransactionNo := GetNextTransactionNo;
+        TransactionNo := GetNextTransactionNo();
         ApplyAndPostCustomerEntry(
           PostedDocumentNo, SalesHeader."Document Type", GenJournalLine."Document No.", GenJournalLine."Document Type");
 
@@ -597,7 +597,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         CreateAndPostGenJournalLine(
           GenJournalLine, PurchHeader."Document Type", GenJournalLine."Account Type"::Vendor, PurchHeader."Buy-from Vendor No.",
           CurrencyCode2, AmountToPost / PartialPaymentFactor, PaymentDate, DocumentOption::Purchase);
-        TransactionNo := GetNextTransactionNo;
+        TransactionNo := GetNextTransactionNo();
         ApplyAndPostVendorEntry(
           PostedDocumentNo, PurchHeader."Document Type", GenJournalLine."Document No.", GenJournalLine."Document Type");
 
@@ -642,7 +642,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
 
         // Exercise
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
-        TransactionNo := GetNextTransactionNo;
+        TransactionNo := GetNextTransactionNo();
         ApplyAndPostVendorEntry(
           PostedDocumentNo, PurchHeader."Document Type", GenJournalLine."Document No.", GenJournalLine."Document Type");
 
@@ -696,7 +696,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         CreateAndPostGenJournalLine(
           GenJournalLine, PurchHeader."Document Type", GenJournalLine."Account Type"::Vendor, PurchHeader."Buy-from Vendor No.",
           CurrencyCode2, AmountToPost - PartialPaymentAmount, PaymentDate, DocumentOption::Purchase);
-        TransactionNo := GetNextTransactionNo;
+        TransactionNo := GetNextTransactionNo();
         ApplyAndPostVendorEntry(
           PostedDocumentNo, PurchHeader."Document Type", GenJournalLine."Document No.", GenJournalLine."Document Type");
 
@@ -745,7 +745,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
 
     local procedure CalculateFCYAmountExclVAT(FCYAmountInclVAT: Decimal; VATPercentage: Decimal): Decimal
     begin
-        exit(Round(FCYAmountInclVAT * 100 / (100 + VATPercentage), LibraryERM.GetAmountRoundingPrecision));
+        exit(Round(FCYAmountInclVAT * 100 / (100 + VATPercentage), LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure CalculateRealizedRemainingVATEntryAmount(VATPercentage: Decimal; FCYAmount: Decimal; CurrencyCode: Code[10]; Date: Date; PartialPaymentFactor: Decimal; ApplyToDocumentType: Option; Document: Option) ExpectedAmount: Decimal
@@ -758,7 +758,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         FCYAmountExclVAT := CalculateFCYAmountExclVAT(FCYAmount, VATPercentage);
         LCYAmountExclVAT := ConvertCurrencyWithRounding(FCYAmountExclVAT, CurrencyCode, '', Date);
         LCYAmount := ConvertCurrencyWithRounding(FCYAmount, CurrencyCode, '', Date);
-        FirstPaymentAmount := Round((LCYAmount - LCYAmountExclVAT) / PartialPaymentFactor, LibraryERM.GetAmountRoundingPrecision);
+        FirstPaymentAmount := Round((LCYAmount - LCYAmountExclVAT) / PartialPaymentFactor, LibraryERM.GetAmountRoundingPrecision());
         ExpectedAmount := LCYAmount - LCYAmountExclVAT - FirstPaymentAmount;
         ExpectedAmount := -1 * ModifySign(ApplyToDocumentType, ExpectedAmount, Document);
     end;
@@ -772,7 +772,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         FCYAmountExclVAT := CalculateFCYAmountExclVAT(FCYAmount, VATPercentage);
         LCYAmountExclVAT := ConvertCurrencyWithRounding(FCYAmountExclVAT, CurrencyCode, '', Date);
         LCYAmount := ConvertCurrencyWithRounding(FCYAmount, CurrencyCode, '', Date);
-        ExpectedAmount := Round((LCYAmount - LCYAmountExclVAT) / PartialPaymentFactor, LibraryERM.GetAmountRoundingPrecision);
+        ExpectedAmount := Round((LCYAmount - LCYAmountExclVAT) / PartialPaymentFactor, LibraryERM.GetAmountRoundingPrecision());
         ExpectedAmount := -1 * ModifySign(ApplyToDocumentType, ExpectedAmount, Document);
     end;
 
@@ -800,7 +800,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
     begin
         NewAmount := LibraryERM.ConvertCurrency(FCYAmount, CurrencyCode, CurrencyCode2, Date);
         if CurrencyCode2 = '' then
-            NewAmount := Round(NewAmount, LibraryERM.GetAmountRoundingPrecision)
+            NewAmount := Round(NewAmount, LibraryERM.GetAmountRoundingPrecision())
         else begin
             Currency.Get(CurrencyCode2);
             NewAmount := Round(NewAmount, Currency."Amount Rounding Precision");
@@ -1062,14 +1062,14 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
         GenJournalBatch.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalBatch.Modify(true);
     end;
 
     local procedure SetInvoiceRoundingPrecision(var Currency: Record Currency)
     begin
         Currency.Get(Currency.Code);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY());
         Currency.Modify(true);
     end;
 
@@ -1092,8 +1092,8 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 

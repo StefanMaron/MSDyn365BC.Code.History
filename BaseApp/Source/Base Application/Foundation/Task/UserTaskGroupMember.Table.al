@@ -7,6 +7,7 @@ table 1176 "User Task Group Member"
     Caption = 'User Task Group Member';
     DataCaptionFields = "User Task Group Code";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -24,7 +25,7 @@ table 1176 "User Task Group Member"
         }
         field(3; "User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("User Security ID"),
+            CalcFormula = lookup(User."User Name" where("User Security ID" = field("User Security ID"),
                                                          "License Type" = const("Full User")));
             Caption = 'User Name';
             Editable = false;

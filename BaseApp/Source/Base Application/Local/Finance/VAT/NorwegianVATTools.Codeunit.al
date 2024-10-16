@@ -10,6 +10,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using System.Utilities;
@@ -176,25 +177,24 @@ codeunit 10600 "Norwegian VAT Tools"
         VATPostingSetup: Record "VAT Posting Setup";
         VATReportingCode: Record "VAT Reporting Code";
     begin
-        with GenJournalLine do
-            if UseBalanceFields then begin
-                if VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then begin
-                    "Bal. VAT Number" := VATPostingSetup."VAT Number";
-                    if VATPostingSetup."VAT Number" <> '' then begin
-                        VATReportingCode.Get(VATPostingSetup."VAT Number");
-                        "Bal. Gen. Posting Type" := VATReportingCode."Gen. Posting Type";
-                    end;
-                end else
-                    "Bal. VAT Number" := '';
+        if UseBalanceFields then begin
+            if VATPostingSetup.Get(GenJournalLine."Bal. VAT Bus. Posting Group", GenJournalLine."Bal. VAT Prod. Posting Group") then begin
+                GenJournalLine."Bal. VAT Number" := VATPostingSetup."VAT Number";
+                if VATPostingSetup."VAT Number" <> '' then begin
+                    VATReportingCode.Get(VATPostingSetup."VAT Number");
+                    GenJournalLine."Bal. Gen. Posting Type" := "General Posting Type".FromInteger(VATReportingCode."Gen. Posting Type");
+                end;
             end else
-                if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
-                    "VAT Number" := VATPostingSetup."VAT Number";
-                    if VATPostingSetup."VAT Number" <> '' then begin
-                        VATReportingCode.Get(VATPostingSetup."VAT Number");
-                        "Gen. Posting Type" := VATReportingCode."Gen. Posting Type";
-                    end;
-                end else
-                    "VAT Number" := '';
+                GenJournalLine."Bal. VAT Number" := '';
+        end else
+            if VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group") then begin
+                GenJournalLine."VAT Number" := VATPostingSetup."VAT Number";
+                if VATPostingSetup."VAT Number" <> '' then begin
+                    VATReportingCode.Get(VATPostingSetup."VAT Number");
+                    GenJournalLine."Gen. Posting Type" := "General Posting Type".FromInteger(VATReportingCode."Gen. Posting Type");
+                end;
+            end else
+                GenJournalLine."VAT Number" := '';
     end;
 
     procedure InitVATCodeSalesLine(var SalesLine: Record "Sales Line")
@@ -228,35 +228,34 @@ codeunit 10600 "Norwegian VAT Tools"
         VATReportingCode: Record "VAT Reporting Code";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with GenJournalLine do
-            if UseBalanceFields then
-                if "Bal. VAT Number" = '' then begin
-                    Validate("Bal. Gen. Posting Type", "Bal. Gen. Posting Type"::" ");
-                    Validate("Bal. VAT Bus. Posting Group", '');
-                    Validate("Bal. VAT Prod. Posting Group", '');
-                end else begin
-                    VATReportingCode.Get("Bal. VAT Number");
-                    VATPostingSetup.SetCurrentKey("VAT Number");
-                    VATPostingSetup.SetRange("VAT Number", "Bal. VAT Number");
-                    VATPostingSetup.FindFirst();
-                    Validate("Bal. Gen. Posting Type", VATReportingCode."Gen. Posting Type");
-                    Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-                    Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-                end
-            else
-                if "VAT Number" = '' then begin
-                    Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
-                    Validate("VAT Bus. Posting Group", '');
-                    Validate("VAT Prod. Posting Group", '');
-                end else begin
-                    VATReportingCode.Get("VAT Number");
-                    VATPostingSetup.SetCurrentKey("VAT Number");
-                    VATPostingSetup.SetRange("VAT Number", "VAT Number");
-                    VATPostingSetup.FindFirst();
-                    Validate("Gen. Posting Type", VATReportingCode."Gen. Posting Type");
-                    Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-                    Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-                end;
+        if UseBalanceFields then
+            if GenJournalLine."Bal. VAT Number" = '' then begin
+                GenJournalLine.Validate("Bal. Gen. Posting Type", GenJournalLine."Bal. Gen. Posting Type"::" ");
+                GenJournalLine.Validate("Bal. VAT Bus. Posting Group", '');
+                GenJournalLine.Validate("Bal. VAT Prod. Posting Group", '');
+            end else begin
+                VATReportingCode.Get(GenJournalLine."Bal. VAT Number");
+                VATPostingSetup.SetCurrentKey("VAT Number");
+                VATPostingSetup.SetRange("VAT Number", GenJournalLine."Bal. VAT Number");
+                VATPostingSetup.FindFirst();
+                GenJournalLine.Validate("Bal. Gen. Posting Type", VATReportingCode."Gen. Posting Type");
+                GenJournalLine.Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+                GenJournalLine.Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+            end
+        else
+            if GenJournalLine."VAT Number" = '' then begin
+                GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::" ");
+                GenJournalLine.Validate("VAT Bus. Posting Group", '');
+                GenJournalLine.Validate("VAT Prod. Posting Group", '');
+            end else begin
+                VATReportingCode.Get(GenJournalLine."VAT Number");
+                VATPostingSetup.SetCurrentKey("VAT Number");
+                VATPostingSetup.SetRange("VAT Number", GenJournalLine."VAT Number");
+                VATPostingSetup.FindFirst();
+                GenJournalLine.Validate("Gen. Posting Type", VATReportingCode."Gen. Posting Type");
+                GenJournalLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+                GenJournalLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+            end;
     end;
 
     procedure InitPostingGroupsSalesLine(var SalesLine: Record "Sales Line")
@@ -339,31 +338,30 @@ codeunit 10600 "Norwegian VAT Tools"
         VATPostingSetup: Record "VAT Posting Setup";
         VATCode: Record "VAT Code";
     begin
-        with GenJnlLine do
-            if UseBalanceFields then begin
-                if VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then begin
-                    "Bal. VAT Code" := VATPostingSetup."VAT Code";
-                    "Bal. VAT Number" := VATPostingSetup."VAT Number";
-                    if VATPostingSetup."VAT Code" <> '' then begin
-                        VATCode.Get(VATPostingSetup."VAT Code");
-                        "Bal. Gen. Posting Type" := VATCode."Gen. Posting Type";
-                    end;
-                end else begin
-                    "Bal. VAT Code" := '';
-                    "Bal. VAT Number" := '';
+        if UseBalanceFields then begin
+            if VATPostingSetup.Get(GenJnlLine."Bal. VAT Bus. Posting Group", GenJnlLine."Bal. VAT Prod. Posting Group") then begin
+                GenJnlLine."Bal. VAT Code" := VATPostingSetup."VAT Code";
+                GenJnlLine."Bal. VAT Number" := VATPostingSetup."VAT Number";
+                if VATPostingSetup."VAT Code" <> '' then begin
+                    VATCode.Get(VATPostingSetup."VAT Code");
+                    GenJnlLine."Bal. Gen. Posting Type" := "General Posting Type".FromInteger(VATCode."Gen. Posting Type");
                 end;
-            end else
-                if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
-                    "VAT Code" := VATPostingSetup."VAT Code";
-                    "VAT Number" := VATPostingSetup."VAT Number";
-                    if VATPostingSetup."VAT Code" <> '' then begin
-                        VATCode.Get(VATPostingSetup."VAT Code");
-                        "Gen. Posting Type" := VATCode."Gen. Posting Type";
-                    end;
-                end else begin
-                    "VAT Code" := '';
-                    "VAT Number" := '';
+            end else begin
+                GenJnlLine."Bal. VAT Code" := '';
+                GenJnlLine."Bal. VAT Number" := '';
+            end;
+        end else
+            if VATPostingSetup.Get(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group") then begin
+                GenJnlLine."VAT Code" := VATPostingSetup."VAT Code";
+                GenJnlLine."VAT Number" := VATPostingSetup."VAT Number";
+                if VATPostingSetup."VAT Code" <> '' then begin
+                    VATCode.Get(VATPostingSetup."VAT Code");
+                    GenJnlLine."Gen. Posting Type" := "General Posting Type".FromInteger(VATCode."Gen. Posting Type");
                 end;
+            end else begin
+                GenJnlLine."VAT Code" := '';
+                GenJnlLine."VAT Number" := '';
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -409,35 +407,34 @@ codeunit 10600 "Norwegian VAT Tools"
         VATCode: Record "VAT Code";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with GenJnlLine do
-            if UseBalanceFields then
-                if "Bal. VAT Code" = '' then begin
-                    Validate("Bal. Gen. Posting Type", "Bal. Gen. Posting Type"::" ");
-                    Validate("Bal. VAT Bus. Posting Group", '');
-                    Validate("Bal. VAT Prod. Posting Group", '');
-                end else begin
-                    VATCode.Get("Bal. VAT Code");
-                    VATPostingSetup.SetCurrentKey("VAT Code");
-                    VATPostingSetup.SetRange("VAT Code", "Bal. VAT Code");
-                    VATPostingSetup.FindFirst();
-                    Validate("Bal. Gen. Posting Type", VATCode."Gen. Posting Type");
-                    Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-                    Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-                end
-            else
-                if "VAT Code" = '' then begin
-                    Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
-                    Validate("VAT Bus. Posting Group", '');
-                    Validate("VAT Prod. Posting Group", '');
-                end else begin
-                    VATCode.Get("VAT Code");
-                    VATPostingSetup.SetCurrentKey("VAT Code");
-                    VATPostingSetup.SetRange("VAT Code", "VAT Code");
-                    VATPostingSetup.FindFirst();
-                    Validate("Gen. Posting Type", VATCode."Gen. Posting Type");
-                    Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-                    Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-                end;
+        if UseBalanceFields then
+            if GenJnlLine."Bal. VAT Code" = '' then begin
+                GenJnlLine.Validate("Bal. Gen. Posting Type", GenJnlLine."Bal. Gen. Posting Type"::" ");
+                GenJnlLine.Validate("Bal. VAT Bus. Posting Group", '');
+                GenJnlLine.Validate("Bal. VAT Prod. Posting Group", '');
+            end else begin
+                VATCode.Get(GenJnlLine."Bal. VAT Code");
+                VATPostingSetup.SetCurrentKey("VAT Code");
+                VATPostingSetup.SetRange("VAT Code", GenJnlLine."Bal. VAT Code");
+                VATPostingSetup.FindFirst();
+                GenJnlLine.Validate("Bal. Gen. Posting Type", VATCode."Gen. Posting Type");
+                GenJnlLine.Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+                GenJnlLine.Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+            end
+        else
+            if GenJnlLine."VAT Code" = '' then begin
+                GenJnlLine.Validate("Gen. Posting Type", GenJnlLine."Gen. Posting Type"::" ");
+                GenJnlLine.Validate("VAT Bus. Posting Group", '');
+                GenJnlLine.Validate("VAT Prod. Posting Group", '');
+            end else begin
+                VATCode.Get(GenJnlLine."VAT Code");
+                VATPostingSetup.SetCurrentKey("VAT Code");
+                VATPostingSetup.SetRange("VAT Code", GenJnlLine."VAT Code");
+                VATPostingSetup.FindFirst();
+                GenJnlLine.Validate("Gen. Posting Type", VATCode."Gen. Posting Type");
+                GenJnlLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+                GenJnlLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -555,43 +552,39 @@ codeunit 10600 "Norwegian VAT Tools"
         VATProdPostGrp: Record "VAT Product Posting Group";
         GLSetup: Record "General Ledger Setup";
     begin
-        with GenJnlLine do begin
-            if AllowPostingInClosedVATPeriod then
-                AllowPostingInClosedVATPeriod := false
-            else
-                if SettledVATPeriod.Get(Date2DMY("VAT Reporting Date", 3), VATPeriodNo("VAT Reporting Date")) then
-                    if SettledVATPeriod.Closed then
-                        FieldError("VAT Reporting Date", StrSubstNo(Text005, SettledVATPeriod.Year, SettledVATPeriod."Period No."));
+        if AllowPostingInClosedVATPeriod then
+            AllowPostingInClosedVATPeriod := false
+        else
+            if SettledVATPeriod.Get(Date2DMY(GenJnlLine."VAT Reporting Date", 3), VATPeriodNo(GenJnlLine."VAT Reporting Date")) then
+                if SettledVATPeriod.Closed then
+                    GenJnlLine.FieldError("VAT Reporting Date", StrSubstNo(Text005, SettledVATPeriod.Year, SettledVATPeriod."Period No."));
 
-            if "VAT Base Amount Type" <> "VAT Base Amount Type"::Automatic then begin
-                if ("Gen. Posting Type" = "Gen. Posting Type"::Purchase) or
-                   ("Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::Purchase)
-                then
-                    FieldError("VAT Base Amount Type", StrSubstNo(Text006, "VAT Base Amount Type"));
-                if ("VAT Amount" <> 0) or ("Bal. VAT Amount" <> 0) then
-                    FieldError("VAT Base Amount Type", StrSubstNo(Text007, "VAT Base Amount Type"));
-            end;
-
-            // VAT not possible Outside Tax Area
-            if "VAT Prod. Posting Group" <> '' then begin
-                VATProdPostGrp.Get("VAT Prod. Posting Group");
-                if VATProdPostGrp."Outside Tax Area" and ("VAT Amount" <> 0) then
-                    FieldError("VAT Amount", Text008);
-            end;
-            if "Bal. VAT Prod. Posting Group" <> '' then begin
-                VATProdPostGrp.Get("Bal. VAT Prod. Posting Group");
-                if VATProdPostGrp."Outside Tax Area" and ("Bal. VAT Amount" <> 0) then
-                    FieldError("Bal. VAT Amount", Text008);
-            end;
-
-            // VAT other than Reverse Charge is not possible if the company is Not VAT xxx
-            GLSetup.Get();
-            if GLSetup."Non-Taxable" then begin
-                if ("VAT Amount" <> 0) and ("VAT Calculation Type" <> "VAT Calculation Type"::"Reverse Charge VAT") then
-                    FieldError("VAT Amount", StrSubstNo(Text009, GLSetup.FieldCaption("Non-Taxable"), GLSetup.TableCaption()));
-                if ("Bal. VAT Amount" <> 0) and ("Bal. VAT Calculation Type" <> "Bal. VAT Calculation Type"::"Reverse Charge VAT") then
-                    FieldError("Bal. VAT Amount", StrSubstNo(Text009, GLSetup.FieldCaption("Non-Taxable"), GLSetup.TableCaption()));
-            end;
+        if GenJnlLine."VAT Base Amount Type" <> GenJnlLine."VAT Base Amount Type"::Automatic then begin
+            if (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Purchase) or
+               (GenJnlLine."Bal. Gen. Posting Type" = GenJnlLine."Bal. Gen. Posting Type"::Purchase)
+            then
+                GenJnlLine.FieldError("VAT Base Amount Type", StrSubstNo(Text006, GenJnlLine."VAT Base Amount Type"));
+            if (GenJnlLine."VAT Amount" <> 0) or (GenJnlLine."Bal. VAT Amount" <> 0) then
+                GenJnlLine.FieldError("VAT Base Amount Type", StrSubstNo(Text007, GenJnlLine."VAT Base Amount Type"));
+        end;
+        // VAT not possible Outside Tax Area
+        if GenJnlLine."VAT Prod. Posting Group" <> '' then begin
+            VATProdPostGrp.Get(GenJnlLine."VAT Prod. Posting Group");
+            if VATProdPostGrp."Outside Tax Area" and (GenJnlLine."VAT Amount" <> 0) then
+                GenJnlLine.FieldError("VAT Amount", Text008);
+        end;
+        if GenJnlLine."Bal. VAT Prod. Posting Group" <> '' then begin
+            VATProdPostGrp.Get(GenJnlLine."Bal. VAT Prod. Posting Group");
+            if VATProdPostGrp."Outside Tax Area" and (GenJnlLine."Bal. VAT Amount" <> 0) then
+                GenJnlLine.FieldError("Bal. VAT Amount", Text008);
+        end;
+        // VAT other than Reverse Charge is not possible if the company is Not VAT xxx
+        GLSetup.Get();
+        if GLSetup."Non-Taxable" then begin
+            if (GenJnlLine."VAT Amount" <> 0) and (GenJnlLine."VAT Calculation Type" <> GenJnlLine."VAT Calculation Type"::"Reverse Charge VAT") then
+                GenJnlLine.FieldError("VAT Amount", StrSubstNo(Text009, GLSetup.FieldCaption("Non-Taxable"), GLSetup.TableCaption()));
+            if (GenJnlLine."Bal. VAT Amount" <> 0) and (GenJnlLine."Bal. VAT Calculation Type" <> GenJnlLine."Bal. VAT Calculation Type"::"Reverse Charge VAT") then
+                GenJnlLine.FieldError("Bal. VAT Amount", StrSubstNo(Text009, GLSetup.FieldCaption("Non-Taxable"), GLSetup.TableCaption()));
         end;
     end;
 

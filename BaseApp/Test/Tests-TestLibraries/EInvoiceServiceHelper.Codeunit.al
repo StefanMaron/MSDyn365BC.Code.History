@@ -52,7 +52,7 @@ codeunit 143010 "E-Invoice Service Helper"
     begin
         EInvoiceHelper.SetCustomer(NewCustomer);
         CreateServDoc(ServHeader, ServHeader."Document Type"::Invoice);
-        EInvoiceHelper.ClearCustomer;
+        EInvoiceHelper.ClearCustomer();
         ServHeader."Salesperson Code" := SalesPersonCode;
         ServHeader.Modify(true);
         NewCustomer."No." := ServHeader."Bill-to Customer No.";
@@ -66,7 +66,7 @@ codeunit 143010 "E-Invoice Service Helper"
     begin
         EInvoiceHelper.SetCustomer(NewCustomer);
         CreateServDoc(ServHeader, ServHeader."Document Type"::"Credit Memo");
-        EInvoiceHelper.ClearCustomer;
+        EInvoiceHelper.ClearCustomer();
         ServHeader."Salesperson Code" := SalesPersonCode;
         ServHeader.Modify(true);
         NewCustomer."No." := ServHeader."Bill-to Customer No.";
@@ -92,7 +92,7 @@ codeunit 143010 "E-Invoice Service Helper"
         PostServOrder(ServHeader);
     end;
 
-    local procedure CreateServDoc(var ServHeader: Record "Service Header"; DocumentType: Option)
+    local procedure CreateServDoc(var ServHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         HowManyLinesToCreate: Integer;
@@ -106,7 +106,7 @@ codeunit 143010 "E-Invoice Service Helper"
         CreateServiceLines(ServHeader, HowManyLinesToCreate, VATProdPostGroupCode);
     end;
 
-    local procedure CreateServiceHeader(var ServHeader: Record "Service Header"; DocumentType: Option)
+    local procedure CreateServiceHeader(var ServHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
     begin
@@ -174,7 +174,7 @@ codeunit 143010 "E-Invoice Service Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateServiceInForeignCurrency(DocType: Option): Code[20]
+    procedure CreateServiceInForeignCurrency(DocType: Enum "Service Document Type"): Code[20]
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -183,7 +183,7 @@ codeunit 143010 "E-Invoice Service Helper"
         Customer.Validate("Currency Code", EInvoiceHelper.CreateExchangeRate(ServiceHeader."Posting Date"));
         EInvoiceHelper.SetCustomer(Customer);
         CreateServDoc(ServiceHeader, DocType);
-        EInvoiceHelper.ClearCustomer;
+        EInvoiceHelper.ClearCustomer();
         exit(PostServOrder(ServiceHeader));
     end;
 

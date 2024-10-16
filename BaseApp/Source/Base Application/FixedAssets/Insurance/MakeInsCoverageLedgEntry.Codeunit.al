@@ -13,41 +13,37 @@ codeunit 5657 "Make Ins. Coverage Ledg. Entry"
 
     procedure CopyFromJnlLine(var InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry"; var InsuranceJnlLine: Record "Insurance Journal Line")
     begin
-        with InsCoverageLedgEntry do begin
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            "Insurance No." := InsuranceJnlLine."Insurance No.";
-            "FA No." := InsuranceJnlLine."FA No.";
-            "FA Description" := InsuranceJnlLine."FA Description";
-            "Posting Date" := InsuranceJnlLine."Posting Date";
-            "Document Type" := InsuranceJnlLine."Document Type";
-            "Document Date" := InsuranceJnlLine."Document Date";
-            if "Document Date" = 0D then
-                "Document Date" := "Posting Date";
-            "Document No." := InsuranceJnlLine."Document No.";
-            "External Document No." := InsuranceJnlLine."External Document No.";
-            Amount := InsuranceJnlLine.Amount;
-            Description := InsuranceJnlLine.Description;
-            "Index Entry" := InsuranceJnlLine."Index Entry";
-            "Global Dimension 1 Code" := InsuranceJnlLine."Shortcut Dimension 1 Code";
-            "Global Dimension 2 Code" := InsuranceJnlLine."Shortcut Dimension 2 Code";
-            "Source Code" := InsuranceJnlLine."Source Code";
-            "Journal Batch Name" := InsuranceJnlLine."Journal Batch Name";
-            "Reason Code" := InsuranceJnlLine."Reason Code";
-            "Disposed FA" := SetDisposedFA("FA No.");
-            "No. Series" := InsuranceJnlLine."Posting No. Series";
-        end;
+        InsCoverageLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(InsCoverageLedgEntry."User ID"));
+        InsCoverageLedgEntry."Insurance No." := InsuranceJnlLine."Insurance No.";
+        InsCoverageLedgEntry."FA No." := InsuranceJnlLine."FA No.";
+        InsCoverageLedgEntry."FA Description" := InsuranceJnlLine."FA Description";
+        InsCoverageLedgEntry."Posting Date" := InsuranceJnlLine."Posting Date";
+        InsCoverageLedgEntry."Document Type" := InsuranceJnlLine."Document Type";
+        InsCoverageLedgEntry."Document Date" := InsuranceJnlLine."Document Date";
+        if InsCoverageLedgEntry."Document Date" = 0D then
+            InsCoverageLedgEntry."Document Date" := InsCoverageLedgEntry."Posting Date";
+        InsCoverageLedgEntry."Document No." := InsuranceJnlLine."Document No.";
+        InsCoverageLedgEntry."External Document No." := InsuranceJnlLine."External Document No.";
+        InsCoverageLedgEntry.Amount := InsuranceJnlLine.Amount;
+        InsCoverageLedgEntry.Description := InsuranceJnlLine.Description;
+        InsCoverageLedgEntry."Index Entry" := InsuranceJnlLine."Index Entry";
+        InsCoverageLedgEntry."Global Dimension 1 Code" := InsuranceJnlLine."Shortcut Dimension 1 Code";
+        InsCoverageLedgEntry."Global Dimension 2 Code" := InsuranceJnlLine."Shortcut Dimension 2 Code";
+        InsCoverageLedgEntry."Source Code" := InsuranceJnlLine."Source Code";
+        InsCoverageLedgEntry."Journal Batch Name" := InsuranceJnlLine."Journal Batch Name";
+        InsCoverageLedgEntry."Reason Code" := InsuranceJnlLine."Reason Code";
+        InsCoverageLedgEntry."Disposed FA" := SetDisposedFA(InsCoverageLedgEntry."FA No.");
+        InsCoverageLedgEntry."No. Series" := InsuranceJnlLine."Posting No. Series";
 
         OnAfterCopyFromJnlLine(InsCoverageLedgEntry, InsuranceJnlLine);
     end;
 
     procedure CopyFromInsuranceCard(var InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry"; var Insurance: Record Insurance)
     begin
-        with InsCoverageLedgEntry do begin
-            "FA Class Code" := Insurance."FA Class Code";
-            "FA Subclass Code" := Insurance."FA Subclass Code";
-            "FA Location Code" := Insurance."FA Location Code";
-            "Location Code" := Insurance."Location Code";
-        end;
+        InsCoverageLedgEntry."FA Class Code" := Insurance."FA Class Code";
+        InsCoverageLedgEntry."FA Subclass Code" := Insurance."FA Subclass Code";
+        InsCoverageLedgEntry."FA Location Code" := Insurance."FA Location Code";
+        InsCoverageLedgEntry."Location Code" := Insurance."Location Code";
     end;
 
     procedure SetDisposedFA(FANo: Code[20]): Boolean
@@ -68,22 +64,20 @@ codeunit 5657 "Make Ins. Coverage Ledg. Entry"
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
         FADeprBook: Record "FA Depreciation Book";
     begin
-        with InsCoverageLedgEntry do begin
-            if IsEmpty() then
-                exit;
+        if InsCoverageLedgEntry.IsEmpty() then
+            exit;
 
-            SetRange("Disposed FA", true);
-            ModifyAll("Disposed FA", false);
-            if InsDeprBookCode <> '' then begin
-                Reset();
-                FADeprBook.SetRange("Depreciation Book Code", InsDeprBookCode);
-                FADeprBook.SetFilter("Disposal Date", '<>%1', 0D);
-                if FADeprBook.FindSet() then
-                    repeat
-                        SetRange("FA No.", FADeprBook."FA No.");
-                        ModifyAll("Disposed FA", true)
-                    until FADeprBook.Next() = 0;
-            end;
+        InsCoverageLedgEntry.SetRange("Disposed FA", true);
+        InsCoverageLedgEntry.ModifyAll("Disposed FA", false);
+        if InsDeprBookCode <> '' then begin
+            InsCoverageLedgEntry.Reset();
+            FADeprBook.SetRange("Depreciation Book Code", InsDeprBookCode);
+            FADeprBook.SetFilter("Disposal Date", '<>%1', 0D);
+            if FADeprBook.FindSet() then
+                repeat
+                    InsCoverageLedgEntry.SetRange("FA No.", FADeprBook."FA No.");
+                    InsCoverageLedgEntry.ModifyAll("Disposed FA", true)
+                until FADeprBook.Next() = 0;
         end;
     end;
 

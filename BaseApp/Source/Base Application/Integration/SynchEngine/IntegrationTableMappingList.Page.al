@@ -110,7 +110,6 @@ page 5335 "Integration Table Mapping List"
                     begin
                         CurrPage.Update();
                     end;
-
                 }
                 field(IntegrationFieldCaption; IntegrationFieldCaptionValue)
                 {
@@ -180,6 +179,20 @@ page 5335 "Integration Table Mapping List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if event-based rescheduling of synchronization jobs should be turned off for this table mapping.';
                 }
+                field("User Defined"; Rec."User Defined")
+                {
+                    Editable = false;
+                    ToolTip = 'Specifies if the field is generated manually through the integration table mapping wizard.';
+                }
+            }
+        }
+        area(factboxes)
+        {
+            part(Troubleshooting; "Int. Table Mapping Errors")
+            {
+                ApplicationArea = Basic, Suite;
+                SubPageLink = Name = field(Name);
+                Visible = true;
             }
         }
     }
@@ -255,7 +268,7 @@ page 5335 "Integration Table Mapping List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Synchronize Modified Records';
-                Enabled = HasRecords AND (Rec."Parent Name" = '');
+                Enabled = HasRecords and (Rec."Parent Name" = '');
                 Image = Refresh;
                 ToolTip = 'Synchronize records that have been modified since the last time they were synchronized.';
 
@@ -278,7 +291,7 @@ page 5335 "Integration Table Mapping List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Run Full Synchronization';
-                Enabled = HasRecords AND (Rec."Parent Name" = '');
+                Enabled = HasRecords and (Rec."Parent Name" = '');
                 Image = RefreshLines;
                 ToolTip = 'Start a job for full synchronization between records in Business Central and the integration system for each of the selected integration table mappings.';
 
@@ -304,7 +317,7 @@ page 5335 "Integration Table Mapping List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Run Unconditional Full Synchronization';
-                Enabled = HasRecords AND (Rec."Parent Name" = '') AND (Rec.Direction <> Rec.Direction::Bidirectional);
+                Enabled = HasRecords and (Rec."Parent Name" = '') and (Rec.Direction <> Rec.Direction::Bidirectional);
                 Image = RefreshLines;
                 ToolTip = 'Start the full synchronization job for all records of this type in Business Central and the integration system. This includes records that have already been synchronized.';
 
@@ -364,7 +377,7 @@ page 5335 "Integration Table Mapping List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Delete Couplings';
-                Enabled = HasRecords AND (Rec."Parent Name" = '');
+                Enabled = HasRecords and (Rec."Parent Name" = '');
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Image = UnLinkAccount;
                 ToolTip = 'Delete couplings between the selected Business Central record types records in the integration system.';
@@ -422,7 +435,7 @@ page 5335 "Integration Table Mapping List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Match-Based Coupling';
-                Enabled = HasRecords AND (Rec."Parent Name" = '') and (((Rec.Name = 'SALESORDER-ORDER') and (not BidirectionalSalesOrderIntegrationEnabled)) or (Rec.Name <> 'SALESORDER-ORDER'));
+                Enabled = HasRecords and (Rec."Parent Name" = '') and (((Rec.Name = 'SALESORDER-ORDER') and (not BidirectionalSalesOrderIntegrationEnabled)) or (Rec.Name <> 'SALESORDER-ORDER'));
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Image = LinkAccount;
                 ToolTip = 'Make couplings between the selected Business Central table and the integration table based on matching criteria.';
@@ -447,6 +460,22 @@ page 5335 "Integration Table Mapping List"
                     if CRMIntegrationManagement.MatchBasedCoupling(IntegrationTableMapping."Table ID") then
                         Message(ResultMsg, IntegrationSynchJobList.Caption);
                 end;
+            }
+            action(ManualIntTableMappingWizard)
+            {
+                ApplicationArea = Suite;
+                Caption = 'New Table Mapping';
+                Image = New;
+                RunObject = Page "CDS New Man. Int. Table Wizard";
+                ToolTip = 'Create a new integration table mapping.';
+            }
+            action(ManualIntTableMapping)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Manuel Integration Table Mappings';
+                Image = Navigate;
+                RunObject = Page "Man. Int. Table Mapping List";
+                ToolTip = 'Manual integration mappings.';
             }
         }
         area(Promoted)
@@ -480,6 +509,9 @@ page 5335 "Integration Table Mapping List"
                 {
                 }
                 actionref(FieldMapping_Promoted; FieldMapping)
+                {
+                }
+                actionref(ManualIntTableMappingWizard_Promoted; ManualIntTableMappingWizard)
                 {
                 }
             }

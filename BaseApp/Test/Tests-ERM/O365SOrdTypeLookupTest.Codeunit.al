@@ -28,14 +28,14 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         Initialize();
 
         // [GIVEN] An OnPrem environment
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Opening a new Sales Order
         SalesOrder.OpenNew();
 
         // [THEN] The Type field is visible and the Subtype field is not
-        Assert.IsTrue(SalesOrder.SalesLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsFalse(SalesOrder.SalesLines.FilteredTypeField.Visible, 'Subtype field should not be visible for OnPrem');
+        Assert.IsTrue(SalesOrder.SalesLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsFalse(SalesOrder.SalesLines.FilteredTypeField.Visible(), 'Subtype field should not be visible for OnPrem');
     end;
 
     [Test]
@@ -53,9 +53,9 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
-        asserterror SalesOrder.SalesLines.Type.Activate;
+        asserterror SalesOrder.SalesLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        Assert.IsTrue(SalesOrder.SalesLines.FilteredTypeField.Visible, 'Subtype field should be visible for OnPrem');
+        Assert.IsTrue(SalesOrder.SalesLines.FilteredTypeField.Visible(), 'Subtype field should be visible for OnPrem');
     end;
 
     [Test]
@@ -78,7 +78,7 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
             // [WHEN] Opening the Subtype lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Option Caption");
-            SalesOrder.SalesLines.FilteredTypeField.Lookup;
+            SalesOrder.SalesLines.FilteredTypeField.Lookup();
 
             // [THEN] The Subtype is set to service
             SalesOrder.SalesLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
@@ -109,7 +109,7 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
 
         // [WHEN] Setting the Subtype on the Sales Line to co
-        SalesOrder.SalesLines.FilteredTypeField.SetValue(CopyStr(SalesLine.FormatType, 1, 2));
+        SalesOrder.SalesLines.FilteredTypeField.SetValue(CopyStr(SalesLine.FormatType(), 1, 2));
         // [THEN] The Subtype is set to Comment
         SalesOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
     end;
@@ -214,14 +214,15 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
     var
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
-        TempOptionLookupBuffer.FillLookupBuffer(LibraryVariableStorage.DequeueInteger);
+        TempOptionLookupBuffer.FillLookupBuffer(
+            "Option Lookup Type".FromInteger(LibraryVariableStorage.DequeueInteger()));
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
         until TempOptionLookupBuffer.Next() = 0;
 
-        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
-        OptionLookupList.OK.Invoke;
+        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText());
+        OptionLookupList.OK().Invoke();
     end;
 
     local procedure Initialize()
