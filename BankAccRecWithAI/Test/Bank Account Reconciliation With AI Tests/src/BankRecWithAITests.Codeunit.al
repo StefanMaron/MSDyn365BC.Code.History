@@ -86,6 +86,7 @@ codeunit 139777 "Bank Rec. With AI Tests"
         Amount: Decimal;
         EntryNos: List of [Integer];
         BankRecLedgerEntriesTxt: Text;
+        CandidateLedgerEntryNos: List of [Integer];
     begin
         Initialize();
 
@@ -107,7 +108,7 @@ codeunit 139777 "Bank Rec. With AI Tests"
             InsertFromBankAccLedgerEntry(TempLedgerEntryMatchingBuffer, BankAccountLedgerEntry)
         until BankAccountLedgerEntry.Next() = 0;
         TempLedgerEntryMatchingBuffer.FindSet();
-        BankRecAIMatchingImpl.BuildBankRecLedgerEntries(BankRecLedgerEntriesTxt, TempLedgerEntryMatchingBuffer);
+        BankRecAIMatchingImpl.BuildBankRecLedgerEntries(BankRecLedgerEntriesTxt, TempLedgerEntryMatchingBuffer, CandidateLedgerEntryNos);
 
         // Assert
         BankAccountLedgerEntry.FindSet();
@@ -117,6 +118,7 @@ codeunit 139777 "Bank Rec. With AI Tests"
             Assert.IsTrue(StrPos(BankRecLedgerEntriesTxt, 'Amount: ' + Format(BankAccountLedgerEntry."Remaining Amount", 0, 9)) > 0, 'Expected ledger entry amount not being sent to Copilot');
             Assert.IsTrue(StrPos(BankRecLedgerEntriesTxt, 'Date: ' + Format(BankAccountLedgerEntry."Posting Date", 0, 9)) > 0, 'Expected ledger entry date not being sent to Copilot');
         until BankAccountLedgerEntry.Next() = 0;
+        Assert.AreEqual(CandidateLedgerEntryNos.Count(), BankAccountLedgerEntry.Count(), '');
     end;
 
     [Test]

@@ -1382,6 +1382,9 @@ codeunit 132500 "Error Message Handling"
     begin
         TempErrorMessage.LogSimpleMessage(MessageType, Descr);
         TempErrorMessage."Register ID" := RegID;
+        if TempErrorMessage."Message Type" = TempErrorMessage."Message Type"::Error then
+            if TempErrorMessage.GetErrorCallStack() = '' then
+                TempErrorMessage.SetErrorCallStack(LibraryUtility.GenerateGUID());
         TempErrorMessage.Modify();
     end;
 
@@ -1435,10 +1438,16 @@ codeunit 132500 "Error Message Handling"
         Counter: Integer;
     begin
         Counter := 0;
-        if ErrorMessagesPage.First() then
+        if ErrorMessagesPage.First() then begin
             Counter := 1;
-        while ErrorMessagesPage.Next() do
+            if ErrorMessagesPage."Message Type".Value() = 'Error' then
+                Assert.IsTrue(ErrorMessagesPage.CallStack.Value() <> '', 'Error Call Stack is empty.');
+        end;
+        while ErrorMessagesPage.Next() do begin
             Counter += 1;
+            if ErrorMessagesPage."Message Type".Value() = 'Error' then
+                Assert.IsTrue(ErrorMessagesPage.CallStack.Value() <> '', 'Error Call Stack is empty.');
+        end;
         LibraryVariableStorage.Enqueue(Counter);
         LibraryVariableStorage.Enqueue(ErrorMessagesPage.Description.Value);
     end;

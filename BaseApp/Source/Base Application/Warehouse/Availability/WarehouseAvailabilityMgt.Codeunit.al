@@ -511,6 +511,7 @@ codeunit 7314 "Warehouse Availability Mgt."
 
         WhseItemTrackingSetup."Serial No. Required" := true;
         WhseItemTrackingSetup."Lot No. Required" := true;
+        WhseItemTrackingSetup."Package No. Required" := true;
 
         WarehouseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, false);
         WarehouseEntry.SetRange("Whse. Document Type", WarehouseEntry."Whse. Document Type"::Shipment);

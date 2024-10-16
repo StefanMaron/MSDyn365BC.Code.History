@@ -184,9 +184,13 @@ codeunit 5813 "Undo Purchase Receipt Line"
             PurchRcptLine.TestField("Sales Order Line No.", 0);
 
             UndoPostingMgt.TestPurchRcptLine(PurchRcptLine);
-            UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Purch. Rcpt. Line",
-              PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."Quantity (Base)", PurchRcptLine."Item Rcpt. Entry No.");
-            UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, PurchRcptLine."Line No.", PurchRcptLine."Qty. Rcd. Not Invoiced" <> PurchRcptLine.Quantity);
+            IsHandled := false;
+            OnCheckPurchRcptLineOnBeforeCollectItemLedgEntries(PurchRcptLine, TempItemLedgEntry, IsHandled);
+            if not IsHandled then begin
+                UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Purch. Rcpt. Line",
+                  PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."Quantity (Base)", PurchRcptLine."Item Rcpt. Entry No.");
+                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, PurchRcptLine."Line No.", PurchRcptLine."Qty. Rcd. Not Invoiced" <> PurchRcptLine.Quantity);
+            end;
         end;
     end;
 
@@ -276,7 +280,9 @@ codeunit 5813 "Undo Purchase Receipt Line"
         ItemJnlLine.Quantity := -(PurchRcptLine.Quantity - PurchRcptLine."Quantity Invoiced");
         ItemJnlLine."Quantity (Base)" := -(PurchRcptLine."Quantity (Base)" - PurchRcptLine."Qty. Invoiced (Base)");
 
-        OnAfterCopyItemJnlLineFromPurchRcpt(ItemJnlLine, PurchRcptHeader, PurchRcptLine, WhseUndoQty);
+        OnAfterCopyItemJnlLineFromPurchRcpt(ItemJnlLine, PurchRcptHeader, PurchRcptLine, WhseUndoQty, ItemLedgEntryNo, NextLineNo, TempWhseJnlLine, TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, IsHandled);
+        if IsHandled then
+            exit(ItemLedgEntryNo);
 
         WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
           DATABASE::"Purchase Line", PurchLine."Document Type"::Order.AsInteger(), PurchRcptLine."Order No.", PurchRcptLine."Order Line No.",
@@ -530,7 +536,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromPurchRcpt(var ItemJournalLine: Record "Item Journal Line"; PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchRcptLine: Record "Purch. Rcpt. Line"; var WhseUndoQty: Codeunit "Whse. Undo Quantity")
+    local procedure OnAfterCopyItemJnlLineFromPurchRcpt(var ItemJournalLine: Record "Item Journal Line"; PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchRcptLine: Record "Purch. Rcpt. Line"; var WhseUndoQty: Codeunit "Whse. Undo Quantity"; var ItemLedgEntryNo: Integer; var NextLineNo: Integer; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempGlobalItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -646,6 +652,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckPurchRcptLinesAfterPurchRcptLineSetFilters(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckPurchRcptLineOnBeforeCollectItemLedgEntries(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 }

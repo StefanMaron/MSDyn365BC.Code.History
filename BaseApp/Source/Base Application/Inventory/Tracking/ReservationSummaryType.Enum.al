@@ -14,7 +14,7 @@ enum 338 "Reservation Summary Type"
     value(32; "Sales Order") { Caption = 'Sales Order'; }
     value(36; "Sales Return Order") { Caption = 'Sales Return Order'; }
     value(41; "Item Journal Purchase") { Caption = 'Item Journal Purchase'; }
-    value(51; "Job Journal Usage") { Caption = 'Job Journal Usage'; }
+    value(51; "Job Journal Usage") { Caption = 'Project Journal Usage'; }
     value(61; "Simulated Production Order") { Caption = 'Simulated Production Order'; }
     value(62; "Planned Production Order") { Caption = 'Planned Production Order'; }
     value(63; "Firm Planned Production Order") { Caption = 'Firm Planned Production Order'; }
@@ -26,9 +26,9 @@ enum 338 "Reservation Summary Type"
     value(101; "Transfer Shipment") { Caption = 'Transfer Shipment'; }
     value(102; "Transfer Receipt") { Caption = 'Transfer Receipt'; }
     value(110; "Service Order") { Caption = 'Service Order'; }
-    value(131; "Job Planning Planned") { Caption = 'Job Planning Planned'; }
-    value(132; "Job Planning Quote") { Caption = 'Job Planning Quote'; }
-    value(133; "Job Planning Order") { Caption = 'Job Planning Order'; }
+    value(131; "Job Planning Planned") { Caption = 'Project Planning Planned'; }
+    value(132; "Job Planning Quote") { Caption = 'Project Planning Quote'; }
+    value(133; "Job Planning Order") { Caption = 'Project Planning Order'; }
     value(141; "Assembly Quote Header") { Caption = 'Assembly Quote Header'; }
     value(142; "Assembly Order Header") { Caption = 'Assembly Order Header'; }
     value(151; "Assembly Quote Line") { Caption = 'Assembly Quote Line'; }

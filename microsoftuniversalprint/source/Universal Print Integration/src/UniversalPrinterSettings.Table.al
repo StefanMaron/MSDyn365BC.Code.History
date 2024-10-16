@@ -17,6 +17,7 @@ table 2751 "Universal Printer Settings"
         {
             Caption = 'Name';
             NotBlank = true;
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -26,6 +27,7 @@ table 2751 "Universal Printer Settings"
         {
             Caption = 'Print Share ID';
             NotBlank = true;
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -35,6 +37,7 @@ table 2751 "Universal Printer Settings"
         {
             Caption = 'Print Share Name';
             NotBlank = true;
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -43,6 +46,7 @@ table 2751 "Universal Printer Settings"
         field(5; Description; Text[250])
         {
             Caption = 'Description';
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -51,6 +55,7 @@ table 2751 "Universal Printer Settings"
         field(6; "Paper Size"; Enum "Printer Paper Kind")
         {
             Caption = 'Paper Size';
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -60,6 +65,7 @@ table 2751 "Universal Printer Settings"
         {
             Caption = 'Printer Paper Height';
             DecimalPlaces = 0 : 2;
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -69,6 +75,7 @@ table 2751 "Universal Printer Settings"
         {
             Caption = 'Printer Paper Width';
             DecimalPlaces = 0 : 2;
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -77,6 +84,7 @@ table 2751 "Universal Printer Settings"
         field(10; "Paper Unit"; Enum "Universal Printer Paper Unit")
         {
             Caption = 'Printer Paper Units';
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -85,6 +93,7 @@ table 2751 "Universal Printer Settings"
         field(11; Landscape; Boolean)
         {
             Caption = 'Landscape';
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -93,6 +102,7 @@ table 2751 "Universal Printer Settings"
         field(18; AllowAllUsers; Boolean)
         {
             Caption = 'Allow all users';
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -104,6 +114,7 @@ table 2751 "Universal Printer Settings"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
             ObsoleteReason = 'Replaced with Paper Tray';
+            DataClassification = CustomerContent;
         }
 
         /// <summary>
@@ -112,6 +123,7 @@ table 2751 "Universal Printer Settings"
         field(13; "Paper Tray"; Text[2048])
         {
             Caption = 'Paper Tray';
+            DataClassification = CustomerContent;
         }
     }
 

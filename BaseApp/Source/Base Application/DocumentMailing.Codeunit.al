@@ -459,7 +459,9 @@ codeunit 260 "Document-Mailing"
                 StrSubstNo(EmailSubjectPluralCapTxt, CompanyInformation.Name, EmailDocumentName), 1, MaxStrLen(Subject))
         else
             Subject := CopyStr(
-                StrSubstNo(EmailSubjectCapTxt, CompanyInformation.Name, EmailDocumentName, PostedDocNo), 1, MaxStrLen(Subject))
+                StrSubstNo(EmailSubjectCapTxt, CompanyInformation.Name, EmailDocumentName, PostedDocNo), 1, MaxStrLen(Subject));
+
+        OnAfterGetEmailSubject(PostedDocNo, EmailDocumentName, ReportUsage, Subject);
     end;
 
     // Email Item needs to be passed by var so the attachments are available
@@ -645,6 +647,11 @@ codeunit 260 "Document-Mailing"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetToAddressFromVendor(BuyFromVendorNo: Code[20]; var ToAddress: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetEmailSubject(PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer; var EmailSubject: Text[250])
     begin
     end;
 }

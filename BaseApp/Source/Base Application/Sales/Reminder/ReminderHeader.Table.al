@@ -589,25 +589,29 @@ table 295 "Reminder Header"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
     var
+#if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
 #endif
+        IsHandled: Boolean;
     begin
         SalesSetup.Get();
         SetReminderNo();
         "Posting Description" := StrSubstNo(ReminderNoLbl, "No.");
-        if ("No. Series" <> '') and
-           (SalesSetup."Reminder Nos." = GetIssuingNoSeriesCode())
-        then
-            "Issuing No. Series" := "No. Series"
-        else
+
+        OnInsertOnBeforeInitNoSeries(Rec, xRec, IsHandled);
+        if not IsHandled then
+            if ("No. Series" <> '') and
+                (SalesSetup."Reminder Nos." = GetIssuingNoSeriesCode())
+            then
+                "Issuing No. Series" := "No. Series"
+            else
 #if CLEAN24
-            if NoSeries.IsAutomatic(GetIssuingNoSeriesCode()) then
-                "Issuing No. Series" := GetIssuingNoSeriesCode();
+                if NoSeries.IsAutomatic(GetIssuingNoSeriesCode()) then
+                    "Issuing No. Series" := GetIssuingNoSeriesCode();
 #else
 #pragma warning disable AL0432
-            NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
+                NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 #pragma warning restore AL0432
 #endif
 
@@ -1489,6 +1493,11 @@ table 295 "Reminder Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertLinesOnAfterReminderLevelSetFilters(var ReminderHeader: Record "Reminder Header"; var ReminderLevel: Record "Reminder Level")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertOnBeforeInitNoSeries(var ReminderHeader: Record "Reminder Header"; var xReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
     begin
     end;
 

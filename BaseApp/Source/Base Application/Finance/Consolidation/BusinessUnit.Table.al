@@ -252,6 +252,11 @@ table 220 "Business Unit"
                 Rec.Name := CopyStr(Rec."External Company Name", 1, MaxStrLen(Rec.Name));
             end;
         }
+        field(30; "Log Requests"; Boolean)
+        {
+            Caption = 'Log Requests';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

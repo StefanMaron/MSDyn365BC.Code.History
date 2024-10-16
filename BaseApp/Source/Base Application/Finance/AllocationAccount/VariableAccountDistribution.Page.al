@@ -5,6 +5,7 @@ page 2671 "Variable Account Distribution"
     PageType = ListPart;
     SourceTable = "Alloc. Account Distribution";
     AutoSplitKey = true;
+    DelayedInsert = true;
 
     layout
     {
@@ -16,12 +17,12 @@ page 2671 "Variable Account Distribution"
                 field("Destination Account Type"; Rec."Destination Account Type")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the acount type the amount will be posted to.';
+                    ToolTip = 'Specifies the account type the amount will be posted to.';
                 }
                 field("Destination Account Number"; Rec."Destination Account Number")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the acount number the amount will be posted to.';
+                    ToolTip = 'Specifies the account number that the amount will be posted to. You can select Destination Account Number if Destination Account Type field is G/L Account or Bank Account. If Destination Account Type field is Inherit from Parent, Destination Account Number and Destination Account Type will be taken from the line when the Allocation Account No. field is set.';
                 }
                 field("Destination Account Name"; Rec.LookupDistributionAccountName())
                 {
@@ -33,7 +34,7 @@ page 2671 "Variable Account Distribution"
                 field("Breakdown Account Type"; Rec."Breakdown Account Type")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the acount type the that is used to calculate percentage for the distributions.';
+                    ToolTip = 'Specifies the account type the that is used to calculate percentage for the distributions.';
                 }
                 field("Breakdown Account Number"; Rec."Breakdown Account Number")
                 {
@@ -65,7 +66,6 @@ page 2671 "Variable Account Distribution"
                         FiltersTxt := GetFiltersText();
                     end;
                 }
-
                 field("Dimension 1 Filter"; Rec."Dimension 1 Filter")
                 {
                     ApplicationArea = Dimensions;

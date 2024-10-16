@@ -22,7 +22,7 @@ enum 301 "Reservation Demand Type"
     }
     value(4; "Job Usage")
     {
-        Caption = 'Job Usage';
+        Caption = 'Project Usage';
     }
     value(5; "Production Components")
     {

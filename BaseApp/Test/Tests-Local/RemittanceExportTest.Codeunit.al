@@ -31,7 +31,7 @@ codeunit 144129 "Remittance - Export Test"
         LinesDoesntMatchErr: Label 'Lines does not match.';
         MissedSpecWarningTxt: Label 'It is not required to fill in Specification (Norges Bank)';
         MissedPaymentTypeCodeAbroadWarningTxt: Label 'It is not required to fill in Payment Type Code Abroad';
-        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
+        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
         SchemaNameTok: Label '//SchmeNm';
         WrongSchmeNmErr: Label 'Incorrect schema name.';
         HeaderNotExpectedErr: Label 'Header sequence 600F is not expected in line %1';

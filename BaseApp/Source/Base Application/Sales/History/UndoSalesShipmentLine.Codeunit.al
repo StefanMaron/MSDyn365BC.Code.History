@@ -99,7 +99,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         SalesShipmentLine.SetCurrentKey("Item Shpt. Entry No.");
         SalesShipmentLine.SetFilter(Quantity, '<>0');
         SalesShipmentLine.SetRange(Correction, false);
-        OnCodeOnAfterSalesShptLineSetFilters(SalesShipmentLine);
+        OnCodeOnAfterSalesShptLineSetFilters(SalesShipmentLine, HideDialog);
         if SalesShipmentLine.IsEmpty() then
             Error(AlreadyReversedErr);
         SalesShipmentLine.FindFirst();
@@ -169,7 +169,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             OnBeforeSalesShptLineModify(SalesShipmentLine);
             SalesShipmentLine.Modify();
-            OnAfterSalesShptLineModify(SalesShipmentLine, DocLineNo);
+            OnAfterSalesShptLineModify(SalesShipmentLine, DocLineNo, HideDialog);
 
             UndoFinalizePostATO(SalesShipmentLine);
         until SalesShipmentLine.Next() = 0;
@@ -303,7 +303,9 @@ codeunit 5815 "Undo Sales Shipment Line"
         ItemJournalLine."Bin Code" := SalesShipmentLine2."Bin Code";
         ItemJournalLine."Document Date" := SalesShipmentHeader."Document Date";
 
-        OnAfterCopyItemJnlLineFromSalesShpt(ItemJournalLine, SalesShipmentHeader, SalesShipmentLine2, TempWarehouseJournalLine, WhseUndoQuantity);
+        OnAfterCopyItemJnlLineFromSalesShpt(ItemJournalLine, SalesShipmentHeader, SalesShipmentLine2, TempWarehouseJournalLine, WhseUndoQuantity, ItemLedgEntryNo, NextLineNo, TempGlobalItemLedgerEntry, TempGlobalItemEntryRelation, IsHandled);
+        if IsHandled then
+            exit(ItemLedgEntryNo);
 
         UndoPostingManagement.CollectItemLedgEntries(
             TempApplyToItemLedgerEntry, DATABASE::"Sales Shipment Line", SalesShipmentLine2."Document No.", SalesShipmentLine2."Line No.", SalesShipmentLine2."Quantity (Base)", SalesShipmentLine2."Item Shpt. Entry No.");
@@ -620,7 +622,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromSalesShpt(var ItemJournalLine: Record "Item Journal Line"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var WhseUndoQty: Codeunit "Whse. Undo Quantity")
+    local procedure OnAfterCopyItemJnlLineFromSalesShpt(var ItemJournalLine: Record "Item Journal Line"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var WhseUndoQty: Codeunit "Whse. Undo Quantity"; var ItemLedgEntryNo: Integer; var NextLineNo: Integer; var TempGlobalItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -635,7 +637,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSalesShptLineModify(var SalesShptLine: Record "Sales Shipment Line"; DocLineNo: Integer)
+    local procedure OnAfterSalesShptLineModify(var SalesShptLine: Record "Sales Shipment Line"; DocLineNo: Integer; HideDialog: Boolean)
     begin
     end;
 
@@ -715,7 +717,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterSalesShptLineSetFilters(var SalesShptLine: Record "Sales Shipment Line")
+    local procedure OnCodeOnAfterSalesShptLineSetFilters(var SalesShptLine: Record "Sales Shipment Line"; HideDialog: Boolean)
     begin
     end;
 

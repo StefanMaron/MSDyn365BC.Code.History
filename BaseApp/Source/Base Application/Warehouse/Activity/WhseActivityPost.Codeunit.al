@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Warehouse.Activity;
+﻿﻿namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Finance.GeneralLedger.Preview;
@@ -785,8 +785,12 @@ codeunit 7324 "Whse.-Activity-Post"
                 end else
                     if (WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Pick") and (WhseActivHeader."Source Document" = WhseActivHeader."Source Document"::"Job Usage") then
                         PostJobUsage(WhseActivHeader."Posting Date")
-                    else
-                        PostSourceDoc();
+                    else begin
+                        IsHandled := false;
+                        OnPostWhseActivityLineOnBeforePostDoc(TempWhseActivLine, WhseActivHeader, PostedSourceType, PostedSourceSubType, PostedSourceNo, IsHandled);
+                        if not IsHandled then
+                            PostSourceDoc();
+                    end;
 
         CreatePostedActivHeader(WhseActivHeader, PostedInvtPutAwayHeader, PostedInvtPickHeader);
 
@@ -1856,5 +1860,9 @@ codeunit 7324 "Whse.-Activity-Post"
     local procedure OnUpdateSourceDocumentOnBeforeModifySalesLine(var SalesLine: Record "Sales Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPostWhseActivityLineOnBeforePostDoc(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WhseActivHeader: Record "Warehouse Activity Header"; var PostedSourceType: Integer; var PostedSourceSubType: Integer; var PostedSourceNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+}

@@ -1171,6 +1171,50 @@ codeunit 134309 "Workflow Trigger/Event Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('CreateNewVendorStrMenuHandler,VendorTempModalFormHandler')]
+    procedure RunWorkflowOnVendorRecordCreatedBasedOnTheDescriptionSetOnPurchaseOrder()
+    var
+        Vendor: Record Vendor;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+    begin
+        // Setup
+        Initialize();
+
+        // [GIVEN] Workflow created and enabled 
+        CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnVendorChangedCode(), '', WorkflowStep);
+
+        // [WHEN] Vendor is created from Purchase Order
+        Vendor.GetVendorNoOpenCard(LibraryRandom.RandText(20), false);
+
+        // [THEN] Event steps in the workflow are executed and completed.
+        VerifyArchivedWorkflowStepInstanceIsCompleted2(WorkflowStep, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CreateNewCustomerStrMenuHandler,CustomerTempModalFormHandler')]
+    procedure RunWorkflowOnCustomerRecordCreatedBasedOnTheDescriptionSetOnSalesOrder()
+    var
+        Customer: Record Customer;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+    begin
+        // Setup
+        Initialize();
+
+        // [GIVEN] Workflow created and enabled 
+        CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnCustomerChangedCode(), '', WorkflowStep);
+
+        // [WHEN] Customer is created from Sales Order
+        Customer.GetCustNoOpenCard(LibraryRandom.RandText(20), false, true);
+
+        // [THEN] Event steps in the workflow are executed and completed.
+        VerifyArchivedWorkflowStepInstanceIsCompleted2(WorkflowStep, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure RunWorkflowOnItemRecordChangedTest()
     var
         Item: Record Item;
@@ -1508,6 +1552,19 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         WorkflowStepInstanceArchive.TestField(Status, WorkflowStepInstanceArchive.Status::Completed);
     end;
 
+    local procedure VerifyArchivedWorkflowStepInstanceIsCompleted2(WorkflowStep: Record "Workflow Step"; ExpectedStepsCount: Integer)
+    var
+        WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
+    begin
+        WorkflowStepInstanceArchive.SetRange("Original Workflow Code", WorkflowStep."Workflow Code");
+        WorkflowStepInstanceArchive.SetRange("Original Workflow Step ID", WorkflowStep.ID);
+        WorkflowStepInstanceArchive.SetRange(Type, WorkflowStep.Type);
+        WorkflowStepInstanceArchive.SetRange("Function Name", WorkflowStep."Function Name");
+        WorkflowStepInstanceArchive.FindFirst();
+        Assert.AreEqual(ExpectedStepsCount, WorkflowStepInstanceArchive.Count, WorkflowStepInstanceArchive.GetFilters);
+        WorkflowStepInstanceArchive.TestField(Status, WorkflowStepInstanceArchive.Status::Completed);
+    end;
+
     local procedure VerifyArchivedWorkflowStepInstanceIsNOTCompleted(WorkflowStep: Record "Workflow Step")
     var
         WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
@@ -1566,6 +1623,34 @@ codeunit 134309 "Workflow Trigger/Event Tests"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CreateNewVendorStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorTempModalFormHandler(var VendorTemplateList: Page "Select Vendor Templ. List"; var Reply: Action)
+    begin
+        Reply := Action::LookupOK;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CreateNewCustomerStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerTempModalFormHandler(var CustomerTemplateList: Page "Select Customer Templ. List"; var Reply: Action)
+    begin
+        Reply := Action::LookupOK;
     end;
 }
 

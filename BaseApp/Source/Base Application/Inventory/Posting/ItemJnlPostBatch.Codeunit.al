@@ -158,8 +158,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                 HandleRecurringLine(ItemJnlLine)
             else
                 HandleNonRecurringLine(ItemJnlLine, OldEntryType);
-            if ItemJnlBatch."No. Series" <> '' then
-                NoSeriesBatch.SaveState();
+            NoSeriesBatch.SaveState();
         end;
 
         if PhysInvtCount then
@@ -277,6 +276,10 @@ codeunit 23 "Item Jnl.-Post Batch"
                 ItemJnlLine.TestField("Document No.", NoSeriesBatch.GetNextNo(ItemJnlBatch."No. Series", ItemJnlLine."Posting Date"));
             if not ItemJnlLine.EmptyLine() then
                 LastDocNo2 := ItemJnlLine."Document No.";
+
+            if (ItemJnlBatch."Posting No. Series" <> '') and (ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::Revaluation) then
+                ItemJnlLine."Posting No. Series" := ItemJnlBatch."Posting No. Series";
+
             MakeRecurringTexts(ItemJnlLine);
             ConstructPostingNumber(ItemJnlLine);
 

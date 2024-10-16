@@ -629,7 +629,7 @@ report 1306 "Standard Sales - Invoice"
                     column(DocumentNo_ShipmentLine; "Document No.")
                     {
                     }
-                    column(PostingDate_ShipmentLine; "Posting Date")
+                    column(PostingDate_ShipmentLine; Format("Posting Date"))
                     {
                     }
                     column(PostingDate_ShipmentLine_Lbl; FieldCaption("Posting Date"))
@@ -645,6 +645,9 @@ report 1306 "Standard Sales - Invoice"
 
                     trigger OnPreDataItem()
                     begin
+                        if not DisplayShipmentInformation then
+                            CurrReport.Break();
+
                         SetRange("Line No.", Line."Line No.");
                     end;
                 }
@@ -1508,8 +1511,10 @@ report 1306 "Standard Sales - Invoice"
     local procedure InitializeShipmentLine()
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
-        SalesShipmentBuffer2: Record "Sales Shipment Buffer";
     begin
+        if not DisplayShipmentInformation then
+            exit;
+
         if Line.Type = Line.Type::" " then
             exit;
 
@@ -1521,14 +1526,7 @@ report 1306 "Standard Sales - Invoice"
 
         ShipmentLine.Reset();
         ShipmentLine.SetRange("Line No.", Line."Line No.");
-        if ShipmentLine.FindFirst() then begin
-            SalesShipmentBuffer2 := ShipmentLine;
-            if not DisplayShipmentInformation then
-                if ShipmentLine.Next() = 0 then begin
-                    ShipmentLine.Get(SalesShipmentBuffer2."Document No.", SalesShipmentBuffer2."Line No.", SalesShipmentBuffer2."Entry No.");
-                    ShipmentLine.Delete();
-                    exit;
-                end;
+        if not ShipmentLine.IsEmpty() then begin
             ShipmentLine.CalcSums(Quantity);
             if ShipmentLine.Quantity <> Line.Quantity then begin
                 ShipmentLine.DeleteAll();

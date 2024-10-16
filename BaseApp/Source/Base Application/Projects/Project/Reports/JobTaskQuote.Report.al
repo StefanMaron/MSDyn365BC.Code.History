@@ -240,7 +240,7 @@ report 1017 "Job Task Quote"
 
     labels
     {
-        JobNoLbl = 'Job No.';
+        JobNoLbl = 'Project No.';
         JobDescriptionLbl = 'Description';
     }
 

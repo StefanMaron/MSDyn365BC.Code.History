@@ -73,6 +73,8 @@ report 4408 "EXR Trial Bal by Period Excel"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'Trial Balance by Period Excel';
+        AboutText = 'This report contains aggregated general ledger data per accounting period for the trial balance with a net debit/credit net change column for each period. The periods covered are specified in the report''s request page''s Datefilter parameter and summarized per the 2 global dimensions per g/l account category.';
 
         layout
         {
@@ -103,6 +105,8 @@ report 4408 "EXR Trial Bal by Period Excel"
         {
             Type = Excel;
             LayoutFile = './ReportLayouts/Excel/GeneralLedger/TrialBalancebyPeriodExcel.xlsx';
+            Caption = 'Trial Balance by Period Excel';
+            Summary = 'Built in layout for the Trial Balance by Period report. This report contains aggregated general ledger data per accounting period for the trial balance with a net debit/credit net change column for each period. Report uses Query connections.';
         }
     }
     labels

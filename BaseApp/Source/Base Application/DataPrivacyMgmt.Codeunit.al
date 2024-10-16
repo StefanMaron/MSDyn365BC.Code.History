@@ -318,13 +318,13 @@ codeunit 1180 "Data Privacy Mgmt"
 
     local procedure CreateRelatedDataFields(var TableRelationsMetadata: Record "Table Relations Metadata"; var ConfigPackage: Record "Config. Package"; EntityNo: Code[50]; DataSensitivityOption: Option Sensitive,Personal,"Company Confidential",Normal,Unclassified; var ProcessingOrder: Integer)
     var
-        TableMetadata: Record "Table Metadata";
+        DataClassificationMgt: Codeunit "Data Classification Mgt.";
         FilterCreated: Boolean;
         CurrentTableID: Integer;
     begin
         CurrentTableID := 0;
         repeat
-            if TableMetadata.Get(TableRelationsMetadata."Table ID") and (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed) then begin
+            if DataClassificationMgt.IsSupportedTable(TableRelationsMetadata."Table ID") then begin
                 ConfigProgressBar.Update(TableRelationsMetadata.TableName);
 
                 FilterCreated := CreatePackageFilter(ConfigPackage.Code,

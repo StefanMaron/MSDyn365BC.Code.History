@@ -303,7 +303,7 @@ report 1006 "Job - Planning Lines"
         JobPlannLineDescCaption = 'Description';
         JobPlannLineQtyCaption = 'Quantity';
         JobPlannLineUOMCodeCptn = 'Unit of Measure Code';
-        JobTaskNo_JobTaskCptn = 'Job Task No.';
+        JobTaskNo_JobTaskCptn = 'Project Task No.';
     }
 
     trigger OnPreReport()

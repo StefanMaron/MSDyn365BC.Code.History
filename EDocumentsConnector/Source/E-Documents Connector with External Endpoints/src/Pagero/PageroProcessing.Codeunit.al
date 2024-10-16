@@ -7,8 +7,10 @@ using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Purchases.Document;
 using Microsoft.Utilities;
+using System.Telemetry;
 using System.Text;
 using System.Utilities;
+
 codeunit 6369 "Pagero Processing"
 {
     Access = Internal;
@@ -19,6 +21,7 @@ codeunit 6369 "Pagero Processing"
     var
         EDocumentServiceStatus: Record "E-Document Service Status";
         EdocumentService: Record "E-Document Service";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         IsAsync := true;
 
@@ -34,6 +37,8 @@ codeunit 6369 "Pagero Processing"
                 else
                     RestartEDocument(EDocument, HttpRequest, HttpResponse);
         end;
+
+        FeatureTelemetry.LogUptake('0000MSC', ExternalServiceTok, Enum::"Feature Uptake Status"::Used);
     end;
 
     procedure GetDocumentResponse(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
@@ -641,4 +646,5 @@ codeunit 6369 "Pagero Processing"
         CancelCheckStatusErr: Label 'You cannot ask for cancel with the E-Document in this current status %1. You can request for cancel when E-document status is ''Cancel Error'' or ''Sending Error''.', Comment = '%1 - Status';
         CouldNotRetrieveDocumentErr: Label 'Could not retrieve document with id: %1 from the service', Comment = '%1 - Document ID';
         DocumentIdNotFoundErr: Label 'Document ID not found in response';
+        ExternalServiceTok: Label 'ExternalServiceConnector', Locked = true;
 }

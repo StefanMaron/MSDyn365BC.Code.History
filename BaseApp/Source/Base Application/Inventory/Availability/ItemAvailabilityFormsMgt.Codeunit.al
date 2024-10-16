@@ -251,6 +251,10 @@ codeunit 353 "Item Availability Forms Mgt"
         NewUnitOfMeasureCode: Code[10];
     begin
         Item.TestField(Item."No.");
+        if IsNullGuid(Item.SystemId) then begin
+            Item.SecurityFiltering(SecurityFilter::Filtered);
+            Item.Get(Item."No.");
+        end;
 
         OnBeforeShowItemAvailFromItem(Item);
         case AvailabilityType of
