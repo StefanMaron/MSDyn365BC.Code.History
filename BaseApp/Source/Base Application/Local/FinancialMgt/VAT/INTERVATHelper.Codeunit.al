@@ -53,12 +53,11 @@ codeunit 11308 "INTERVAT Helper"
         if Country.Get(CompanyInformation."Country/Region Code") then
             XMLDOMMgt.AddElement(XMLCurrNode, 'common:CountryCode', Country."ISO Code", Text001, XMLNewChild);
 
-        if CompanyInformation."E-Mail" <> '' then begin
+        if CompanyInformation."E-Mail" <> '' then
             if IsValidEMailAddress(CompanyInformation."E-Mail") then
                 XMLDOMMgt.AddElement(XMLCurrNode, 'common:EmailAddress', CompanyInformation."E-Mail", Text001, XMLNewChild)
             else
                 Error(Text002, CompanyInformation."E-Mail");
-        end;
 
         if CompanyInformation."Phone No." <> '' then
             XMLDOMMgt.AddElement(XMLCurrNode, 'common:Phone', GetValidPhoneNumber(CompanyInformation."Phone No."), Text001, XMLNewChild);
@@ -117,7 +116,7 @@ codeunit 11308 "INTERVAT Helper"
         if EMailAddress = '' then
             exit(true);
 
-        for i := 1 to StrLen(EMailAddress) do begin
+        for i := 1 to StrLen(EMailAddress) do
             if EMailAddress[i] = '@' then begin
                 if i in [1, StrLen(EMailAddress)] then
                     exit(false);
@@ -127,7 +126,7 @@ codeunit 11308 "INTERVAT Helper"
             end else
                 if not (IsAlphaNumeric(EMailAddress[i]) or (EMailAddress[i] in ['@', '.', '-', '_'])) then
                     exit(false);
-        end;
+
         if not HasAtSign then
             exit(false);
 

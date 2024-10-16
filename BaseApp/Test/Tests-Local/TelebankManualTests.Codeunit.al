@@ -141,18 +141,16 @@ codeunit 144019 "Telebank - Manual Tests"
 
     local procedure CreateExportProtocol(var ExportProtocol: Record "Export Protocol"; NewCodeExpenses: Option; NewCheckObjectID: Integer; NewExportObjectID: Integer; NewExportNoSeries: Code[20])
     begin
-        with ExportProtocol do begin
-            Init();
-            Code := CopyStr(CreateGuid(), 1, 10);
-            Description := Code;
+        ExportProtocol.Init();
+        ExportProtocol.Code := CopyStr(CreateGuid(), 1, 10);
+        ExportProtocol.Description := ExportProtocol.Code;
 
-            "Code Expenses" := NewCodeExpenses;
-            "Export Object Type" := "Export Object Type"::Report;
-            "Check Object ID" := NewCheckObjectID;
-            "Export Object ID" := NewExportObjectID;
-            "Export No. Series" := NewExportNoSeries;
-            Insert();
-        end;
+        ExportProtocol."Code Expenses" := NewCodeExpenses;
+        ExportProtocol."Export Object Type" := ExportProtocol."Export Object Type"::Report;
+        ExportProtocol."Check Object ID" := NewCheckObjectID;
+        ExportProtocol."Export Object ID" := NewExportObjectID;
+        ExportProtocol."Export No. Series" := NewExportNoSeries;
+        ExportProtocol.Insert();
     end;
 
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
@@ -165,12 +163,10 @@ codeunit 144019 "Telebank - Manual Tests"
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account")
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            "Country/Region Code" := 'BE';
-            "SWIFT Code" := 'GKCCBEBB';
-            IBAN := 'BE65 0631 1416 5496';
-            Modify();
-        end;
+        BankAccount."Country/Region Code" := 'BE';
+        BankAccount."SWIFT Code" := 'GKCCBEBB';
+        BankAccount.IBAN := 'BE65 0631 1416 5496';
+        BankAccount.Modify();
     end;
 
     local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor)

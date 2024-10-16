@@ -128,14 +128,13 @@ codeunit 104030 "Upgrade Plan Permissions"
 
     local procedure SetBackupRestorePermissions()
     var
-        UserGroup: Record "User Group";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAddBackupRestorePermissionSetUpgradeTag()) then
             exit;
 
-        if not UserGroup.IsEmpty() then begin
+        if RunUserGroupUpgrade() then begin
             AddBackupRestorePermissionSet();
             AddBackupRestoreUserGroup();
             AddBackupRestorePermissionSetToGroup();
@@ -338,14 +337,13 @@ codeunit 104030 "Upgrade Plan Permissions"
 
     local procedure SetExcelExportActionPermissions()
     var
-        UserGroup: Record "User Group";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetExcelExportActionPermissionSetUpgradeTag()) then
             exit;
 
-        if not UserGroup.IsEmpty() then begin
+        if RunUserGroupUpgrade() then begin
             AddExcelExportActionPermissionSet();
             AddExcelExportActionUserGroup();
             AddExcelExportActionPermissionSetToGroup();
@@ -401,12 +399,13 @@ codeunit 104030 "Upgrade Plan Permissions"
         UserGroup: Record "User Group";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeUserGroups: Codeunit "Upgrade User Groups";
         EnvironmentInformation: Codeunit "Environment Information";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAutomateActionPermissionSetUpgradeTag()) then
             exit;
 
-        if not UserGroup.IsEmpty() then
+        if (not UserGroup.IsEmpty()) and (not UpgradeUserGroups.IsUserGroupObsoleteStateRemoved()) then
             if EnvironmentInformation.IsSaaS() then begin
                 AddAutomateActionUserGroup();
                 AddAutomateActionPermissionSetToGroup();
@@ -505,7 +504,6 @@ codeunit 104030 "Upgrade Plan Permissions"
 
     local procedure CreateMicrosoft365Permissions()
     var
-        UserGroup: Record "User Group";
         UserGroupPermissionSet: Record "User Group Permission Set";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
@@ -514,7 +512,7 @@ codeunit 104030 "Upgrade Plan Permissions"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetTeamsUsersUserGroupUpgradeTag()) then
             exit;
 
-        if not UserGroup.IsEmpty() then begin
+        if RunUserGroupUpgrade() then begin
             // Insert TEAMS USERS user group and add it to the plan
             InsertUserGroup(TeamsUsersTok, TeamsUsersDescriptionTxt, false);
             UpdateUserGroupProfile(TeamsUsersTok, Page::"Blank Role Center");
@@ -530,7 +528,6 @@ codeunit 104030 "Upgrade Plan Permissions"
 
     local procedure CreateD365EssentialAttachPermissions()
     var
-        UserGroup: Record "User Group";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         PlanIds: Codeunit "Plan Ids";
@@ -538,7 +535,7 @@ codeunit 104030 "Upgrade Plan Permissions"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetEssentialAttachUserGroupUpgradeTag()) then
             exit;
 
-        if UserGroup.IsEmpty() then begin
+        if RunUserGroupUpgrade() then begin
             AddPermissionSetToPlan(PlanIDs.GetEssentialAttachPlanId(), 'AUTOMATE - EXEC', SystemApplicationAppIdTok);
             AddPermissionSetToPlan(PlanIDs.GetEssentialAttachPlanId(), 'D365 BUS FULL ACCESS', BaseApplicationAppIdTok);
             AddPermissionSetToPlan(PlanIDs.GetEssentialAttachPlanId(), 'EXCEL EXPORT ACTION', SystemApplicationAppIdTok);
@@ -675,6 +672,20 @@ codeunit 104030 "Upgrade Plan Permissions"
                 RemovePermissionSetFromUser(
                   UserGroupCode, UserGroupMember."User Security ID", UserGroupMember."Company Name", RoleID, AppID, ItemScope);
             until UserGroupMember.Next() = 0;
+    end;
+
+    local procedure RunUserGroupUpgrade(): boolean
+    var
+        UserGroup: Record "User Group";
+        UpgradeUserGroups: Codeunit "Upgrade User Groups";
+    begin
+        if UserGroup.IsEmpty() then
+            exit(false);
+
+        if UpgradeUserGroups.IsUserGroupObsoleteStateRemoved() then
+            exit(false);
+
+        exit(true);
     end;
 
     local procedure AddPermissionSetToUser(UserGroupCode: Code[20]; UserSecurityID: Guid; SelectedCompany: Text[30]; RoleID: Code[20]; AppID: Guid; ItemScope: Integer)

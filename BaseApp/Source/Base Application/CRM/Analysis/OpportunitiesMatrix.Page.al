@@ -689,8 +689,10 @@ page 9257 "Opportunities Matrix"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label '<Sign><Integer>', Locked = true;
         Text001: Label '<Sign><Integer Thousand><Decimals,2>', Locked = true;
+#pragma warning restore AA0074
         MatrixRecords: array[32] of Record Date;
         TempOpp: Record Opportunity temporary;
         OppEntry: Record "Opportunity Entry";

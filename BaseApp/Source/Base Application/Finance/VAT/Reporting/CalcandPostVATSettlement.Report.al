@@ -14,6 +14,7 @@ using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.NoSeries;
@@ -369,6 +370,8 @@ report 20 "Calc. and Post VAT Settlement"
                     VATEntry.SetFilter("VAT Reporting Date", DateFilter);
                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
+                    if CountryRegionFilter <> '' then
+                        VATEntry.SetFilter("Country/Region Code", CountryRegionFilter);
 
                     OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters("VAT Posting Setup", VATEntry, "VAT Entry");
 
@@ -517,19 +520,6 @@ report 20 "Calc. and Post VAT Settlement"
                 {
                     Caption = 'Options';
 
-#if not CLEAN22
-                    field(VATDateTypeField; VATDateType)
-                    {
-                        ApplicationArea = VAT;
-                        Caption = 'Period Date Type';
-                        ToolTip = 'Specifies the type of date used for the period from which VAT entries are processed in the batch job.';
-                        Visible = false;
-                        Enabled = false;
-                        ObsoleteReason = 'Report only support VAT Date';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-                    }
-#endif
                     field(StartingDate; EntrdStartDate)
                     {
                         ApplicationArea = Basic, Suite;
@@ -633,6 +623,26 @@ report 20 "Calc. and Post VAT Settlement"
                         MultiLine = true;
                         ToolTip = 'Specifies if you want the amounts to be printed in the additional reporting currency. If you leave this check box empty, the amounts will be printed in LCY.';
                     }
+                    field("Country/Region Filter"; CountryRegionFilter)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the country/region to filter the VAT entries.';
+                        Importance = Additional;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            CountryRegion: Record "Country/Region";
+                            CountriesRegions: Page "Countries/Regions";
+                        begin
+                            CountriesRegions.LookupMode(true);
+                            if CountriesRegions.RunModal() = Action::LookupOK then begin
+                                CountriesRegions.GetRecord(CountryRegion);
+                                CountryRegionFilter := CountryRegion.Code;
+                                exit(true);
+                            end;
+                            exit(false);
+                        end;
+                    }
                 }
             }
         }
@@ -710,9 +720,6 @@ report 20 "Calc. and Post VAT Settlement"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         PrintVATEntries: Boolean;
         NextVATEntryNo: Integer;
-#if not CLEAN22
-        VATDateType: Enum "VAT Date Type";
-#endif
         PostingDate: Date;
         VATDate: Date;
         DocNo: Code[20];
@@ -726,15 +733,24 @@ report 20 "Calc. and Post VAT Settlement"
         DateFilter: Text;
         UseAmtsInAddCurr: Boolean;
         HeaderText: Text[30];
+        CountryRegionFilter: Text;
         IsVATDateEnabled: Boolean;
+#pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
         Text002: Label 'Enter the settlement account.';
         Text003: Label 'Do you want to calculate and post the VAT Settlement?';
         Text004: Label 'VAT Settlement';
+#pragma warning disable AA0470
         Text005: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AllAmountsAreInTxt: Label 'All amounts are in %1.', Comment = '%1 = Currency Code';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'Purchase VAT settlement: #1######## #2########';
         Text008: Label 'Sales VAT settlement  : #1######## #2########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         EnterVATDateLbl: Label 'Enter the VAT Date';
         CalcandPostVATSettlementCaptionLbl: Label 'Calc. and Post VAT Settlement';
         PageCaptionLbl: Label 'Page';
@@ -780,23 +796,6 @@ report 20 "Calc. and Post VAT Settlement"
         PostSettlement := Post;
         Initialized := true;
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced By InitializeRequest without VAT date', '22.0')]
-    procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewVATDateType: Enum "VAT Date Type"; NewPostingDate: Date; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
-    begin
-        EntrdStartDate := NewStartDate;
-        EnteredEndDate := NewEndDate;
-        PostingDate := NewPostingDate;
-        VATDateType := NewVATDateType;
-        GenJnlLineSelect."Journal Template Name" := NewJnlTemplName;
-        GenJnlLineSelect."Journal Batch Name" := NewJnlBatchName;
-        GLAccSettle."No." := NewSettlementAcc;
-        PrintVATEntries := ShowVATEntries;
-        PostSettlement := Post;
-        Initialized := true;
-    end;
-#endif
 
     procedure InitializeRequest2(NewUseAmtsInAddCurr: Boolean)
     begin

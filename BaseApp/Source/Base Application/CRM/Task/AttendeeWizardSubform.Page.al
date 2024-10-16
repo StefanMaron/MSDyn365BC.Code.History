@@ -126,7 +126,11 @@ page 5198 "Attendee Wizard Subform"
 
     var
         SalespersonFilter: Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot delete or change this %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ContactFilter: Code[20];
         StyleIsStrong: Boolean;
         SendInvitationEditable: Boolean;

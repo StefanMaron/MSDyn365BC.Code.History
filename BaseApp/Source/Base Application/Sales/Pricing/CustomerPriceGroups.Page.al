@@ -102,7 +102,7 @@ page 7 "Customer Price Groups"
             group("Cust. &Price Group")
             {
                 Caption = 'Cust. &Price Group';
-#if not CLEAN23
+#if not CLEAN25
                 action(SalesPrices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -256,7 +256,7 @@ page 7 "Customer Price Groups"
             {
                 Caption = 'Customer Price Group';
 
-#if not CLEAN23
+#if not CLEAN25
                 actionref(SalesPrices_Promoted; SalesPrices)
                 {
                     ObsoleteState = Pending;

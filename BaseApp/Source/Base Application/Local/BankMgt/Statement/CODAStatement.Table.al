@@ -55,7 +55,7 @@ table 2000040 "CODA Statement"
         {
             BlankNumbers = BlankZero;
             BlankZero = true;
-            CalcFormula = Count("CODA Statement Line" where("Bank Account No." = field("Bank Account No."),
+            CalcFormula = count("CODA Statement Line" where("Bank Account No." = field("Bank Account No."),
                                                              "Statement No." = field("Statement No."),
                                                              ID = const(Information)));
             Caption = 'Information';

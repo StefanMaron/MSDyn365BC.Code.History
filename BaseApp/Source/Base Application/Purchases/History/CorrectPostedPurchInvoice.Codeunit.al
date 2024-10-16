@@ -99,9 +99,11 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         ExternalDocCancelErr: Label 'You cannot cancel this posted purchase invoice because the external document number is required on the invoice.';
         InventoryPostClosedCorrectErr: Label 'You cannot correct this posted purchase invoice because the posting inventory period is already closed.';
         InventoryPostClosedCancelErr: Label 'You cannot cancel this posted purchase invoice because the posting inventory period is already closed.';
+#pragma warning disable AA0470
         PostingCreditMemoFailedOpenPostedCMQst: Label 'Canceling the invoice failed because of the following error: \\%1\\A credit memo is posted. Do you want to open the posted credit memo?';
         PostingCreditMemoFailedOpenCMQst: Label 'Canceling the invoice failed because of the following error: \\%1\\A credit memo is created but not posted. Do you want to open the credit memo?';
         CreatingCreditMemoFailedNothingCreatedErr: Label 'Canceling the invoice failed because of the following error: \\%1.';
+#pragma warning restore AA0470
         WrongDocumentTypeForCopyDocumentErr: Label 'You cannot correct or cancel this type of document.';
         InvoicePartiallyPaidMsg: Label 'Invoice %1 is partially paid or credited. The corrective credit memo may not be fully closed by the invoice.', Comment = '%1 - invoice no.';
         InvoiceClosedMsg: Label 'Invoice %1 is closed. The corrective credit memo will not be applied to the invoice.', Comment = '%1 - invoice no.';
@@ -970,12 +972,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     begin
     end;
 
-    [Obsolete('OnBeforeTestPurchaseInvoiceHeaderAmount is not supported anymore.', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestPurchaseInvoiceHeaderAmount(var PurchInvHeader: Record "Purch. Inv. Header"; Cancelling: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnCancelPostedInvoiceStartNewInvoiceOnAfterCreateCorrPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header")
     begin
@@ -990,5 +986,15 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     local procedure OnBeforeSetTrackInfoForCancellation(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
     end;
+
+#pragma warning disable AS0018
+#if not CLEAN25
+    [Obsolete('OnBeforeTestPurchaseInvoiceHeaderAmount is not supported anymore.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestPurchaseInvoiceHeaderAmount(var PurchInvHeader: Record "Purch. Inv. Header"; Cancelling: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+#pragma warning restore AS0018
 }
 

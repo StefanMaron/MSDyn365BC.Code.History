@@ -210,20 +210,18 @@ codeunit 136906 "Job Reports"
 
     local procedure SetJobNoSeries(var JobsSetup: Record "Jobs Setup"; var NoSeries: Record "No. Series")
     begin
-        with JobsSetup do begin
-            Get();
-            if "Job Nos." = '' then
-                if not NoSeries.Get(XJOBTxt) then
-                    InsertSeries("Job Nos.", XJOBTxt, XJOBTxt, XJ10Txt, XJ99990Txt, '', '', 10, true)
-                else
-                    "Job Nos." := XJOBTxt;
-            if "Job WIP Nos." = '' then
-                if not NoSeries.Get(XJOBWIPTxt) then
-                    InsertSeries("Job WIP Nos.", XJOBWIPTxt, XJobWIPDescriptionTxt, XDefaultJobWIPNoTxt, XDefaultJobWIPEndNoTxt, '', '', 1, true)
-                else
-                    "Job WIP Nos." := XJOBWIPTxt;
-            Modify();
-        end
+        JobsSetup.Get();
+        if JobsSetup."Job Nos." = '' then
+            if not NoSeries.Get(XJOBTxt) then
+                InsertSeries(JobsSetup."Job Nos.", XJOBTxt, XJOBTxt, XJ10Txt, XJ99990Txt, '', '', 10, true)
+            else
+                JobsSetup."Job Nos." := XJOBTxt;
+        if JobsSetup."Job WIP Nos." = '' then
+            if not NoSeries.Get(XJOBWIPTxt) then
+                InsertSeries(JobsSetup."Job WIP Nos.", XJOBWIPTxt, XJobWIPDescriptionTxt, XDefaultJobWIPNoTxt, XDefaultJobWIPEndNoTxt, '', '', 1, true)
+            else
+                JobsSetup."Job WIP Nos." := XJOBWIPTxt;
+        JobsSetup.Modify();
     end;
 
     local procedure InsertSeries(var SeriesCode: Code[20]; "Code": Code[20]; Description: Text[30]; StartingNo: Code[20]; EndingNo: Code[20]; LastNumberUsed: Code[20]; WarningNo: Code[20]; IncrementByNo: Integer; ManualNos: Boolean)

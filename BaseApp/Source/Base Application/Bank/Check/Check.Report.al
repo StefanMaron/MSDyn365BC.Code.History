@@ -966,9 +966,12 @@ report 1401 Check
         NetAmount: Text[30];
         LineAmount2: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'Preview is not allowed.';
         Text001: Label 'Last Check No. must be filled in.';
+#pragma warning disable AA0470
         Text002: Label 'Filters on %1 and %2 are not allowed.';
+#pragma warning restore AA0470
         Text003: Label 'XXXXXXXXXXXXXXXX';
         Text004: Label 'must be entered.';
         Text005: Label 'The Bank Account and the General Journal Line must have the same currency.';
@@ -976,11 +979,15 @@ report 1401 Check
         Text010: Label 'XXXXXXXXXX';
         Text011: Label 'XXXX';
         Text012: Label 'XX.XXXXXXXXXX.XXXX';
+#pragma warning disable AA0470
         Text013: Label '%1 already exists.';
         Text014: Label 'Check for %1 %2';
+#pragma warning restore AA0470
         Text016: Label 'In the Check report, One Check per Vendor and Document No.\must not be activated when Applies-to ID is specified in the journal lines.';
         Text019: Label 'Total';
+#pragma warning disable AA0470
         Text020: Label 'The total amount of check %1 is %2. The amount must be positive.';
+#pragma warning restore AA0470
         Text021: Label 'VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID';
         Text022: Label 'NON-NEGOTIABLE';
         Text023: Label 'Test print';
@@ -989,9 +996,11 @@ report 1401 Check
         Text026: Label 'ZERO';
         Text027: Label 'HUNDRED';
         Text028: Label 'AND';
+#pragma warning disable AA0470
         Text029: Label '%1 results in a written number that is too long.';
         Text030: Label ' is already applied to %1 %2 for customer %3.';
         Text031: Label ' is already applied to %1 %2 for vendor %3.';
+#pragma warning restore AA0470
         Text032: Label 'ONE';
         Text033: Label 'TWO';
         Text034: Label 'THREE';
@@ -1022,9 +1031,12 @@ report 1401 Check
         Text059: Label 'THOUSAND';
         Text060: Label 'MILLION';
         Text061: Label 'BILLION';
+#pragma warning disable AA0470
         Text063: Label 'Net Amount %1';
         Text064: Label '%1 must not be %2 for %3 %4.';
+#pragma warning restore AA0470
         Text065: Label 'Subtotal';
+#pragma warning restore AA0074
         CheckNoTextCaptionLbl: Label 'Check No.';
         LineAmountCaptionLbl: Label 'Net Amount';
         LineDiscountCaptionLbl: Label 'Discount';

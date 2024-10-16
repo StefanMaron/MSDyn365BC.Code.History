@@ -160,23 +160,33 @@ report 5756 "Create Warehouse Location"
         LocCode: Code[10];
         AdjBinCode: Code[20];
         LastLineNo: Integer;
+#pragma warning disable AA0074
         Text001: Label 'Enter a location code.';
         Text002: Label 'Enter an adjustment bin code.';
         Text004: Label 'The conversion was successfully completed.';
+#pragma warning restore AA0074
         NegativeInventoryErr: Label 'Negative inventory was found in the location. You must clear this negative inventory in the program before you can proceed with the conversion.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'Location %1 cannot be converted because at least one %2 is not completely posted yet.\\Post or delete all of them before restarting the conversion batch job.';
         Text007: Label 'Location %1 cannot be converted because at least one %2 is not completely registered yet.\\Register or delete all of them before restarting the conversion batch job.';
         Text008: Label 'Location %1 cannot be converted because at least one %2 exists.\\Delete all of them before restarting the conversion batch job.';
+#pragma warning restore AA0470
         Text010: Label 'Inventory exists on this location. By choosing Yes from this warning, you are confirming that you want to enable this location to use Warehouse Management Systems by running a batch job to create warehouse entries for the inventory in this location.\\';
         Text011: Label 'If you want to proceed, you must first ensure that no negative inventory exists in the location. Negative inventory is not allowed in a location that uses warehouse management logic and must be cleared by posting a suitable quantity to inventory. ';
         Text012: Label 'You can perform a check for negative inventory by using the Items with Negative Inventory report.\\';
         Text013: Label 'If you can confirm that no negative inventory exists in the location, proceed with the conversion batch job. If negative inventory is found, the batch job will stop with an error message. ';
         Text014: Label 'The result of this batch job is that initial warehouse entries will be created. You must balance these initial warehouse entries on the adjustment bin by posting a warehouse physical inventory journal or a warehouse item journal to assign zones and bins to items.\';
         Text015: Label 'You must create zones and bins before posting a warehouse physical inventory.\\';
+#pragma warning disable AA0470
         Text016: Label 'Location %1 will be a warehouse management location after the batch job has run successfully. This conversion cannot be reversed or undone after it has run.';
+#pragma warning restore AA0470
         Text017: Label '\\Do you really want to proceed?';
+#pragma warning disable AA0470
         Text018: Label 'There is nothing to convert for %1 %2 ''%3''.';
         Text019: Label 'Location %1 cannot be converted because at least one %2 exists for this location.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ProcessingTxt: Label 'Location %1 is being converted to a directed put-away and pick location.\\This might take some time so please be patient.\\', Comment = '%1: Location Code';
         ItemNoInProgressTxt: Label 'Processing item number #100##################.', Comment = '#100 - Item No.';
         ErrorInfoTxt: Label '%1: %2', Locked = true, Comment = '%1: FieldCaption, %2: FieldValue';

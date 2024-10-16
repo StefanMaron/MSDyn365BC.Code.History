@@ -80,13 +80,13 @@ table 271 "Bank Account Ledger Entry"
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(24; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(25; "Our Contact Code"; Code[20])
         {
@@ -141,17 +141,17 @@ table 271 "Bank Account Ledger Entry"
         field(52; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
-            TableRelation = if ("Bal. Account Type" = CONST("G/L Account")) "G/L Account"
+            TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
             else
-            if ("Bal. Account Type" = CONST(Customer)) Customer
+            if ("Bal. Account Type" = const(Customer)) Customer
             else
-            if ("Bal. Account Type" = CONST(Vendor)) Vendor
+            if ("Bal. Account Type" = const(Vendor)) Vendor
             else
-            if ("Bal. Account Type" = CONST("Bank Account")) "Bank Account"
+            if ("Bal. Account Type" = const("Bank Account")) "Bank Account"
             else
-            if ("Bal. Account Type" = CONST("Fixed Asset")) "Fixed Asset"
+            if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset"
             else
-            if ("Bal. Account Type" = CONST(Employee)) Employee;
+            if ("Bal. Account Type" = const(Employee)) Employee;
         }
         field(53; "Transaction No."; Integer)
         {

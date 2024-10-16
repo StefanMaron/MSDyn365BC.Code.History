@@ -808,18 +808,16 @@ codeunit 144024 "Test Financial Journals"
         GenJournalTemplate: Record "Gen. Journal Template";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Posted Invoice Nos.", StdPostedInvoiceNoSeriesCode);
-            Validate("Posted Credit Memo Nos.", StdPostedCrMemoNoSeriesCode);
-            Validate(
-              "S. Invoice Template Name",
-              CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Sales, TemplatePostedInvoiceNoSeriesCode));
-            Validate(
-              "S. Cr. Memo Template Name",
-              CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Sales, TemplatePostedCrMemoNoSeriesCode));
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posted Invoice Nos.", StdPostedInvoiceNoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", StdPostedCrMemoNoSeriesCode);
+        SalesReceivablesSetup.Validate(
+          "S. Invoice Template Name",
+          CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Sales, TemplatePostedInvoiceNoSeriesCode));
+        SalesReceivablesSetup.Validate(
+          "S. Cr. Memo Template Name",
+          CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Sales, TemplatePostedCrMemoNoSeriesCode));
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure UpdateNoSeriesInPurchaseSetup(StdPostedInvoiceNoSeriesCode: Code[20]; StdPostedCrMemoNoSeriesCode: Code[20]; TemplatePostedInvoiceNoSeriesCode: Code[20]; TemplatePostedCrMemoNoSeriesCode: Code[20])
@@ -827,18 +825,16 @@ codeunit 144024 "Test Financial Journals"
         GenJournalTemplate: Record "Gen. Journal Template";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Posted Invoice Nos.", StdPostedInvoiceNoSeriesCode);
-            Validate("Posted Credit Memo Nos.", StdPostedCrMemoNoSeriesCode);
-            Validate(
-              "P. Invoice Template Name",
-              CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Purchases, TemplatePostedInvoiceNoSeriesCode));
-            Validate(
-              "P. Cr. Memo Template Name",
-              CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Purchases, TemplatePostedCrMemoNoSeriesCode));
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Invoice Nos.", StdPostedInvoiceNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", StdPostedCrMemoNoSeriesCode);
+        PurchasesPayablesSetup.Validate(
+          "P. Invoice Template Name",
+          CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Purchases, TemplatePostedInvoiceNoSeriesCode));
+        PurchasesPayablesSetup.Validate(
+          "P. Cr. Memo Template Name",
+          CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Purchases, TemplatePostedCrMemoNoSeriesCode));
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure ReplacePaymentTerms(var PmtTerms: Record "Payment Terms"; "Code": Code[10]; DueDateCalc: Text[30]; DiscountDateCalc: Text[30]; Discount: Decimal)

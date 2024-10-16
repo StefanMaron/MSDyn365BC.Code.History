@@ -356,15 +356,21 @@ report 5812 "Revaluation Posting - Test"
         ShowDim: Boolean;
         Continue: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You cannot use a recurring journal for revaluations.';
+#pragma warning disable AA0470
         Text001: Label '%1 must be specified.';
         Text002: Label '%1 %2 does not exist.';
         Text003: Label '%1 must be %2 for %3 %4.';
         Text004: Label '%1 must not be a closing date.';
+#pragma warning restore AA0470
         Text005: Label 'The lines are not listed according to posting date because they were not entered in that order.';
+#pragma warning disable AA0470
         Text006: Label '%1 is not within your allowed range of posting dates.';
         Text007: Label '%1 %2 %3 does not exist.';
+#pragma warning restore AA0470
         Text008: Label 'There is a gap in the number series.';
+#pragma warning restore AA0074
         Revaluation_Posting___TestCaptionLbl: Label 'Revaluation Posting - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Item_Journal_Line__Posting_Date_CaptionLbl: Label 'Posting Date';

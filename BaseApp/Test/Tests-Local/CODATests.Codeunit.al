@@ -433,17 +433,15 @@ codeunit 144006 "CODA Tests"
 
         CreateCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo(), false);
 
-        with CODAStatementLine do begin
-            Init();
-            "Statement No." := LibraryUtility.GenerateGUID();
-            "Statement Line No." := LibraryRandom.RandInt(100);
-            "Posting Date" := WorkDate();
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Account Type" := "Account Type"::Customer;
-            "Account No." := CustLedgerEntry."Customer No.";
-            Insert();
-            TestField("Applies-to ID", '');
-        end;
+        CODAStatementLine.Init();
+        CODAStatementLine."Statement No." := LibraryUtility.GenerateGUID();
+        CODAStatementLine."Statement Line No." := LibraryRandom.RandInt(100);
+        CODAStatementLine."Posting Date" := WorkDate();
+        CODAStatementLine."Document No." := LibraryUtility.GenerateGUID();
+        CODAStatementLine."Account Type" := CODAStatementLine."Account Type"::Customer;
+        CODAStatementLine."Account No." := CustLedgerEntry."Customer No.";
+        CODAStatementLine.Insert();
+        CODAStatementLine.TestField("Applies-to ID", '');
 
         CODAWriteStatements.Apply(CODAStatementLine);
 
@@ -994,29 +992,25 @@ codeunit 144006 "CODA Tests"
         CODAStatement."Statement No." := Format(LibraryRandom.RandInt(10));
         CODAStatement."Statement Date" := WorkDate();
         CODAStatement.Insert();
-        with CODAStatementLine do begin
-            "Bank Account No." := BankAccount."No.";
-            "Statement No." := CODAStatement."Statement No.";
-            "Transaction Family" := TransactionCoding."Transaction Family";
-            Transaction := TransactionCoding.Transaction;
-            "Transaction Category" := TransactionCoding."Transaction Category";
-            "Bank Account No. Other Party" := CopyStr(BankAccountNoOtherParty, 1, MaxStrLen("Bank Account No. Other Party"));
-            Insert();
-        end;
+        CODAStatementLine."Bank Account No." := BankAccount."No.";
+        CODAStatementLine."Statement No." := CODAStatement."Statement No.";
+        CODAStatementLine."Transaction Family" := TransactionCoding."Transaction Family";
+        CODAStatementLine.Transaction := TransactionCoding.Transaction;
+        CODAStatementLine."Transaction Category" := TransactionCoding."Transaction Category";
+        CODAStatementLine."Bank Account No. Other Party" := CopyStr(BankAccountNoOtherParty, 1, MaxStrLen(CODAStatementLine."Bank Account No. Other Party"));
+        CODAStatementLine.Insert();
     end;
 
     local procedure CreateTransactionCoding(var TransactionCoding: Record "Transaction Coding"; AccountType: Option)
     var
         LastTransactionCoding: Record "Transaction Coding";
     begin
-        with TransactionCoding do begin
-            if LastTransactionCoding.FindLast() then;
-            "Transaction Family" := LastTransactionCoding."Transaction Family" + 1;
-            Transaction := LastTransactionCoding.Transaction + 1;
-            "Transaction Category" := LastTransactionCoding."Transaction Category" + 1;
-            "Account Type" := AccountType;
-            Insert();
-        end;
+        if LastTransactionCoding.FindLast() then;
+        TransactionCoding."Transaction Family" := LastTransactionCoding."Transaction Family" + 1;
+        TransactionCoding.Transaction := LastTransactionCoding.Transaction + 1;
+        TransactionCoding."Transaction Category" := LastTransactionCoding."Transaction Category" + 1;
+        TransactionCoding."Account Type" := AccountType;
+        TransactionCoding.Insert();
     end;
 
     local procedure ProcessCODABankStmtLine(AccountNo: Code[20]; BankAccountNoOtherParty: Text[50]; AccountType: Option)
@@ -1048,16 +1042,14 @@ codeunit 144006 "CODA Tests"
         CODAStatement."Statement No." := Format(LibraryRandom.RandInt(10));
         CODAStatement."Statement Date" := WorkDate();
         CODAStatement.Insert();
-        with CODAStatementLine do begin
-            "Bank Account No." := BankAccount."No.";
-            "Statement No." := CODAStatement."Statement No.";
-            "Statement Line No." := LibraryRandom.RandInt(1000);
-            "Transaction Family" := TransactionCoding."Transaction Family";
-            Transaction := TransactionCoding.Transaction;
-            "Transaction Category" := TransactionCoding."Transaction Category";
-            "Bank Account No. Other Party" := CopyStr(BankAccountNoOtherParty, 1, MaxStrLen("Bank Account No. Other Party"));
-            Insert();
-        end;
+        CODAStatementLine."Bank Account No." := BankAccount."No.";
+        CODAStatementLine."Statement No." := CODAStatement."Statement No.";
+        CODAStatementLine."Statement Line No." := LibraryRandom.RandInt(1000);
+        CODAStatementLine."Transaction Family" := TransactionCoding."Transaction Family";
+        CODAStatementLine.Transaction := TransactionCoding.Transaction;
+        CODAStatementLine."Transaction Category" := TransactionCoding."Transaction Category";
+        CODAStatementLine."Bank Account No. Other Party" := CopyStr(BankAccountNoOtherParty, 1, MaxStrLen(CODAStatementLine."Bank Account No. Other Party"));
+        CODAStatementLine.Insert();
     end;
 
     local procedure MockDtldVendLedgerEntry(VendorLedgerEntryNo: Integer);

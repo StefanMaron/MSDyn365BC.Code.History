@@ -113,9 +113,13 @@ table 99000848 "Registered Absence"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must not be blank.';
         Text001: Label '%1 must be higher than %2';
         Text002: Label '%1 must be higher than %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CheckSyntax()
     begin

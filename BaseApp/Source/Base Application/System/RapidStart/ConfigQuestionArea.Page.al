@@ -135,7 +135,9 @@ page 8611 "Config. Question Area"
     var
         ConfigQuestionArea: Record "Config. Question Area";
         QuestionnaireMgt: Codeunit "Questionnaire Management";
+#pragma warning disable AA0074
         Text001: Label 'Questions have been updated.';
         Text002: Label 'Answers have been applied.';
+#pragma warning restore AA0074
 }
 

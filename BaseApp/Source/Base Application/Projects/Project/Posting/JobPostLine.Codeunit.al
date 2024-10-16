@@ -39,10 +39,16 @@ codeunit 1001 "Job Post-Line"
         JobJnlPostLine: Codeunit "Job Jnl.-Post Line";
         JobTransferLine: Codeunit "Job Transfer Line";
         UOMMgt: Codeunit "Unit of Measure Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'has been changed (initial a %1: %2= %3, %4= %5)';
+#pragma warning restore AA0470
         Text003: Label 'You cannot change the sales line because it is linked to\';
+#pragma warning disable AA0470
         Text004: Label ' %1: %2= %3, %4= %5.';
         Text005: Label 'You must post more usage or credit the sale of %1 %2 in %3 %4 before you can post purchase credit memo %5 %6 = %7.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InsertPlLineFromLedgEntry(var JobLedgEntry: Record "Job Ledger Entry")
     var
@@ -105,7 +111,7 @@ codeunit 1001 "Job Post-Line"
             InsertJobUsageLink(JobPlanningLine);
     end;
 
-    local procedure InsertJobUsageLink(JobPlanningLine: Record "Job Planning Line")
+    local procedure InsertJobUsageLink(var JobPlanningLine: Record "Job Planning Line")
     var
         JobUsageLink: Record "Job Usage Link";
         JobLedgerEntry: Record "Job Ledger Entry";

@@ -107,24 +107,6 @@ codeunit 134562 "Object Selection"
           VATStatementTemplate.FieldNo("Page Caption"));
     end;
 
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure IntrastatJnlTemplate()
-    var
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-    begin
-        RunReportTest(
-          DATABASE::"Intrastat Jnl. Template",
-          IntrastatJnlTemplate.FieldNo("Checklist Report ID"),
-          IntrastatJnlTemplate.FieldNo("Checklist Report Caption"));
-        RunPageTest(
-          DATABASE::"Intrastat Jnl. Template",
-          IntrastatJnlTemplate.FieldNo("Page ID"),
-          IntrastatJnlTemplate.FieldNo("Page Caption"));
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure DefaultDimension()
@@ -985,25 +967,21 @@ codeunit 134562 "Object Selection"
 
     local procedure GetAllObjWithCaption(var AllObjWithCaption: Record AllObjWithCaption; ObjectType: Integer; var ObjectId: Integer)
     begin
-        with AllObjWithCaption do begin
-            SetRange("Object Type", ObjectType);
-            FindFirst();
-            ObjectId := "Object ID";
-        end;
+        AllObjWithCaption.SetRange("Object Type", ObjectType);
+        AllObjWithCaption.FindFirst();
+        ObjectId := AllObjWithCaption."Object ID";
     end;
 
     local procedure CreateReportSelection(UsageOption: Enum "Report Selection Usage"; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
-        with ReportSelections do begin
-            Init();
-            Usage := UsageOption;
-            Sequence :=
-              LibraryUtility.GenerateRandomCode(FieldNo(Sequence), DATABASE::"Report Selections");
-            Validate("Report ID", ReportID);
-            Insert();
-        end;
+        ReportSelections.Init();
+        ReportSelections.Usage := UsageOption;
+        ReportSelections.Sequence :=
+          LibraryUtility.GenerateRandomCode(ReportSelections.FieldNo(Sequence), DATABASE::"Report Selections");
+        ReportSelections.Validate("Report ID", ReportID);
+        ReportSelections.Insert();
     end;
 
     [RequestPageHandler]

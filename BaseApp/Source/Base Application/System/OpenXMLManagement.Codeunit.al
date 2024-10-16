@@ -22,7 +22,6 @@ codeunit 6223 "OpenXML Management"
         CommentVmlShapeXmlTxt: Label '<v:shape id="%1" type="#_x0000_t202" style=''position:absolute;  margin-left:59.25pt;margin-top:1.5pt;width:96pt;height:55.5pt;z-index:1;  visibility:hidden'' fillcolor="#ffffe1" o:insetmode="auto"><v:fill color2="#ffffe1"/><v:shadow color="black" obscured="t"/><v:path o:connecttype="none"/><v:textbox style=''mso-direction-alt:auto''><div style=''text-align:left''/></v:textbox><x:ClientData ObjectType="Note"><x:MoveWithCells/><x:SizeWithCells/><x:Anchor>%2</x:Anchor><x:AutoFill>False</x:AutoFill><x:Row>%3</x:Row><x:Column>%4</x:Column></x:ClientData></v:shape>', Locked = true;
         CopyDataProgressTxt: Label 'Writing to Excel';
         ProgressStatusTxt: Label '%1: %2 records out of %3', Comment = '%1 = table name; %2 = number of processed records (integer); %3 = total number records (integer).';
-        CellDecorator: DotNet CellDecorator;
 
     [Scope('OnPrem')]
     procedure AddAndInitializeCommentsPart(WorksheetWriter: DotNet WorksheetWriter; var VmlDrawingPart: DotNet VmlDrawingPart)
@@ -294,8 +293,6 @@ codeunit 6223 "OpenXML Management"
         StepCount: Integer;
         ShowDialog: Boolean;
     begin
-        CellDecorator := WorksheetWriter.DefaultCellDecorator;
-
         DataTableRowsCount := DataTable.Rows.Count();
         RowsCount := 0;
         DataTableColumnsCount := DataTable.Columns.Count();
@@ -383,7 +380,6 @@ codeunit 6223 "OpenXML Management"
         MapInfo: DotNet MapInfo;
         "Schema": DotNet Schema;
         StreamReader: DotNet StreamReader;
-        OpenXmlUnknownElement: DotNet OpenXmlUnknownElement;
         Map: DotNet Map;
         DataBinding: DotNet DataBinding;
         UInt32Value: DotNet UInt32Value;
@@ -395,9 +391,7 @@ codeunit 6223 "OpenXML Management"
         StreamReader.ReadLine();
         StreamText := StreamReader.ReadToEnd();
         StreamReader.Close();
-        OpenXmlUnknownElement := OpenXmlUnknownElement.CreateOpenXmlUnknownElement(StreamText);
-
-        Schema := WrkbkWriter.CreateSchemaFromOpenXmlUnknown(OpenXmlUnknownElement);
+        Schema := WrkbkWriter.CreateSchemaFromText(StreamText);
         Schema.Id := StringValue.StringValue('Schema1');
 
         MapInfo := MapInfo.MapInfo();
@@ -575,23 +569,23 @@ codeunit 6223 "OpenXML Management"
             'System.DateTime':
                 WrkShtWriter.SetCellValueDate(
                   RowsCount + 4, GetXLColumnID(ColumnsCount + 1), DataRow.Item(ColumnsCount), '',
-                  CellDecorator);
+                  WrkShtWriter.DefaultCellDecorator);
             'System.Time':
                 WrkShtWriter.SetCellValueTime(
                   RowsCount + 4, GetXLColumnID(ColumnsCount + 1), DataRow.Item(ColumnsCount), '',
-                  CellDecorator);
+                  WrkShtWriter.DefaultCellDecorator);
             'System.Boolean':
                 WrkShtWriter.SetCellValueBoolean(
                   RowsCount + 4, GetXLColumnID(ColumnsCount + 1), DataRow.Item(ColumnsCount),
-                  CellDecorator);
+                  WrkShtWriter.DefaultCellDecorator);
             'System.Integer', 'System.Int32':
                 WrkShtWriter.SetCellValueNumber(
                   RowsCount + 4, GetXLColumnID(ColumnsCount + 1), Format(DataRow.Item(ColumnsCount)), '',
-                  CellDecorator);
+                  WrkShtWriter.DefaultCellDecorator);
             else
                 WrkShtWriter.SetCellValueText(
                   RowsCount + 4, GetXLColumnID(ColumnsCount + 1), DataRow.Item(ColumnsCount),
-                  CellDecorator);
+                  WrkShtWriter.DefaultCellDecorator);
         end;
     end;
 

@@ -38,24 +38,16 @@ enum 77 "Report Selection Usage"
     value(26; "Inv1") { Caption = 'Transfer Order'; }
     value(27; "Inv2") { Caption = 'Transfer Shipment'; }
     value(28; "Inv3") { Caption = 'Transfer Receipt'; }
-    value(29; "SM.Quote") { Caption = 'Service Quote'; }
-    value(30; "SM.Order") { Caption = 'Service Order'; }
-    value(31; "SM.Invoice") { Caption = 'Service Invoice'; }
-    value(32; "SM.Credit Memo") { Caption = 'Service Credit Memo'; }
-    value(33; "SM.Contract Quote") { Caption = 'Service Contract Quote'; }
-    value(34; "SM.Contract") { Caption = 'Service Contract'; }
-    value(35; "SM.Test") { Caption = 'Service Test'; }
     value(36; "S.Return") { Caption = 'Sales Return Order'; }
     value(37; "P.Return") { Caption = 'Purchase Return Order'; }
     value(38; "S.Shipment") { Caption = 'Sales Shipment'; }
     value(39; "S.Ret.Rcpt.") { Caption = 'Sales Return Receipt'; }
     value(40; "S.Work Order") { Caption = 'Sales Work Order'; }
     value(41; "Invt.Period Test") { Caption = 'Invt.Period Test'; }
-    value(42; "SM.Shipment") { Caption = 'Service Shipment'; }
     value(43; "S.Test Prepmt.") { Caption = 'Sales Test Prepayment'; }
     value(44; "P.Test Prepmt.") { Caption = 'Purchase Test Prepayment'; }
     value(45; "S.Arch.Quote") { Caption = 'Sales Archive Quote'; }
-    value(46; "S.Arch.Order") { Caption = 'Sales Archice Order'; }
+    value(46; "S.Arch.Order") { Caption = 'Sales Archive Order'; }
     value(47; "P.Arch.Quote") { Caption = 'Purchase Archive Quote'; }
     value(48; "P.Arch.Order") { Caption = 'Purchase Archive Order'; }
     value(49; "S.Arch.Return") { Caption = 'Sales Archive Return'; }
@@ -83,5 +75,8 @@ enum 77 "Report Selection Usage"
     value(110; "P.Inventory Receipt") { Caption = 'Posted Inventory Receipt'; }
     value(111; "P.Direct Transfer") { Caption = 'Posted Direct Transfer'; }
     value(112; "Job Task Quote") { Caption = 'Project Task Quote'; }
+    value(130; "VAT Statement") { Caption = 'VAT Statement'; }
+    value(131; "Sales VAT Acc. Proof") { Caption = 'Sales VAT Acc. Proof'; }
+    value(132; "VAT Statement Schedule") { Caption = 'VAT Statement Schedule'; }
 }
 

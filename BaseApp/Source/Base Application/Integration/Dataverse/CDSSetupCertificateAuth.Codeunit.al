@@ -15,16 +15,21 @@ codeunit 7206 "CDS Setup Certificate Auth"
     var
         TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         CDSConnectionSetup: Record "CDS Connection Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        CDSConnectionSetup2: Record "CDS Connection Setup";
         CRMConnectionSetup: Record "CRM Connection Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        CRMConnectionSetup2: Record "CRM Connection Setup";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         ServerAddress: Text[250];
         UserName: Text[250];
+        EmptySecretText: SecretText;
         ProxyVersion: Integer;
     begin
-        if not CDSConnectionSetup.WritePermission() then
+        if not CDSConnectionSetup2.WritePermission() then
             exit;
 
-        if not CRMConnectionSetup.WritePermission() then
+        if not CRMConnectionSetup2.WritePermission() then
             exit;
 
         if CDSConnectionSetup.Get() then
@@ -56,7 +61,7 @@ codeunit 7206 "CDS Setup Certificate Auth"
         if (TempCDSConnectionSetup."Connection String".IndexOf('{CERTIFICATE}') > 0) and (TempCDSConnectionSetup."User Name" <> UserName) then begin
             if CRMConnectionSetup.IsEnabled() then begin
                 CRMConnectionSetup."User Name" := TempCDSConnectionSetup."User Name";
-                CRMConnectionSetup.SetPassword('');
+                CRMConnectionSetup.SetPassword(EmptySecretText);
                 CRMConnectionSetup."Proxy Version" := TempCDSConnectionSetup."Proxy Version";
                 CRMConnectionSetup.SetConnectionString(TempCDSConnectionSetup."Connection String");
             end;
@@ -64,7 +69,7 @@ codeunit 7206 "CDS Setup Certificate Auth"
             if CDSConnectionSetup.Get() then
                 if CDSConnectionSetup."Is Enabled" then begin
                     CDSConnectionSetup."User Name" := TempCDSConnectionSetup."User Name";
-                    CDSConnectionSetup.SetPassword('');
+                    CDSConnectionSetup.SetPassword(EmptySecretText);
                     CDSConnectionSetup."Proxy Version" := TempCDSConnectionSetup."Proxy Version";
                     CDSConnectionSetup."Connection String" := TempCDSConnectionSetup."Connection String";
                     CDSConnectionSetup.Modify();

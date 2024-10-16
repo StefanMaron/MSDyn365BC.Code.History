@@ -582,7 +582,6 @@ page 1978 "MS 365 License Setup Wizard"
                 WizardPermissions := WizardPermissions::PermissionsEmptyInConfig;
     end;
 
-    [NonDebuggable]
     local procedure ShowTAC()
     begin
         WizardStep := WizardStep::TAC;
@@ -592,7 +591,6 @@ page 1978 "MS 365 License Setup Wizard"
             WizardTAC := WizardTAC::DisabledInTAC;
     end;
 
-    [NonDebuggable]
     local procedure ShowAccessControl()
     begin
         WizardStep := WizardStep::AccessControl;

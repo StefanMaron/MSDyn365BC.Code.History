@@ -31,25 +31,21 @@ codeunit 144047 LinkToAcconReportTest
         FoundTestAccount: Boolean;
     begin
         // Setup: Create two GL Accounts where one has Account Type Posting.
-        with GLAccount do begin
-            LibraryERM.CreateGLAccount(GLAccount);
-            "Account Type" := "Account Type"::Total;
-            Modify(true);
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Account Type" := GLAccount."Account Type"::Total;
+        GLAccount.Modify(true);
 
-            Reset();
-            LibraryERM.CreateGLAccount(GLAccount);
-            "Account Type" := "Account Type"::Posting;
-            Modify(true);
-        end;
+        GLAccount.Reset();
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Account Type" := GLAccount."Account Type"::Posting;
+        GLAccount.Modify(true);
 
-        with GLEntry do begin
-            Init();
-            "Entry No." := 10000001;
-            "G/L Account No." := GLAccount."No.";
-            "Posting Date" := WorkDate();
-            Amount := LibraryRandom.RandDec(1000, 2);
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := 10000001;
+        GLEntry."G/L Account No." := GLAccount."No.";
+        GLEntry."Posting Date" := WorkDate();
+        GLEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        GLEntry.Insert();
 
         Commit();
 
@@ -110,26 +106,22 @@ codeunit 144047 LinkToAcconReportTest
         FoundTestAccount: Boolean;
     begin
         // Setup: Create two GL Accounts where one has Account Type Posting.
-        with GLAccount do begin
-            LibraryERM.CreateGLAccount(GLAccount);
-            "Account Type" := "Account Type"::Total;
-            Modify(true);
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Account Type" := GLAccount."Account Type"::Total;
+        GLAccount.Modify(true);
 
-            Reset();
-            LibraryERM.CreateGLAccount(GLAccount);
-            "Account Type" := "Account Type"::Posting;
-            Modify(true);
-        end;
+        GLAccount.Reset();
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Account Type" := GLAccount."Account Type"::Posting;
+        GLAccount.Modify(true);
 
-        with GLEntry do begin
-            Init();
-            "Entry No." := 10000002;
-            "G/L Account No." := GLAccount."No.";
-            "Posting Date" := WorkDate();
-            Amount := LibraryRandom.RandDec(1000, 2);
-            "Additional-Currency Amount" := Amount * 3;
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := 10000002;
+        GLEntry."G/L Account No." := GLAccount."No.";
+        GLEntry."Posting Date" := WorkDate();
+        GLEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        GLEntry."Additional-Currency Amount" := GLEntry.Amount * 3;
+        GLEntry.Insert();
 
         Commit();
 

@@ -370,10 +370,12 @@ report 211 "Customer - Payment Receipt"
         PmtDiscInvCurr: Decimal;
         PmtTolInvCurr: Decimal;
         PmtDiscPmtCurr: Decimal;
+#pragma warning disable AA0074
         Text003: Label 'Payment Receipt';
         Text004: Label 'Payment Voucher';
         Text006: Label 'Pmt. Disc. Given';
         Text007: Label 'Pmt. Disc. Rcvd.';
+#pragma warning restore AA0074
         PmtTolPmtCurr: Decimal;
         ShowAmount: Decimal;
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';

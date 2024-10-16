@@ -10,8 +10,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using System.Email;
 using System.IO;
 using System.Reflection;
@@ -41,10 +39,6 @@ codeunit 452 "Report Distribution Management"
         PurchaseOrderDocTypeTxt: Label 'Purchase Order';
         PurchaseBlanketOrderDocTypeTxt: Label 'Purchase Blanket Order';
         PurchaseReturnOrderDocTypeTxt: Label 'Purchase Return Order';
-        ServiceInvoiceDocTypeTxt: Label 'Service Invoice';
-        ServiceCrMemoDocTypeTxt: Label 'Service Credit Memo';
-        ServiceQuoteDocTypeTxt: Label 'Service Quote';
-        ServiceOrderDocTypeTxt: Label 'Service Order';
         JobQuoteDocTypeTxt: Label 'Project Quote';
         IssuedReminderDocTypeTxt: Label 'Issued Reminder';
         IssuedFinChargeMemoDocTypeTxt: Label 'Issued Finance Charge Memo';
@@ -102,7 +96,6 @@ codeunit 452 "Report Distribution Management"
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
-        ServiceHeader: Record "Service Header";
         TranslationHelper: Codeunit "Translation Helper";
         DocumentRecordRef: RecordRef;
     begin
@@ -125,10 +118,6 @@ codeunit 452 "Report Distribution Management"
                 DocumentTypeText := PurchaseInvoiceDocTypeTxt;
             Database::"Purch. Cr. Memo Hdr.":
                 DocumentTypeText := PurchaseCrMemoDocTypeTxt;
-            DATABASE::"Service Invoice Header":
-                DocumentTypeText := ServiceInvoiceDocTypeTxt;
-            DATABASE::"Service Cr.Memo Header":
-                DocumentTypeText := ServiceCrMemoDocTypeTxt;
             DATABASE::Job:
                 DocumentTypeText := JobQuoteDocTypeTxt;
             Database::"Return Receipt Header":
@@ -173,20 +162,6 @@ codeunit 452 "Report Distribution Management"
                             DocumentTypeText := PurchaseReturnOrderDocTypeTxt;
                     end;
                 end;
-            DATABASE::"Service Header":
-                begin
-                    DocumentRecordRef.SetTable(ServiceHeader);
-                    case ServiceHeader."Document Type" of
-                        ServiceHeader."Document Type"::Invoice:
-                            DocumentTypeText := ServiceInvoiceDocTypeTxt;
-                        ServiceHeader."Document Type"::"Credit Memo":
-                            DocumentTypeText := ServiceCrMemoDocTypeTxt;
-                        ServiceHeader."Document Type"::Quote:
-                            DocumentTypeText := ServiceQuoteDocTypeTxt;
-                        ServiceHeader."Document Type"::Order:
-                            DocumentTypeText := ServiceOrderDocTypeTxt;
-                    end;
-                end;
             else
                 OnGetFullDocumentTypeTextElseCase(DocumentRecordRef, DocumentTypeText);
         end;
@@ -200,11 +175,8 @@ codeunit 452 "Report Distribution Management"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
-        ServiceHeader: Record "Service Header";
         Job: Record Job;
         DocumentRecordRef: RecordRef;
     begin
@@ -225,16 +197,6 @@ codeunit 452 "Report Distribution Management"
                     DocumentRecordRef.SetTable(SalesCrMemoHeader);
                     exit(SalesCrMemoHeader."Language Code");
                 end;
-            DATABASE::"Service Invoice Header":
-                begin
-                    DocumentRecordRef.SetTable(ServiceInvoiceHeader);
-                    exit(ServiceInvoiceHeader."Language Code");
-                end;
-            DATABASE::"Service Cr.Memo Header":
-                begin
-                    DocumentRecordRef.SetTable(ServiceCrMemoHeader);
-                    exit(ServiceCrMemoHeader."Language Code");
-                end;
             DATABASE::"Sales Header":
                 begin
                     DocumentRecordRef.SetTable(SalesHeader);
@@ -244,11 +206,6 @@ codeunit 452 "Report Distribution Management"
                 begin
                     DocumentRecordRef.SetTable(PurchaseHeader);
                     exit(PurchaseHeader."Language Code");
-                end;
-            DATABASE::"Service Header":
-                begin
-                    DocumentRecordRef.SetTable(ServiceHeader);
-                    exit(ServiceHeader."Language Code");
                 end;
             DATABASE::Job:
                 begin
@@ -284,9 +241,6 @@ codeunit 452 "Report Distribution Management"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesHeader: Record "Sales Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        ServiceHeader: Record "Service Header";
         Job: Record Job;
         DocumentRecordRef: RecordRef;
         IsHandled: Boolean;
@@ -308,21 +262,6 @@ codeunit 452 "Report Distribution Management"
                     SalesCrMemoHeader := DocumentVariant;
                     Customer.Get(SalesCrMemoHeader."Bill-to Customer No.");
                 end;
-            DATABASE::"Service Invoice Header":
-                begin
-                    ServiceInvoiceHeader := DocumentVariant;
-                    Customer.Get(ServiceInvoiceHeader."Bill-to Customer No.");
-                end;
-            DATABASE::"Service Cr.Memo Header":
-                begin
-                    ServiceCrMemoHeader := DocumentVariant;
-                    Customer.Get(ServiceCrMemoHeader."Bill-to Customer No.");
-                end;
-            DATABASE::"Service Header":
-                begin
-                    ServiceHeader := DocumentVariant;
-                    Customer.Get(ServiceHeader."Bill-to Customer No.");
-                end;
             DATABASE::"Sales Header":
                 begin
                     SalesHeader := DocumentVariant;
@@ -337,7 +276,7 @@ codeunit 452 "Report Distribution Management"
                 OnGetBillToCustomerOnUnhandledTableNo(DocumentRecordRef, Customer);
         end;
 
-        OnAfterGetBillToCustomer(Customer, DocumentVariant);
+        OnAfterGetBillToCustomer(Customer, DocumentVariant, DocumentRecordRef);
     end;
 
     local procedure GetBuyFromVendor(var Vendor: Record Vendor; DocumentVariant: Variant)
@@ -490,17 +429,18 @@ codeunit 452 "Report Distribution Management"
         ElectronicDocumentFormat.ValidateElectronicSalesDocument(SalesHeader, ElectronicDocumentFormat.Code);
     end;
 
-    [Scope('OnPrem')]
-    procedure RunDefaultCheckServiceElectronicDocument(ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit "Serv. Report Distribution Mgt."', '25.0')]
+    procedure RunDefaultCheckServiceElectronicDocument(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         GetElectronicDocumentFormat(ElectronicDocumentFormat, ServiceHeader);
-
         ElectronicDocumentFormat.ValidateElectronicServiceDocument(ServiceHeader, ElectronicDocumentFormat.Code);
     end;
+#endif
 
-    local procedure GetElectronicDocumentFormat(var ElectronicDocumentFormat: Record "Electronic Document Format"; DocumentVariant: Variant)
+    procedure GetElectronicDocumentFormat(var ElectronicDocumentFormat: Record "Electronic Document Format"; DocumentVariant: Variant)
     var
         Customer: Record Customer;
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -566,7 +506,7 @@ codeunit 452 "Report Distribution Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetBillToCustomer(var Customer: Record Customer; DocumentVariant: Variant)
+    local procedure OnAfterGetBillToCustomer(var Customer: Record Customer; DocumentVariant: Variant; DocumentRecordRef: RecordRef)
     begin
     end;
 
@@ -591,12 +531,12 @@ codeunit 452 "Report Distribution Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetBillToCustomerOnUnhandledTableNo(DocumentRecordRef: RecordRef; var Customer: Record Customer)
+    local procedure OnGetFullDocumentTypeTextElseCase(DocumentRecordRef: RecordRef; var DocumentTypeText: Text[50])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetFullDocumentTypeTextElseCase(DocumentRecordRef: RecordRef; var DocumentTypeText: Text[50])
+    local procedure OnGetBillToCustomerOnUnhandledTableNo(DocumentRecordRef: RecordRef; var Customer: Record Customer)
     begin
     end;
 }

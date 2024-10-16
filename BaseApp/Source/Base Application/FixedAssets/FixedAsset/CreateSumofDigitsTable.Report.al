@@ -53,8 +53,10 @@ report 5683 "Create Sum of Digits Table"
     var
         NoOfYears: Integer;
         DeprTableCode: Code[20];
+#pragma warning disable AA0074
         Text000: Label 'You must specify No. of Years.';
         Text001: Label 'No. of Years must be less than 200.';
+#pragma warning restore AA0074
 
     procedure SetTableCode(DeprTableCode2: Code[20])
     begin

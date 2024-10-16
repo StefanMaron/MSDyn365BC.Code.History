@@ -105,7 +105,9 @@ report 5978 "Serv. Contract - Salesperson"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Total for ';
+#pragma warning restore AA0074
         ServContractFilter: Text;
         TotalForLbl: Label 'Total ';
         ServContrctSalepersonCptnLbl: Label 'Service Contract - Salesperson';

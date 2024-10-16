@@ -111,7 +111,7 @@ page 926 "Available - Assembly Lines"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -204,9 +204,13 @@ page 926 "Available - Assembly Lines"
         CaptionText: Text;
         CurrentSubType: Option;
 
+#pragma warning disable AA0074
         Text000: Label 'Fully reserved.';
         Text001: Label 'Do you want to cancel the reservation?';
+#pragma warning disable AA0470
         Text002: Label 'Available Quantity is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         QtyToReserve: Decimal;

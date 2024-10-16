@@ -781,7 +781,7 @@ report 5915 "Service Document - Test"
                                 if ServCost.Get("Service Line"."No.") then
                                     No[1] := ServCost."Account No.";
                             end else begin
-                                TableID[1] := DimMgt.TypeToTableID5("Service Line".Type.AsInteger());
+                                TableID[1] := ServDimMgt.ServiceLineTypeToTableID("Service Line".Type);
                                 No[1] := "Service Line"."No.";
                             end;
                             TableID[2] := Database::Job;
@@ -947,12 +947,13 @@ report 5915 "Service Document - Test"
 
             trigger OnAfterGetRecord()
             var
+                ServiceFormatAddress: Codeunit "Service Format Address";
                 TableID: array[10] of Integer;
                 No: array[10] of Code[20];
             begin
-                FormatAddr.ServiceHeaderSellTo(SellToAddr, "Service Header");
-                FormatAddr.ServiceHeaderBillTo(BillToAddr, "Service Header");
-                FormatAddr.ServiceHeaderShipTo(ShipToAddr, "Service Header");
+                ServiceFormatAddress.ServiceHeaderSellTo(SellToAddr, "Service Header");
+                ServiceFormatAddress.ServiceHeaderBillTo(BillToAddr, "Service Header");
+                ServiceFormatAddress.ServiceHeaderShipTo(ShipToAddr, "Service Header");
                 if "Currency Code" = '' then begin
                     GLSetup.TestField("LCY Code");
                     TotalText := StrSubstNo(Text004, GLSetup."LCY Code");
@@ -1183,8 +1184,8 @@ report 5915 "Service Document - Test"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry: Record "Dimension Set Entry";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
-        FormatAddr: Codeunit "Format Address";
         DimMgt: Codeunit DimensionManagement;
+        ServDimMgt: Codeunit "Serv. Dimension Management";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ServAmountsMgt: Codeunit "Serv-Amounts Mgt.";
         ServiceHeaderFilter: Text;
@@ -1220,14 +1221,22 @@ report 5915 "Service Document - Test"
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text;
 
+#pragma warning disable AA0074
         Text000: Label 'Ship and Invoice';
         Text001: Label 'Ship';
         Text002: Label 'Invoice';
+#pragma warning disable AA0470
         Text003: Label 'Order Posting: %1';
         Text004: Label 'Total %1';
         Text005: Label 'Total %1 Incl. VAT';
         Text006: Label '%1 must be specified.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         MustBeForErr: Label '%1 must be %2 for %3 %4.';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 %2 does not exist.';
         Text009: Label '%1 must not be a closing date.';
         Text014: Label 'Service Document: %1';
@@ -1245,6 +1254,8 @@ report 5915 "Service Document - Test"
         Text036: Label 'The quantity you are attempting to invoice is greater than the quantity in shipment %1.';
         Text043: Label '%1 must be zero.';
         Text045: Label '%1 must not be %2 for %3 %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Service_Document___TestCaptionLbl: Label 'Service Document - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Ship_toCaptionLbl: Label 'Ship-to';

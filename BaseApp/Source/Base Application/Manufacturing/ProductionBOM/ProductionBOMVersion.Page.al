@@ -156,7 +156,9 @@ page 99000809 "Production BOM Version"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Copy from Production BOM?';
+#pragma warning restore AA0074
         ProdBOMHeader: Record "Production BOM Header";
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
 }

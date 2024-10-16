@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -303,8 +303,12 @@ table 950 "Time Sheet Header"
         TimeSheetLine: Record "Time Sheet Line";
         TimeSheetMgt: Codeunit "Time Sheet Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 does not contain lines.';
+#pragma warning restore AA0470
         Text002: Label 'No time sheets are available. The time sheet administrator must create time sheets before you can access them in this window.';
+#pragma warning restore AA0074
         PrivacyBlockedErr: Label 'You cannot use resource %1 because they are marked as blocked due to privacy.', Comment = '%1=resource no.';
 
     procedure CalcQtyWithStatus(Status: Enum "Time Sheet Status"): Decimal

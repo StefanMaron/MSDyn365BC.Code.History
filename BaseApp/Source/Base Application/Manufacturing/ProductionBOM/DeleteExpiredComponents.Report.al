@@ -68,8 +68,12 @@ report 99001041 "Delete Expired Components"
         Window: Dialog;
         StartingDate: Date;
 
+#pragma warning disable AA0074
         Text000: Label 'You must enter the date to delete before.';
         Text001: Label 'Deleting...\';
+#pragma warning disable AA0470
         Text002: Label 'Production BOM No. #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

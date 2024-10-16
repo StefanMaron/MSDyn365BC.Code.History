@@ -358,8 +358,10 @@ page 8629 "Config. Wizard"
     end;
 
     var
+#pragma warning disable AA0074
         Text003: Label 'Select a package to run the Apply Package function.';
         Text004: Label 'Select a package file.';
+#pragma warning restore AA0074
         YourProfileCode: Code[30];
         ApplyVisible: Boolean;
         ConfigVisible: Boolean;

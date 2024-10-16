@@ -20,20 +20,19 @@ codeunit 143000 "Library - BE Helper"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            if "E-Mail" = '' then begin
-                "E-Mail" := 'test@test.tst'; // value not important, it must not be empty
-                Modify();
-            end;
-            if "Enterprise No." = '' then begin
-                "Enterprise No." := CreateMOD97CompliantCode();
-                Modify();
-            end;
-            if "Country/Region Code" <> 'BE' then begin
-                "Country/Region Code" := 'BE';
-                Modify();
-            end;
+        CompanyInformation.Get();
+        if CompanyInformation."E-Mail" = '' then begin
+            CompanyInformation."E-Mail" := 'test@test.tst';
+            // value not important, it must not be empty
+            CompanyInformation.Modify();
+        end;
+        if CompanyInformation."Enterprise No." = '' then begin
+            CompanyInformation."Enterprise No." := CreateMOD97CompliantCode();
+            CompanyInformation.Modify();
+        end;
+        if CompanyInformation."Country/Region Code" <> 'BE' then begin
+            CompanyInformation."Country/Region Code" := 'BE';
+            CompanyInformation.Modify();
         end;
     end;
 
@@ -42,14 +41,12 @@ codeunit 143000 "Library - BE Helper"
     var
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
     begin
-        with VATRegistrationNoFormat do begin
-            SetRange("Country/Region Code", CountryCode);
-            if FindLast() then;
-            "Country/Region Code" := CountryCode;
-            "Line No." += 10000;
-            Format := FormatText;
-            Insert();
-        end;
+        VATRegistrationNoFormat.SetRange("Country/Region Code", CountryCode);
+        if VATRegistrationNoFormat.FindLast() then;
+        VATRegistrationNoFormat."Country/Region Code" := CountryCode;
+        VATRegistrationNoFormat."Line No." += 10000;
+        VATRegistrationNoFormat.Format := FormatText;
+        VATRegistrationNoFormat.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -178,12 +175,10 @@ codeunit 143000 "Library - BE Helper"
         DocDate := CalcDate(
             '<+' + Format(LibraryRandom.RandInt(EndDate - StartDate)) + 'D>', StartDate);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        with SalesHeader do begin
-            Validate("Order Date", DocDate);
-            Validate("Posting Date", DocDate);
-            Validate("Shipment Date", DocDate);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Order Date", DocDate);
+        SalesHeader.Validate("Posting Date", DocDate);
+        SalesHeader.Validate("Shipment Date", DocDate);
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -195,12 +190,10 @@ codeunit 143000 "Library - BE Helper"
         LibrarySales.CreateCustomer(Customer);
 
         CreateVATRegNoFormat(CountryCode, GetVATRegNoFormatText());
-        with Customer do begin
-            "Country/Region Code" := CountryCode;
-            if CountryCode <> 'BE' then
-                Validate("VAT Registration No.", GetUniqueVATRegNo(CountryCode));
-            Modify();
-        end;
+        Customer."Country/Region Code" := CountryCode;
+        if CountryCode <> 'BE' then
+            Customer.Validate("VAT Registration No.", GetUniqueVATRegNo(CountryCode));
+        Customer.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -211,10 +204,8 @@ codeunit 143000 "Library - BE Helper"
         CompanyInformation.Get();
 
         CreateCustomer(Customer, CompanyInformation."Country/Region Code");
-        with Customer do begin
-            Validate("Enterprise No.", CreateEnterpriseNo());
-            Modify();
-        end;
+        Customer.Validate("Enterprise No.", CreateEnterpriseNo());
+        Customer.Modify();
         ClearVATEntriesByEnterpriseNo(Customer."Enterprise No.");
     end;
 
@@ -222,20 +213,16 @@ codeunit 143000 "Library - BE Helper"
     procedure CreateDomesticCustomerWithVATSetup(var Customer: Record Customer; VATPostingSetup: Record "VAT Posting Setup")
     begin
         CreateDomesticCustomer(Customer);
-        with Customer do begin
-            "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-            Modify();
-        end;
+        Customer."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        Customer.Modify();
     end;
 
     [Scope('OnPrem')]
     procedure CreateForeignCustomerWithVATSetup(var Customer: Record Customer; VATPostingSetup: Record "VAT Posting Setup")
     begin
         CreateCustomer(Customer, 'GB');
-        with Customer do begin
-            "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-            Modify();
-        end;
+        Customer."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        Customer.Modify();
     end;
 
     [Normal]
@@ -259,10 +246,8 @@ codeunit 143000 "Library - BE Helper"
 
         Resource.SetFilter("No.", ResourceNo);
         Resource.FindFirst();
-        with Resource do begin
-            Validate("Unit Price", LibraryRandom.RandInt(100));
-            Modify();
-        end;
+        Resource.Validate("Unit Price", LibraryRandom.RandInt(100));
+        Resource.Modify();
     end;
 
     [Normal]
@@ -272,21 +257,27 @@ codeunit 143000 "Library - BE Helper"
         CountryRegion: Record "Country/Region";
     begin
         CreateCountryRegion(CountryRegion);
-        with Representative do begin
-            Init();
-            Validate(ID, 'XX');  // Not important
-            Name := 'X'; // Not important - but not Blank
-            Address := 'X'; // Not important - but not Blank
-            Validate("Country/Region Code", CountryRegion.Code);
-            City := 'X'; // Not important - but not Blank
-            "Post Code" := 'X'; // Not important - but not Blank
-            Validate("E-Mail", 'test@test.tst');
-            Phone := 'X'; // Not important - but not Blank
-            Validate("Issued by", CountryRegion.Code);
-            Validate("Identification Type", "Identification Type"::NVAT); // Not important
-            Address := 'X'; // Not important - but not Blank
-            Insert();
-        end;
+        Representative.Init();
+        Representative.Validate(ID, 'XX');
+        // Not important
+        Representative.Name := 'X';
+        // Not important - but not Blank
+        Representative.Address := 'X';
+        // Not important - but not Blank
+        Representative.Validate("Country/Region Code", CountryRegion.Code);
+        Representative.City := 'X';
+        // Not important - but not Blank
+        Representative."Post Code" := 'X';
+        // Not important - but not Blank
+        Representative.Validate("E-Mail", 'test@test.tst');
+        Representative.Phone := 'X';
+        // Not important - but not Blank
+        Representative.Validate("Issued by", CountryRegion.Code);
+        Representative.Validate("Identification Type", Representative."Identification Type"::NVAT);
+        // Not important
+        Representative.Address := 'X';
+        // Not important - but not Blank
+        Representative.Insert();
     end;
 
     [Normal]
@@ -360,11 +351,9 @@ codeunit 143000 "Library - BE Helper"
         DocDate := CalcDate(
             '<+' + Format(LibraryRandom.RandInt(EndDate - StartDate)) + 'D>', StartDate);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
-        with ServiceHeader do begin
-            Validate("Order Date", DocDate);
-            Validate("Posting Date", DocDate);
-            Modify(true);
-        end;
+        ServiceHeader.Validate("Order Date", DocDate);
+        ServiceHeader.Validate("Posting Date", DocDate);
+        ServiceHeader.Modify(true);
         LibraryService.CreateServiceLine(
           ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
         ServiceLine.Validate(Quantity, 2);
@@ -438,22 +427,18 @@ codeunit 143000 "Library - BE Helper"
     [Scope('OnPrem')]
     procedure CreatePaymentJournalTemplate(var PaymentJournalTemplate: Record "Payment Journal Template")
     begin
-        with PaymentJournalTemplate do begin
-            Init();
-            Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Payment Journal Template");
-            Insert();
-        end;
+        PaymentJournalTemplate.Init();
+        PaymentJournalTemplate.Name := LibraryUtility.GenerateRandomCode(PaymentJournalTemplate.FieldNo(Name), DATABASE::"Payment Journal Template");
+        PaymentJournalTemplate.Insert();
     end;
 
     [Scope('OnPrem')]
     procedure CreatePaymentJournalBatch(var PaymJournalBatch: Record "Paym. Journal Batch"; PaymentJournalTemplateName: Code[10])
     begin
-        with PaymJournalBatch do begin
-            Init();
-            "Journal Template Name" := PaymentJournalTemplateName;
-            Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Paym. Journal Batch");
-            Insert();
-        end;
+        PaymJournalBatch.Init();
+        PaymJournalBatch."Journal Template Name" := PaymentJournalTemplateName;
+        PaymJournalBatch.Name := LibraryUtility.GenerateRandomCode(PaymJournalBatch.FieldNo(Name), DATABASE::"Paym. Journal Batch");
+        PaymJournalBatch.Insert();
     end;
 }
 

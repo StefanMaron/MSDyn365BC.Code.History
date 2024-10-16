@@ -126,8 +126,10 @@ page 543 "Default Dimension Priorities"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label '<auto>';
         Text001: Label 'You need to define a source code.';
+#pragma warning restore AA0074
         CurrentSourceCode: Code[20];
 
     local procedure OpenSourceCode(var CurrentSourceCode: Code[20]; var DefaultDimPriority: Record "Default Dimension Priority")

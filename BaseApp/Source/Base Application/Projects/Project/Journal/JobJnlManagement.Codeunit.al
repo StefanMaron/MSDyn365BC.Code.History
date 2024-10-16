@@ -1,6 +1,7 @@
 namespace Microsoft.Projects.Project.Journal;
 
 using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
@@ -19,12 +20,14 @@ codeunit 1020 JobJnlManagement
         LastJobJnlLine: Record "Job Journal Line";
         OpenFromBatch: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'PROJECT';
         Text001: Label 'Project Journal';
         Text002: Label 'RECURRING';
         Text003: Label 'Recurring Project Journal';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
+#pragma warning restore AA0074
 
     procedure TemplateSelection(PageID: Integer; RecurringJnl: Boolean; var JobJnlLine: Record "Job Journal Line"; var JnlSelected: Boolean)
     var
@@ -265,6 +268,44 @@ codeunit 1020 JobJnlManagement
         JobEntryNo."Entry No." := JobEntryNo."Entry No." + 1;
         JobEntryNo.Modify();
         exit(JobEntryNo."Entry No.");
+    end;
+
+    procedure ShowItemAvailabilityFromJobJournalLines(var JobJournalLine: Record "Job Journal Line"; AvailabilityType: Enum "Item Availability Type")
+    var
+        Item: Record Item;
+        ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
+        NewDate: Date;
+        NewVariantCode: Code[10];
+        NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
+    begin
+        JobJournalLine.TestField(Type, JobJournalLine.Type::Item);
+        JobJournalLine.TestField("No.");
+
+        Item.Reset();
+        Item.Get(JobJournalLine."No.");
+        ItemAvailabilityFormsMgt.FilterItem(Item, JobJournalLine."Location Code", JobJournalLine."Variant Code", JobJournalLine."Posting Date");
+
+        case AvailabilityType of
+            AvailabilityType::Period:
+                if ItemAvailabilityFormsMgt.ShowItemAvailabilityByPeriod(Item, JobJournalLine.FieldCaption(JobJournalLine."Posting Date"), JobJournalLine."Posting Date", NewDate) then
+                    JobJournalLine.Validate(JobJournalLine."Posting Date", NewDate);
+            AvailabilityType::Variant:
+                if ItemAvailabilityFormsMgt.ShowItemAvailabilityByVariant(Item, JobJournalLine.FieldCaption(JobJournalLine."Variant Code"), JobJournalLine."Variant Code", NewVariantCode) then
+                    JobJournalLine.Validate(JobJournalLine."Variant Code", NewVariantCode);
+            AvailabilityType::Location:
+                if ItemAvailabilityFormsMgt.ShowItemAvailabilityByLocation(Item, JobJournalLine.FieldCaption(JobJournalLine."Location Code"), JobJournalLine."Location Code", NewLocationCode) then
+                    JobJournalLine.Validate(JobJournalLine."Location Code", NewLocationCode);
+            AvailabilityType::"Event":
+                if ItemAvailabilityFormsMgt.ShowItemAvailabilityByEvent(Item, JobJournalLine.FieldCaption(JobJournalLine."Posting Date"), JobJournalLine."Posting Date", NewDate, false) then
+                    JobJournalLine.Validate(JobJournalLine."Posting Date", NewDate);
+            AvailabilityType::BOM:
+                if ItemAvailabilityFormsMgt.ShowItemAvailabilityByBOMLevel(Item, JobJournalLine.FieldCaption(JobJournalLine."Posting Date"), JobJournalLine."Posting Date", NewDate) then
+                    JobJournalLine.Validate(JobJournalLine."Posting Date", NewDate);
+            AvailabilityType::UOM:
+                if ItemAvailabilityFormsMgt.ShowItemAvailabilityByUOM(Item, JobJournalLine.FieldCaption(JobJournalLine."Unit of Measure Code"), JobJournalLine."Unit of Measure Code", NewUnitOfMeasureCode) then
+                    JobJournalLine.Validate(JobJournalLine."Unit of Measure Code", NewUnitOfMeasureCode);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

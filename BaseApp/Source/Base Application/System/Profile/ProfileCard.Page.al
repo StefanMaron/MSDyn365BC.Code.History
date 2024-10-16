@@ -53,7 +53,7 @@ page 9170 "Profile Card"
                                 Error('');
                     end;
                 }
-                field(AppNameField; AppName)
+                field(AppNameField; Rec."App Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source';
@@ -187,7 +187,7 @@ page 9170 "Profile Card"
                 Image = SetupList;
                 ToolTip = 'View a list of profile extensions that extend this profile.';
                 RunObject = page "Profile Extension List";
-                RunPageLink = "Base Profile App ID" = field("App ID"), "Base Profile ID" = field("Profile ID");
+                RunPageLink = "Profile App ID" = field("App ID"), "Profile ID" = field("Profile ID");
             }
             action(ShowProfilePageCustomization)
             {
@@ -196,7 +196,7 @@ page 9170 "Profile Card"
                 Image = SetupList;
                 ToolTip = 'View the list of pages have been customized for this profile.';
                 RunObject = page "Profile Customization List";
-                RunPageLink = "App ID" = field("App ID"), "Profile ID" = field("Profile ID");
+                RunPageLink = "Profile App ID" = field("App ID"), "Profile ID" = field("Profile ID");
             }
         }
         area(processing)
@@ -244,7 +244,7 @@ page 9170 "Profile Card"
                     Caption = 'C&lear customized pages';
                     Image = Cancel;
                     ToolTip = 'Delete all customizations that are made for the profile.';
-                    AccessByPermission = tabledata "Tenant Profile Page Metadata" = D;
+                    AccessByPermission = tabledata "All Profile Page Metadata" = D;
                     Enabled = HasCustomizedPages;
 
                     trigger OnAction()
@@ -280,13 +280,7 @@ page 9170 "Profile Card"
     end;
 
     trigger OnAfterGetCurrRecord()
-    var
-        EmptyGuid: Guid;
     begin
-        AppName := Rec."App Name";
-        if Rec."App ID" = EmptyGuid then
-            AppName := UserCreatedAppNameTxt;
-
         UpdateHasCustomizedPages();
 
         RefreshEditability();
@@ -404,12 +398,10 @@ page 9170 "Profile Card"
         ProfileIdAlreadyExistErr: Label 'A profile with Profile ID "%1" already exist, please provide another Profile ID.', Comment = '%1 = Profile ID';
         ProfileMustBeEnabledInOrderToSetItAsDefaultErr: Label 'The profile must be enabled in order to set it as the default profile.';
         ThereAreProfilesWithDuplicateIdMsg: Label 'Another profile has the same ID as this one. This can cause ambiguity in the system. Give this or the other profile another ID before you customize them. Contact your Microsoft partner for further assistance.';
-        UserCreatedAppNameTxt: Label '(User-created)';
         IsUserCreatedProfile: Boolean;
         IsProfileEditable: Boolean;
         IsWebClient: Boolean;
         HasCustomizedPages: Boolean;
-        AppName: Text;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDeleteRecord(var AllProfile: Record "All Profile"; var Result: Boolean; var IsHandled: Boolean)

@@ -10,13 +10,8 @@ using Microsoft.Purchases.Vendor;
 table 247 "Intrastat Setup"
 {
     Caption = 'Intrastat Setup';
-#if not CLEAN22
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#endif
     ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
     DataClassification = CustomerContent;
 
@@ -107,8 +102,10 @@ table 247 "Intrastat Setup"
     }
 
     var
+#pragma warning disable AA0470
         OnDelIntrastatContactErr: Label 'You cannot delete contact number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Contact No';
         OnDelVendorIntrastatContactErr: Label 'You cannot delete vendor number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Vendor No';
+#pragma warning restore AA0470
 
     procedure CheckDeleteIntrastatContact(ContactType: Option; ContactNo: Code[20])
     begin

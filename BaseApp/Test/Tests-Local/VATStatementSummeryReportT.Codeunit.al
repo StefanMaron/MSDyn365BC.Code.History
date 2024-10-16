@@ -106,59 +106,55 @@ codeunit 144049 "VAT Statement Summery Report T"
         VATStatementMonth := CalcDate('<-CM>', WorkDate());
         VATStatementTemplate.FindFirst();
         VATStatementName.FindFirst();
-        with VATStatementLine do begin
-            SetRange("Line No.", 9990000);
-            DeleteAll();
-            Init();
-            "Statement Template Name" := VATStatementTemplate.Name;
-            "Statement Name" := VATStatementName.Name;
-            "Line No." := 9990000;
-            "Row No." := '110';
-            Description := 'Test Line';
-            Type := Type::"VAT Entry Totaling";
-            "Gen. Posting Type" := "Gen. Posting Type"::Sale;
-            "VAT Bus. Posting Group" := 'TEST';
-            "VAT Prod. Posting Group" := '';
-            "Amount Type" := "Amount Type"::Amount;
-            Print := true;
-            "Print with" := "Print with"::Sign;
-            "Document Type" := "Document Type"::"All except Credit Memo";
-            "Print on Official VAT Form" := true;
-            Insert();
-        end;
+        VATStatementLine.SetRange("Line No.", 9990000);
+        VATStatementLine.DeleteAll();
+        VATStatementLine.Init();
+        VATStatementLine."Statement Template Name" := VATStatementTemplate.Name;
+        VATStatementLine."Statement Name" := VATStatementName.Name;
+        VATStatementLine."Line No." := 9990000;
+        VATStatementLine."Row No." := '110';
+        VATStatementLine.Description := 'Test Line';
+        VATStatementLine.Type := VATStatementLine.Type::"VAT Entry Totaling";
+        VATStatementLine."Gen. Posting Type" := VATStatementLine."Gen. Posting Type"::Sale;
+        VATStatementLine."VAT Bus. Posting Group" := 'TEST';
+        VATStatementLine."VAT Prod. Posting Group" := '';
+        VATStatementLine."Amount Type" := VATStatementLine."Amount Type"::Amount;
+        VATStatementLine.Print := true;
+        VATStatementLine."Print with" := VATStatementLine."Print with"::Sign;
+        VATStatementLine."Document Type" := VATStatementLine."Document Type"::"All except Credit Memo";
+        VATStatementLine."Print on Official VAT Form" := true;
+        VATStatementLine.Insert();
 
-        with VATEntry do begin
-            if Get(990000) then
-                Delete();
-            Init();
-            "Entry No." := 990000;
-            "Posting Date" := WorkDate();
-            "VAT Reporting Date" := WorkDate();
-            Amount := VATEntryOneAmount;
-            Closed := false;
-            "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
-            "VAT Bus. Posting Group" := 'TEST';
-            "VAT Prod. Posting Group" := '';
-            Type := Type::Sale;
-            "Document Type" := "Document Type"::Invoice;
-            Insert(true);
+        if VATEntry.Get(990000) then
+            VATEntry.Delete();
+        VATEntry.Init();
+        VATEntry."Entry No." := 990000;
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry."VAT Reporting Date" := WorkDate();
+        VATEntry.Amount := VATEntryOneAmount;
+        VATEntry.Closed := false;
+        VATEntry."VAT Calculation Type" := VATEntry."VAT Calculation Type"::"Normal VAT";
+        VATEntry."VAT Bus. Posting Group" := 'TEST';
+        VATEntry."VAT Prod. Posting Group" := '';
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Document Type" := VATEntry."Document Type"::Invoice;
+        VATEntry.Insert(true);
 
-            if Get(990001) then
-                Delete();
-            Init();
-            "Entry No." := 990001;
-            "Posting Date" := WorkDate();
-            "VAT Reporting Date" := WorkDate();
-            Type := Type::Sale;
-            Amount := VATEntryTwoAmount;
-            Closed := true;
-            "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
-            "VAT Bus. Posting Group" := 'TEST';
-            "VAT Prod. Posting Group" := '';
-            Type := Type::Sale;
-            "Document Type" := "Document Type"::Invoice;
-            Insert(true);
-        end;
+        if VATEntry.Get(990001) then
+            VATEntry.Delete();
+        VATEntry.Init();
+        VATEntry."Entry No." := 990001;
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry."VAT Reporting Date" := WorkDate();
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry.Amount := VATEntryTwoAmount;
+        VATEntry.Closed := true;
+        VATEntry."VAT Calculation Type" := VATEntry."VAT Calculation Type"::"Normal VAT";
+        VATEntry."VAT Bus. Posting Group" := 'TEST';
+        VATEntry."VAT Prod. Posting Group" := '';
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Document Type" := VATEntry."Document Type"::Invoice;
+        VATEntry.Insert(true);
 
         exit(VATStatementMonth);
     end;

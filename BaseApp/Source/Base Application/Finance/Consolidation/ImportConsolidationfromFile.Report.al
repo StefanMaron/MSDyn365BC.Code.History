@@ -251,18 +251,26 @@ report 92 "Import Consolidation from File"
         FormatVersion: Code[10];
         ServerFileName: Text;
 
+#pragma warning disable AA0074
         Text001: Label 'The file to be imported has an unknown format.';
+#pragma warning disable AA0470
         Text002: Label 'The %1 in the file to be imported (%2) does not match the %1 in the %3 (%4).';
         Text005: Label 'The business unit %1 %2 is not unique.\\';
         Text006: Label 'Delete %1 in the extra records.';
+#pragma warning restore AA0470
         Text015: Label 'Enter a document number.';
+#pragma warning disable AA0470
         Text023: Label 'Do you want to consolidate in the period from %1 to %2?';
         Text024: Label 'Business Unit Code   #2##########\';
         Text025: Label 'G/L Account No.      #3##########\';
         Text026: Label 'Date                 #4######';
+#pragma warning restore AA0470
         Text027: Label 'Reading File...';
         Text031: Label 'Import from File';
+#pragma warning disable AA0470
         Text036: Label 'Imported checksum (%1) does not equal the calculated checksum (%2). The file may be corrupt.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FileFormatQst: Label 'The entered %1, %2, does not equal the %1 on this %3, %4.\Do you want to continue?', Comment = '%1 - field caption, %2 - field value, %3 - table captoin, %4 - field value';
 
     procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewGLDocNo: Code[20])

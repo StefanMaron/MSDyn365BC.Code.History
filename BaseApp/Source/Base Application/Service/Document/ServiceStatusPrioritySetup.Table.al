@@ -61,6 +61,10 @@ table 5928 "Service Status Priority Setup"
         ServStatusPrioritySetup: Record "Service Status Priority Setup";
         RepairStatus: Record "Repair Status";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 is already used with %3 %4.\\Do you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

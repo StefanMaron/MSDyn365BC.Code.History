@@ -199,7 +199,7 @@ page 6033 "Service Invoice Statistics"
 
     trigger OnAfterGetRecord()
     var
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        ServCostCalculationMgt: Codeunit "Serv. Cost Calculation Mgt.";
         IsHandled: Boolean;
     begin
         ClearAll();
@@ -238,7 +238,7 @@ page 6033 "Service Invoice Statistics"
                         VATPercentage := ServInvLine."VAT %"
                     else
                         VATPercentage := -1;
-                TotalAdjCostLCY := TotalAdjCostLCY + CostCalcMgt.CalcServInvLineCostLCY(ServInvLine);
+                TotalAdjCostLCY := TotalAdjCostLCY + ServCostCalculationMgt.CalcServInvLineCostLCY(ServInvLine);
                 OnAfterGetRecordOnAfterAddLineTotals(
                     Rec, ServInvLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
                     LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels);
@@ -312,8 +312,12 @@ page 6033 "Service Invoice Statistics"
         VATPercentage: Decimal;
         VATAmountText: Text[30];
 
+#pragma warning disable AA0074
         Text000: Label 'VAT Amount';
+#pragma warning disable AA0470
         Text001: Label '%1% VAT';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         AmountLCY: Decimal;

@@ -162,16 +162,15 @@ page 6086 "Filed Service Contract Lines"
                     ToolTip = 'Open the document that the selected line exists on.';
 
                     trigger OnAction()
+                    var
+                        FiledServiceContractHeader: Record "Filed Service Contract Header";
                     begin
-                        FiledServiceContract.Get(Rec."Entry No.");
-                        PAGE.Run(PAGE::"Filed Service Contract", FiledServiceContract);
+                        FiledServiceContractHeader.Get(Rec."Entry No.");
+                        Page.Run(Page::"Filed Service Contract", FiledServiceContractHeader);
                     end;
                 }
             }
         }
     }
-
-    var
-        FiledServiceContract: Record "Filed Service Contract Header";
 }
 

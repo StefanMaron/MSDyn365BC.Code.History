@@ -58,7 +58,8 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
           CompanyInformation."Ship-to City",
           CompanyInformation."Ship-to Contact",
           CompanyInformation."Ship-to Country/Region Code",
-          CompanyInformation."Ship-to Post Code");
+          CompanyInformation."Ship-to Post Code",
+          CompanyInformation."Ship-to Phone No.");
     end;
 
     [Test]
@@ -96,7 +97,8 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
           Location.City,
           Location.Contact,
           Location."Country/Region Code",
-          Location."Post Code");
+          Location."Post Code",
+          Location."Phone No.");
     end;
 
     [Test]
@@ -534,9 +536,10 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         Assert.AreEqual(
           ExpectedState, PurchaseInvoice."Ship-to Country/Region Code".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
         Assert.AreEqual(ExpectedState, PurchaseInvoice."Ship-to Post Code".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseInvoice."Ship-to Phone No.".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
     end;
 
-    local procedure VerifyShipToAddressValues(PurchaseInvoice: TestPage "Purchase Invoice"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; Country: Code[10]; PostCode: Code[20])
+    local procedure VerifyShipToAddressValues(PurchaseInvoice: TestPage "Purchase Invoice"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; Country: Code[10]; PostCode: Code[20]; PhoneNo: Text[30])
     begin
         PurchaseInvoice."Ship-to Name".AssertEquals(Name);
         PurchaseInvoice."Ship-to Address".AssertEquals(Address);
@@ -545,6 +548,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         PurchaseInvoice."Ship-to Contact".AssertEquals(Contact);
         PurchaseInvoice."Ship-to Country/Region Code".AssertEquals(Country);
         PurchaseInvoice."Ship-to Post Code".AssertEquals(PostCode);
+        PurchaseInvoice."Ship-to Phone No.".AssertEquals(PhoneNo);
     end;
 
     local procedure VerifyShippingOptionWithoutLocationIsHiddenForLocation(var PurchaseInvoice: TestPage "Purchase Invoice"; ExpectedHideValue: Boolean)

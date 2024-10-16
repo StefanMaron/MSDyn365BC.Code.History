@@ -24,7 +24,7 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
-#if not CLEAN23
+#if not CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         LibraryRandom: Codeunit "Library - Random";
@@ -33,7 +33,7 @@
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPlanning: Codeunit "Library - Planning";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         LibraryResource: Codeunit "Library - Resource";
@@ -47,14 +47,12 @@
         DocumentNo2: Code[20];
         AmountError: Label '%1 must be %2 in %3.';
         PostError: Label 'Amount must be negative';
-        PostingError: Label '%1 must have a value in %2: %3=%4, %5=%6. It cannot be zero or empty.';
-        StatusErr: Label 'Status must be equal to ''Open''  in %1: Document Type=%2, No.=%3. Current value is ''Released''.';
         CountErr: Label 'There must be %1 record(-s) in table %2 with the following filters: %3';
         ColumnWrongVisibilityErr: Label 'Column[%1] has wrong visibility';
         IncorrectFieldValueErr: Label 'Incorrect %1 field value.';
         IncorrectDimSetIDErr: Label 'Incorrect Dimension Set ID in %1.';
         WrongQtyToReceiveErr: Label 'Qty. to Receive should not be non zero because Quantity was not changed.';
-#if not CLEAN23
+#if not CLEAN25
         JobUnitPriceErr: Label 'Job Unit Price is incorrect.';
 #endif
         WrongDimValueErr: Label 'Wrong dimension value in Sales Header %1.';
@@ -83,7 +81,6 @@
         SuggestAssignmentErr: Label 'Qty. to Invoice must have a value in Purchase Line';
         CopyFromPurchaseErr: Label 'Wrong result of CopyFrom function';
         CopyFromResourceErr: Label 'Wrong result of validate No. with resource';
-        BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
         QtyToReceiveUpdateErr: Label 'Qty. to Receive must be equal to %1 in Purchase Line';
         RecreatePurchaseLinesCancelErr: Label 'Change in the existing purchase lines for the field %1 is cancelled by user.';
         RecreatePurchaseLinesQst: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?';
@@ -530,7 +527,7 @@
         Assert.IsTrue(PurchaseOrder."Pay-to Post Code".Editable(), PayToAddressFieldsEditableErr);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnPurhcaseOrder()
@@ -1210,11 +1207,7 @@
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify posting error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            PostingError, PurchaseHeader.FieldCaption("Posting Date"), PurchaseHeader.TableCaption(),
-            PurchaseHeader.FieldCaption("Document Type"),
-            PurchaseHeader."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseHeader."No."));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption("Posting Date"), '');
     end;
 
     [Test]
@@ -1331,7 +1324,7 @@
           StrSubstNo(AmountError, PurchaseLine.FieldCaption("Job Unit Price"), PurchaseLine."Job Unit Price", PurchaseLine.TableCaption()));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithJobUnitCostFactor()
@@ -2495,7 +2488,7 @@
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLine."No.", LibraryRandom.RandDec(100, 2));
 
         // Verify: Verifying Open Status Error.
-        Assert.ExpectedError(StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseHeader."Document Type", PurchaseHeader."No."));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
     end;
 
     [Test]
@@ -2640,7 +2633,7 @@
         VerifyRemainingAmountLCY(PurchaseHeader."Buy-from Vendor No.", AmountLCY);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CombinedDimOnPurchInvoiceWithItemChargeAssignedOnReceipt()
@@ -3215,11 +3208,9 @@
         PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
 
         // [THEN] Invoice "Invoice Discount Value" = "Y"
-        with PurchHeader do begin
-            Find();
-            CalcFields("Invoice Discount Amount");
-            TestField("Invoice Discount Amount", InvoiceDiscountValue);
-        end;
+        PurchHeader.Find();
+        PurchHeader.CalcFields("Invoice Discount Amount");
+        PurchHeader.TestField("Invoice Discount Amount", InvoiceDiscountValue);
     end;
 
     [Test]
@@ -3468,23 +3459,21 @@
 
         InitPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order);
 
-        with PurchRcptLine do begin
-            InitFromPurchLine(PurchRcptHeader, PurchaseLine);
-            Assert.AreEqual(PurchRcptHeader."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            Assert.AreEqual(PurchRcptHeader."No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(PurchaseLine."Qty. to Receive", Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(PurchaseLine."Qty. to Receive (Base)", "Quantity (Base)", FieldCaption("Quantity (Base)"));
-            Assert.AreEqual(PurchaseLine."Qty. to Invoice", "Quantity Invoiced", FieldCaption("Quantity Invoiced"));
-            Assert.AreEqual(PurchaseLine."Qty. to Invoice (Base)", "Qty. Invoiced (Base)", FieldCaption("Qty. Invoiced (Base)"));
-            Assert.AreEqual(
-              PurchaseLine."Qty. to Receive" - PurchaseLine."Qty. to Invoice",
-              "Qty. Rcd. Not Invoiced", FieldCaption("Qty. Rcd. Not Invoiced"));
-            Assert.AreEqual(PurchaseLine."Document No.", "Order No.", FieldCaption("Order No."));
-            Assert.AreEqual(PurchaseLine."Line No.", "Order Line No.", FieldCaption("Order Line No."));
-            Assert.AreEqual(Type::" ", Type, FieldCaption(Type));
-            Assert.AreEqual(PurchaseLine."No.", "No.", FieldCaption("No."));
-            Assert.AreEqual(PurchaseLine.Description, Description, FieldCaption(Description));
-        end;
+        PurchRcptLine.InitFromPurchLine(PurchRcptHeader, PurchaseLine);
+        Assert.AreEqual(PurchRcptHeader."Posting Date", PurchRcptLine."Posting Date", PurchRcptLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(PurchRcptHeader."No.", PurchRcptLine."Document No.", PurchRcptLine.FieldCaption("Document No."));
+        Assert.AreEqual(PurchaseLine."Qty. to Receive", PurchRcptLine.Quantity, PurchRcptLine.FieldCaption(Quantity));
+        Assert.AreEqual(PurchaseLine."Qty. to Receive (Base)", PurchRcptLine."Quantity (Base)", PurchRcptLine.FieldCaption("Quantity (Base)"));
+        Assert.AreEqual(PurchaseLine."Qty. to Invoice", PurchRcptLine."Quantity Invoiced", PurchRcptLine.FieldCaption("Quantity Invoiced"));
+        Assert.AreEqual(PurchaseLine."Qty. to Invoice (Base)", PurchRcptLine."Qty. Invoiced (Base)", PurchRcptLine.FieldCaption("Qty. Invoiced (Base)"));
+        Assert.AreEqual(
+          PurchaseLine."Qty. to Receive" - PurchaseLine."Qty. to Invoice",
+          PurchRcptLine."Qty. Rcd. Not Invoiced", PurchRcptLine.FieldCaption("Qty. Rcd. Not Invoiced"));
+        Assert.AreEqual(PurchaseLine."Document No.", PurchRcptLine."Order No.", PurchRcptLine.FieldCaption("Order No."));
+        Assert.AreEqual(PurchaseLine."Line No.", PurchRcptLine."Order Line No.", PurchRcptLine.FieldCaption("Order Line No."));
+        Assert.AreEqual(PurchRcptLine.Type::" ", PurchRcptLine.Type, PurchRcptLine.FieldCaption(Type));
+        Assert.AreEqual(PurchaseLine."No.", PurchRcptLine."No.", PurchRcptLine.FieldCaption("No."));
+        Assert.AreEqual(PurchaseLine.Description, PurchRcptLine.Description, PurchRcptLine.FieldCaption(Description));
     end;
 
     [Test]
@@ -3503,16 +3492,14 @@
 
         InitPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order);
 
-        with PurchInvLine do begin
-            InitFromPurchLine(PurchInvHeader, PurchaseLine);
-            Assert.AreEqual(PurchInvHeader."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            Assert.AreEqual(PurchInvHeader."No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(PurchaseLine."Qty. to Invoice", Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(PurchaseLine."Qty. to Invoice (Base)", "Quantity (Base)", FieldCaption("Quantity (Base)"));
-            Assert.AreEqual(Type::" ", Type, FieldCaption(Type));
-            Assert.AreEqual(PurchaseLine."No.", "No.", FieldCaption("No."));
-            Assert.AreEqual(PurchaseLine.Description, Description, FieldCaption(Description));
-        end;
+        PurchInvLine.InitFromPurchLine(PurchInvHeader, PurchaseLine);
+        Assert.AreEqual(PurchInvHeader."Posting Date", PurchInvLine."Posting Date", PurchInvLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(PurchInvHeader."No.", PurchInvLine."Document No.", PurchInvLine.FieldCaption("Document No."));
+        Assert.AreEqual(PurchaseLine."Qty. to Invoice", PurchInvLine.Quantity, PurchInvLine.FieldCaption(Quantity));
+        Assert.AreEqual(PurchaseLine."Qty. to Invoice (Base)", PurchInvLine."Quantity (Base)", PurchInvLine.FieldCaption("Quantity (Base)"));
+        Assert.AreEqual(PurchInvLine.Type::" ", PurchInvLine.Type, PurchInvLine.FieldCaption(Type));
+        Assert.AreEqual(PurchaseLine."No.", PurchInvLine."No.", PurchInvLine.FieldCaption("No."));
+        Assert.AreEqual(PurchaseLine.Description, PurchInvLine.Description, PurchInvLine.FieldCaption(Description));
     end;
 
     [Test]
@@ -3531,16 +3518,14 @@
 
         InitPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::"Return Order");
 
-        with PurchCrMemoLine do begin
-            InitFromPurchLine(PurchCrMemoHdr, PurchaseLine);
-            Assert.AreEqual(PurchCrMemoHdr."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            Assert.AreEqual(PurchCrMemoHdr."No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(PurchaseLine."Qty. to Invoice", Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(PurchaseLine."Qty. to Invoice (Base)", "Quantity (Base)", FieldCaption("Quantity (Base)"));
-            Assert.AreEqual(Type::" ", Type, FieldCaption(Type));
-            Assert.AreEqual(PurchaseLine."No.", "No.", FieldCaption("No."));
-            Assert.AreEqual(PurchaseLine.Description, Description, FieldCaption(Description));
-        end;
+        PurchCrMemoLine.InitFromPurchLine(PurchCrMemoHdr, PurchaseLine);
+        Assert.AreEqual(PurchCrMemoHdr."Posting Date", PurchCrMemoLine."Posting Date", PurchCrMemoLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(PurchCrMemoHdr."No.", PurchCrMemoLine."Document No.", PurchCrMemoLine.FieldCaption("Document No."));
+        Assert.AreEqual(PurchaseLine."Qty. to Invoice", PurchCrMemoLine.Quantity, PurchCrMemoLine.FieldCaption(Quantity));
+        Assert.AreEqual(PurchaseLine."Qty. to Invoice (Base)", PurchCrMemoLine."Quantity (Base)", PurchCrMemoLine.FieldCaption("Quantity (Base)"));
+        Assert.AreEqual(PurchCrMemoLine.Type::" ", PurchCrMemoLine.Type, PurchCrMemoLine.FieldCaption(Type));
+        Assert.AreEqual(PurchaseLine."No.", PurchCrMemoLine."No.", PurchCrMemoLine.FieldCaption("No."));
+        Assert.AreEqual(PurchaseLine.Description, PurchCrMemoLine.Description, PurchCrMemoLine.FieldCaption(Description));
     end;
 
     [Test]
@@ -3559,23 +3544,21 @@
 
         InitPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::"Return Order");
 
-        with ReturnShipmentLine do begin
-            InitFromPurchLine(ReturnShipmentHeader, PurchaseLine);
-            Assert.AreEqual(ReturnShipmentHeader."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            Assert.AreEqual(ReturnShipmentHeader."No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(PurchaseLine."Return Qty. to Ship", Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(PurchaseLine."Return Qty. to Ship (Base)", "Quantity (Base)", FieldCaption("Quantity (Base)"));
-            Assert.AreEqual(PurchaseLine."Qty. to Invoice", "Quantity Invoiced", FieldCaption("Quantity Invoiced"));
-            Assert.AreEqual(PurchaseLine."Qty. to Invoice (Base)", "Qty. Invoiced (Base)", FieldCaption("Qty. Invoiced (Base)"));
-            Assert.AreEqual(
-              PurchaseLine."Return Qty. to Ship" - PurchaseLine."Qty. to Invoice",
-              "Return Qty. Shipped Not Invd.", FieldCaption("Return Qty. Shipped Not Invd."));
-            Assert.AreEqual(PurchaseLine."Document No.", "Return Order No.", FieldCaption("Return Order No."));
-            Assert.AreEqual(PurchaseLine."Line No.", "Return Order Line No.", FieldCaption("Return Order Line No."));
-            Assert.AreEqual(Type::" ", Type, FieldCaption(Type));
-            Assert.AreEqual(PurchaseLine."No.", "No.", FieldCaption("No."));
-            Assert.AreEqual(PurchaseLine.Description, Description, FieldCaption(Description));
-        end;
+        ReturnShipmentLine.InitFromPurchLine(ReturnShipmentHeader, PurchaseLine);
+        Assert.AreEqual(ReturnShipmentHeader."Posting Date", ReturnShipmentLine."Posting Date", ReturnShipmentLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(ReturnShipmentHeader."No.", ReturnShipmentLine."Document No.", ReturnShipmentLine.FieldCaption("Document No."));
+        Assert.AreEqual(PurchaseLine."Return Qty. to Ship", ReturnShipmentLine.Quantity, ReturnShipmentLine.FieldCaption(Quantity));
+        Assert.AreEqual(PurchaseLine."Return Qty. to Ship (Base)", ReturnShipmentLine."Quantity (Base)", ReturnShipmentLine.FieldCaption("Quantity (Base)"));
+        Assert.AreEqual(PurchaseLine."Qty. to Invoice", ReturnShipmentLine."Quantity Invoiced", ReturnShipmentLine.FieldCaption("Quantity Invoiced"));
+        Assert.AreEqual(PurchaseLine."Qty. to Invoice (Base)", ReturnShipmentLine."Qty. Invoiced (Base)", ReturnShipmentLine.FieldCaption("Qty. Invoiced (Base)"));
+        Assert.AreEqual(
+          PurchaseLine."Return Qty. to Ship" - PurchaseLine."Qty. to Invoice",
+          ReturnShipmentLine."Return Qty. Shipped Not Invd.", ReturnShipmentLine.FieldCaption("Return Qty. Shipped Not Invd."));
+        Assert.AreEqual(PurchaseLine."Document No.", ReturnShipmentLine."Return Order No.", ReturnShipmentLine.FieldCaption("Return Order No."));
+        Assert.AreEqual(PurchaseLine."Line No.", ReturnShipmentLine."Return Order Line No.", ReturnShipmentLine.FieldCaption("Return Order Line No."));
+        Assert.AreEqual(ReturnShipmentLine.Type::" ", ReturnShipmentLine.Type, ReturnShipmentLine.FieldCaption(Type));
+        Assert.AreEqual(PurchaseLine."No.", ReturnShipmentLine."No.", ReturnShipmentLine.FieldCaption("No."));
+        Assert.AreEqual(PurchaseLine.Description, ReturnShipmentLine.Description, ReturnShipmentLine.FieldCaption(Description));
     end;
 
     [Test]
@@ -5473,6 +5456,7 @@
         Assert.IsTrue(CompanyInformation."Ship-to City".Enabled(), ShipToAddrOnCompanyInfoIsDisabledErr);
         Assert.IsTrue(CompanyInformation."Ship-to Country/Region Code".Enabled(), ShipToAddrOnCompanyInfoIsDisabledErr);
         Assert.IsTrue(CompanyInformation."Ship-to Contact".Enabled(), ShipToAddrOnCompanyInfoIsDisabledErr);
+        Assert.IsTrue(CompanyInformation."Ship-to Phone No.".Enabled(), ShipToAddrOnCompanyInfoIsDisabledErr);
 
         // TearDown
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -6167,13 +6151,13 @@
         Initialize();
 
         // [GIVEN] Set PurchaseSetup."Copy Line Descr. to G/L Entry" = "Yes"
-        SetPurchSetupCopyLineDescrToGLEntry(TRUE);
+        SetPurchSetupCopyLineDescrToGLEntry(true);
 
         // [GIVEN] Create purchase order with 5 "G/L Account" type purchase lines with unique descriptions "Descr1" - "Descr5"
         CreatePurchOrderWithUniqueDescriptionLines(PurchaseHeader, TempPurchaseLine, TempPurchaseLine.Type::"G/L Account");
 
         // [WHEN] Purchase order is being posted
-        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, TRUE, TRUE);
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
         VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
@@ -6196,13 +6180,13 @@
         BINDSUBSCRIPTION(ERMPurchaseOrder);
 
         // [GIVEN] Set PurchaseSetup."Copy Line Descr. to G/L Entry" = "No"
-        SetPurchSetupCopyLineDescrToGLEntry(FALSE);
+        SetPurchSetupCopyLineDescrToGLEntry(false);
 
         // [GIVEN] Create purchase order with 5 "Item" type purchase lines with unique descriptions "Descr1" - "Descr5"
         CreatePurchOrderWithUniqueDescriptionLines(PurchaseHeader, TempPurchaseLine, TempPurchaseLine.Type::Item);
 
         // [WHEN] Purchase order is being posted
-        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, TRUE, TRUE);
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
         VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
@@ -6605,7 +6589,7 @@
         asserterror PurchaseLine.Validate("No.", Resource."No.");
 
         // [THEN] Error "Blocked must be equal to 'No'  in Resource: No.= ***. Current value is 'Yes'."
-        Assert.ExpectedError(BlockedResourceErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -6739,7 +6723,7 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Obsolete('Not Used', '23.0')]
     [Scope('OnPrem')]
@@ -6978,7 +6962,7 @@
         PurchaseLine.Modify(true);
 
         // [WHEN] Post Receive Purchase Order.
-        ASSERTERROR LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [THEN] Error is shown with text "Fixed Asset No. = FA01 in Depreciation Book Code = DEPRBOOK is disposed".
         Assert.ExpectedErrorCode('Dialog');
@@ -8196,6 +8180,27 @@
     end;
 
     [Test]
+    procedure ReleasingOfPurchaseOrderHavingPurchaseLineWithoutUOMGivesError()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 522444] When run Release action from a Purchase Order having a Purchase Line without 
+        // Unit of Measure Code, then it gives error and the document is not released.
+        Initialize();
+
+        // [GIVEN] Create a Purchase Order.
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem());
+
+        // [WHEN] Validate Unit of Measure Code in Purchase Line.
+        PurchaseLine.Validate("Unit of Measure Code", '');
+        PurchaseLine.Modify(true);
+
+        // [THEN] Error is shown and the Purchase Order is not released.
+        asserterror LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
+    [Test]
     procedure PurchaseOrderPostingFromVendorCard()
     var
         Vendor: Record Vendor;
@@ -8236,27 +8241,6 @@
         // [THEN] Verify the  Purchase Order Posted Succsessfully without any error and system doesn't found the current Purchase Order
         asserterror PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);
         Assert.AssertRecordNotFound();
-    end;
-
-    [Test]
-    procedure ReleasingOfPurchaseOrderHavingPurchaseLineWithoutUOMGivesError()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [SCENARIO 522444] When run Release action from a Purchase Order having a Purchase Line without 
-        // Unit of Measure Code, then it gives error and the document is not released.
-        Initialize();
-
-        // [GIVEN] Create a Purchase Order.
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem());
-
-        // [WHEN] Validate Unit of Measure Code in Purchase Line.
-        PurchaseLine.Validate("Unit of Measure Code", '');
-        PurchaseLine.Modify(true);
-
-        // [THEN] Error is shown and the Purchase Order is not released.
-        asserterror LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
     local procedure Initialize()
@@ -8395,14 +8379,12 @@
         ModifyPurchaseHeader(InvoicePurchaseHeader, InvoicePurchaseHeader."No.");
 
         PurchGetReceipt.SetPurchHeader(InvoicePurchaseHeader);
-        with PurchRcptHeader do begin
-            SetRange("Order No.", PostedPurchaseHeader."No.");
-            FindSet();
-            repeat
-                PurchRcptLine.SetRange("Document No.", "No.");
-                PurchGetReceipt.CreateInvLines(PurchRcptLine);
-            until Next() = 0;
-        end;
+        PurchRcptHeader.SetRange("Order No.", PostedPurchaseHeader."No.");
+        PurchRcptHeader.FindSet();
+        repeat
+            PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+            PurchGetReceipt.CreateInvLines(PurchRcptLine);
+        until PurchRcptHeader.Next() = 0;
     end;
 
     local procedure CrMemoPostedPurchaseReturnOrder(var CrMemoPurchaseHeader: Record "Purchase Header"; PostedPurchaseHeader: Record "Purchase Header")
@@ -8416,14 +8398,12 @@
         ModifyPurchaseHeader(CrMemoPurchaseHeader, CrMemoPurchaseHeader."No.");
 
         PurchGetReturnShipments.SetPurchHeader(CrMemoPurchaseHeader);
-        with ReturnShipmentHeader do begin
-            SetRange("Return Order No.", PostedPurchaseHeader."No.");
-            FindSet();
-            repeat
-                ReturnShipmentLine.SetRange("Document No.", "No.");
-                PurchGetReturnShipments.CreateInvLines(ReturnShipmentLine);
-            until Next() = 0;
-        end;
+        ReturnShipmentHeader.SetRange("Return Order No.", PostedPurchaseHeader."No.");
+        ReturnShipmentHeader.FindSet();
+        repeat
+            ReturnShipmentLine.SetRange("Document No.", ReturnShipmentHeader."No.");
+            PurchGetReturnShipments.CreateInvLines(ReturnShipmentLine);
+        until ReturnShipmentHeader.Next() = 0;
     end;
 
     local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"): Code[20]
@@ -8475,14 +8455,12 @@
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            Get(CreateCurrency());
-            Validate("Invoice Rounding Precision", 1);
-            Validate("Amount Rounding Precision", 1);
-            Validate("Amount Decimal Places", '0:0');
-            Modify(true);
-            exit(Code);
-        end;
+        Currency.Get(CreateCurrency());
+        Currency.Validate("Invoice Rounding Precision", 1);
+        Currency.Validate("Amount Rounding Precision", 1);
+        Currency.Validate("Amount Decimal Places", '0:0');
+        Currency.Modify(true);
+        exit(Currency.Code);
     end;
 
     local procedure CreateDefaultDimensions(var DimensionValue1: Record "Dimension Value"; var DimensionValue2: Record "Dimension Value"; GLAccountNo: Code[20]; ItemNo: Code[20])
@@ -8502,14 +8480,12 @@
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
-            Validate("Exchange Rate Amount", ExchangeRateAmount);
-            Validate("Adjustment Exch. Rate Amount", ExchangeRateAmount);
-            Validate("Relational Exch. Rate Amount", RelationalExchangeRate);
-            Validate("Relational Adjmt Exch Rate Amt", RelationalExchangeRate);
-            Modify(true);
-        end;
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRateAmount);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", ExchangeRateAmount);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchangeRate);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalExchangeRate);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateExtendedText(var Item: Record Item)
@@ -8652,18 +8628,16 @@
     var
         RecRef: RecordRef;
     begin
-        with PurchLine do begin
-            Init();
-            Validate("Document Type", PurchHeader."Document Type");
-            Validate("Document No.", PurchHeader."No.");
-            if LineNo = 0 then begin
-                RecRef.GetTable(PurchLine);
-                Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, PurchLine.FieldNo("Line No.")))
-            end else
-                Validate("Line No.", LineNo);
-            Validate(Type, LineType);
-            Insert(true);
-        end;
+        PurchLine.Init();
+        PurchLine.Validate("Document Type", PurchHeader."Document Type");
+        PurchLine.Validate("Document No.", PurchHeader."No.");
+        if LineNo = 0 then begin
+            RecRef.GetTable(PurchLine);
+            PurchLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, PurchLine.FieldNo("Line No.")))
+        end else
+            PurchLine.Validate("Line No.", LineNo);
+        PurchLine.Validate(Type, LineType);
+        PurchLine.Insert(true);
     end;
 
     local procedure CreatePurchaseDocumentWithSingleLineWithQuantity(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; LineQuantity: Decimal)
@@ -8689,15 +8663,15 @@
         i: Integer;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
-        FOR i := 1 TO LibraryRandom.RandIntInRange(3, 7) DO BEGIN
-            CASE Type OF
+        for i := 1 to LibraryRandom.RandIntInRange(3, 7) do begin
+            case Type of
                 PurchaseLine.Type::"G/L Account":
                     LibraryPurchase.CreatePurchaseLine(
                       PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
                 PurchaseLine.Type::Item:
                     LibraryPurchase.CreatePurchaseLine(
                       PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
-            END;
+            end;
             PurchaseLine.Description :=
               COPYSTR(
                 LibraryUtility.GenerateRandomAlphabeticText(MAXSTRLEN(PurchaseLine.Description), 1),
@@ -8742,7 +8716,7 @@
         ModifyPurchaseLineJobNo(PurchaseLine, Job."No.", JobTask."Job Task No.", UnitOfMeasureCode);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreatePurchOrderWithJobAndJobItemPrice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; var UnitCostFactor: Decimal)
     var
         Job: Record Job;
@@ -8867,20 +8841,18 @@
     local procedure CreateReceivePurchOrderWithJobUnitPrices(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ItemNo: Code[20]; JobTask: Record "Job Task")
     begin
         CreatePurchaseOrder(PurchHeader, PurchLine, ItemNo);
-        with PurchLine do begin
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Job Unit Price", LibraryRandom.RandDec(100, 2));
-            Validate("Job Total Price", Quantity * "Job Unit Price");
-            Validate("Job Line Amount", "Job Total Price");
-            Validate("Job Line Discount %", LibraryRandom.RandIntInRange(3, 5));
-            Validate("Job Line Discount Amount", Round("Job Line Amount" * "Job Line Discount %" / 100));
-            Validate("Job Unit Price (LCY)", "Job Unit Price");
-            Validate("Job Total Price (LCY)", "Job Total Price");
-            Validate("Job Line Amount (LCY)", "Job Line Amount");
-            Validate("Job Line Disc. Amount (LCY)", "Job Line Discount Amount");
-            Modify(true);
-        end;
+        PurchLine.Validate("Job No.", JobTask."Job No.");
+        PurchLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchLine.Validate("Job Unit Price", LibraryRandom.RandDec(100, 2));
+        PurchLine.Validate("Job Total Price", PurchLine.Quantity * PurchLine."Job Unit Price");
+        PurchLine.Validate("Job Line Amount", PurchLine."Job Total Price");
+        PurchLine.Validate("Job Line Discount %", LibraryRandom.RandIntInRange(3, 5));
+        PurchLine.Validate("Job Line Discount Amount", Round(PurchLine."Job Line Amount" * PurchLine."Job Line Discount %" / 100));
+        PurchLine.Validate("Job Unit Price (LCY)", PurchLine."Job Unit Price");
+        PurchLine.Validate("Job Total Price (LCY)", PurchLine."Job Total Price");
+        PurchLine.Validate("Job Line Amount (LCY)", PurchLine."Job Line Amount");
+        PurchLine.Validate("Job Line Disc. Amount (LCY)", PurchLine."Job Line Discount Amount");
+        PurchLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
     end;
 
@@ -9098,14 +9070,12 @@
     begin
         if DimSetID <> 0 then
             DimensionMgt.GetDimensionSet(TempDimSetEntry, DimSetID);
-        with TempDimSetEntry do begin
-            "Dimension Code" := DimensionValue."Dimension Code";
-            "Dimension Value Code" := DimensionValue.Code;
-            "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            if not Insert() then
-                Modify();
-            DimSetID := DimensionMgt.GetDimensionSetID(TempDimSetEntry);
-        end;
+        TempDimSetEntry."Dimension Code" := DimensionValue."Dimension Code";
+        TempDimSetEntry."Dimension Value Code" := DimensionValue.Code;
+        TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
+        if not TempDimSetEntry.Insert() then
+            TempDimSetEntry.Modify();
+        DimSetID := DimensionMgt.GetDimensionSetID(TempDimSetEntry);
     end;
 
     local procedure CreatePurchOrderWithPurchCode(var StandardPurchaseLine: Record "Standard Purchase Line"; var PurchaseHeader: Record "Purchase Header"; ShortCutDimension1: Code[20]; ShortCutDimension2: Code[20])
@@ -9165,13 +9135,11 @@
 
     local procedure CreateStandardPurchaseLine(var StandardPurchaseLine: Record "Standard Purchase Line"; StandardPurchaseCode: Code[10]; StandardPurchLineType: Enum "Purchase Line Type"; No: Code[20])
     begin
-        with StandardPurchaseLine do begin
-            LibraryPurchase.CreateStandardPurchaseLine(StandardPurchaseLine, StandardPurchaseCode);
-            Validate(Type, StandardPurchLineType);
-            Validate("No.", No);
-            Validate(Quantity, LibraryRandom.RandDec(10, 2));
-            Modify(true);
-        end;
+        LibraryPurchase.CreateStandardPurchaseLine(StandardPurchaseLine, StandardPurchaseCode);
+        StandardPurchaseLine.Validate(Type, StandardPurchLineType);
+        StandardPurchaseLine.Validate("No.", No);
+        StandardPurchaseLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+        StandardPurchaseLine.Modify(true);
     end;
 
     local procedure CreateVendorWithCurrency(var Vendor: Record Vendor)
@@ -9198,15 +9166,12 @@
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, CreateVendorInvDiscount());
         LibraryInventory.CreateItem(Item);
-        with PurchLine do begin
-            LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, Type::Item, Item."No.",
-              LibraryRandom.RandInt(10));
-            Validate("Unit Cost", LibraryRandom.RandDec(1000, 2));
-            Modify(true);
-            CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
-            Get("Document Type", "Document No.", "Line No.");
-            ExpectedInvDiscAmount := "Inv. Discount Amount";
-        end;
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        PurchLine.Validate("Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchLine.Modify(true);
+        CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
+        PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+        ExpectedInvDiscAmount := PurchLine."Inv. Discount Amount";
     end;
 
     local procedure CreatePurchLineAndJobTask(var PurchaseLine: Record "Purchase Line"; var JobTask: Record "Job Task")
@@ -9359,14 +9324,12 @@
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        with WarehouseSetup do begin
-            Get();
-            Validate("Require Put-away", RequirePutAway);
-            Validate("Require Pick", RequirePick);
-            Validate("Require Receive", RequireReceive);
-            Validate("Require Shipment", RequireShipment);
-            Modify(true);
-        end;
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Require Put-away", RequirePutAway);
+        WarehouseSetup.Validate("Require Pick", RequirePick);
+        WarehouseSetup.Validate("Require Receive", RequireReceive);
+        WarehouseSetup.Validate("Require Shipment", RequireShipment);
+        WarehouseSetup.Modify(true);
     end;
 
     local procedure MockFixedAsset(var FADepreciationBook: Record "FA Depreciation Book"; Disposed: Boolean);
@@ -9383,7 +9346,7 @@
         if Disposed then
             FADepreciationBook.Validate("Disposal Date", WorkDate());
         FADepreciationBook.Modify(true);
-    END;
+    end;
 
     local procedure MockGLAccountWithNoAndDescription(NewNo: Code[20]; NewName: Text[100])
     var
@@ -9394,14 +9357,12 @@
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
-        with GLAccount do begin
-            Init();
-            "No." := NewNo;
-            Name := NewName;
-            "Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
-            "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            Insert();
-        end;
+        GLAccount.Init();
+        GLAccount."No." := NewNo;
+        GLAccount.Name := NewName;
+        GLAccount."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
+        GLAccount."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        GLAccount.Insert();
     end;
 
     local procedure MockItemWithNoAndDescription(NewNo: Code[20]; NewDescription: Text[100])
@@ -9416,15 +9377,13 @@
         if not InventoryPostingGroup.FindFirst() then
             LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
 
-        with Item do begin
-            Init();
-            "No." := NewNo;
-            Description := NewDescription;
-            "Inventory Posting Group" := InventoryPostingGroup.Code;
-            "Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
-            "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            Insert();
-        end;
+        Item.Init();
+        Item."No." := NewNo;
+        Item.Description := NewDescription;
+        Item."Inventory Posting Group" := InventoryPostingGroup.Code;
+        Item."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
+        Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        Item.Insert();
     end;
 
     local procedure MockItemChargeWithNoAndDescription(NewNo: Code[20]; NewDescription: Text[100])
@@ -9436,38 +9395,32 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
 
-        with ItemCharge do begin
-            Init();
-            "No." := NewNo;
-            Description := NewDescription;
-            "Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
-            "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            Insert();
-        end;
+        ItemCharge.Init();
+        ItemCharge."No." := NewNo;
+        ItemCharge.Description := NewDescription;
+        ItemCharge."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
+        ItemCharge."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        ItemCharge.Insert();
     end;
 
     local procedure MockFAWithNoAndDescription(NewNo: Code[20]; NewDescription: Text[100])
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        with FixedAsset do begin
-            Init();
-            "No." := NewNo;
-            Description := NewDescription;
-            Insert();
-        end;
+        FixedAsset.Init();
+        FixedAsset."No." := NewNo;
+        FixedAsset.Description := NewDescription;
+        FixedAsset.Insert();
     end;
 
     local procedure MockStandardText(NewCode: Code[20]; NewDescription: Text[50])
     var
         StandardText: Record "Standard Text";
     begin
-        with StandardText do begin
-            Init();
-            Code := NewCode;
-            Description := NewDescription;
-            Insert();
-        end;
+        StandardText.Init();
+        StandardText.Code := NewCode;
+        StandardText.Description := NewDescription;
+        StandardText.Insert();
     end;
 
     local procedure MockPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
@@ -9480,12 +9433,10 @@
 
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseLine do begin
-            "Document Type" := PurchaseHeader."Document Type";
-            "Document No." := PurchaseHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, FieldNo("Line No."));
-            Insert();
-        end;
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine."Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, PurchaseLine.FieldNo("Line No."));
+        PurchaseLine.Insert();
     end;
 
     local procedure MockPurchaseLineWithReceivedNotInvLCY(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ReceivedNotInv_Base: Decimal; ReceivedNotInv: Decimal)
@@ -9498,31 +9449,27 @@
 
     local procedure PostReceivePurchOrderWithVAT(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchHeader: Record "Purchase Header")
     begin
-        with PurchHeader do begin
-            Validate("Prices Including VAT", true);
-            LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
-            FindPurchRcptLine(PurchRcptLine, "No.");
-        end;
+        PurchHeader.Validate("Prices Including VAT", true);
+        LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
+        FindPurchRcptLine(PurchRcptLine, PurchHeader."No.");
     end;
 
     local procedure InitPurchaseLine(PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
-        with PurchaseLine do begin
-            Init();
-            "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Line No." := LibraryRandom.RandIntInRange(1000, 2000);
-            Type := Type::Item;
-            "No." := '';
-            Description := LibraryUtility.GenerateGUID();
-            Quantity := LibraryRandom.RandDecInRange(300, 400, 2);
-            "Qty. to Receive" := LibraryRandom.RandDecInRange(200, 300, 2);
-            "Qty. to Receive (Base)" := LibraryRandom.RandDecInRange(200, 300, 2);
-            "Qty. to Invoice" := LibraryRandom.RandDecInRange(100, 200, 2);
-            "Qty. to Invoice (Base)" := LibraryRandom.RandDecInRange(100, 200, 2);
-            "Return Qty. to Ship" := LibraryRandom.RandDecInRange(200, 300, 2);
-            "Return Qty. to Ship (Base)" := LibraryRandom.RandDecInRange(200, 300, 2);
-        end;
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := DocumentType;
+        PurchaseLine."Document No." := LibraryUtility.GenerateGUID();
+        PurchaseLine."Line No." := LibraryRandom.RandIntInRange(1000, 2000);
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."No." := '';
+        PurchaseLine.Description := LibraryUtility.GenerateGUID();
+        PurchaseLine.Quantity := LibraryRandom.RandDecInRange(300, 400, 2);
+        PurchaseLine."Qty. to Receive" := LibraryRandom.RandDecInRange(200, 300, 2);
+        PurchaseLine."Qty. to Receive (Base)" := LibraryRandom.RandDecInRange(200, 300, 2);
+        PurchaseLine."Qty. to Invoice" := LibraryRandom.RandDecInRange(100, 200, 2);
+        PurchaseLine."Qty. to Invoice (Base)" := LibraryRandom.RandDecInRange(100, 200, 2);
+        PurchaseLine."Return Qty. to Ship" := LibraryRandom.RandDecInRange(200, 300, 2);
+        PurchaseLine."Return Qty. to Ship (Base)" := LibraryRandom.RandDecInRange(200, 300, 2);
     end;
 
     local procedure ValidatePurchaseLineStandardCode(var PurchaseLine: Record "Purchase Line"; StandardTextCode: Code[20])
@@ -9562,20 +9509,16 @@
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
-        with PurchRcptLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Line No.");
-        end;
+        PurchRcptLine.SetRange("Document No.", DocumentNo);
+        PurchRcptLine.FindFirst();
+        exit(PurchRcptLine."Line No.");
     end;
 
     local procedure FindPurchInvLine(var PurchInvLine: Record "Purch. Inv. Line"; DocumentNo: Code[20])
     begin
-        with PurchInvLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::Item);
-            FindFirst();
-        end;
+        PurchInvLine.SetRange("Document No.", DocumentNo);
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
+        PurchInvLine.FindFirst();
     end;
 
     local procedure FindPurchReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20])
@@ -9633,11 +9576,9 @@
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentNo: Code[20])
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure FillBufferOfRcptLinesByOrderNo(var PassedPurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20])
@@ -9673,12 +9614,10 @@
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
-        with PurchRcptLine do begin
-            SetRange("Document No.", PostedDocumentNo);
-            SetRange(Type, Type::Item);
-            FindFirst();
-            exit("Dimension Set ID");
-        end;
+        PurchRcptLine.SetRange("Document No.", PostedDocumentNo);
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.FindFirst();
+        exit(PurchRcptLine."Dimension Set ID");
     end;
 
     local procedure GetReceiptLine(PurchaseHeader: Record "Purchase Header")
@@ -9751,12 +9690,10 @@
 
     local procedure ModifyPurchaseLineJobNo(var PurchaseLine: Record "Purchase Line"; JobNo: Code[20]; JobTaskNo: Code[20]; UnitOfMeasureCode: Code[10])
     begin
-        with PurchaseLine do begin
-            Validate("Job No.", JobNo);
-            Validate("Job Task No.", JobTaskNo);
-            Validate("Unit of Measure Code", UnitOfMeasureCode);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Job No.", JobNo);
+        PurchaseLine.Validate("Job Task No.", JobTaskNo);
+        PurchaseLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure ModifyLocationOnPurchaseLine(var PurchaseLine: Record "Purchase Line")
@@ -9813,14 +9750,12 @@
 
     local procedure ChangeQtyToInvoice(var InvPurchLine: Record "Purchase Line"; InvPurchHeader: Record "Purchase Header")
     begin
-        with InvPurchLine do begin
-            SetRange("Document Type", InvPurchHeader."Document Type");
-            SetRange("Document No.", InvPurchHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-            Validate("Qty. to Invoice", Round(Quantity / LibraryRandom.RandIntInRange(3, 5)));
-            Modify(true);
-        end;
+        InvPurchLine.SetRange("Document Type", InvPurchHeader."Document Type");
+        InvPurchLine.SetRange("Document No.", InvPurchHeader."No.");
+        InvPurchLine.SetRange(Type, InvPurchLine.Type::Item);
+        InvPurchLine.FindFirst();
+        InvPurchLine.Validate("Qty. to Invoice", Round(InvPurchLine.Quantity / LibraryRandom.RandIntInRange(3, 5)));
+        InvPurchLine.Modify(true);
     end;
 
     local procedure AssignItemChargeToReceipt(OrderNo: Code[20]; PurchLine: Record "Purchase Line")
@@ -9925,7 +9860,7 @@
         LibraryERM.ClearGenJournalLines(GenJournalBatch)
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -10027,11 +9962,9 @@
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Default Qty. to Receive", NewDefaultQtyToReceive);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default Qty. to Receive", NewDefaultQtyToReceive);
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure AssignQtyToOneLine(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line"; QtyToAssign: Decimal)
@@ -10086,23 +10019,19 @@
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item,
           LibraryRandom.RandDec(1000, 2),
           LibraryRandom.RandDec(1000, 2));
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::Item, Item."No.", Qty);
-            Validate("Qty. to Receive", QtyToReceive);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Qty);
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateCopyPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; FromPurchaseOrderNo: Code[20])
     begin
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Document Type"::Order, '');
-            LibraryVariableStorage.Clear();
-            LibraryVariableStorage.Enqueue("Purchase Document Type From"::Order);
-            LibraryVariableStorage.Enqueue(FromPurchaseOrderNo);
-            CopyPurchaseDocument(PurchaseHeader);
-            Get("Document Type"::Order, "No.");
-        end
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue("Purchase Document Type From"::Order);
+        LibraryVariableStorage.Enqueue(FromPurchaseOrderNo);
+        CopyPurchaseDocument(PurchaseHeader);
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseHeader."No.");
     end;
 
     local procedure CopyPurchaseDocument(PurchaseHeader: Record "Purchase Header")
@@ -10183,13 +10112,11 @@
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesLine do begin
-            Find();
-            Validate("Qty. to Ship", QtyToShip);
-            Modify(true);
-            SalesHeader.Get("Document Type", "Document No.");
-            exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));
-        end;
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));
     end;
 
     local procedure EnableVATDiffAmount() Result: Decimal
@@ -10329,22 +10256,22 @@
     local procedure OnAfterInvPostBufferPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
         // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
-        IF InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item THEN BEGIN
+        if InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item then begin
             InvoicePostBuffer."Fixed Asset Line No." := PurchaseLine."Line No.";
             InvoicePostBuffer."Entry Description" := PurchaseLine.Description;
-        END;
+        end;
     end;
 #endif
 
-    [EventSubscriber(ObjectType::table, Database::"Invoice Posting Buffer", 'OnAfterPreparePurchase', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch. Post Invoice Events", 'OnAfterPrepareInvoicePostingBuffer', '', false, false)]
     local procedure OnAfterPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
         // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
-        IF InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::Item THEN BEGIN
+        if InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::Item then begin
             InvoicePostingBuffer."Fixed Asset Line No." := PurchaseLine."Line No.";
             InvoicePostingBuffer."Entry Description" := PurchaseLine.Description;
             InvoicePostingBuffer.BuildPrimaryKey();
-        END;
+        end;
     end;
 
     local procedure VerifyAmountInValueEntry(DocumentNo: Code[20]; BuyFromVendorNo: Code[20]; Amount: Decimal)
@@ -10383,15 +10310,13 @@
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, PurchLineType);
-            SetRange("No.", No);
-            FindFirst();
-            TestField("Shortcut Dimension 1 Code", DimensionValue1);
-            TestField("Shortcut Dimension 2 Code", DimensionValue2);
-        end;
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange("Document No.", DocumentNo);
+        PurchLine.SetRange(Type, PurchLineType);
+        PurchLine.SetRange("No.", No);
+        PurchLine.FindFirst();
+        PurchLine.TestField("Shortcut Dimension 1 Code", DimensionValue1);
+        PurchLine.TestField("Shortcut Dimension 2 Code", DimensionValue2);
     end;
 
     local procedure VerifyDimensionCode(DimensionSetID: Integer; DimensionCode: Code[20])
@@ -10479,10 +10404,10 @@
     begin
         GLEntry.SETRANGE("Document No.", InvoiceNo);
         TempPurchaseLine.FindSet();
-        REPEAT
+        repeat
             GLEntry.SETRANGE(Description, TempPurchaseLine.Description);
             Assert.RecordIsNotEmpty(GLEntry);
-        UNTIL TempPurchaseLine.Next() = 0;
+        until TempPurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyJobLedgerEntryZeroUnitCost(DocumentNo: Code[20]; JobNo: Code[20])
@@ -10856,13 +10781,11 @@
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", "Document Type"::"Return Order");
-            SetRange("Document No.", PurchaseHeaderNo);
-            SetRange(Type, Type::Item);
-            FindFirst();
-            TestField("Dimension Set ID", GetDimensionSetId(PostedDocumentNo));
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Return Order");
+        PurchaseLine.SetRange("Document No.", PurchaseHeaderNo);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("Dimension Set ID", GetDimensionSetId(PostedDocumentNo));
     end;
 
     local procedure VerifyDimSetIDOnItemLedgEntry(ExpectedDimSetID: Integer)
@@ -10884,51 +10807,48 @@
         ValueEntry: Record "Value Entry";
         i: Integer;
     begin
-        with ValueEntry do
-            for i := 1 to ArrayLen(DocNo) do begin
-                ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Sale);
-                ItemLedgEntry.SetRange("Document No.", DocNo[i]);
-                ItemLedgEntry.FindLast();
-                SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Purchase);
-                SetRange("Entry Type", "Entry Type"::"Direct Cost");
-                SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-                SetRange("Item Charge No.", ItemChargeNo);
-                FindFirst();
-                Assert.AreEqual(ShipmentCount, Count, StrSubstNo(CountErr, ShipmentCount, TableCaption(), GetFilters));
-                Assert.AreEqual(
-                  ItemLedgEntry.Quantity, "Valued Quantity",
-                  StrSubstNo(AmountError, FieldCaption("Valued Quantity"), ItemLedgEntry.Quantity, TableCaption));
-            end;
+        for i := 1 to ArrayLen(DocNo) do begin
+            ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Sale);
+            ItemLedgEntry.SetRange("Document No.", DocNo[i]);
+            ItemLedgEntry.FindLast();
+            ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Purchase);
+            ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+            ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+            ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
+            ValueEntry.FindFirst();
+            Assert.AreEqual(ShipmentCount, ValueEntry.Count, StrSubstNo(CountErr, ShipmentCount, ValueEntry.TableCaption(), ValueEntry.GetFilters));
+            Assert.AreEqual(
+              ItemLedgEntry.Quantity, ValueEntry."Valued Quantity",
+              StrSubstNo(AmountError, ValueEntry.FieldCaption("Valued Quantity"), ItemLedgEntry.Quantity, ValueEntry.TableCaption));
+        end;
     end;
 
     local procedure VerifyJobPricesOfPurchInvWithRcptPurchOrder(PurchLine: Record "Purchase Line"; InvPurchLine: Record "Purchase Line")
     begin
-        with InvPurchLine do begin
-            Assert.AreEqual(
-              PurchLine."Job Unit Price", "Job Unit Price", StrSubstNo(IncorrectFieldValueErr, FieldCaption("Job Unit Price")));
-            Assert.AreEqual(
-              PurchLine."Job Total Price", "Job Total Price", StrSubstNo(IncorrectFieldValueErr, FieldCaption("Job Total Price")));
-            Assert.AreEqual(
-              PurchLine."Job Line Amount", "Job Line Amount", StrSubstNo(IncorrectFieldValueErr, FieldCaption("Job Line Amount")));
-            Assert.AreEqual(
-              PurchLine."Job Line Discount Amount", "Job Line Discount Amount",
-              StrSubstNo(IncorrectFieldValueErr, FieldCaption("Job Line Discount Amount")));
-            Assert.AreEqual(
-              PurchLine."Job Line Discount %", "Job Line Discount %",
-              StrSubstNo(IncorrectFieldValueErr, FieldCaption("Job Line Discount %")));
-            Assert.AreEqual(
-              PurchLine."Job Unit Price (LCY)", "Job Unit Price (LCY)",
-              StrSubstNo(IncorrectFieldValueErr, FieldCaption("Job Unit Price (LCY)")));
-            Assert.AreEqual(
-              PurchLine."Job Total Price (LCY)", "Job Total Price (LCY)",
-              StrSubstNo(IncorrectFieldValueErr, FieldCaption("Job Total Price (LCY)")));
-            Assert.AreEqual(
-              PurchLine."Job Line Amount (LCY)", "Job Line Amount (LCY)",
-              StrSubstNo(IncorrectFieldValueErr, FieldCaption("Job Line Amount (LCY)")));
-            Assert.AreEqual(
-              PurchLine."Job Line Disc. Amount (LCY)", "Job Line Disc. Amount (LCY)",
-              StrSubstNo(IncorrectFieldValueErr, FieldCaption("Job Line Disc. Amount (LCY)")));
-        end;
+        Assert.AreEqual(
+          PurchLine."Job Unit Price", InvPurchLine."Job Unit Price", StrSubstNo(IncorrectFieldValueErr, InvPurchLine.FieldCaption("Job Unit Price")));
+        Assert.AreEqual(
+          PurchLine."Job Total Price", InvPurchLine."Job Total Price", StrSubstNo(IncorrectFieldValueErr, InvPurchLine.FieldCaption("Job Total Price")));
+        Assert.AreEqual(
+          PurchLine."Job Line Amount", InvPurchLine."Job Line Amount", StrSubstNo(IncorrectFieldValueErr, InvPurchLine.FieldCaption("Job Line Amount")));
+        Assert.AreEqual(
+          PurchLine."Job Line Discount Amount", InvPurchLine."Job Line Discount Amount",
+          StrSubstNo(IncorrectFieldValueErr, InvPurchLine.FieldCaption("Job Line Discount Amount")));
+        Assert.AreEqual(
+          PurchLine."Job Line Discount %", InvPurchLine."Job Line Discount %",
+          StrSubstNo(IncorrectFieldValueErr, InvPurchLine.FieldCaption("Job Line Discount %")));
+        Assert.AreEqual(
+          PurchLine."Job Unit Price (LCY)", InvPurchLine."Job Unit Price (LCY)",
+          StrSubstNo(IncorrectFieldValueErr, InvPurchLine.FieldCaption("Job Unit Price (LCY)")));
+        Assert.AreEqual(
+          PurchLine."Job Total Price (LCY)", InvPurchLine."Job Total Price (LCY)",
+          StrSubstNo(IncorrectFieldValueErr, InvPurchLine.FieldCaption("Job Total Price (LCY)")));
+        Assert.AreEqual(
+          PurchLine."Job Line Amount (LCY)", InvPurchLine."Job Line Amount (LCY)",
+          StrSubstNo(IncorrectFieldValueErr, InvPurchLine.FieldCaption("Job Line Amount (LCY)")));
+        Assert.AreEqual(
+          PurchLine."Job Line Disc. Amount (LCY)", InvPurchLine."Job Line Disc. Amount (LCY)",
+          StrSubstNo(IncorrectFieldValueErr, InvPurchLine.FieldCaption("Job Line Disc. Amount (LCY)")));
     end;
 
     local procedure VerifyPurchHeaderDimensions(PurchHeader: Record "Purchase Header"; DimCode: Code[20])
@@ -10946,52 +10866,44 @@
     var
         DummyPurchInvLine: Record "Purch. Inv. Line";
     begin
-        with DummyPurchInvLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummyPurchInvLine);
-        end;
+        DummyPurchInvLine.SetRange("Document No.", DocumentNo);
+        DummyPurchInvLine.SetRange(Type, DummyPurchInvLine.Type::" ");
+        DummyPurchInvLine.SetRange("No.", '');
+        DummyPurchInvLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummyPurchInvLine);
     end;
 
     local procedure VerifyPurchRcptDescriptionLineExists(DocumentNo: Code[20]; ExpectedDescription: Text[100])
     var
         DummyPurchRcptLine: Record "Purch. Rcpt. Line";
     begin
-        with DummyPurchRcptLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummyPurchRcptLine);
-        end;
+        DummyPurchRcptLine.SetRange("Document No.", DocumentNo);
+        DummyPurchRcptLine.SetRange(Type, DummyPurchRcptLine.Type::" ");
+        DummyPurchRcptLine.SetRange("No.", '');
+        DummyPurchRcptLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummyPurchRcptLine);
     end;
 
     local procedure VerifyPurchCrMemoDescriptionLineExists(DocumentNo: Code[20]; ExpectedDescription: Text[100])
     var
         DummyPurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        with DummyPurchCrMemoLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummyPurchCrMemoLine);
-        end;
+        DummyPurchCrMemoLine.SetRange("Document No.", DocumentNo);
+        DummyPurchCrMemoLine.SetRange(Type, DummyPurchCrMemoLine.Type::" ");
+        DummyPurchCrMemoLine.SetRange("No.", '');
+        DummyPurchCrMemoLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummyPurchCrMemoLine);
     end;
 
     local procedure VerifyPurchRetShptDescriptionLineExists(DocumentNo: Code[20]; ExpectedDescription: Text[100])
     var
         DummyReturnShipmentLine: Record "Return Shipment Line";
     begin
-        with DummyReturnShipmentLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummyReturnShipmentLine);
-        end;
+        DummyReturnShipmentLine.SetRange("Document No.", DocumentNo);
+        DummyReturnShipmentLine.SetRange(Type, DummyReturnShipmentLine.Type::" ");
+        DummyReturnShipmentLine.SetRange("No.", '');
+        DummyReturnShipmentLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummyReturnShipmentLine);
     end;
 
     local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; DocumentNo: Code[20]; JobNo: Code[20])
@@ -11006,16 +10918,14 @@
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         Currency: Record Currency;
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            CalcFields("Remaining Amt. (LCY)");
-            Currency.Get("Currency Code");
-            Assert.AreNearlyEqual(
-              -RemainingAmtLCY, "Remaining Amt. (LCY)", Currency."Invoice Rounding Precision",
-              StrSubstNo(AmountError, FieldCaption("Remaining Amt. (LCY)"), RemainingAmtLCY, TableCaption));
-        end;
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
+        Currency.Get(VendorLedgerEntry."Currency Code");
+        Assert.AreNearlyEqual(
+          -RemainingAmtLCY, VendorLedgerEntry."Remaining Amt. (LCY)", Currency."Invoice Rounding Precision",
+          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), RemainingAmtLCY, VendorLedgerEntry.TableCaption));
     end;
 
     local procedure VerifyJobTotalPrices(PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10])
@@ -11023,16 +10933,14 @@
         CurrExchRate: Record "Currency Exchange Rate";
         ExpectedResult: Decimal;
     begin
-        with PurchaseLine do begin
-            ExpectedResult := Round(Quantity * "Job Unit Price", LibraryERM.GetCurrencyAmountRoundingPrecision(CurrencyCode));
-            Assert.AreEqual(ExpectedResult, "Job Total Price", WrongJobTotalPriceErr);
-            ExpectedResult := Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  WorkDate(), CopyStr("Job Currency Code", 1, 10),
-                  "Job Total Price", "Job Currency Factor"),
-                LibraryERM.GetCurrencyAmountRoundingPrecision(''));
-            Assert.AreEqual(ExpectedResult, "Job Total Price (LCY)", WrongJobTotalPriceLCYErr);
-        end;
+        ExpectedResult := Round(PurchaseLine.Quantity * PurchaseLine."Job Unit Price", LibraryERM.GetCurrencyAmountRoundingPrecision(CurrencyCode));
+        Assert.AreEqual(ExpectedResult, PurchaseLine."Job Total Price", WrongJobTotalPriceErr);
+        ExpectedResult := Round(
+            CurrExchRate.ExchangeAmtFCYToLCY(
+              WorkDate(), CopyStr(PurchaseLine."Job Currency Code", 1, 10),
+              PurchaseLine."Job Total Price", PurchaseLine."Job Currency Factor"),
+            LibraryERM.GetCurrencyAmountRoundingPrecision(''));
+        Assert.AreEqual(ExpectedResult, PurchaseLine."Job Total Price (LCY)", WrongJobTotalPriceLCYErr);
     end;
 
     local procedure VerifyPurchaseLineCount(PurchaseHeader: Record "Purchase Header"; ExpectedCount: Integer)
@@ -11046,28 +10954,22 @@
 
     local procedure VerifyPurchaseLineDescription(PurchaseLine: Record "Purchase Line"; ExpectedType: Enum "Purchase Line Type"; ExpectedNo: Code[20]; ExpectedDescription: Text)
     begin
-        with PurchaseLine do begin
-            Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));
-            Assert.AreEqual(ExpectedNo, "No.", FieldCaption("No."));
-            Assert.AreEqual(ExpectedDescription, Description, FieldCaption(Description));
-        end;
+        Assert.AreEqual(ExpectedType, PurchaseLine.Type, PurchaseLine.FieldCaption(Type));
+        Assert.AreEqual(ExpectedNo, PurchaseLine."No.", PurchaseLine.FieldCaption("No."));
+        Assert.AreEqual(ExpectedDescription, PurchaseLine.Description, PurchaseLine.FieldCaption(Description));
     end;
 
     local procedure VerifyPurchaseLineFindRecordByDescription(PurchaseLine: Record "Purchase Line"; TypedValue: Text[100]; ExpectedNo: Code[20]; ExpectedDescription: Text)
     begin
-        with PurchaseLine do begin
-            Validate("No.", '');
-            Validate(Description, TypedValue);
-            VerifyPurchaseLineDescription(PurchaseLine, Type, ExpectedNo, ExpectedDescription);
-        end;
+        PurchaseLine.Validate("No.", '');
+        PurchaseLine.Validate(Description, TypedValue);
+        VerifyPurchaseLineDescription(PurchaseLine, PurchaseLine.Type, ExpectedNo, ExpectedDescription);
     end;
 
     local procedure VerifyPurchaseLineFindRecordByNo(PurchaseLine: Record "Purchase Line"; TypedValue: Text[20]; ExpectedNo: Code[20]; ExpectedDescription: Text)
     begin
-        with PurchaseLine do begin
-            Validate("No.", TypedValue);
-            VerifyPurchaseLineDescription(PurchaseLine, Type, ExpectedNo, ExpectedDescription);
-        end;
+        PurchaseLine.Validate("No.", TypedValue);
+        VerifyPurchaseLineDescription(PurchaseLine, PurchaseLine.Type, ExpectedNo, ExpectedDescription);
     end;
 
     local procedure VerifyBuyFromAddressIsVendorAddress(PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor)
@@ -11372,11 +11274,9 @@
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplateType);
-        with RequisitionWkshName do begin
-            SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
-            FindFirst();
-            exit(Name);
-        end;
+        RequisitionWkshName.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
+        RequisitionWkshName.FindFirst();
+        exit(RequisitionWkshName.Name);
     end;
 
     local procedure ReqWkshCarryOutActionMessage(var RequisitionLine: Record "Requisition Line")
@@ -11643,7 +11543,7 @@
         ItemChargeAssignmentPurch.TestField("Qty. Assigned", ItemChargeAssignmentPurch."Qty. Assigned");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateStandardCostWorksheet(var StandardCostWorksheetPage: TestPage "Standard Cost Worksheet"; ResourceNo: Code[20]; StandardCost: Decimal; NewStandardCost: Decimal)
     var
         StandardCostWorksheet: Record "Standard Cost Worksheet";

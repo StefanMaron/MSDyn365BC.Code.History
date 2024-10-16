@@ -23,6 +23,7 @@ codeunit 144001 "Payment Discount"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         PmtDiscOnDocLineErr: Label 'The %1 on %2 in document no. %3 must be %4.';
         WrongFieldValueErr: Label 'Wrong value of field %1 in table %2.';
 
@@ -534,12 +535,12 @@ codeunit 144001 "Payment Discount"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ServiceInvoiceStatisticsPageHandler')]
     procedure PaymentDiscInVATAmtLineOfServInvoice()
     var
         ServHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         PostedServiceInvoice: TestPage "Posted Service Invoice";
-        ServiceInvoiceStatistics: TestPage "Service Invoice Statistics";
         ExpectedAmount: Decimal;
     begin
         // [FEATURE] [Service Invoice]
@@ -554,23 +555,24 @@ codeunit 144001 "Payment Discount"
         ServiceInvoiceHeader.FindFirst();
 
         // [WHEN] Open Posted Service Invoice Statistics
-        ServiceInvoiceStatistics.Trap();
+        LibraryVariableStorage.Enqueue(ExpectedAmount);
         PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.GotoRecord(ServiceInvoiceHeader);
         PostedServiceInvoice.Statistics.Invoke();
+        PostedServiceInvoice.Close();
 
         // [THEN] "VAT Base (Lowered)" equals to 980, calculated as 1000 * (1 - 0,02)
-        ServiceInvoiceStatistics.Subform."VAT Base (Lowered)".AssertEquals(ExpectedAmount);
+        // Validation in page handler
     end;
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ServiceCreditMemoStatisticsPageHandler')]
     procedure PaymentDiscInVATAmtLineOfServCrMemo()
     var
         ServHeader: Record "Service Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         PostedServiceCreditMemo: TestPage "Posted Service Credit Memo";
-        ServiceCreditMemoStatistics: TestPage "Service Credit Memo Statistics";
         ExpectedAmount: Decimal;
     begin
         // [FEATURE] [Service Cr Memo]
@@ -584,13 +586,14 @@ codeunit 144001 "Payment Discount"
         ServiceCrMemoHeader.Get(ServHeader."Last Posting No.");
 
         // [WHEN] Open Posted Service Credit Memo Statistics
-        ServiceCreditMemoStatistics.Trap();
+        LibraryVariableStorage.Enqueue(ExpectedAmount);
         PostedServiceCreditMemo.OpenEdit();
         PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
         PostedServiceCreditMemo.Statistics.Invoke();
+        PostedServiceCreditMemo.Close();
 
         // [THEN] "VAT Base (Lowered)" equals to 980, calculated as 1000 * (1 - 0,02)
-        ServiceCreditMemoStatistics.Subform."VAT Base (Lowered)".AssertEquals(ExpectedAmount);
+        // Validation in page handler
     end;
 
     [Test]
@@ -740,27 +743,23 @@ codeunit 144001 "Payment Discount"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            OldGLSetup := GLSetup;
-            Validate("VAT Tolerance %", 0);
-            Validate("Pmt. Disc. Excl. VAT", false);
-            Validate("Adjust for Payment Disc.", true);
-            Modify(true);
-        end;
+        GLSetup.Get();
+        OldGLSetup := GLSetup;
+        GLSetup.Validate("VAT Tolerance %", 0);
+        GLSetup.Validate("Pmt. Disc. Excl. VAT", false);
+        GLSetup.Validate("Adjust for Payment Disc.", true);
+        GLSetup.Modify(true);
     end;
 
     local procedure TearDownGLSetup(AdjPmtDisc: Boolean; VATTolerancePct: Decimal; PmtDiscExclVAT: Boolean)
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            Validate("Adjust for Payment Disc.", AdjPmtDisc);
-            Validate("Pmt. Disc. Excl. VAT", PmtDiscExclVAT);
-            Validate("VAT Tolerance %", VATTolerancePct);
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("Adjust for Payment Disc.", AdjPmtDisc);
+        GLSetup.Validate("Pmt. Disc. Excl. VAT", PmtDiscExclVAT);
+        GLSetup.Validate("VAT Tolerance %", VATTolerancePct);
+        GLSetup.Modify(true);
     end;
 
     local procedure CreateSalesDocWithPricesInclVAT(var SalesHeader: Record "Sales Header"; PricesInclVAT: Boolean)
@@ -1113,26 +1112,22 @@ codeunit 144001 "Payment Discount"
     var
         SalesInvHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvHeader do begin
-            SetRange("Bill-to Customer No.", CustNo);
-            SetRange("Prepayment Invoice", true);
-            SetRange("Prepayment Order No.", OrderNo);
-            FindFirst();
-            exit("No.");
-        end;
+        SalesInvHeader.SetRange("Bill-to Customer No.", CustNo);
+        SalesInvHeader.SetRange("Prepayment Invoice", true);
+        SalesInvHeader.SetRange("Prepayment Order No.", OrderNo);
+        SalesInvHeader.FindFirst();
+        exit(SalesInvHeader."No.");
     end;
 
     local procedure FindPurchPrepmtInvoice(VendorNo: Code[20]; OrderNo: Code[20]): Code[20]
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange("Prepayment Invoice", true);
-            SetRange("Prepayment Order No.", OrderNo);
-            FindFirst();
-            exit("No.");
-        end;
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchInvHeader.SetRange("Prepayment Invoice", true);
+        PurchInvHeader.SetRange("Prepayment Order No.", OrderNo);
+        PurchInvHeader.FindFirst();
+        exit(PurchInvHeader."No.");
     end;
 
     local procedure VerifyPmtDiscOnSalesInvLines(DocNo: Code[20]; CustNo: Code[20]; ExpectedAmount: Decimal)
@@ -1140,17 +1135,15 @@ codeunit 144001 "Payment Discount"
         SalesInvLine: Record "Sales Invoice Line";
         TotalPmtDiscAmount: Decimal;
     begin
-        with SalesInvLine do begin
-            SetRange("Document No.", DocNo);
-            SetRange("Sell-to Customer No.", CustNo);
-            FindSet();
-            repeat
-                TotalPmtDiscAmount += "Pmt. Discount Amount";
-            until Next() = 0;
-            Assert.AreEqual(
-              ExpectedAmount, TotalPmtDiscAmount,
-              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
-        end;
+        SalesInvLine.SetRange("Document No.", DocNo);
+        SalesInvLine.SetRange("Sell-to Customer No.", CustNo);
+        SalesInvLine.FindSet();
+        repeat
+            TotalPmtDiscAmount += SalesInvLine."Pmt. Discount Amount";
+        until SalesInvLine.Next() = 0;
+        Assert.AreEqual(
+          ExpectedAmount, TotalPmtDiscAmount,
+          StrSubstNo(PmtDiscOnDocLineErr, SalesInvLine.FieldCaption("Pmt. Discount Amount"), SalesInvLine.TableCaption(), DocNo, ExpectedAmount));
     end;
 
     local procedure VerifyPmtDiscOnSalesCrMemoLines(DocNo: Code[20]; CustNo: Code[20]; ExpectedAmount: Decimal)
@@ -1158,29 +1151,25 @@ codeunit 144001 "Payment Discount"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         TotalPmtDiscAmount: Decimal;
     begin
-        with SalesCrMemoLine do begin
-            SetRange("Document No.", DocNo);
-            SetRange("Sell-to Customer No.", CustNo);
-            FindSet();
-            repeat
-                TotalPmtDiscAmount += "Pmt. Discount Amount";
-            until Next() = 0;
-            Assert.AreEqual(
-              ExpectedAmount, TotalPmtDiscAmount,
-              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
-        end;
+        SalesCrMemoLine.SetRange("Document No.", DocNo);
+        SalesCrMemoLine.SetRange("Sell-to Customer No.", CustNo);
+        SalesCrMemoLine.FindSet();
+        repeat
+            TotalPmtDiscAmount += SalesCrMemoLine."Pmt. Discount Amount";
+        until SalesCrMemoLine.Next() = 0;
+        Assert.AreEqual(
+          ExpectedAmount, TotalPmtDiscAmount,
+          StrSubstNo(PmtDiscOnDocLineErr, SalesCrMemoLine.FieldCaption("Pmt. Discount Amount"), SalesCrMemoLine.TableCaption(), DocNo, ExpectedAmount));
     end;
 
     local procedure VerifyPmtDiscOnCustLedgEntry(CustNo: Code[20]; DocNo: Code[20]; ExpectedAmount: Decimal)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetRange("Customer No.", CustNo);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            TestField("Orig. Pmt. Disc. Possible(LCY)", ExpectedAmount);
-        end;
+        CustLedgEntry.SetRange("Customer No.", CustNo);
+        CustLedgEntry.SetRange("Document No.", DocNo);
+        CustLedgEntry.FindFirst();
+        CustLedgEntry.TestField("Orig. Pmt. Disc. Possible(LCY)", ExpectedAmount);
     end;
 
     local procedure VerifyPmtDiscOnPurchInvLines(DocNo: Code[20]; VendNo: Code[20]; ExpectedAmount: Decimal)
@@ -1188,17 +1177,15 @@ codeunit 144001 "Payment Discount"
         PurchInvLine: Record "Purch. Inv. Line";
         TotalPmtDiscAmount: Decimal;
     begin
-        with PurchInvLine do begin
-            SetRange("Document No.", DocNo);
-            SetRange("Pay-to Vendor No.", VendNo);
-            FindSet();
-            repeat
-                TotalPmtDiscAmount += "Pmt. Discount Amount";
-            until Next() = 0;
-            Assert.AreEqual(
-              ExpectedAmount, TotalPmtDiscAmount,
-              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
-        end;
+        PurchInvLine.SetRange("Document No.", DocNo);
+        PurchInvLine.SetRange("Pay-to Vendor No.", VendNo);
+        PurchInvLine.FindSet();
+        repeat
+            TotalPmtDiscAmount += PurchInvLine."Pmt. Discount Amount";
+        until PurchInvLine.Next() = 0;
+        Assert.AreEqual(
+          ExpectedAmount, TotalPmtDiscAmount,
+          StrSubstNo(PmtDiscOnDocLineErr, PurchInvLine.FieldCaption("Pmt. Discount Amount"), PurchInvLine.TableCaption(), DocNo, ExpectedAmount));
     end;
 
     local procedure VerifyPmtDiscOnPurchCrMemoLines(DocNo: Code[20]; VendNo: Code[20]; ExpectedAmount: Decimal)
@@ -1206,57 +1193,49 @@ codeunit 144001 "Payment Discount"
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
         TotalPmtDiscAmount: Decimal;
     begin
-        with PurchCrMemoLine do begin
-            SetRange("Document No.", DocNo);
-            SetRange("Pay-to Vendor No.", VendNo);
-            FindSet();
-            repeat
-                TotalPmtDiscAmount += "Pmt. Discount Amount";
-            until Next() = 0;
-            Assert.AreEqual(
-              ExpectedAmount, TotalPmtDiscAmount,
-              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
-        end;
+        PurchCrMemoLine.SetRange("Document No.", DocNo);
+        PurchCrMemoLine.SetRange("Pay-to Vendor No.", VendNo);
+        PurchCrMemoLine.FindSet();
+        repeat
+            TotalPmtDiscAmount += PurchCrMemoLine."Pmt. Discount Amount";
+        until PurchCrMemoLine.Next() = 0;
+        Assert.AreEqual(
+          ExpectedAmount, TotalPmtDiscAmount,
+          StrSubstNo(PmtDiscOnDocLineErr, PurchCrMemoLine.FieldCaption("Pmt. Discount Amount"), PurchCrMemoLine.TableCaption(), DocNo, ExpectedAmount));
     end;
 
     local procedure VerifyPmtDiscOnVendLedgEntry(VendNo: Code[20]; DocNo: Code[20]; ExpectedAmount: Decimal)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Vendor No.", VendNo);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            TestField("Orig. Pmt. Disc. Possible(LCY)", ExpectedAmount);
-        end;
+        VendLedgEntry.SetRange("Vendor No.", VendNo);
+        VendLedgEntry.SetRange("Document No.", DocNo);
+        VendLedgEntry.FindFirst();
+        VendLedgEntry.TestField("Orig. Pmt. Disc. Possible(LCY)", ExpectedAmount);
     end;
 
     local procedure VerifyOrigPmtDiscPossibleOnCustLedgEntry(CustNo: Code[20]; DocNo: Code[20]; ExpectedAmount: Decimal)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetRange("Customer No.", CustNo);
-            SetRange("Document No.", DocNo);
-            FindLast();
-            Assert.AreEqual(
-              ExpectedAmount, "Original Pmt. Disc. Possible",
-              StrSubstNo(WrongFieldValueErr, FieldCaption("Original Pmt. Disc. Possible"), TableCaption));
-        end;
+        CustLedgEntry.SetRange("Customer No.", CustNo);
+        CustLedgEntry.SetRange("Document No.", DocNo);
+        CustLedgEntry.FindLast();
+        Assert.AreEqual(
+          ExpectedAmount, CustLedgEntry."Original Pmt. Disc. Possible",
+          StrSubstNo(WrongFieldValueErr, CustLedgEntry.FieldCaption("Original Pmt. Disc. Possible"), CustLedgEntry.TableCaption));
     end;
 
     local procedure VerifyOrigPmtDiscPossibleOnVendLedgEntry(CustNo: Code[20]; DocNo: Code[20]; ExpectedAmount: Decimal)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Vendor No.", CustNo);
-            SetRange("Document No.", DocNo);
-            FindLast();
-            Assert.AreEqual(
-              ExpectedAmount, "Original Pmt. Disc. Possible",
-              StrSubstNo(WrongFieldValueErr, FieldCaption("Original Pmt. Disc. Possible"), TableCaption));
-        end;
+        VendLedgEntry.SetRange("Vendor No.", CustNo);
+        VendLedgEntry.SetRange("Document No.", DocNo);
+        VendLedgEntry.FindLast();
+        Assert.AreEqual(
+          ExpectedAmount, VendLedgEntry."Original Pmt. Disc. Possible",
+          StrSubstNo(WrongFieldValueErr, VendLedgEntry.FieldCaption("Original Pmt. Disc. Possible"), VendLedgEntry.TableCaption));
     end;
 
     local procedure VerifyShptDataAndRespCtrOnCrMemoLine(CrMemoNo: Code[20]; ShipmentDate: Date; ResponsibilityCenter: Code[10])
@@ -1277,6 +1256,26 @@ codeunit 144001 "Payment Discount"
         VATEntry.SetRange("Document No.", DocNo);
         VATEntry.FindFirst();
         VATEntry.TestField("Base Before Pmt. Disc.", Amount);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceStatisticsPageHandler(var ServiceInvoiceStatistics: TestPage "Service Invoice Statistics")
+    var
+        ExpectedAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedAmount);
+        ServiceInvoiceStatistics.Subform."VAT Base (Lowered)".AssertEquals(ExpectedAmount);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceCreditMemoStatisticsPageHandler(var ServiceCreditMemoStatistics: TestPage "Service Credit Memo Statistics")
+    var
+        ExpectedAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedAmount);
+        ServiceCreditMemoStatistics.Subform."VAT Base (Lowered)".AssertEquals(ExpectedAmount);
     end;
 }
 

@@ -191,6 +191,8 @@ table 256 "VAT Statement Line"
         GLAcc: Record "G/L Account";
         TempType: Enum "VAT Statement Line Type";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'must not be %1';
 
     [Scope('OnPrem')]
@@ -201,5 +203,7 @@ table 256 "VAT Statement Line"
         GLSetup.Get();
         exit(GLSetup."Additional Reporting Currency");
     end;
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

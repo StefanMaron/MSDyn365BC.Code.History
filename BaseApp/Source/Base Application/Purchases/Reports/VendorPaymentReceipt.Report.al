@@ -374,10 +374,12 @@ report 411 "Vendor - Payment Receipt"
         NegPmtDiscInvCurrVendLedgEntry1: Decimal;
         NegPmtTolInvCurrVendLedgEntry1: Decimal;
         PmtDiscPmtCurr: Decimal;
+#pragma warning disable AA0074
         Text003: Label 'Payment Receipt';
         Text004: Label 'Payment Voucher';
         Text006: Label 'Payment Discount Given';
         Text007: Label 'Payment Discount Received';
+#pragma warning restore AA0074
         PmtTolPmtCurr: Decimal;
         NegShowAmountVendLedgEntry1: Decimal;
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';

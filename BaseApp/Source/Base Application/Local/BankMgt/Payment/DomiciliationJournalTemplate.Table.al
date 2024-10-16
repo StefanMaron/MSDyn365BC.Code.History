@@ -54,7 +54,7 @@ table 2000020 "Domiciliation Journal Template"
         }
         field(15; "Test Report Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Test Report ID")));
             Caption = 'Test Report Name';
             Editable = false;
@@ -62,7 +62,7 @@ table 2000020 "Domiciliation Journal Template"
         }
         field(16; "Page Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Page Name';
             Editable = false;

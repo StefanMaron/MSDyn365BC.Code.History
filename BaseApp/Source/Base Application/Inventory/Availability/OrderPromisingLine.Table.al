@@ -3,9 +3,6 @@
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 
 table 99000880 "Order Promising Line"
@@ -107,30 +104,8 @@ table 99000880 "Order Promising Line"
             Caption = 'Requested Delivery Date';
 
             trigger OnValidate()
-            var
-                SalesLine: Record "Sales Line";
-                ServLine: Record "Service Line";
-                JobPlanningLine: Record "Job Planning Line";
             begin
-                case "Source Type" of
-                    "Source Type"::Sales:
-                        begin
-                            SalesLine.Get("Source Subtype", "Source ID", "Source Line No.");
-                            "Requested Shipment Date" := CalcReqShipDate(SalesLine);
-                        end;
-                    "Source Type"::"Service Order":
-                        begin
-                            ServLine.Get("Source Subtype", "Source ID", "Source Line No.");
-                            "Requested Shipment Date" := ServLine."Needed by Date";
-                        end;
-                    "Source Type"::Job:
-                        begin
-                            JobPlanningLine.SetRange("Job No.", "Source ID");
-                            JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
-                            JobPlanningLine.FindFirst();
-                            "Requested Shipment Date" := JobPlanningLine."Planning Date";
-                        end;
-                end;
+                OnValidateRequestedDeliveryDate(Rec);
             end;
         }
         field(41; "Planned Delivery Date"; Date)
@@ -138,25 +113,9 @@ table 99000880 "Order Promising Line"
             Caption = 'Planned Delivery Date';
 
             trigger OnValidate()
-            var
-                SalesLine: Record "Sales Line";
             begin
                 if "Planned Delivery Date" <> 0D then
-                    case "Source Type" of
-                        "Source Type"::Sales:
-                            begin
-                                SalesLine.Get("Source Subtype", "Source ID", "Source Line No.");
-                                SalesLine."Planned Delivery Date" := "Planned Delivery Date";
-                                SalesLine."Planned Shipment Date" := SalesLine.CalcPlannedDate();
-                                SalesLine."Shipment Date" := SalesLine.CalcShipmentDate();
-                                "Planned Delivery Date" := SalesLine."Planned Delivery Date";
-                                "Earliest Shipment Date" := SalesLine."Shipment Date";
-                                if "Earliest Shipment Date" > "Planned Delivery Date" then
-                                    "Planned Delivery Date" := "Earliest Shipment Date";
-                            end;
-                        "Source Type"::"Service Order", "Source Type"::Job:
-                            "Earliest Shipment Date" := "Planned Delivery Date";
-                    end;
+                    OnValidatePlannedDeliveryDate(Rec);
             end;
         }
         field(42; "Original Shipment Date"; Date)
@@ -168,24 +127,8 @@ table 99000880 "Order Promising Line"
             Caption = 'Earliest Shipment Date';
 
             trigger OnValidate()
-            var
-                SalesLine: Record "Sales Line";
             begin
-                case "Source Type" of
-                    "Source Type"::Sales:
-                        if "Earliest Shipment Date" <> 0D then begin
-                            SalesLine.Get("Source Subtype", "Source ID", "Source Line No.");
-                            SalesLine.SuspendStatusCheck(true);
-                            SalesLine.Validate("Shipment Date", "Earliest Shipment Date");
-                            "Planned Delivery Date" := SalesLine."Planned Delivery Date";
-                        end;
-                    "Source Type"::"Service Order":
-                        if "Earliest Shipment Date" <> 0D then
-                            "Planned Delivery Date" := "Earliest Shipment Date";
-                    "Source Type"::Job:
-                        if "Earliest Shipment Date" <> 0D then
-                            "Planned Delivery Date" := "Earliest Shipment Date";
-                end;
+                OnValidateEarliestDeliveryDate(Rec);
             end;
         }
         field(44; "Requested Shipment Date"; Date)
@@ -214,79 +157,35 @@ table 99000880 "Order Promising Line"
     {
     }
 
-    procedure TransferFromSalesLine(var SalesLine: Record "Sales Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferToOrderPromisingLine() in codeunit Sales Availability Mgt.', '25.0')]
+    procedure TransferFromSalesLine(var SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    var
+        SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
     begin
-        "Source Type" := "Source Type"::Sales;
-        "Source Subtype" := SalesLine."Document Type".AsInteger();
-        "Source ID" := SalesLine."Document No.";
-        "Source Line No." := SalesLine."Line No.";
-
-        "Item No." := SalesLine."No.";
-        "Variant Code" := SalesLine."Variant Code";
-        "Location Code" := SalesLine."Location Code";
-        Validate("Requested Delivery Date", SalesLine."Requested Delivery Date");
-        "Original Shipment Date" := SalesLine."Shipment Date";
-        Description := SalesLine.Description;
-        Quantity := SalesLine."Outstanding Quantity";
-        "Unit of Measure Code" := SalesLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
-        "Quantity (Base)" := SalesLine."Outstanding Qty. (Base)";
-
-        OnAfterTransferFromSalesLine(Rec, SalesLine);
+        SalesAvailabilityMgt.TransferToOrderPromisingLine(Rec, SalesLine);
     end;
+#endif
 
-    procedure TransferFromServLine(var ServLine: Record "Service Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferToOrderPromisingLine() in codeunit Serv. Availability Mgt.', '25.0')]
+    procedure TransferFromServLine(var ServLine: Record Microsoft.Service.Document."Service Line")
+    var
+        ServAvailabilityMgt: Codeunit Microsoft.Service.Document."Serv. Availability Mgt.";
     begin
-        "Source Type" := "Source Type"::"Service Order";
-        "Source Subtype" := ServLine."Document Type".AsInteger();
-        "Source ID" := ServLine."Document No.";
-        "Source Line No." := ServLine."Line No.";
-
-        "Item No." := ServLine."No.";
-        "Variant Code" := ServLine."Variant Code";
-        "Location Code" := ServLine."Location Code";
-        Validate("Requested Delivery Date", ServLine."Requested Delivery Date");
-        "Original Shipment Date" := ServLine."Needed by Date";
-        Description := ServLine.Description;
-        Quantity := ServLine."Outstanding Quantity";
-        "Unit of Measure Code" := ServLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := ServLine."Qty. per Unit of Measure";
-        "Quantity (Base)" := ServLine."Outstanding Qty. (Base)";
-
-        OnAfterTransferFromServLine(Rec, ServLine);
+        ServAvailabilityMgt.TransferToOrderPromisingLine(Rec, ServLine);
     end;
+#endif
 
-    procedure TransferFromJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferToOrderPromisingLine() in codeunit Job Planning Availability Mgt.', '25.0')]
+    procedure TransferFromJobPlanningLine(var JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
+    var
+        JobPlanningAvailabilityMgt: Codeunit Microsoft.Projects.Project.Planning."Job Planning Availability Mgt.";
     begin
-        "Source Type" := "Source Type"::Job;
-        "Source Subtype" := JobPlanningLine.Status.AsInteger();
-        "Source ID" := JobPlanningLine."Job No.";
-        "Source Line No." := JobPlanningLine."Job Contract Entry No.";
-
-        "Item No." := JobPlanningLine."No.";
-        "Variant Code" := JobPlanningLine."Variant Code";
-        "Location Code" := JobPlanningLine."Location Code";
-        Validate("Requested Delivery Date", JobPlanningLine."Requested Delivery Date");
-        "Original Shipment Date" := JobPlanningLine."Planning Date";
-        Description := JobPlanningLine.Description;
-        Quantity := JobPlanningLine."Remaining Qty.";
-        "Unit of Measure Code" := JobPlanningLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := JobPlanningLine."Qty. per Unit of Measure";
-        "Quantity (Base)" := JobPlanningLine."Remaining Qty. (Base)";
-
-        OnAfterTransferFromJobPlanningLine(Rec, JobPlanningLine);
+        JobPlanningAvailabilityMgt.TransferToOrderPromisingLine(Rec, JobPlanningLine);
     end;
-
-    local procedure CalcReqShipDate(SalesLine: Record "Sales Line"): Date
-    begin
-        if (SalesLine."Requested Delivery Date" <> 0D) and
-           (SalesLine."Promised Delivery Date" = 0D)
-        then begin
-            SalesLine.SuspendStatusCheck(true);
-            SalesLine.Validate("Requested Delivery Date", SalesLine."Requested Delivery Date");
-        end;
-        exit(SalesLine."Shipment Date");
-    end;
+#endif
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -299,10 +198,10 @@ table 99000880 "Order Promising Line"
     var
         Item: Record Item;
         AvailableToPromise: Codeunit "Available to Promise";
+        LookaheadDateformula: DateFormula;
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
         PeriodType: Enum "Analysis Period Type";
-        LookaheadDateformula: DateFormula;
         AvailabilityDate: Date;
     begin
         if Item.Get("Item No.") then begin
@@ -328,18 +227,57 @@ table 99000880 "Order Promising Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromSalesLine(var OrderPromisingLine: Record "Order Promising Line"; SalesLine: Record "Sales Line")
+    local procedure OnValidateRequestedDeliveryDate(var OrderPromisingLine: Record "Order Promising Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromServLine(var OrderPromisingLine: Record "Order Promising Line"; ServiceLine: Record "Service Line")
+    local procedure OnValidatePlannedDeliveryDate(var OrderPromisingLine: Record "Order Promising Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromJobPlanningLine(var OrderPromisingLine: Record "Order Promising Line"; JobPlanningLine: Record "Job Planning Line")
+    local procedure OnValidateEarliestDeliveryDate(var OrderPromisingLine: Record "Order Promising Line")
     begin
     end;
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromSalesLine(var OrderPromisingLine: Record "Order Promising Line"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    begin
+        OnAfterTransferFromSalesLine(OrderPromisingLine, SalesLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterTransferToOrderPromisingLine in codeunit Sales Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromSalesLine(var OrderPromisingLine: Record "Order Promising Line"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromServLine(var OrderPromisingLine: Record "Order Promising Line"; ServiceLine: Record Microsoft.Service.Document."Service Line")
+    begin
+        OnAfterTransferFromServLine(OrderPromisingLine, ServiceLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterTransferToOrderPromisingLine in codeunit Serv. Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromServLine(var OrderPromisingLine: Record "Order Promising Line"; ServiceLine: Record Microsoft.Service.Document."Service Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromJobPlanningLine(var OrderPromisingLine: Record "Order Promising Line"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
+    begin
+        OnAfterTransferFromJobPlanningLine(OrderPromisingLine, JobPlanningLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterTransferToOrderPromisingLine in codeunit Job Planning Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromJobPlanningLine(var OrderPromisingLine: Record "Order Promising Line"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
+    begin
+    end;
+#endif
 }
 

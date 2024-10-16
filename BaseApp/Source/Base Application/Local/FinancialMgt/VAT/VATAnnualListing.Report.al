@@ -263,7 +263,7 @@ report 11308 "VAT Annual Listing"
             }
             dataitem(PrintLoop; "Integer")
             {
-                DataItemTableView = sorting(Number) order(Ascending);
+                DataItemTableView = sorting(Number) order(ascending);
                 column(BufferAmount; Buffer.Amount)
                 {
                 }

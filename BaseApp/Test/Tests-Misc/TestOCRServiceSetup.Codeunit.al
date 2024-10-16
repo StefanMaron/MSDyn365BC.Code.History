@@ -113,8 +113,8 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetup.Get();
         Assert.IsTrue(OCRServiceSetup.HasPassword(OCRServiceSetup."Password Key"), '');
         Assert.IsTrue(OCRServiceSetup.HasPassword(OCRServiceSetup."Authorization Key"), '');
-        Assert.AreEqual(PasswordTxt, OCRServiceSetup.GetPassword(OCRServiceSetup."Password Key"), '');
-        Assert.AreEqual(AuthTxt, OCRServiceSetup.GetPassword(OCRServiceSetup."Authorization Key"), '');
+        AssertSecret(PasswordTxt, OCRServiceSetup.GetPasswordAsSecretText(OCRServiceSetup."Password Key"), '');
+        AssertSecret(AuthTxt, OCRServiceSetup.GetPasswordAsSecretText(OCRServiceSetup."Authorization Key"), '');
     end;
 
     [Test]
@@ -226,6 +226,12 @@ codeunit 134415 "Test OCR Service Setup"
 
         asserterror SendIncomingDocumentToOCR.SendDocToOCR(IncomingDocument);
         Assert.ExpectedError('The OCR service is not enabled.');
+    end;
+
+    [NonDebuggable]
+    local procedure AssertSecret(Expected: Text; Actual: SecretText; Message: Text)
+    begin
+        Assert.AreEqual(Expected, Actual.Unwrap(), Message);
     end;
 
     [ConfirmHandler]

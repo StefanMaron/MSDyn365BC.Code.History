@@ -33,18 +33,11 @@ codeunit 137087 "SCM Order Planning - II"
         DemandTypeGlobal: Option Sales,Production;
         IsInitialized: Boolean;
         ValidationError: Label '%1  must be %2 in %3.';
-        NoErrorText: Label 'No. must be equal to ''%1''  in Requisition Line';
-        DateErrorText: Label 'Demand Date must be equal to ''%1''  in Requisition Line';
-        QuantityErrorText: Label 'Demand Quantity (Base) must be equal to ''%1''  in Requisition Line';
         LocationErrorText: Label 'Location Code must be equal to ''%1''  in Requisition Line';
-        UOMErrorText: Label 'Qty. per UOM (Demand) must be equal to ''%1''  in Requisition Line';
-        ErrorText: Label 'Error Message Must be same.';
         ExpectedQuantity: Decimal;
         QuantityError: Label 'Available Quantity must match.';
-        ReserveError: Label 'Reserve must be equal to ''%1''  in Requisition Line';
         RequisitionLineMustNotExist: Label 'Requisition Line must not exist for Item %1.';
         PostDateOutOfRangeErr: Label 'Posting Date is not within your range of allowed posting dates in Warehouse Shipment Header No.=';
-        PostedWhseShpmtNotExistsErr: Label 'The Posted Whse. Shipment Header does not exist. Identification fields and values: No.=';
 
     [Test]
     [HandlerFunctions('MakeSupplyOrdersPageHandler')]
@@ -56,6 +49,7 @@ codeunit 137087 "SCM Order Planning - II"
         Item2: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        ReqLine: Record "Requisition Line";
     begin
         // Setup: Create Sales Order planning setup,Create new item, and change Item on sales line after calculate order planning.
         Initialize();
@@ -71,7 +65,7 @@ codeunit 137087 "SCM Order Planning - II"
         asserterror MakeSupplyOrdersActiveOrder(SalesHeader."No.");
 
         // Verify that error message is same as accepted during make order when change sales line No. after calculate plan.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(NoErrorText, Item2."No.")) > 0, ErrorText);
+        Assert.ExpectedTestFieldError(ReqLine.FieldCaption("No."), Item2."No.");
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
     end;
@@ -85,6 +79,7 @@ codeunit 137087 "SCM Order Planning - II"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        ReqLine: Record "Requisition Line";
         ShipmentDate: Date;
     begin
         // Setup: Create Sales Order planning setup, and change Shipment Date on sales line after calculate order planning.
@@ -100,7 +95,7 @@ codeunit 137087 "SCM Order Planning - II"
         asserterror MakeSupplyOrdersActiveOrder(SalesHeader."No.");
 
         // Verify that error message is same as accepted during make order when change sales line Shipment Date after calculate plan.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(DateErrorText, ShipmentDate)) > 0, ErrorText);
+        Assert.ExpectedTestFieldError(ReqLine.FieldCaption("Demand Date"), Format(ShipmentDate));
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -115,6 +110,7 @@ codeunit 137087 "SCM Order Planning - II"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        ReqLine: Record "Requisition Line";
         Quantity: Decimal;
         Quantity2: Decimal;
     begin
@@ -132,7 +128,7 @@ codeunit 137087 "SCM Order Planning - II"
         asserterror MakeSupplyOrdersActiveOrder(SalesHeader."No.");
 
         // Verify that error message is same as accepted during make order when change sales line Quantity after calculate plan.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(QuantityErrorText, Quantity2)) > 0, ErrorText);
+        Assert.ExpectedTestFieldError(ReqLine.FieldCaption("Demand Quantity (Base)"), Format(Quantity2));
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -147,6 +143,7 @@ codeunit 137087 "SCM Order Planning - II"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         Item: Record Item;
+        ReqLine: Record "Requisition Line";
     begin
         // Setup: Create Sales Order planning setup, and change Location on sales line after calculate order planning.
         Initialize();
@@ -160,7 +157,7 @@ codeunit 137087 "SCM Order Planning - II"
         asserterror MakeSupplyOrdersActiveOrder(SalesHeader."No.");
 
         // Verify that error message is same as accepted during make order when change sales line Location Code after calculate plan.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(LocationErrorText, LocationBlue.Code)) > 0, ErrorText);
+        Assert.ExpectedTestFieldError(ReqLine.FieldCaption("Location Code"), LocationBlue.Code);
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -176,6 +173,7 @@ codeunit 137087 "SCM Order Planning - II"
         SalesLine: Record "Sales Line";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         Item: Record Item;
+        ReqLine: Record "Requisition Line";
     begin
         // Setup: Create Sales Order planning setup, and change Unit Of Measure Code on sales line after calculate order planning.
         Initialize();
@@ -191,7 +189,7 @@ codeunit 137087 "SCM Order Planning - II"
         asserterror MakeSupplyOrdersActiveOrder(SalesHeader."No.");
 
         // Verify that error message is same as accepted during make order when change sales line UOM Code after calculate plan.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(UOMErrorText, ItemUnitOfMeasure."Qty. per Unit of Measure")) > 0, ErrorText);
+        Assert.ExpectedTestFieldError(ReqLine.FieldCaption("Qty. per UOM (Demand)"), Format(ItemUnitOfMeasure."Qty. per Unit of Measure"));
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -716,9 +714,9 @@ codeunit 137087 "SCM Order Planning - II"
         FindRequisitionLine(RequisitionLine, ProductionOrder."No.", ChildItem."No.", LocationBlue.Code);
         asserterror RequisitionLine.Validate(Reserve, ReserveOnRequistition);
         if ReserveOnRequistition then
-            Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ReserveError, false)) > 0, ErrorText)
+            Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption(Reserve), Format(false))
         else
-            Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ReserveError, true)) > 0, ErrorText);
+            Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption(Reserve), Format(true))
     end;
 
     [Test]
@@ -1195,7 +1193,7 @@ codeunit 137087 "SCM Order Planning - II"
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // [THEN] Catch an error because Whse. Shipment is still not posted
-        Assert.ExpectedError(PostedWhseShpmtNotExistsErr);
+        Assert.ExpectedErrorCannotFind(Database::"Posted Whse. Shipment Header");
 
         UserSetup.Delete(true);
     end;
@@ -1300,6 +1298,49 @@ codeunit 137087 "SCM Order Planning - II"
 
         // [THEN] "Available for Transfer" shows 50 available pcs for this order (total of 100 pcs minus 50 pcs for order "SO1").
         OrderPlanning.AvailableForTransfer.AssertEquals(Qty);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure RequisitionLinesAreRemovedOnDeleteAllActionOnOrderPlanning()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        SalesHeader: array[2] of Record "Sales Header";
+        OrderPlanning: TestPage "Order Planning";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 542430] Requisition lines are removed when all lines are deleted on Order Planning page 
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(50, 100);
+
+        // [GIVEN] Remove all requisition lines
+        RequisitionLine.DeleteAll();
+
+        // [GIVEN] Item with 100 pcs stored on location "Blue".
+        LibraryInventory.CreateItem(Item);
+        UpdateItemInventory(2 * Qty, Item."No.", LocationBlue.Code);
+
+        // [GIVEN] Two sales orders "SO1", "SO2" on location "Red", each order for 50 pcs.
+        CreateSalesOrder(SalesHeader[1], Item."No.", LocationRed.Code, Qty, Qty);
+        CreateSalesOrder(SalesHeader[2], Item."No.", LocationRed.Code, Qty, Qty);
+
+        // [WHEN] Calculate plan
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // [THEN] Verify Requisition lines are created
+        RequisitionLine.SetRange("User ID", UserId);
+        RequisitionLine.SetRange("Worksheet Template Name", '');
+        Assert.RecordIsNotEmpty(RequisitionLine);
+
+        // [WHEN] Open order planning page and call Delete All action
+        OrderPlanning.OpenEdit();
+        OrderPlanning."Delete All".Invoke();
+
+        // [THEN] Verify Requisition lines are removed
+        RequisitionLine.SetRange("User ID", UserId);
+        RequisitionLine.SetRange("Worksheet Template Name", '');
+        Assert.RecordIsEmpty(RequisitionLine);
     end;
 
     local procedure Initialize()
@@ -1578,12 +1619,10 @@ codeunit 137087 "SCM Order Planning - II"
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
-        with ServiceLine do begin
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type::Item, ItemNo);
-            Validate("Service Item Line No.", ServiceItemLine."Line No.");
-            Validate(Quantity, Qty);
-            Modify(true);
-        end;
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Quantity, Qty);
+        ServiceLine.Modify(true);
     end;
 
     local procedure CreateServiceOrderWithServiceLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ItemNo: Code[20]; Location: Record Location)
@@ -1634,16 +1673,14 @@ codeunit 137087 "SCM Order Planning - II"
         JobPlanningLine: Record "Job Planning Line";
         LibraryJob: Codeunit "Library - Job";
     begin
-        with JobPlanningLine do begin
-            LibraryJob.CreateJobPlanningLine("Line Type"::Budget, Type::Item, JobTask, JobPlanningLine);
-            InitJobPlanningLine();
-            Validate("Location Code", LocationCode);
-            Validate("Planning Date", PlanningDate);
-            Validate("No.", ItemNo);
-            Validate("Usage Link", true);
-            Validate(Quantity, PlanningQuantity);
-            Modify(true);
-        end;
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.InitJobPlanningLine();
+        JobPlanningLine.Validate("Location Code", LocationCode);
+        JobPlanningLine.Validate("Planning Date", PlanningDate);
+        JobPlanningLine.Validate("No.", ItemNo);
+        JobPlanningLine.Validate("Usage Link", true);
+        JobPlanningLine.Validate(Quantity, PlanningQuantity);
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure CreateLocation(var Location: Record Location; UseAsInTransit: Boolean)
@@ -1725,14 +1762,12 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ItemTranslation: Record "Item Translation";
     begin
-        with ItemTranslation do begin
-            Init();
-            Validate("Item No.", ItemNo);
-            Validate("Language Code", LanguageCode);
-            Validate(Description, ItemNo + LanguageCode);
-            Insert(true);
-            exit(Description);
-        end;
+        ItemTranslation.Init();
+        ItemTranslation.Validate("Item No.", ItemNo);
+        ItemTranslation.Validate("Language Code", LanguageCode);
+        ItemTranslation.Validate(Description, ItemNo + LanguageCode);
+        ItemTranslation.Insert(true);
+        exit(ItemTranslation.Description);
     end;
 
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
@@ -2144,14 +2179,12 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", DATABASE::"Service Line");
-            SetRange("Source Subtype", ServiceHeaderType);
-            SetRange("Source ID", ServiceHeaderNo);
-            FindFirst();
-            TestField(Quantity, Qty);
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Source Type", DATABASE::"Service Line");
+        ReservationEntry.SetRange("Source Subtype", ServiceHeaderType);
+        ReservationEntry.SetRange("Source ID", ServiceHeaderNo);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField(Quantity, Qty);
     end;
 
     local procedure VerifyNeededQuantities(JobNo: Code[20]; ItemNo: Code[20]; Quantities: array[2] of Decimal)
@@ -2159,11 +2192,9 @@ codeunit 137087 "SCM Order Planning - II"
         OrderPlanning: TestPage "Order Planning";
     begin
         OpenOrderPlanningPage(OrderPlanning, JobNo, ItemNo);
-        with OrderPlanning do begin
-            "Needed Quantity".AssertEquals(Quantities[1]);
-            Next();
-            "Needed Quantity".AssertEquals(Quantities[2]);
-        end;
+        OrderPlanning."Needed Quantity".AssertEquals(Quantities[1]);
+        OrderPlanning.Next();
+        OrderPlanning."Needed Quantity".AssertEquals(Quantities[2]);
     end;
 
     local procedure RestoreSalesReceivableSetup(TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary)
@@ -2195,6 +2226,12 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         GetAlternativeSupply.First();
         GetAlternativeSupply.OK().Invoke();  // Click Ok after selecting first record.
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

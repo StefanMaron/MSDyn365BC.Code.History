@@ -33,7 +33,7 @@ report 11311 "VAT Statement Summary"
             dataitem("VAT Statement Line"; "VAT Statement Line")
             {
                 DataItemLink = "Statement Template Name" = field("Statement Template Name"), "Statement Name" = field(Name);
-                DataItemTableView = sorting("Statement Template Name", "Statement Name") WHERE("Print on Official VAT Form" = const(true));
+                DataItemTableView = sorting("Statement Template Name", "Statement Name") where("Print on Official VAT Form" = const(true));
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
                 }
@@ -271,7 +271,7 @@ report 11311 "VAT Statement Summary"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = sorting(Number) WHERE(Number = filter(1 .. 14));
+                DataItemTableView = sorting(Number) where(Number = filter(1 .. 14));
                 column(VAT_Statement_Name__Name_Control35; "VAT Statement Name".Name)
                 {
                 }

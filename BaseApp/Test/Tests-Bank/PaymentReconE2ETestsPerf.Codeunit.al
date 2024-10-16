@@ -322,18 +322,17 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         GLAcc: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAcc);
-        with CustPostingGroup do
-            if FindSet() then
-                repeat
-                    if "Payment Disc. Debit Acc." = '' then begin
-                        Validate("Payment Disc. Debit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                    if "Payment Disc. Credit Acc." = '' then begin
-                        Validate("Payment Disc. Credit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                until Next() = 0;
+        if CustPostingGroup.FindSet() then
+            repeat
+                if CustPostingGroup."Payment Disc. Debit Acc." = '' then begin
+                    CustPostingGroup.Validate("Payment Disc. Debit Acc.", GLAcc."No.");
+                    CustPostingGroup.Modify(true);
+                end;
+                if CustPostingGroup."Payment Disc. Credit Acc." = '' then begin
+                    CustPostingGroup.Validate("Payment Disc. Credit Acc.", GLAcc."No.");
+                    CustPostingGroup.Modify(true);
+                end;
+            until CustPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
@@ -382,25 +381,22 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     [Scope('OnPrem')]
     procedure PmtApplnToCustHandler(var PmtAppln: TestPage "Payment Application")
     begin
-        with PmtAppln do begin
-            // Remove Entry is not the same customer
-            if AppliedAmount.AsDecimal() <> 0 then
-                if "Account No.".Value <> GlobalCustLedgEntry."Customer No." then begin
-                    Applied.SetValue(false);
-                    Next();
-                end;
-
-            // Go to the first and check that it is the customer and scroll down to find the entry
-            if Applied.AsBoolean() then begin
-                RelatedPartyOpenEntries.Invoke();
-                while Next() and (TotalRemainingAmount.AsDecimal() <> 0) do begin
-                    Applied.SetValue(true);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
+        // Remove Entry is not the same customer
+        if PmtAppln.AppliedAmount.AsDecimal() <> 0 then
+            if PmtAppln."Account No.".Value <> GlobalCustLedgEntry."Customer No." then begin
+                PmtAppln.Applied.SetValue(false);
+                PmtAppln.Next();
             end;
-
-            OK().Invoke();
+        // Go to the first and check that it is the customer and scroll down to find the entry
+        if PmtAppln.Applied.AsBoolean() then begin
+            PmtAppln.RelatedPartyOpenEntries.Invoke();
+            while PmtAppln.Next() and (PmtAppln.TotalRemainingAmount.AsDecimal() <> 0) do begin
+                PmtAppln.Applied.SetValue(true);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
         end;
+
+        PmtAppln.OK().Invoke();
     end;
 
     [ModalPageHandler]

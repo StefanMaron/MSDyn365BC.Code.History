@@ -1252,26 +1252,23 @@ codeunit 134483 "ERM Change Global Dimensions"
 
         // [WHEN] COD408.DefaultDimObjectNoWithGlobalDimsList() returns a list of tables 'A'
         DimensionManagement.DefaultDimObjectNoWithGlobalDimsList(TempAllObjWithCaptionByCOD408);
-
         // [THEN] The list 'A' contains 134482, but not 134483, 134484, 134485, 134486.
         // [THEN] The list 'A' does not contain: 349, 379, 380, 397, 5223, 8383.
         // [THEN] The list 'A' does not contain exceptions: 98, 1001.
-        with TempAllObjWithCaptionByCOD408 do begin
-            Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Table With Default Dim"), '134482');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Table With Dimension Set ID"), '134483');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Table With Dim Flowfilter"), '134484');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Entry With Global Dim"), '134485');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Dtld. Entry With Global Dim 2"), '134486');
-            // Exceptions in W1
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Dimension Value"), '349');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Cust. Ledg. Entry"), '379');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Vendor Ledg. Entry"), '380');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Employee Ledger Entry"), '5223');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Dimensions Field Map"), '8383');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"General Ledger Setup"), '98');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Job Task"), '1001');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Change Global Dim. Header"), '484');
-        end;
+        Assert.IsTrue(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Table With Default Dim"), '134482');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Table With Dimension Set ID"), '134483');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Table With Dim Flowfilter"), '134484');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Detailed Entry With Global Dim"), '134485');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Dtld. Entry With Global Dim 2"), '134486');
+        // Exceptions in W1
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Dimension Value"), '349');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Detailed Cust. Ledg. Entry"), '379');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Detailed Vendor Ledg. Entry"), '380');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Detailed Employee Ledger Entry"), '5223');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Dimensions Field Map"), '8383');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"General Ledger Setup"), '98');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Job Task"), '1001');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Change Global Dim. Header"), '484');
     end;
 
     [Test]
@@ -1299,24 +1296,21 @@ codeunit 134483 "ERM Change Global Dimensions"
 
         // [WHEN] COD408.GlobalDimObjectNoList() returns a list of tables 'A'
         DimensionManagement.GlobalDimObjectNoList(TempAllObjWithCaptionByCOD408);
-
         // [THEN] The list 'A' contains 134483, 134485 and 134486, but not 134482 nor 134484
         // [THEN] The list 'A' does contain: 379, 380, 5223.
         // [THEN] The list 'A' does not contain exceptions: 98, 1001.
-        with TempAllObjWithCaptionByCOD408 do begin
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Table With Default Dim"), '134482');
-            Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Table With Dimension Set ID"), '134483');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Table With Dim Flowfilter"), '134484');
-            Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Detailed Entry With Global Dim"), '134485');
-            Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Dtld. Entry With Global Dim 2"), '134486');
-            // Dependent tables
-            Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Detailed Cust. Ledg. Entry"), '379');
-            Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Detailed Vendor Ledg. Entry"), '380');
-            Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Detailed Employee Ledger Entry"), '5223');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Table With Default Dim"), '134482');
+        Assert.IsTrue(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Table With Dimension Set ID"), '134483');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Table With Dim Flowfilter"), '134484');
+        Assert.IsTrue(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Detailed Entry With Global Dim"), '134485');
+        Assert.IsTrue(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Dtld. Entry With Global Dim 2"), '134486');
+        // Dependent tables
+        Assert.IsTrue(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Detailed Cust. Ledg. Entry"), '379');
+        Assert.IsTrue(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Detailed Vendor Ledg. Entry"), '380');
+        Assert.IsTrue(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Detailed Employee Ledger Entry"), '5223');
 
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"General Ledger Setup"), '98');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Job Task"), '1001');
-        end;
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"General Ledger Setup"), '98');
+        Assert.IsFalse(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Job Task"), '1001');
     end;
 
     [Test]
@@ -1332,12 +1326,9 @@ codeunit 134483 "ERM Change Global Dimensions"
         Initialize();
         // [WHEN] COD408.JobTaskDimObjectNoList() returns a list of tables
         DimensionManagement.JobTaskDimObjectNoList(TempAllObjWithCaptionByCOD408);
-
         // [THEN] The list contains one table "Job Task"
-        with TempAllObjWithCaptionByCOD408 do begin
-            Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Job Task"), '1001');
-            Assert.AreEqual(1, Count, 'total count');
-        end;
+        Assert.IsTrue(TempAllObjWithCaptionByCOD408.Get(TempAllObjWithCaptionByCOD408."Object Type"::Table, DATABASE::"Job Task"), '1001');
+        Assert.AreEqual(1, TempAllObjWithCaptionByCOD408.Count, 'total count');
     end;
 
     [Test]
@@ -3994,34 +3985,31 @@ codeunit 134483 "ERM Change Global Dimensions"
         ActiveSession: Record "Active Session";
         i: Integer;
     begin
-        with ActiveSession do begin
-            SetFilter("Session ID", '<>%1', SessionId());
-            DeleteAll();
-            Reset();
-            FindFirst();
-            "Session ID" := 0;
-            for "Client Type" := "Client Type"::"Web Service" to "Client Type"::"Management Client" do begin
-                "Session ID" -= 1;
-                "Session Unique ID" := CreateGuid();
-                if "Client Type" <> "Client Type"::Background then
-                    Insert();
-            end;
-            "Client Type" := "Client Type"::Background;
-            for i := 1 to NoOfSessions do begin
-                "Session ID" -= 1;
-                "Session Unique ID" := CreateGuid();
-                Insert();
-                "Client Type" := "Client Type"::"Web Client";
-            end;
-            LastSessionID := "Session ID";
-
-            // Session for another ServiceID
-            "Client Type" := "Client Type"::"Web Client";
-            "Session ID" := "Session ID";
-            "Server Instance ID" := ServiceInstanceId() + 1000;
-            "Session Unique ID" := CreateGuid();
-            Insert();
+        ActiveSession.SetFilter("Session ID", '<>%1', SessionId());
+        ActiveSession.DeleteAll();
+        ActiveSession.Reset();
+        ActiveSession.FindFirst();
+        ActiveSession."Session ID" := 0;
+        for ActiveSession."Client Type" := ActiveSession."Client Type"::"Web Service" to ActiveSession."Client Type"::"Management Client" do begin
+            ActiveSession."Session ID" -= 1;
+            ActiveSession."Session Unique ID" := CreateGuid();
+            if ActiveSession."Client Type" <> ActiveSession."Client Type"::Background then
+                ActiveSession.Insert();
         end;
+        ActiveSession."Client Type" := ActiveSession."Client Type"::Background;
+        for i := 1 to NoOfSessions do begin
+            ActiveSession."Session ID" -= 1;
+            ActiveSession."Session Unique ID" := CreateGuid();
+            ActiveSession.Insert();
+            ActiveSession."Client Type" := ActiveSession."Client Type"::"Web Client";
+        end;
+        LastSessionID := ActiveSession."Session ID";
+        // Session for another ServiceID
+        ActiveSession."Client Type" := ActiveSession."Client Type"::"Web Client";
+        ActiveSession."Session ID" := ActiveSession."Session ID";
+        ActiveSession."Server Instance ID" := ServiceInstanceId() + 1000;
+        ActiveSession."Session Unique ID" := CreateGuid();
+        ActiveSession.Insert();
     end;
 
     local procedure MockJobQueueLogEntries(var JobQueueLogEntry: array[3] of Record "Job Queue Log Entry"; ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
@@ -4225,14 +4213,12 @@ codeunit 134483 "ERM Change Global Dimensions"
     var
         DetailedEntryWithGlobalDim: Record "Detailed Entry With Global Dim";
     begin
-        with DetailedEntryWithGlobalDim do begin
-            SetRange("Parent Entry No.", TableWithDimensionSetID."Entry No.");
-            FindSet();
-            repeat
-                TestField("Initial Entry Global Dim. 1", TableWithDimensionSetID."Global Dimension 1 Code");
-                TestField("Initial Entry Global Dim. 2", TableWithDimensionSetID."Shortcut Dimension 2 Code");
-            until Next() = 0;
-        end;
+        DetailedEntryWithGlobalDim.SetRange("Parent Entry No.", TableWithDimensionSetID."Entry No.");
+        DetailedEntryWithGlobalDim.FindSet();
+        repeat
+            DetailedEntryWithGlobalDim.TestField("Initial Entry Global Dim. 1", TableWithDimensionSetID."Global Dimension 1 Code");
+            DetailedEntryWithGlobalDim.TestField("Initial Entry Global Dim. 2", TableWithDimensionSetID."Shortcut Dimension 2 Code");
+        until DetailedEntryWithGlobalDim.Next() = 0;
     end;
 
     local procedure VerifyLogEntryAfterUpdate(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ModifyCount: Integer; var ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions")

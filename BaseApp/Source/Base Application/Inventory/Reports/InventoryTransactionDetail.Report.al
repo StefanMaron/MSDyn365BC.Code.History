@@ -162,6 +162,8 @@ report 704 "Inventory - Transaction Detail"
 
     requestpage
     {
+        AboutTitle = 'About Inventory - Transaction Detail';
+        AboutText = 'View a history of inventory transaction details with a running total of inventory during a period defined in the Date Filter.';
         SaveValues = true;
 
         layout

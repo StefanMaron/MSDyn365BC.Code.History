@@ -467,14 +467,20 @@ report 86 "Adjust Add. Reporting Currency"
         Text001Err: Label 'Enter Retained Earnings Account No.';
         Text002Txt: Label 'Processing VAT Entries @1@@@@@@@@@@\';
         Text003Txt: Label 'Processing G/L Entries...\\';
+#pragma warning disable AA0470
         Text004Txt: Label 'Posting Date #1##########\';
         Text006Txt: Label 'Item No. #1##########\';
+#pragma warning restore AA0470
         Text007Txt: Label 'Processing Project Ledger Entries...\\';
+#pragma warning disable AA0470
         Text008Txt: Label 'Project No. #1##########\';
+#pragma warning restore AA0470
         Text010Txt: Label 'Residual caused by rounding of %1', Comment = '%1 - additional currency amount';
         Text011Txt: Label 'Processing Value Entries...\\';
         Text012Txt: Label 'Processing Cost Entries...\\';
+#pragma warning disable AA0470
         Text99000002Txt: Label 'Prod. Order No. #1##########\';
+#pragma warning restore AA0470
         Text99000004Txt: Label 'Processing Finished Prod. Order Lines...\\';
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 

@@ -47,8 +47,10 @@ page 455 "Fin. Charge Comment List"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'untitled', Comment = 'it is a caption for empty page';
         Text001: Label 'Fin. Charge Memo';
+#pragma warning restore AA0074
 
     procedure Caption(FinChrgCommentLine: Record "Fin. Charge Comment Line"): Text
     begin

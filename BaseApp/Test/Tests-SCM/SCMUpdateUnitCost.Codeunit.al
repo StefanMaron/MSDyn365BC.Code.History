@@ -10,7 +10,6 @@ codeunit 137211 "SCM Update Unit Cost"
     end;
 
     var
-        Item: Record Item;
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
@@ -84,70 +83,70 @@ codeunit 137211 "SCM Update Unit Cost"
     [Scope('OnPrem')]
     procedure AvgParentStdCompNoUpd()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::Average, Item."Costing Method"::Standard, false);
+        TestUpdateUnitCost(Enum::"Costing Method"::Average, Enum::"Costing Method"::Standard, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure AvgParentStdCompUpdRes()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::Average, Item."Costing Method"::Standard, true);
+        TestUpdateUnitCost(Enum::"Costing Method"::Average, Enum::"Costing Method"::Standard, true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure AvgParentAvgCompNoUpd()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::Average, Item."Costing Method"::Average, false);
+        TestUpdateUnitCost(Enum::"Costing Method"::Average, Enum::"Costing Method"::Average, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure AvgParentAvgCompUpd()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::Average, Item."Costing Method"::Average, true);
+        TestUpdateUnitCost(Enum::"Costing Method"::Average, Enum::"Costing Method"::Average, true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure StdParentAvgCompUpd()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::Standard, Item."Costing Method"::Average, true);
+        TestUpdateUnitCost(Enum::"Costing Method"::Standard, Enum::"Costing Method"::Average, true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure StdParentAvgCompNoUpd()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::Standard, Item."Costing Method"::Average, false);
+        TestUpdateUnitCost(Enum::"Costing Method"::Standard, Enum::"Costing Method"::Average, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure StdParentStdCompUpdRes()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::Standard, Item."Costing Method"::Standard, true);
+        TestUpdateUnitCost(Enum::"Costing Method"::Standard, Enum::"Costing Method"::Standard, true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure StdParentStdCompNoUpd()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::Standard, Item."Costing Method"::Standard, false);
+        TestUpdateUnitCost(Enum::"Costing Method"::Standard, Enum::"Costing Method"::Standard, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure AvgParentFIFOCompNoUpd()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::Average, Item."Costing Method"::FIFO, false);
+        TestUpdateUnitCost(Enum::"Costing Method"::Average, Enum::"Costing Method"::FIFO, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure FIFOParentAvgCompUpdRes()
     begin
-        TestUpdateUnitCost(Item."Costing Method"::FIFO, Item."Costing Method"::Average, true);
+        TestUpdateUnitCost(Enum::"Costing Method"::FIFO, Enum::"Costing Method"::Average, true);
     end;
 
     [Test]
@@ -207,7 +206,7 @@ codeunit 137211 "SCM Update Unit Cost"
         // [THEN] Unit Cost on the prod. order line for "P" = 2.5 LCY (1 "BOX" costs 10.0 LCY, 1 "PCS" therefore costs 2.5 LCY).
         ProdOrderLine.SetRange("Item No.", ProdItem."No.");
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
-        ProdOrderLine.TestField("Unit Cost", CompItem."Unit Cost" * QtyPerBaseUOM);
+        ProdOrderLine.TestField("Unit Cost", Round(CompItem."Unit Cost" * QtyPerBaseUOM));
     end;
 
     [Normal]

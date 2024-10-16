@@ -197,7 +197,10 @@ report 99001023 "Get Action Messages"
         CurrWorksheetName: Code[10];
         PlanningLinesInserted: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Item No.  #2##################';
+#pragma warning restore AA0470
         Text001: Label 'Building action message list...';
         Text002: Label 'Some items within the filter already exist on the planning lines.\Action messages that are related to these items will not be processed.\\Do you want to see a list of the unprocessed items?';
         Text005: Label 'Do you want to continue?';
@@ -205,6 +208,7 @@ report 99001023 "Get Action Messages"
         Text007: Label 'Processing action messages...';
         Text008: Label 'No action messages exist.';
         Text009: Label 'GetActionMessages: Illegal Action Message relation.';
+#pragma warning restore AA0074
 
     procedure SetTemplAndWorksheet(TemplateName: Code[10]; WorksheetName: Code[10])
     begin

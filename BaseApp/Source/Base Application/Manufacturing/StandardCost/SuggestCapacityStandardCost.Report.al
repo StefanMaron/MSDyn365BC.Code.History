@@ -219,11 +219,15 @@ report 5852 "Suggest Capacity Standard Cost"
         WindowUpdateDateTime: DateTime;
         WorkSheetSource: Option All,"Work Center","Machine Center",Resource;
 
+#pragma warning disable AA0074
         Text004: Label 'You must specify a worksheet name to copy to.';
         Text007: Label 'Copying worksheet...\\';
+#pragma warning disable AA0470
         Text008: Label 'Work Center No. #1####################\';
         Text009: Label 'Machine Center No. #1####################\';
         Text010: Label 'Resource No. #1####################\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure InsertStdCostWksh(Type2: Option; No2: Code[20])
     begin

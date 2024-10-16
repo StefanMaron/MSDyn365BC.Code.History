@@ -89,7 +89,6 @@ codeunit 560 "CrossIntercompany Connector"
         end;
     end;
 
-    [NonDebuggable]
     internal procedure RequestICPartnerRecordsFromEntityName(ICPartner: Record "IC Partner"; EntityName: Text): JsonArray
     var
         QueryURL: Text;
@@ -99,7 +98,6 @@ codeunit 560 "CrossIntercompany Connector"
         exit(GetRequest(QueryURL, HttpResponseBodyText, ICPartner));
     end;
 
-    [NonDebuggable]
     internal procedure RequestICPartnerGeneralLedgerSetup(ICPartner: Record "IC Partner"): JsonArray
     var
         QueryURL: Text;
@@ -109,7 +107,6 @@ codeunit 560 "CrossIntercompany Connector"
         exit(GetRequest(QueryURL, HttpResponseBodyText, ICPartner));
     end;
 
-    [NonDebuggable]
     internal procedure RequestICPartnerCompanyInformation(ICPartner: Record "IC Partner"): JsonArray
     var
         QueryURL: Text;
@@ -119,7 +116,6 @@ codeunit 560 "CrossIntercompany Connector"
         exit(GetRequest(QueryURL, HttpResponseBodyText, ICPartner));
     end;
 
-    [NonDebuggable]
     internal procedure RequestICPartnerBankAccount(ICPartner: Record "IC Partner"): JsonArray
     var
         QueryURL: Text;
@@ -129,7 +125,6 @@ codeunit 560 "CrossIntercompany Connector"
         exit(GetRequest(QueryURL, HttpResponseBodyText, ICPartner));
     end;
 
-    [NonDebuggable]
     [TryFunction]
     internal procedure RequestICPartnerICOutgoingNotification(ICPartner: Record "IC Partner"; OperationID: Guid; var ResponseJsonObject: JsonObject)
     var
@@ -141,7 +136,6 @@ codeunit 560 "CrossIntercompany Connector"
         ResponseJsonObject := ParseObjectData(HttpResponseBodyText);
     end;
 
-    [NonDebuggable]
     local procedure GetRequest(QueryURL: Text; var HttpResponseBodyText: Text; var ICPartner: Record "IC Partner"): JsonArray
     begin
         Send('GET', QueryURL, '', HttpResponseBodyText, ICPartner);
@@ -160,7 +154,6 @@ codeunit 560 "CrossIntercompany Connector"
         exit(false);
     end;
 
-    [NonDebuggable]
     [TryFunction]
     procedure SubmitRecordsToICPartnerFromEntityName(ICPartner: Record "IC Partner"; Content: Text; EntityName: Text; var ResultResponse: JsonObject)
     var
@@ -172,7 +165,6 @@ codeunit 560 "CrossIntercompany Connector"
         ResultResponse := ParseObjectData(HttpResponseBodyText);
     end;
 
-    [NonDebuggable]
     [TryFunction]
     internal procedure NotifyICPartnerFromBoundAction(ICPartner: Record "IC Partner"; EntityID: Guid; BoundActionName: Text)
     var
@@ -183,7 +175,6 @@ codeunit 560 "CrossIntercompany Connector"
         PostRequest(QueryURL, '', HttpResponseBodyText, ICPartner);
     end;
 
-    [NonDebuggable]
     procedure SubmitJobQueueEntryToICPartner(ICPartner: Record "IC Partner"; Content: Text; JsonFieldKey: Text; JsonFieldExpectedValue: Text): Boolean
     var
         QueryURL: Text;
@@ -198,7 +189,6 @@ codeunit 560 "CrossIntercompany Connector"
         exit(AttributeJsonToken.AsValue().AsText() = JsonFieldExpectedValue);
     end;
 
-    [NonDebuggable]
     [TryFunction]
     local procedure PostRequest(QueryURL: Text; Content: Text; var HttpResponseBodyText: Text; var ICPartner: Record "IC Partner")
     begin
@@ -206,7 +196,6 @@ codeunit 560 "CrossIntercompany Connector"
     end;
 
     [TryFunction]
-    [NonDebuggable]
     internal procedure Send(Method: Text; Uri: Text; Content: Text; var HttpResponseBodyText: Text; var ICPartner: Record "IC Partner")
     var
         HttpClient: HttpClient;
@@ -223,7 +212,6 @@ codeunit 560 "CrossIntercompany Connector"
         HandleHttpResponse(HttpResponseMessage);
     end;
 
-    [NonDebuggable]
     local procedure PrepareHeaders(HttpRequestMessage: HttpRequestMessage; var ICPartner: Record "IC Partner")
     var
         HttpRequestHeaders: HttpHeaders;
@@ -232,10 +220,9 @@ codeunit 560 "CrossIntercompany Connector"
 
         HttpRequestHeaders.Add('Accept', 'application/json');
         HttpRequestHeaders.Add('Accept-Language', 'en-US');
-        HttpRequestHeaders.Add('Authorization', 'Bearer ' + GetBearerAccessToken(ICPartner));
+        HttpRequestHeaders.Add('Authorization', SecretStrSubstNo('Bearer %1', GetBearerAccessToken(ICPartner)));
     end;
 
-    [NonDebuggable]
     local procedure PrepareContent(HttpRequestMessage: HttpRequestMessage; Content: Text)
     var
         HttpContent: HttpContent;
@@ -290,10 +277,9 @@ codeunit 560 "CrossIntercompany Connector"
         Error(FriendlyErrorMsg);
     end;
 
-    [NonDebuggable]
-    internal procedure GetBearerAccessToken(var ICPartner: Record "IC Partner"): Text
+    internal procedure GetBearerAccessToken(var ICPartner: Record "IC Partner"): SecretText
     var
-        Token: Text;
+        Token: SecretText;
     begin
         if (ICPartner."Token Expiration Time" <= CurrentDateTime) then begin
             Token := AcquireBearerAccessToken(ICPartner);
@@ -309,21 +295,22 @@ codeunit 560 "CrossIntercompany Connector"
     end;
 
     [NonDebuggable]
-    internal procedure AcquireBearerAccessToken(var ICPartner: Record "IC Partner"): Text
+    internal procedure AcquireBearerAccessToken(var ICPartner: Record "IC Partner"): SecretText
     var
         EnvironmentInformation: Codeunit "Environment Information";
         OAuth2: Codeunit OAuth2;
         Scopes: List of [Text];
-        ClientId, ClientSecret, TokenEndpoint, RedirectURL : Text;
-        BearerAccessToken: Text;
+        ClientId, TokenEndpoint, RedirectURL : Text;
+        ClientSecret: SecretText;
+        BearerAccessToken: SecretText;
     begin
         if not EnvironmentInformation.IsSaaSInfrastructure() then
             Error(NonSaaSEnvironmentErr);
 
-        ClientId := ICPartner.GetSecret(ICPartner."Client Id Key");
+        ClientId := ICPartner.GetSecret(ICPartner."Client Id Key").Unwrap();
         ClientSecret := ICPartner.GetSecret(ICPartner."Client Secret Key");
-        TokenEndpoint := ICPartner.GetSecret(ICPartner."Token Endpoint Key");
-        RedirectURL := ICPartner.GetSecret(ICPartner."Redirect URL Key");
+        TokenEndpoint := ICPartner.GetSecret(ICPartner."Token Endpoint Key").Unwrap();
+        RedirectURL := ICPartner.GetSecret(ICPartner."Redirect URL Key").Unwrap();
         Scopes.Add(BCResourceURLScopeTok);
 
         OAuth2.AcquireTokenWithClientCredentials(ClientId, ClientSecret, TokenEndpoint, RedirectURL, Scopes, BearerAccessToken);
@@ -361,19 +348,16 @@ codeunit 560 "CrossIntercompany Connector"
         end;
     end;
 
-    [NonDebuggable]
     local procedure BuildQueryURL(ICPartner: Record "IC Partner"; APIVersion: Text; EntityName: Text): Text
     begin
         exit(BuildQueryURL(ICPartner, CrossEnvironmentAPIsPathTok, APIVersion, EntityName, EmptyGuid, ''));
     end;
 
-    [NonDebuggable]
     local procedure BuildQueryURL(ICPartner: Record "IC Partner"; APIPath: Text; APIVersion: Text; EntityName: Text): Text
     begin
         exit(BuildQueryURL(ICPartner, APIPath, APIVersion, EntityName, EmptyGuid, ''));
     end;
 
-    [NonDebuggable]
     local procedure BuildExpandedQueryURL(ICPartner: Record "IC Partner"; EntityID: Guid): Text
     var
         OperationTxt: Text;
@@ -382,7 +366,6 @@ codeunit 560 "CrossIntercompany Connector"
         exit(BuildQueryURL(ICPartner, CrossEnvironmentAPIsPathTok, V1VersionTok, ICOutgoingNotificationTok, EntityID, OperationTxt));
     end;
 
-    [NonDebuggable]
     local procedure BuildBoundActionQueryURL(ICPartner: Record "IC Partner"; EntityID: Guid; BoundActionName: Text): Text
     var
         OperationTxt: Text;
@@ -396,13 +379,12 @@ codeunit 560 "CrossIntercompany Connector"
     var
         Result: Text;
     begin
-        Result := ICPartner.GetSecret(ICPartner."Connection Url Key") + StrSubstNo(APIPath, APIVersion) + '(' + RemoveCurlyBracketsAndUpperCases(ICPartner.GetSecret(ICPartner."Company Id Key")) + ')/' + EntityName;
+        Result := ICPartner.GetSecret(ICPartner."Connection Url Key").Unwrap() + StrSubstNo(APIPath, APIVersion) + '(' + RemoveCurlyBracketsAndUpperCases(ICPartner.GetSecret(ICPartner."Company Id Key").Unwrap()) + ')/' + EntityName;
         if EntityID <> EmptyGuid then
             Result += '(' + RemoveCurlyBracketsAndUpperCases(EntityID) + ')' + OperationTxt;
         exit(Result);
     end;
 
-    [NonDebuggable]
     internal procedure RemoveCurlyBracketsAndUpperCases(Input: Guid): Text
     begin
         exit(LowerCase(DelChr(Input, '=', '{}')));

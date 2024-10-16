@@ -278,14 +278,21 @@ table 1234 "CSV Buffer"
         CurrentIndex: Integer;
         NextIndex: Integer;
         Length: Integer;
+        StartQuoteIndex: Integer;
+        EndQuoteIndex: Integer;
+        QuoteTok: Label '"', Comment = 'Token for the a quote', Locked = true;
     begin
         if StreamReader.EndOfStream then
             exit(false);
 
         repeat
+            StartQuoteIndex := -1;
+            EndQuoteIndex := -1;
             String := StreamReader.ReadLine();
             CurrentLineNo += 1;
             CurrentIndex := 0;
+            StartQuoteIndex := String.IndexOf(QuoteTok, CurrentIndex);
+            EndQuoteIndex := String.IndexOf(QuoteTok, StartQuoteIndex + 1);
             repeat
                 CurrentFieldNo += 1;
 
@@ -294,6 +301,13 @@ table 1234 "CSV Buffer"
                 Rec."Field No." := CurrentFieldNo;
 
                 NextIndex := String.IndexOf(Separator, CurrentIndex);
+                if (EndQuoteIndex >= 0) and (EndQuoteIndex < CurrentIndex) then begin // Re-look for "
+                    StartQuoteIndex := String.IndexOf(QuoteTok, CurrentIndex);
+                    EndQuoteIndex := String.IndexOf(QuoteTok, StartQuoteIndex + 1);
+                end;
+                if (NextIndex > StartQuoteIndex) and (NextIndex < EndQuoteIndex) then // if seperator is inside opening and closing quote, then treat it as part of the string
+                    NextIndex := String.IndexOf(Separator, EndQuoteIndex + 1);
+
                 if NextIndex = -1 then
                     Length := String.Length - CurrentIndex
                 else

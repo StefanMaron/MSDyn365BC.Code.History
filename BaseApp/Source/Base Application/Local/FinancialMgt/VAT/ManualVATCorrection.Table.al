@@ -56,7 +56,7 @@ table 11301 "Manual VAT Correction"
         }
         field(8; "Row No."; Code[10])
         {
-            CalcFormula = Lookup("VAT Statement Line"."Row No." where("Statement Template Name" = field("Statement Template Name"),
+            CalcFormula = lookup("VAT Statement Line"."Row No." where("Statement Template Name" = field("Statement Template Name"),
                                                                        "Statement Name" = field("Statement Name"),
                                                                        "Line No." = field("Statement Line No.")));
             Caption = 'Row No.';

@@ -607,6 +607,9 @@ report 5912 "Service - Credit Memo"
                         column(ShiptoAddressCaption; ShiptoAddressCaptionLbl)
                         {
                         }
+                        column(ShipToPhoneNo; "Service Cr.Memo Header"."Ship-to Phone")
+                        {
+                        }
                         column(Cust_ServCrMemoHeaderCaption; "Service Cr.Memo Header".FieldCaption("Customer No."))
                         {
                         }
@@ -776,10 +779,16 @@ report 5912 "Service - Credit Memo"
         NoText: Text[50];
         SubtotalCaptionLbl: Label 'Subtotal';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '(Applies to %1 %2)';
+#pragma warning restore AA0470
         Text004: Label 'COPY';
+#pragma warning disable AA0470
         Text005: Label 'Service - Credit Memo %1';
         Text006: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PaymentDiscountonVATCaptionLbl: Label 'Payment Discount on VAT';
         UnitPriceCaptionLbl: Label 'Unit Price';
         AmountCaptionLbl: Label 'Amount';
@@ -796,7 +805,9 @@ report 5912 "Service - Credit Memo"
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';
         ReturnReceiptCaptionLbl: Label 'Return Receipt';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
+#pragma warning disable AA0074
         VATClausesCap: Label 'VAT Clause';
+#pragma warning restore AA0074
         VATAmountLineVATCaptionLbl: Label 'VAT %';
         VATBaseCaptionLbl: Label 'VAT Base';
         VATAmountLineVATAmnCaptionLbl: Label 'VAT Amount';
@@ -941,10 +952,12 @@ report 5912 "Service - Credit Memo"
     end;
 
     local procedure FormatAddressFields(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    var
+        ServiceFormatAddress: Codeunit "Service Format Address";
     begin
         FormatAddr.GetCompanyAddr(ServiceCrMemoHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-        FormatAddr.ServiceCrMemoBillTo(CustAddr, ServiceCrMemoHeader);
-        ShowShippingAddr := FormatAddr.ServiceCrMemoShipTo(ShipToAddr, CustAddr, ServiceCrMemoHeader);
+        ServiceFormatAddress.ServiceCrMemoBillTo(CustAddr, ServiceCrMemoHeader);
+        ShowShippingAddr := ServiceFormatAddress.ServiceCrMemoShipTo(ShipToAddr, CustAddr, ServiceCrMemoHeader);
     end;
 
     local procedure FormatDocumentFields(ServiceCrMemoHeader: Record "Service Cr.Memo Header")

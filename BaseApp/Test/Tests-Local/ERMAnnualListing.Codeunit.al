@@ -868,12 +868,10 @@ codeunit 144005 "ERM Annual Listing"
     local procedure PrepareCustomer(var Customer: Record Customer; CountryCode: Code[10])
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            "Country/Region Code" := CountryCode;
-            "VAT Registration No." := CreateVatRegNo(CountryCode);
-            "Enterprise No." := CreateEnterpriseNo();
-            Modify();
-        end;
+        Customer."Country/Region Code" := CountryCode;
+        Customer."VAT Registration No." := CreateVatRegNo(CountryCode);
+        Customer."Enterprise No." := CreateEnterpriseNo();
+        Customer.Modify();
     end;
 
     local procedure CreateAndPostSalesDocumentInPeriod(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; DocDate: Date)
@@ -882,12 +880,10 @@ codeunit 144005 "ERM Annual Listing"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        with SalesHeader do begin
-            Validate("Order Date", DocDate);
-            Validate("Posting Date", DocDate);
-            Validate("Shipment Date", DocDate);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Order Date", DocDate);
+        SalesHeader.Validate("Posting Date", DocDate);
+        SalesHeader.Validate("Shipment Date", DocDate);
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDecInRange(10, 20, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -913,14 +909,12 @@ codeunit 144005 "ERM Annual Listing"
     var
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
     begin
-        with VATRegistrationNoFormat do begin
-            SetRange("Country/Region Code", CountryCode);
-            if FindLast() then;
-            "Country/Region Code" := CountryCode;
-            "Line No." += 10000;
-            Format := FormatText;
-            Insert();
-        end;
+        VATRegistrationNoFormat.SetRange("Country/Region Code", CountryCode);
+        if VATRegistrationNoFormat.FindLast() then;
+        VATRegistrationNoFormat."Country/Region Code" := CountryCode;
+        VATRegistrationNoFormat."Line No." += 10000;
+        VATRegistrationNoFormat.Format := FormatText;
+        VATRegistrationNoFormat.Insert();
     end;
 
     local procedure GetVATRegNoFormatText(): Text[20]
@@ -959,35 +953,29 @@ codeunit 144005 "ERM Annual Listing"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure FindLastInvoiceAmount(CustomerNo: Code[20]): Decimal
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            FindLast();
-            CalcFields(Amount);
-            exit(Amount);
-        end;
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesInvoiceHeader.FindLast();
+        SalesInvoiceHeader.CalcFields(Amount);
+        exit(SalesInvoiceHeader.Amount);
     end;
 
     local procedure FindLastCrMemoAmount(CustomerNo: Code[20]): Decimal
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with SalesCrMemoHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            FindLast();
-            CalcFields(Amount);
-            exit(Amount);
-        end;
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesCrMemoHeader.FindLast();
+        SalesCrMemoHeader.CalcFields(Amount);
+        exit(SalesCrMemoHeader.Amount);
     end;
 
     local procedure FormatDecimalForXML(DecimalValue: Decimal): Text
@@ -1096,12 +1084,10 @@ codeunit 144005 "ERM Annual Listing"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        with SalesHeader do begin
-            Validate("Order Date", DocDate);
-            Validate("Posting Date", DocDate);
-            Validate("Shipment Date", DocDate);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Order Date", DocDate);
+        SalesHeader.Validate("Posting Date", DocDate);
+        SalesHeader.Validate("Shipment Date", DocDate);
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDecInRange(10, 20, 2));
 
@@ -1127,12 +1113,10 @@ codeunit 144005 "ERM Annual Listing"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        with SalesHeader do begin
-            Validate("Order Date", DocDate);
-            Validate("Posting Date", DocDate);
-            Validate("Shipment Date", DocDate);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Order Date", DocDate);
+        SalesHeader.Validate("Posting Date", DocDate);
+        SalesHeader.Validate("Shipment Date", DocDate);
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDecInRange(12, 14, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);

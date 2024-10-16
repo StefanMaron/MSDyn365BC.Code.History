@@ -2,9 +2,6 @@ namespace Microsoft.Projects.Resources.Setup;
 
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Projects.TimeSheet;
-#if not CLEAN22
-using System.Telemetry;
-#endif
 
 table 314 "Resources Setup"
 {
@@ -65,32 +62,18 @@ table 314 "Resources Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
             ObsoleteReason = 'Replacement of NewTimeSheetExperience feature key until removal of old one.';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
-#if not CLEAN22
-            trigger OnValidate()
-            var
-                FeatureTelemetry: Codeunit "Feature Telemetry";
-                TimeSheetManagement: Codeunit "Time Sheet Management";
-            begin
-                if "Use New Time Sheet Experience" then begin
-                    FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::Discovered);
-                    FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::"Set up");
-                end else
-                    FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::Undiscovered);
-            end;
-#endif
         }
         field(954; "Time Sheet Submission Policy"; Option)
         {
             Caption = 'Time Sheet Submission Policy';
             OptionCaption = 'Empty Lines Not Submitted,Stop and Show Empty Line Error';
             OptionMembers = "Empty Lines Not Submitted","Stop and Show Empty Line Error";
+        }
+        field(955; "Incl. Time Sheet Date in Jnl."; Boolean)
+        {
+            Caption = 'Include Time Sheet Date in Project Journal Line';
         }
     }
 
@@ -109,7 +92,11 @@ table 314 "Resources Setup"
     var
         TimeSheetHeader: Record "Time Sheet Header";
         TimeSheetLine: Record "Time Sheet Line";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 cannot be changed, because there is at least one submitted time sheet line with Type=Project.';
         Text002: Label '%1 cannot be changed, because there is at least one time sheet.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

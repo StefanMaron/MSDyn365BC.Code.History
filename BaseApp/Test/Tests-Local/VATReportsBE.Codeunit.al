@@ -755,55 +755,50 @@ codeunit 144010 "VAT Reports BE"
     var
         VATVIESCorrection: Record "VAT VIES Correction";
     begin
-        with VATVIESCorrection do begin
-            Init();
-            Validate("Period Type", 1); // Month - not important
-            Validate("Declaration Period No.", Date2DMY(PostingDate, 2));
-            Validate("Declaration Period Year", Date2DMY(PostingDate, 3));
-            "Line No." := GetVATVIESCorNextLineNo(VATVIESCorrection);
-            Validate("Customer No.", Customer."No.");
-            Validate(Amount, AmountToCorrect);
-            if AssignCorrectionDate then
-                Validate("Correction Date", PostingDate);
-            Insert();
-        end;
+        VATVIESCorrection.Init();
+        VATVIESCorrection.Validate("Period Type", 1);
+        // Month - not important
+        VATVIESCorrection.Validate("Declaration Period No.", Date2DMY(PostingDate, 2));
+        VATVIESCorrection.Validate("Declaration Period Year", Date2DMY(PostingDate, 3));
+        VATVIESCorrection."Line No." := GetVATVIESCorNextLineNo(VATVIESCorrection);
+        VATVIESCorrection.Validate("Customer No.", Customer."No.");
+        VATVIESCorrection.Validate(Amount, AmountToCorrect);
+        if AssignCorrectionDate then
+            VATVIESCorrection.Validate("Correction Date", PostingDate);
+        VATVIESCorrection.Insert();
     end;
 
     local procedure GetVATVIESCorNextLineNo(VATVIESCorrection: Record "VAT VIES Correction"): Integer
     var
         ExistingVATVIESCorrection: Record "VAT VIES Correction";
     begin
-        with ExistingVATVIESCorrection do begin
-            if IsEmpty() then
-                exit(10000);
-            SetRange("Period Type", VATVIESCorrection."Period Type");
-            SetRange("Declaration Period No.", VATVIESCorrection."Declaration Period No.");
-            SetRange("Declaration Period Year", VATVIESCorrection."Declaration Period Year");
-            if FindLast() then
-                exit("Line No." + 10000);
+        if ExistingVATVIESCorrection.IsEmpty() then
             exit(10000);
-        end;
+        ExistingVATVIESCorrection.SetRange("Period Type", VATVIESCorrection."Period Type");
+        ExistingVATVIESCorrection.SetRange("Declaration Period No.", VATVIESCorrection."Declaration Period No.");
+        ExistingVATVIESCorrection.SetRange("Declaration Period Year", VATVIESCorrection."Declaration Period Year");
+        if ExistingVATVIESCorrection.FindLast() then
+            exit(ExistingVATVIESCorrection."Line No." + 10000);
+        exit(10000);
     end;
 
     local procedure AddManualVATCorrection(VATStatementLine: Record "VAT Statement Line"; PostingDate: Date; InACY: Boolean): Decimal
     var
         ManualVATCorrection: Record "Manual VAT Correction";
     begin
-        with ManualVATCorrection do begin
-            DeleteAll();
-            Init();
-            Validate("Posting Date", PostingDate);
-            Validate(Amount, LibraryRandom.RandDec(100, 2));
-            Validate("Statement Template Name", VATStatementLine."Statement Template Name");
-            Validate("Statement Name", VATStatementLine."Statement Name");
-            Validate("Statement Line No.", VATStatementLine."Line No.");
-            CalcFields("Row No.");
-            Insert(true);
+        ManualVATCorrection.DeleteAll();
+        ManualVATCorrection.Init();
+        ManualVATCorrection.Validate("Posting Date", PostingDate);
+        ManualVATCorrection.Validate(Amount, LibraryRandom.RandDec(100, 2));
+        ManualVATCorrection.Validate("Statement Template Name", VATStatementLine."Statement Template Name");
+        ManualVATCorrection.Validate("Statement Name", VATStatementLine."Statement Name");
+        ManualVATCorrection.Validate("Statement Line No.", VATStatementLine."Line No.");
+        ManualVATCorrection.CalcFields("Row No.");
+        ManualVATCorrection.Insert(true);
 
-            if InACY then
-                exit("Additional-Currency Amount");
-            exit(Amount);
-        end;
+        if InACY then
+            exit(ManualVATCorrection."Additional-Currency Amount");
+        exit(ManualVATCorrection.Amount);
     end;
 
     local procedure CreateAddnlReportingCurrency(): Code[10]
@@ -838,18 +833,17 @@ codeunit 144010 "VAT Reports BE"
         Currency: Record Currency;
         GLAccount: Record "G/L Account";
     begin
-        with Currency do begin
-            Init();
-            Validate(Code, 'BEF'); // The ACY for this report can be either BEF or EUR
-            Insert(true);
-            LibraryERM.SetCurrencyGainLossAccounts(Currency);
-            LibraryERM.CreateRandomExchangeRate(Code);
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("Residual Gains Account", GLAccount."No.");
-            Validate("Residual Losses Account", GLAccount."No.");
-            Modify(true);
-            exit(Code);
-        end;
+        Currency.Init();
+        Currency.Validate(Code, 'BEF');
+        // The ACY for this report can be either BEF or EUR
+        Currency.Insert(true);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        LibraryERM.CreateGLAccount(GLAccount);
+        Currency.Validate("Residual Gains Account", GLAccount."No.");
+        Currency.Validate("Residual Losses Account", GLAccount."No.");
+        Currency.Modify(true);
+        exit(Currency.Code);
     end;
 
     local procedure CreateVATStatement(var VATStatementLine: Record "VAT Statement Line"; CalcWith: Option; PrintWith: Option; VATBusPostingG: Code[20]; VATProdPostingG: Code[20])
@@ -999,16 +993,14 @@ codeunit 144010 "VAT Reports BE"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Posting Date", PostingDate);
-            if FindFirst() then begin
-                if InACY then
-                    exit("Additional-Currency Base");
-                exit(Base);
-            end;
-            Error(EntryNotFoundErr);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("Posting Date", PostingDate);
+        if VATEntry.FindFirst() then begin
+            if InACY then
+                exit(VATEntry."Additional-Currency Base");
+            exit(VATEntry.Base);
         end;
+        Error(EntryNotFoundErr);
     end;
 
     local procedure GetLastAccPeriodStartDate(): Date

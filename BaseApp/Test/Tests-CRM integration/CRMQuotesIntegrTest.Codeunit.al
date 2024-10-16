@@ -9,8 +9,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
     end;
 
     var
-        CurrencyNotExistsErr: Label 'The Currency does not exist.';
-        ErrorMessageErr: Label 'Error message expected.';
         FieldMustHaveAValueErr: Label '%1 must have a value in %2';
         MissingWriteInProductNoErr: Label '%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.', Comment = '%1 - Dataverse service name,%2 - document type (order or quote), %3 - document number';
         SalesQuotenoteNotFoundErr: Label 'Couldn''t find a note for sales quote %1 with note text %2.', Locked = true;
@@ -75,8 +73,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         asserterror CreateSalesQuoteInNAV(CRMQuote, SalesHeader);
 
         // [THEN] Error: Currency 'X' does not exist
-        Assert.IsTrue(
-          CopyStr(GetLastErrorText, 1, StrLen(CurrencyNotExistsErr)) = CurrencyNotExistsErr, ErrorMessageErr);
+        Assert.ExpectedErrorCannotFind(Database::Currency);
     end;
 
     [Test]

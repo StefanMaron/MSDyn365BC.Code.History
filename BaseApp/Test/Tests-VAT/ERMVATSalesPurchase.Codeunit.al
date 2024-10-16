@@ -2255,7 +2255,7 @@
     procedure VATDateReturnsCorrectBasedOnGLSetup()
     var
         GLSetup: Record "General Ledger Setup";
-        PostingDate, DocumentDate, VATDate: Date;
+        PostingDate, DocumentDate, VATDate : Date;
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 431931] GL Setup returns correct date based on GL Setup setting
@@ -3294,7 +3294,7 @@
     var
         SalesInvHeader: Record "Sales Invoice Header";
         DocNo: Code[20];
-        VATDate, NewVATDate: Date;
+        VATDate, NewVATDate : Date;
         VATEntryNo: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
@@ -3330,7 +3330,7 @@
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         DocNo: Code[20];
-        VATDate, NewVATDate: Date;
+        VATDate, NewVATDate : Date;
         VATEntryNo: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
@@ -3402,7 +3402,7 @@
     var
         DocHeader: Record "Purch. Cr. Memo Hdr.";
         DocNo: Code[20];
-        VATDate, NewVATDate: Date;
+        VATDate, NewVATDate : Date;
         VATEntryNo: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
@@ -4120,7 +4120,7 @@
     var
         PurchaseHeader: Record "Purchase Header";
         VendorNo: Code[20];
-        PostingDate, VATDate: Date;
+        PostingDate, VATDate : Date;
     begin
         // [GIVEN] Create Purchase Invoice.
         Initialize();
@@ -5096,14 +5096,14 @@
         // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
         CleanVATReturnPeriod();
         CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
-        
+
         // [WHEN] Posting sales invoice nothing is promted to user
         CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
 
         // [WHEN] Adding VAT Return period that is Open with VAT Return Status Submitted
         CleanVATReturnPeriod();
         CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Submitted, WorkDate(), WorkDate() + 1);
-        
+
         // [THEN] Posting sales invoice nothing is promted to user
         CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
     end;
@@ -5128,7 +5128,7 @@
         // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
         CleanVATReturnPeriod();
         CreateVATReturnPeriod(VATReturnPeriod.Status::Closed, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
-        
+
         // [WHEN] Posting sales invoice nothing is promted to user
         CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
     end;
@@ -5154,7 +5154,7 @@
         // [WHEN] Adding VAT Return period that is Closed with VAT Return Status Released
         CleanVATReturnPeriod();
         CreateVATReturnPeriod(VATReturnPeriod.Status::Closed, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
-        
+
         // [WHEN] Posting sales invoice warning is shown to user
         CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
     end;
@@ -5179,7 +5179,7 @@
         // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
         CleanVATReturnPeriod();
         CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
-        
+
         // [WHEN] Posting sales invoice no warning is shown to user
         CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
     end;
@@ -5680,13 +5680,11 @@ LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Post
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetFilter("VAT Bus. Posting Group", '<>%1 & <>%2', '', SalesLine."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
-            SetFilter("VAT %", '>%1', 0);
-            FindFirst();
-            exit(LibrarySales.CreateCustomerWithVATBusPostingGroup("VAT Bus. Posting Group"));
-        end;
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1 & <>%2', '', SalesLine."VAT Bus. Posting Group");
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
+        VATPostingSetup.SetFilter("VAT %", '>%1', 0);
+        VATPostingSetup.FindFirst();
+        exit(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PricesInclVAT: Boolean)
@@ -5701,8 +5699,8 @@ LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Post
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryPurchase.CreatePurchHeader(
-PurchaseHeader, DocumentType,
-LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+            PurchaseHeader, DocumentType,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         ModifyPurchaseHeaderPricesInclVAT(PurchaseHeader, PricesInclVAT);
     end;
 
@@ -5795,16 +5793,14 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
-            if VATDate <> 0D then
-                Validate("VAT Reporting Date", VATDate)
-            else
-                Validate("VAT Reporting Date");
-            Modify(true);
-            CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        SalesHeader.Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
+        if VATDate <> 0D then
+            SalesHeader.Validate("VAT Reporting Date", VATDate)
+        else
+            SalesHeader.Validate("VAT Reporting Date");
+        SalesHeader.Modify(true);
+        CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
     end;
 
     local procedure CreateServiceInvoice(var ServiceHeader: Record "Service Header"; VATDate: Date): Code[20]
@@ -5831,20 +5827,18 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetupA, VATPostingSetupA."VAT Calculation Type"::"Normal VAT", 10);
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetupB, VATPostingSetupB."VAT Calculation Type"::"Normal VAT", 20);
-        with SalesHeader do begin
-            VATPostingSetupB.Rename(VATPostingSetupA."VAT Bus. Posting Group", VATPostingSetupB."VAT Prod. Posting Group");
-            Codeno := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetupA."VAT Bus. Posting Group");
-            LibrarySales.CreateSalesHeader(SalesHeader, DocType, Codeno);
-            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
-            if VATDate <> 0D then
-                Validate("VAT Reporting Date", VATDate)
-            else
-                Validate("VAT Reporting Date");
-            Modify(true);
-            CreateSalesLineWithUnitPriceAndVATProdPstGroup(SalesLine, SalesHeader, VATPostingSetupA."VAT Prod. Posting Group", Enum::"Sales Line Type"::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetupA."VAT Prod. Posting Group"), 1, 100);
-            CreateSalesLineWithUnitPriceAndVATProdPstGroup(SalesLine, SalesHeader, VATPostingSetupB."VAT Prod. Posting Group", Enum::"Sales Line Type"::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetupB."VAT Prod. Posting Group"), 1, 100);
-            exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        end;
+        VATPostingSetupB.Rename(VATPostingSetupA."VAT Bus. Posting Group", VATPostingSetupB."VAT Prod. Posting Group");
+        Codeno := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetupA."VAT Bus. Posting Group");
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, Codeno);
+        SalesHeader.Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
+        if VATDate <> 0D then
+            SalesHeader.Validate("VAT Reporting Date", VATDate)
+        else
+            SalesHeader.Validate("VAT Reporting Date");
+        SalesHeader.Modify(true);
+        CreateSalesLineWithUnitPriceAndVATProdPstGroup(SalesLine, SalesHeader, VATPostingSetupA."VAT Prod. Posting Group", Enum::"Sales Line Type"::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetupA."VAT Prod. Posting Group"), 1, 100);
+        CreateSalesLineWithUnitPriceAndVATProdPstGroup(SalesLine, SalesHeader, VATPostingSetupB."VAT Prod. Posting Group", Enum::"Sales Line Type"::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetupB."VAT Prod. Posting Group"), 1, 100);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure CreateAndPostPurchDoc(VATDate: Date; DocType: Enum "Gen. Journal Document Type"): Code[20]
@@ -5861,16 +5855,14 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
-            if VATDate <> 0D then
-                Validate("VAT Reporting Date", VATDate)
-            else
-                Validate("VAT Reporting Date");
-            Modify(true);
-            CreatePurchaseLine(PurchaseLine, PurchaseHeader, VATPostingSetup);
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchaseHeader.Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
+        if VATDate <> 0D then
+            PurchaseHeader.Validate("VAT Reporting Date", VATDate)
+        else
+            PurchaseHeader.Validate("VAT Reporting Date");
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, VATPostingSetup);
     end;
 
     local procedure CreateAndPostSalesInvoiceWithPaymentTermCode(VATPostingSetup: Record "VAT Posting Setup"; CustomerNo: Code[20]): Code[20]
@@ -5884,15 +5876,13 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         PaymentMethod.Modify(true);
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Invoice, CustomerNo);
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
-            Validate("Payment Method Code", PaymentMethod.Code);
-            Modify(true);
-            CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
-            exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        SalesHeader.Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
+        SalesHeader.Validate("Payment Method Code", PaymentMethod.Code);
+        SalesHeader.Modify(true);
+        CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure CreateAndPostPurchaseInvoiceWithPaymentTermCode(VATPostingSetup: Record "VAT Posting Setup"; VendorNo: Code[20]): Code[20]
@@ -5906,15 +5896,13 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         PaymentMethod.Modify(true);
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Document Type"::Invoice, VendorNo);
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
-            Validate("Payment Method Code", PaymentMethod.Code);
-            Modify(true);
-            CreatePurchaseLine(PurchaseLine, PurchaseHeader, VATPostingSetup);
-            exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        PurchaseHeader.Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
+        PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, VATPostingSetup);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
     local procedure CreateCustomerWithVATRegNo(var Customer: Record Customer; VATBusPostingGroup: Code[20])
@@ -6043,11 +6031,9 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         else
             MaxVATDifference := 0;
 
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Max. VAT Difference Allowed", MaxVATDifference);
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Max. VAT Difference Allowed", MaxVATDifference);
+        GeneralLedgerSetup.Modify();
         exit(MaxVATDifference);
     end;
 
@@ -6404,12 +6390,10 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("VAT Bus. Posting Group", VATBusPostingGroup);
-            TestField("Gen. Bus. Posting Group", GenBusPostingGroup);
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField("VAT Bus. Posting Group", VATBusPostingGroup);
+        VATEntry.TestField("Gen. Bus. Posting Group", GenBusPostingGroup);
     end;
 
     local procedure VerifyCustomerVATPostingGroup(CustomerNo: Code[20]; VATBusPostingGroup: Code[20])
@@ -6489,19 +6473,17 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         CustLedgerEntry: Record "Cust. Ledger Entry";
         ExpectedPmtAmount: Decimal;
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document No.", PostedInvoiceNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst();
-            CalcFields("Amount (LCY)");
-            ExpectedPmtAmount := -("Amount (LCY)" - "Original Pmt. Disc. Possible");
+        CustLedgerEntry.SetRange("Document No.", PostedInvoiceNo);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        ExpectedPmtAmount := -(CustLedgerEntry."Amount (LCY)" - CustLedgerEntry."Original Pmt. Disc. Possible");
 
-            SetRange("Document Type", "Document Type"::Payment);
-            FindFirst();
-            CalcFields("Amount (LCY)");
-            TestField("Amount (LCY)", ExpectedPmtAmount);
-            TestField(Open, false);
-        end;
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        CustLedgerEntry.TestField("Amount (LCY)", ExpectedPmtAmount);
+        CustLedgerEntry.TestField(Open, false);
     end;
 
     local procedure VerifyAmountOnVendorLedgerEntry(PostedInvoiceNo: Code[20])
@@ -6509,46 +6491,40 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         ExpectedPmtAmount: Decimal;
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document No.", PostedInvoiceNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst();
-            CalcFields("Amount (LCY)");
-            ExpectedPmtAmount := -("Amount (LCY)" - "Original Pmt. Disc. Possible");
+        VendorLedgerEntry.SetRange("Document No.", PostedInvoiceNo);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Amount (LCY)");
+        ExpectedPmtAmount := -(VendorLedgerEntry."Amount (LCY)" - VendorLedgerEntry."Original Pmt. Disc. Possible");
 
-            SetRange("Document Type", "Document Type"::Payment);
-            FindFirst();
-            CalcFields("Amount (LCY)");
-            TestField("Amount (LCY)", ExpectedPmtAmount);
-            TestField(Open, false);
-        end;
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Amount (LCY)");
+        VendorLedgerEntry.TestField("Amount (LCY)", ExpectedPmtAmount);
+        VendorLedgerEntry.TestField(Open, false);
     end;
 
     local procedure VerifySalesLineAmounts(SalesLine: Record "Sales Line"; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesLine do begin
-            Find();
-            SalesHeader.Get("Document Type", "Document No.");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
-            Assert.AreEqual(ExpectedAmountInclVAT, "Outstanding Amount", FieldCaption("Outstanding Amount"));
-            if SalesHeader."Prices Including VAT" then
-                Assert.AreEqual("Line Amount", GetLineAmountInclVAT(), 'Line Amount Incl. VAT')
-            else
-                Assert.AreEqual("Line Amount", GetLineAmountExclVAT(), 'Line Amount Excl. VAT');
-        end;
+        SalesLine.Find();
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        Assert.AreEqual(ExpectedAmount, SalesLine.Amount, SalesLine.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedAmountInclVAT, SalesLine."Amount Including VAT", SalesLine.FieldCaption("Amount Including VAT"));
+        Assert.AreEqual(ExpectedAmountInclVAT, SalesLine."Outstanding Amount", SalesLine.FieldCaption("Outstanding Amount"));
+        if SalesHeader."Prices Including VAT" then
+            Assert.AreEqual(SalesLine."Line Amount", SalesLine.GetLineAmountInclVAT(), 'Line Amount Incl. VAT')
+        else
+            Assert.AreEqual(SalesLine."Line Amount", SalesLine.GetLineAmountExclVAT(), 'Line Amount Excl. VAT');
     end;
 
     local procedure VerifyPurchLineAmounts(PurchaseLine: Record "Purchase Line"; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     begin
-        with PurchaseLine do begin
-            Find();
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
-            Assert.AreEqual(ExpectedAmountInclVAT, "Outstanding Amount", FieldCaption("Outstanding Amount"));
-        end;
+        PurchaseLine.Find();
+        Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, PurchaseLine.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedAmountInclVAT, PurchaseLine."Amount Including VAT", PurchaseLine.FieldCaption("Amount Including VAT"));
+        Assert.AreEqual(ExpectedAmountInclVAT, PurchaseLine."Outstanding Amount", PurchaseLine.FieldCaption("Outstanding Amount"));
     end;
 
     local procedure VerifyVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; Positive: Boolean; VATBase: Decimal; VATAmount: Decimal)

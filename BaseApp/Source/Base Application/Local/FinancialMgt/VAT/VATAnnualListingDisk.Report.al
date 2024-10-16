@@ -92,10 +92,9 @@ report 11309 "VAT Annual Listing - Disk"
 
                     VatRegNoFilter := '*';
 
-                    for i := 1 to StrLen(Customer."Enterprise No.") do begin
+                    for i := 1 to StrLen(Customer."Enterprise No.") do
                         if Customer."Enterprise No."[i] in ['a' .. 'z', 'A' .. 'Z', '0' .. '9'] then
                             VatRegNoFilter := VatRegNoFilter + CopyStr(Customer."Enterprise No.", i, 1) + '*';
-                    end;
                     VATCustomer.SetFilter("Enterprise No.", VatRegNoFilter);
 
                     if IncludeCountry = IncludeCountry::Specific then
@@ -104,7 +103,7 @@ report 11309 "VAT Annual Listing - Disk"
             }
             dataitem(Vatloop2; "Integer")
             {
-                DataItemTableView = sorting(Number) WHERE(Number = const(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
 
                 trigger OnAfterGetRecord()
                 var
@@ -156,7 +155,7 @@ report 11309 "VAT Annual Listing - Disk"
         }
         dataitem("Create Intervat XML File"; "Integer")
         {
-            DataItemTableView = sorting(Number) WHERE(Number = const(1));
+            DataItemTableView = sorting(Number) where(Number = const(1));
 
             trigger OnAfterGetRecord()
             var
@@ -419,7 +418,7 @@ report 11309 "VAT Annual Listing - Disk"
         XMLNewChild: DotNet XmlNode;
         CustSequenceNum: Integer;
     begin
-        if Buffer.FindSet(true, false) then begin
+        if Buffer.FindSet(true, false) then
             repeat
                 CustSequenceNum := CustSequenceNum + 1;
                 XMLDOMMgt.AddElement(XMLCurrNode, 'Client', '', xmlnsClientListingConsignment, XMLNewChild);
@@ -433,7 +432,6 @@ report 11309 "VAT Annual Listing - Disk"
                   xmlnsClientListingConsignment, XMLNewChild);
                 XMLCurrNode := XMLCurrNode.ParentNode;
             until Buffer.Next() = 0;
-        end;
     end;
 
     local procedure AddHeader(var XMLCurrNode: DotNet XmlNode)

@@ -18,8 +18,12 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Do you want to post the prepayments for %1 %2?';
         Text001: Label 'Do you want to post a credit memo for the prepayments for %1 %2?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         UnsupportedDocTypeErr: Label 'Unsupported prepayment document type.';
 
     procedure PostPrepmtInvoiceYN(var SalesHeader2: Record "Sales Header"; Print: Boolean)

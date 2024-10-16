@@ -3078,6 +3078,9 @@ End Function
         <Field Name="CompanyInfoEnterpriseNo">
           <DataField>CompanyInfoEnterpriseNo</DataField>
         </Field>
+        <Field Name="CompanyPicture">
+          <DataField>CompanyPicture</DataField>
+        </Field>
         <Field Name="CompanyInfoGiroNo">
           <DataField>CompanyInfoGiroNo</DataField>
         </Field>

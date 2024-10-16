@@ -339,7 +339,7 @@ report 2000019 "Suggest Vendor Payments EB"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeSuggestPayments(var Vendor: Record Vendor; var PaymentJournalLine: Record "Payment Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;

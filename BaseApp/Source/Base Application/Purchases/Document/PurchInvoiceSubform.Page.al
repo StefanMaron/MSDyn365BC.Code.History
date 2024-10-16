@@ -1044,7 +1044,7 @@ page 55 "Purch. Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::"Event")
                         end;
                     }
                     action(Period)
@@ -1056,7 +1056,7 @@ page 55 "Purch. Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Period)
                         end;
                     }
                     action(Variant)
@@ -1068,7 +1068,7 @@ page 55 "Purch. Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Variant)
                         end;
                     }
                     action(Location)
@@ -1081,7 +1081,7 @@ page 55 "Purch. Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Location)
                         end;
                     }
                     action(Lot)
@@ -1105,7 +1105,7 @@ page 55 "Purch. Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::BOM)
                         end;
                     }
                 }
@@ -1160,7 +1160,7 @@ page 55 "Purch. Invoice Subform"
                         Image = ItemTrackingLines;
                         ShortCutKey = 'Ctrl+Alt+I';
                         Enabled = Rec.Type = Rec.Type::Item;
-                        ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
+                        ToolTip = 'View or edit serial, lot and package numbers for the selected item. This action is available only for lines that contain an item.';
 
                         trigger OnAction()
                         begin
@@ -1253,7 +1253,7 @@ page 55 "Purch. Invoice Subform"
                         EditinExcel: Codeunit "Edit in Excel";
                         EditinExcelFilters: Codeunit "Edit in Excel Filters";
                     begin
-                        EditinExcelFilters.AddField('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
 
                         EditinExcel.EditPageInExcel(
                             'Purchase_InvoicePurchLines',
@@ -1350,7 +1350,7 @@ page 55 "Purch. Invoice Subform"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        PurchAvailabilityMgt: Codeunit "Purch. Availability Mgt.";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         AmountWithDiscountAllowed: Decimal;

@@ -670,24 +670,20 @@ codeunit 144002 "Sales/Purchase Application"
 
     local procedure PostTwoGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
     begin
-        with GenJnlLine do begin
-            CreateGenJnlLineWithBalAcc(GenJnlLine, "Document Type"::Invoice, AccType, AccNo, GetEntryAmount(AccType));
-            CreateGenJnlLineWithBalAcc(GenJnlLine, "Document Type"::Payment, AccType, "Account No.", -Amount);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-        end;
+        CreateGenJnlLineWithBalAcc(GenJnlLine, GenJnlLine."Document Type"::Invoice, AccType, AccNo, GetEntryAmount(AccType));
+        CreateGenJnlLineWithBalAcc(GenJnlLine, GenJnlLine."Document Type"::Payment, AccType, GenJnlLine."Account No.", -GenJnlLine.Amount);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
     local procedure CreateGenJnlLineWithBalAcc(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal)
     begin
-        with GenJnlLine do begin
-            InitGenJnlLineWithBatch(GenJnlLine);
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name", DocType, AccType, AccNo, EntryAmount);
-            Validate("Posting Date", GetDefPostingDate());
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", CreateGLAcc());
-            Modify(true);
-        end;
+        InitGenJnlLineWithBatch(GenJnlLine);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", DocType, AccType, AccNo, EntryAmount);
+        GenJnlLine.Validate("Posting Date", GetDefPostingDate());
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", CreateGLAcc());
+        GenJnlLine.Modify(true);
     end;
 
     local procedure InitGenJnlLineWithBatch(var GenJnlLine: Record "Gen. Journal Line")
@@ -695,13 +691,11 @@ codeunit 144002 "Sales/Purchase Application"
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        with GenJnlLine do begin
-            LibraryERM.FindGenJournalTemplate(GenJnlTemplate);
-            LibraryERM.FindGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-            Init();
-            "Journal Template Name" := GenJnlBatch."Journal Template Name";
-            "Journal Batch Name" := GenJnlBatch.Name;
-        end;
+        LibraryERM.FindGenJournalTemplate(GenJnlTemplate);
+        LibraryERM.FindGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
     end;
 
     local procedure ApplyCustomerLedgerEntries(CustNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -814,24 +808,20 @@ codeunit 144002 "Sales/Purchase Application"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DtldCustLedgEntry do begin
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Document No.", DocNo);
-            FindLast();
-            TestField("Posting Date", ApplicationDate);
-        end;
+        DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+        DtldCustLedgEntry.SetRange("Document No.", DocNo);
+        DtldCustLedgEntry.FindLast();
+        DtldCustLedgEntry.TestField("Posting Date", ApplicationDate);
     end;
 
     local procedure VerifyApplicationDateOnDtldVendLedgEntry(DocNo: Code[20]; ApplicationDate: Date)
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DtldVendLedgEntry do begin
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Document No.", DocNo);
-            FindLast();
-            TestField("Posting Date", ApplicationDate);
-        end;
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
+        DtldVendLedgEntry.SetRange("Document No.", DocNo);
+        DtldVendLedgEntry.FindLast();
+        DtldVendLedgEntry.TestField("Posting Date", ApplicationDate);
     end;
 
     [ModalPageHandler]

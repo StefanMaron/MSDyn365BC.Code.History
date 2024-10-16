@@ -1,6 +1,6 @@
 namespace Microsoft.Sales.Pricing;
 
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;
@@ -14,7 +14,7 @@ using Microsoft.Sales.Customer;
 table 1304 "Sales Price and Line Disc Buff"
 {
     Caption = 'Sales Price and Line Disc Buff';
-#if not CLEAN23
+#if not CLEAN25
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
@@ -30,7 +30,7 @@ table 1304 "Sales Price and Line Disc Buff"
         {
             Caption = 'Code';
             DataClassification = SystemMetadata;
-#if not CLEAN23
+#if not CLEAN25
             NotBlank = true;
             TableRelation = if (Type = const(Item)) Item
             else
@@ -225,7 +225,7 @@ table 1304 "Sales Price and Line Disc Buff"
             Caption = 'Type';
             DataClassification = SystemMetadata;
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 case Type of
@@ -337,7 +337,7 @@ table 1304 "Sales Price and Line Disc Buff"
     {
     }
 
-#if not CLEAN23
+#if not CLEAN25
     trigger OnDelete()
     begin
         DeleteOldRecordVersion();
@@ -373,11 +373,13 @@ table 1304 "Sales Price and Line Disc Buff"
 #endif
 
     var
+#pragma warning disable AA0470
         EndDateErr: Label '%1 cannot be after %2.';
         MustBeBlankErr: Label '%1 must be blank.';
+#pragma warning restore AA0470
         CustNotInPriceGrErr: Label 'This customer is not assigned to any price group, therefore a price group could not be used in context of this customer.';
         CustNotInDiscGrErr: Label 'This customer is not assigned to any discount group, therefore a discount group could not be used in context of this customer.';
-#if not CLEAN23
+#if not CLEAN25
         ItemNotInDiscGrErr: Label 'This item is not assigned to any discount group, therefore a discount group could not be used in context of this item.';
         IncludeVATQst: Label 'One or more of the sales prices do not include VAT.\Do you want to update all sales prices to include VAT?';
         ExcludeVATQst: Label 'One or more of the sales prices include VAT.\Do you want to update all sales prices to exclude VAT?';
@@ -401,7 +403,7 @@ table 1304 "Sales Price and Line Disc Buff"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     procedure LoadDataForItem(Item: Record Item)
     var
         SalesPrice: Record "Sales Price";

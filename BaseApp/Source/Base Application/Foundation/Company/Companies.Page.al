@@ -46,6 +46,14 @@ page 357 Companies
                     Caption = 'Display Name';
                     ToolTip = 'Specifies the name to display for the company in the user interface instead of the text that is specified in the Name field.';
                 }
+                field("Company Id"; Rec.Id)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Company ID';
+                    Editable = false;
+                    Visible = false;
+                    ToolTip = 'Specifies the unique company identifier used in API calls.';
+                }
                 field("Evaluation Company"; Rec."Evaluation Company")
                 {
                     ApplicationArea = Basic, Suite;

@@ -1,6 +1,7 @@
 namespace Microsoft.Bank.Reconciliation.Test;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Bank.Ledger;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Bank.Reconciliation;
@@ -270,6 +271,181 @@ codeunit 139777 "Bank Rec. With AI Tests"
         Assert.IsFalse(BankAccountLedgerEntry.IsEmpty(), 'Statement Line ' + Format(LineNos.Get(2)) + ' not applied.');
         BankAccountLedgerEntry.SetRange("Statement Line No.", LineNos.Get(3));
         Assert.IsFalse(BankAccountLedgerEntry.IsEmpty(), 'Statement Line ' + Format(LineNos.Get(3)) + ' not applied.');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure TestPostNewPaymentsToProposedGLAccountsDisallowedDatesOnTemplate()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        TempBankAccRecAIProposal: Record "Bank Acc. Rec. AI Proposal" temporary;
+        TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
+        GLAccount: Record "G/L Account";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        TransToGLAccJnlBatch: Record "Trans. to G/L Acc. Jnl. Batch";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BankRecTransToAcc: Codeunit "Bank Acc. Rec. Trans. to Acc.";
+        PostingDate: Date;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Description: Text[50];
+        Amount: Decimal;
+        LineNos: List of [Integer];
+    begin
+        // [SCENARIO 546902] When using Post Difference to G/L Account, no payments are posted for statement lines whose transaction date is outside of allowed posting date rage
+
+        // [GIVEN] A bank account reconciliation with one line that has transaction date outside of allowed posting date range
+        Initialize();
+        BankAccountLedgerEntry.SetRange(Open, true);
+        BankAccountLedgerEntry.DeleteAll();
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GLAccount.Validate("Direct Posting", true);
+        GLAccount.Modify();
+        CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
+        GenJournalTemplate.Validate("Allow Posting Date From", PostingDate);
+        GenJournalTemplate.Validate("Allow Posting Date To", PostingDate);
+        GenJournalTemplate.Modify();
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := true;
+        GeneralLedgerSetup.Modify();
+        LineNos.Add(CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount + Amount));
+        LineNos.Add(CreateBankAccRecLine(BankAccReconciliation, PostingDate - 1, Description, '', Amount));
+        LineNos.Add(CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', Amount));
+
+        // [WHEN] You choose to Post Differences to G/L Account
+        TempBankAccRecAIProposal."Statement Type" := BankAccReconciliation."Statement Type";
+        TempBankAccRecAIProposal."Bank Account No." := BankAccReconciliation."Bank Account No.";
+        TempBankAccRecAIProposal."Statement No." := BankAccReconciliation."Statement No.";
+        TempBankAccRecAIProposal."Journal Template Name" := GenJournalTemplate.Name;
+        TempBankAccRecAIProposal."Journal Batch Name" := GenJournalBatch.Name;
+        TempBankAccRecAIProposal."Statement Line No." := LineNos.Get(1);
+        TempBankAccRecAIProposal."Transaction Date" := PostingDate;
+        TempBankAccRecAIProposal."G/L Account No." := GLAccount."No.";
+        TempBankAccRecAIProposal.Difference := Amount + Amount;
+        TempBankAccRecAIProposal.Insert();
+        TempBankAccRecAIProposal."Statement Line No." := LineNos.Get(2);
+        TempBankAccRecAIProposal."Transaction Date" := PostingDate - 1;
+        TempBankAccRecAIProposal."G/L Account No." := GLAccount."No.";
+        TempBankAccRecAIProposal.Difference := Amount;
+        TempBankAccRecAIProposal.Insert();
+        TempBankAccRecAIProposal."Transaction Date" := PostingDate;
+        TempBankAccRecAIProposal."Statement Line No." := LineNos.Get(3);
+        TempBankAccRecAIProposal."G/L Account No." := GLAccount."No.";
+        TempBankAccRecAIProposal.Difference := Amount;
+        TempBankAccRecAIProposal.Insert();
+        TempBankAccRecAIProposal.FindSet();
+        TransToGLAccJnlBatch.Init();
+        TransToGLAccJnlBatch."Journal Template Name" := GenJournalTemplate.Name;
+        TransToGLAccJnlBatch."Journal Batch Name" := GenJournalBatch.Name;
+        TransToGLAccJnlBatch.Insert();
+
+        BankRecTransToAcc.PostNewPaymentsToProposedGLAccounts(TempBankAccRecAIProposal, TempBankStatementMatchingBuffer, TransToGLAccJnlBatch);
+
+        // [THEN] No Payment is made for the line that had transaction date outside of allowed posting date range
+        BankAccountLedgerEntry.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccountLedgerEntry.SetRange("Statement Line No.", LineNos.Get(1));
+        BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
+        Assert.IsFalse(BankAccountLedgerEntry.IsEmpty(), 'Statement Line ' + Format(LineNos.Get(1)) + ' not applied.');
+        BankAccountLedgerEntry.SetRange("Statement Line No.", LineNos.Get(2));
+        Assert.IsTrue(BankAccountLedgerEntry.IsEmpty(), 'Statement Line ' + Format(LineNos.Get(2)) + ' applied.');
+        BankAccountLedgerEntry.SetRange("Statement Line No.", LineNos.Get(3));
+        Assert.IsFalse(BankAccountLedgerEntry.IsEmpty(), 'Statement Line ' + Format(LineNos.Get(3)) + ' not applied.');
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
+        GeneralLedgerSetup.Modify();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure TestPostNewPaymentsToProposedGLAccountsDisallowedDatesOnGLSetup()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        TempBankAccRecAIProposal: Record "Bank Acc. Rec. AI Proposal" temporary;
+        TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
+        GLAccount: Record "G/L Account";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        TransToGLAccJnlBatch: Record "Trans. to G/L Acc. Jnl. Batch";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BankRecTransToAcc: Codeunit "Bank Acc. Rec. Trans. to Acc.";
+        PostingDate: Date;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Description: Text[50];
+        Amount: Decimal;
+        LineNos: List of [Integer];
+    begin
+        // [SCENARIO 546902] When using Post Difference to G/L Account, no payments are posted for statement lines whose transaction date is outside of allowed posting date rage
+
+        // [GIVEN] A bank account reconciliation with one line that has transaction date outside of allowed posting date range
+        Initialize();
+        BankAccountLedgerEntry.SetRange(Open, true);
+        BankAccountLedgerEntry.DeleteAll();
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GLAccount.Validate("Direct Posting", true);
+        GLAccount.Modify();
+        CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Posting From" := PostingDate;
+        GeneralLedgerSetup."Allow Posting To" := PostingDate;
+        GeneralLedgerSetup.Modify();
+        LineNos.Add(CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount + Amount));
+        LineNos.Add(CreateBankAccRecLine(BankAccReconciliation, PostingDate - 1, Description, '', Amount));
+        LineNos.Add(CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', Amount));
+
+        // [WHEN] You choose to Post Differences to G/L Account
+        TempBankAccRecAIProposal."Statement Type" := BankAccReconciliation."Statement Type";
+        TempBankAccRecAIProposal."Bank Account No." := BankAccReconciliation."Bank Account No.";
+        TempBankAccRecAIProposal."Statement No." := BankAccReconciliation."Statement No.";
+        TempBankAccRecAIProposal."Journal Template Name" := GenJournalTemplate.Name;
+        TempBankAccRecAIProposal."Journal Batch Name" := GenJournalBatch.Name;
+        TempBankAccRecAIProposal."Statement Line No." := LineNos.Get(1);
+        TempBankAccRecAIProposal."Transaction Date" := PostingDate;
+        TempBankAccRecAIProposal."G/L Account No." := GLAccount."No.";
+        TempBankAccRecAIProposal.Difference := Amount + Amount;
+        TempBankAccRecAIProposal.Insert();
+        TempBankAccRecAIProposal."Statement Line No." := LineNos.Get(2);
+        TempBankAccRecAIProposal."Transaction Date" := PostingDate - 1;
+        TempBankAccRecAIProposal."G/L Account No." := GLAccount."No.";
+        TempBankAccRecAIProposal.Difference := Amount;
+        TempBankAccRecAIProposal.Insert();
+        TempBankAccRecAIProposal."Transaction Date" := PostingDate;
+        TempBankAccRecAIProposal."Statement Line No." := LineNos.Get(3);
+        TempBankAccRecAIProposal."G/L Account No." := GLAccount."No.";
+        TempBankAccRecAIProposal.Difference := Amount;
+        TempBankAccRecAIProposal.Insert();
+        TempBankAccRecAIProposal.FindSet();
+        TransToGLAccJnlBatch.Init();
+        TransToGLAccJnlBatch."Journal Template Name" := GenJournalTemplate.Name;
+        TransToGLAccJnlBatch."Journal Batch Name" := GenJournalBatch.Name;
+        TransToGLAccJnlBatch.Insert();
+
+        BankRecTransToAcc.PostNewPaymentsToProposedGLAccounts(TempBankAccRecAIProposal, TempBankStatementMatchingBuffer, TransToGLAccJnlBatch);
+
+        // [THEN] No Payment is made for the line that had transaction date outside of allowed posting date range
+        BankAccountLedgerEntry.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccountLedgerEntry.SetRange("Statement Line No.", LineNos.Get(1));
+        BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
+        Assert.IsFalse(BankAccountLedgerEntry.IsEmpty(), 'Statement Line ' + Format(LineNos.Get(1)) + ' not applied.');
+        BankAccountLedgerEntry.SetRange("Statement Line No.", LineNos.Get(2));
+        Assert.IsTrue(BankAccountLedgerEntry.IsEmpty(), 'Statement Line ' + Format(LineNos.Get(2)) + ' applied.');
+        BankAccountLedgerEntry.SetRange("Statement Line No.", LineNos.Get(3));
+        Assert.IsFalse(BankAccountLedgerEntry.IsEmpty(), 'Statement Line ' + Format(LineNos.Get(3)) + ' not applied.');
+        GeneralLedgerSetup."Allow Posting From" := 0D;
+        GeneralLedgerSetup."Allow Posting To" := 0D;
+        GeneralLedgerSetup.Modify();
     end;
 
     [Test]
@@ -557,5 +733,11 @@ codeunit 139777 "Bank Rec. With AI Tests"
         BankAccountLedgerEntry.Insert();
 
         exit(BankAccountLedgerEntry."Entry No.");
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }

@@ -1,11 +1,14 @@
 namespace Microsoft.Inventory.Transfer;
 
+using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Worksheet;
 
 codeunit 5993 "Transfer Warehouse Mgt."
 {
@@ -13,6 +16,7 @@ codeunit 5993 "Transfer Warehouse Mgt."
 #if not CLEAN23
         WMSManagement: Codeunit "WMS Management";
 #endif
+        WhseManagement: Codeunit "Whse. Management";
         WhseValidateSourceHeader: Codeunit "Whse. Validate Source Header";
         WhseCreateSourceDocument: Codeunit "Whse.-Create Source Document";
 
@@ -359,5 +363,74 @@ codeunit 5993 "Transfer Warehouse Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnSetFiltersOnSourceTablesOnBeforeSetTransferTableView(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var WarehouseRequest: Record "Warehouse Request"; var TransferLine: Record "Transfer Line")
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSrcDocLineQtyOutstanding', '', false, false)]
+    local procedure OnAfterGetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyBaseOutstanding: Decimal; var QtyOutstanding: Decimal)
+    var
+        TransferLine: Record "Transfer Line";
+        UOMMgt: Codeunit "Unit of Measure Management";
+    begin
+        if SourceType = Database::"Transfer Line" then
+            if TransferLine.Get(SourceNo, SourceLineNo) then
+                case SourceSubType of
+                    "Transfer Direction"::Outbound.AsInteger():
+                        begin
+                            QtyOutstanding :=
+                                Round(
+                                    TransferLine."Whse Outbnd. Otsdg. Qty (Base)" / (QtyOutstanding / QtyBaseOutstanding),
+                                    UOMMgt.QtyRndPrecision());
+                            QtyBaseOutstanding := TransferLine."Whse Outbnd. Otsdg. Qty (Base)";
+                        end;
+                    "Transfer Direction"::Inbound.AsInteger():
+                        begin
+                            QtyOutstanding :=
+                                Round(
+                                    TransferLine."Whse. Inbnd. Otsdg. Qty (Base)" / (QtyOutstanding / QtyBaseOutstanding),
+                                    UOMMgt.QtyRndPrecision());
+                            QtyBaseOutstanding := TransferLine."Whse. Inbnd. Otsdg. Qty (Base)";
+                        end;
+                end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSourceDocumentType', '', false, false)]
+    local procedure WhseManagementGetSourceDocumentType(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+        if SourceType = Database::"Transfer Line" then begin
+            case SourceSubtype of
+                0:
+                    SourceDocument := "Warehouse Journal Source Document"::"Outb. Transfer";
+                1:
+                    SourceDocument := "Warehouse Journal Source Document"::"Inb. Transfer";
+            end;
+            IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetJournalSourceDocument', '', false, false)]
+    local procedure WhseManagementGetJournalSourceDocument(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+        if SourceType = Database::"Transfer Line" then begin
+            case SourceSubtype of
+                0:
+                    SourceDocument := SourceDocument::"Outb. Transfer";
+                1:
+                    SourceDocument := SourceDocument::"Inb. Transfer";
+            end;
+            IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Create Pick", 'OnCheckSourceDocument', '', false, false)]
+    local procedure CreatePickOnCheckSourceDocument(var PickWhseWkshLine: Record "Whse. Worksheet Line")
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        if PickWhseWkshLine."Source Type" = Database::"Transfer Line" then begin
+            TransferLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
+            TransferLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
+            if TransferLine.IsEmpty() then
+                Error(WhseManagement.GetSourceDocumentDoesNotExistErr(), TransferLine.TableCaption(), TransferLine.GetFilters());
+        end;
     end;
 }

@@ -873,17 +873,15 @@ codeunit 144044 "Ledger Reports"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        with LibrarySales do begin
-            // Create customer includes VAT
-            CreateCustomer(Customer);
-            LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
-            CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-            SalesHeader.Validate("Posting Date", WorkDate());
-            SalesHeader.Modify(true);
-            CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        // Create customer includes VAT
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Posting Date", WorkDate());
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
-            exit(PostSalesDocument(SalesHeader, true, true));
-        end;
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure CreateAndPostPurchaseInvoiceWithVAT() DocNo: Code[20]
@@ -893,17 +891,15 @@ codeunit 144044 "Ledger Reports"
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with LibraryPurchase do begin
-            CreateGeneralPostingSetup(GeneralPostingSetup);
-            LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 25);
-            CreatePurchaseDocument(PurchHeader, PurchLine, GeneralPostingSetup, VATPostingSetup, PurchHeader."Document Type"::Invoice);
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 25);
+        CreatePurchaseDocument(PurchHeader, PurchLine, GeneralPostingSetup, VATPostingSetup, PurchHeader."Document Type"::Invoice);
 
-            PurchHeader.Validate("Posting Date", WorkDate());
-            PurchHeader.Modify(true);
+        PurchHeader.Validate("Posting Date", WorkDate());
+        PurchHeader.Modify(true);
 
-            DocNo := PostPurchaseDocument(PurchHeader, true, true);
-            VATPostingSetup.Delete();
-        end;
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+        VATPostingSetup.Delete();
     end;
 
     local procedure CreateAndPostPurchaseCreditMemoWithVAT() DocNo: Code[20]
@@ -913,18 +909,16 @@ codeunit 144044 "Ledger Reports"
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with LibraryPurchase do begin
-            CreateGeneralPostingSetup(GeneralPostingSetup);
-            LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 25);
-            CreatePurchaseDocument(PurchHeader, PurchLine, GeneralPostingSetup, VATPostingSetup, PurchHeader."Document Type"::"Credit Memo");
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 25);
+        CreatePurchaseDocument(PurchHeader, PurchLine, GeneralPostingSetup, VATPostingSetup, PurchHeader."Document Type"::"Credit Memo");
 
-            PurchHeader.Validate("Vendor Cr. Memo No.", PurchHeader."No.");
-            PurchHeader.Validate("Posting Date", WorkDate());
-            PurchHeader.Modify(true);
+        PurchHeader.Validate("Vendor Cr. Memo No.", PurchHeader."No.");
+        PurchHeader.Validate("Posting Date", WorkDate());
+        PurchHeader.Modify(true);
 
-            DocNo := PostPurchaseDocument(PurchHeader, true, true);
-            VATPostingSetup.Delete();
-        end;
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+        VATPostingSetup.Delete();
     end;
 
     local procedure CreateAndPostGenJnlLine(AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal): Code[20]
@@ -986,13 +980,11 @@ codeunit 144044 "Ledger Reports"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        with LibraryERM do begin
-            SelectGenJnlBatch(GenJournalBatch);
-            ClearGenJournalLines(GenJournalBatch);
-            CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-              AccountType, AccountNo, -Amount);
-        end;
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          AccountType, AccountNo, -Amount);
     end;
 
     local procedure CreateVendor(GenBusPostGroupCode: Code[20]; VATBusPostingGroupCode: code[20]): Code[20]
@@ -1027,12 +1019,10 @@ codeunit 144044 "Ledger Reports"
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            Get(GLAccNo);
-            Validate("Gen. Prod. Posting Group", GenProdPostGroupCode);
-            Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
-            Modify(true);
-        end;
+        GLAccount.Get(GLAccNo);
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProdPostGroupCode);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
+        GLAccount.Modify(true);
     end;
 
     local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -1095,18 +1085,16 @@ codeunit 144044 "Ledger Reports"
         GLEntry: Record "G/L Entry";
     begin
         NegativeCounter := NegativeCounter - 1;
-        with GLEntry do begin
-            Init();
-            "Entry No." := NegativeCounter;
-            "Posting Date" := PostingDate;
-            Description := 'Minimal GL Entry';
-            "Source Code" := SourceCode;
-            "Journal Templ. Name" := GenJournalTemplateName;
-            "G/L Account No." := GLAccountNo;
-            "Credit Amount" := CreditAmount;
-            "Debit Amount" := DebitAmount;
-            Insert(true);
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := NegativeCounter;
+        GLEntry."Posting Date" := PostingDate;
+        GLEntry.Description := 'Minimal GL Entry';
+        GLEntry."Source Code" := SourceCode;
+        GLEntry."Journal Templ. Name" := GenJournalTemplateName;
+        GLEntry."G/L Account No." := GLAccountNo;
+        GLEntry."Credit Amount" := CreditAmount;
+        GLEntry."Debit Amount" := DebitAmount;
+        GLEntry.Insert(true);
     end;
 
     local procedure CreateItemWithDeferralCode(DeferralCode: Code[10]): Code[20]
@@ -1151,17 +1139,15 @@ codeunit 144044 "Ledger Reports"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Type := GenJournalTemplate.Type::Purchases;
         GenJournalTemplate.Modify();
-        with GLEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate();
-            "VAT Reporting Date" := WorkDate();
-            "Journal Templ. Name" := GenJournalTemplate.Name;
-            "G/L Account No." := LibraryUtility.GenerateGUID();
-            Amount := LibraryRandom.RandDec(100, 2);
-            "Debit Amount" := Amount;
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."Posting Date" := WorkDate();
+        GLEntry."VAT Reporting Date" := WorkDate();
+        GLEntry."Journal Templ. Name" := GenJournalTemplate.Name;
+        GLEntry."G/L Account No." := LibraryUtility.GenerateGUID();
+        GLEntry.Amount := LibraryRandom.RandDec(100, 2);
+        GLEntry."Debit Amount" := GLEntry.Amount;
+        GLEntry.Insert();
         exit(GenJournalTemplate.Name);
     end;
 

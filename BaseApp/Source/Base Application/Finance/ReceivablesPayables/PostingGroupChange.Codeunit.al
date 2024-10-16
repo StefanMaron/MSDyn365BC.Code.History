@@ -8,8 +8,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.Setup;
 
 codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
 {
@@ -31,11 +29,11 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
                 CheckPostingGroupChangeInPurchaseHeader(NewPostingGroup, OldPostingGroup);
             Database::"Gen. Journal Line":
                 CheckPostingGroupChangeInGenJnlLine(NewPostingGroup, OldPostingGroup, SourceRecordVar);
-            Database::"Service Header":
-                CheckPostingGroupChangeInServiceHeader(NewPostingGroup, OldPostingGroup);
             Database::"Finance Charge Memo Header":
                 CheckPostingGroupChangeInFinChrgMemoHeader(NewPostingGroup, OldPostingGroup);
         end;
+
+        OnAfterChangePostingGroup(SourceRecordRef, NewPostingGroup, OldPostingGroup);
     end;
 
     local procedure CheckPostingGroupChangeInSalesHeader(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
@@ -65,11 +63,6 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
         CheckCustomerPostingGroupChange(NewPostingGroup, OldPostingGroup);
     end;
 
-    local procedure CheckPostingGroupChangeInServiceHeader(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
-    begin
-        CheckCustomerPostingGroupChangeAndCustomerInService(NewPostingGroup, OldPostingGroup, '');
-    end;
-
     local procedure CheckCustomerPostingGroupChange(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
     begin
         CheckCustomerPostingGroupChangeAndCustomer(NewPostingGroup, OldPostingGroup, '');
@@ -80,16 +73,13 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
         CheckVendorPostingGroupChangeAndVendor(NewPostingGroup, OldPostingGroup, '');
     end;
 
+
+
+
+
     local procedure CheckCustomerPostingGroupChangeAndCustomer(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; CustomerNo: Code[20])
     begin
         CheckAllowChangeSalesSetup();
-        if not HasCustomerSamePostingGroup(NewPostingGroup, CustomerNo) then
-            CheckCustomerPostingGroupSubstSetup(NewPostingGroup, OldPostingGroup);
-    end;
-
-    local procedure CheckCustomerPostingGroupChangeAndCustomerInService(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; CustomerNo: Code[20])
-    begin
-        CheckAllowChangeServiceSetup();
         if not HasCustomerSamePostingGroup(NewPostingGroup, CustomerNo) then
             CheckCustomerPostingGroupSubstSetup(NewPostingGroup, OldPostingGroup);
     end;
@@ -126,14 +116,17 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
         SalesReceivablesSetup.TestField("Check Multiple Posting Groups", "Posting Group Change Method"::"Alternative Groups");
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckAllowChangeServiceSetup() in codeunit "Serv. Posting Group Change"', '25.0')]
     procedure CheckAllowChangeServiceSetup()
     var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
+        ServiceMgtSetup: Record Microsoft.Service.Setup."Service Mgt. Setup";
     begin
         ServiceMgtSetup.Get();
         ServiceMgtSetup.TestField("Allow Multiple Posting Groups");
         ServiceMgtSetup.TestField("Check Multiple Posting Groups", "Posting Group Change Method"::"Alternative Groups");
     end;
+#endif
 
     procedure CheckAllowChangePurchaseSetup()
     var
@@ -160,6 +153,11 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
         if Vendor.Get(VendorNo) then
             exit(NewPostingGroup = Vendor."Vendor Posting Group");
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterChangePostingGroup(SourceRecordRef: RecordRef; NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    begin
     end;
 }
 

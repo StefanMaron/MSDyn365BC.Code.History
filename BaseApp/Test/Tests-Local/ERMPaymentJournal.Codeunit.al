@@ -661,14 +661,12 @@ codeunit 144003 "ERM Payment Journal"
     begin
         PmtAmount := LibraryRandom.RandDecInRange(10, 1000, 2);
 
-        with GenJnlLine do
-            CreateAndPostGenJnlLine(
-              "Account Type"::Vendor, Vendor."No.", "Document Type"::Invoice,
+        CreateAndPostGenJnlLine(
+              GenJnlLine."Account Type"::Vendor, Vendor."No.", GenJnlLine."Document Type"::Invoice,
               -PmtAmount, InvoiceNo, BankAccountNo);
 
-        with PaymentJnlLine do
-            CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, "Account Type"::Vendor, Vendor."No.",
-              "Applies-to Doc. Type"::Invoice, InvoiceNo, PmtAmount, ExportProtocol, BankAccountNo);
+        CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Vendor, Vendor."No.",
+              PaymentJnlLine."Applies-to Doc. Type"::Invoice, InvoiceNo, PmtAmount, ExportProtocol, BankAccountNo);
     end;
 
     local procedure PrepareForInit(var TemplateName: Code[10]; var BatchName: Code[10]; var ExpProtCodeDomestic: Code[20]; var ExpProtCodeInternational: Code[20]; var Vendor: Record Vendor; UseExpProtCodeInternational: Boolean; BankAccountNo: Code[20])
@@ -745,12 +743,10 @@ codeunit 144003 "ERM Payment Journal"
 
         BankAccountNo := CreateBankAccountMod97Compliant();
 
-        with GenJnlLine do begin
-            CreateAndPostGenJnlLine("Account Type"::Vendor, Vendor."No.",
-              "Document Type"::Invoice, -InvoiceAmount, InvoiceNo, BankAccountNo);
-            CreateAndPostGenJnlLine("Account Type"::Vendor, Vendor."No.",
-              "Document Type"::"Credit Memo", CrMemoAmount, CrMemoNo, BankAccountNo);
-        end;
+        CreateAndPostGenJnlLine(GenJnlLine."Account Type"::Vendor, Vendor."No.",
+          GenJnlLine."Document Type"::Invoice, -InvoiceAmount, InvoiceNo, BankAccountNo);
+        CreateAndPostGenJnlLine(GenJnlLine."Account Type"::Vendor, Vendor."No.",
+          GenJnlLine."Document Type"::"Credit Memo", CrMemoAmount, CrMemoNo, BankAccountNo);
 
         PrepareGenJnlBatch(GenJnlLine, GenJnlBatch);
         CreateVendPaymentJnlLines(
@@ -778,22 +774,18 @@ codeunit 144003 "ERM Payment Journal"
 
         BankAccountNo := CreateBankAccountMod97Compliant();
 
-        with GenJnlLine do begin
-            CreateAndPostGenJnlLine("Account Type"::Customer, Customer."No.",
-              "Document Type"::Payment, -PaymentAmount, InvoiceNo, BankAccountNo);
-            CreateAndPostGenJnlLine("Account Type"::Customer, Customer."No.",
-              "Document Type"::"Credit Memo", -CrMemoAmount, CrMemoNo, BankAccountNo);
-        end;
+        CreateAndPostGenJnlLine(GenJnlLine."Account Type"::Customer, Customer."No.",
+          GenJnlLine."Document Type"::Payment, -PaymentAmount, InvoiceNo, BankAccountNo);
+        CreateAndPostGenJnlLine(GenJnlLine."Account Type"::Customer, Customer."No.",
+          GenJnlLine."Document Type"::"Credit Memo", -CrMemoAmount, CrMemoNo, BankAccountNo);
 
         PrepareGenJnlBatch(GenJnlLine, GenJnlBatch);
         PreparePaymentJnlBatch(TemplateName, BatchName, ExportProtocolCode, refExportProtocolType::Domestic);
 
-        with PaymentJnlLine do begin
-            CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, "Account Type"::Customer, Customer."No.",
-              "Applies-to Doc. Type"::Payment, InvoiceNo, PaymentAmount, ExportProtocolCode, BankAccountNo);
-            CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, "Account Type"::Customer, Customer."No.",
-              "Applies-to Doc. Type"::"Credit Memo", CrMemoNo, CrMemoAmount, ExportProtocolCode, BankAccountNo);
-        end;
+        CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Customer, Customer."No.",
+          PaymentJnlLine."Applies-to Doc. Type"::Payment, InvoiceNo, PaymentAmount, ExportProtocolCode, BankAccountNo);
+        CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Customer, Customer."No.",
+          PaymentJnlLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, CrMemoAmount, ExportProtocolCode, BankAccountNo);
     end;
 
     local procedure InitCustAndVendScenario(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlBatch: Record "Gen. Journal Batch"; var PaymentJnlLine: Record "Payment Journal Line"; var CrMemoNo: Code[20]; var ExportProtocolCode: Code[20])
@@ -818,22 +810,18 @@ codeunit 144003 "ERM Payment Journal"
 
         BankAccountNo := CreateBankAccountMod97Compliant();
 
-        with GenJnlLine do begin
-            CreateAndPostGenJnlLine("Account Type"::Vendor, Vendor."No.",
-              "Document Type"::Invoice, -InvoiceAmount, InvoiceNo, BankAccountNo);
-            CreateAndPostGenJnlLine("Account Type"::Customer, Customer."No.",
-              "Document Type"::"Credit Memo", -CrMemoAmount, CrMemoNo, BankAccountNo);
-        end;
+        CreateAndPostGenJnlLine(GenJnlLine."Account Type"::Vendor, Vendor."No.",
+          GenJnlLine."Document Type"::Invoice, -InvoiceAmount, InvoiceNo, BankAccountNo);
+        CreateAndPostGenJnlLine(GenJnlLine."Account Type"::Customer, Customer."No.",
+          GenJnlLine."Document Type"::"Credit Memo", -CrMemoAmount, CrMemoNo, BankAccountNo);
 
         PrepareGenJnlBatch(GenJnlLine, GenJnlBatch);
         PreparePaymentJnlBatch(TemplateName, BatchName, ExportProtocolCode, refExportProtocolType::Domestic);
 
-        with PaymentJnlLine do begin
-            CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, "Account Type"::Customer, Customer."No.",
-              "Applies-to Doc. Type"::"Credit Memo", CrMemoNo, CrMemoAmount, ExportProtocolCode, BankAccountNo);
-            CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, "Account Type"::Vendor, Vendor."No.",
-              "Applies-to Doc. Type"::Invoice, InvoiceNo, InvoiceAmount, ExportProtocolCode, BankAccountNo);
-        end;
+        CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Customer, Customer."No.",
+          PaymentJnlLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, CrMemoAmount, ExportProtocolCode, BankAccountNo);
+        CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Vendor, Vendor."No.",
+          PaymentJnlLine."Applies-to Doc. Type"::Invoice, InvoiceNo, InvoiceAmount, ExportProtocolCode, BankAccountNo);
     end;
 
     local procedure InitDimPostScenario(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlBatch: Record "Gen. Journal Batch"; var PaymentJnlLine: Record "Payment Journal Line"; var ExportProtocolCode: Code[20]; var DimValue: Record "Dimension Value")
@@ -931,18 +919,14 @@ codeunit 144003 "ERM Payment Journal"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-            Validate("Vendor Invoice No.", PadStr("Vendor Invoice No.", MaxStrLen("Vendor Invoice No."), '0'));
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", PadStr(PurchaseHeader."Vendor Invoice No.", MaxStrLen(PurchaseHeader."Vendor Invoice No."), '0'));
+        PurchaseHeader.Modify(true);
 
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDec(10, 2));
-            Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
     end;
@@ -1009,27 +993,23 @@ codeunit 144003 "ERM Payment Journal"
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        with VendorBankAccount do begin
-            "Vendor No." := Vendor."No.";
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Vendor Bank Account");
-            "Country/Region Code" := Vendor."Country/Region Code";
-            FillInBankBranchAndAccount("Bank Branch No.", "Bank Account No.", Domestic);
-            Insert();
-        end;
+        VendorBankAccount."Vendor No." := Vendor."No.";
+        VendorBankAccount.Code := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo(Code), DATABASE::"Vendor Bank Account");
+        VendorBankAccount."Country/Region Code" := Vendor."Country/Region Code";
+        FillInBankBranchAndAccount(VendorBankAccount."Bank Branch No.", VendorBankAccount."Bank Account No.", Domestic);
+        VendorBankAccount.Insert();
     end;
 
     local procedure CreateVendorBankAccountMod97Compliant(Vendor: Record Vendor)
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        with VendorBankAccount do begin
-            "Vendor No." := Vendor."No.";
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Vendor Bank Account");
-            "Country/Region Code" := Vendor."Country/Region Code";
+        VendorBankAccount."Vendor No." := Vendor."No.";
+        VendorBankAccount.Code := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo(Code), DATABASE::"Vendor Bank Account");
+        VendorBankAccount."Country/Region Code" := Vendor."Country/Region Code";
 
-            GenerateBankAccNosMod97Compliant("Bank Account No.", "Bank Branch No.");
-            Insert();
-        end;
+        GenerateBankAccNosMod97Compliant(VendorBankAccount."Bank Account No.", VendorBankAccount."Bank Branch No.");
+        VendorBankAccount.Insert();
     end;
 
     local procedure CreateCustomerWithBankAccount(var Customer: Record Customer)
@@ -1042,60 +1022,52 @@ codeunit 144003 "ERM Payment Journal"
     var
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        with CustomerBankAccount do begin
-            "Customer No." := Customer."No.";
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Customer Bank Account");
-            "Country/Region Code" := Customer."Country/Region Code";
-            FillInBankBranchAndAccount("Bank Branch No.", "Bank Account No.", Domestic);
-            Insert();
-        end;
+        CustomerBankAccount."Customer No." := Customer."No.";
+        CustomerBankAccount.Code := LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo(Code), DATABASE::"Customer Bank Account");
+        CustomerBankAccount."Country/Region Code" := Customer."Country/Region Code";
+        FillInBankBranchAndAccount(CustomerBankAccount."Bank Branch No.", CustomerBankAccount."Bank Account No.", Domestic);
+        CustomerBankAccount.Insert();
     end;
 
     local procedure CreatePaymentJournalLine(TemplateName: Code[10]; BatchName: Code[10]; var PaymentJnlLine: Record "Payment Journal Line")
     var
         RecRef: RecordRef;
     begin
-        with PaymentJnlLine do begin
-            Init();
-            Validate("Journal Template Name", TemplateName);
-            Validate("Journal Batch Name", BatchName);
-            RecRef.GetTable(PaymentJnlLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
-        end;
+        PaymentJnlLine.Init();
+        PaymentJnlLine.Validate("Journal Template Name", TemplateName);
+        PaymentJnlLine.Validate("Journal Batch Name", BatchName);
+        RecRef.GetTable(PaymentJnlLine);
+        PaymentJnlLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, PaymentJnlLine.FieldNo("Line No.")));
+        PaymentJnlLine.Insert(true);
     end;
 
     local procedure CreatePaymentJnlLine(TemplateName: Code[10]; BatchName: Code[10]; var PaymentJnlLine: Record "Payment Journal Line"; AccountType: Integer; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; PaymentAmount: Decimal; ExportProtocolCode: Code[20]; BankAccountNo: Code[20])
     begin
         CreatePaymentJournalLine(TemplateName, BatchName, PaymentJnlLine);
-        with PaymentJnlLine do begin
-            Validate("Account Type", AccountType);
-            Validate("Posting Date", WorkDate());
-            Validate("Account No.", AccountNo);
-            Validate("Applies-to Doc. Type", AppliesToDocType);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            case "Account Type" of
-                "Account Type"::Vendor:
-                    Validate("Beneficiary Bank Account", FindVendorBankAccountCode(AccountNo));
-                "Account Type"::Customer:
-                    Validate("Beneficiary Bank Account", FindCustomerBankAccountCode(AccountNo));
-            end;
-            Validate("Bank Account", BankAccountNo);
-            Validate(Amount, PaymentAmount);
-            Validate("Export Protocol Code", ExportProtocolCode);
-            Modify(true);
+        PaymentJnlLine.Validate("Account Type", AccountType);
+        PaymentJnlLine.Validate("Posting Date", WorkDate());
+        PaymentJnlLine.Validate("Account No.", AccountNo);
+        PaymentJnlLine.Validate("Applies-to Doc. Type", AppliesToDocType);
+        PaymentJnlLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        case PaymentJnlLine."Account Type" of
+            PaymentJnlLine."Account Type"::Vendor:
+                PaymentJnlLine.Validate("Beneficiary Bank Account", FindVendorBankAccountCode(AccountNo));
+            PaymentJnlLine."Account Type"::Customer:
+                PaymentJnlLine.Validate("Beneficiary Bank Account", FindCustomerBankAccountCode(AccountNo));
         end;
+        PaymentJnlLine.Validate("Bank Account", BankAccountNo);
+        PaymentJnlLine.Validate(Amount, PaymentAmount);
+        PaymentJnlLine.Validate("Export Protocol Code", ExportProtocolCode);
+        PaymentJnlLine.Modify(true);
     end;
 
     local procedure ModifyGLSetupShortcutDimension(NewDimensionCode: Code[20])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Shortcut Dimension 8 Code", NewDimensionCode);
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Shortcut Dimension 8 Code", NewDimensionCode);
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure GetPaymentTemplateAndBatchName(var TemplateName: Code[10]; var BatchName: Code[10])
@@ -1125,42 +1097,36 @@ codeunit 144003 "ERM Payment Journal"
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        with VendorBankAccount do begin
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            exit(Code);
-        end;
+        VendorBankAccount.SetRange("Vendor No.", VendorNo);
+        VendorBankAccount.FindFirst();
+        exit(VendorBankAccount.Code);
     end;
 
     local procedure FindCustomerBankAccountCode(CustomerNo: Code[20]): Code[10]
     var
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        with CustomerBankAccount do begin
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            exit(Code);
-        end;
+        CustomerBankAccount.SetRange("Customer No.", CustomerNo);
+        CustomerBankAccount.FindFirst();
+        exit(CustomerBankAccount.Code);
     end;
 
     local procedure CreateExportProtocol(var ExportProtocol: Record "Export Protocol"; Type: Integer)
     begin
-        with ExportProtocol do begin
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol");
-            case Type of
-                refExportProtocolType::International:
-                    begin
-                        "Check Object ID" := CODEUNIT::"Check International Payments";
-                        "Export Object ID" := REPORT::"File International Payments";
-                    end;
-                refExportProtocolType::Domestic:
-                    begin
-                        "Check Object ID" := CODEUNIT::"Check Domestic Payments";
-                        "Export Object ID" := REPORT::"File Domestic Payments";
-                    end;
-            end;
-            Insert();
+        ExportProtocol.Code := LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol");
+        case Type of
+            refExportProtocolType::International:
+                begin
+                    ExportProtocol."Check Object ID" := CODEUNIT::"Check International Payments";
+                    ExportProtocol."Export Object ID" := REPORT::"File International Payments";
+                end;
+            refExportProtocolType::Domestic:
+                begin
+                    ExportProtocol."Check Object ID" := CODEUNIT::"Check Domestic Payments";
+                    ExportProtocol."Export Object ID" := REPORT::"File Domestic Payments";
+                end;
         end;
+        ExportProtocol.Insert();
     end;
 
     local procedure SuggestVendorPayments(VendorNoFilter: Text)
@@ -1201,22 +1167,18 @@ codeunit 144003 "ERM Payment Journal"
 
     local procedure FindCrMemoGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; CrMemoNo: Code[20])
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            SetRange("Applies-to Doc. Type", "Applies-to Doc. Type"::"Credit Memo");
-            SetRange("Applies-to Doc. No.", CrMemoNo);
-            FindFirst();
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJnlLine.SetRange("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::"Credit Memo");
+        GenJnlLine.SetRange("Applies-to Doc. No.", CrMemoNo);
+        GenJnlLine.FindFirst();
     end;
 
     local procedure FilterEBPaymentJournalLine(var PaymentJournalLine: Record "Payment Journal Line"; VendorNoFilter: Text; LineStatus: Option)
     begin
-        with PaymentJournalLine do begin
-            SetRange("Account Type", "Account Type"::Vendor);
-            SetFilter("Account No.", VendorNoFilter);
-            SetRange(Status, LineStatus);
-        end;
+        PaymentJournalLine.SetRange("Account Type", PaymentJournalLine."Account Type"::Vendor);
+        PaymentJournalLine.SetFilter("Account No.", VendorNoFilter);
+        PaymentJournalLine.SetRange(Status, LineStatus);
     end;
 
     local procedure PrepareGenJnlBatch(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlBatch: Record "Gen. Journal Batch")
@@ -1257,34 +1219,28 @@ codeunit 144003 "ERM Payment Journal"
 
     local procedure CreatePaymentTemplate(var PaymentJnlTemplate: Record "Payment Journal Template")
     begin
-        with PaymentJnlTemplate do begin
-            Init();
-            Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Payment Journal Template"));
-            Validate("Page ID", PAGE::"EB Payment Journal");
-            Insert(true);
-        end;
+        PaymentJnlTemplate.Init();
+        PaymentJnlTemplate.Validate(Name, LibraryUtility.GenerateRandomCode(PaymentJnlTemplate.FieldNo(Name), DATABASE::"Payment Journal Template"));
+        PaymentJnlTemplate.Validate("Page ID", PAGE::"EB Payment Journal");
+        PaymentJnlTemplate.Insert(true);
     end;
 
     local procedure CreatePaymentBatch(PaymentJnlTemplate: Record "Payment Journal Template"; var PaymJnlBatch: Record "Paym. Journal Batch")
     begin
-        with PaymJnlBatch do begin
-            Init();
-            Validate("Journal Template Name", PaymentJnlTemplate.Name);
-            Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Paym. Journal Batch"));
-            Validate("Reason Code", PaymentJnlTemplate."Reason Code");
-            Insert(true);
-        end;
+        PaymJnlBatch.Init();
+        PaymJnlBatch.Validate("Journal Template Name", PaymentJnlTemplate.Name);
+        PaymJnlBatch.Validate(Name, LibraryUtility.GenerateRandomCode(PaymJnlBatch.FieldNo(Name), DATABASE::"Paym. Journal Batch"));
+        PaymJnlBatch.Validate("Reason Code", PaymentJnlTemplate."Reason Code");
+        PaymJnlBatch.Insert(true);
     end;
 
     local procedure CreatePaymentBatchWithNoNumbers(PaymentJnlTemplate: Record "Payment Journal Template"; var PaymJnlBatch: Record "Paym. Journal Batch")
     begin
-        with PaymJnlBatch do begin
-            Init();
-            Validate("Journal Template Name", PaymentJnlTemplate.Name);
-            Validate(Name, GenerateRandomLetters(10));
-            Validate("Reason Code", PaymentJnlTemplate."Reason Code");
-            Insert(true);
-        end;
+        PaymJnlBatch.Init();
+        PaymJnlBatch.Validate("Journal Template Name", PaymentJnlTemplate.Name);
+        PaymJnlBatch.Validate(Name, GenerateRandomLetters(10));
+        PaymJnlBatch.Validate("Reason Code", PaymentJnlTemplate."Reason Code");
+        PaymJnlBatch.Insert(true);
     end;
 
     local procedure GenerateRandomLetters(Length: Integer) Result: Text
@@ -1317,66 +1273,59 @@ codeunit 144003 "ERM Payment Journal"
     begin
         PreparePaymentJnlBatch(TemplateName, BatchName, ExportProtocolCode, refExportProtocolType::International);
 
-        with PaymentJnlLine do
-            if ApplToCrMemoLineFirst then begin
-                CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, "Account Type"::Vendor, Vendor."No.",
-                  "Applies-to Doc. Type"::"Credit Memo", CrMemoNo, -CrMemoAmount, ExportProtocolCode, BankAccountNo);
-                CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, "Account Type"::Vendor, Vendor."No.",
-                  "Applies-to Doc. Type"::Invoice, InvoiceNo, Round(InvoiceAmount), ExportProtocolCode, BankAccountNo);
-            end else begin
-                CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, "Account Type"::Vendor, Vendor."No.",
-                  "Applies-to Doc. Type"::Invoice, InvoiceNo, Round(InvoiceAmount * 0.8), ExportProtocolCode, BankAccountNo);
-                CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, "Account Type"::Vendor, Vendor."No.",
-                  "Applies-to Doc. Type"::"Credit Memo", CrMemoNo, -CrMemoAmount, ExportProtocolCode, BankAccountNo);
-            end;
+        if ApplToCrMemoLineFirst then begin
+            CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Vendor, Vendor."No.",
+              PaymentJnlLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, -CrMemoAmount, ExportProtocolCode, BankAccountNo);
+            CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Vendor, Vendor."No.",
+              PaymentJnlLine."Applies-to Doc. Type"::Invoice, InvoiceNo, Round(InvoiceAmount), ExportProtocolCode, BankAccountNo);
+        end else begin
+            CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Vendor, Vendor."No.",
+              PaymentJnlLine."Applies-to Doc. Type"::Invoice, InvoiceNo, Round(InvoiceAmount * 0.8), ExportProtocolCode, BankAccountNo);
+            CreatePaymentJnlLine(TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Vendor, Vendor."No.",
+              PaymentJnlLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, -CrMemoAmount, ExportProtocolCode, BankAccountNo);
+        end;
     end;
 
     local procedure MockVendorLedgerEntry(VendorNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date; EntryAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Vendor No." := VendorNo;
-            "Document No." := DocumentNo;
-            Amount := EntryAmount;
-            "Posting Date" := PostingDate;
-            Open := true;
-            Insert();
-            MockDetailedVendorLedgerEntry(VendorNo, DocumentNo, "Entry No.", EntryAmount, PostingDate);
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry."Document No." := DocumentNo;
+        VendorLedgerEntry.Amount := EntryAmount;
+        VendorLedgerEntry."Posting Date" := PostingDate;
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry.Insert();
+        MockDetailedVendorLedgerEntry(VendorNo, DocumentNo, VendorLedgerEntry."Entry No.", EntryAmount, PostingDate);
     end;
 
     local procedure MockDetailedVendorLedgerEntry(VendorNo: Code[20]; DocumentNo: Code[20]; VendLedgEntryNo: Integer; EntryAmount: Decimal; PostingDate: Date)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Vendor No." := VendorNo;
-            "Document No." := DocumentNo;
-            "Posting Date" := PostingDate;
-            "Vendor Ledger Entry No." := VendLedgEntryNo;
-            Amount := EntryAmount;
-            Insert();
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Vendor No." := VendorNo;
+        DetailedVendorLedgEntry."Document No." := DocumentNo;
+        DetailedVendorLedgEntry."Posting Date" := PostingDate;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
+        DetailedVendorLedgEntry.Amount := EntryAmount;
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure AddDimToSelectedDim(DimensionCode: Code[20])
     var
         SelectedDim: Record "Selected Dimension";
     begin
-        with SelectedDim do begin
-            DeleteAll();
-            Init();
-            "User ID" := UserId;
-            Validate("Object Type", 3);
-            Validate("Object ID", REPORT::"File Domestic Payments");
-            Validate("Dimension Code", DimensionCode);
-            Insert(true);
-        end;
+        SelectedDim.DeleteAll();
+        SelectedDim.Init();
+        SelectedDim."User ID" := UserId;
+        SelectedDim.Validate("Object Type", 3);
+        SelectedDim.Validate("Object ID", REPORT::"File Domestic Payments");
+        SelectedDim.Validate("Dimension Code", DimensionCode);
+        SelectedDim.Insert(true);
     end;
 
     local procedure UpdateGLAccountDefaultDim(GLAccountNo: Code[20]; var DimValue: Record "Dimension Value")
@@ -1395,14 +1344,13 @@ codeunit 144003 "ERM Payment Journal"
         BankAccount: Record "Bank Account";
     begin
         BankAccount.Get(BankAccountNo);
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            AssertElementWithValueExists('BankAccName', BankAccount.Name);
-            AssertElementWithValueExists('BankAccBankAccNo', BankAccount."Bank Account No."); // Initial TFSID 232996
-            AssertElementWithValueExists('BankAccBankBranchNo', BankAccount."Bank Branch No.");
-            AssertElementWithValueExists('CompanyInfoEnterpriseNo', '0058.315.707');
-            AssertElementWithValueExists('TotalAmt1', 1450.81);
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BankAccName', BankAccount.Name);
+        LibraryReportDataset.AssertElementWithValueExists('BankAccBankAccNo', BankAccount."Bank Account No.");
+        // Initial TFSID 232996
+        LibraryReportDataset.AssertElementWithValueExists('BankAccBankBranchNo', BankAccount."Bank Branch No.");
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfoEnterpriseNo', '0058.315.707');
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmt1', 1450.81);
     end;
 
     local procedure ValidateInternationalReportXml(BankAccountNo: Code[20])
@@ -1410,14 +1358,13 @@ codeunit 144003 "ERM Payment Journal"
         BankAccount: Record "Bank Account";
     begin
         BankAccount.Get(BankAccountNo);
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            AssertElementWithValueExists('BankAcc_Name', BankAccount.Name);
-            AssertElementWithValueExists('BankAcc_BankAccNo', BankAccount."Bank Account No."); // Initial TFSID 232996
-            AssertElementWithValueExists('BankAcc_BankBranchNo', BankAccount."Bank Branch No.");
-            AssertElementWithValueExists('CompanyInfo_EnterpriseNo', '0058.315.707');
-            AssertElementWithValueExists('TotalAmount1', 1631.46);
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BankAcc_Name', BankAccount.Name);
+        LibraryReportDataset.AssertElementWithValueExists('BankAcc_BankAccNo', BankAccount."Bank Account No.");
+        // Initial TFSID 232996
+        LibraryReportDataset.AssertElementWithValueExists('BankAcc_BankBranchNo', BankAccount."Bank Branch No.");
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfo_EnterpriseNo', '0058.315.707');
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount1', 1631.46);
     end;
 
     local procedure VerifyNumberAndStatusOfVendorPaymentJournalLines(VendorNo: Code[20]; LineStatus: Option; ExpectedCount: Integer)
@@ -1495,27 +1442,23 @@ codeunit 144003 "ERM Payment Journal"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            SetRange("Account Type", "Account Type"::Customer);
-            FindFirst();
-            TestField("Document Type", "Document Type"::Refund);
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJnlLine.SetRange("Account Type", GenJnlLine."Account Type"::Customer);
+        GenJnlLine.FindFirst();
+        GenJnlLine.TestField("Document Type", GenJnlLine."Document Type"::Refund);
     end;
 
     local procedure VerifyGenJnlLineApplyToID(GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; ApplyToID: Code[50])
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            SetRange("Account Type", "Account Type"::Vendor);
-            SetRange("Account No.", AccountNo);
-            FindFirst();
-            TestField("Applies-to ID", ApplyToID);
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJnlLine.SetRange("Account Type", GenJnlLine."Account Type"::Vendor);
+        GenJnlLine.SetRange("Account No.", AccountNo);
+        GenJnlLine.FindFirst();
+        GenJnlLine.TestField("Applies-to ID", ApplyToID);
     end;
 
     local procedure VerifyGenJnlLineDim(GenJnlBatch: Record "Gen. Journal Batch"; DimValue: Record "Dimension Value"; AccountNo: Code[20])
@@ -1539,12 +1482,10 @@ codeunit 144003 "ERM Payment Journal"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            SetRange(Description, ExpectedPaymentMessage);
-            Assert.RecordCount(GenJournalLine, ExpectedCount);
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange(Description, ExpectedPaymentMessage);
+        Assert.RecordCount(GenJournalLine, ExpectedCount);
     end;
 
     [RequestPageHandler]

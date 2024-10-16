@@ -485,9 +485,11 @@ report 2501 "Day Book Cust. Ledger Entry"
         VATAmount_Control26Caption_Control27Lbl: Label 'VAT Amount';
         VATBase_Control29Caption_Control30Lbl: Label 'VAT Base';
         ActualAmount_Control39Caption_Control35Lbl: Label 'Actual Amount';
+#pragma warning disable AA0470
         AllAmountsAreInLbl: Label 'All amounts are in %1.', Comment = 'All amounts are in GBP';
         TotalForCustLedgerEntryLbl: Label 'Total for  %1 : %2.', Comment = 'Total for Cust. Ledger Entry 3403  ';
         TotalForDatePeriodStartLbl: Label 'Total for %1.', Comment = 'Total for posting date 12122012';
+#pragma warning restore AA0470
         MissingDateRangeFilterErr: Label 'Posting Date filter must be set.';
         MaxPostingDateErr: Label 'Posting Date period must not be longer than 1 year.';
 

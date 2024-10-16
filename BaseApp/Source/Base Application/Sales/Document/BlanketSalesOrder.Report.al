@@ -704,6 +704,9 @@ report 210 "Blanket Sales Order"
                         column(ShiptoAddressCaption; ShiptoAddressCaptionLbl)
                         {
                         }
+                        column(ShipToPhoneNo; "Sales Header"."Ship-to Phone No.")
+                        {
+                        }
                         column(SelltoCustNo_SalesHeaderCaption; "Sales Header".FieldCaption("Sell-to Customer No."))
                         {
                         }
@@ -924,15 +927,23 @@ report 210 "Blanket Sales Order"
         LogInteraction: Boolean;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
+#pragma warning disable AA0074
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NoText: Text[50];
         ArchiveDocument: Boolean;
         LogInteractionEnable: Boolean;
 
+#pragma warning disable AA0074
         Text004: Label 'Blanket Sales Order %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PaymentTermsCaptionLbl: Label 'Payment Terms';
         ShipmentMethodCaptionLbl: Label 'Shipment Method';
         PhoneNoCaptionLbl: Label 'Phone No.';

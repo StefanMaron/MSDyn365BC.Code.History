@@ -1,15 +1,16 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Service.Contract;
-using Microsoft.Service.Pricing;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Comment;
-using Microsoft.Service.History;
+using Microsoft.Service.Contract;
 using Microsoft.Service.Document;
 using Microsoft.Service.Email;
+using Microsoft.Service.History;
 using Microsoft.Service.Item;
 using Microsoft.Service.Ledger;
-using Microsoft.Service.Setup;
 using Microsoft.Service.Posting;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Setup;
 
 permissionset 6850 "D365PREM SMG, EDIT"
 {
@@ -23,6 +24,7 @@ permissionset 6850 "D365PREM SMG, EDIT"
                   tabledata "Serv. Price Adjustment Detail" = ID,
                   tabledata "Serv. Price Group Setup" = ID,
                   tabledata "Service Comment Line" = ID,
+                  tabledata "Service Comment Line Archive" = ID,
                   tabledata "Service Contract Account Group" = ID,
                   tabledata "Service Contract Header" = ID,
                   tabledata "Service Contract Line" = ID,
@@ -34,6 +36,7 @@ permissionset 6850 "D365PREM SMG, EDIT"
                   tabledata "Service Document Register" = ID,
                   tabledata "Service Email Queue" = ID,
                   tabledata "Service Header" = ID,
+                  tabledata "Service Header Archive" = ID,
                   tabledata "Service Hour" = ID,
                   tabledata "Service Invoice Header" = ID,
                   tabledata "Service Invoice Line" = ID,
@@ -41,12 +44,15 @@ permissionset 6850 "D365PREM SMG, EDIT"
                   tabledata "Service Item Component" = ID,
                   tabledata "Service Item Group" = ID,
                   tabledata "Service Item Line" = ID,
+                  tabledata "Service Item Line Archive" = ID,
                   tabledata "Service Item Log" = ID,
                   tabledata "Service Ledger Entry" = id,
                   tabledata "Service Line" = ID,
+                  tabledata "Service Line Archive" = ID,
                   tabledata "Service Line Price Adjmt." = ID,
                   tabledata "Service Mgt. Setup" = ID,
                   tabledata "Service Order Allocation" = ID,
+                  tabledata "Service Order Allocat. Archive" = ID,
                   tabledata "Service Order Posting Buffer" = ID,
                   tabledata "Service Order Type" = ID,
                   tabledata "Service Price Adjustment Group" = ID,

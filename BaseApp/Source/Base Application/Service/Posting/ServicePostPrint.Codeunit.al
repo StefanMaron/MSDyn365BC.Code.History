@@ -2,7 +2,6 @@ namespace Microsoft.Service.Posting;
 
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
-using Microsoft.Finance.ReceivablesPayables;
 
 codeunit 5982 "Service-Post+Print"
 {
@@ -118,7 +117,7 @@ codeunit 5982 "Service-Post+Print"
 
     local procedure ConfirmPostAndPrint(var PassedServiceHeader: Record "Service Header"; DefaultOption: Integer) Result: Boolean
     var
-        PostingSelectionManagement: Codeunit "Posting Selection Management";
+        ServPostingSelectionMgt: Codeunit "Serv. Posting Selection Mgt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -126,7 +125,7 @@ codeunit 5982 "Service-Post+Print"
         if IsHandled then
             exit(Result);
 
-        Result := PostingSelectionManagement.ConfirmPostServiceDocument(PassedServiceHeader, Ship, Consume, Invoice, DefaultOption, true, false, false);
+        Result := ServPostingSelectionMgt.ConfirmPostServiceDocument(PassedServiceHeader, Ship, Consume, Invoice, DefaultOption, true, false, false);
         if not Result then
             exit(false);
 

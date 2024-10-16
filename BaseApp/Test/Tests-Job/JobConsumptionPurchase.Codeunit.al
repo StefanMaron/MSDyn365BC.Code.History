@@ -21,7 +21,6 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        JobTaskBlankErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1=Field name,%2=Table name,%3=Field name,%4=Field value,%5=Field name,%6=Field value,%7=Field name,%8=Field value';
         CodeMandatoryDimensionErr: Label 'The dimensions used in Order %1, line no. %2 are invalid (Error: Select a %3 for the %4 %5 for Project %6.).', Comment = '%1=Field value,%2=Field value,%3=Field value,%4=Field name,%5=Field name,%6=Field name';
         SameCodeOrNoCodeDimensionErr: Label 'The dimensions used in Order %1, line no. %2 are invalid (Error: The %3 must be %4 for %5 %6 for %7 %8. Currently it''s %9.', Comment = '%1=Field value,%2=Field value, %3 = "Dimension value code" caption, %4 = expected "Dimension value code" value, %5 = "Dimension code" caption, %6 = "Dimension Code" value, %7 = Table caption (Vendor), %8 = Table value (XYZ), %9 = current "Dimension value code" value';
         BlankLbl: Label 'blank';
@@ -36,12 +35,6 @@ codeunit 136302 "Job Consumption Purchase"
         Initialized: Boolean;
         WrongDimJobLedgerEntryErr: Label 'Wrong Dim on Project Ledger entry %1! Expected ID: %2, Actual ID: %3.';
         FieldErr: Label '%1 must be equal  %2 in %3.';
-        TypeReservationErr: Label '%1 must be equal to ''Item''  in %2: %3=%4, %5=%6, %7=%8. Current value is ''Resource''.', Comment = '%1 Type Field Caption,%2 Table Caption,%3 Project No. FieldCaption,%4 Project No.,%5 Project Task No. Field Caption,%6 Project Task No.,%7 Line No. Field Caption,%8 Line No.';
-        PlanningDateErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1 Planning Date Field Caption,%2 Table Caption,%3 Project No. FieldCaption,%4 Project No.,%5 Project Task No. Field Caption,%6 Project Task No.,%7 Line No. Field Caption,%8 Line No.';
-        EmptyFieldErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1 Field Caption,%2 Table Caption,%3 Project No. FieldCaption,%4 Project No.,%5 Project Task No. Field Caption,%6 Project Task No.,%7 Line No. Field Caption,%8 Line No.';
-        JobStatusErr: Label '%1 must be equal to ''%2''  in %3: %4=%5. Current value is ''%6''.', Comment = '%1: Field Caption1,%2: Field Value1,%3: Table Caption,%4: Field Caption2,%5: Field Value2,%6: Field Value3';
-        QtyPerUOMErr: Label '%1 must be equal to ''%2''  in %3: %4=%5, %6=%7, %8=%9. Current value is ''%10''.', Comment = '%1=Fieldname ,%2=FieldValue,%3=TableName,%4=FieldName,%5=FieldValue,%6=FieldName,%7=FieldValue,%8=FieldName,%9=FieldValue,%10=FieldValue';
-        JobNoErr: Label 'Project No. must be equal to ''''  in Purchase Line';
         ValueMustMatchErr: Label '%1 must equal to %2.';
         EmptyValueErr: Label '%1 is empty in %2';
         WrongTotalCostAmtErr: Label 'Total cost amount must  be 0 in Posted Purchase Receipt %1.', Comment = '%1 = Document No. (e.g. "Total cost amount must be 0 in Posted Purchase Receipt 107031").';
@@ -271,11 +264,7 @@ codeunit 136302 "Job Consumption Purchase"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [THEN] Check error message on posting Purchase order with Job specified and blank Job Task No.
-        Assert.ExpectedError(
-          StrSubstNo(JobTaskBlankErr, PurchaseLine.FieldCaption("Job Task No."),
-            PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Document Type"),
-            PurchaseLine."Document Type", PurchaseLine.FieldCaption("Document No."), PurchaseLine."Document No.",
-            PurchaseLine.FieldCaption("Line No."), PurchaseLine."Line No."))
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Job Task No."), '');
     end;
 
     [Test]
@@ -678,8 +667,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Job Ledger Entries were created, each with Total Cost = Total Cost (LCY) = "X"
-        with PurchaseLine do
-            VerifyTotalCostAndPriceOnJobLedgerEntry(Item."No.", "Unit Cost", "Unit Cost (LCY)", "Unit Price (LCY)", "Unit Price (LCY)");
+        VerifyTotalCostAndPriceOnJobLedgerEntry(Item."No.", PurchaseLine."Unit Cost", PurchaseLine."Unit Cost (LCY)", PurchaseLine."Unit Price (LCY)", PurchaseLine."Unit Price (LCY)");
     end;
 
     [Test]
@@ -705,8 +693,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Job Ledger Entries were created, each with Total Cost = "X"
-        with PurchaseLine do
-            VerifyTotalCostAndPriceOnJobLedgerEntry(Item."No.", "Unit Cost", "Unit Cost (LCY)", "Job Unit Price", "Job Unit Price (LCY)");
+        VerifyTotalCostAndPriceOnJobLedgerEntry(Item."No.", PurchaseLine."Unit Cost", PurchaseLine."Unit Cost (LCY)", PurchaseLine."Job Unit Price", PurchaseLine."Job Unit Price (LCY)");
     end;
 
     [Test]
@@ -848,12 +835,7 @@ codeunit 136302 "Job Consumption Purchase"
         asserterror OpenReservationPage(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
 
         // [THEN] Verify error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            TypeReservationErr, JobPlanningLine.FieldCaption(Type), JobPlanningLine.TableCaption(),
-            JobPlanningLine.FieldCaption("Job No."), JobPlanningLine."Job No.", JobPlanningLine.FieldCaption("Job Task No."),
-            JobPlanningLine."Job Task No.",
-            JobPlanningLine.FieldCaption("Line No."), JobPlanningLine."Line No."));
+        Assert.ExpectedTestFieldError(JobPlanningLine.FieldCaption(Type), Format(JobPlanningLine.Type::Item));
     end;
 
     [Test]
@@ -873,11 +855,7 @@ codeunit 136302 "Job Consumption Purchase"
         asserterror OpenReservationPage(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
 
         // [THEN] Verify error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            PlanningDateErr, JobPlanningLine.FieldCaption("Planning Date"), JobPlanningLine.TableCaption(),
-            JobPlanningLine.FieldCaption("Job No."), JobPlanningLine."Job No.", JobPlanningLine.FieldCaption("Job Task No."),
-            JobPlanningLine."Job Task No.", JobPlanningLine.FieldCaption("Line No."), JobPlanningLine."Line No."));
+        Assert.ExpectedTestFieldError(JobPlanningLine.FieldCaption("Planning Date"), '');
     end;
 
     [Test]
@@ -1200,11 +1178,7 @@ codeunit 136302 "Job Consumption Purchase"
         asserterror JobPlanningLine.Validate(Reserve, JobPlanningLine.Reserve::Optional);
 
         // [THEN] Verify error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            EmptyFieldErr, JobPlanningLine.FieldCaption("Usage Link"), JobPlanningLine.TableCaption(),
-            JobPlanningLine.FieldCaption("Job No."), JobPlanningLine."Job No.", JobPlanningLine.FieldCaption("Job Task No."),
-            JobPlanningLine."Job Task No.", JobPlanningLine.FieldCaption("Line No."), JobPlanningLine."Line No."));
+        Assert.ExpectedTestFieldError(JobPlanningLine.FieldCaption("Usage Link"), '');
     end;
 
     [Test]
@@ -1339,11 +1313,7 @@ codeunit 136302 "Job Consumption Purchase"
         asserterror JobPlanningLine.Validate(Reserve, JobPlanningLine.Reserve::Optional);
 
         // [THEN] Verify error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            EmptyFieldErr, JobPlanningLine.FieldCaption("Usage Link"), JobPlanningLine.TableCaption(),
-            JobPlanningLine.FieldCaption("Job No."), JobPlanningLine."Job No.", JobPlanningLine.FieldCaption("Job Task No."),
-            JobPlanningLine."Job Task No.", JobPlanningLine.FieldCaption("Line No."), JobPlanningLine."Line No."));
+        Assert.ExpectedTestFieldError(JobPlanningLine.FieldCaption("Usage Link"), '');
     end;
 
     [Test]
@@ -1595,12 +1565,7 @@ codeunit 136302 "Job Consumption Purchase"
         asserterror PurchaseLine.TestField("Qty. per Unit of Measure", QtyPerUnitOfMeasure);
 
         // [THEN] Verify error raised on testfield of Quantity Per Unit of Measure.
-        Assert.ExpectedError(
-          StrSubstNo(
-            QtyPerUOMErr, PurchaseLine.FieldCaption("Qty. per Unit of Measure"), QtyPerUnitOfMeasure, PurchaseLine.TableCaption(),
-            PurchaseLine.FieldCaption("Document Type"), PurchaseLine."Document Type",
-            PurchaseLine.FieldCaption("Document No."), PurchaseLine."Document No.", PurchaseLine.FieldCaption("Line No."),
-            PurchaseLine."Line No.", 1));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Qty. per Unit of Measure"), Format(QtyPerUnitOfMeasure));
     end;
 
     [Test]
@@ -1713,10 +1678,7 @@ codeunit 136302 "Job Consumption Purchase"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Verify Error Message while posting Purchase Order.
-        Assert.ExpectedError(
-          StrSubstNo(
-            JobStatusErr, Job.FieldCaption(Status), Job.Status::Open, Job.TableCaption(), Job.FieldCaption("No."), PurchaseLine."Job No.",
-            Job.Status));
+        Assert.ExpectedTestFieldError(Job.FieldCaption(Status), Format(Job.Status::Open));
     end;
 
     [Test]
@@ -1875,13 +1837,11 @@ codeunit 136302 "Job Consumption Purchase"
           PurchaseLine, PurchaseHeader, LibraryJob.Job2PurchaseConsumableType(JobPlanningLine.Type),
           Item."No.", LibraryRandom.RandInt(10));
 
-        with PurchaseLine do begin
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
-            // give a different unit cost:
-            Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
-            Modify(true)
-        end;
+        PurchaseLine.Validate(Description, LibraryUtility.GenerateGUID());
+        PurchaseLine.Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
+        // give a different unit cost:
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        PurchaseLine.Modify(true);
 
         // [WHEN] Post Purchase and then run Adjust Cost - Item Entries and Update Job Item Cost jobs.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1929,7 +1889,7 @@ codeunit 136302 "Job Consumption Purchase"
         asserterror GetPurchaseLineAndFillJobNo(PurchaseLine, Item."No.", JobTask."Job No.");
 
         // [THEN] Verify error message is correct.
-        Assert.ExpectedError(JobNoErr);
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Job No."), '''');
     end;
 
     [Test]
@@ -1957,16 +1917,13 @@ codeunit 136302 "Job Consumption Purchase"
         // [WHEN] Undo Purchase Receipt.
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
         UndoPurchRcpt(PurchaseLine);
-
         // [THEN] There are no Item Ledger or Value entries with empty Source Type/Source No.
-        with PurchRcptLine do begin
-            SetRange("Order No.", PurchaseLine."Document No.");
-            SetRange("Order Line No.", PurchaseLine."Line No.");
-            FindLast();
-            VerifyUndoLedgerEntrySource(
-              ItemLedgerEntry."Document Type"::"Purchase Receipt", "Document No.", "Line No.",
-              ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."Buy-from Vendor No.");
-        end;
+        PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
+        PurchRcptLine.FindLast();
+        VerifyUndoLedgerEntrySource(
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", PurchRcptLine."Document No.", PurchRcptLine."Line No.",
+          ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."Buy-from Vendor No.");
     end;
 
     [Test]
@@ -1994,16 +1951,13 @@ codeunit 136302 "Job Consumption Purchase"
         // [WHEN] Undo Purchase Return.
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
         UndoPurchReturn(Item."No.");
-
         // [THEN] There are no Item Ledger or Value entries with empty Source Type/Source No.
-        with ReturnShipmentLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", Item."No.");
-            FindLast();
-            VerifyUndoLedgerEntrySource(
-              ItemLedgerEntry."Document Type"::"Purchase Return Shipment", "Document No.", "Line No.",
-              ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."Buy-from Vendor No.");
-        end;
+        ReturnShipmentLine.SetRange(Type, ReturnShipmentLine.Type::Item);
+        ReturnShipmentLine.SetRange("No.", Item."No.");
+        ReturnShipmentLine.FindLast();
+        VerifyUndoLedgerEntrySource(
+          ItemLedgerEntry."Document Type"::"Purchase Return Shipment", ReturnShipmentLine."Document No.", ReturnShipmentLine."Line No.",
+          ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."Buy-from Vendor No.");
         // [THEN] Unit of measure code is filled in all item ledger entries
         VerifyItemLedgerEntryUnitOfMeasure(Item);
     end;
@@ -2401,11 +2355,9 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Change Direct Unit Cost in Purchase Line, Invoice Purchase Order
         ReleasePurchaseDocument.Reopen(PurchaseHeader);
-        with PurchaseLine do begin
-            Find();
-            Validate("Direct Unit Cost", "Direct Unit Cost" + 0.01);
-            Modify(true);
-        end;
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" + 0.01);
+        PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [WHEN] Run cost adjustment
@@ -3363,7 +3315,7 @@ codeunit 136302 "Job Consumption Purchase"
 
     local procedure Initialize()
     var
-#if not CLEAN23
+#if not CLEAN25
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
 #endif
@@ -3385,7 +3337,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.UpdateGenProdPostingSetup();
-#if not CLEAN23
+#if not CLEAN25
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
@@ -3604,13 +3556,11 @@ codeunit 136302 "Job Consumption Purchase"
 
     local procedure CreateJobPlanningLineWithDocNo(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; DocNo: Code[20]; NewQuantity: Decimal)
     begin
-        with JobPlanningLine do begin
-            CreateJobPlanningLine(JobPlanningLine, JobTask,
-              Type::Item, CreateItem(), NewQuantity, true);
-            Validate("Document No.", DocNo);
-            Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-        end;
+        CreateJobPlanningLine(JobPlanningLine, JobTask,
+          JobPlanningLine.Type::Item, CreateItem(), NewQuantity, true);
+        JobPlanningLine.Validate("Document No.", DocNo);
+        JobPlanningLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure CreateJobJournalLineWithDocNo(var JobJournalLine: Record "Job Journal Line"; JobPlanningLine: Record "Job Planning Line")
@@ -3784,11 +3734,9 @@ codeunit 136302 "Job Consumption Purchase"
         Job.Get(JobTask."Job No.");
         Vendor.Get(CreateVendorWithSetup(VATPostingSetup));
         CreatePurchaseHeader(DocType, Vendor."No.", PurchaseHeader);
-        with PurchaseHeader do begin
-            Validate("Prices Including VAT", true);
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
           LibraryERM.CreateGLAccountWithVATPostingSetup(
@@ -3980,11 +3928,9 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(9));
-        with PurchaseLine do begin
-            Validate("Direct Unit Cost", LibraryRandom.RandDec(99, 2));
-            Modify(true);
-            OpenItemTrackingLines();
-        end;
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(99, 2));
+        PurchaseLine.Modify(true);
+        PurchaseLine.OpenItemTrackingLines();
 
         AttachJobTaskToPurchaseDoc(JobTask, PurchaseHeader);
     end;
@@ -4221,18 +4167,16 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine: Record "Purchase Line";
         LineAmount: Decimal;
     begin
-        with PurchaseLine do begin
-            LineAmount := LibraryRandom.RandDecInRange(100, 500, 2);
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, CodeNo, LibraryRandom.RandDecInRange(100, 500, 2));
-            Validate("Direct Unit Cost", LineAmount);
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Job Line Type", "Job Line Type"::"Both Budget and Billable");
-            Validate("Job Unit Price", LineAmount);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            Modify(true);
-        end;
+        LineAmount := LibraryRandom.RandDecInRange(100, 500, 2);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, CodeNo, LibraryRandom.RandDecInRange(100, 500, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LineAmount);
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::"Both Budget and Billable");
+        PurchaseLine.Validate("Job Unit Price", LineAmount);
+        PurchaseLine.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchaseCreditMemoViaGetReturnShipmentLines(var PurchaseHeaderCrMemo: Record "Purchase Header"; PurchaseHeaderReturn: Record "Purchase Header")
@@ -4266,14 +4210,12 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroupCode));
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, Vendor."Gen. Bus. Posting Group", GenProdPostingGroupCode);
-        with GeneralPostingSetup do begin
-            Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
-            Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo());
-            Validate("COGS Account", LibraryERM.CreateGLAccountNo());
-            Validate("Sales Account", LibraryERM.CreateGLAccountNo());
-            Validate("Purch. Account", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        GeneralPostingSetup.Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Validate("COGS Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Modify(true);
         exit(Vendor."No.");
     end;
 
@@ -4305,13 +4247,11 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine: Record "Purchase Line";
     begin
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
-        with PurchaseLine do begin
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Job Line Type", "Job Line Type"::Budget);
-            Validate("Job Planning Line No.", JobPlanningLineNo);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Budget);
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLineNo);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure AttachJobTaskToPurchaseDoc(JobTask: Record "Job Task"; PurchaseHeader: Record "Purchase Header")
@@ -4333,13 +4273,11 @@ codeunit 136302 "Job Consumption Purchase"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-            Validate("Accept Action Message", true);
-            Modify(true);
-        end;
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify(true);
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
@@ -4555,25 +4493,21 @@ codeunit 136302 "Job Consumption Purchase"
           PurchaseLineWithNegativeQuantity,
           PurchaseHeader, PurchaseLine.Type::Item, PurchaseLine."No.", -LibraryRandom.RandDecInDecimalRange(1, PurchaseLine.Quantity, 2));
 
-        with PurchaseLineWithNegativeQuantity do begin
-            Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost");
-            Validate("Job No.", PurchaseLine."Job No.");
-            Validate("Job Task No.", PurchaseLine."Job Task No.");
-            Validate("Job Line Type", "Job Line Type"::Budget);
-            Validate("Job Planning Line No.", 0);
-            Modify(true);
-        end;
+        PurchaseLineWithNegativeQuantity.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost");
+        PurchaseLineWithNegativeQuantity.Validate("Job No.", PurchaseLine."Job No.");
+        PurchaseLineWithNegativeQuantity.Validate("Job Task No.", PurchaseLine."Job Task No.");
+        PurchaseLineWithNegativeQuantity.Validate("Job Line Type", PurchaseLineWithNegativeQuantity."Job Line Type"::Budget);
+        PurchaseLineWithNegativeQuantity.Validate("Job Planning Line No.", 0);
+        PurchaseLineWithNegativeQuantity.Modify(true);
         PurchaseLine.SetRange(Type);
     end;
 
     local procedure GetPurchaseLineAndFillJobNo(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; JobNo: Code[20])
     begin
-        with PurchaseLine do begin
-            SetRange("No.", ItemNo);
-            FindFirst();
-            Validate("Job No.", JobNo);
-            Modify(true);
-        end;
+        PurchaseLine.SetRange("No.", ItemNo);
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Job No.", JobNo);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure GetBaseUnitOfMeasureCode(ItemNo: Code[20]): Code[10]
@@ -4635,19 +4569,17 @@ codeunit 136302 "Job Consumption Purchase"
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         SetupItemJnlBatch(ItemJournalBatch);
-        with ItemJournalLine do begin
-            LibraryInventory.CreateItemJournalLine(
-              ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-              "Entry Type"::"Positive Adjmt.", PurchaseLine."No.", PurchaseLine.Quantity);
-            Validate("Location Code", PurchaseLine."Location Code");
-            FindItemLedgEntry(
-              ItemLedgEntry, PurchaseLine."No.", ItemLedgEntry."Entry Type"::"Negative Adjmt.",
-              ItemLedgEntry."Document Type"::"Purchase Receipt", DocumentNo);
-            Validate("Applies-from Entry", ItemLedgEntry."Entry No.");
-            Modify(true);
-            LibraryInventory.PostItemJournalLine("Journal Template Name", "Journal Batch Name");
-            exit("Document No.");
-        end;
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", PurchaseLine."No.", PurchaseLine.Quantity);
+        ItemJournalLine.Validate("Location Code", PurchaseLine."Location Code");
+        FindItemLedgEntry(
+          ItemLedgEntry, PurchaseLine."No.", ItemLedgEntry."Entry Type"::"Negative Adjmt.",
+          ItemLedgEntry."Document Type"::"Purchase Receipt", DocumentNo);
+        ItemJournalLine.Validate("Applies-from Entry", ItemLedgEntry."Entry No.");
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        exit(ItemJournalLine."Document No.");
     end;
 
     local procedure PostPositiveAdjustment(ItemNo: Code[20]; Qty: Decimal)
@@ -4656,12 +4588,10 @@ codeunit 136302 "Job Consumption Purchase"
         ItemJournalLine: Record "Item Journal Line";
     begin
         SetupItemJnlBatch(ItemJournalBatch);
-        with ItemJournalLine do begin
-            LibraryInventory.CreateItemJournalLine(
-              ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-              "Entry Type"::"Positive Adjmt.", ItemNo, Qty);
-            LibraryInventory.PostItemJournalLine("Journal Template Name", "Journal Batch Name");
-        end;
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure SetupItemJnlBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -4717,49 +4647,43 @@ codeunit 136302 "Job Consumption Purchase"
     var
         EntryNo: Integer;
     begin
-        with ItemLedgEntry do begin
-            FindLast();
-            EntryNo := "Entry No.";
-            Clear(ItemLedgEntry);
-            "Entry No." := EntryNo + 1;
-            "Source Type" := "Source Type"::Vendor;
-            "Source No." := LibraryUtility.GenerateGUID();
-            "Country/Region Code" := LibraryUtility.GenerateGUID();
-            Insert();
-        end
+        ItemLedgEntry.FindLast();
+        EntryNo := ItemLedgEntry."Entry No.";
+        Clear(ItemLedgEntry);
+        ItemLedgEntry."Entry No." := EntryNo + 1;
+        ItemLedgEntry."Source Type" := ItemLedgEntry."Source Type"::Vendor;
+        ItemLedgEntry."Source No." := LibraryUtility.GenerateGUID();
+        ItemLedgEntry."Country/Region Code" := LibraryUtility.GenerateGUID();
+        ItemLedgEntry.Insert();
     end;
 
     local procedure MockUpVE(ItemLedgEntryNo: Integer; var ValueEntry: Record "Value Entry")
     var
         EntryNo: Integer;
     begin
-        with ValueEntry do begin
-            FindLast();
-            EntryNo := "Entry No.";
-            Clear(ValueEntry);
-            "Entry No." := EntryNo + 1;
-            "Item Ledger Entry No." := ItemLedgEntryNo;
-            "Source Posting Group" := LibraryUtility.GenerateGUID();
-            "Salespers./Purch. Code" := LibraryUtility.GenerateGUID();
-            Insert();
-        end
+        ValueEntry.FindLast();
+        EntryNo := ValueEntry."Entry No.";
+        Clear(ValueEntry);
+        ValueEntry."Entry No." := EntryNo + 1;
+        ValueEntry."Item Ledger Entry No." := ItemLedgEntryNo;
+        ValueEntry."Source Posting Group" := LibraryUtility.GenerateGUID();
+        ValueEntry."Salespers./Purch. Code" := LibraryUtility.GenerateGUID();
+        ValueEntry.Insert();
     end;
 
     local procedure MockRoundingValueEntry(var ValueEntry: Record "Value Entry"; JobTask: Record "Job Task"; DocNo: Code[20])
     begin
-        with ValueEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
-            "Item Ledger Entry Type" := "Item Ledger Entry Type"::"Negative Adjmt.";
-            "Entry Type" := "Entry Type"::Rounding;
-            "Item No." := CreateItem();
-            "Document No." := DocNo;
-            "Job No." := JobTask."Job No.";
-            "Job Task No." := JobTask."Job Task No.";
-            "Invoiced Quantity" := -LibraryRandom.RandInt(10);
-            "Cost Amount (Actual)" := -LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        ValueEntry.Init();
+        ValueEntry."Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, ValueEntry.FieldNo("Entry No."));
+        ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.";
+        ValueEntry."Entry Type" := ValueEntry."Entry Type"::Rounding;
+        ValueEntry."Item No." := CreateItem();
+        ValueEntry."Document No." := DocNo;
+        ValueEntry."Job No." := JobTask."Job No.";
+        ValueEntry."Job Task No." := JobTask."Job Task No.";
+        ValueEntry."Invoiced Quantity" := -LibraryRandom.RandInt(10);
+        ValueEntry."Cost Amount (Actual)" := -LibraryRandom.RandDec(100, 2);
+        ValueEntry.Insert();
     end;
 
     local procedure UpdateAdjustmentAccounts(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; InventoryAdjmtAccount: Code[20])
@@ -4980,30 +4904,28 @@ codeunit 136302 "Job Consumption Purchase"
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        with JobLedgerEntry do begin
-            SetRange("No.", ItemNo);
-            FindSet();
-            repeat
-                Assert.AreNearlyEqual(
-                  DirectUnitCost, "Total Cost", LibraryERM.GetAmountRoundingPrecision(),
-                  StrSubstNo(ValueMustMatchErr, FieldCaption("Total Cost"), DirectUnitCost));
-                Assert.AreNearlyEqual(
-                  UnitPriceLCY, "Total Price (LCY)", LibraryERM.GetAmountRoundingPrecision(),
-                  StrSubstNo(ValueMustMatchErr, FieldCaption("Total Price (LCY)"), UnitPriceLCY));
-                Assert.AreNearlyEqual(
-                  DirectUnitCostLCY, "Total Cost (LCY)", LibraryERM.GetAmountRoundingPrecision(),
-                  StrSubstNo(ValueMustMatchErr, FieldCaption("Total Cost (LCY)"), DirectUnitCostLCY));
-                Assert.AreNearlyEqual(
-                  UnitPrice, "Total Price", LibraryERM.GetAmountRoundingPrecision(),
-                  StrSubstNo(ValueMustMatchErr, FieldCaption("Total Price"), UnitPrice));
-                Assert.AreNearlyEqual(
-                  UnitPrice, "Line Amount", LibraryERM.GetAmountRoundingPrecision(),
-                  StrSubstNo(ValueMustMatchErr, FieldCaption("Line Amount"), UnitPrice));
-                Assert.AreNearlyEqual(
-                  UnitPriceLCY, "Line Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
-                  StrSubstNo(ValueMustMatchErr, FieldCaption("Line Amount (LCY)"), UnitPriceLCY));
-            until Next() = 0;
-        end;
+        JobLedgerEntry.SetRange("No.", ItemNo);
+        JobLedgerEntry.FindSet();
+        repeat
+            Assert.AreNearlyEqual(
+              DirectUnitCost, JobLedgerEntry."Total Cost", LibraryERM.GetAmountRoundingPrecision(),
+              StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Total Cost"), DirectUnitCost));
+            Assert.AreNearlyEqual(
+              UnitPriceLCY, JobLedgerEntry."Total Price (LCY)", LibraryERM.GetAmountRoundingPrecision(),
+              StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Total Price (LCY)"), UnitPriceLCY));
+            Assert.AreNearlyEqual(
+              DirectUnitCostLCY, JobLedgerEntry."Total Cost (LCY)", LibraryERM.GetAmountRoundingPrecision(),
+              StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Total Cost (LCY)"), DirectUnitCostLCY));
+            Assert.AreNearlyEqual(
+              UnitPrice, JobLedgerEntry."Total Price", LibraryERM.GetAmountRoundingPrecision(),
+              StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Total Price"), UnitPrice));
+            Assert.AreNearlyEqual(
+              UnitPrice, JobLedgerEntry."Line Amount", LibraryERM.GetAmountRoundingPrecision(),
+              StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Line Amount"), UnitPrice));
+            Assert.AreNearlyEqual(
+              UnitPriceLCY, JobLedgerEntry."Line Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
+              StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Line Amount (LCY)"), UnitPriceLCY));
+        until JobLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyDimensionErrorMessage(ExpectedErrorMessage: Text)
@@ -5082,13 +5004,11 @@ codeunit 136302 "Job Consumption Purchase"
         OutboundItemLedgerEntry.SetRange(Positive, false);
         OutboundItemLedgerEntry.FindFirst();
 
-        with ItemApplicationEntry do begin
-            SetRange("Item Ledger Entry No.", OutboundItemLedgerEntry."Entry No.");
-            SetRange("Inbound Item Entry No.", InboundItemLedgerEntry."Entry No.");
-            SetRange("Outbound Item Entry No.", OutboundItemLedgerEntry."Entry No.");
-            FindFirst();
-            TestField(Quantity, -InboundItemLedgerEntry.Quantity);
-        end;
+        ItemApplicationEntry.SetRange("Item Ledger Entry No.", OutboundItemLedgerEntry."Entry No.");
+        ItemApplicationEntry.SetRange("Inbound Item Entry No.", InboundItemLedgerEntry."Entry No.");
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", OutboundItemLedgerEntry."Entry No.");
+        ItemApplicationEntry.FindFirst();
+        ItemApplicationEntry.TestField(Quantity, -InboundItemLedgerEntry.Quantity);
     end;
 
     local procedure VerifyItemLedger(var PurchaseLine: Record "Purchase Line")
@@ -5141,31 +5061,27 @@ codeunit 136302 "Job Consumption Purchase"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", Item."No.");
-            FindSet();
-            repeat
-                TestField("Unit of Measure Code", Item."Base Unit of Measure");
-            until Next() = 0;
-        end;
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindSet();
+        repeat
+            ItemLedgerEntry.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyItemLedgEntriesInvoiced(ItemNo: Code[20]; ExpectedActualCost: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            repeat
-                CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
-                TestField("Completely Invoiced", true);
-                TestField("Invoiced Quantity", Quantity);
-                TestField("Cost Amount (Expected)", 0);
-                TestField("Cost Amount (Actual)", ExpectedActualCost * GetILEAmountSign(ItemLedgerEntry));
-                VerifyValueEntry("Entry Type", "Document Type", ItemNo, "Document No.", "Job No.", "Cost Amount (Actual)", 0);
-            until Next() = 0;
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindSet();
+        repeat
+            ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
+            ItemLedgerEntry.TestField("Completely Invoiced", true);
+            ItemLedgerEntry.TestField("Invoiced Quantity", ItemLedgerEntry.Quantity);
+            ItemLedgerEntry.TestField("Cost Amount (Expected)", 0);
+            ItemLedgerEntry.TestField("Cost Amount (Actual)", ExpectedActualCost * GetILEAmountSign(ItemLedgerEntry));
+            VerifyValueEntry(ItemLedgerEntry."Entry Type", ItemLedgerEntry."Document Type", ItemNo, ItemLedgerEntry."Document No.", ItemLedgerEntry."Job No.", ItemLedgerEntry."Cost Amount (Actual)", 0);
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyPurcCrMemoItemLedgerEntry(PurchLine: Record "Purchase Line"; DocNo: Code[20])
@@ -5302,16 +5218,14 @@ codeunit 136302 "Job Consumption Purchase"
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        with JobLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Job No.", PurchaseLine."Job No.");
-            FindLast();
-            TestField("No.", PurchaseLine."No.");
-            TestField(Quantity, ExpectedQuantitiy);
-            TestField("Unit of Measure Code", PurchaseLine."Unit of Measure Code");
-            TestField("Qty. per Unit of Measure", PurchaseLine."Qty. per Unit of Measure");
-            TestField("Direct Unit Cost (LCY)", PurchaseLine."Direct Unit Cost");
-        end;
+        JobLedgerEntry.SetRange("Document No.", DocumentNo);
+        JobLedgerEntry.SetRange("Job No.", PurchaseLine."Job No.");
+        JobLedgerEntry.FindLast();
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField(Quantity, ExpectedQuantitiy);
+        JobLedgerEntry.TestField("Unit of Measure Code", PurchaseLine."Unit of Measure Code");
+        JobLedgerEntry.TestField("Qty. per Unit of Measure", PurchaseLine."Qty. per Unit of Measure");
+        JobLedgerEntry.TestField("Direct Unit Cost (LCY)", PurchaseLine."Direct Unit Cost");
     end;
 
     local procedure VerifyDocumentDateOnJobLedgerEntry(JobNo: Code[20]; DocumentNo: Code[20]; DocumentDate: Date)
@@ -5358,48 +5272,42 @@ codeunit 136302 "Job Consumption Purchase"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Line No.", DocumentLineNo);
-            SetRange("Entry Type", EntryType);
-            FindLast();
-            Assert.AreEqual(
-              SourceNo, "Source No.",
-              StrSubstNo(EmptyValueErr, FieldCaption("Source No."), TableCaption));
-        end;
+        ItemLedgerEntry.SetRange("Document Type", DocumentType);
+        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
+        ItemLedgerEntry.SetRange("Document Line No.", DocumentLineNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.FindLast();
+        Assert.AreEqual(
+          SourceNo, ItemLedgerEntry."Source No.",
+          StrSubstNo(EmptyValueErr, ItemLedgerEntry.FieldCaption("Source No."), ItemLedgerEntry.TableCaption));
 
-        with ValueEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Line No.", DocumentLineNo);
-            SetRange("Item Ledger Entry Type", EntryType);
-            FindLast();
-            Assert.AreEqual(
-              SourceNo, "Source No.",
-              StrSubstNo(EmptyValueErr, FieldCaption("Source No."), TableCaption));
-        end;
+        ValueEntry.SetRange("Document Type", DocumentType);
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.SetRange("Document Line No.", DocumentLineNo);
+        ValueEntry.SetRange("Item Ledger Entry Type", EntryType);
+        ValueEntry.FindLast();
+        Assert.AreEqual(
+          SourceNo, ValueEntry."Source No.",
+          StrSubstNo(EmptyValueErr, ValueEntry.FieldCaption("Source No."), ValueEntry.TableCaption));
     end;
 
     local procedure VerifyTransferredSource(ItemJnlLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry")
     begin
-        with ItemJnlLine do begin
-            Assert.AreEqual(
-              ItemLedgEntry."Source Type", "Source Type",
-              StrSubstNo(ValueMustMatchErr, FieldCaption("Source Type"), ItemLedgEntry."Source Type"));
-            Assert.AreEqual(
-              ItemLedgEntry."Source No.", "Source No.",
-              StrSubstNo(ValueMustMatchErr, FieldCaption("Source No."), ItemLedgEntry."Source No."));
-            Assert.AreEqual(
-              ItemLedgEntry."Country/Region Code", "Country/Region Code",
-              StrSubstNo(ValueMustMatchErr, FieldCaption("Country/Region Code"), ItemLedgEntry."Country/Region Code"));
-            Assert.AreEqual(
-              ValueEntry."Source Posting Group", "Source Posting Group",
-              StrSubstNo(ValueMustMatchErr, FieldCaption("Source Posting Group"), ValueEntry."Source Posting Group"));
-            Assert.AreEqual(
-              ValueEntry."Salespers./Purch. Code", "Salespers./Purch. Code",
-              StrSubstNo(ValueMustMatchErr, FieldCaption("Salespers./Purch. Code"), ValueEntry."Salespers./Purch. Code"));
-        end;
+        Assert.AreEqual(
+          ItemLedgEntry."Source Type", ItemJnlLine."Source Type",
+          StrSubstNo(ValueMustMatchErr, ItemJnlLine.FieldCaption("Source Type"), ItemLedgEntry."Source Type"));
+        Assert.AreEqual(
+          ItemLedgEntry."Source No.", ItemJnlLine."Source No.",
+          StrSubstNo(ValueMustMatchErr, ItemJnlLine.FieldCaption("Source No."), ItemLedgEntry."Source No."));
+        Assert.AreEqual(
+          ItemLedgEntry."Country/Region Code", ItemJnlLine."Country/Region Code",
+          StrSubstNo(ValueMustMatchErr, ItemJnlLine.FieldCaption("Country/Region Code"), ItemLedgEntry."Country/Region Code"));
+        Assert.AreEqual(
+          ValueEntry."Source Posting Group", ItemJnlLine."Source Posting Group",
+          StrSubstNo(ValueMustMatchErr, ItemJnlLine.FieldCaption("Source Posting Group"), ValueEntry."Source Posting Group"));
+        Assert.AreEqual(
+          ValueEntry."Salespers./Purch. Code", ItemJnlLine."Salespers./Purch. Code",
+          StrSubstNo(ValueMustMatchErr, ItemJnlLine.FieldCaption("Salespers./Purch. Code"), ValueEntry."Salespers./Purch. Code"));
     end;
 
     local procedure VerifyQuantityOnJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; Quantity: Decimal)
@@ -5413,14 +5321,12 @@ codeunit 136302 "Job Consumption Purchase"
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         FindJobLedgerEntry(JobLedgerEntry, DocumentNo, JobNo);
-        with JobLedgerEntry do begin
-            Assert.AreEqual(
-              TotalCost, "Total Cost",
-              StrSubstNo(ValueMustMatchErr, FieldCaption("Total Cost"), TotalCost));
-            Assert.AreEqual(
-              TotalCostLCY, "Total Cost (LCY)",
-              StrSubstNo(ValueMustMatchErr, FieldCaption("Total Cost (LCY)"), TotalCostLCY));
-        end;
+        Assert.AreEqual(
+          TotalCost, JobLedgerEntry."Total Cost",
+          StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Total Cost"), TotalCost));
+        Assert.AreEqual(
+          TotalCostLCY, JobLedgerEntry."Total Cost (LCY)",
+          StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Total Cost (LCY)"), TotalCostLCY));
     end;
 
     local procedure VerifyJobTotalPricesOnPurchRcptLines(PurchLine: Record "Purchase Line")
@@ -5428,20 +5334,18 @@ codeunit 136302 "Job Consumption Purchase"
         PurchRcptLine: Record "Purch. Rcpt. Line";
         AmountRoundingPrecision: Decimal;
     begin
-        with PurchRcptLine do begin
-            SetRange("Order No.", PurchLine."Document No.");
-            CalcSums(
-              "Job Line Amount", "Job Line Amount (LCY)", "Job Total Price", "Job Total Price (LCY)");
-            AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
-            Assert.AreNearlyEqual(
-              "Job Line Amount", PurchLine."Job Line Amount", AmountRoundingPrecision, FieldCaption("Job Line Amount"));
-            Assert.AreNearlyEqual(
-              "Job Line Amount (LCY)", PurchLine."Job Line Amount (LCY)", AmountRoundingPrecision, FieldCaption("Job Line Amount (LCY)"));
-            Assert.AreNearlyEqual(
-              "Job Total Price", PurchLine."Job Total Price", AmountRoundingPrecision, FieldCaption("Job Total Price"));
-            Assert.AreNearlyEqual(
-              "Job Total Price (LCY)", PurchLine."Job Total Price (LCY)", AmountRoundingPrecision, FieldCaption("Job Total Price (LCY)"));
-        end;
+        PurchRcptLine.SetRange("Order No.", PurchLine."Document No.");
+        PurchRcptLine.CalcSums(
+          "Job Line Amount", "Job Line Amount (LCY)", "Job Total Price", "Job Total Price (LCY)");
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
+        Assert.AreNearlyEqual(
+          PurchRcptLine."Job Line Amount", PurchLine."Job Line Amount", AmountRoundingPrecision, PurchRcptLine.FieldCaption("Job Line Amount"));
+        Assert.AreNearlyEqual(
+          PurchRcptLine."Job Line Amount (LCY)", PurchLine."Job Line Amount (LCY)", AmountRoundingPrecision, PurchRcptLine.FieldCaption("Job Line Amount (LCY)"));
+        Assert.AreNearlyEqual(
+          PurchRcptLine."Job Total Price", PurchLine."Job Total Price", AmountRoundingPrecision, PurchRcptLine.FieldCaption("Job Total Price"));
+        Assert.AreNearlyEqual(
+          PurchRcptLine."Job Total Price (LCY)", PurchLine."Job Total Price (LCY)", AmountRoundingPrecision, PurchRcptLine.FieldCaption("Job Total Price (LCY)"));
     end;
 
     local procedure VerifyJobPlanningTrackingReservationEntry(JobNo: Code[20]; ItemNo: Code[20]; TrackedQty: Decimal)
@@ -5449,14 +5353,12 @@ codeunit 136302 "Job Consumption Purchase"
         Job: Record Job;
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", DATABASE::"Job Planning Line");
-            SetRange("Source Subtype", Job.Status::Open);
-            SetRange("Source ID", JobNo);
-            FindFirst();
-            TestField(Quantity, TrackedQty);
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Source Type", DATABASE::"Job Planning Line");
+        ReservationEntry.SetRange("Source Subtype", Job.Status::Open);
+        ReservationEntry.SetRange("Source ID", JobNo);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField(Quantity, TrackedQty);
     end;
 
     local procedure VerifyJobLedgerEntriesWithGL(DocumentNo: Code[20]; JobNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -5470,13 +5372,11 @@ codeunit 136302 "Job Consumption Purchase"
         FindGLEntry(GLEntry, DocumentNo, DocumentType);
         GLEntry.FindSet();
         repeat
-            with JobLedgerEntry do begin
-                SetRange("Ledger Entry Type", "Ledger Entry Type"::"G/L Account");
-                SetRange("Ledger Entry No.", GLEntry."Entry No.");
-                FindFirst();
-                CalcSums("Line Amount (LCY)");
-                TestField("Line Amount (LCY)", GLEntry.Amount);
-            end;
+            JobLedgerEntry.SetRange("Ledger Entry Type", JobLedgerEntry."Ledger Entry Type"::"G/L Account");
+            JobLedgerEntry.SetRange("Ledger Entry No.", GLEntry."Entry No.");
+            JobLedgerEntry.FindFirst();
+            JobLedgerEntry.CalcSums("Line Amount (LCY)");
+            JobLedgerEntry.TestField("Line Amount (LCY)", GLEntry.Amount);
         until GLEntry.Next() = 0;
     end;
 

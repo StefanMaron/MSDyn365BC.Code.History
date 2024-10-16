@@ -25,7 +25,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
 using System.AI;
 using System.Environment.Configuration;
 
@@ -59,7 +58,7 @@ report 840 "Suggest Worksheet Lines"
                         repeat
                             TempGLAccount.CalcFields(Balance);
 
-                            Window.Update(2, Text004);
+                            Window.Update(2, LiquidFundsTxt);
                             Window.Update(3, TempGLAccount."No.");
                             InsertCFLineForGLAccount(TempGLAccount);
                         until TempGLAccount.Next() = 0;
@@ -80,7 +79,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnAfterGetRecord()
                 begin
-                    Window.Update(2, Text005);
+                    Window.Update(2, ReceivablesTxt);
                     Window.Update(3, "Entry No.");
 
                     if "Customer No." <> '' then
@@ -108,7 +107,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnAfterGetRecord()
                 begin
-                    Window.Update(2, Text006);
+                    Window.Update(2, PayablesTxt);
                     Window.Update(3, "Entry No.");
 
                     if "Vendor No." <> '' then
@@ -136,7 +135,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnAfterGetRecord()
                 begin
-                    Window.Update(2, Text007);
+                    Window.Update(2, PurchaseOrdersTxt);
                     Window.Update(3, "Document No.");
 
                     PurchHeader.Get("Document Type", "Document No.");
@@ -166,7 +165,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnAfterGetRecord()
                 begin
-                    Window.Update(2, Text008);
+                    Window.Update(2, SalesOrdersTxt);
                     Window.Update(3, "Document No.");
 
                     SalesHeader.Get("Document Type", "Document No.");
@@ -196,7 +195,7 @@ report 840 "Suggest Worksheet Lines"
                     if FADeprBook.Get("No.", FASetup."Default Depr. Book") then begin
                         FADeprBook.CalcFields("Acquisition Cost");
 
-                        Window.Update(2, Text009);
+                        Window.Update(2, FixedAssetsBudgetTxt);
                         Window.Update(3, "No.");
 
                         InsertCFLineForFixedAssetsBudget();
@@ -225,7 +224,7 @@ report 840 "Suggest Worksheet Lines"
                            (FADeprBook."Projected Disposal Date" <> 0D) and
                            (FADeprBook."Projected Proceeds on Disposal" <> 0)
                         then begin
-                            Window.Update(2, Text010);
+                            Window.Update(2, FixedAssetsDisposalTxt);
                             Window.Update(3, "No.");
 
                             InsertCFLineForFixedAssetsDisposal();
@@ -249,7 +248,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnAfterGetRecord()
                 begin
-                    Window.Update(2, Text011);
+                    Window.Update(2, CashFlowManualExpensesTxt);
                     Window.Update(3, Code);
 
                     InsertCFLineForManualExpense();
@@ -270,7 +269,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnAfterGetRecord()
                 begin
-                    Window.Update(2, Text012);
+                    Window.Update(2, CashFlowManualRevenuesTxt);
                     Window.Update(3, Code);
 
                     InsertCFLineForManualRevenue();
@@ -296,7 +295,7 @@ report 840 "Suggest Worksheet Lines"
                     GLAcc.SetFilter("No.", "G/L Account Filter");
                     if GLAcc.FindSet() then
                         repeat
-                            Window.Update(2, Text031);
+                            Window.Update(2, GLBudgetTxt);
                             Window.Update(3, GLAcc."No.");
 
                             GLBudgEntry.SetRange("Budget Name", GLBudgName);
@@ -313,33 +312,6 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource["Cash Flow Source Type"::"G/L Budget".AsInteger()] then
-                        CurrReport.Break();
-
-                    if not ReadPermission then
-                        CurrReport.Break();
-                end;
-            }
-            dataitem("Service Line"; "Service Line")
-            {
-                DataItemTableView = sorting("Document Type", "Document No.", "Line No.") where("Document Type" = const(Order));
-
-                trigger OnAfterGetRecord()
-                begin
-                    Window.Update(2, Text032);
-                    Window.Update(3, "Document No.");
-
-                    ServiceHeader.Get("Document Type", "Document No.");
-                    if ServiceHeader."Bill-to Customer No." <> '' then
-                        Customer.Get(ServiceHeader."Bill-to Customer No.")
-                    else
-                        Customer.Init();
-
-                    InsertCFLineForServiceLine();
-                end;
-
-                trigger OnPreDataItem()
-                begin
-                    if not ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -545,14 +517,6 @@ report 840 "Suggest Worksheet Lines"
                             ToolTip = 'Specifies if you want to include sales orders in the cash flow forecast.';
                         }
 #pragma warning disable AA0100
-                        field("ConsiderSource[SourceType::""Service Orders""]"; ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()])
-#pragma warning restore AA0100
-                        {
-                            ApplicationArea = Service;
-                            Caption = 'Service Orders';
-                            ToolTip = 'Specifies if you want to include service orders in the cash flow forecast.';
-                        }
-#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Sale of Fixed Asset""]"; ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()])
 #pragma warning restore AA0100
                         {
@@ -675,8 +639,6 @@ report 840 "Suggest Worksheet Lines"
                 ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := SaleFixedAsset.ReadPermission;
             if ConsiderSource["Cash Flow Source Type"::"G/L Budget".AsInteger()] then
                 ConsiderSource["Cash Flow Source Type"::"G/L Budget".AsInteger()] := GLBudgetEntry.ReadPermission;
-            if ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] then
-                ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := "Service Line".ReadPermission;
             if ConsiderSource["Cash Flow Source Type"::Job.AsInteger()] then
                 ConsiderSource["Cash Flow Source Type"::Job.AsInteger()] := "Job Planning Line".ReadPermission;
             if ConsiderSource["Cash Flow Source Type"::Tax.AsInteger()] then
@@ -729,44 +691,47 @@ report 840 "Suggest Worksheet Lines"
         DateLastExecution: Date;
         ExecutionDate: Date;
         GLBudgName: Code[10];
-        TotalVATBaseAmt: Decimal;
-        MultiSalesLines: Boolean;
-        Summarized: Boolean;
         NeedsManualPmtUpdate: Boolean;
         DummyDate: Date;
         TaxLastSourceTableNumProcessed: Integer;
         TaxLastPayableDateProcessed: Date;
 
+#pragma warning disable AA0074
         Text000: Label 'You must choose a cash flow forecast.';
         Text001: Label 'Choose a valid cash flow forecast.';
+#pragma warning disable AA0470
         Text002: Label 'Choose one option for filling the cash flow forecast no. %1.';
         Text003: Label 'Cash Flow Forecast No.      #1##########\\';
-        Text004: Label 'Liquid Funds';
-        Text005: Label 'Receivables';
-        Text006: Label 'Payables';
-        Text007: Label 'Purchase Orders';
-        Text008: Label 'Sales Orders';
-        Text009: Label 'Fixed Assets Budget';
-        Text010: Label 'Fixed Assets Disposal';
-        Text011: Label 'Cash Flow Manual Expenses';
-        Text012: Label 'Cash Flow Manual Revenues';
+#pragma warning restore AA0470
+        GLBudgetTxt: Label 'G/L Budget';
+        LiquidFundsTxt: Label 'Liquid Funds';
+        ReceivablesTxt: Label 'Receivables';
+        PayablesTxt: Label 'Payables';
+        PurchaseOrdersTxt: Label 'Purchase Orders';
+        SalesOrdersTxt: Label 'Sales Orders';
+        FixedAssetsBudgetTxt: Label 'Fixed Assets Budget';
+        FixedAssetsDisposalTxt: Label 'Fixed Assets Disposal';
+        CashFlowManualExpensesTxt: Label 'Cash Flow Manual Expenses';
+        CashFlowManualRevenuesTxt: Label 'Cash Flow Manual Revenues';
+#pragma warning disable AA0470
         Text013: Label '%1 Balance=%2';
         Text025: Label '%1 %2 %3';
         Text027: Label '%1 AC= %2';
         Text028: Label 'Cash Flow Manual Expenses %1';
         Text029: Label 'Cash Flow Manual Revenues %1';
         Text030: Label '%1 Budget %2 ';
-        Text031: Label 'G/L Budget';
-        Text032: Label 'Service Orders';
         Text033: Label 'Search for          #2####################\';
         Text034: Label 'Record found        #3####################';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         ManualPmtRevExpNeedsUpdateMsg: Label 'There are one or more Cash Flow Manual Revenues/Expenses with a Recurring Frequency.\But the Recurring Frequency cannot be applied because the Manual Payments To date in Cash Flow Forecast %1 is empty.\Fill in this date in order to get multiple lines.';
+#pragma warning restore AA0470
         JobsMsg: Label 'Projects';
         PostedSalesDocumentDescriptionTxt: Label 'Posted Sales %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Customer Name). Example: Posted Sales Invoice - 04-05-18 The Cannon Group PLC';
         PostedPurchaseDocumentDescriptionTxt: Label 'Posted Purchase %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Vendor Name). Example: Posted Purchase Invoice - 04-05-18 The Cannon Group PLC';
         SalesDocumentDescriptionTxt: Label 'Sales %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Customer Name). Example: Sales Invoice - 04-05-18 The Cannon Group PLC';
         PurchaseDocumentDescriptionTxt: Label 'Purchase %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Vendor Name). Example: Purchase Invoice - 04-05-18 The Cannon Group PLC';
-        ServiceDocumentDescriptionTxt: Label 'Service %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Customer Name). Example: Service Invoice - 04-05-18 The Cannon Group PLC';
         TaxForMsg: Label 'Taxes from %1', Comment = '%1 = The description of the source tyoe based on which taxes are calculated.';
         AzureAIForecastDescriptionTxt: Label 'Predicted %1 in the period starting on %2 with precision of +/-  %3.', Comment = '%1 =RECEIVABLES or PAYABLES or PAYABLES TAX or RECEIVABLES TAX, %2 = Date; %3 Percentage';
         AzureAIForecastTaxDescriptionTxt: Label 'Predicted tax on %1 in the period starting on %2 with precision of +/-  %3.', Comment = '%1 =RECEIVABLES or PAYABLES, %2 = Date; %3 Percentage';
@@ -800,10 +765,12 @@ report 840 "Suggest Worksheet Lines"
         Vendor: Record Vendor;
         PurchHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
-        ServiceHeader: Record "Service Header";
         Window: Dialog;
         ConsiderSource: array[16] of Boolean;
         TotalAmt: Decimal;
+        MultiSalesLines: Boolean;
+        Summarized: Boolean;
+        TotalVATBaseAmt: Decimal;
 
     local procedure InsertConditionMet(): Boolean
     begin
@@ -1256,59 +1223,6 @@ report 840 "Suggest Worksheet Lines"
         InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
     end;
 
-    local procedure InsertCFLineForServiceLine()
-    var
-        ServiceLine2: Record "Service Line";
-    begin
-        ServiceLine2 := "Service Line";
-        if Summarized and (ServiceLine2.Next() <> 0) and (ServiceLine2."Customer No." <> '') and
-           (ServiceLine2."Document No." = "Service Line"."Document No.")
-        then begin
-            TotalAmt += CalculateLineAmountForServiceLine("Service Line");
-            TotalVATBaseAmt += "Service Line"."VAT Base Amount";
-            MultiSalesLines := true;
-        end else begin
-            CFWorksheetLine2.Init();
-            CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Service Orders";
-            CFWorksheetLine2."Source No." := "Service Line"."Document No.";
-            CFWorksheetLine2."Source Line No." := "Service Line"."Line No.";
-            CFWorksheetLine2."Document Type" := CFWorksheetLine2."Document Type"::Invoice;
-            CFWorksheetLine2."Document Date" := ServiceHeader."Document Date";
-            CFWorksheetLine2."Shortcut Dimension 1 Code" := ServiceHeader."Shortcut Dimension 1 Code";
-            CFWorksheetLine2."Shortcut Dimension 2 Code" := ServiceHeader."Shortcut Dimension 2 Code";
-            CFWorksheetLine2."Dimension Set ID" := ServiceHeader."Dimension Set ID";
-            CFWorksheetLine2."Cash Flow Account No." := CFSetup."Service CF Account No.";
-            CFWorksheetLine2.Description :=
-              CopyStr(
-                StrSubstNo(
-                  ServiceDocumentDescriptionTxt,
-                  ServiceHeader."Document Type",
-                  ServiceHeader.Name,
-                  Format(ServiceHeader."Order Date")),
-                1, MaxStrLen(CFWorksheetLine2.Description));
-            SetCashFlowDate(CFWorksheetLine2, ServiceHeader."Due Date");
-            CFWorksheetLine2."Document No." := "Service Line"."Document No.";
-            CFWorksheetLine2."VAT Base Amount" := CalculateVATBaseAmtForServiceLine(ServiceHeader, "Service Line");
-            CFWorksheetLine2."Amount (LCY)" := CalculateLineAmountForServiceLine("Service Line");
-
-            if Summarized and MultiSalesLines then begin
-                CFWorksheetLine2."VAT Base Amount" := CFWorksheetLine2."VAT Base Amount" + TotalVATBaseAmt;
-                CFWorksheetLine2."Amount (LCY)" := CFWorksheetLine2."Amount (LCY)" + TotalAmt;
-                MultiSalesLines := false;
-                TotalVATBaseAmt := 0;
-                TotalAmt := 0;
-            end;
-
-            if "Cash Flow Forecast"."Consider CF Payment Terms" and (Customer."Cash Flow Payment Terms Code" <> '') then
-                CFWorksheetLine2."Payment Terms Code" := Customer."Cash Flow Payment Terms Code"
-            else
-                CFWorksheetLine2."Payment Terms Code" := ServiceHeader."Payment Terms Code";
-
-            OnInsertCFLineForServiceLineOnBeforeInsertTempCFWorksheetLine(CFWorksheetLine2, "Cash Flow Forecast", "Service Line");
-            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
-        end;
-    end;
-
     local procedure InsertCFLineForJobPlanningLine()
     var
         Job: Record Job;
@@ -1629,21 +1543,7 @@ report 840 "Suggest Worksheet Lines"
         exit(CalcAmountLCY(SalesHeader2."Currency Code", SalesHeader2."Currency Factor", SalesHeader2."Posting Date", VATBase));
     end;
 
-    local procedure CalculateLineAmountForServiceLine(ServiceLine: Record "Service Line"): Decimal
-    begin
-        exit(GetServiceAmountForCFLine(ServiceLine));
-    end;
-
-    local procedure CalculateVATBaseAmtForServiceLine(ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line") VATBase: Decimal
-    begin
-        VATBase := ServiceLine."Line Amount";
-        if ServiceHeader."Prices Including VAT" then
-            VATBase :=
-              Round(VATBase / (1 + ServiceLine."VAT %" / 100), GetAmountRoundingPrecision(ServiceHeader."Currency Code"));
-        exit(CalcAmountLCY(ServiceHeader."Currency Code", ServiceHeader."Currency Factor", ServiceHeader."Posting Date", VATBase));
-    end;
-
-    local procedure CalcAmountLCY(CurrencyCode: Code[10]; CurrencyFactor: Decimal; PostingDate: Date; Amount: Decimal): Decimal
+    protected procedure CalcAmountLCY(CurrencyCode: Code[10]; CurrencyFactor: Decimal; PostingDate: Date; Amount: Decimal): Decimal
     begin
         if CurrencyCode <> '' then begin
             Currency.Get(CurrencyCode);
@@ -1654,7 +1554,7 @@ report 840 "Suggest Worksheet Lines"
             exit(Amount);
     end;
 
-    local procedure GetAmountRoundingPrecision(CurrencyCode: Code[10]): Decimal
+    protected procedure GetAmountRoundingPrecision(CurrencyCode: Code[10]): Decimal
     var
         Currency: Record Currency;
     begin
@@ -1740,11 +1640,6 @@ report 840 "Suggest Worksheet Lines"
     local procedure GetSalesAmountForCFLine(SalesLine: Record "Sales Line"): Decimal
     begin
         exit(SalesLine."Outstanding Amount (LCY)" + SalesLine."Shipped Not Invoiced (LCY)");
-    end;
-
-    local procedure GetServiceAmountForCFLine(ServiceLine: Record "Service Line"): Decimal
-    begin
-        exit(ServiceLine."Outstanding Amount (LCY)" + ServiceLine."Shipped Not Invoiced (LCY)");
     end;
 
     local procedure GetJobPlanningAmountForCFLine(JobPlanningLine: Record "Job Planning Line"): Decimal
@@ -1973,11 +1868,6 @@ report 840 "Suggest Worksheet Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertCFLineForPurchaseLineOnBeforeInsertTempCFWorksheetLine(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnInsertCFLineForServiceLineOnBeforeInsertTempCFWorksheetLine(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; CashFlowForecast: Record "Cash Flow Forecast"; ServiceLine: Record "Service Line")
     begin
     end;
 

@@ -243,7 +243,7 @@ report 2000006 "File Non Euro SEPA Payments"
                 if not Confirm(Text004, false, FileName) then
                     Error(Text005, FileName);
         end;
-        If FileName = '' then
+        if FileName = '' then
             FileName := NonEuroSEPAPaymentsFileNameTxt;
 
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8"?><Document></Document>', XMLDomDoc);
@@ -320,7 +320,7 @@ report 2000006 "File Non Euro SEPA Payments"
         PaymentJournalPost: Report "Payment Journal Post";
         IsHandled: Boolean;
     begin
-        IsHandled := FALSE;
+        IsHandled := false;
         OnBeforePostPaymentJournal(GenJnlLine, PaymentJournalLine, AutomaticPosting, BalancingPostingDate, IsHandled);
         if IsHandled then
             exit;

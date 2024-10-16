@@ -155,6 +155,8 @@ report 5603 "Fixed Asset Register"
 
     requestpage
     {
+        AboutTitle = 'About Fixed Asset Register';
+        AboutText = 'The **Fixed Asset Register** report is a comprehensive and structured document that serves as the central repository of all fixed asset transactions done by an organization.';
 
         layout
         {
@@ -180,7 +182,9 @@ report 5603 "Fixed Asset Register"
         CanceledLedgEntry: Text[30];
         FATotalAmount: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'Canceled';
+#pragma warning restore AA0074
         Fixed_Asset_RegisterCaptionLbl: Label 'Fixed Asset Register';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         FA_Ledger_Entry__FA_Posting_Date_CaptionLbl: Label 'FA Posting Date';

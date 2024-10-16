@@ -130,8 +130,12 @@ report 698 "Get Sales Orders"
         LineCount: Integer;
         GetDim: Option Item,"Sales Line";
         HideDialog: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Processing sales lines  #1######';
+#pragma warning restore AA0470
         Text001: Label 'There are no sales lines to retrieve.';
+#pragma warning restore AA0074
 
     protected var
         ReqWkshName: Record "Requisition Wksh. Name";
@@ -207,7 +211,7 @@ report 698 "Get Sales Orders"
         ReqLine."Due Date" := SalesLine."Shipment Date";
         OnInsertReqWkshLineOnBeforeCalcEndingDate(ReqLine, SalesLine);
         ReqLine."Ending Date" :=
-            LeadTimeMgt.PlannedEndingDate(
+            LeadTimeMgt.GetPlannedEndingDate(
                 ReqLine."No.", ReqLine."Location Code", ReqLine."Variant Code", ReqLine."Due Date",
                 ReqLine."Vendor No.", ReqLine."Ref. Order Type");
         ReqLine.CalcStartingDate('');

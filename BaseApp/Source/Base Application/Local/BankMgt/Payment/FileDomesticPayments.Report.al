@@ -146,7 +146,7 @@ report 2000001 "File Domestic Payments"
         }
         dataitem(Docket; "Integer")
         {
-            DataItemTableView = sorting(Number) WHERE(Number = const(1));
+            DataItemTableView = sorting(Number) where(Number = const(1));
             column(BankAccBankBranchNo; BankAcc."Bank Branch No.")
             {
             }

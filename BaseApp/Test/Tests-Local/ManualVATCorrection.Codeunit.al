@@ -300,24 +300,20 @@ codeunit 144029 "Manual VAT Correction"
 
     local procedure ChangeVATStatRowNo(var VATStatementLine: Record "VAT Statement Line"; RowNo: Code[10]): Code[10]
     begin
-        with VATStatementLine do begin
-            SetRange("Row No.", RowNo);
-            FindFirst();
-            Validate("Row No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-            exit("Row No.");
-        end;
+        VATStatementLine.SetRange("Row No.", RowNo);
+        VATStatementLine.FindFirst();
+        VATStatementLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        VATStatementLine.Modify(true);
+        exit(VATStatementLine."Row No.");
     end;
 
     local procedure CreateManCorrLine(var ManualVATCorrection: Record "Manual VAT Correction"; AmountVal: Decimal; PostingDate: Date; UserId: Code[50])
     begin
-        with ManualVATCorrection do begin
-            Init();
-            Validate("Posting Date", PostingDate);
-            Validate(Amount, AmountVal);
-            if UserId <> '' then
-                "User ID" := UserId;
-        end;
+        ManualVATCorrection.Init();
+        ManualVATCorrection.Validate("Posting Date", PostingDate);
+        ManualVATCorrection.Validate(Amount, AmountVal);
+        if UserId <> '' then
+            ManualVATCorrection."User ID" := UserId;
     end;
 
     local procedure CreateAddnlReportingCurrency(): Code[10]
@@ -370,11 +366,9 @@ codeunit 144029 "Manual VAT Correction"
         VATStatementLine: Record "VAT Statement Line";
     begin
         VATStatementLine.FindLast();
-        with ManualVATCorrection do begin
-            Validate("Statement Template Name", VATStatementLine."Statement Template Name");
-            Validate("Statement Name", VATStatementLine."Statement Name");
-            Validate("Statement Line No.", VATStatementLine."Line No.");
-        end;
+        ManualVATCorrection.Validate("Statement Template Name", VATStatementLine."Statement Template Name");
+        ManualVATCorrection.Validate("Statement Name", VATStatementLine."Statement Name");
+        ManualVATCorrection.Validate("Statement Line No.", VATStatementLine."Line No.");
         exit(VATStatementLine."Row No.");
     end;
 }

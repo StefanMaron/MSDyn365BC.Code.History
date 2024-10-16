@@ -175,14 +175,12 @@ codeunit 144008 "EB - Payment Journal Export"
         // Preparation: create settings
         CountryCode := FindCountryRegion();
 
-        with ExportProtocol do begin
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
-            Validate("Code Expenses", CodeExp);
-            Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
-            Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries());
-            Insert(true);
-        end;
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol"));
+        ExportProtocol.Validate("Code Expenses", CodeExp);
+        ExportProtocol.Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
+        ExportProtocol.Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
+        ExportProtocol.Validate("Export No. Series", CreateNoSeries());
+        ExportProtocol.Insert(true);
 
         // Create payments
         VendorSwift := GenerateBankAccSwiftCode();
@@ -277,11 +275,9 @@ codeunit 144008 "EB - Payment Journal Export"
         // Preparation: create settings
         CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
-        with CountryRegion do begin
-            Get('DK');
-            "SEPA Allowed" := true;
-            Modify();
-        end;
+        CountryRegion.Get('DK');
+        CountryRegion."SEPA Allowed" := true;
+        CountryRegion.Modify();
 
         // Create payments
         VendorSwift := GenerateBankAccSwiftCode();
@@ -320,11 +316,9 @@ codeunit 144008 "EB - Payment Journal Export"
         // Preparation: create settings
         CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(false);
-        with CountryRegion do begin
-            Get('DK');
-            "SEPA Allowed" := true;
-            Modify();
-        end;
+        CountryRegion.Get('DK');
+        CountryRegion."SEPA Allowed" := true;
+        CountryRegion.Modify();
 
         // Create payments
         VendorSwift := GenerateBankAccSwiftCode();
@@ -365,11 +359,9 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion();
-        with CountryRegion do begin
-            Get('DK');
-            "SEPA Allowed" := true;
-            Modify();
-        end;
+        CountryRegion.Get('DK');
+        CountryRegion."SEPA Allowed" := true;
+        CountryRegion.Modify();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -784,11 +776,9 @@ codeunit 144008 "EB - Payment Journal Export"
         // Preparation: create settings
         CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
-        with CountryRegion do begin
-            Get('DK');
-            "SEPA Allowed" := false;
-            Modify();
-        end;
+        CountryRegion.Get('DK');
+        CountryRegion."SEPA Allowed" := false;
+        CountryRegion.Modify();
 
         // Create payments
         Swift := GenerateBankAccSwiftCode();
@@ -823,11 +813,9 @@ codeunit 144008 "EB - Payment Journal Export"
         // Preparation: create settings
         CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
-        with CountryRegion do begin
-            Get('DK');
-            "SEPA Allowed" := false;
-            Modify();
-        end;
+        CountryRegion.Get('DK');
+        CountryRegion."SEPA Allowed" := false;
+        CountryRegion.Modify();
 
         // Create payments
         Swift := GenerateBankAccSwiftCode();
@@ -859,13 +847,11 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion();
-        with ExportProtocol do begin
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
-            Validate("Code Expenses", "Code Expenses"::BEN);
-            Validate("Export Object ID", REPORT::"File SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries());
-            Insert(true);
-        end;
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol"));
+        ExportProtocol.Validate("Code Expenses", ExportProtocol."Code Expenses"::BEN);
+        ExportProtocol.Validate("Export Object ID", REPORT::"File SEPA Payments");
+        ExportProtocol.Validate("Export No. Series", CreateNoSeries());
+        ExportProtocol.Insert(true);
 
         // Create payments
         Swift := GenerateBankAccSwiftCode();
@@ -896,13 +882,11 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion();
-        with ExportProtocol do begin
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
-            Validate("Code Expenses", "Code Expenses"::BEN);
-            Validate("Check Object ID", CODEUNIT::"Check SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries());
-            Insert(true);
-        end;
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol"));
+        ExportProtocol.Validate("Code Expenses", ExportProtocol."Code Expenses"::BEN);
+        ExportProtocol.Validate("Check Object ID", CODEUNIT::"Check SEPA Payments");
+        ExportProtocol.Validate("Export No. Series", CreateNoSeries());
+        ExportProtocol.Insert(true);
 
         // Create payments
         Swift := GenerateBankAccSwiftCode();
@@ -934,13 +918,11 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion();
-        with ExportProtocol do begin
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
-            Validate("Code Expenses", "Code Expenses"::BEN);
-            Validate("Check Object ID", CODEUNIT::"Check SEPA Payments");
-            Validate("Export Object ID", REPORT::"File SEPA Payments");
-            Insert(true);
-        end;
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol"));
+        ExportProtocol.Validate("Code Expenses", ExportProtocol."Code Expenses"::BEN);
+        ExportProtocol.Validate("Check Object ID", CODEUNIT::"Check SEPA Payments");
+        ExportProtocol.Validate("Export Object ID", REPORT::"File SEPA Payments");
+        ExportProtocol.Insert(true);
 
         // Create payments
         Swift := GenerateBankAccSwiftCode();
@@ -972,13 +954,11 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion();
-        with ExportProtocol do begin
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
-            Validate("Code Expenses", "Code Expenses"::BEN);
-            Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries());
-            Insert(true);
-        end;
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol"));
+        ExportProtocol.Validate("Code Expenses", ExportProtocol."Code Expenses"::BEN);
+        ExportProtocol.Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
+        ExportProtocol.Validate("Export No. Series", CreateNoSeries());
+        ExportProtocol.Insert(true);
 
         // Create payments
         Swift := GenerateBankAccSwiftCode();
@@ -1011,13 +991,11 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion();
-        with ExportProtocol do begin
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
-            Validate("Code Expenses", "Code Expenses"::BEN);
-            Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries());
-            Insert(true);
-        end;
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol"));
+        ExportProtocol.Validate("Code Expenses", ExportProtocol."Code Expenses"::BEN);
+        ExportProtocol.Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
+        ExportProtocol.Validate("Export No. Series", CreateNoSeries());
+        ExportProtocol.Insert(true);
 
         // Create payments
         Swift := GenerateBankAccSwiftCode();
@@ -1051,13 +1029,11 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion();
-        with ExportProtocol do begin
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
-            Validate("Code Expenses", "Code Expenses"::BEN);
-            Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
-            Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
-            Insert(true);
-        end;
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol"));
+        ExportProtocol.Validate("Code Expenses", ExportProtocol."Code Expenses"::BEN);
+        ExportProtocol.Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
+        ExportProtocol.Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
+        ExportProtocol.Insert(true);
 
         // Create payments
         Swift := GenerateBankAccSwiftCode();
@@ -1981,32 +1957,28 @@ codeunit 144008 "EB - Payment Journal Export"
         ForeignCurrency: Record Currency;
     begin
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(Today, 10, 10);
-        with ForeignCurrency do begin
-            Get(CurrencyCode);
-            CurrencyIso := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(3, 0), 1, 3);
-            Validate("ISO Code", CurrencyIso);
-            Modify(true);
-        end;
+        ForeignCurrency.Get(CurrencyCode);
+        CurrencyIso := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(3, 0), 1, 3);
+        ForeignCurrency.Validate("ISO Code", CurrencyIso);
+        ForeignCurrency.Modify(true);
     end;
 
     local procedure CreateSEPAExportProtocol(UseEuro: Boolean): Code[20]
     var
         ExportProtocol: Record "Export Protocol";
     begin
-        with ExportProtocol do begin
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
-            Validate("Code Expenses", "Code Expenses"::BEN);
-            if UseEuro then begin
-                Validate("Check Object ID", CODEUNIT::"Check SEPA Payments");
-                Validate("Export Object ID", REPORT::"File SEPA Payments")
-            end else begin
-                Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
-                Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
-            end;
-            Validate("Export No. Series", CreateNoSeries());
-            Insert(true);
-            exit(Code);
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol"));
+        ExportProtocol.Validate("Code Expenses", ExportProtocol."Code Expenses"::BEN);
+        if UseEuro then begin
+            ExportProtocol.Validate("Check Object ID", CODEUNIT::"Check SEPA Payments");
+            ExportProtocol.Validate("Export Object ID", REPORT::"File SEPA Payments")
+        end else begin
+            ExportProtocol.Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
+            ExportProtocol.Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
         end;
+        ExportProtocol.Validate("Export No. Series", CreateNoSeries());
+        ExportProtocol.Insert(true);
+        exit(ExportProtocol.Code);
     end;
 
     local procedure CreateNoSeries(): Code[20]
@@ -2025,19 +1997,18 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         BankAccount: Record "Bank Account";
     begin
-        with BankAccount do begin
-            LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccount(BankAccount);
 
-            Validate("Country/Region Code", CountryCode);
-            Validate("Currency Code", Currency);
-            Validate("Bank Branch No.", '974');
-            Validate("Bank Account No.", '974-1907060-53');  // Test Bank Account on ISABEL-Beta server
-            Validate(IBAN, BankIban);
-            Validate("SWIFT Code", Swift);
-            Validate("Interbank Clearing Code", InterbankClearingCodeOption);
-            Modify(true);
-            exit("No.");
-        end;
+        BankAccount.Validate("Country/Region Code", CountryCode);
+        BankAccount.Validate("Currency Code", Currency);
+        BankAccount.Validate("Bank Branch No.", '974');
+        BankAccount.Validate("Bank Account No.", '974-1907060-53');
+        // Test Bank Account on ISABEL-Beta server
+        BankAccount.Validate(IBAN, BankIban);
+        BankAccount.Validate("SWIFT Code", Swift);
+        BankAccount.Validate("Interbank Clearing Code", InterbankClearingCodeOption);
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
     end;
 
     local procedure ExportSuggestedPayment(var FileName: Text; CountryCode: Code[10]; VendorNoFilter: Text; ExportProtocol: Code[20]; Swift: Code[20]; Iban: Code[50]; BankCurrency: Code[10]; PaymentMsg: Boolean; SeparateLine: Boolean; InterbankClearingCodeOption: Option DimensionValue)
@@ -2063,14 +2034,12 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         CountryRegion: Record "Country/Region";
     begin
-        with CountryRegion do begin
-            LibraryERM.FindCountryRegion(CountryRegion);
-            "SEPA Allowed" := true;
-            ISOCountryCode := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
-            Validate("ISO Code", ISOCountryCode);
-            Modify();
-            exit(Code);
-        end;
+        LibraryERM.FindCountryRegion(CountryRegion);
+        CountryRegion."SEPA Allowed" := true;
+        ISOCountryCode := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
+        CountryRegion.Validate("ISO Code", ISOCountryCode);
+        CountryRegion.Modify();
+        exit(CountryRegion.Code);
     end;
 
     local procedure CreateVendor(CountryCode: Code[10]; ExportProtocolCode: Code[20]; VendorSwift: Code[20]; VendorIban: Code[50]): Code[20]
@@ -2080,21 +2049,19 @@ codeunit 144008 "EB - Payment Journal Export"
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
     begin
-        with Vendor do begin
-            LibraryPurchase.CreateVendor(Vendor);
-            LibraryDimension.CreateDimension(Dimension);
-            LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-            LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Vendor, "No.",
-              Dimension.Code, DimensionValue.Code);
-            Clear(DimensionCode);
-            DimensionCode := Dimension.Code;
-            Validate("Country/Region Code", CountryCode);
-            Validate("Preferred Bank Account Code",
-              CreateVendorBankAccount("No.", CountryCode, ExportProtocolCode, VendorSwift, VendorIban, ''));
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Vendor, Vendor."No.",
+          Dimension.Code, DimensionValue.Code);
+        Clear(DimensionCode);
+        DimensionCode := Dimension.Code;
+        Vendor.Validate("Country/Region Code", CountryCode);
+        Vendor.Validate("Preferred Bank Account Code",
+          CreateVendorBankAccount(Vendor."No.", CountryCode, ExportProtocolCode, VendorSwift, VendorIban, ''));
 
-            Modify();
-            exit("No.");
-        end;
+        Vendor.Modify();
+        exit(Vendor."No.");
     end;
 
     local procedure CreateCustomerWithNoAndCountry(var Customer: Record Customer; CustomerNo: Code[20]; CountryCode: Code[10])
@@ -2109,16 +2076,14 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateVendor(Vendor);
 
-            Validate("Country/Region Code", CountryCode);
-            Validate("Preferred Bank Account Code",
-              CreateVendorBankAccount("No.", CountryCode, ExportProtocolCode, VendorSwift, VendorIban, BankAccountCurrency));
-            Validate("Currency Code", VendorCurrency);
-            Modify();
-            exit("No.");
-        end;
+        Vendor.Validate("Country/Region Code", CountryCode);
+        Vendor.Validate("Preferred Bank Account Code",
+          CreateVendorBankAccount(Vendor."No.", CountryCode, ExportProtocolCode, VendorSwift, VendorIban, BankAccountCurrency));
+        Vendor.Validate("Currency Code", VendorCurrency);
+        Vendor.Modify();
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorForExportSuggestedPayment(var CountryCode: Code[10]; var ExportProtocol: Code[20]) VendorNo: Code[20]
@@ -2146,18 +2111,16 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        with VendorBankAccount do begin
-            LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
-            Validate("Country/Region Code", CountryCode);
-            Validate("Bank Account No.", LibraryUtility.GenerateRandomCode(FieldNo("Bank Account No."), DATABASE::"Vendor Bank Account"));
-            Validate("Bank Branch No.", CopyStr("Bank Account No.", 1, LibraryRandom.RandIntInRange(3, 5)));
-            "Export Protocol Code" := ExportProtocolCode;
-            Validate(IBAN, VendorIban);
-            Validate("SWIFT Code", VendorSwift);
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
+        VendorBankAccount.Validate("Country/Region Code", CountryCode);
+        VendorBankAccount.Validate("Bank Account No.", LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Bank Account No."), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.Validate("Bank Branch No.", CopyStr(VendorBankAccount."Bank Account No.", 1, LibraryRandom.RandIntInRange(3, 5)));
+        VendorBankAccount."Export Protocol Code" := ExportProtocolCode;
+        VendorBankAccount.Validate(IBAN, VendorIban);
+        VendorBankAccount.Validate("SWIFT Code", VendorSwift);
+        VendorBankAccount.Validate("Currency Code", CurrencyCode);
+        VendorBankAccount.Modify(true);
+        exit(VendorBankAccount.Code);
     end;
 
     local procedure CreateCustomerBankAccountWithCodeAndBankAccNo(CustomerNo: Code[20]; CountryCode: Code[10]; ExportProtocolCode: Code[20]): Code[20]
@@ -2319,16 +2282,15 @@ codeunit 144008 "EB - Payment Journal Export"
         EBPaymentJournalPage.CurrentJnlBatchName.Value(PaymJournalBatch.Name);
         EBPaymentJournalPage.SuggestVendorPayments.Invoke();
 
-        if BlankPaymentJournalBankAccount then
-            with PaymentJournalLine do begin
-                SetRange("Journal Template Name", PaymJournalBatch."Journal Template Name");
-                SetRange("Journal Batch Name", PaymJournalBatch.Name);
-                FindSet();
-                repeat
-                    Validate("Bank Account", '');
-                    Modify(true);
-                until Next() = 0;
-            end;
+        if BlankPaymentJournalBankAccount then begin
+            PaymentJournalLine.SetRange("Journal Template Name", PaymJournalBatch."Journal Template Name");
+            PaymentJournalLine.SetRange("Journal Batch Name", PaymJournalBatch.Name);
+            PaymentJournalLine.FindSet();
+            repeat
+                PaymentJournalLine.Validate("Bank Account", '');
+                PaymentJournalLine.Modify(true);
+            until PaymentJournalLine.Next() = 0;
+        end;
         Commit();
         EBPaymentJournalPage.CheckPaymentLines.Invoke();
     end;
@@ -2346,23 +2308,21 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         PaymentJournalLine: Record "Payment Journal Line";
     begin
-        with PaymentJournalLine do begin
-            SetRange("Journal Template Name", PaymJnlTemplateName);
-            SetRange("Journal Batch Name", PaymJnlBatchName);
-            FindSet();
-            repeat
-                Validate("Bank Account", BankAccountNo);
-                if PaymentMsg then
-                    Validate("Payment Message", PaymentMessageTxt);
-                if SeparateLine then
-                    Validate("Separate Line", true);
-                if BlankPaymentJournalBankAccount then
-                    Validate("Bank Account", '');
-                if GlobalDim1Code <> '' then
-                    Validate("Shortcut Dimension 1 Code", GlobalDim1Code);
-                Modify(true);
-            until Next() = 0;
-        end;
+        PaymentJournalLine.SetRange("Journal Template Name", PaymJnlTemplateName);
+        PaymentJournalLine.SetRange("Journal Batch Name", PaymJnlBatchName);
+        PaymentJournalLine.FindSet();
+        repeat
+            PaymentJournalLine.Validate("Bank Account", BankAccountNo);
+            if PaymentMsg then
+                PaymentJournalLine.Validate("Payment Message", PaymentMessageTxt);
+            if SeparateLine then
+                PaymentJournalLine.Validate("Separate Line", true);
+            if BlankPaymentJournalBankAccount then
+                PaymentJournalLine.Validate("Bank Account", '');
+            if GlobalDim1Code <> '' then
+                PaymentJournalLine.Validate("Shortcut Dimension 1 Code", GlobalDim1Code);
+            PaymentJournalLine.Modify(true);
+        until PaymentJournalLine.Next() = 0;
 
         CODEUNIT.Run(CODEUNIT::"Check International Payments", PaymentJournalLine);
     end;
@@ -2371,14 +2331,12 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            FilterGenJnlLine(GenJournalLine, VendorNo);
-            FindFirst();
-            Reset();
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            ModifyAll("Posting Date", "Posting Date");
-        end;
+        FilterGenJnlLine(GenJournalLine, VendorNo);
+        GenJournalLine.FindFirst();
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.ModifyAll("Posting Date", GenJournalLine."Posting Date");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -2397,13 +2355,11 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::General);
         GenJnlTemplate.FindFirst();
-        with GenJnlBatch do begin
-            LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-            LibraryERM.FindGLAccount(GLAccount);
-            Validate("Bal. Account No.", GLAccount."No.");
-            Validate("No. Series", CreateNoSeries());
-            Modify();
-        end;
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        LibraryERM.FindGLAccount(GLAccount);
+        GenJnlBatch.Validate("Bal. Account No.", GLAccount."No.");
+        GenJnlBatch.Validate("No. Series", CreateNoSeries());
+        GenJnlBatch.Modify();
     end;
 
     local procedure ModifySecondPaymentJournalLine(PaymJournalBatch: Record "Paym. Journal Batch"): Decimal
@@ -2411,13 +2367,11 @@ codeunit 144008 "EB - Payment Journal Export"
         PaymentJournalLine: Record "Payment Journal Line";
     begin
         FilterPmtJnlLine(PaymentJournalLine, PaymJournalBatch, PaymentJournalLine.Status::Created);
-        with PaymentJournalLine do begin
-            FindFirst();
-            Next();
-            Validate(Amount, Round(Amount / 3));
-            Modify(true);
-            exit(Amount);
-        end;
+        PaymentJournalLine.FindFirst();
+        PaymentJournalLine.Next();
+        PaymentJournalLine.Validate(Amount, Round(PaymentJournalLine.Amount / 3));
+        PaymentJournalLine.Modify(true);
+        exit(PaymentJournalLine.Amount);
     end;
 
     local procedure CreateDimensionValueForGlobalDim1Code(var DimensionValue: Record "Dimension Value")
@@ -2436,27 +2390,21 @@ codeunit 144008 "EB - Payment Journal Export"
 
     local procedure FilterPmtJnlLine(var PaymentJournalLine: Record "Payment Journal Line"; PaymJournalBatch: Record "Paym. Journal Batch"; StatusValue: Option)
     begin
-        with PaymentJournalLine do begin
-            SetRange("Journal Template Name", PaymJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", PaymJournalBatch.Name);
-            SetRange(Status, StatusValue);
-        end;
+        PaymentJournalLine.SetRange("Journal Template Name", PaymJournalBatch."Journal Template Name");
+        PaymentJournalLine.SetRange("Journal Batch Name", PaymJournalBatch.Name);
+        PaymentJournalLine.SetRange(Status, StatusValue);
     end;
 
     local procedure FilterGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20])
     begin
-        with GenJournalLine do begin
-            SetRange("Account Type", "Account Type"::Vendor);
-            SetRange("Account No.", VendorNo);
-        end;
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Account No.", VendorNo);
     end;
 
     local procedure FilterVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document Type", DocumentType);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
     end;
 
     local procedure GetProtocolLastNoUsed(ExportProtocolCode: Code[20]): Code[20]
@@ -2477,22 +2425,20 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         Vendor.Get(VendorNo);
         VendorBankAccount.Get(VendorNo, Vendor."Preferred Bank Account Code");
-        with PaymentJournalLine do begin
-            Init();
-            Validate("Journal Template Name", PaymJournalBatch."Journal Template Name");
-            Validate("Journal Batch Name", PaymJournalBatch.Name);
-            Validate("Line No.", LibraryUtility.GetNewRecNo(PaymentJournalLine, FieldNo("Line No.")));
-            Validate("Account Type", "Account Type"::Vendor);
-            Validate("Account No.", VendorNo);
-            Validate(Amount, PaymAmount);
-            Validate("Separate Line", SeparateLine);
-            Validate("Bank Country/Region Code", Vendor."Country/Region Code");
-            Validate("SWIFT Code", VendorBankAccount."SWIFT Code");
-            Validate("Beneficiary IBAN", VendorIbanTxt);
-            Validate("Export Protocol Code", VendorBankAccount."Export Protocol Code");
-            Validate("Bank Account", BankAccountNo);
-            Insert(true);
-        end;
+        PaymentJournalLine.Init();
+        PaymentJournalLine.Validate("Journal Template Name", PaymJournalBatch."Journal Template Name");
+        PaymentJournalLine.Validate("Journal Batch Name", PaymJournalBatch.Name);
+        PaymentJournalLine.Validate("Line No.", LibraryUtility.GetNewRecNo(PaymentJournalLine, PaymentJournalLine.FieldNo("Line No.")));
+        PaymentJournalLine.Validate("Account Type", PaymentJournalLine."Account Type"::Vendor);
+        PaymentJournalLine.Validate("Account No.", VendorNo);
+        PaymentJournalLine.Validate(Amount, PaymAmount);
+        PaymentJournalLine.Validate("Separate Line", SeparateLine);
+        PaymentJournalLine.Validate("Bank Country/Region Code", Vendor."Country/Region Code");
+        PaymentJournalLine.Validate("SWIFT Code", VendorBankAccount."SWIFT Code");
+        PaymentJournalLine.Validate("Beneficiary IBAN", VendorIbanTxt);
+        PaymentJournalLine.Validate("Export Protocol Code", VendorBankAccount."Export Protocol Code");
+        PaymentJournalLine.Validate("Bank Account", BankAccountNo);
+        PaymentJournalLine.Insert(true);
     end;
 
     local procedure GenerateBankAccSwiftCode(): Code[20]
@@ -2514,23 +2460,21 @@ codeunit 144008 "EB - Payment Journal Export"
         PaymJournalBatch: Record "Paym. Journal Batch";
     begin
         CreatePaymentJnlBatch(PaymJournalBatch);
-        with PaymentJournalLine do begin
-            Init();
-            "Journal Template Name" := PaymJournalBatch."Journal Template Name";
-            "Journal Batch Name" := PaymJournalBatch.Name;
-            "Account Type" := AccountType;
-            "Account No." := AccountNo;
-            "Export Protocol Code" := ExportProtocol;
-            "Payment Message" := LibraryUtility.GenerateGUID();
-            Amount := LibraryRandom.RandDec(10, 2);
-            "Beneficiary Bank Account No." := LibraryUtility.GenerateGUID();
-            "Beneficiary IBAN" := LibraryUtility.GenerateGUID();
-            "SWIFT Code" := LibraryUtility.GenerateGUID();
-            "Bank Country/Region Code" := "Journal Batch Name";
-            "Bank Account" := LibraryUtility.GenerateGUID();
-            Insert();
-            SetFilter("Export Protocol Code", ExportProtocol);
-        end;
+        PaymentJournalLine.Init();
+        PaymentJournalLine."Journal Template Name" := PaymJournalBatch."Journal Template Name";
+        PaymentJournalLine."Journal Batch Name" := PaymJournalBatch.Name;
+        PaymentJournalLine."Account Type" := AccountType;
+        PaymentJournalLine."Account No." := AccountNo;
+        PaymentJournalLine."Export Protocol Code" := ExportProtocol;
+        PaymentJournalLine."Payment Message" := LibraryUtility.GenerateGUID();
+        PaymentJournalLine.Amount := LibraryRandom.RandDec(10, 2);
+        PaymentJournalLine."Beneficiary Bank Account No." := LibraryUtility.GenerateGUID();
+        PaymentJournalLine."Beneficiary IBAN" := LibraryUtility.GenerateGUID();
+        PaymentJournalLine."SWIFT Code" := LibraryUtility.GenerateGUID();
+        PaymentJournalLine."Bank Country/Region Code" := PaymentJournalLine."Journal Batch Name";
+        PaymentJournalLine."Bank Account" := LibraryUtility.GenerateGUID();
+        PaymentJournalLine.Insert();
+        PaymentJournalLine.SetFilter("Export Protocol Code", ExportProtocol);
     end;
 
     local procedure MockSelectedDimensionFileSEPAPaymentsReport()
@@ -2666,13 +2610,11 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         PaymentJournalLine: Record "Payment Journal Line";
     begin
-        with PaymentJournalLine do begin
-            SetFilter("Account No.", VendorNo);
-            FindSet();
-            repeat
-                Assert.AreEqual(Status::Posted, Status, ShouldHaveBeenPostedErr);
-            until Next() = 0;
-        end;
+        PaymentJournalLine.SetFilter("Account No.", VendorNo);
+        PaymentJournalLine.FindSet();
+        repeat
+            Assert.AreEqual(PaymentJournalLine.Status::Posted, PaymentJournalLine.Status, ShouldHaveBeenPostedErr);
+        until PaymentJournalLine.Next() = 0;
     end;
 
     local procedure VerifyXmlSeparateLines(Filename: Text)

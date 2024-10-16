@@ -190,6 +190,8 @@ report 99000762 "Prod. Order - Job Card"
 
     requestpage
     {
+        AboutTitle = 'About Prod. Order - Job Card';
+        AboutText = 'Details out the components and capacity required to fulfil a Production Order. Use it to provide a printable report that your team can use to execute the manufacturing job.';
 
         layout
         {

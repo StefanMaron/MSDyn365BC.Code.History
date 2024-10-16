@@ -182,24 +182,6 @@ codeunit 9170 "Conf./Personalization Mgt."
         Message(AllProfileCustomizationsDeletedSuccessfullyMsg, AllProfile.Caption);
     end;
 
-#if not CLEAN22
-    [Obsolete('This procedure cleared old "User Metadata" as well. Use ClearPersonalizedPagesForUser instead.', '22.0')]
-    procedure ClearUserPersonalization(User: Record "User Personalization")
-    var
-        UserMetadata: Record "User Metadata";
-        UserPageMetadata: Record "User Page Metadata";
-    begin
-        if not Confirm(DeletePersonalizationChangesQst) then
-            exit;
-
-        UserMetadata.SetRange("User SID", User."User SID");
-        UserMetadata.DeleteAll(true);
-
-        UserPageMetadata.SetRange("User SID", User."User SID");
-        UserPageMetadata.DeleteAll(true);
-    end;
-#endif
-
     procedure ClearPersonalizedPagesForUser(UserSid: Guid)
     var
         UserPageMetadata: Record "User Page Metadata";
@@ -220,9 +202,6 @@ codeunit 9170 "Conf./Personalization Mgt."
     procedure ValidateDeleteProfile(AllProfile: Record "All Profile")
     var
         UserPersonalization: Record "User Personalization";
-#if not CLEAN22
-        UserGroup: Record "User Group";
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -239,23 +218,11 @@ codeunit 9170 "Conf./Personalization Mgt."
 
         if not UserPersonalization.IsEmpty() then
             Error(CannotDeleteDefaultUserProfileErr);
-
-#if not CLEAN22
-        UserGroup.SetRange("Default Profile ID", AllProfile."Profile ID");
-        UserGroup.SetRange("Default Profile App ID", AllProfile."App ID");
-        UserGroup.SetRange("Default Profile Scope", AllProfile.Scope);
-
-        if not UserGroup.IsEmpty() then
-            Error(CannotDeleteDefaultUserProfileErr);
-#endif
     end;
 
     procedure ValidateDisableProfile(AllProfile: Record "All Profile")
     var
         UserPersonalization: Record "User Personalization";
-#if not CLEAN22
-        UserGroup: Record "User Group";
-#endif
     begin
         if AllProfile."Default Role Center" then
             Error(NoDisableProfileErr);
@@ -266,15 +233,6 @@ codeunit 9170 "Conf./Personalization Mgt."
 
         if not UserPersonalization.IsEmpty() then
             Error(CannotDisableDefaultUserProfileErr);
-
-#if not CLEAN22
-        UserGroup.SetRange("Default Profile ID", AllProfile."Profile ID");
-        UserGroup.SetRange("Default Profile App ID", AllProfile."App ID");
-        UserGroup.SetRange("Default Profile Scope", AllProfile.Scope);
-
-        if not UserGroup.IsEmpty() then
-            Error(CannotDisableDefaultUserProfileErr);
-#endif
     end;
 
     procedure FilterToInstalledLanguages(var WindowsLanguage: Record "Windows Language")
@@ -316,33 +274,6 @@ codeunit 9170 "Conf./Personalization Mgt."
         FileManagement.DeleteServerFile(ServerTempFileName);
     end;
 
-#if not CLEAN22
-    [Obsolete('Use procedure CopyProfile instead, which also handles copying page metadata.', '18.0')]
-    procedure CopyProfilePageMetadata(OldAllProfile: Record "All Profile"; NewAllProfile: Record "All Profile")
-    var
-        TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
-        NewTenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
-    begin
-        if (OldAllProfile.Scope = OldAllProfile.Scope::Tenant) and
-           (NewAllProfile.Scope = NewAllProfile.Scope::Tenant)
-        then begin
-            TenantProfilePageMetadata.SetRange("Profile ID", OldAllProfile."Profile ID");
-            TenantProfilePageMetadata.SetRange("App ID", OldAllProfile."App ID");
-            if TenantProfilePageMetadata.FindSet() then
-                repeat
-                    TenantProfilePageMetadata.CalcFields("Page Metadata", "Page AL");
-
-                    NewTenantProfilePageMetadata.Init();
-                    NewTenantProfilePageMetadata.Copy(TenantProfilePageMetadata);
-                    NewTenantProfilePageMetadata."Profile ID" := NewAllProfile."Profile ID";
-                    NewTenantProfilePageMetadata.Owner := NewTenantProfilePageMetadata.Owner::Tenant;
-                    NewTenantProfilePageMetadata."App ID" := NewAllProfile."App ID";
-                    NewTenantProfilePageMetadata.Insert();
-                until TenantProfilePageMetadata.Next() = 0;
-        end;
-    end;
-#endif
-
     procedure RaiseOnOpenRoleCenterEvent()
     begin
         OnRoleCenterOpen();
@@ -374,65 +305,6 @@ codeunit 9170 "Conf./Personalization Mgt."
                 OtherAllProfile.Modify();
             until OtherAllProfile.Next() = 0;
     end;
-
-#if not CLEAN22
-    [Scope('OnPrem')]
-    procedure ChangePersonalizationForUserGroupMembers(UserGroupCode: Code[20]; OldProfileID: Code[30]; NewProfileID: Code[30])
-    var
-        UserGroupMember: Record "User Group Member";
-        UserPersonalization: Record "User Personalization";
-    begin
-        UserGroupMember.SetRange("User Group Code", UserGroupCode);
-        if UserGroupMember.FindSet() then
-            repeat
-                UserPersonalization.Get(UserGroupMember."User Security ID");
-                if (UserPersonalization."Profile ID" = OldProfileID) and
-                   (not UserHasOtherUserGroupsSupportingProfile(UserGroupMember."User Security ID", OldProfileID, UserGroupCode))
-                then begin
-                    UserPersonalization.Validate("Profile ID", NewProfileID);
-                    UserPersonalization.Modify(true);
-                end;
-            until UserGroupMember.Next() = 0;
-    end;
-
-    [Scope('OnPrem')]
-    procedure ChangePersonalizationForUserGroupMembers(xUserGroup: Record "User Group"; UserGroup: Record "User Group")
-    var
-        UserGroupMember: Record "User Group Member";
-        UserPersonalization: Record "User Personalization";
-    begin
-        UserGroupMember.SetRange("User Group Code", UserGroup.Code);
-        if UserGroupMember.FindSet() then
-            repeat
-                UserPersonalization.Get(UserGroupMember."User Security ID");
-                if (UserPersonalization."Profile ID" = xUserGroup."Default Profile ID") and
-                   (not UserHasOtherUserGroupsSupportingProfile(UserGroupMember."User Security ID", xUserGroup."Default Profile ID", UserGroup.Code))
-                then begin
-                    UserPersonalization.Validate("Profile ID", UserGroup."Default Profile ID");
-                    UserPersonalization.Scope := UserGroup."Default Profile Scope";
-                    UserPersonalization."App ID" := UserGroup."Default Profile App ID";
-                    UserPersonalization.Modify(true);
-                end;
-            until UserGroupMember.Next() = 0;
-    end;
-
-    local procedure UserHasOtherUserGroupsSupportingProfile(UserSecurityID: Guid; ProfileID: Code[30]; UserGroupCode: Code[20]): Boolean
-    var
-        UserGroupMember: Record "User Group Member";
-        UserGroup: Record "User Group";
-    begin
-        UserGroupMember.SetRange("User Security ID", UserSecurityID);
-        UserGroupMember.SetFilter("User Group Code", '<>%1', UserGroupCode);
-        if UserGroupMember.FindSet() then
-            repeat
-                if UserGroup.Get(UserGroupMember."User Group Code") and
-                   (UserGroup."Default Profile ID" = ProfileID)
-                then
-                    exit(true);
-            until UserGroupMember.Next() = 0;
-        exit(false);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure ExtractZipFile(ZipFilePath: Text; DestinationFolder: Text)

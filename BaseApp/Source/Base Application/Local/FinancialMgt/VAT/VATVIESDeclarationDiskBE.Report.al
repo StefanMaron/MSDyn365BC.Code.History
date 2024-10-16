@@ -26,7 +26,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
     {
         dataitem(Cust; Customer)
         {
-            DataItemTableView = sorting("VAT Registration No.") order(Ascending);
+            DataItemTableView = sorting("VAT Registration No.") order(ascending);
             dataitem(VATloop; "Integer")
             {
                 DataItemTableView = sorting(Number);

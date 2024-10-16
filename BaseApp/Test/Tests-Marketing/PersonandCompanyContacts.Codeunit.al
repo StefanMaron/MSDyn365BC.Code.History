@@ -12,13 +12,11 @@ codeunit 134626 "Person and Company Contacts"
         Assert: Codeunit Assert;
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryUtility: Codeunit "Library - Utility";
-        CompanyNameMissingErr: Label 'Company No. must have a value in Contact: No.=%1. It cannot be zero or empty.', Comment = 'Company No. must have a value in Contact: No.=CT000258. It cannot be zero or empty.';
         RelatedRecordIsCreatedMsg: Label 'The %1 record has been created.', Comment = 'The Customer record has been created.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
-        BusinessRelationsNotZeroErr: Label 'No. of Business Relations must be equal to ''0''  in Contact: No.=%1. Current value is ''1''.';
         LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryTemplates: Codeunit "Library - Templates";
@@ -86,7 +84,7 @@ codeunit 134626 "Person and Company Contacts"
         asserterror CreateVendorFromContactUsingContactCard(Contact);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(CompanyNameMissingErr, Contact."No."));
+        Assert.ExpectedTestFieldError(Contact.FieldCaption("Company No."), '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -107,7 +105,7 @@ codeunit 134626 "Person and Company Contacts"
         asserterror CreateBankAccountFromContactUsingContactCard(Contact);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(CompanyNameMissingErr, Contact."No."));
+        Assert.ExpectedTestFieldError(Contact.FieldCaption("Company No."), '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -406,8 +404,7 @@ codeunit 134626 "Person and Company Contacts"
         asserterror Contact.TypeChange();
 
         // [THEN] Error is raised
-        Assert.AreEqual('TestField', GetLastErrorCode, '');
-        Assert.AreEqual(StrSubstNo(BusinessRelationsNotZeroErr, Contact."No."), GetLastErrorText, '');
+        Assert.ExpectedTestFieldError(Contact.FieldCaption("No. of Business Relations"), Format(0));
 
         LibraryVariableStorage.AssertEmpty();
     end;

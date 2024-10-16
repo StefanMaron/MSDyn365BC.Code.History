@@ -434,12 +434,10 @@ table 99000829 "Planning Component"
                 Validate("Calculation Formula");
             end;
         }
-        field(46; "Ref. Order Type"; Option)
+        field(46; "Ref. Order Type"; Enum "Requisition Ref. Order Type")
         {
             Caption = 'Ref. Order Type';
             Editable = false;
-            OptionCaption = ' ,Purchase,Prod. Order,Transfer,Assembly';
-            OptionMembers = " ",Purchase,"Prod. Order",Transfer,Assembly;
         }
         field(50; "Unit Cost"; Decimal)
         {
@@ -698,8 +696,12 @@ table 99000829 "Planning Component"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You cannot change %1 when %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Item: Record Item;
         ReservEntry: Record "Reservation Entry";
         GLSetup: Record "General Ledger Setup";

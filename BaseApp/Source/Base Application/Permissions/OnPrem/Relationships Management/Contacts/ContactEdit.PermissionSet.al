@@ -19,8 +19,6 @@ using Microsoft.CRM.Comment;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Archive;
 using Microsoft.CRM.Segment;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.CRM.Team;
 using Microsoft.Inventory.Intrastat;
@@ -84,8 +82,6 @@ permissionset 257 "Contact - Edit"
                   tabledata "Salutation Formula" = R,
                   tabledata "Segment History" = rm,
                   tabledata "Segment Line" = RM,
-                  tabledata "Service Contract Header" = rm,
-                  tabledata "Service Header" = rm,
                   tabledata Territory = R,
                   tabledata "To-do" = RM,
                   tabledata "To-do Interaction Language" = RIMD,

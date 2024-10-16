@@ -236,28 +236,36 @@ report 7131 "Import Item Budget from Excel"
         SalesValueTypeVisible: Boolean;
         PurchValueTypeVisible: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You must specify a budget name to import to.';
+#pragma warning disable AA0470
         Text001: Label 'Do you want to create Item Budget Name %1?';
         Text002: Label '%1 %2 is blocked. You cannot import entries.';
         Text003: Label 'Are you sure you want to %1 for Budget Name %2?';
         Text004: Label '%1 table has been successfully updated with %2 entries.';
+#pragma warning restore AA0470
         Text005: Label 'Imported from Excel ';
         Text006: Label 'Import Excel File';
         Text007: Label 'Table Data';
         Text008: Label 'Show as Lines';
         Text009: Label 'Show as Columns';
         Text010: Label 'Replace Entries,Add Entries';
+#pragma warning disable AA0470
         Text011: Label 'The text %1 can only be specified once in the Excel worksheet.';
+#pragma warning restore AA0470
         Text012: Label 'The filters specified by worksheet must be placed in the lines before the table.';
         Text013: Label 'Date Filter';
         Text014: Label 'Customer Filter';
         Text015: Label 'Vendor Filter';
         Text016: Label 'Analyzing Data...\\';
         Text017: Label 'Item Filter';
+#pragma warning disable AA0470
         Text018: Label '%1 is not a valid dimension value.';
         Text019: Label '%1 is not a valid line definition.';
         Text020: Label '%1 is not a valid column definition.';
         Text021: Label 'You must specify a dimension value in row %1, column %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ExcelExtensionTok: Label '.xlsx', Locked = true;
 
     local procedure AnalyseData()

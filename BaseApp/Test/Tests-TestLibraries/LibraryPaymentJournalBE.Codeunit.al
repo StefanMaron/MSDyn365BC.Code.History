@@ -65,13 +65,11 @@ codeunit 143002 "Library - Payment Journal BE"
     [Scope('OnPrem')]
     procedure CreateDomLine(var DomiciliationJournalLine: Record "Domiciliation Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     begin
-        with DomiciliationJournalLine do begin
-            Init();
-            "Journal Template Name" := JournalTemplateName;
-            "Journal Batch Name" := JournalBatchName;
-            "Line No." := LibraryUtility.GetNewRecNo(DomiciliationJournalLine, FieldNo("Line No."));
-            Insert(true);
-        end;
+        DomiciliationJournalLine.Init();
+        DomiciliationJournalLine."Journal Template Name" := JournalTemplateName;
+        DomiciliationJournalLine."Journal Batch Name" := JournalBatchName;
+        DomiciliationJournalLine."Line No." := LibraryUtility.GetNewRecNo(DomiciliationJournalLine, DomiciliationJournalLine.FieldNo("Line No."));
+        DomiciliationJournalLine.Insert(true);
     end;
 
     [Scope('OnPrem')]

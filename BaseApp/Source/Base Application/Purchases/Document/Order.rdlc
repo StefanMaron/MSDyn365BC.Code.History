@@ -11511,6 +11511,9 @@ End Function</Code>
         <Field Name="ShiptoAddressCaption">
           <DataField>ShiptoAddressCaption</DataField>
         </Field>
+        <Field Name="ShipToPhoneNo">
+          <DataField>ShipToPhoneNo</DataField>
+        </Field>
         <Field Name="SellToCustNo_PurchHeaderCaption">
           <DataField>SellToCustNo_PurchHeaderCaption</DataField>
         </Field>

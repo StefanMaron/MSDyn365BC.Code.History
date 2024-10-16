@@ -22,13 +22,13 @@ codeunit 104153 "Copy Inv. No. To Pmt. Ref"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetCopyInvNoToPmtRefTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetCopyInvNoToPmtRefTag()) then
             exit;
 
-        IF PurchasesPayablesSetup.Get() THEN BEGIN
+        if PurchasesPayablesSetup.Get() then begin
             PurchasesPayablesSetup."Copy Inv. No. To Pmt. Ref." := true;
             PurchasesPayablesSetup.Modify();
-        END;
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCopyInvNoToPmtRefTag());
     end;

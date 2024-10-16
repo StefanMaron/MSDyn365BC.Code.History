@@ -154,7 +154,7 @@ report 2000020 "Domiciliation Journal - Test"
                     }
                     dataitem(DimensionLoop; "Integer")
                     {
-                        DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = filter(1 ..));
+                        DataItemTableView = sorting(Number) order(ascending) where(Number = filter(1 ..));
                         column(DimText; DimText)
                         {
                         }

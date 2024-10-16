@@ -22,13 +22,11 @@ codeunit 143001 "Library - CODA Helper"
 
         // Create a CustomerBankAccount
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
-        with CustomerBankAccount do begin
-            "Bank Account No." :=
-              CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Bank Account No.")), 1, MaxStrLen("Bank Account No."));
-            IBAN :=
-              CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(CODAStatementLine."Bank Account No. Other Party")), 1, MaxStrLen(IBAN));
-            Modify();
-        end;
+        CustomerBankAccount."Bank Account No." :=
+          CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(CustomerBankAccount."Bank Account No.")), 1, MaxStrLen(CustomerBankAccount."Bank Account No."));
+        CustomerBankAccount.IBAN :=
+          CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(CODAStatementLine."Bank Account No. Other Party")), 1, MaxStrLen(CustomerBankAccount.IBAN));
+        CustomerBankAccount.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -42,13 +40,11 @@ codeunit 143001 "Library - CODA Helper"
 
         // Create a VendorBankAccount
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
-        with VendorBankAccount do begin
-            "Bank Account No." :=
-              CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Bank Account No.")), 1, MaxStrLen("Bank Account No."));
-            IBAN :=
-              CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(CODAStatementLine."Bank Account No. Other Party")), 1, MaxStrLen(IBAN));
-            Modify();
-        end;
+        VendorBankAccount."Bank Account No." :=
+          CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(VendorBankAccount."Bank Account No.")), 1, MaxStrLen(VendorBankAccount."Bank Account No."));
+        VendorBankAccount.IBAN :=
+          CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(CODAStatementLine."Bank Account No. Other Party")), 1, MaxStrLen(VendorBankAccount.IBAN));
+        VendorBankAccount.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -67,27 +63,23 @@ codeunit 143001 "Library - CODA Helper"
         TransactionCoding: Record "Transaction Coding";
     begin
         CreateTransactionCoding(TransactionCoding, AccountType);
-        with CODAStatementLine do begin
-            "Bank Account No." := CODAStatement."Bank Account No.";
-            "Statement No." := CODAStatement."Statement No.";
-            "Transaction Family" := TransactionCoding."Transaction Family";
-            Transaction := TransactionCoding.Transaction;
-            "Transaction Category" := TransactionCoding."Transaction Category";
-            "Bank Account No. Other Party" := BankAccountNoOtherParty;
-            Insert();
-        end;
+        CODAStatementLine."Bank Account No." := CODAStatement."Bank Account No.";
+        CODAStatementLine."Statement No." := CODAStatement."Statement No.";
+        CODAStatementLine."Transaction Family" := TransactionCoding."Transaction Family";
+        CODAStatementLine.Transaction := TransactionCoding.Transaction;
+        CODAStatementLine."Transaction Category" := TransactionCoding."Transaction Category";
+        CODAStatementLine."Bank Account No. Other Party" := BankAccountNoOtherParty;
+        CODAStatementLine.Insert();
     end;
 
     [Scope('OnPrem')]
     procedure CreateTransactionCoding(var TransactionCoding: Record "Transaction Coding"; AccountType: Option)
     begin
-        with TransactionCoding do begin
-            "Transaction Family" := LibraryRandom.RandInt(99);
-            Transaction := LibraryRandom.RandInt(99);
-            "Transaction Category" := LibraryRandom.RandInt(999);
-            "Account Type" := AccountType;
-            Insert();
-        end;
+        TransactionCoding."Transaction Family" := LibraryRandom.RandInt(99);
+        TransactionCoding.Transaction := LibraryRandom.RandInt(99);
+        TransactionCoding."Transaction Category" := LibraryRandom.RandInt(999);
+        TransactionCoding."Account Type" := AccountType;
+        TransactionCoding.Insert();
     end;
 
     [Scope('OnPrem')]

@@ -58,7 +58,11 @@ table 5998 "Standard Service Item Gr. Code"
     var
         StdServCode: Record "Standard Service Code";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 of the standard service code must be equal to %2 on the %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InsertServiceLines(ServItemLine: Record "Service Item Line")
     var
@@ -158,10 +162,10 @@ table 5998 "Standard Service Item Gr. Code"
 
     procedure InsertExtendedText(ServLine: Record "Service Line")
     var
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
     begin
-        if TransferExtendedText.ServCheckIfAnyExtText(ServLine, false) then
-            TransferExtendedText.InsertServExtText(ServLine);
+        if ServiceTransferExtText.ServCheckIfAnyExtText(ServLine, false) then
+            ServiceTransferExtText.InsertServExtText(ServLine);
     end;
 
     local procedure CombineDimensions(var ServLine: Record "Service Line"; StdServLine: Record "Standard Service Line")

@@ -14,9 +14,6 @@ using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Item;
 using Microsoft.Warehouse.ADCS;
 using Microsoft.Warehouse.Structure;
 
@@ -32,6 +29,7 @@ table 5401 "Item Variant"
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
+            OptimizeForTextSearch = true;
             NotBlank = true;
         }
         field(2; "Item No."; Code[20])
@@ -53,10 +51,12 @@ table 5401 "Item Variant"
         field(3; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
         }
         field(4; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            OptimizeForTextSearch = true;
         }
         field(5; "Item Id"; Guid)
         {
@@ -153,15 +153,11 @@ table 5401 "Item Variant"
         SalesLine: Record "Sales Line";
         ProdOrderComponent: Record "Prod. Order Component";
         TransferLine: Record "Transfer Line";
-        ServiceLine: Record "Service Line";
         ProductionBOMLine: Record "Production BOM Line";
-        ServiceContractLine: Record "Service Contract Line";
-        ServiceItem: Record "Service Item";
         AssemblyHeader: Record "Assembly Header";
         ItemSubstitution: Record "Item Substitution";
         ItemVendor: Record "Item Vendor";
         PlanningAssignment: Record "Planning Assignment";
-        ServiceItemComponent: Record "Service Item Component";
         BinContent: Record "Bin Content";
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
@@ -235,29 +231,6 @@ table 5401 "Item Variant"
         if not SalesLine.IsEmpty() then
             Error(Text001, Code, SalesLine.TableCaption());
 
-        ServiceItem.SetCurrentKey("Item No.", "Serial No.");
-        ServiceItem.SetRange("Item No.", "Item No.");
-        ServiceItem.SetRange("Variant Code", Code);
-        if not ServiceItem.IsEmpty() then
-            Error(Text001, Code, ServiceItem.TableCaption());
-
-        ServiceLine.SetCurrentKey(Type, "No.");
-        ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.SetRange("No.", "Item No.");
-        ServiceLine.SetRange("Variant Code", Code);
-        if not ServiceLine.IsEmpty() then
-            Error(Text001, Code, ServiceLine.TableCaption());
-
-        ServiceContractLine.SetRange("Item No.", "Item No.");
-        ServiceContractLine.SetRange("Variant Code", Code);
-        if not ServiceContractLine.IsEmpty() then
-            Error(Text001, Code, ServiceContractLine.TableCaption());
-
-        ServiceItemComponent.SetRange(Type, ServiceItemComponent.Type::Item);
-        ServiceItemComponent.SetRange("No.", "Item No.");
-        ServiceItemComponent.SetRange("Variant Code", Code);
-        ServiceItemComponent.ModifyAll("Variant Code", '');
-
         ItemJournalLine.SetCurrentKey("Item No.");
         ItemJournalLine.SetRange("Item No.", "Item No.");
         ItemJournalLine.SetRange("Variant Code", Code);
@@ -307,11 +280,17 @@ table 5401 "Item Variant"
         PlanningAssignment.SetRange("Item No.", "Item No.");
         PlanningAssignment.SetRange("Variant Code", Code);
         PlanningAssignment.DeleteAll();
+
+        OnAfterOnDelete(Rec);
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot delete item variant %1 because there is at least one %2 that includes this Variant Code.';
         Text002: Label 'You cannot delete item variant %1 because there are one or more outstanding production orders that include this item.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CannotRenameItemUsedInSalesLinesErr: Label 'You cannot rename %1 in a %2, because it is used in sales document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
         CannotRenameItemUsedInPurchaseLinesErr: Label 'You cannot rename %1 in a %2, because it is used in purchase document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
 
@@ -341,6 +320,11 @@ table 5401 "Item Variant"
             exit;
 
         "Item Id" := Item.SystemId;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnDelete(ItemVariant: Record "Item Variant")
+    begin
     end;
 }
 

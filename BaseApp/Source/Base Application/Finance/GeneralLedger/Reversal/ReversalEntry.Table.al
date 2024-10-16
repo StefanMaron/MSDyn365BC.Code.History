@@ -254,20 +254,34 @@ table 179 "Reversal Entry"
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         JnlTemplName: Code[10];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot reverse %1 No. %2 because the entry is either applied to an entry or has been changed by a batch job.';
         Text001: Label 'You cannot reverse %1 No. %2 because the posting date is not within the allowed posting period.';
+#pragma warning restore AA0470
         Text002: Label 'You cannot reverse the transaction because it is out of balance.';
+#pragma warning disable AA0470
         Text003: Label 'You cannot reverse %1 No. %2 because the entry has a related check ledger entry.';
+#pragma warning restore AA0470
         Text004: Label 'You can only reverse entries that were posted from a journal.';
+#pragma warning disable AA0470
         Text005: Label 'You cannot reverse %1 No. %2 because the %3 is not within the allowed posting period.';
         Text006: Label 'You cannot reverse %1 No. %2 because the entry is closed.';
         Text007: Label 'You cannot reverse %1 No. %2 because the entry is included in a bank account reconciliation line. The bank reconciliation has not yet been posted.';
         Text008: Label 'You cannot reverse the transaction because the %1 has been sold.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CannotReverseDeletedErr: Label 'The transaction cannot be reversed, because the %1 has been compressed or a %2 has been deleted.', Comment = '%1 and %2 = table captions';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text010: Label 'You cannot reverse %1 No. %2 because the register has already been involved in a reversal.';
         Text011: Label 'You cannot reverse %1 No. %2 because the entry has already been involved in a reversal.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PostedAndAppliedSameTransactionErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.\\You must reverse each transaction in register number %1 separately.', Comment = '%1="G/L Register No."';
+#pragma warning disable AA0470
         UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.';
+#pragma warning restore AA0470
         CaptionTxt: Label '%1 %2 %3', Locked = true;
 
     protected var

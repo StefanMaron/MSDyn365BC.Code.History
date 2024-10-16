@@ -5,9 +5,6 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.Dimension.Correction;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Reversal;
-#if not CLEAN22
-using Microsoft.Finance.GeneralLedger.Review;
-#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.AuditCodes;
@@ -588,33 +585,6 @@ page 20 "General Ledger Entries"
                         Rec.ShowValueEntries();
                     end;
                 }
-#pragma warning disable AS0072
-#if not CLEAN22
-                action("Applied E&ntries")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Applied E&ntries';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
-                    ObsoleteTag = '22.0';
-                    Image = Entries;
-                    ToolTip = 'View the ledger entries that have been applied to this record.';
-
-                    trigger OnAction()
-                    var
-                        GLEABRec: Record "G/L Entry Application Buffer";
-                        ApplyGLEntries: Page "Apply General Ledger Entries";
-                    begin
-                        ApplyGLEntries.SetAppliedEntries(Rec);
-                        GLEABRec.Init();
-                        GLEABRec."Entry No." := Rec."Entry No.";
-                        if GLEABRec.Find('=><') then
-                            ApplyGLEntries.SetRecord(GLEABRec);
-                        ApplyGLEntries.Run();
-                    end;
-                }
-#endif
-#pragma warning restore AS0072
             }
         }
         area(processing)
@@ -644,28 +614,6 @@ page 20 "General Ledger Entries"
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.")
                     end;
                 }
-#if not CLEAN22
-                action(ApplyEntries)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Apply Entries';
-                    ObsoleteReason = 'Local feature is replaced with W1 extension Review G/L Entries';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    Image = ApplyEntries;
-                    ShortCutKey = 'Shift+F11';
-                    ToolTip = 'Apply the selected entries to a sales or purchase document that was already posted for a customer or vendor. This updates the amount on the posted document, and the document can either be partially paid, or closed as paid or refunded.';
-
-                    trigger OnAction()
-                    var
-                        ApplyGLEntries: Page "Apply General Ledger Entries";
-                    begin
-                        Clear(ApplyGLEntries);
-                        ApplyGLEntries.SetAllEntries(Rec."G/L Account No.");
-                        ApplyGLEntries.Run();
-                    end;
-                }
-#endif
                 group(IncomingDocument)
                 {
                     Caption = 'Incoming Document';

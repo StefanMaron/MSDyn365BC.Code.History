@@ -30,7 +30,7 @@ table 2000041 "CODA Statement Line"
         field(2; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
-            TableRelation = "CODA Statement"."Statement No." WHERE("Bank Account No." = field("Bank Account No."));
+            TableRelation = "CODA Statement"."Statement No." where("Bank Account No." = field("Bank Account No."));
         }
         field(3; "Statement Line No."; Integer)
         {
@@ -172,7 +172,7 @@ table 2000041 "CODA Statement Line"
         {
             BlankNumbers = BlankZero;
             BlankZero = true;
-            CalcFormula = count("CODA Statement Line" WHERE("Bank Account No." = field("Bank Account No."),
+            CalcFormula = count("CODA Statement Line" where("Bank Account No." = field("Bank Account No."),
                                                              "Statement No." = field("Statement No."),
                                                              ID = const(Information),
                                                              "Attached to Line No." = field("Statement Line No.")));
@@ -358,7 +358,7 @@ table 2000041 "CODA Statement Line"
         {
             Caption = 'Journal Batch Name';
             Editable = false;
-            TableRelation = "Gen. Journal Batch".Name WHERE("Journal Template Name" = field("Journal Template Name"));
+            TableRelation = "Gen. Journal Batch".Name where("Journal Template Name" = field("Journal Template Name"));
         }
         field(52; "Line No."; Integer)
         {

@@ -320,7 +320,7 @@ page 835 "Reminder Level Communication"
                 Error(NoTextForSelectedLanguageErr, CurrentLanguage.Code);
 
         CurrPage.Update(false);
-        CurrPage.ReminderAttachmentTextPart.Page.SetSourceData(CurrentLanguage.Code);
+        CurrPage.ReminderAttachmentTextPart.Page.SetSourceDataAsLevel(CurrentLanguage.Code);
         CurrPage.ReminderEmailTextPart.Page.SetSourceData(CurrentLanguage.Code);
     end;
 }

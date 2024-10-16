@@ -600,35 +600,29 @@ codeunit 144013 "VAT Annual Listing Report"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure FindLastInvoiceAmount(CustomerNo: Code[20]): Decimal
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            FindLast();
-            CalcFields(Amount);
-            exit(Amount);
-        end;
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesInvoiceHeader.FindLast();
+        SalesInvoiceHeader.CalcFields(Amount);
+        exit(SalesInvoiceHeader.Amount);
     end;
 
     local procedure FindLastCrMemoAmount(CustomerNo: Code[20]): Decimal
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with SalesCrMemoHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            FindLast();
-            CalcFields(Amount);
-            exit(Amount);
-        end;
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesCrMemoHeader.FindLast();
+        SalesCrMemoHeader.CalcFields(Amount);
+        exit(SalesCrMemoHeader.Amount);
     end;
 
     local procedure FormatLocalEnterpriseNo(EtnerpriseNo: Text): Text

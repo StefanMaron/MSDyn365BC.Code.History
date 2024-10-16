@@ -50,8 +50,12 @@ report 6006 "Delete Service Email Queue"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 entries were deleted.';
         Text001: Label '%1 entry was deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         i: Integer;
 }
 

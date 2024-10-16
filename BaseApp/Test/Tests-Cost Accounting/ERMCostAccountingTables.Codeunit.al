@@ -32,7 +32,6 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         InvtPostingGroupFilter: Text;
         ItemFilter: Text;
         CostEntriesCountError: Label 'The number of cost entries is incorrect.';
-        BalanceEqualToZero: Label 'Balance must be equal to ''0''';
         CostTypeNotDeleted: Label 'The Cost Type number %1 was not deleted.';
         CostRegisterEntriesNotClosed: Label 'The Cost Register entries were not closed.';
         EntriesWithinOpenFiscalYear: Label 'You cannot delete a cost type with entries in an open fiscal year.';
@@ -52,7 +51,6 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Text014: Label 'A closed register cannot be reactivated.';
         Text015: Label 'A %1 was not closed.', Comment = '%1=tablecaption Cost Budget Register';
         Text016: Label '%1 must be %2 or %3 in %4 %5.', Comment = '%1=fieldcaption Line Type;%2=tablecaption Cost Center;@3= fieldvalue Line Type;@4=fieldvalue Line Type;@5=Line Type';
-        Text017: Label '%1 must be equal to ''%2''  in Cost Type: No.=%3. Current value is ''%4''.', Comment = '%1=fieldcaption Blocked;%2=format(boolean);@3= fieldcaption No.;@4=format(boolean)';
         UnexpectedMessageError: Label 'The raised message is not the expected one. The actual message is: [%1], while the expected message is: [%2].';
         IncorrectLineTypeError: Label 'Line Type must not be %1 in %2 %3=''%4''.', Comment = '%1:Field Value;%2:Table Caption;%3:Field Caption;%4:Field Value;';
         CostEntryErr: Label 'There is no Cost Entry within the filter: "G/L Entry No." = ''%1''';
@@ -961,7 +959,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         asserterror CostType.Delete(true);
 
         // Verify
-        Assert.IsTrue(StrPos(GetLastErrorText, BalanceEqualToZero) > 0, UnexpectedErr);
+        Assert.ExpectedTestFieldError(CostType.FieldCaption(Balance), Format(0));
     end;
 
     [Test]
@@ -1279,10 +1277,9 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // compress budget entries
         CostBudgetEntry.CompressBudgetEntries(CostBudgetEntry."Budget Name");
         // verify entries were deleted
-        for j := (FromEntryNo + 1) to ToEntryNo do begin
+        for j := (FromEntryNo + 1) to ToEntryNo do
             if CostBudgetEntry.Get(j) then
-                Error(Text007, CostBudgetEntry.TableCaption())
-        end;
+                Error(Text007, CostBudgetEntry.TableCaption());
         // verify the sum matches expected.
         CostBudgetEntry.Get(FromEntryNo);
         Assert.AreEqual(TotalAmount, CostBudgetEntry.Amount, Text008);
@@ -1305,10 +1302,9 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // compress budget entries
         CostBudgetEntry.CompressBudgetEntries(CostBudgetEntry."Budget Name");
         // verify entries were deleted
-        for j := (FromEntryNo + 1) to ToEntryNo do begin
+        for j := (FromEntryNo + 1) to ToEntryNo do
             if CostBudgetEntry.Get(j) then
-                Error(Text007, CostBudgetEntry.TableCaption())
-        end;
+                Error(Text007, CostBudgetEntry.TableCaption());
         // verify the sum matches expected.
         CostBudgetEntry.Get(FromEntryNo);
         Assert.AreEqual(TotalAmount, CostBudgetEntry.Amount, Text008);
@@ -1337,11 +1333,10 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         CostBudgetEntry.CompressBudgetEntries(BudgetName);
 
-        for i := FirstEntryNo to ToEntryNo do begin
+        for i := FirstEntryNo to ToEntryNo do
             if i <> FromEntryNo then
                 if CostBudgetEntry.Get(i) then
-                    Error(Text007, CostBudgetEntry.TableCaption())
-        end;
+                    Error(Text007, CostBudgetEntry.TableCaption());
         // verify the sum matches expected.
         CostBudgetEntry.Get(FromEntryNo);
         Assert.AreEqual(TotalAmount, CostBudgetEntry.Amount, Text008);
@@ -1813,11 +1808,11 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Assert.IsTrue(CostBudgetRegister.Get(CostBudgetEntry.GetCostBudgetRegNo()), StrSubstNo(Text012, CostBudgetRegister.TableCaption()));
         CostBudgetName.Delete(true);
         asserterror CostBudgetEntry.Get(CostBudgetEntry."Entry No.");
-        Assert.ExpectedError(StrSubstNo(Text012, CostBudgetEntry.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Cost Budget Entry");
         asserterror CostBudgetRegister.Get(CostBudgetRegister."No.");
-        Assert.ExpectedError(StrSubstNo(Text012, CostBudgetRegister.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Cost Budget Register");
         asserterror CostBudgetName.Get(CostBudgetName.Name);
-        Assert.ExpectedError(StrSubstNo(Text012, CostBudgetName.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Cost Budget Name");
     end;
 
     [Test]
@@ -2044,10 +2039,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostType.Modify();
 
         asserterror CostJournalBatch.Validate("Bal. Cost Type No.", CostType."No.");
-
-        Assert.AreNotEqual(
-          StrPos(GetLastErrorText, StrSubstNo(Text017, CostType.FieldCaption(Blocked), false, CostType."No.", CostType.Blocked)), 0,
-          GetLastErrorText);
+        Assert.ExpectedTestFieldError(CostType.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -2060,7 +2052,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostJournalBatch: Record "Cost Journal Batch";
         AmountValue: Decimal;
     begin
-        // Unit test - Table 1101 Cost Journal Line - Verify that CostTypeNo modification will affect the Bal.Cost Center Code and Bal.Cost Object Code fields. Testcase ("Cost Type No." <> '') AND ("Bal. Cost Type No." = ''):
+        // Unit test - Table 1101 Cost Journal Line - Verify that CostTypeNo modification will affect the Bal.Cost Center Code and Bal.Cost Object Code fields. Testcase ("Cost Type No." <> '') and ("Bal. Cost Type No." = ''):
         CreateCostType(CostType);
 
         CreateCostJournalLine(CostJournalLine, CostJournalTemplate, CostJournalBatch);
@@ -2083,7 +2075,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostType: Record "Cost Type";
         AmountValue: Decimal;
     begin
-        // Unit test - Table 1101 Cost Journal Line - Verify that CostTypeNo modification will affect the Bal.Cost Center Code and Bal.Cost Object Code fields. Testcase ("Cost Type No." = '') AND ("Bal. Cost Type No." <> ''):
+        // Unit test - Table 1101 Cost Journal Line - Verify that CostTypeNo modification will affect the Bal.Cost Center Code and Bal.Cost Object Code fields. Testcase ("Cost Type No." = '') and ("Bal. Cost Type No." <> ''):
         CreateCostType(CostType);
 
         CreateCostJournalLine(CostJournalLine, CostJournalTemplate, CostJournalBatch);
@@ -2918,18 +2910,17 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         GLAccount: Record "G/L Account";
     begin
         LibraryCostAccounting.FindGLAccLinkedToCostType(GLAccount);
-        with GLEntry do begin
-            if FindLast() then
-                Init();
-            "Entry No." += 1;
-            "G/L Account No." := GLAccount."No.";
-            "Dimension Set ID" := DimSetID;
-            "Document No." := GLAccount."No."; // Document No just needs to have a value, so it can be the same as G/L Account No.
-            Amount := LibraryRandom.RandDec(100, 2);
-            "Posting Date" := WorkDate();
-            Insert();
-            exit("Entry No.");
-        end;
+        if GLEntry.FindLast() then
+            GLEntry.Init();
+        GLEntry."Entry No." += 1;
+        GLEntry."G/L Account No." := GLAccount."No.";
+        GLEntry."Dimension Set ID" := DimSetID;
+        GLEntry."Document No." := GLAccount."No.";
+        // Document No just needs to have a value, so it can be the same as G/L Account No.
+        GLEntry.Amount := LibraryRandom.RandDec(100, 2);
+        GLEntry."Posting Date" := WorkDate();
+        GLEntry.Insert();
+        exit(GLEntry."Entry No.");
     end;
 
     local procedure CreateRandomCostBudgetEntryWithCostCenter(var CostBudgetEntry: Record "Cost Budget Entry"; OnInsert: Boolean)
@@ -2946,19 +2937,17 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
     local procedure FillCostBudgetEntry(var CostBudgetEntry: Record "Cost Budget Entry"; EntryNo: Integer; BudgetName: Code[10]; CostTypeNo: Code[20]; NewDate: Date; CostCenterCode: Code[20]; CostObjectCode: Code[20]; NewAmount: Decimal)
     begin
-        with CostBudgetEntry do begin
-            if EntryNo = 0 then begin
-                if FindLast() then
-                    Init();
-                "Entry No." += 1;
-            end;
-            "Budget Name" := BudgetName;
-            "Cost Type No." := CostTypeNo;
-            Date := NewDate;
-            "Cost Center Code" := CostCenterCode;
-            "Cost Object Code" := CostObjectCode;
-            Amount := NewAmount;
-        end
+        if EntryNo = 0 then begin
+            if CostBudgetEntry.FindLast() then
+                CostBudgetEntry.Init();
+            CostBudgetEntry."Entry No." += 1;
+        end;
+        CostBudgetEntry."Budget Name" := BudgetName;
+        CostBudgetEntry."Cost Type No." := CostTypeNo;
+        CostBudgetEntry.Date := NewDate;
+        CostBudgetEntry."Cost Center Code" := CostCenterCode;
+        CostBudgetEntry."Cost Object Code" := CostObjectCode;
+        CostBudgetEntry.Amount := NewAmount;
     end;
 
     local procedure FillRandomCostBudgetEntryWithCostCenter(var CostBudgetEntry: Record "Cost Budget Entry")
@@ -3160,11 +3149,9 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     begin
         CostType.Get(CostTypeNo);
 
-        with CostType do begin
-            TestField("Search Name", Name);
-            TestField(Type, Type::"Cost Type");
-            TestField("G/L Account Range", '');
-        end;
+        CostType.TestField("Search Name", CostType.Name);
+        CostType.TestField(Type, CostType.Type::"Cost Type");
+        CostType.TestField("G/L Account Range", '');
     end;
 
     local procedure VerifyCostTypeModifiedFields(CostTypeNo: Code[20]; ModifiedDate: Date; ModifiedBy: Code[50])

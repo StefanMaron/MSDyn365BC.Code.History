@@ -448,11 +448,15 @@ report 30 "Check Value Posting"
         ObjectTranslation: Record "Object Translation";
         ErrorMessage: Text[250];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must not use a "%1" %2 when %3 is "%4".';
         Text001: Label '%1 must be %2.';
         Text002: Label '%1 %2 is mandatory.';
         Text003: Label '%1 %2 must not be mentioned.';
         Text004: Label '%1 %2 must be %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AccountNoCaptionLbl: Label 'Account No.';
         CurrReportPageNoCaptionLbl: Label 'Page';
         CheckValuePostingCaptionLbl: Label 'Check Value Posting';

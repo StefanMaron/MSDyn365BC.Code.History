@@ -328,6 +328,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         // Execute
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         GeneralJournal.OpenEdit();
+        GeneralJournal.CurrentJnlBatchName.Value(GenJournalLine."Journal Batch Name");
         GeneralJournal.GotoRecord(GenJournalLine);
 
         // Verify
@@ -510,7 +511,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,

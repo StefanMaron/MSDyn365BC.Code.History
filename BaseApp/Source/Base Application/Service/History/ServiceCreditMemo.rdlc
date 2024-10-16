@@ -10358,6 +10358,9 @@ End Function</Code>
         <Field Name="ShiptoAddressCaption">
           <DataField>ShiptoAddressCaption</DataField>
         </Field>
+        <Field Name="ShipToPhoneNo">
+          <DataField>ShipToPhoneNo</DataField>
+        </Field>
         <Field Name="Cust_ServCrMemoHeaderCaption">
           <DataField>Cust_ServCrMemoHeaderCaption</DataField>
         </Field>

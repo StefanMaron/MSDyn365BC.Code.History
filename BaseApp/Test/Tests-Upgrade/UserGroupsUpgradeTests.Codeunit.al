@@ -13,18 +13,11 @@ codeunit 135978 "User Groups Upgrade Tests"
     [Test]
     procedure UserGroupsUpgradeTests()
     var
-#if not CLEAN22
-        UpgradeUserGroups: Codeunit "Upgrade User Groups";
-#endif
         UpgradeStatus: Codeunit "Upgrade Status";
     begin
         if not UpgradeStatus.UpgradeTriggered() then
             exit;
 
-#if not CLEAN22
-        // Run the upgrade manually. In v25+ the upgrade will run automatically.
-        UpgradeUserGroups.RunUpgrade();
-#endif
         VerifyMigration();
         VerifyAppIdReplacement();
         VerifyDeprecatedPermissionSetReplacement();

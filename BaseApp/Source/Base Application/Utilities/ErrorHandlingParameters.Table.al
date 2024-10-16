@@ -2,7 +2,6 @@ namespace Microsoft.Utilities;
 
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 table 9080 "Error Handling Parameters"
 {
@@ -63,10 +62,6 @@ table 9080 "Error Handling Parameters"
         {
             DataClassification = SystemMetadata;
         }
-        field(16; "Service Document Type"; Enum "Service Document Type")
-        {
-            DataClassification = SystemMetadata;
-        }
         field(20; "Full Document Check"; Boolean)
         {
             DataClassification = SystemMetadata;
@@ -100,8 +95,9 @@ table 9080 "Error Handling Parameters"
         "Full Batch Check" := GetBooleanParameterValue(Args, FieldName("Full Batch Check"));
         "Sales Document Type" := GetSalesDocTypeParameterValue(Args, FieldName("Sales Document Type"));
         "Purchase Document Type" := GetPurchaseDocTypeParameterValue(Args, FieldName("Purchase Document Type"));
-        "Service Document Type" := GetServiceDocTypeParameterValue(Args, FieldName("Service Document Type"));
         "Full Document Check" := GetBooleanParameterValue(Args, FieldName("Full Document Check"));
+
+        OnAfterFromArgs(Rec, Args);
     end;
 
     local procedure GetBooleanParameterValue(Args: Dictionary of [Text, Text]; ParameterName: Text) ParameterValue: Boolean
@@ -136,14 +132,6 @@ table 9080 "Error Handling Parameters"
         Evaluate(SalesDocType, ParamValueAsText);
     end;
 
-    local procedure GetServiceDocTypeParameterValue(Args: Dictionary of [Text, Text]; ParameterName: Text) ServiceDocType: Enum "Service Document Type"
-    var
-        ParamValueAsText: Text;
-    begin
-        ParamValueAsText := Args.Get(ParameterName);
-        Evaluate(ServiceDocType, ParamValueAsText);
-    end;
-
     local procedure GetPurchaseDocTypeParameterValue(Args: Dictionary of [Text, Text]; ParameterName: Text) PurchaseDocType: Enum "Purchase Document Type"
     var
         ParamValueAsText: Text;
@@ -166,7 +154,18 @@ table 9080 "Error Handling Parameters"
         Args.Add(FieldName("Full Batch Check"), Format("Full Batch Check"));
         Args.Add(FieldName("Sales Document Type"), Format("Sales Document Type"));
         Args.Add(FieldName("Purchase Document Type"), Format("Purchase Document Type"));
-        Args.Add(FieldName("Service Document Type"), Format("Service Document Type"));
         Args.Add(FieldName("Full Document Check"), Format("Full Document Check"));
+
+        OnAfterToArgs(Rec, Args);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFromArgs(var ErrorHandlingParameters: Record "Error Handling Parameters"; var Args: Dictionary of [Text, Text])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterToArgs(var ErrorHandlingParameters: Record "Error Handling Parameters"; var Args: Dictionary of [Text, Text])
+    begin
     end;
 }

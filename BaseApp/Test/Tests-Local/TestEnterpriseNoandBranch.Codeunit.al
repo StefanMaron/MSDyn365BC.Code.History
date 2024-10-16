@@ -1397,24 +1397,20 @@ codeunit 144025 "Test Enterprise No and Branch"
 
     local procedure UpdateCompanyInfo(var CompanyInformation: Record "Company Information"; EnterpriseNo: Text[50]; VATRegNo: Text[20]; GLNNo: Text[13])
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("Enterprise No.", EnterpriseNo);
-            "VAT Registration No." := VATRegNo;
-            Validate(GLN, GLNNo);
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Enterprise No.", EnterpriseNo);
+        CompanyInformation."VAT Registration No." := VATRegNo;
+        CompanyInformation.Validate(GLN, GLNNo);
+        CompanyInformation.Modify(true);
     end;
 
     local procedure UpdateCompanySwiftCode()
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("SWIFT Code", Format(LibraryRandom.RandIntInRange(1000000, 9999999)));
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("SWIFT Code", Format(LibraryRandom.RandIntInRange(1000000, 9999999)));
+        CompanyInformation.Modify(true);
     end;
 
     local procedure CreateCustomerNo(VATRegNo: Text[20]; EnterpriseNo: Text[50]; GLNNo: Code[13]): Code[20]
@@ -1432,10 +1428,8 @@ codeunit 144025 "Test Enterprise No and Branch"
     local procedure CreateCustomerWithEnterpriseNo(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Enterprise No.", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Enterprise No."), 1));
-            Modify(true);
-        end;
+        Customer.Validate("Enterprise No.", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Customer."Enterprise No."), 1));
+        Customer.Modify(true);
     end;
 
     local procedure CreatePostServiceInvoice(CustomerNo: Code[20]): Code[20]
@@ -1467,11 +1461,9 @@ codeunit 144025 "Test Enterprise No and Branch"
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with VATEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
     end;
 
     local procedure GetCountryBE(): Code[10]

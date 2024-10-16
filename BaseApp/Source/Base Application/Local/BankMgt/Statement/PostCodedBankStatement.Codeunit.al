@@ -752,10 +752,8 @@ codeunit 2000042 "Post Coded Bank Statement"
                     CodBankStmtLine."Document Type" := CodBankStmtLine."Document Type"::Payment;
                 end;
             CodBankStmtLine."Account Type"::"G/L Account":
-                begin
-                    if GLAcc.Get(CodBankStmtLine."Account No.") then
-                        CodBankStmtLine.Description := GLAcc.Name;
-                end;
+                if GLAcc.Get(CodBankStmtLine."Account No.") then
+                    CodBankStmtLine.Description := GLAcc.Name;
         end;
         if UpdateApplicationAmounts then begin
             CodBankStmtLine.Amount := CodBankStmtLine."Statement Amount";

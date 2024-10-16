@@ -30,7 +30,7 @@ codeunit 137001 "SCM Online Adjustment"
         ErrorValueEntry: Label 'Value mismatch in value entry %1, field %2. ';
         ErrorZeroQty: Label 'Transfer Qty should not be 0.';
         DummyMessage: Label 'Message?';
-        ItemDeletionErr: Label 'You cannot delete %1 %2 because there is at least one %3 that includes this item.', Comment = '%1= Item.TableCaption(),%2= Item.No,%3=Planning Component.TABLECAPTION';
+        ItemDeletionErr: Label 'You cannot delete %1 %2 because', Comment = '%1= Item.TableCaption(),%2= Item.No,%3=Planning Component.TABLECAPTION';
         PostingNoSeriesLbl: Label 'No Seires must be from Posting No Series if exists in Item Journal Batch.';
 
 
@@ -230,7 +230,6 @@ codeunit 137001 "SCM Online Adjustment"
         ParentItem: Record Item;
         RequisitionLine: Record "Requisition Line";
         SalesHeader: Record "Sales Header";
-        PlanningComponent: Record "Planning Component";
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
         // Verify that error exist after running the order planning and delete the item.
@@ -247,7 +246,7 @@ codeunit 137001 "SCM Online Adjustment"
         asserterror Item.Delete(true);
 
         // Verify: Verifying error message.
-        Assert.ExpectedError(StrSubstNo(ItemDeletionErr, Item.TableCaption(), Item."No.", PlanningComponent.TableCaption()));
+        Assert.ExpectedError(StrSubstNo(ItemDeletionErr, Item.TableCaption(), Item."No."));
     end;
 
     [Test]

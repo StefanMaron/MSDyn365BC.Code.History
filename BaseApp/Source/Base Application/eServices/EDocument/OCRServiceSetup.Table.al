@@ -208,10 +208,22 @@ table 1270 "OCR Service Setup"
         OCRServiceDisabledTxt: Label 'The user disabled OCR service.', Locked = true;
         TelemetryCategoryTok: Label 'AL OCR Service', Locked = true;
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+#if not CLEAN25
 
-    [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Replaced by SavePassword(var PasswordKey: Guid; PasswordText: SecretText)', '25.0')]
+    [NonDebuggable]
     procedure SavePassword(var PasswordKey: Guid; PasswordText: Text)
+    var
+        PasswordAsSecretText: SecretText;
+    begin
+        PasswordAsSecretText := PasswordText;
+        SavePassword(PasswordKey, PasswordAsSecretText);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SavePassword(var PasswordKey: Guid; PasswordText: SecretText)
     begin
         if IsNullGuid(PasswordKey) then begin
             PasswordKey := CreateGuid();
@@ -220,12 +232,21 @@ table 1270 "OCR Service Setup"
 
         IsolatedStorageManagement.Set(PasswordKey, PasswordText, DATASCOPE::Company);
     end;
+#if not CLEAN25
 
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Replaced by GetPasswordAsSecretText', '25.0')]
     procedure GetPassword(PasswordKey: Guid): Text
+    begin
+        exit(GetPasswordAsSecretText(PasswordKey).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetPasswordAsSecretText(PasswordKey: Guid): SecretText
     var
-        Value: Text;
+        Value: SecretText;
     begin
         IsolatedStorageManagement.Get(PasswordKey, DATASCOPE::Company, Value);
         exit(Value);
@@ -237,14 +258,13 @@ table 1270 "OCR Service Setup"
         IsolatedStorageManagement.Delete(PasswordKey, DATASCOPE::Company);
     end;
 
-    [NonDebuggable]
     [Scope('OnPrem')]
     procedure HasPassword(PasswordKey: Guid): Boolean
     var
-        Value: Text;
+        Value: SecretText;
     begin
         IsolatedStorageManagement.Get(PasswordKey, DATASCOPE::Company, Value);
-        exit(Value <> '');
+        exit(not Value.IsEmpty());
     end;
 
     procedure SetURLsToDefault()

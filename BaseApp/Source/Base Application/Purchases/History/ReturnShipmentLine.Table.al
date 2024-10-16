@@ -578,8 +578,12 @@ table 6651 "Return Shipment Line"
     var
         Currency: Record Currency;
         ReturnShptHeader: Record "Return Shipment Header";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Return Shipment No. %1:';
+#pragma warning restore AA0470
         Text001: Label 'The program cannot find this purchase line.';
+#pragma warning restore AA0074
         CurrencyRead: Boolean;
 
     procedure GetCurrencyCode(): Code[10]

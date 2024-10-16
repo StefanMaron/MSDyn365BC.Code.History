@@ -69,20 +69,16 @@ codeunit 144020 "Test Telebank Reports"
 
     local procedure CreateDomiciliationJournalTemplate(var DomiciliationJournalTemplate: Record "Domiciliation Journal Template")
     begin
-        with DomiciliationJournalTemplate do begin
-            Validate(Name, CopyStr(CreateGuid(), 1, MaxStrLen(Name)));
-            Insert();
-        end;
+        DomiciliationJournalTemplate.Validate(Name, CopyStr(CreateGuid(), 1, MaxStrLen(DomiciliationJournalTemplate.Name)));
+        DomiciliationJournalTemplate.Insert();
     end;
 
     local procedure CreateDomiciliationJournalBatch(DomiciliationJournalTemplate: Record "Domiciliation Journal Template"; var DomiciliationJournalBatch: Record "Domiciliation Journal Batch")
     begin
-        with DomiciliationJournalBatch do begin
-            Validate("Journal Template Name", DomiciliationJournalTemplate.Name);
-            SetRange("Journal Template Name", "Journal Template Name");
-            Validate(Name, CopyStr(CreateGuid(), 1, MaxStrLen(Name)));
-            Insert();
-        end;
+        DomiciliationJournalBatch.Validate("Journal Template Name", DomiciliationJournalTemplate.Name);
+        DomiciliationJournalBatch.SetRange("Journal Template Name", DomiciliationJournalBatch."Journal Template Name");
+        DomiciliationJournalBatch.Validate(Name, CopyStr(CreateGuid(), 1, MaxStrLen(DomiciliationJournalBatch.Name)));
+        DomiciliationJournalBatch.Insert();
     end;
 
     local procedure CreateDomiciliationJournalLines(DomiciliationJournalBatch: Record "Domiciliation Journal Batch"; DomiciliationBankAccount: Record "Bank Account"; DomiciliationCustomer: Record Customer)
@@ -90,24 +86,23 @@ codeunit 144020 "Test Telebank Reports"
         DomiciliationJournalLine: Record "Domiciliation Journal Line";
         MonthCounter: Integer;
     begin
-        for MonthCounter := 1 to 12 do
-            with DomiciliationJournalLine do begin
-                Init();
-                Validate("Customer No.", DomiciliationCustomer."No.");
-                Validate("Bank Account No.", DomiciliationBankAccount."No.");
-                Validate("Message 1", StrSubstNo(Message1PrefixTxt, MonthCounter));
-                Validate(Amount, MonthCounter * 1000);
-                Validate("Posting Date", DMY2Date(1, MonthCounter, Date2DMY(WorkDate(), 3)));
-                Validate("Pmt. Disc. Possible", MonthCounter * 100);
-                Validate("Pmt. Discount Date", DMY2Date(1, MonthCounter, Date2DMY(WorkDate(), 3)));
-                Validate(Reference, StrSubstNo(ReferencePrefixTxt, MonthCounter));
-                Validate("Journal Template Name", DomiciliationJournalBatch."Journal Template Name");
-                Validate("Journal Batch Name", DomiciliationJournalBatch.Name);
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                Validate("Line No.", Amount);
-                Insert();
-            end;
+        for MonthCounter := 1 to 12 do begin
+            DomiciliationJournalLine.Init();
+            DomiciliationJournalLine.Validate("Customer No.", DomiciliationCustomer."No.");
+            DomiciliationJournalLine.Validate("Bank Account No.", DomiciliationBankAccount."No.");
+            DomiciliationJournalLine.Validate("Message 1", StrSubstNo(Message1PrefixTxt, MonthCounter));
+            DomiciliationJournalLine.Validate(Amount, MonthCounter * 1000);
+            DomiciliationJournalLine.Validate("Posting Date", DMY2Date(1, MonthCounter, Date2DMY(WorkDate(), 3)));
+            DomiciliationJournalLine.Validate("Pmt. Disc. Possible", MonthCounter * 100);
+            DomiciliationJournalLine.Validate("Pmt. Discount Date", DMY2Date(1, MonthCounter, Date2DMY(WorkDate(), 3)));
+            DomiciliationJournalLine.Validate(Reference, StrSubstNo(ReferencePrefixTxt, MonthCounter));
+            DomiciliationJournalLine.Validate("Journal Template Name", DomiciliationJournalBatch."Journal Template Name");
+            DomiciliationJournalLine.Validate("Journal Batch Name", DomiciliationJournalBatch.Name);
+            DomiciliationJournalLine.SetRange("Journal Template Name", DomiciliationJournalLine."Journal Template Name");
+            DomiciliationJournalLine.SetRange("Journal Batch Name", DomiciliationJournalLine."Journal Batch Name");
+            DomiciliationJournalLine.Validate("Line No.", DomiciliationJournalLine.Amount);
+            DomiciliationJournalLine.Insert();
+        end;
     end;
 
     [RequestPageHandler]

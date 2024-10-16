@@ -906,11 +906,9 @@ codeunit 144028 "Test VAT Statement"
         ClearAddnlReportingCurrency();
 
         ManualVATCorrection.DeleteAll();
-        with VATEntry do begin
-            Reset();
-            SetFilter("Entry No.", '<%1', 0);
-            DeleteAll();
-        end;
+        VATEntry.Reset();
+        VATEntry.SetFilter("Entry No.", '<%1', 0);
+        VATEntry.DeleteAll();
     end;
 
     local procedure AddManualVATCorrection(var VATStatementLine: Record "VAT Statement Line"; ShowAmtInACY: Boolean) TotalAmount: Decimal
@@ -963,16 +961,14 @@ codeunit 144028 "Test VAT Statement"
     var
         ManualVATCorrection: Record "Manual VAT Correction";
     begin
-        with ManualVATCorrection do begin
-            SetRange("Statement Template Name", VATStatementLine."Statement Template Name");
-            SetRange("Statement Name", VATStatementLine."Statement Name");
-            SetRange("Statement Line No.", VATStatementLine."Line No.");
-            if FindSet() then
-                repeat
-                    Result += GetVATCorrAmount(ManualVATCorrection, UseAmtsInAddCurr, VATStatementLine."Calculate with");
-                until Next() = 0;
-            exit(Result);
-        end;
+        ManualVATCorrection.SetRange("Statement Template Name", VATStatementLine."Statement Template Name");
+        ManualVATCorrection.SetRange("Statement Name", VATStatementLine."Statement Name");
+        ManualVATCorrection.SetRange("Statement Line No.", VATStatementLine."Line No.");
+        if ManualVATCorrection.FindSet() then
+            repeat
+                Result += GetVATCorrAmount(ManualVATCorrection, UseAmtsInAddCurr, VATStatementLine."Calculate with");
+            until ManualVATCorrection.Next() = 0;
+        exit(Result);
     end;
 
     local procedure IsCalculatedWithOppositeSign(RowNo: Text): Boolean
@@ -1070,20 +1066,18 @@ codeunit 144028 "Test VAT Statement"
 
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; VATBase: Decimal)
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := -1;
-            "Posting Date" := WorkDate();
-            "VAT Reporting Date" := WorkDate();
-            Type := Type::Sale;
-            "VAT Bus. Posting Group" := LibraryUtility.GenerateGUID();
-            "VAT Prod. Posting Group" := "VAT Bus. Posting Group";
-            Base := VATBase;
-            Amount := VATBase * 0.2;
-            "Additional-Currency Base" := GetExchangedAmount("Posting Date", Base);
-            "Additional-Currency Amount" := GetExchangedAmount("Posting Date", Amount);
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := -1;
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry."VAT Reporting Date" := WorkDate();
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."VAT Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        VATEntry."VAT Prod. Posting Group" := VATEntry."VAT Bus. Posting Group";
+        VATEntry.Base := VATBase;
+        VATEntry.Amount := VATBase * 0.2;
+        VATEntry."Additional-Currency Base" := GetExchangedAmount(VATEntry."Posting Date", VATEntry.Base);
+        VATEntry."Additional-Currency Amount" := GetExchangedAmount(VATEntry."Posting Date", VATEntry.Amount);
+        VATEntry.Insert();
     end;
 
     local procedure CreateVATStmt(VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line")
@@ -1098,46 +1092,42 @@ codeunit 144028 "Test VAT Statement"
         VATStatementName.Name := LibraryUtility.GenerateGUID();
         VATStatementName.Insert();
 
-        with VATStatementLine do begin
-            Init();
-            "Statement Template Name" := VATStatementName."Statement Template Name";
-            "Statement Name" := VATStatementName.Name;
-            CreateVATStmtLine(VATStatementLine, 100, Type::"Row Totaling", "Amount Type"::" ", '101..199');
-            "Gen. Posting Type" := VATEntry.Type;
-            "VAT Bus. Posting Group" := VATEntry."VAT Bus. Posting Group";
-            "VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
-            CreateVATStmtLine(VATStatementLine, 101, Type::"VAT Entry Totaling", "Amount Type"::Base, '');
-            CreateVATStmtLine(VATStatementLine, 102, Type::"VAT Entry Totaling", "Amount Type"::Amount, '');
-            Init();
-            CreateVATStmtLine(VATStatementLine, 103, Type::Description, "Amount Type"::" ", '');
-            CreateVATStmtLine(VATStatementLine, 200, Type::"Account Totaling", "Amount Type"::" ", '');
+        VATStatementLine.Init();
+        VATStatementLine."Statement Template Name" := VATStatementName."Statement Template Name";
+        VATStatementLine."Statement Name" := VATStatementName.Name;
+        CreateVATStmtLine(VATStatementLine, 100, VATStatementLine.Type::"Row Totaling", VATStatementLine."Amount Type"::" ", '101..199');
+        VATStatementLine."Gen. Posting Type" := VATEntry.Type;
+        VATStatementLine."VAT Bus. Posting Group" := VATEntry."VAT Bus. Posting Group";
+        VATStatementLine."VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
+        CreateVATStmtLine(VATStatementLine, 101, VATStatementLine.Type::"VAT Entry Totaling", VATStatementLine."Amount Type"::Base, '');
+        CreateVATStmtLine(VATStatementLine, 102, VATStatementLine.Type::"VAT Entry Totaling", VATStatementLine."Amount Type"::Amount, '');
+        VATStatementLine.Init();
+        CreateVATStmtLine(VATStatementLine, 103, VATStatementLine.Type::Description, VATStatementLine."Amount Type"::" ", '');
+        CreateVATStmtLine(VATStatementLine, 200, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type"::" ", '');
 
-            Reset();
-            SetRange("Statement Template Name", VATStatementName."Statement Template Name");
-            SetRange("Statement Name", VATStatementName.Name);
-            FindSet();
-        end;
+        VATStatementLine.Reset();
+        VATStatementLine.SetRange("Statement Template Name", VATStatementName."Statement Template Name");
+        VATStatementLine.SetRange("Statement Name", VATStatementName.Name);
+        VATStatementLine.FindSet();
     end;
 
     local procedure CreateVATStmtLine(VATStatementLine: Record "VAT Statement Line"; LineNo: Integer; LineType: Enum "VAT Statement Line Type"; AmountType: Enum "VAT Statement Line Amount Type"; RowTotaling: Text[80])
     var
         GLEntry: Record "G/L Entry";
     begin
-        with VATStatementLine do begin
-            "Line No." := LineNo;
-            "Row No." := Format("Line No.");
-            Type := LineType;
-            if Type = Type::"Account Totaling" then begin
-                GLEntry.FindLast();
-                "Account Totaling" := GLEntry."G/L Account No.";
-            end;
-            "Row Totaling" := RowTotaling;
-            "Amount Type" := AmountType;
-            if IsCalculatedWithOppositeSign("Row No.") then
-                "Calculate with" := "Calculate with"::"Opposite Sign";
-            Print := true;
-            Insert();
+        VATStatementLine."Line No." := LineNo;
+        VATStatementLine."Row No." := Format(VATStatementLine."Line No.");
+        VATStatementLine.Type := LineType;
+        if VATStatementLine.Type = VATStatementLine.Type::"Account Totaling" then begin
+            GLEntry.FindLast();
+            VATStatementLine."Account Totaling" := GLEntry."G/L Account No.";
         end;
+        VATStatementLine."Row Totaling" := RowTotaling;
+        VATStatementLine."Amount Type" := AmountType;
+        if IsCalculatedWithOppositeSign(VATStatementLine."Row No.") then
+            VATStatementLine."Calculate with" := VATStatementLine."Calculate with"::"Opposite Sign";
+        VATStatementLine.Print := true;
+        VATStatementLine.Insert();
     end;
 
     local procedure RunVATStmtReportFromPreview(VATStatementLine: Record "VAT Statement Line"; ShowAmtInACY: Boolean)

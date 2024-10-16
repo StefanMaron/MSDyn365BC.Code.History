@@ -103,11 +103,9 @@ codeunit 144051 TELEBANK
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, RequestNoSeries.Code, 'IBSREQ0001', 'IBSREQ9999');
         NoSeriesLine.Modify(true);
 
-        with ElectronicBankingSetup do begin
-            Get();
-            "Summarize Gen. Jnl. Lines" := true;
-            Modify(true);
-        end;
+        ElectronicBankingSetup.Get();
+        ElectronicBankingSetup."Summarize Gen. Jnl. Lines" := true;
+        ElectronicBankingSetup.Modify(true);
 
         // Creat epayment journal lines
         // Clear all existing rows
@@ -121,33 +119,29 @@ codeunit 144051 TELEBANK
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
 
-        with CustomerPaymentJournalLine do begin
-            Reset();
-            Init();
-            "Journal Template Name" := GenJournalTemplate.Name;
-            "Journal Batch Name" := PaymJournalBatch.Name;
-            "Line No." := 1;
-            "Account Type" := "Account Type"::Customer;
-            "Account No." := Customer."No.";
-            Amount := LibraryRandom.RandDec(1000, 2);
-            "Beneficiary Bank Account" := CustomerBankAccount.Code;
-            "Posting Date" := WorkDate();
-            Insert();
-        end;
+        CustomerPaymentJournalLine.Reset();
+        CustomerPaymentJournalLine.Init();
+        CustomerPaymentJournalLine."Journal Template Name" := GenJournalTemplate.Name;
+        CustomerPaymentJournalLine."Journal Batch Name" := PaymJournalBatch.Name;
+        CustomerPaymentJournalLine."Line No." := 1;
+        CustomerPaymentJournalLine."Account Type" := CustomerPaymentJournalLine."Account Type"::Customer;
+        CustomerPaymentJournalLine."Account No." := Customer."No.";
+        CustomerPaymentJournalLine.Amount := LibraryRandom.RandDec(1000, 2);
+        CustomerPaymentJournalLine."Beneficiary Bank Account" := CustomerBankAccount.Code;
+        CustomerPaymentJournalLine."Posting Date" := WorkDate();
+        CustomerPaymentJournalLine.Insert();
 
-        with VendorPaymentJournalLine do begin
-            Reset();
-            Init();
-            "Journal Template Name" := GenJournalTemplate.Name;
-            "Journal Batch Name" := PaymJournalBatch.Name;
-            "Line No." := 2;
-            "Account Type" := "Account Type"::Vendor;
-            "Account No." := Vendor."No.";
-            Amount := LibraryRandom.RandDec(1000, 2);
-            "Beneficiary Bank Account" := VendorBankAccount.Code;
-            "Posting Date" := WorkDate();
-            Insert();
-        end;
+        VendorPaymentJournalLine.Reset();
+        VendorPaymentJournalLine.Init();
+        VendorPaymentJournalLine."Journal Template Name" := GenJournalTemplate.Name;
+        VendorPaymentJournalLine."Journal Batch Name" := PaymJournalBatch.Name;
+        VendorPaymentJournalLine."Line No." := 2;
+        VendorPaymentJournalLine."Account Type" := VendorPaymentJournalLine."Account Type"::Vendor;
+        VendorPaymentJournalLine."Account No." := Vendor."No.";
+        VendorPaymentJournalLine.Amount := LibraryRandom.RandDec(1000, 2);
+        VendorPaymentJournalLine."Beneficiary Bank Account" := VendorBankAccount.Code;
+        VendorPaymentJournalLine."Posting Date" := WorkDate();
+        VendorPaymentJournalLine.Insert();
 
         // Exersice
         Commit();
@@ -170,26 +164,24 @@ codeunit 144051 TELEBANK
     var
         VariantValue: Variant;
     begin
-        with FileInternationalPayments do begin
-            LibraryVariableStorage.Dequeue(VariantValue);
-            JournalTemplateName.SetValue(VariantValue); // Payment Journal Template;
-
-            LibraryVariableStorage.Dequeue(VariantValue);
-            JournalBatchName.SetValue(VariantValue); // Payment Journal Batch
-
-            LibraryVariableStorage.Dequeue(VariantValue);
-            AutomaticPosting.SetValue(VariantValue); // Post General Journal Lines
-
-            LibraryVariableStorage.Dequeue(VariantValue);
-            IncludeDimText.SetValue(VariantValue); // Include Dimensions
-
-            LibraryVariableStorage.Dequeue(VariantValue);
-            ExecutionDate.SetValue(VariantValue); // Execution Date
-
-            LibraryVariableStorage.Dequeue(VariantValue);
-            InscriptionNo.SetValue(VariantValue); // Inscription No.
-
-            SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-        end;
+        LibraryVariableStorage.Dequeue(VariantValue);
+        FileInternationalPayments.JournalTemplateName.SetValue(VariantValue);
+        // Payment Journal Template;
+        LibraryVariableStorage.Dequeue(VariantValue);
+        FileInternationalPayments.JournalBatchName.SetValue(VariantValue);
+        // Payment Journal Batch
+        LibraryVariableStorage.Dequeue(VariantValue);
+        FileInternationalPayments.AutomaticPosting.SetValue(VariantValue);
+        // Post General Journal Lines
+        LibraryVariableStorage.Dequeue(VariantValue);
+        FileInternationalPayments.IncludeDimText.SetValue(VariantValue);
+        // Include Dimensions
+        LibraryVariableStorage.Dequeue(VariantValue);
+        FileInternationalPayments.ExecutionDate.SetValue(VariantValue);
+        // Execution Date
+        LibraryVariableStorage.Dequeue(VariantValue);
+        FileInternationalPayments.InscriptionNo.SetValue(VariantValue);
+        // Inscription No.
+        FileInternationalPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }

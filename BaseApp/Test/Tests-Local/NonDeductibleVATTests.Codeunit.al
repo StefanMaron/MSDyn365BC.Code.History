@@ -3390,16 +3390,14 @@ codeunit 144000 "Non-Deductible VAT Tests"
     local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; VATPostingSetup: Record "VAT Posting Setup"; AmountType: Enum "VAT Statement Line Amount Type"; InclNonDeductibleVAT: Boolean)
     begin
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
-        with VATStatementLine do begin
-            Validate(Type, Type::"VAT Entry Totaling");
-            Validate("Amount Type", AmountType);
-            Validate("Document Type", "Document Type"::Invoice);
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Purchase);
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Validate("Incl. Non Deductible VAT", InclNonDeductibleVAT);
-            Modify(true);
-        end;
+        VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
+        VATStatementLine.Validate("Amount Type", AmountType);
+        VATStatementLine.Validate("Document Type", VATStatementLine."Document Type"::Invoice);
+        VATStatementLine.Validate("Gen. Posting Type", VATStatementLine."Gen. Posting Type"::Purchase);
+        VATStatementLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATStatementLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATStatementLine.Validate("Incl. Non Deductible VAT", InclNonDeductibleVAT);
+        VATStatementLine.Modify(true);
     end;
 
     local procedure SetNonDeductibleVATAndVATBaseDiscountOnPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var LineAmount: Decimal; var VATBaseAmount: Decimal; var VATAmount: Decimal; var NonDeductibleVATAmount: Decimal)
@@ -3478,17 +3476,15 @@ codeunit 144000 "Non-Deductible VAT Tests"
 
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATCalculationType: Enum "Tax Calculation Type"; VATPercent: Decimal; PurchaseAmount: Decimal)
     begin
-        with PurchaseLine do begin
-            Init();
-            "Document Type" := PurchaseHeader."Document Type";
-            "Document No." := PurchaseHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, FieldNo("Line No."));
-            "VAT %" := VATPercent;
-            "VAT Calculation Type" := VATCalculationType;
-            Amount := PurchaseAmount;
-            "Amount Including VAT" := Amount * (1 + ("VAT %" / 100));
-            Insert();
-        end;
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine."Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, PurchaseLine.FieldNo("Line No."));
+        PurchaseLine."VAT %" := VATPercent;
+        PurchaseLine."VAT Calculation Type" := VATCalculationType;
+        PurchaseLine.Amount := PurchaseAmount;
+        PurchaseLine."Amount Including VAT" := PurchaseLine.Amount * (1 + (PurchaseLine."VAT %" / 100));
+        PurchaseLine.Insert();
     end;
 
     local procedure SaveCalcAndPostVATSettlementReport(var VATPostingSetup: Record "VAT Posting Setup"; Post: Boolean): Code[20]
@@ -3544,12 +3540,10 @@ codeunit 144000 "Non-Deductible VAT Tests"
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VendorNo: Code[20]; DocumentNo: Code[20])
     begin
-        with VATEntry do begin
-            SetRange(Type, Type::Purchase);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Bill-to/Pay-to No.", VendorNo);
-            FindFirst();
-        end;
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        VATEntry.FindFirst();
     end;
 
     local procedure VerifyPurchInvStatLine(PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics"; VATPct: Decimal; VATAmount: Decimal; AmountInclVAT: Decimal)
@@ -3572,12 +3566,10 @@ codeunit 144000 "Non-Deductible VAT Tests"
         GLAccount: Record "G/L Account";
     begin
         VendorPostingGroup.Get(VendorPostingGroupCode);
-        with GLAccount do begin
-            Get(VendorPostingGroup."Invoice Rounding Account");
-            "VAT Bus. Posting Group" := VATBusPostGroupCode;
-            "VAT Prod. Posting Group" := FindZeroVATProdPostGroup(VATBusPostGroupCode);
-            Modify(true);
-        end;
+        GLAccount.Get(VendorPostingGroup."Invoice Rounding Account");
+        GLAccount."VAT Bus. Posting Group" := VATBusPostGroupCode;
+        GLAccount."VAT Prod. Posting Group" := FindZeroVATProdPostGroup(VATBusPostGroupCode);
+        GLAccount.Modify(true);
     end;
 
     local procedure UpdateVATTolerancePercentOnGLSetup(VATTolerancePercent: Decimal)
@@ -3593,13 +3585,11 @@ codeunit 144000 "Non-Deductible VAT Tests"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetFilter("VAT Bus. Posting Group", VATBusPostGroupCode);
-            SetFilter("VAT Prod. Posting Group", '<>%1', '');
-            SetRange("VAT %", 0);
-            FindFirst();
-            exit("VAT Prod. Posting Group");
-        end;
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", VATBusPostGroupCode);
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+        VATPostingSetup.SetRange("VAT %", 0);
+        VATPostingSetup.FindFirst();
+        exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     local procedure EnqueueAmountsForPurchStatisticsHandler(NonDeductibleVATAmount: array[2] of Decimal; VATAmount: array[2] of Decimal; AmountWithoutVATAndDiscount: Decimal; AmountWithoutVAT2: Decimal; OneVATAmountLine: Boolean)
@@ -3650,15 +3640,13 @@ codeunit 144000 "Non-Deductible VAT Tests"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocNo);
-            SetRange("G/L Account No.", GLAccNo);
-            SetRange("Gen. Bus. Posting Group", GenBusPostGroupCode);
-            SetRange("Gen. Prod. Posting Group", GenProdPostGroupCode);
-            FindFirst();
-            TestField(Amount, ExpectedAmount);
-            TestField("Additional-Currency Amount", ExpectedAmountACY);
-        end;
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        GLEntry.SetRange("Gen. Bus. Posting Group", GenBusPostGroupCode);
+        GLEntry.SetRange("Gen. Prod. Posting Group", GenProdPostGroupCode);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, ExpectedAmount);
+        GLEntry.TestField("Additional-Currency Amount", ExpectedAmountACY);
     end;
 
     local procedure VerifyZeroGLEntry(DocNo: Code[20]; GLAccNo: Code[20])
@@ -3675,11 +3663,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("G/L Account No.", GLAccNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-        end;
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        GLEntry.FindFirst();
+        Assert.AreEqual(ExpectedAmount, GLEntry.Amount, GLEntry.FieldCaption(Amount));
     end;
 
     local procedure VerifyVATEntriesWithReverseCharge(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LoweredVATReverseCharge: Decimal; LoweredVATNormalVAT: Decimal; LoweredVATBaseReverseCharge: Decimal; LoweredVATBaseNormalVAT: Decimal)
@@ -3727,12 +3713,10 @@ codeunit 144000 "Non-Deductible VAT Tests"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetFilter("G/L Account No.", '%1|%2', VATPostingSetup."Purchase VAT Account", VATPostingSetup."Reverse Chrg. VAT Acc.");
-            SetRange("Document Type", "Document Type"::" ");
-            CalcSums(Amount);
-            TestField(Amount, ExpectedAmount);
-        end;
+        GLEntry.SetFilter("G/L Account No.", '%1|%2', VATPostingSetup."Purchase VAT Account", VATPostingSetup."Reverse Chrg. VAT Acc.");
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
+        GLEntry.CalcSums(Amount);
+        GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyVATSettlementReportVATAmount(RowNo: Integer; Amount: Decimal)

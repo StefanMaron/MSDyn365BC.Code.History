@@ -1478,14 +1478,12 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionBOMVersion.Get(ProductionBOMNo, VersionCode);
         ProductionBOMVersion.Validate("Unit of Measure Code", ProdBOMHeader."Unit of Measure Code");
         ProductionBOMVersion.Modify(true);
-        with ProductionBOMLine do begin
-            SetRange("Version Code", VersionCode);
-            FindSet();
-            repeat
-                Validate("Quantity per", QtyPer);
-                Modify(true);
-            until Next() = 0;
-        end;
+        ProductionBOMLine.SetRange("Version Code", VersionCode);
+        ProductionBOMLine.FindSet();
+        repeat
+            ProductionBOMLine.Validate("Quantity per", QtyPer);
+            ProductionBOMLine.Modify(true);
+        until ProductionBOMLine.Next() = 0;
     end;
 
     local procedure FindChildItem(var ChildItem: Record Item; ProductionBOMNo: Code[20])

@@ -26,11 +26,15 @@ codeunit 1011 "Job Jnl.-Check Line"
         TimeSheetMgt: Codeunit "Time Sheet Management";
         CalledFromInvtPutawayPick: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'cannot be a closing date.';
         Text001: Label 'is not within your range of allowed posting dates.';
+#pragma warning restore AA0074
         CombinationBlockedErr: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
         DimensionCausedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
+#pragma warning disable AA0074
         Text004: Label 'You must post more usage of %1 %2 in %3 %4 before you can post project journal %5 %6 = %7.', Comment = '%1=Item;%2=ProjectJnlline."No.";%3=Project;%4=ProjectJnlline."Project No.";%5=ProjectJnlline."Journal Batch Name";%6="Line No";%7=ProjectJnlline."Line No."';
+#pragma warning restore AA0074
         WhseRemainQtyPickedErr: Label 'You cannot post usage for project number %1 with project planning line %2 because a quantity of %3 remains to be picked.', Comment = '%1 = 12345, %2 = 1000, %3 = 5';
 
     procedure RunCheck(var JobJnlLine: Record "Job Journal Line")
@@ -82,11 +86,8 @@ codeunit 1011 "Job Jnl.-Check Line"
         if (JobJournalLine."Quantity (Base)" < 0) and (JobJournalLine."Entry Type" = JobJournalLine."Entry Type"::Usage) then
             CheckItemQuantityJobJnl(JobJournalLine);
         GetLocation(JobJournalLine."Location Code");
-        if Location."Directed Put-away and Pick" then
-            JobJournalLine.TestField("Bin Code", '', ErrorInfo.Create())
-        else
-            if Location."Bin Mandatory" and JobJournalLine.IsInventoriableItem() then
-                JobJournalLine.TestField("Bin Code", ErrorInfo.Create());
+        if Location."Bin Mandatory" and JobJournalLine.IsInventoriableItem() then
+            JobJournalLine.TestField("Bin Code", ErrorInfo.Create());
     end;
 
     local procedure TestJobStatusOpen(var JobJnlLine: Record "Job Journal Line")

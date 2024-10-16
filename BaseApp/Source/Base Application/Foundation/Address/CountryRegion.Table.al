@@ -109,8 +109,8 @@ table 9 "Country/Region"
         {
             Caption = 'ISO Country/Region Code';
             ObsoleteReason = 'replaced by W1 field ISO Code';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(2000001; "IBAN Country/Region"; Boolean)
         {
@@ -321,6 +321,8 @@ table 9 "Country/Region"
                     CreateAddressFormatLine(Code, 3, CompanyInformation.FieldNo("Post Code"), LineNo);
                 end;
         end;
+        CreateAddressFormat(Rec.Code, 7, CompanyInformation.FieldNo("Country/Region Code"));
+        
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
             CustomAddressFormat.BuildAddressFormat();

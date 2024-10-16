@@ -1021,16 +1021,14 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Posting Date", PostingDate);
-            SetRange("Document No.", DocNo);
-            SetRange(Type, EntryType);
-            if FindSet() then
-                repeat
-                    VATBaseAmount += VATEntry.Base;
-                until Next() = 0;
-            exit(-VATBaseAmount);
-        end;
+        VATEntry.SetRange("Posting Date", PostingDate);
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange(Type, EntryType);
+        if VATEntry.FindSet() then
+            repeat
+                VATBaseAmount += VATEntry.Base;
+            until VATEntry.Next() = 0;
+        exit(-VATBaseAmount);
     end;
 
     local procedure GetVATBaseFromSalesLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line") VATBase: Decimal

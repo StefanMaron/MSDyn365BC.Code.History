@@ -17,18 +17,15 @@ using Microsoft.Purchases.Archive;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Sales.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Archive;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Projects.Project.Job;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Journal;
@@ -55,7 +52,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "General Ledger Setup" = RM,
                   tabledata "VAT Setup" = RM,
                   tabledata Job = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Job G/L Account Price" = RIMD,
                   tabledata "Job Item Price" = RIMD,
 #endif
@@ -65,7 +62,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Job Planning Line" = RIMD,
                   tabledata "Job Planning Line Invoice" = RIMD,
                   tabledata "Job Posting Group" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Job Resource Price" = RIMD,
 #endif
                   tabledata "Job Task" = RIMD,
@@ -95,7 +92,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Res. Ledger Entry" = rm,
                   tabledata Resource = R,
                   tabledata "Resource Group" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Price" = RIMD,
 #endif
                   tabledata "Return Receipt Header" = r,
@@ -111,9 +108,6 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Sales Line" = r,
                   tabledata "Sales Shipment Header" = r,
                   tabledata "Sales Shipment Line" = r,
-                  tabledata "Service Header" = r,
-                  tabledata "Service Invoice Line" = r,
-                  tabledata "Service Ledger Entry" = r,
                   tabledata "Standard General Journal" = r,
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Work Type" = R;

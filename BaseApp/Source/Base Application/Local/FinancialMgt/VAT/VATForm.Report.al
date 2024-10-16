@@ -59,12 +59,11 @@ report 11307 "VAT - Form"
                                 if "Row No." = '00' then
                                     AssignRow(0, TotalAmount);
                         end else
-                            if "Row No." = '71/72' then begin
+                            if "Row No." = '71/72' then
                                 if TotalAmount < 0 then
                                     AssignRow(71, Abs(TotalAmount))
                                 else
                                     AssignRow(72, TotalAmount);
-                            end;
                 end;
             }
             dataitem("Generate INTERVAT File"; "Integer")

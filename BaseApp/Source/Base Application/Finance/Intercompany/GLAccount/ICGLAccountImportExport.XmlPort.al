@@ -133,12 +133,16 @@ xmlport 10 "IC G/L Account Import/Export"
         Inserted: Integer;
         Deleted: Integer;
         Modified: Integer;
+#pragma warning disable AA0074
         Text000: Label 'There were no changes.';
+#pragma warning disable AA0470
         Text001: Label '%1 %2 was added.';
         Text002: Label '%1 IC G/L Accounts were added.';
         Text003: Label '%1 %2 was updated.';
         Text004: Label '%1 IC G/L Accounts were updated.';
         Text005: Label '%1 %2 was deleted.';
         Text006: Label '%1 IC G/L Accounts were deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

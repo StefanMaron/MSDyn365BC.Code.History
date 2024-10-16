@@ -318,37 +318,35 @@ codeunit 131305 "Library - ERM Country Data"
         ServiceMgtSetup: Record "Service Mgt. Setup";
         PurchaseSetup: Record "Purchases & Payables Setup";
     begin
-        with GenJournalTemplate do begin
-            SetRange("Page ID", PageID);
-            SetRange(Type, TemplType);
-            SetRange(Recurring, false);
-            FindFirst();
-            SetFilter(Name, '<>%1', Name);
-            DeleteAll(true);
-            case TemplType of
-                Type::Sales:
-                    begin
-                        SalesSetup.Get();
-                        SalesSetup."S. Invoice Template Name" := Name;
-                        SalesSetup."S. Cr. Memo Template Name" := Name;
-                        SalesSetup."S. Prep. Inv. Template Name" := Name;
-                        SalesSetup."S. Prep. Cr.Memo Template Name" := Name;
-                        SalesSetup.Modify();
-                        ServiceMgtSetup.Get();
-                        ServiceMgtSetup."Serv. Inv. Template Name" := Name;
-                        ServiceMgtSetup."Serv. Cr. Memo Templ. Name" := Name;
-                        ServiceMgtSetup.Modify();
-                    end;
-                Type::Purchases:
-                    begin
-                        PurchaseSetup.Get();
-                        PurchaseSetup."P. Invoice Template Name" := Name;
-                        PurchaseSetup."P. Cr. Memo Template Name" := Name;
-                        PurchaseSetup."P. Prep. Inv. Template Name" := Name;
-                        PurchaseSetup."P. Prep. Cr.Memo Template Name" := Name;
-                        PurchaseSetup.Modify();
-                    end;
-            end;
+        GenJournalTemplate.SetRange("Page ID", PageID);
+        GenJournalTemplate.SetRange(Type, TemplType);
+        GenJournalTemplate.SetRange(Recurring, false);
+        GenJournalTemplate.FindFirst();
+        GenJournalTemplate.SetFilter(Name, '<>%1', GenJournalTemplate.Name);
+        GenJournalTemplate.DeleteAll(true);
+        case TemplType of
+            GenJournalTemplate.Type::Sales:
+                begin
+                    SalesSetup.Get();
+                    SalesSetup."S. Invoice Template Name" := GenJournalTemplate.Name;
+                    SalesSetup."S. Cr. Memo Template Name" := GenJournalTemplate.Name;
+                    SalesSetup."S. Prep. Inv. Template Name" := GenJournalTemplate.Name;
+                    SalesSetup."S. Prep. Cr.Memo Template Name" := GenJournalTemplate.Name;
+                    SalesSetup.Modify();
+                    ServiceMgtSetup.Get();
+                    ServiceMgtSetup."Serv. Inv. Template Name" := GenJournalTemplate.Name;
+                    ServiceMgtSetup."Serv. Cr. Memo Templ. Name" := GenJournalTemplate.Name;
+                    ServiceMgtSetup.Modify();
+                end;
+            GenJournalTemplate.Type::Purchases:
+                begin
+                    PurchaseSetup.Get();
+                    PurchaseSetup."P. Invoice Template Name" := GenJournalTemplate.Name;
+                    PurchaseSetup."P. Cr. Memo Template Name" := GenJournalTemplate.Name;
+                    PurchaseSetup."P. Prep. Inv. Template Name" := GenJournalTemplate.Name;
+                    PurchaseSetup."P. Prep. Cr.Memo Template Name" := GenJournalTemplate.Name;
+                    PurchaseSetup.Modify();
+                end;
         end;
     end;
 
@@ -359,18 +357,17 @@ codeunit 131305 "Library - ERM Country Data"
         VATPostingSetup: Record "VAT Posting Setup";
         NewVATPostingSetup: Record "VAT Posting Setup";
     begin
-        with CustomerPostingGroup do
-            if FindSet() then
-                repeat
-                    GLAccount.Get("Invoice Rounding Account");
-                    if VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then
-                        if VATPostingSetup."VAT %" <> 0 then begin
-                            FindZeroVATPostingSetup(NewVATPostingSetup);
-                            GLAccount.Validate("VAT Bus. Posting Group", NewVATPostingSetup."VAT Bus. Posting Group");
-                            GLAccount.Validate("VAT Prod. Posting Group", NewVATPostingSetup."VAT Prod. Posting Group");
-                            GLAccount.Modify(true);
-                        end;
-                until Next() = 0;
+        if CustomerPostingGroup.FindSet() then
+            repeat
+                GLAccount.Get(CustomerPostingGroup."Invoice Rounding Account");
+                if VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then
+                    if VATPostingSetup."VAT %" <> 0 then begin
+                        FindZeroVATPostingSetup(NewVATPostingSetup);
+                        GLAccount.Validate("VAT Bus. Posting Group", NewVATPostingSetup."VAT Bus. Posting Group");
+                        GLAccount.Validate("VAT Prod. Posting Group", NewVATPostingSetup."VAT Prod. Posting Group");
+                        GLAccount.Modify(true);
+                    end;
+            until CustomerPostingGroup.Next() = 0;
     end;
 
     procedure SetZeroVATSetupForPurchInvRoundingAccounts()
@@ -380,18 +377,17 @@ codeunit 131305 "Library - ERM Country Data"
         VATPostingSetup: Record "VAT Posting Setup";
         NewVATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VendorPostingGroup do
-            if FindSet() then
-                repeat
-                    GLAccount.Get("Invoice Rounding Account");
-                    if VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then
-                        if VATPostingSetup."VAT %" <> 0 then begin
-                            FindZeroVATPostingSetup(NewVATPostingSetup);
-                            GLAccount.Validate("VAT Bus. Posting Group", NewVATPostingSetup."VAT Bus. Posting Group");
-                            GLAccount.Validate("VAT Prod. Posting Group", NewVATPostingSetup."VAT Prod. Posting Group");
-                            GLAccount.Modify(true);
-                        end;
-                until Next() = 0;
+        if VendorPostingGroup.FindSet() then
+            repeat
+                GLAccount.Get(VendorPostingGroup."Invoice Rounding Account");
+                if VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then
+                    if VATPostingSetup."VAT %" <> 0 then begin
+                        FindZeroVATPostingSetup(NewVATPostingSetup);
+                        GLAccount.Validate("VAT Bus. Posting Group", NewVATPostingSetup."VAT Bus. Posting Group");
+                        GLAccount.Validate("VAT Prod. Posting Group", NewVATPostingSetup."VAT Prod. Posting Group");
+                        GLAccount.Modify(true);
+                    end;
+            until VendorPostingGroup.Next() = 0;
     end;
 
     local procedure FindZeroVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

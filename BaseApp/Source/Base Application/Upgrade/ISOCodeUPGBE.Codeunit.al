@@ -42,8 +42,8 @@ codeunit 104151 "ISO Code UPG.BE"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateCountyNameTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateCountyNameTag()) then
+            exit;
 
         CountryRegion.SetFilter("ISO Country/Region Code", '<>%1', '');
         if CountryRegion.FindSet() then

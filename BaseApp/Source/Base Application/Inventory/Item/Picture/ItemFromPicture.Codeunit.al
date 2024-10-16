@@ -63,7 +63,9 @@ codeunit 7499 "Item From Picture"
 
     procedure GetNewFromPictureActionVisible(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         Item: Record Item;
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
@@ -102,11 +104,15 @@ codeunit 7499 "Item From Picture"
     procedure CleanTenantMediaSet(MediaSetId: Guid)
     var
         TenantMediaSet: Record "Tenant Media Set";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        TenantMediaSet2: Record "Tenant Media Set";
         TenantMedia: Record "Tenant Media";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        TenantMedia2: Record "Tenant Media";
     begin
         // The Tenant Media was inserted in the database; manually clear it.
-        if not TenantMediaSet.WritePermission() or not TenantMediaSet.ReadPermission()
-            or not TenantMedia.WritePermission() or not TenantMedia.ReadPermission() then
+        if not TenantMediaSet2.WritePermission() or not TenantMediaSet.ReadPermission()
+            or not TenantMedia2.WritePermission() or not TenantMedia.ReadPermission() then
             exit;
 
         TenantMediaSet.SetRange(ID, MediaSetId);
@@ -389,13 +395,15 @@ codeunit 7499 "Item From Picture"
     procedure RunWizard(Notification: Notification)
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        ImageAnalysisSetup2: Record "Image Analysis Setup";
         EnvironmentInformation: Codeunit "Environment Information";
         ItemFromPictureWizard: Page "Item From Picture Wizard";
         PageImageAnalysisSetup: Page "Image Analysis Setup";
     begin
         ItemFromPictureWizard.RunModal();
 
-        if not ImageAnalysisSetup.WritePermission() then
+        if not ImageAnalysisSetup2.WritePermission() then
             exit;
 
         ImageAnalysisSetup.GetSingleInstance();
@@ -423,6 +431,8 @@ codeunit 7499 "Item From Picture"
     local procedure PromptOnHttpCallsIfSandbox()
     var
         NavAppSettings: Record "NAV App Setting";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        NavAppSettings2: Record "NAV App Setting";
         EnvironmentInformation: Codeunit "Environment Information";
         BaseAppSettingsExist: Boolean;
         SystemAppSettingsExist: Boolean;
@@ -432,7 +442,7 @@ codeunit 7499 "Item From Picture"
         if not EnvironmentInformation.IsSandbox() then
             exit;
 
-        if not NavAppSettings.WritePermission() then
+        if not NavAppSettings2.WritePermission() then
             exit;
 
         NavApp.GetCurrentModuleInfo(CurrentModuleInfo);

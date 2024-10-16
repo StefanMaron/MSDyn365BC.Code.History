@@ -10,7 +10,7 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Asset;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
@@ -118,7 +118,7 @@ codeunit 6113 "Item Data Migration Facade"
         GlobalItem.Modify(RunTrigger);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the CreateSalesLineDiscountIfNeeded(SourceType: Enum "Price Source Type"; ...)', '17.0')]
     procedure CreateSalesLineDiscountIfNeeded(SalesTypeToSet: Option Customer,"Customer Disc. Group","All Customers",Campaign; SalesCodeToSet: Code[20]; TypeToSet: Option Item,"Item Disc. Group"; CodeToSet: Code[20]; LineDiscountPercentToSet: Decimal): Boolean
     var
@@ -203,7 +203,7 @@ codeunit 6113 "Item Data Migration Facade"
         exit(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the CreateSalesPriceIfNeeded(SourceType: Enum "Price Source Type"; ...)', '16.0')]
     procedure CreateSalesPriceIfNeeded(SalesTypeToSet: Option Customer,"Customer Price Group","All Customers",Campaign; SalesCodeToSet: Code[20]; ItemNoToSet: Code[20]; UnitPriceToSet: Decimal; CurrencyCodeToSet: Code[10]; StartingDateToSet: Date; UnitOfMeasureToSet: Code[10]; MinimumQuantityToSet: Decimal; VariantCodeToSet: Code[10]): Boolean
     var

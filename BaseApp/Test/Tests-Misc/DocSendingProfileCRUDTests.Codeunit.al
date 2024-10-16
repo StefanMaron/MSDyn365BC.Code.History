@@ -258,7 +258,7 @@ codeunit 139152 DocSendingProfileCRUDTests
         ElectronicDocumentFormat.Get(PeppolFormatNameTxt);
         ElectronicDocumentFormat."Codeunit ID" := 0;
         asserterror ElectronicDocumentFormat.Modify(true);
-        Assert.ExpectedError('The AllObj does not exist.');
+        Assert.ExpectedErrorCannotFind(Database::AllObj);
     end;
 
     [Test]

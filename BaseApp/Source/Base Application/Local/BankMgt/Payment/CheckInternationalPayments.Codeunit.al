@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ codeunit 2000003 "Check International Payments"
         GetCountry(PmtJnlLine."Bank Country/Region Code");
         CompanyInfo.Get();
         IbanTransfer := (PmtJnlLine."Beneficiary IBAN" <> '') and Country."IBAN Country/Region";
-        if not IbanTransfer then begin
+        if not IbanTransfer then
             // Check if BBAN is blank
             if PmtJnlLine."Beneficiary Bank Account No." = '' then
                 CheckPaymJnlLine.InsertErrorLog(StrSubstNo(Text001, PmtJnlLine."Line No."))
@@ -73,7 +73,6 @@ codeunit 2000003 "Check International Payments"
                     if not PmtJnlManagement.Mod97Test(PmtJnlLine."Beneficiary Bank Account No.") then
                         CheckPaymJnlLine.InsertErrorLog(
                           StrSubstNo(Text000, PmtJnlLine."Beneficiary Bank Account No.", PmtJnlLine."Line No."));
-        end;
     end;
 
     [Scope('OnPrem')]

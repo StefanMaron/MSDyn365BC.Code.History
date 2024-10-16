@@ -7,36 +7,33 @@ using Microsoft.Service.Item;
 
 table 5971 "Filed Contract Line"
 {
-    Caption = 'Filed Contract Line';
+    Caption = 'Filed Service Contract Line';
     LookupPageID = "Filed Service Contract Lines";
     DataClassification = CustomerContent;
 
     fields
     {
-        field(1; "Contract Type"; Option)
+        field(1; "Contract Type"; Enum "Service Contract Type")
         {
             Caption = 'Contract Type';
-            OptionCaption = 'Quote,Contract';
-            OptionMembers = Quote,Contract;
         }
         field(2; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
+            TableRelation = "Filed Service Contract Header"."Contract No." where("Contract Type" = field("Contract Type"));
+            ValidateTableRelation = false;
         }
         field(3; "Line No."; Integer)
         {
             Caption = 'Line No.';
         }
-        field(4; "Contract Status"; Option)
+        field(4; "Contract Status"; Enum "Service Contract Status")
         {
             Caption = 'Contract Status';
-            OptionCaption = ' ,Signed,Cancelled';
-            OptionMembers = " ",Signed,Cancelled;
         }
         field(5; "Service Item No."; Code[20])
         {
             Caption = 'Service Item No.';
-            Editable = true;
             TableRelation = "Service Item";
         }
         field(6; Description; Text[100])
@@ -65,7 +62,7 @@ table 5971 "Filed Contract Line"
         field(11; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            TableRelation = Item;
+            TableRelation = Item where(Type = const(Inventory));
         }
         field(12; "Unit of Measure Code"; Code[10])
         {
@@ -76,6 +73,7 @@ table 5971 "Filed Contract Line"
         }
         field(13; "Response Time (Hours)"; Decimal)
         {
+            BlankZero = true;
             Caption = 'Response Time (Hours)';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
@@ -117,13 +115,12 @@ table 5971 "Filed Contract Line"
         }
         field(22; "Line Value"; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Line Value';
         }
         field(23; "Line Discount %"; Decimal)
         {
-            AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Line Discount %';
             DecimalPlaces = 0 : 5;
@@ -132,7 +129,7 @@ table 5971 "Filed Contract Line"
         }
         field(24; "Line Amount"; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Line Amount';
             MinValue = 0;
@@ -157,22 +154,33 @@ table 5971 "Filed Contract Line"
         }
         field(32; "Line Cost"; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            BlankZero = true;
             Caption = 'Line Cost';
         }
         field(33; "Line Discount Amount"; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            BlankZero = true;
             Caption = 'Line Discount Amount';
         }
         field(34; Profit; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            BlankZero = true;
             Caption = 'Profit';
+        }
+        field(80; "Attached to Line No."; Integer)
+        {
+            Caption = 'Attached to Line No.';
+            TableRelation = "Filed Contract Line"."Line No." where("Contract Type" = field("Contract Type"),
+                                                                   "Contract No." = field("Contract No."),
+                                                                   "Entry No." = field("Entry No."));
         }
         field(100; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
+            ToolTip = 'Specifies the unique number of filed service contract or service contract quote.';
         }
     }
 
@@ -187,5 +195,24 @@ table 5971 "Filed Contract Line"
     fieldgroups
     {
     }
-}
 
+    internal procedure ShowComments()
+    var
+        FiledServiceContractHeader: Record "Filed Service Contract Header";
+        FiledServContractCmtLine: Record "Filed Serv. Contract Cmt. Line";
+    begin
+        Rec.TestField("Line No.");
+
+        FiledServiceContractHeader.SetLoadFields("Customer No.");
+        FiledServiceContractHeader.Get(Rec."Entry No.");
+        FiledServiceContractHeader.TestField("Customer No.");
+
+        FiledServContractCmtLine.SetRange("Entry No.", Rec."Entry No.");
+        FiledServContractCmtLine.SetRange("Table Name", FiledServContractCmtLine."Table Name"::"Service Contract");
+        FiledServContractCmtLine.SetRange("Table Subtype", Rec."Contract Type");
+        FiledServContractCmtLine.SetRange("No.", Rec."Contract No.");
+        FiledServContractCmtLine.SetRange(Type, FiledServContractCmtLine.Type::General);
+        FiledServContractCmtLine.SetRange("Table Line No.", Rec."Line No.");
+        Page.RunModal(Page::"Filed Serv. Contract Cm. Sheet", FiledServContractCmtLine);
+    end;
+}

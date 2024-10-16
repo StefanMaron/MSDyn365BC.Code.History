@@ -27,16 +27,12 @@ codeunit 144018 "Test Telebank Tables"
         SourceCodeSetup."Payment Journal" := CopyStr(CreateGuid(), 1, MaxStrLen(SourceCodeSetup."Payment Journal"));
         SourceCodeSetup.Modify();
 
-        with PaymentJournalTemplate do begin
-            Init();
-            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
-
-            // Exercise
-            Insert(true);
-
-            // Validate
-            TestField("Source Code", SourceCodeSetup."Payment Journal");
-        end;
+        PaymentJournalTemplate.Init();
+        PaymentJournalTemplate.Name := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJournalTemplate.Name));
+        // Exercise
+        PaymentJournalTemplate.Insert(true);
+        // Validate
+        PaymentJournalTemplate.TestField("Source Code", SourceCodeSetup."Payment Journal");
     end;
 
     [Test]
@@ -101,13 +97,11 @@ codeunit 144018 "Test Telebank Tables"
         CreatePaymentJournalTemplate(PaymentJournalTemplate);
 
         // Exercise
-        with PaymJnlBatch do begin
-            Init();
-            "Journal Template Name" := PaymentJournalTemplate.Name;
-            SetRange("Journal Template Name", "Journal Template Name");
-            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
-            Insert(true);
-        end;
+        PaymJnlBatch.Init();
+        PaymJnlBatch."Journal Template Name" := PaymentJournalTemplate.Name;
+        PaymJnlBatch.SetRange("Journal Template Name", PaymJnlBatch."Journal Template Name");
+        PaymJnlBatch.Name := CopyStr(CreateGuid(), 1, MaxStrLen(PaymJnlBatch.Name));
+        PaymJnlBatch.Insert(true);
 
         // Verify
         Assert.AreEqual(PaymentJournalTemplate."Reason Code", PaymJnlBatch."Reason Code", '');
@@ -225,16 +219,12 @@ codeunit 144018 "Test Telebank Tables"
         SourceCodeSetup."Domiciliation Journal" := CopyStr(CreateGuid(), 1, MaxStrLen(SourceCodeSetup."Domiciliation Journal"));
         SourceCodeSetup.Modify();
 
-        with DomiciliationJournalTemplate do begin
-            Init();
-            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
-
-            // Exercise
-            Insert(true);
-
-            // Validate
-            TestField("Source Code", SourceCodeSetup."Domiciliation Journal");
-        end;
+        DomiciliationJournalTemplate.Init();
+        DomiciliationJournalTemplate.Name := CopyStr(CreateGuid(), 1, MaxStrLen(DomiciliationJournalTemplate.Name));
+        // Exercise
+        DomiciliationJournalTemplate.Insert(true);
+        // Validate
+        DomiciliationJournalTemplate.TestField("Source Code", SourceCodeSetup."Domiciliation Journal");
     end;
 
     [Test]
@@ -299,13 +289,11 @@ codeunit 144018 "Test Telebank Tables"
         CreateDomiciliationJournalTemplate(DomiciliationJournalTemplate);
 
         // Exercise
-        with DomiciliationJournalBatch do begin
-            Init();
-            "Journal Template Name" := DomiciliationJournalTemplate.Name;
-            SetRange("Journal Template Name", "Journal Template Name");
-            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
-            Insert(true);
-        end;
+        DomiciliationJournalBatch.Init();
+        DomiciliationJournalBatch."Journal Template Name" := DomiciliationJournalTemplate.Name;
+        DomiciliationJournalBatch.SetRange("Journal Template Name", DomiciliationJournalBatch."Journal Template Name");
+        DomiciliationJournalBatch.Name := CopyStr(CreateGuid(), 1, MaxStrLen(DomiciliationJournalBatch.Name));
+        DomiciliationJournalBatch.Insert(true);
 
         // Verify
         Assert.AreEqual(DomiciliationJournalTemplate."Reason Code", DomiciliationJournalBatch."Reason Code", '');
@@ -380,70 +368,58 @@ codeunit 144018 "Test Telebank Tables"
 
     local procedure CreatePaymentJournalTemplate(var PaymentJournalTemplate: Record "Payment Journal Template")
     begin
-        with PaymentJournalTemplate do begin
-            Init();
-            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
-            Insert();
-        end;
+        PaymentJournalTemplate.Init();
+        PaymentJournalTemplate.Name := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJournalTemplate.Name));
+        PaymentJournalTemplate.Insert();
     end;
 
     local procedure CreatePaymentJournalBatch(PaymentJournalTemplate: Record "Payment Journal Template"; var PaymJnlBatch: Record "Paym. Journal Batch")
     begin
-        with PaymJnlBatch do begin
-            Init();
-            "Journal Template Name" := PaymentJournalTemplate.Name;
-            SetRange("Journal Template Name", "Journal Template Name");
-            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
-            Insert();
-        end;
+        PaymJnlBatch.Init();
+        PaymJnlBatch."Journal Template Name" := PaymentJournalTemplate.Name;
+        PaymJnlBatch.SetRange("Journal Template Name", PaymJnlBatch."Journal Template Name");
+        PaymJnlBatch.Name := CopyStr(CreateGuid(), 1, MaxStrLen(PaymJnlBatch.Name));
+        PaymJnlBatch.Insert();
     end;
 
     local procedure CreatePaymentJournalLine(PaymJnlBatch: Record "Paym. Journal Batch"; var PaymentJnlLine: Record "Payment Journal Line")
     begin
-        with PaymentJnlLine do begin
-            "Journal Template Name" := PaymJnlBatch."Journal Template Name";
-            "Journal Batch Name" := PaymJnlBatch.Name;
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            if FindLast() then;
-            "Line No." += 10000;
-            Init();
-            Insert();
-        end;
+        PaymentJnlLine."Journal Template Name" := PaymJnlBatch."Journal Template Name";
+        PaymentJnlLine."Journal Batch Name" := PaymJnlBatch.Name;
+        PaymentJnlLine.SetRange("Journal Template Name", PaymentJnlLine."Journal Template Name");
+        PaymentJnlLine.SetRange("Journal Batch Name", PaymentJnlLine."Journal Batch Name");
+        if PaymentJnlLine.FindLast() then;
+        PaymentJnlLine."Line No." += 10000;
+        PaymentJnlLine.Init();
+        PaymentJnlLine.Insert();
     end;
 
     local procedure CreateDomiciliationJournalTemplate(var DomiciliationJournalTemplate: Record "Domiciliation Journal Template")
     begin
-        with DomiciliationJournalTemplate do begin
-            Init();
-            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
-            Insert();
-        end;
+        DomiciliationJournalTemplate.Init();
+        DomiciliationJournalTemplate.Name := CopyStr(CreateGuid(), 1, MaxStrLen(DomiciliationJournalTemplate.Name));
+        DomiciliationJournalTemplate.Insert();
     end;
 
     local procedure CreateDomiciliationJournalBatch(DomiciliationJournalTemplate: Record "Domiciliation Journal Template"; var DomiciliationJournalBatch: Record "Domiciliation Journal Batch")
     begin
-        with DomiciliationJournalBatch do begin
-            Init();
-            "Journal Template Name" := DomiciliationJournalTemplate.Name;
-            SetRange("Journal Template Name", "Journal Template Name");
-            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
-            Insert();
-        end;
+        DomiciliationJournalBatch.Init();
+        DomiciliationJournalBatch."Journal Template Name" := DomiciliationJournalTemplate.Name;
+        DomiciliationJournalBatch.SetRange("Journal Template Name", DomiciliationJournalBatch."Journal Template Name");
+        DomiciliationJournalBatch.Name := CopyStr(CreateGuid(), 1, MaxStrLen(DomiciliationJournalBatch.Name));
+        DomiciliationJournalBatch.Insert();
     end;
 
     local procedure CreateDomiciliationJournalLine(DomiciliationJournalBatch: Record "Domiciliation Journal Batch"; var DomiciliationJournalLine: Record "Domiciliation Journal Line")
     begin
-        with DomiciliationJournalLine do begin
-            "Journal Template Name" := DomiciliationJournalBatch."Journal Template Name";
-            "Journal Batch Name" := DomiciliationJournalBatch.Name;
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            if FindLast() then;
-            "Line No." += 10000;
-            Init();
-            Insert();
-        end;
+        DomiciliationJournalLine."Journal Template Name" := DomiciliationJournalBatch."Journal Template Name";
+        DomiciliationJournalLine."Journal Batch Name" := DomiciliationJournalBatch.Name;
+        DomiciliationJournalLine.SetRange("Journal Template Name", DomiciliationJournalLine."Journal Template Name");
+        DomiciliationJournalLine.SetRange("Journal Batch Name", DomiciliationJournalLine."Journal Batch Name");
+        if DomiciliationJournalLine.FindLast() then;
+        DomiciliationJournalLine."Line No." += 10000;
+        DomiciliationJournalLine.Init();
+        DomiciliationJournalLine.Insert();
     end;
 
     local procedure ValidateJournalLineDim(var PaymentJnlLine: Record "Payment Journal Line"; var DefaultDimension: Record "Default Dimension")

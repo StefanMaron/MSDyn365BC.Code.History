@@ -320,39 +320,33 @@ codeunit 144004 Domicilations
         LibraryPaymentJournalBE.CreateDomLine(
           DomiciliationJournalLine,
           DomiciliationJournalBatch."Journal Template Name", DomiciliationJournalBatch.Name);
-        with DomiciliationJournalLine do begin
-            "Customer No." := LibrarySales.CreateCustomerNo();
-            "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-            "Applies-to Doc. No." := LibraryUtility.GenerateGUID();
-            Status := NewStatus;
-            Modify();
-        end;
+        DomiciliationJournalLine."Customer No." := LibrarySales.CreateCustomerNo();
+        DomiciliationJournalLine."Applies-to Doc. Type" := DomiciliationJournalLine."Applies-to Doc. Type"::Invoice;
+        DomiciliationJournalLine."Applies-to Doc. No." := LibraryUtility.GenerateGUID();
+        DomiciliationJournalLine.Status := NewStatus;
+        DomiciliationJournalLine.Modify();
     end;
 
     local procedure MockInvoiceCLE(CustomerNo: Code[20]; InvoiceNo: Code[20]; OpenStatus: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Document Type" := "Document Type"::Invoice;
-            "Document No." := InvoiceNo;
-            Open := OpenStatus;
-            Positive := true;
-            Insert();
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Document No." := InvoiceNo;
+        CustLedgerEntry.Open := OpenStatus;
+        CustLedgerEntry.Positive := true;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure FilterDomJnlLine(var DomiciliationJournalLine: Record "Domiciliation Journal Line"; DomiciliationJournalBatch: Record "Domiciliation Journal Batch")
     begin
-        with DomiciliationJournalLine do begin
-            "Journal Template Name" := DomiciliationJournalBatch."Journal Template Name";
-            "Journal Batch Name" := DomiciliationJournalBatch.Name;
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-        end;
+        DomiciliationJournalLine."Journal Template Name" := DomiciliationJournalBatch."Journal Template Name";
+        DomiciliationJournalLine."Journal Batch Name" := DomiciliationJournalBatch.Name;
+        DomiciliationJournalLine.SetRange("Journal Template Name", DomiciliationJournalLine."Journal Template Name");
+        DomiciliationJournalLine.SetRange("Journal Batch Name", DomiciliationJournalLine."Journal Batch Name");
     end;
 
     local procedure SuggestDomiciliationsSetDimension(var DimSetID: array[2] of Integer; CustomerFilter: Text[100])
@@ -408,18 +402,16 @@ codeunit 144004 Domicilations
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet();
-            Assert.AreEqual(
-              DimSetID[1], "Dimension Set ID",
-              StrSubstNo(DimensionIsNotCorrectErr, FieldCaption("Dimension Set ID"), "Line No."));
-            Next();
-            Assert.AreEqual(
-              DimSetID[2], "Dimension Set ID",
-              StrSubstNo(DimensionIsNotCorrectErr, FieldCaption("Dimension Set ID"), "Line No."));
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindSet();
+        Assert.AreEqual(
+          DimSetID[1], GenJournalLine."Dimension Set ID",
+          StrSubstNo(DimensionIsNotCorrectErr, GenJournalLine.FieldCaption("Dimension Set ID"), GenJournalLine."Line No."));
+        GenJournalLine.Next();
+        Assert.AreEqual(
+          DimSetID[2], GenJournalLine."Dimension Set ID",
+          StrSubstNo(DimensionIsNotCorrectErr, GenJournalLine.FieldCaption("Dimension Set ID"), GenJournalLine."Line No."));
     end;
 
     local procedure VerifyDomiciliationNo(DomiciliationNo1: Integer; DomiciliationNo2: Integer)
@@ -432,13 +424,11 @@ codeunit 144004 Domicilations
 
     local procedure VerifyDomJnlLineValues(var DomiciliationJournalLine: Record "Domiciliation Journal Line"; DomiciliationJournalLine2: Record "Domiciliation Journal Line"; ExpectedStatus: Option)
     begin
-        with DomiciliationJournalLine do begin
-            FindFirst();
-            Assert.AreEqual(DomiciliationJournalLine2."Customer No.", "Customer No.", FieldCaption("Customer No."));
-            Assert.AreEqual(DomiciliationJournalLine2."Applies-to Doc. Type", "Applies-to Doc. Type", FieldCaption("Applies-to Doc. Type"));
-            Assert.AreEqual(DomiciliationJournalLine2."Applies-to Doc. No.", "Applies-to Doc. No.", FieldCaption("Applies-to Doc. No."));
-            Assert.AreEqual(ExpectedStatus, Status, FieldCaption(Status));
-        end;
+        DomiciliationJournalLine.FindFirst();
+        Assert.AreEqual(DomiciliationJournalLine2."Customer No.", DomiciliationJournalLine."Customer No.", DomiciliationJournalLine.FieldCaption("Customer No."));
+        Assert.AreEqual(DomiciliationJournalLine2."Applies-to Doc. Type", DomiciliationJournalLine."Applies-to Doc. Type", DomiciliationJournalLine.FieldCaption("Applies-to Doc. Type"));
+        Assert.AreEqual(DomiciliationJournalLine2."Applies-to Doc. No.", DomiciliationJournalLine."Applies-to Doc. No.", DomiciliationJournalLine.FieldCaption("Applies-to Doc. No."));
+        Assert.AreEqual(ExpectedStatus, DomiciliationJournalLine.Status, DomiciliationJournalLine.FieldCaption(Status));
     end;
 
     [RequestPageHandler]

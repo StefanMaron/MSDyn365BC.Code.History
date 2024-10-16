@@ -27,7 +27,7 @@ codeunit 136309 "Job Posting"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         TargetJobNo: Code[20];
@@ -42,7 +42,6 @@ codeunit 136309 "Job Posting"
         CostFCY: Decimal;
         InvoicedCostFCY: Decimal;
         ValueMatchError: Label '%1 must not be same in %2 and %3.', Comment = '%1=Field name, %2=Table name,%3=Table name';
-        BlockedErr: Label 'Blocked must be equal to ''No''  in Item: No.=%1. Current value is ''Yes''.';
         SalesDocumentMsg: Label 'Sales Document should not be created.';
         JobNotExistErr: Label '%1 %2 does not exist.', Comment = '%1 - Table Caption;%2 - Field Value.';
         DimensionMustMatchMsg: Label 'Global Dimension must match';
@@ -909,7 +908,7 @@ codeunit 136309 "Job Posting"
             JobLedgerEntry.TableCaption()));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure JobPlanningLineUnitPriceWithItemSalesPrice()
@@ -2202,7 +2201,7 @@ codeunit 136309 "Job Posting"
         // [GIVEN] Create job, job task and job planning line with Item "I" 2 Box.
         CreateJobWithJobTask(JobTask);
         Job.Get(JobTask."Job No.");
-        Job.Validate("Apply Usage Link", True);
+        Job.Validate("Apply Usage Link", true);
         Job.Modify();
         CreateJobPlanningLine(
           JobPlanningLine, JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, Item."No.",
@@ -2253,7 +2252,7 @@ codeunit 136309 "Job Posting"
         // [GIVEN] Create job, job task and job planning line with Item "I" 60 PCS.
         CreateJobWithJobTask(JobTask);
         Job.Get(JobTask."Job No.");
-        Job.Validate("Apply Usage Link", True);
+        Job.Validate("Apply Usage Link", true);
         Job.Modify();
         CreateJobPlanningLine(
           JobPlanningLine, JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, Item."No.",
@@ -3081,7 +3080,8 @@ codeunit 136309 "Job Posting"
         asserterror JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, SalesDocumentType);
 
         // Verify: Verify Error Message and Sales Document should not be Created with Customer No.
-        Assert.ExpectedError(StrSubstNo(BlockedErr, ItemForBlocking."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
+
         SalesHeader.SetRange("Sell-to Customer No.", Job."Bill-to Customer No.");
         Assert.IsFalse(SalesHeader.FindFirst(), SalesDocumentMsg);
     end;
@@ -3242,12 +3242,10 @@ codeunit 136309 "Job Posting"
     var
         BinContent: Record "Bin Content";
     begin
-        with BinContent do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Bin Code", BinCode);
-            CalcFields(Quantity);
-            Assert.AreEqual(0, Quantity, BinContentNotDeletedErr);
-        end;
+        BinContent.SetRange("Location Code", LocationCode);
+        BinContent.SetRange("Bin Code", BinCode);
+        BinContent.CalcFields(Quantity);
+        Assert.AreEqual(0, BinContent.Quantity, BinContentNotDeletedErr);
     end;
 
     local procedure VerifyDescriptionOnCreatedSalesHeader(SellToCustomerNo: Code[20]; Description: Text)
@@ -3378,12 +3376,10 @@ codeunit 136309 "Job Posting"
         ReservEntry: Record "Reservation Entry";
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ReservEntry do begin
-            SetRange("Source ID", PurchHeader."No.");
-            SetRange("Source Type", DATABASE::"Purchase Line");
-            SetRange("Source Subtype", PurchHeader."Document Type");
-            FindFirst();
-        end;
+        ReservEntry.SetRange("Source ID", PurchHeader."No.");
+        ReservEntry.SetRange("Source Type", DATABASE::"Purchase Line");
+        ReservEntry.SetRange("Source Subtype", PurchHeader."Document Type");
+        ReservEntry.FindFirst();
 
         ItemLedgerEntry.SetRange("Item No.", ReservEntry."Item No.");
         ItemLedgerEntry.FindFirst();

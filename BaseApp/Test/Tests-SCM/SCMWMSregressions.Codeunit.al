@@ -571,11 +571,9 @@ codeunit 137005 "SCM WMS regressions"
 
     local procedure FindWarehouseActivity(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
-        with WarehouseActivityHeader do begin
-            SetRange("Source Document", SourceDocument);
-            SetRange("Source No.", SourceNo);
-            FindFirst();
-        end;
+        WarehouseActivityHeader.SetRange("Source Document", SourceDocument);
+        WarehouseActivityHeader.SetRange("Source No.", SourceNo);
+        WarehouseActivityHeader.FindFirst();
     end;
 
     local procedure PostProdOrderOutput(ProductionOrder: Record "Production Order")

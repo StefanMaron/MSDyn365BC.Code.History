@@ -923,11 +923,17 @@ report 6631 "Return Order Confirmation"
         NoText: Text[50];
         LogInteractionEnable: Boolean;
 
+#pragma warning disable AA0074
         Text004: Label 'Return Order Confirmation %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
+#pragma warning restore AA0470
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AmountCaptionLbl: Label 'Amount';
         UnitPriceCaptionLbl: Label 'Unit Price';
         SubtotalCaptionLbl: Label 'Subtotal';

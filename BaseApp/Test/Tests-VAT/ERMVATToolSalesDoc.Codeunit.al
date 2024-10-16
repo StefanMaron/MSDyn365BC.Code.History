@@ -1166,7 +1166,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     [Scope('OnPrem')]
     procedure VATToolAdjustExtTextsAttachedToLineNo()
     var
-        VATProdPostingGroup: Array[2] of Record "VAT Product Posting Group";
+        VATProdPostingGroup: array[2] of Record "VAT Product Posting Group";
         VATBusPostingGroup: Record "VAT Business Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
         Item: Record Item;
@@ -1198,8 +1198,8 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // [GIVEN] Item with VAT Prod. Posting Group = 'VPPG1' and enabled Automatic Ext. Texts with one line Ext. Text
         LibraryInventory.CreateItem(Item);
         Item.VALIDATE("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
-        Item.Validate("Automatic Ext. Texts", TRUE);
-        Item.Modify(TRUE);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
         LibraryService.CreateExtendedTextForItem(Item."No.");
 
         // [GIVEN] Blanket Sales Order with line of type Item, Qty = 10 and one Ext. Text line
@@ -1221,8 +1221,8 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         // [GIVEN] Sales Order posted with Quanitity = 8.
         SalesOrderLine.Validate(Quantity, 8);
-        SalesOrderLine.Modify(TRUE);
-        LibrarySales.PostSalesDocument(SalesOrderHeader, TRUE, TRUE);
+        SalesOrderLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesOrderHeader, true, true);
 
         // [WHEN] Run VAT Change Tool with option to convert 'VPPG1' into 'VPPG2' for Sales documents
         ERMVATToolHelper.SetupToolConvGroups(
@@ -1954,18 +1954,16 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         GetSalesLine(SalesHeader, SalesLine3);
         SalesLine3.FindLast();
 
-        with SalesLine do begin
-            Init();
-            Validate("Document Type", SalesHeader."Document Type");
-            Validate("Document No.", SalesHeader."No.");
-            Validate("Line No.", SalesLine3."Line No." + 1);
-            Insert(true);
+        SalesLine.Init();
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        SalesLine.Validate("Line No.", SalesLine3."Line No." + 1);
+        SalesLine.Insert(true);
 
-            Validate(Type, SalesLine3.Type);
-            Validate("No.", SalesLine3."No.");
-            Validate(Quantity, SalesLine3.Quantity);
-            Modify(true);
-        end;
+        SalesLine.Validate(Type, SalesLine3.Type);
+        SalesLine.Validate("No.", SalesLine3."No.");
+        SalesLine.Validate(Quantity, SalesLine3.Quantity);
+        SalesLine.Modify(true);
     end;
 
     local procedure CopySalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLine3: Record "Sales Line")
@@ -2230,9 +2228,8 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
         CreateSalesItemChargeLine(SalesLine, SalesHeader);
-        with SalesShipmentLine do
-            LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
-              SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment, "Document No.", "Line No.", "No.");
+        LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
+              SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment, SalesShipmentLine."Document No.", SalesShipmentLine."Line No.", SalesShipmentLine."No.");
         RecRef.GetTable(SalesLine);
         TempRecRef.Open(DATABASE::"Sales Line", true);
         ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
@@ -2257,9 +2254,8 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLine3.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine3.SetRange("Document No.", SalesHeader."No.");
         SalesLine3.FindFirst();
-        with SalesLine3 do
-            LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
-              SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Order, "Document No.", "Line No.", "No.");
+        LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
+              SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Order, SalesLine3."Document No.", SalesLine3."Line No.", SalesLine3."No.");
 
         SalesLine.Find();
         RecRef.GetTable(SalesLine);
@@ -2495,16 +2491,14 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         TempSalesLn.Next();
         QtyItem += TempSalesLn.Quantity;
 
-        with ItemChargeAssignmentSales do begin
-            SetRange("Document Type", TempSalesLn."Document Type");
-            SetFilter("Document No.", TempSalesLn."Document No.");
-            FindSet();
-            Assert.AreEqual(2, Count, ERMVATToolHelper.GetItemChargeErrorCount());
-            Assert.AreNearlyEqual(QtyShippedItem / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
-            Next();
-            Assert.AreNearlyEqual(
-              (QtyItem - QtyShippedItem) / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
-        end;
+        ItemChargeAssignmentSales.SetRange("Document Type", TempSalesLn."Document Type");
+        ItemChargeAssignmentSales.SetFilter("Document No.", TempSalesLn."Document No.");
+        ItemChargeAssignmentSales.FindSet();
+        Assert.AreEqual(2, ItemChargeAssignmentSales.Count, ERMVATToolHelper.GetItemChargeErrorCount());
+        Assert.AreNearlyEqual(QtyShippedItem / QtyItem * QtyItemCharge, ItemChargeAssignmentSales."Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
+        ItemChargeAssignmentSales.Next();
+        Assert.AreNearlyEqual(
+          (QtyItem - QtyShippedItem) / QtyItem * QtyItemCharge, ItemChargeAssignmentSales."Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
     end;
 
     local procedure VerifySalesDocWithReservation(Tracking: Boolean)
@@ -2578,42 +2572,38 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     local procedure VerifySplitOldLineSales(var SalesLn1: Record "Sales Line"; SalesLn2: Record "Sales Line")
     begin
         // Splitted Line should have Quantity = Quantity to Ship/Receive of the Original Line and old Product Posting Groups.
-        with SalesLn2 do begin
-            TestField("Line No.", SalesLn1."Line No.");
-            case "Document Type" of
-                "Document Type"::Order:
-                    TestField(Quantity, SalesLn1."Qty. to Ship");
-                "Document Type"::"Return Order":
-                    TestField(Quantity, SalesLn1."Return Qty. to Receive");
-            end;
-            TestField("Qty. to Ship", 0);
-            TestField("Return Qty. to Receive", 0);
-            TestField("Quantity Shipped", SalesLn1."Qty. to Ship");
-            TestField("Return Qty. Received", SalesLn1."Return Qty. to Receive");
-            TestField("Blanket Order No.", SalesLn1."Blanket Order No.");
-            TestField("Blanket Order Line No.", SalesLn1."Blanket Order Line No.");
-            TestField("VAT Prod. Posting Group", SalesLn1."VAT Prod. Posting Group");
-            TestField("Gen. Prod. Posting Group", SalesLn1."Gen. Prod. Posting Group");
+        SalesLn2.TestField("Line No.", SalesLn1."Line No.");
+        case SalesLn2."Document Type" of
+            SalesLn2."Document Type"::Order:
+                SalesLn2.TestField(Quantity, SalesLn1."Qty. to Ship");
+            SalesLn2."Document Type"::"Return Order":
+                SalesLn2.TestField(Quantity, SalesLn1."Return Qty. to Receive");
         end;
+        SalesLn2.TestField("Qty. to Ship", 0);
+        SalesLn2.TestField("Return Qty. to Receive", 0);
+        SalesLn2.TestField("Quantity Shipped", SalesLn1."Qty. to Ship");
+        SalesLn2.TestField("Return Qty. Received", SalesLn1."Return Qty. to Receive");
+        SalesLn2.TestField("Blanket Order No.", SalesLn1."Blanket Order No.");
+        SalesLn2.TestField("Blanket Order Line No.", SalesLn1."Blanket Order Line No.");
+        SalesLn2.TestField("VAT Prod. Posting Group", SalesLn1."VAT Prod. Posting Group");
+        SalesLn2.TestField("Gen. Prod. Posting Group", SalesLn1."Gen. Prod. Posting Group");
     end;
 
     local procedure VerifySplitNewLineSales(var SalesLn1: Record "Sales Line"; SalesLn2: Record "Sales Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
     begin
         // Line should have Quantity = Original Quantity - Quantity Shipped/Received,
         // Quantity Shipped/Received = 0 and new Posting Groups.
-        with SalesLn2 do begin
-            TestField(Quantity, SalesLn1.Quantity);
-            if SalesLn2."Document Type" = SalesLn2."Document Type"::"Blanket Order" then
-                TestField("Qty. to Ship", 0)
-            else
-                TestField("Qty. to Ship", SalesLn1."Qty. to Ship");
-            TestField("Return Qty. to Receive", SalesLn1."Return Qty. to Receive");
-            TestField("Dimension Set ID", SalesLn1."Dimension Set ID");
-            TestField("Blanket Order No.", SalesLn1."Blanket Order No.");
-            TestField("Blanket Order Line No.", SalesLn1."Blanket Order Line No.");
-            TestField("VAT Prod. Posting Group", VATProdPostingGroup);
-            TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
-        end;
+        SalesLn2.TestField(Quantity, SalesLn1.Quantity);
+        if SalesLn2."Document Type" = SalesLn2."Document Type"::"Blanket Order" then
+            SalesLn2.TestField("Qty. to Ship", 0)
+        else
+            SalesLn2.TestField("Qty. to Ship", SalesLn1."Qty. to Ship");
+        SalesLn2.TestField("Return Qty. to Receive", SalesLn1."Return Qty. to Receive");
+        SalesLn2.TestField("Dimension Set ID", SalesLn1."Dimension Set ID");
+        SalesLn2.TestField("Blanket Order No.", SalesLn1."Blanket Order No.");
+        SalesLn2.TestField("Blanket Order Line No.", SalesLn1."Blanket Order Line No.");
+        SalesLn2.TestField("VAT Prod. Posting Group", VATProdPostingGroup);
+        SalesLn2.TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
     end;
 
     local procedure VerifySpecialDocUpdate(SalesTempRecRef: RecordRef; PurchaseTempRecRef: RecordRef)

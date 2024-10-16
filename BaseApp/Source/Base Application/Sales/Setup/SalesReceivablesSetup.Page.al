@@ -67,6 +67,11 @@ page 459 "Sales & Receivables Setup"
                     Caption = 'Default Item Quantity';
                     ToolTip = 'Specifies that the Quantity field is set to 1 when you fill in the Item No. field.';
                 }
+                field(DefaultGLAccountQuantity; Rec."Default G/L Account Quantity")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that Quantity is set to 1 on lines of type G/L Account.';
+                }
                 field("Create Item from Item No."; Rec."Create Item from Item No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -403,6 +408,7 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you use job queues to post and print sales documents in the background.';
+                    Visible = false;
                 }
                 field("Job Queue Category Code"; Rec."Job Queue Category Code")
                 {

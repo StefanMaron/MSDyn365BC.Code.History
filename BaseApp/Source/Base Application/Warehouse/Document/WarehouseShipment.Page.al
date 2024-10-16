@@ -279,6 +279,7 @@ page 7335 "Warehouse Shipment"
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Re&lease';
+                    Enabled = Rec.Status <> Rec.Status::Released;
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
@@ -296,6 +297,7 @@ page 7335 "Warehouse Shipment"
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Re&open';
+                    Enabled = Rec.Status <> Rec.Status::Open;
                     Image = ReOpen;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 

@@ -1,4 +1,4 @@
-namespace Microsoft.Service.History;
+﻿namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -636,12 +636,38 @@ table 5995 "Service Cr.Memo Line"
         if Find('-') then
             repeat
                 TempVATAmountLine.Init();
-                TempVATAmountLine.CopyFromServCrMemoLine(Rec);
+                Rec.CopyToVATAmountLine(TempVATAmountLine);
                 TempVATAmountLine."VAT Base (Lowered)" :=
                   TempVATAmountLine."VAT Base" * (1 - ServCrMemoHeader."Payment Discount %" / 100);
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServCrMemoHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine();
             until Next() = 0;
+    end;
+
+    procedure CopyToVATAmountLine(var VATAmountLine: Record "VAT Amount Line")
+    begin
+        VATAmountLine."VAT Identifier" := Rec."VAT Identifier";
+        VATAmountLine."VAT Calculation Type" := Rec."VAT Calculation Type";
+        VATAmountLine."VAT Clause Code" := Rec."VAT Clause Code";
+        VATAmountLine."Tax Group Code" := Rec."Tax Group Code";
+        VATAmountLine."VAT %" := Rec."VAT %";
+        VATAmountLine."VAT Base" := Rec.Amount;
+        VATAmountLine."VAT Amount" := Rec."Amount Including VAT" - Rec.Amount;
+        VATAmountLine."Amount Including VAT" := Rec."Amount Including VAT";
+        VATAmountLine."Line Amount" := Rec."Line Amount";
+        if Rec."Allow Invoice Disc." then
+            VATAmountLine."Inv. Disc. Base Amount" := Rec."Line Amount";
+        VATAmountLine."Invoice Discount Amount" := Rec."Inv. Discount Amount";
+        VATAmountLine.Quantity := Rec."Quantity (Base)";
+        VATAmountLine."Calculated VAT Amount" :=
+          Rec."Amount Including VAT" - Rec.Amount - Rec."VAT Difference";
+        VATAmountLine."VAT Difference" := Rec."VAT Difference";
+        VATAmountLine."VAT Base (Lowered)" := Rec."VAT Base Amount";
+
+        OnAfterCopyToVATAmountLine(Rec, VATAmountLine);
+#if not CLEAN25
+        VATAmountLine.RunOnAfterCopyFromServCrMemoLine(VATAmountLine, Rec);
+#endif
     end;
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
@@ -715,7 +741,7 @@ table 5995 "Service Cr.Memo Line"
         if UserSetupMgt.GetServiceFilter() <> '' then begin
             FilterGroup(2);
             SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
-            Rec.FilterGroup(0);
+            FilterGroup(0);
         end;
     end;
 
@@ -726,6 +752,11 @@ table 5995 "Service Cr.Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToVATAmountLine(ServiceCrMemoLine: Record "Service Cr.Memo Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 }

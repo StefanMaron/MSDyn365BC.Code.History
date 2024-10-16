@@ -151,34 +151,32 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
         CreateGenJnlBatch(GenJournalBatch, GenJournalTemplate.Name);
         CreateVendorWithBankAccount(Vendor, VendorBankAccount);
 
-        with PaymentJournalLine do
-            for i := 1 to PaymentJournalLinesToCreate do begin
-                "Journal Template Name" := GenJournalTemplate.Name;
-                "Journal Batch Name" := GenJournalBatch.Name;
-                "Export Protocol Code" := ExportProtocolCode;
-                "Bank Account" := BankAccountNo;
-                "Line No." := i * 10000;
-                "Applies-to Doc. No." := LibraryUtility.GenerateRandomCode(FieldNo("Applies-to Doc. No."), DATABASE::"Payment Journal Line");
-                "Account Type" := "Account Type"::Vendor;
-                "Account No." := Vendor."No.";
-                "Beneficiary Bank Account" := VendorBankAccount.Code;
-                "Beneficiary Bank Account No." := VendorBankAccount."Bank Account No.";
-                "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-                Amount := LibraryRandom.RandDec(100, 2);
-                "Currency Code" := ''; // in BE LCY code is EUR so this needs to be blank!
-                "Posting Date" := WorkDate();
-                Insert();
-            end;
+        for i := 1 to PaymentJournalLinesToCreate do begin
+            PaymentJournalLine."Journal Template Name" := GenJournalTemplate.Name;
+            PaymentJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+            PaymentJournalLine."Export Protocol Code" := ExportProtocolCode;
+            PaymentJournalLine."Bank Account" := BankAccountNo;
+            PaymentJournalLine."Line No." := i * 10000;
+            PaymentJournalLine."Applies-to Doc. No." := LibraryUtility.GenerateRandomCode(PaymentJournalLine.FieldNo("Applies-to Doc. No."), DATABASE::"Payment Journal Line");
+            PaymentJournalLine."Account Type" := PaymentJournalLine."Account Type"::Vendor;
+            PaymentJournalLine."Account No." := Vendor."No.";
+            PaymentJournalLine."Beneficiary Bank Account" := VendorBankAccount.Code;
+            PaymentJournalLine."Beneficiary Bank Account No." := VendorBankAccount."Bank Account No.";
+            PaymentJournalLine."Applies-to Doc. Type" := PaymentJournalLine."Applies-to Doc. Type"::Invoice;
+            PaymentJournalLine.Amount := LibraryRandom.RandDec(100, 2);
+            PaymentJournalLine."Currency Code" := '';
+            // in BE LCY code is EUR so this needs to be blank!
+            PaymentJournalLine."Posting Date" := WorkDate();
+            PaymentJournalLine.Insert();
+        end;
     end;
 
     local procedure CreateExportProtocol(var ExportProtocol: Record "Export Protocol")
     begin
-        with ExportProtocol do begin
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol");
-            "Export Object Type" := "Export Object Type"::XMLPort;
-            "Export Object ID" := XMLPORT::"SEPA CT pain.001.001.03";
-            Insert();
-        end;
+        ExportProtocol.Code := LibraryUtility.GenerateRandomCode(ExportProtocol.FieldNo(Code), DATABASE::"Export Protocol");
+        ExportProtocol."Export Object Type" := ExportProtocol."Export Object Type"::XMLPort;
+        ExportProtocol."Export Object ID" := XMLPORT::"SEPA CT pain.001.001.03";
+        ExportProtocol.Insert();
     end;
 
     local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account")
@@ -251,20 +249,18 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
         VendorBankAccount: Record "Vendor Bank Account";
         BankAccount: Record "Bank Account";
     begin
-        with PaymentJournalLine do begin
-            PaymentExportData.SetRange("Document No.", "Applies-to Doc. No.");
-            PaymentExportData.SetRange("Applies-to Ext. Doc. No.", "External Document No.");
-            PaymentExportData.SetRange("Transfer Date", "Posting Date");
-            PaymentExportData.SetRange("Currency Code", 'EUR');
-            VendorBankAccount.Get("Account No.", "Beneficiary Bank Account");
-            PaymentExportData.SetRange("Recipient Bank Acc. No.", VendorBankAccount.IBAN);
-            PaymentExportData.SetRange("Recipient Bank BIC", VendorBankAccount."SWIFT Code");
-            PaymentExportData.SetRange("Sender Bank Account Code", "Bank Account");
-            BankAccount.Get("Bank Account");
-            PaymentExportData.SetRange("Sender Bank Account No.", BankAccount.IBAN);
-            PaymentExportData.SetRange("Sender Bank BIC", BankAccount."SWIFT Code");
-            PaymentExportData.SetRange(Amount, Amount);
-        end;
+        PaymentExportData.SetRange("Document No.", PaymentJournalLine."Applies-to Doc. No.");
+        PaymentExportData.SetRange("Applies-to Ext. Doc. No.", PaymentJournalLine."External Document No.");
+        PaymentExportData.SetRange("Transfer Date", PaymentJournalLine."Posting Date");
+        PaymentExportData.SetRange("Currency Code", 'EUR');
+        VendorBankAccount.Get(PaymentJournalLine."Account No.", PaymentJournalLine."Beneficiary Bank Account");
+        PaymentExportData.SetRange("Recipient Bank Acc. No.", VendorBankAccount.IBAN);
+        PaymentExportData.SetRange("Recipient Bank BIC", VendorBankAccount."SWIFT Code");
+        PaymentExportData.SetRange("Sender Bank Account Code", PaymentJournalLine."Bank Account");
+        BankAccount.Get(PaymentJournalLine."Bank Account");
+        PaymentExportData.SetRange("Sender Bank Account No.", BankAccount.IBAN);
+        PaymentExportData.SetRange("Sender Bank BIC", BankAccount."SWIFT Code");
+        PaymentExportData.SetRange(Amount, PaymentJournalLine.Amount);
 
         Assert.AreEqual(1, PaymentExportData.Count, PaymentExportData.GetFilters);
     end;

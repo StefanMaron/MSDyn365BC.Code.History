@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -70,6 +70,7 @@ table 7200 "CDS Connection Setup"
             var
                 CRMConnectionSetup: Record "CRM Connection Setup";
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                CDSConnectionConsentLbl: Label 'CDS Connection Setup - consent provided by UserSecurityId %1.', Locked = true;
             begin
                 if not "Is Enabled" then begin
                     if CRMConnectionSetup.Get() then
@@ -80,7 +81,7 @@ table 7200 "CDS Connection Setup"
                 end;
 
                 Session.LogMessage('0000CDS', CDSConnEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-
+                Session.LogAuditMessage(StrSubstNo(CDSConnectionConsentLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
 
                 if IsTemporary() then begin
                     CDSIntegrationImpl.CheckConnectionRequiredFields(Rec, false);
@@ -358,16 +359,23 @@ table 7200 "CDS Connection Setup"
         CDSIntegrationMgt.OnDisableIntegration();
     end;
 
-    [NonDebuggable]
     [Scope('OnPrem')]
     procedure HasPassword(): Boolean
     begin
-        exit(GetPassword() <> '');
+        exit(not GetSecretPassword().IsEmpty());
     end;
 
+#if not CLEAN25
+    [Obsolete('Use GetSecretPassword instead.', '25.0')]
     [NonDebuggable]
-    [Scope('OnPrem')]
     procedure GetPassword(): Text
+    begin
+        exit(GetSecretPassword().Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetSecretPassword(): SecretText
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
         Value: SecretText;
@@ -377,14 +385,24 @@ table 7200 "CDS Connection Setup"
 
         if not IsNullGuid("User Password Key") then
             if IsolatedStorageManagement.Get("User Password Key", DATASCOPE::Company, Value) then
-                exit(Value.Unwrap());
+                exit(Value);
 
-        exit('');
     end;
 
+#if not CLEAN25
+    [Obsolete('Use SetPassword with SecretText parameter instead.', '25.0')]
     [NonDebuggable]
-    [Scope('OnPrem')]
     procedure SetPassword(PasswordText: Text)
+    var
+        SecretPasswordText: SecretText;
+    begin
+        SecretPasswordText := PasswordText;
+        SetPassword(SecretPasswordText);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SetPassword(PasswordText: SecretText)
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
     begin
@@ -399,25 +417,43 @@ table 7200 "CDS Connection Setup"
         IsolatedStorageManagement.Set(Format("User Password Key"), PasswordText, DATASCOPE::Company);
     end;
 
-    [Scope('OnPrem')]
+#if not CLEAN25
+    [Obsolete('Use GetSecretAccessToken instead.', '25.0')]
     [NonDebuggable]
     procedure GetAccessToken(): Text
     begin
-        if IsTemporary() then
-            exit(TempAccessToken);
-
-        exit('');
+        exit(GetSecretAccessToken().Unwrap());
     end;
+#endif
 
     [Scope('OnPrem')]
+    procedure GetSecretAccessToken(): SecretText
+    begin
+        if IsTemporary() then
+            exit(TempAccessToken);
+    end;
+
+#if not CLEAN25
+    [NonDebuggable]
+    [Obsolete('Use SetAccessToken with SecretText parameter instead.', '25.0')]
     procedure SetAccessToken(AccessToken: Text)
+    var
+        SecretAccessToken: SecretText;
+    begin
+        SecretAccessToken := AccessToken;
+        SetAccessToken(SecretAccessToken);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SetAccessToken(AccessToken: SecretText)
     begin
         if IsTemporary() then begin
             TempAccessToken := AccessToken;
             exit;
         end;
 
-        TempAccessToken := '';
+        Clear(TempAccessToken);
     end;
 
 
@@ -437,9 +473,20 @@ table 7200 "CDS Connection Setup"
         IsolatedStorageManagement.Delete(Format("User Password Key"), DATASCOPE::Company);
     end;
 
-    [Scope('OnPrem')]
+#if not CLEAN25
+    [Obsolete('Use SetClientSecret with SecretText parameter instead.', '25.0')]
     [NonDebuggable]
     procedure SetClientSecret(ClientSecretText: Text)
+    var
+        SecretClientSecretText: SecretText;
+    begin
+        SecretClientSecretText := ClientSecretText;
+        SetClientSecret(SecretClientSecretText);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SetClientSecret(ClientSecretText: SecretText)
     var
         DummyCDSConnectionSetup: Record "CDS Connection Setup";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
@@ -460,12 +507,21 @@ table 7200 "CDS Connection Setup"
         IsolatedStorageManagement.Set(Format("Client Secret Key"), ClientSecretText, DATASCOPE::Company);
     end;
 
-    [Scope('OnPrem')]
+#if not CLEAN25
+    [Obsolete('Use GetSecretClientSecret instead', '25.0')]
     [NonDebuggable]
     procedure GetClientSecret(): Text
+    begin
+        exit(GetSecretClientSecret().Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetSecretClientSecret(): SecretText
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
-        Value: Text;
+        Value: SecretText;
     begin
         if IsTemporary() then
             exit(TempClientSecret);
@@ -473,8 +529,6 @@ table 7200 "CDS Connection Setup"
         if not IsNullGuid("Client Secret Key") then
             if IsolatedStorageManagement.Get("Client Secret Key", DATASCOPE::Company, Value) then
                 exit(Value);
-
-        exit('');
     end;
 
     [Scope('OnPrem')]
@@ -643,18 +697,15 @@ table 7200 "CDS Connection Setup"
     var
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
-        [NonDebuggable]
-        TempUserPassword: Text;
-        [NonDebuggable]
-        TempClientSecret: Text;
-        [NonDebuggable]
-        TempAccessToken: Text;
+        TempUserPassword: SecretText;
+        TempClientSecret: SecretText;
+        TempAccessToken: SecretText;
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CDSConnDisabledTxt: Label 'Dataverse connection has been disabled.', Locked = true;
         CDSConnEnabledTxt: Label 'Dataverse connection has been enabled.', Locked = true;
         BusinessEventsDisabledTxt: Label 'Business events have been disabled.', Locked = true;
         BusinessEventsEnabledTxt: Label 'Business events have been enabled.', Locked = true;
-        CRMConnEnabledErr: Label 'To set up the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales. Read more about it in this help topic: https://go.microsoft.com/fwlink/?linkid=2206514';
+        CRMConnEnabledErr: Label 'To set up the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales.';
         CRMConnEnabledTelemetryErr: Label 'User is trying to set up the connection with Dataverse, while the existing connection with Dynamics 365 Sales is enabled.', Locked = true;
         CannotDisableCDSErr: Label 'To disable the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales.';
         TransferringConnectionValuesFromCRMConnectionsetupTxt: Label 'Transferring connection string values from Dynamics 365 sales connection setup to Dataverse connection setup', Locked = true;

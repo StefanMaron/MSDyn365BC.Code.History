@@ -220,7 +220,7 @@ page 902 "Assembly Orders"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByEvent());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -232,7 +232,7 @@ page 902 "Assembly Orders"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByPeriod());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -244,7 +244,7 @@ page 902 "Assembly Orders"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByVariant());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -257,7 +257,7 @@ page 902 "Assembly Orders"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByLocation());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -280,7 +280,7 @@ page 902 "Assembly Orders"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByBOM());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -504,7 +504,7 @@ page 902 "Assembly Orders"
     }
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        AssemblyAvailabilityMgt: Codeunit "Assembly Availability Mgt.";
 
     local procedure ShowPreview()
     var

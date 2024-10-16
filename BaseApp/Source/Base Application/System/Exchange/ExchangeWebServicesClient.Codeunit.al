@@ -15,8 +15,10 @@ codeunit 5320 "Exchange Web Services Client"
         TempExchangeFolder: Record "Exchange Folder" temporary;
         [RunOnClient]
         ServiceOnClient: DotNet ExchangeServiceWrapper;
+#pragma warning disable AA0074
         Text001: Label 'Connection to the Exchange server failed.';
         Text002: Label 'Folders with a path that exceeds 250 characters have been omitted.';
+#pragma warning restore AA0074
         ServiceOnServer: DotNet ExchangeServiceWrapper;
         LongPathsDetected: Boolean;
         CategoryTxt: Label 'AL EWS Client', Locked = true;
