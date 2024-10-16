@@ -206,6 +206,13 @@ table 179 "Reversal Entry"
             Caption = 'Source Currency Amount';
             DataClassification = CustomerContent;
         }
+        field(32; "Source Currency VAT Amount"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Source Currency VAT Amount';
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
@@ -1350,6 +1357,7 @@ table 179 "Reversal Entry"
         "Debit Amount (LCY)" := GLEntry."Debit Amount";
         "Credit Amount (LCY)" := GLEntry."Credit Amount";
         "VAT Amount" := GLEntry."VAT Amount";
+        "Source Currency VAT Amount" := GLEntry."Source Currency VAT Amount";
         "Document Type" := GLEntry."Document Type";
         "Document No." := GLEntry."Document No.";
         "Bal. Account Type" := GLEntry."Bal. Account Type";

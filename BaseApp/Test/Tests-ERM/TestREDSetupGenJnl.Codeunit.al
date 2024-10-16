@@ -211,7 +211,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         Commit();
         // Validate : Using a deferral code with too many periods will give warning about accounting periods not being set up
         asserterror GenJournalLine.Validate("Deferral Code", DeferralCode99);
-        DeferralCode99 := CreateUserDefined99Periods(); // For code coverage
+        DeferralCode99 := CreateUserDefinedPeriods(99, "Deferral Calculation Start Date"::"Beginning of Period"); // For code coverage
         asserterror GenJournalLine.Validate("Deferral Code", DeferralCode99);
         GenJournalLine.Modify(true);
         Commit();
@@ -1632,6 +1632,306 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         VerifyGLEntriesDoNotExistWithBlankDescription(GLAccountDeferral."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceWithItemAndUserDefinedDeferral()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplate: Record "Deferral Template";
+        SalesInvoiceNo: Code[20];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule]
+        // [SCENARIO 543272] Post sales invoice with type = item and with defferals, calc. method = user-defined 
+        Initialize();
+
+        // [GIVEN] Deferral Code X, calc.method = user-defined. deferral calculation start date = posting date
+        DeferralCode := CreateUserDefinedPeriods(5, "Deferral Calculation Start Date"::"Posting Date");
+        // [GIVEN] Sales Invoice X with item X
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        // [GIVEN] Add deferral code X on the sales line, sales invoice X
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate("Deferral Code", DeferralCode);
+        SalesLine.Modify();
+        // [GIVEN] Insert amounts on deferral schedule
+        UpdateAmountOnDeferralSchedule(SalesLine);
+
+        // [WHEN] Post sales invoice X 
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Verify created G/L entries
+        DeferralTemplate.Get(DeferralCode);
+        VerifyGLEntries(SalesInvoiceNo, Round(SalesLine.Amount / DeferralTemplate."No. of Periods", LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceWithAllocationAccountAndEqualPerPeriodDeferral()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplate: Record "Deferral Template";
+        AllocationAccountCode: Code[20];
+        SalesInvoiceNo: Code[20];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [Allocation Account]
+        // [SCENARIO 543272] Post sales invoice with type = allocation account and defferals, calc. method = equal per period
+        Initialize();
+
+        // [GIVEN] Deferral Code X, calc.method = equal per period
+        DeferralCode := CreateEqual5Periods();
+        // [GIVEN] Create Allocation Account with fixed distribution
+        AllocationAccountCode := CreateAllocationAccountWithFixedDistribution();
+        // [GIVEN] Sales Invoice X with allocation account X
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
+            AllocationAccountCode, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+        // [GIVEN] Add deferral code X on the sales line, sales invoice X
+        SalesLine.Validate("Deferral Code", DeferralCode);
+        SalesLine.Modify();
+
+        // [WHEN] Post sales invoice X 
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Verify created G/L entries
+        DeferralTemplate.Get(DeferralCode);
+        VerifyGLEntriesForAllocationAndDeferral(SalesInvoiceNo, AllocationAccountCode, Round(SalesLine.Amount / DeferralTemplate."No. of Periods", LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceWithItemAndEqualPerPeriodDeferral()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplate: Record "Deferral Template";
+        SalesInvoiceNo: Code[20];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule]
+        // [SCENARIO 543272] Post sales invoice with type = item and defferals, calc. method = equal per period
+        Initialize();
+
+        // [GIVEN] Deferral Code X, calc.method = equal per period
+        DeferralCode := CreateEqual5Periods();
+        // [GIVEN] Sales Invoice X with item X
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        // [GIVEN] Add deferral code X on the sales line, sales invoice X
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate("Deferral Code", DeferralCode);
+        SalesLine.Modify();
+
+        // [WHEN] Post sales invoice X 
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Verify created G/L entries
+        DeferralTemplate.Get(DeferralCode);
+        VerifyGLEntries(SalesInvoiceNo, Round(SalesLine.Amount / DeferralTemplate."No. of Periods", LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceWithAllocationAccountAndUserDefinedBeginingOfPeriodDeferral()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplate: Record "Deferral Template";
+        AllocationAccountCode: Code[20];
+        SalesInvoiceNo: Code[20];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [Allocation Account]
+        // [SCENARIO 543272] Post sales invoice with type = allocation account and defferals, calc. method = user-defined, deferral calculation start date = begining of period
+        Initialize();
+
+        // [GIVEN] Deferral Code X, calc.method = user-defined, deferral calculation start date = begining of period
+        DeferralCode := CreateUserDefinedPeriods(2, "Deferral Calculation Start Date"::"Beginning of Period");
+        // [GIVEN] Create Allocation Account with fixed distribution
+        AllocationAccountCode := CreateAllocationAccountWithFixedDistribution();
+        // [GIVEN] Sales Invoice X with allocation account X
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
+            AllocationAccountCode, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+
+        // [GIVEN] Add deferral code X on the sales line, sales invoice X
+        SalesLine.Validate("Deferral Code", DeferralCode);
+        SalesLine.Modify();
+
+        // [GIVEN] Insert amounts on deferral schedule
+        UpdateAmountOnDeferralSchedule(SalesLine);
+
+        // [WHEN] Post sales invoice X 
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Verify created G/L entries
+        DeferralTemplate.Get(DeferralCode);
+        VerifyGLEntriesForAllocationAndDeferral(SalesInvoiceNo, AllocationAccountCode, Round(SalesLine.Amount / DeferralTemplate."No. of Periods", LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceWithAllocationAccountAndUserDefinedPostingDateDeferral()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplate: Record "Deferral Template";
+        AllocationAccountCode: Code[20];
+        SalesInvoiceNo: Code[20];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [Allocation Account]
+        // [SCENARIO 543272] Post sales invoice with type = allocation account and defferals, calc. method = user-defined, deferral calculation start date = posting date 
+        Initialize();
+
+        // [GIVEN] Deferral Code X, calc.method = user-defined, deferral calculation start date = posting date
+        DeferralCode := CreateUserDefinedPeriods(2, "Deferral Calculation Start Date"::"Posting Date");
+        // [GIVEN] Create Allocation Account with fixed distribution
+        AllocationAccountCode := CreateAllocationAccountWithFixedDistribution();
+        // [GIVEN] Sales Invoice X with allocation account X
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
+            AllocationAccountCode, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+
+        // [GIVEN] Add deferral code X on the sales line, sales invoice X
+        SalesLine.Validate("Deferral Code", DeferralCode);
+        SalesLine.Modify();
+
+        // [GIVEN] Insert amounts on deferral schedule
+        UpdateAmountOnDeferralSchedule(SalesLine);
+
+        // [WHEN] Post sales invoice X 
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Verify created G/L entries
+        DeferralTemplate.Get(DeferralCode);
+        VerifyGLEntriesForAllocationAndDeferral(SalesInvoiceNo, AllocationAccountCode, Round(SalesLine.Amount / DeferralTemplate."No. of Periods", LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceWithAllocationAccountAndUserDefinedDeferralUsingGenerateLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplate: Record "Deferral Template";
+        SalesAllocAccMgt: Codeunit "Sales Alloc. Acc. Mgt.";
+        AllocationAccountCode: Code[20];
+        SalesInvoiceNo: Code[20];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [Allocation Account]
+        // [SCENARIO 543272] Post sales invoice with type = allocation account and defferals, calc. method = user-defined, deferral calculation start date = begining of period
+        Initialize();
+
+        // [GIVEN] Deferral Code X, calc.method = user-defined, deferral calculation start date = begining of period
+        DeferralCode := CreateUserDefinedPeriods(2, "Deferral Calculation Start Date"::"Beginning of Period");
+        // [GIVEN] Create Allocation Account with fixed distribution
+        AllocationAccountCode := CreateAllocationAccountWithFixedDistribution();
+        // [GIVEN] Sales Invoice X with allocation account X
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
+            AllocationAccountCode, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+
+        // [GIVEN] Add deferral code X on the sales line, sales invoice X
+        SalesLine.Validate("Deferral Code", DeferralCode);
+        SalesLine.Modify();
+
+        // [GIVEN] Insert amounts on deferral schedule
+        UpdateAmountOnDeferralSchedule(SalesLine);
+
+        // [GIVEN] Generate lines from allocation account
+        SalesAllocAccMgt.CreateLinesFromAllocationAccountLine(SalesLine);
+        SalesLine.Delete();
+
+        // [WHEN] Post sales invoice X 
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Verify created G/L entries
+        DeferralTemplate.Get(DeferralCode);
+        VerifyGLEntriesForAllocationAndDeferral(SalesInvoiceNo, AllocationAccountCode, Round(SalesLine.Amount / DeferralTemplate."No. of Periods", LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceWithAllocationAccountAndUserDefinedDeferralWithError()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        AllocationAccountCode: Code[20];
+        DeferralCode: Code[10];
+        ZeroDeferralAmtErr: Label 'Deferral amounts cannot be 0';
+    begin
+        // [FEATURE] [Deferral schedule] [Allocation Account]
+        // [SCENARIO 543272] It is not allowed to post sales invoice with deferral lines where amount = 0
+        Initialize();
+
+        // [GIVEN] Deferral Code X, calc.method = user-defined, deferral calculation start date = posting date, amounts on lines = 0
+        DeferralCode := CreateUserDefinedPeriods(2, "Deferral Calculation Start Date"::"Posting Date");
+        // [GIVEN] Create Allocation Account with fixed distribution
+        AllocationAccountCode := CreateAllocationAccountWithFixedDistribution();
+        // [GIVEN] Sales Invoice X with allocation account X
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
+            AllocationAccountCode, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+
+        // [GIVEN] Add deferral code X on the sales line, sales invoice X
+        SalesLine.Validate("Deferral Code", DeferralCode);
+        SalesLine.Modify();
+
+        // [WHEN] Posting sales invoice X is not allowed with deferral lines with amount = 0
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] The error message popup
+        Assert.ExpectedError(ZeroDeferralAmtErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DontCopyDeferralScheduleWhenChangingDeferralCode()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralCode: array[2] of Code[10];
+    begin
+        // [FEATURE] [Deferral schedule]
+        // [SCENARIO 543272] Change user-defined deferral code on sales invoice without copying deferral schedule
+        Initialize();
+
+        // [GIVEN] Deferral Code X, calc.method = user-defined, deferral calculation start date = posting date, amounts on lines = 0
+        DeferralCode[1] := CreateUserDefinedPeriods(2, "Deferral Calculation Start Date"::"Posting Date");
+        // [GIVEN] Deferral Code Y, calc.method = user-defined, deferral calculation start date = posting date, amounts on lines = 0
+        DeferralCode[2] := CreateUserDefinedPeriods(2, "Deferral Calculation Start Date"::"Posting Date");
+
+        // [GIVEN] Sales Invoice X with item X
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        // [GIVEN] Add deferral code X on the sales line, sales invoice X
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate("Deferral Code", DeferralCode[1]);
+        SalesLine.Modify();
+
+        // [GIVEN] Insert amounts on deferral schedule
+        UpdateAmountOnDeferralSchedule(SalesLine);
+
+        // [WHEN] Change deferral code
+        SalesLine.Validate("Deferral Code", DeferralCode[2]);
+        SalesLine.Modify();
+
+        // [THEN] Deferral schedule for deferral code Y doesn't have amounts
+        VerifyDeferralSchedule(SalesLine);
+    end;
+
     local procedure Initialize()
     var
         AccountingPeriod: Record "Accounting Period";
@@ -1780,11 +2080,10 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         exit(DeferralCode);
     end;
 
-    local procedure CreateUserDefined99Periods() DeferralCode: Code[10]
+    local procedure CreateUserDefinedPeriods(NoOfPeriod: Integer; DeferralCalcStartDate: Enum "Deferral Calculation Start Date"): Code[10]
     begin
-        DeferralCode :=
-          CreateMasterDeferralRecord(CalcMethod::"User-Defined", StartDate::"Posting Date", 99, '%1 Deferral %5', 100.0);
-        exit(DeferralCode);
+        exit(
+            CreateMasterDeferralRecord(CalcMethod::"User-Defined", DeferralCalcStartDate, NoOfPeriod, '%1 Deferral %5', 100.0));
     end;
 
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -2213,6 +2512,102 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
                     GenJournalTemplate.Modify(true);
                 end;
         end;
+    end;
+
+    local procedure UpdateAmountOnDeferralSchedule(SalesLine: Record "Sales Line")
+    var
+        DeferralHeader: Record "Deferral Header";
+        DeferralLine: Record "Deferral Line";
+        PeriodicCount: Integer;
+        AmountToDefer: Decimal;
+        RunningDeferralTotal: Decimal;
+    begin
+        DeferralHeader.Get("Deferral Document Type"::Sales.AsInteger(), '', '',
+                SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        DeferralUtilities.FilterDeferralLines(DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
+                DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
+                DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.");
+        DeferralLine.FindSet();
+        for PeriodicCount := 1 to DeferralHeader."No. of Periods" do begin
+            AmountToDefer := DeferralHeader."Amount to Defer";
+            if PeriodicCount > 1 then
+                DeferralLine.Next();
+            if PeriodicCount <> DeferralHeader."No. of Periods" then begin
+                AmountToDefer := Round(AmountToDefer / DeferralHeader."No. of Periods", LibraryERM.GetAmountRoundingPrecision());
+                RunningDeferralTotal := RunningDeferralTotal + AmountToDefer;
+            end else
+                AmountToDefer := (DeferralHeader."Amount to Defer" - RunningDeferralTotal);
+
+            DeferralLine.Validate(Amount, AmountToDefer);
+            DeferralLine.Modify();
+        end;
+    end;
+
+    local procedure CreateAllocationAccountWithFixedDistribution(): Code[20]
+    var
+        AllocationAccount: Record "Allocation Account";
+    begin
+        AllocationAccount."No." := Format(LibraryRandom.RandText(5));
+        AllocationAccount."Account Type" := AllocationAccount."Account Type"::Fixed;
+        AllocationAccount.Name := Format(LibraryRandom.RandText(10));
+        AllocationAccount.Insert();
+
+        CreateGLAccountAllocationForFixedDistrubution(AllocationAccount."No.", LibraryRandom.RandIntInRange(1, 50));
+        CreateGLAccountAllocationForFixedDistrubution(AllocationAccount."No.", LibraryRandom.RandIntInRange(1, 50));
+        exit(AllocationAccount."No.");
+    end;
+
+    local procedure CreateGLAccountAllocationForFixedDistrubution(AllocationAccountNo: Code[20]; Shape: Decimal)
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        AllocAccountDistribution."Allocation Account No." := AllocationAccountNo;
+        AllocAccountDistribution."Line No." := LibraryUtility.GetNewRecNo(AllocAccountDistribution, AllocAccountDistribution.FieldNo("Line No."));
+        AllocAccountDistribution.Validate("Account Type", AllocAccountDistribution."Account Type"::Fixed);
+        AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"G/L Account");
+        AllocAccountDistribution.Validate("Destination Account Number", LibraryERM.CreateGLAccountWithSalesSetup());
+        AllocAccountDistribution.Validate(Share, Shape);
+        AllocAccountDistribution.Insert();
+    end;
+
+    local procedure VerifyGLEntriesForAllocationAndDeferral(SalesInvoiceNo: Code[20]; AllocationAccountCode: Code[20]; Amount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+        ExpectedAmount: Decimal;
+    begin
+        AllocAccountDistribution.SetRange("Allocation Account No.", AllocationAccountCode);
+        AllocAccountDistribution.FindSet();
+        repeat
+            ExpectedAmount := Round(AllocAccountDistribution.Percent / 100 * Amount, LibraryERM.GetAmountRoundingPrecision());
+            GLEntry.SetRange("Document No.", SalesInvoiceNo);
+            GLEntry.SetRange("G/L Account No.", AllocAccountDistribution."Destination Account Number");
+            GLEntry.SetRange(Amount, -ExpectedAmount);
+            Assert.RecordIsNotEmpty(GLEntry);
+        until AllocAccountDistribution.Next() = 0;
+    end;
+
+    local procedure VerifyGLEntries(SalesInvoiceNo: Code[20]; Amount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", SalesInvoiceNo);
+        GLEntry.SetRange(Amount, Amount);
+        Assert.RecordIsNotEmpty(GLEntry);
+    end;
+
+    local procedure VerifyDeferralSchedule(SalesLine: Record "Sales Line")
+    var
+        DeferralHeader: Record "Deferral Header";
+        DeferralLine: Record "Deferral Line";
+    begin
+        DeferralHeader.Get("Deferral Document Type"::Sales.AsInteger(), '', '',
+                SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        DeferralUtilities.FilterDeferralLines(DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
+                DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
+                DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.");
+        DeferralLine.SetFilter(Amount, '<>%1', 0);
+        Assert.RecordIsEmpty(DeferralLine);
     end;
 
     [ModalPageHandler]

@@ -304,7 +304,7 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
         AzureKeyVault: Codeunit "Azure Key Vault";
         Prompt: Text;
     begin
-        if AzureKeyVault.GetAzureKeyVaultSecret('EDocumentMappingPrompt', Prompt) then
+        if AzureKeyVault.GetAzureKeyVaultSecret('EDocumentMappingPromptV2', Prompt) then
             exit(Prompt);
 
         Session.LogMessage('0000MOV', FailedToGetPromptSecretErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
