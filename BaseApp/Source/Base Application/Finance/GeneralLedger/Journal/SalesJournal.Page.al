@@ -481,7 +481,7 @@ page 253 "Sales Journal"
                 field("Sales/Purch. (LCY)"; Rec."Sales/Purch. (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the line''s net amount (the amount excluding VAT) if you are using this journal line for an invoice.';
+                    ToolTip = 'Specifies the line''s net amount (the amount excluding VAT) if you are using this journal line for an invoice. The field is important for customer and vendor statistics, but it has no significance for posting. You can either fill in the field or it will be calculated automatically once you fill in the Account No. and Bal. Account No. fields';
                     Visible = false;
                 }
                 field("Profit (LCY)"; Rec."Profit (LCY)")

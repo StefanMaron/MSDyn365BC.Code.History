@@ -16,6 +16,12 @@ codeunit 915 "Assembly Info-Pane Management"
         Item: Record Item;
         AvailableToPromise: Codeunit "Available to Promise";
 
+    procedure SetRecalculateItem()
+    begin
+        Clear(Item);
+        AvailableToPromise.SetRecalculateFields();
+    end;
+
     procedure CalcAvailability(var AsmLine: Record "Assembly Line"): Decimal
     var
         LookaheadDateformula: DateFormula;

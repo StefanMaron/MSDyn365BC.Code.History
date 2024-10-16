@@ -1359,6 +1359,42 @@ codeunit 134918 "ERM Sales/Purchase Application"
         VerifyCustomerLedgerEntry(Customer."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DocumentAmountInPurchJnlAcceptsMaxThreeDecimalPlacesValue()
+    var
+        Vendor: Record Vendor;
+        PurchaseJournal: TestPage "Purchase Journal";
+        DocumentAmount: Decimal;
+    begin
+        // [SCENARIO 534464] Document Amount field in Purchase Journal accepts a value of maximum 3 decimal places.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Open Purchase Journal.
+        PurchaseJournal.OpenView();
+        PurchaseJournal.New();
+        PurchaseJournal."Account Type".SetValue("Gen. Journal Account Type"::Vendor);
+        PurchaseJournal."Account No.".SetValue(Vendor."No.");
+
+        // [GIVEN] Generate and save Document Amount in a Variable.
+        DocumentAmount := LibraryRandom.RandDecInRange(1, 4, 3);
+
+        // [WHEN] Set value of 3 decimal places in Document Amount field in Purchase Journal.
+        PurchaseJournal.DocumentAmount.SetValue(DocumentAmount);
+
+        // [THEN] Document Amount in Purchase Journal has a value of 3 decimal places.
+        Assert.AreEqual(
+            DocumentAmount,
+            PurchaseJournal.DocumentAmount.AsDecimal(),
+            StrSubstNo(
+                DocumentAmountLogicErr,
+                DocumentAmount,
+                PurchaseJournal.DocumentAmount.AsDecimal()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

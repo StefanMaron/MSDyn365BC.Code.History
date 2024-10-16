@@ -4,7 +4,7 @@
     "publisher":  "Microsoft",
     "brief":  "Get data exchange definitions for the Norwegian payroll service.",
     "description":  "Get data exchange definitions for the Huldt \u0026 Lillevik payroll service in Norway.",
-    "version":  "24.1.18927.19498",
+    "version":  "24.2.20227.20424",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2005800",
@@ -24,5 +24,5 @@
                                    "allowDownloadingSource":  true,
                                    "includeSourceInSymbolFile":  true
                                },
-    "application":  "24.1.0.0"
+    "application":  "24.2.0.0"
 }

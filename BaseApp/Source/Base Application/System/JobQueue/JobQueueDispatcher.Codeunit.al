@@ -15,7 +15,7 @@ codeunit 448 "Job Queue Dispatcher"
         if Skip then
             exit;
 
-        SelectLatestVersion();
+        Rec.ReadIsolation(IsolationLevel::ReadCommitted);
         Rec.Get(Rec.ID);
         if not Rec.IsReadyToStart() then
             exit;
@@ -23,10 +23,16 @@ codeunit 448 "Job Queue Dispatcher"
         if Rec.IsExpired(CurrentDateTime) then
             Rec.DeleteTask()
         else
-            if WaitForOthersWithSameCategory(Rec) then
+            if WaitForOthersWithSameCategory(Rec) or (not IsWithinStartEndTime(Rec)) then begin
+                Commit();
                 Reschedule(Rec)
-            else
+            end else begin
                 HandleRequest(Rec);
+                if Rec."Job Queue Category Code" <> '' then begin
+                    Commit();
+                    Rec.ActivateNextJobInCategory();
+                end;
+            end;
         Commit();
     end;
 
@@ -85,8 +91,31 @@ codeunit 448 "Job Queue Dispatcher"
         else
             SendTraceOnFailedToGetRecordBeforeFinalizingRecord(JobQueueEntry);
 
-
         OnAfterSuccessHandleRequest(JobQueueEntry, JobQueueExecutionTimeInMs, JobQueueLogEntry."System Task Id");
+    end;
+
+    local procedure IsWithinStartEndTime(var CurrJobQueueEntry: Record "Job Queue Entry"): Boolean
+    var
+        CurrTime: Time;
+    begin
+        // No start and end time set, always run
+        if (CurrJobQueueEntry."Starting Time" = 0T) and (CurrJobQueueEntry."Ending Time" = 0T) then
+            exit(true);
+
+        CurrTime := DT2Time(CurrentDateTime);
+        // Start and end time set, check if current time is within the range
+        if (CurrJobQueueEntry."Starting Time" <> 0T) and (CurrJobQueueEntry."Ending Time" <> 0T) then
+            if CurrJobQueueEntry."Starting Time" <> CurrJobQueueEntry."Ending Time" then
+                exit((CurrJobQueueEntry."Starting Time" <= CurrTime) and (CurrTime <= CurrJobQueueEntry."Ending Time"));
+
+        // If start and end time are the same, treat it as only starting time is set.
+        // Only start time set, check if current time is after start time
+        if (CurrJobQueueEntry."Starting Time" <> 0T) then
+            exit(CurrJobQueueEntry."Starting Time" <= CurrTime);
+
+        // Only end time set, check if current time is before end time
+        if (CurrJobQueueEntry."Ending Time" <> 0T) then
+            exit(CurrTime <= CurrJobQueueEntry."Ending Time");
     end;
 
     procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry") Result: Boolean
@@ -105,31 +134,35 @@ codeunit 448 "Job Queue Dispatcher"
             exit(false);
 
         // Use the Job Queue Category as a semaphore so only one checks at the time.
-        JobQueueCategory.LockTable();
+        JobQueueCategory.ReadIsolation(IsolationLevel::UpdLock);
         if not JobQueueCategory.Get(CurrJobQueueEntry."Job Queue Category Code") then
             exit(false);
 
-        JobQueueEntry.ReadIsolation := JobQueueEntry.ReadIsolation::ReadCommitted;
+        JobQueueEntryCheck.ReadIsolation(IsolationLevel::UpdLock);
         JobQueueEntryCheck.SetLoadFields(ID, "Job Queue Category Code", Status, "User ID");
+        JobQueueEntry.SetLoadFields(ID);
+        JobQueueEntry.ReadIsolation(JobQueueEntry.ReadIsolation::ReadCommitted);
         JobQueueEntry.SetFilter(ID, '<>%1', CurrJobQueueEntry.ID);
         JobQueueEntry.SetRange("Job Queue Category Code", CurrJobQueueEntry."Job Queue Category Code");
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
+        JobQueueEntry.SetRange(Scheduled, true);
+        JobQueueEntry.SetCurrentKey("Job Queue Category Code", "Priority Within Category", "Entry No.");
+        if not JobQueueEntry.IsEmpty() then
+            exit(true);
+
+        JobQueueEntry.SetRange(Scheduled, false);
+        if not JobQueueEntry.IsEmpty() then
+            if TestMode then
+                exit(true);
+
+        JobQueueEntry.SetRange("User ID", UserId());
         if JobQueueEntry.FindSet() then
             repeat
-                if DoesSystemTaskExist(JobQueueEntry."System Task ID") then
-                    exit(true)
-                else // stale job queue entry with status in process but no system task behind it.
-                    if (JobQueueEntry."User ID" = UserId()) and JobQueueEntryCheck.Get(JobQueueEntry.ID) then
-                        Reschedule(JobQueueEntry);
+                if JobQueueEntryCheck.Get(JobQueueEntry.ID) then
+                    Reschedule(JobQueueEntryCheck);
             until JobQueueEntry.Next() = 0;
-        exit(false);
-    end;
 
-    local procedure DoesSystemTaskExist(TaskID: Guid): Boolean
-    begin
-        if TestMode then
-            exit(true);
-        exit(TaskScheduler.TaskExists(TaskID))
+        exit(false);
     end;
 
     [Scope('OnPrem')]
@@ -141,11 +174,31 @@ codeunit 448 "Job Queue Dispatcher"
     local procedure Reschedule(var JobQueueEntry: Record "Job Queue Entry")
     begin
         JobQueueEntry.RefreshLocked();
-        Randomize();
         Clear(JobQueueEntry."System Task ID"); // to avoid canceling this task, which has already been executed
-        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime + 2000 + Random(5000);
         OnRescheduleOnBeforeJobQueueEnqueue(JobQueueEntry);
-        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+        JobQueueEntry."System Task ID" := TASKSCHEDULER.CreateTask(CODEUNIT::"Job Queue Dispatcher", CODEUNIT::"Job Queue Error Handler", false, JobQueueEntry.CurrentCompany(), JobQueueEntry."Earliest Start Date/Time", JobQueueEntry.RecordId());
+        JobQueueEntry.Status := JobQueueEntry.Status::Waiting;
+        JobQueueEntry.Modify();
+    end;
+
+    internal procedure ActivateNextJobInCategory(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        JobQueueEntryToActivate: Record "Job Queue Entry";
+    begin
+        if JobQueueEntry."Job Queue Category Code" = '' then
+            exit;
+        JobQueueEntryToActivate.SetLoadFields(ID, "Job Queue Category Code", Status, "Entry No.", "Priority Within Category", "System Task ID");
+        JobQueueEntryToActivate.ReadIsolation(IsolationLevel::ReadCommitted);
+        JobQueueEntryToActivate.SetRange("Job Queue Category Code", JobQueueEntry."Job Queue Category Code");
+        JobQueueEntryToActivate.SetRange(Status, JobQueueEntry.Status::Waiting);
+        JobQueueEntryToActivate.SetFilter(ID, '<>%1', JobQueueEntry.ID);
+        JobQueueEntryToActivate.SetCurrentKey("Job Queue Category Code", "Priority Within Category", "Entry No.");
+        if JobQueueEntryToActivate.FindFirst() then
+            if TaskScheduler.TaskExists(JobQueueEntryToActivate."System Task ID") then begin
+                TaskScheduler.SetTaskReady(JobQueueEntryToActivate."System Task ID");
+                JobQueueEntryToActivate.Status := JobQueueEntryToActivate.Status::Ready;
+                JobQueueEntryToActivate.Modify();
+            end;
     end;
 
     procedure CalcNextRunTimeForRecurringJob(var JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime): DateTime

@@ -8,8 +8,8 @@ using Microsoft.Utilities;
 
 xmlport 1000 "SEPA CT pain.001.001.03"
 {
-    Caption = 'SEPA CT pain.001.001.09';
-    DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+    Caption = 'SEPA CT pain.001.001.03';
+    DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
     Direction = Export;
     Encoding = UTF8;
     FormatEvaluate = Xml;
@@ -142,11 +142,8 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                         {
                         }
                     }
-                    textelement(ReqdExctnDt)
+                    fieldelement(ReqdExctnDt; PaymentExportDataGroup."Transfer Date")
                     {
-                        fieldelement(Dt; PaymentExportDataGroup."Transfer Date")
-                        {
-                        }
                     }
                     textelement(Dbtr)
                     {

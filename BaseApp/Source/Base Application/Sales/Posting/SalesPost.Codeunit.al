@@ -6197,7 +6197,7 @@ codeunit 80 "Sales-Post"
         IsHandled := false;
         OnBeforeUpdateQtyToBeInvoicedForReturnReceipt(
             QtyToBeInvoiced, QtyToBeInvoicedBase, TrackingSpecificationExists, SalesLine, ReturnReceiptLine,
-            InvoicingTrackingSpecification, QtyToBeInvoiced, QtyToBeInvoicedBase, IsHandled);
+            InvoicingTrackingSpecification, RemQtyToBeInvoiced, RemQtyToBeInvoicedBase, IsHandled);
         if IsHandled then
             exit;
 
@@ -6208,6 +6208,8 @@ codeunit 80 "Sales-Post"
             QtyToBeInvoiced := RemQtyToBeInvoiced - SalesLine."Return Qty. to Receive";
             QtyToBeInvoicedBase := RemQtyToBeInvoicedBase - SalesLine."Return Qty. to Receive (Base)";
         end;
+        OnUpdateQtyToBeInvoicedForReturnReceiptOnAfterSetQtyToBeInvoiced(TrackingSpecificationExists, QtyToBeInvoiced, QtyToBeInvoicedBase, RemQtyToBeInvoiced, RemQtyToBeInvoicedBase, SalesLine);
+
         if Abs(QtyToBeInvoiced) >
            Abs(ReturnReceiptLine.Quantity - ReturnReceiptLine."Quantity Invoiced")
         then begin
@@ -9824,12 +9826,12 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostItemTrackingCheckReturnReceipt(SalesLine: Record "Sales Line"; RemQtyToBeInvoiced: Decimal; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostItemTrackingCheckShipment(SalesLine: Record "Sales Line"; RemQtyToBeInvoiced: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -12095,6 +12097,11 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemTrackingForShipmentOnBeforeTestLineFields(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateQtyToBeInvoicedForReturnReceiptOnAfterSetQtyToBeInvoiced(TrackingSpecificationExists: Boolean; var QtyToBeInvoiced: Decimal; var QtyToBeInvoicedBase: Decimal; RemQtyToBeInvoiced: Decimal; RemQtyToBeInvoicedBase: Decimal; var SalesLine: Record "Sales Line")
     begin
     end;
 }
