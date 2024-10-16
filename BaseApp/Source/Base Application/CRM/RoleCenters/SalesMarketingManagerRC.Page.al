@@ -33,11 +33,11 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Forecast;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Pricing.Reports;
 using Microsoft.Pricing.Worksheet;
 #endif
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Analysis;
@@ -698,7 +698,7 @@ page 8907 "Sales & Marketing Manager RC"
                     RunObject = page "Item Attributes";
                     Tooltip = 'Open the Item Attributes page.';
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Sales Price Worksheet")
                 {
                     ApplicationArea = Suite;
@@ -775,7 +775,7 @@ page 8907 "Sales & Marketing Manager RC"
                         RunObject = report "Inventory Order Details";
                         Tooltip = 'Run the Inventory Order Details report.';
                     }
-#if not CLEAN23
+#if not CLEAN25
                     action("Price List")
                     {
                         ApplicationArea = Basic, Suite;

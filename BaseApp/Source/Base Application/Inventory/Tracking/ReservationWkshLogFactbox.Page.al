@@ -1,12 +1,5 @@
 namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
-
 page 331 "Reservation Wksh. Log Factbox"
 {
     PageType = ListPart;
@@ -64,45 +57,16 @@ page 331 "Reservation Wksh. Log Factbox"
 
                 trigger OnAction()
                 var
-                    SalesLine: Record "Sales Line";
-                    TransferLine: Record "Transfer Line";
-                    ServiceLine: Record "Service Line";
-                    JobPlanningLine: Record "Job Planning Line";
-                    AssemblyLine: Record "Assembly Line";
-                    ProdOrderComponent: Record "Prod. Order Component";
+                    IsHandled: Boolean;
                 begin
-                    if SalesLine.Get(Rec."Record ID") then begin
-                        SalesLine.SetRecFilter();
-                        Page.Run(0, SalesLine);
-                        exit;
-                    end;
-                    if TransferLine.Get(Rec."Record ID") then begin
-                        TransferLine.SetRecFilter();
-                        Page.Run(0, TransferLine);
-                        exit;
-                    end;
-                    if ServiceLine.Get(Rec."Record ID") then begin
-                        ServiceLine.SetRecFilter();
-                        Page.Run(0, ServiceLine);
-                        exit;
-                    end;
-                    if JobPlanningLine.Get(Rec."Record ID") then begin
-                        JobPlanningLine.SetRecFilter();
-                        Page.Run(0, JobPlanningLine);
-                        exit;
-                    end;
-                    if AssemblyLine.Get(Rec."Record ID") then begin
-                        AssemblyLine.SetRecFilter();
-                        Page.Run(0, AssemblyLine);
-                        exit;
-                    end;
-                    if ProdOrderComponent.Get(Rec."Record ID") then begin
-                        ProdOrderComponent.SetRecFilter();
-                        Page.Run(0, ProdOrderComponent);
-                        exit;
-                    end;
+                    OnShowDocument(Rec, IsHandled);
                 end;
             }
         }
     }
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowDocument(var ReservationWorksheetLog: Record "Reservation Worksheet Log"; var IsHandled: Boolean)
+    begin
+    end;
 }

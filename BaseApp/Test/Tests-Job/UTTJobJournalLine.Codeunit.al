@@ -616,16 +616,14 @@ codeunit 136351 "UT T Job Journal Line"
 
     local procedure CreateJobLedgEntry(var JobLedgEntry: Record "Job Ledger Entry"; JobTask: Record "Job Task")
     begin
-        with JobLedgEntry do begin
-            Init();
-            "Job No." := JobTask."Job No.";
-            "Job Task No." := JobTask."Job Task No.";
-            Type := Type::Item;
-            "No." := LibraryJob.FindConsumable(Type);
-            "Quantity (Base)" := LibraryRandom.RandDecInRange(1, 100, 2);
-            "Qty. per Unit of Measure" := 1;
-            Insert();
-        end;
+        JobLedgEntry.Init();
+        JobLedgEntry."Job No." := JobTask."Job No.";
+        JobLedgEntry."Job Task No." := JobTask."Job Task No.";
+        JobLedgEntry.Type := JobLedgEntry.Type::Item;
+        JobLedgEntry."No." := LibraryJob.FindConsumable(JobLedgEntry.Type);
+        JobLedgEntry."Quantity (Base)" := LibraryRandom.RandDecInRange(1, 100, 2);
+        JobLedgEntry."Qty. per Unit of Measure" := 1;
+        JobLedgEntry.Insert();
     end;
 
     local procedure MockPurchLineWithJobAmounts(var PurchLine: Record "Purchase Line"; JobTask: Record "Job Task")

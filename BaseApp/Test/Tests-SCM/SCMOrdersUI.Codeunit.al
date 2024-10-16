@@ -757,14 +757,14 @@ codeunit 137929 "SCM Orders UI"
     [Test]
     [Scope('OnPrem')]
     procedure BomStructureItemFilterWhenCalledFromItemList();
-    VAR
+    var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
         Item: array[2] of Record Item;
         ItemList: TestPage "Item List";
         BOMStructure: TestPage "BOM Structure";
         Index: Integer;
-    BEGIN
+    begin
         // [FEATURE] [Item] [BOM Structure]
         // [SCENARIO 319980] When BOM Structure is opened from filtered Item List, these filters do not impact BOM Structure.
         Initialize();
@@ -797,7 +797,7 @@ codeunit 137929 "SCM Orders UI"
         BOMStructure.First();
         BOMStructure."No.".AssertEquals(Item[2]."No.");
         BOMStructure.Description.AssertEquals(Item[2].Description);
-    END;
+    end;
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesModalPageHandlerWithMultipleUIAction,ItemTrackingSummaryModalPageHandlerWithUpdateSelectedQuantity')]
@@ -953,25 +953,20 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [UT] [Bin] [Select Entries]
         // [SCENARIO 322926] Cannot Validate Selected Quantity more than Bin Content excluding current pending qtys in Entry Summary
         Initialize();
-
         // [GIVEN] Entry Summary had Bin Content 100 and Bin Active and Total Available Quantity 200
         // [GIVEN] Entry Summary had Current Pending Quantity 50 and Current Requested Quantity 30
-        with EntrySummary do begin
-            Init();
-            Validate("Bin Active", true);
-            Validate("Bin Content", 2 * LibraryRandom.RandInt(10));
-            Validate("Current Pending Quantity", "Bin Content" / 2);
-            Validate("Current Requested Quantity", "Bin Content" / 4);
-            Validate("Total Available Quantity", "Bin Content" * 2);
-
-            // [WHEN] Validate Selected Quantity = 101
-            asserterror Validate("Selected Quantity", "Bin Content" + 1);
-
-            // [THEN] Error 'You cannot select more than 20 units.'
-            Assert.ExpectedError(
-              StrSubstNo(CannotValidateSelectedQtyErr, "Bin Content" - "Current Pending Quantity" - "Current Requested Quantity"));
-            Assert.ExpectedErrorCode(DialogCodeErr);
-        end;
+        EntrySummary.Init();
+        EntrySummary.Validate("Bin Active", true);
+        EntrySummary.Validate("Bin Content", 2 * LibraryRandom.RandInt(10));
+        EntrySummary.Validate("Current Pending Quantity", EntrySummary."Bin Content" / 2);
+        EntrySummary.Validate("Current Requested Quantity", EntrySummary."Bin Content" / 4);
+        EntrySummary.Validate("Total Available Quantity", EntrySummary."Bin Content" * 2);
+        // [WHEN] Validate Selected Quantity = 101
+        asserterror EntrySummary.Validate("Selected Quantity", EntrySummary."Bin Content" + 1);
+        // [THEN] Error 'You cannot select more than 20 units.'
+        Assert.ExpectedError(
+          StrSubstNo(CannotValidateSelectedQtyErr, EntrySummary."Bin Content" - EntrySummary."Current Pending Quantity" - EntrySummary."Current Requested Quantity"));
+        Assert.ExpectedErrorCode(DialogCodeErr);
     end;
 
     [Test]
@@ -1493,12 +1488,10 @@ codeunit 137929 "SCM Orders UI"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        with ManufacturingSetup do begin
-            Get();
-            Validate("Normal Starting Time", 080000T);
-            Validate("Normal Ending Time", 160000T);
-            Modify(true);
-        end;
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Normal Starting Time", 080000T);
+        ManufacturingSetup.Validate("Normal Ending Time", 160000T);
+        ManufacturingSetup.Modify(true);
     end;
 
     local procedure UpdateRequireShipmentOnLocation(LocationCode: Code[10]; RequireShipment: Boolean)

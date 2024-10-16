@@ -46,7 +46,8 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
           Vendor."Address 2",
           Vendor.City,
           Vendor.Contact,
-          Vendor."Post Code");
+          Vendor."Post Code",
+          Vendor."Phone No.");
     end;
 
     [Test]
@@ -82,7 +83,8 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
           OrderAddress."Address 2",
           OrderAddress.City,
           OrderAddress.Contact,
-          OrderAddress."Post Code");
+          OrderAddress."Post Code",
+          OrderAddress."Phone No.");
     end;
 
     [Test]
@@ -262,9 +264,10 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to City".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
         Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Contact".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
         Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Post Code".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Phone No.".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
     end;
 
-    local procedure VerifyShipToAddressValues(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; PostCode: Code[20])
+    local procedure VerifyShipToAddressValues(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; PostCode: Code[20]; PhoneNo: Text[30])
     begin
         PurchaseCreditMemo."Ship-to Name".AssertEquals(Name);
         PurchaseCreditMemo."Ship-to Address".AssertEquals(Address);
@@ -272,6 +275,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         PurchaseCreditMemo."Ship-to City".AssertEquals(City);
         PurchaseCreditMemo."Ship-to Contact".AssertEquals(Contact);
         PurchaseCreditMemo."Ship-to Post Code".AssertEquals(PostCode);
+        PurchaseCreditMemo."Ship-to Phone No.".AssertEquals(PhoneNo);
     end;
 }
 

@@ -359,6 +359,10 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Archive Return Orders';
         }
+        field(56; "Default G/L Account Quantity"; Boolean)
+        {
+            Caption = 'Default G/L Account Quantity';
+        }
         field(57; "Create Item from Item No."; Boolean)
         {
             Caption = 'Create Item from Item No.';
@@ -712,8 +716,8 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Print Receipt on Giro';
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(10603; "KID Setup"; Option)
         {

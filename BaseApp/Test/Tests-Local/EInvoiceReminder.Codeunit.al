@@ -358,18 +358,16 @@ codeunit 144118 "E-Invoice Reminder"
         AmountValue: Decimal;
     begin
         AmountValue := LibraryRandom.RandDec(1000, 2);
-        with IssuedReminderLine do begin
-            SetRange("Reminder No.", IssuedReminderHeader."No.");
-            FindLast();
-            Init();
-            "Line No." := "Line No." + 10000;
-            Type := Type::"Customer Ledger Entry";
-            "Document Type" := DocumentType;
-            "Document No." := Format(DocumentType);
-            Description := Format(DocumentType);
-            Amount := AmountValue;
-            Insert();
-        end;
+        IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
+        IssuedReminderLine.FindLast();
+        IssuedReminderLine.Init();
+        IssuedReminderLine."Line No." := IssuedReminderLine."Line No." + 10000;
+        IssuedReminderLine.Type := IssuedReminderLine.Type::"Customer Ledger Entry";
+        IssuedReminderLine."Document Type" := DocumentType;
+        IssuedReminderLine."Document No." := Format(DocumentType);
+        IssuedReminderLine.Description := Format(DocumentType);
+        IssuedReminderLine.Amount := AmountValue;
+        IssuedReminderLine.Insert();
     end;
 
     local procedure AddLinesToIssuedReminder(IssuedReminderNo: Code[20])
@@ -389,16 +387,14 @@ codeunit 144118 "E-Invoice Reminder"
 
     local procedure AddCustLedgerEntryReminderLine(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header")
     begin
-        with ReminderLine do begin
-            Init();
-            "Reminder No." := ReminderHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(ReminderLine, FieldNo("Line No."));
-            Type := Type::"Customer Ledger Entry";
-            "Entry No." := MockCustLedgerEntry(ReminderHeader."Customer No.");
-            Description := LibraryUtility.GenerateGUID();
-            "Remaining Amount" := LibraryRandom.RandInt(1000);
-            Insert();
-        end;
+        ReminderLine.Init();
+        ReminderLine."Reminder No." := ReminderHeader."No.";
+        ReminderLine."Line No." := LibraryUtility.GetNewRecNo(ReminderLine, ReminderLine.FieldNo("Line No."));
+        ReminderLine.Type := ReminderLine.Type::"Customer Ledger Entry";
+        ReminderLine."Entry No." := MockCustLedgerEntry(ReminderHeader."Customer No.");
+        ReminderLine.Description := LibraryUtility.GenerateGUID();
+        ReminderLine."Remaining Amount" := LibraryRandom.RandInt(1000);
+        ReminderLine.Insert();
     end;
 
     local procedure CreateZeroVATPostingSetup(VATBusPostGroupCode: Code[20]): Code[20]

@@ -81,7 +81,7 @@ codeunit 426 "Payment Tolerance Management"
             if ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <= Abs(MaxPmtTolAmount)) and
                (MaxPmtTolAmount <> 0) and ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <> 0)
                and (Abs(AppliedAmount + ApplyingAmount) > ApplnRoundingPrecision)
-            then begin
+            then
                 if GLSetup."Payment Tolerance Warning" then begin
                     if CallPmtTolWarning(
                          CustLedgEntry."Posting Date", CustLedgEntry."Customer No.", CustLedgEntry."Document No.",
@@ -95,7 +95,6 @@ codeunit 426 "Payment Tolerance Management"
                         exit(false);
                 end else
                     PutCustPmtTolAmount(CustLedgEntry, ApplyingAmount, AppliedAmount, CustEntryApplId);
-            end;
         end;
         exit(true);
     end;
@@ -150,7 +149,7 @@ codeunit 426 "Payment Tolerance Management"
             if ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <= Abs(MaxPmtTolAmount)) and
                (MaxPmtTolAmount <> 0) and ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <> 0) and
                (Abs(AppliedAmount + ApplyingAmount) > ApplnRoundingPrecision)
-            then begin
+            then
                 if GLSetup."Payment Tolerance Warning" then begin
                     if CallPmtTolWarning(
                          VendLedgEntry."Posting Date", VendLedgEntry."Vendor No.", VendLedgEntry."Document No.",
@@ -164,7 +163,6 @@ codeunit 426 "Payment Tolerance Management"
                         exit(false);
                 end else
                     PutVendPmtTolAmount(VendLedgEntry, ApplyingAmount, AppliedAmount, VendEntryApplID);
-            end;
         end;
         exit(true);
     end;
@@ -1536,13 +1534,13 @@ codeunit 426 "Payment Tolerance Management"
             Currency.InitRoundingPrecision();
             if AppliedEntryCurrencyCode = '' then
                 ApplnRoundingPrecision := 0;
-        end else begin
+        end else
             if ApplnCurrencyCode <> AppliedEntryCurrencyCode then begin
                 Currency.Get(ApplnCurrencyCode);
                 ApplnRoundingPrecision := Currency."Appln. Rounding Precision";
             end else
                 ApplnRoundingPrecision := 0;
-        end;
+
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;
 
@@ -1748,12 +1746,12 @@ codeunit 426 "Payment Tolerance Management"
             Currency.Init();
             Currency.Code := '';
             Currency.InitRoundingPrecision();
-        end else begin
+        end else
             if ApplnInMultiCurrency then
                 Currency.Get(ApplnCurrencyCode)
             else
                 Currency.Init();
-        end;
+
         ApplnRoundingPrecision := Currency."Appln. Rounding Precision";
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;

@@ -1,4 +1,4 @@
-﻿#if not CLEAN23
+﻿#if not CLEAN25
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.CRM.Campaign;
@@ -325,8 +325,12 @@ report 7051 "Suggest Item Price on Wksh."
         ToStartDateCtrlEnable: Boolean;
         ToEndDateCtrlEnable: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Processing items  #1##########';
         Text002: Label '%1 must be specified.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         ToSalesType: Enum "Sales Price Type";

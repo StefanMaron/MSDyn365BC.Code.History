@@ -139,10 +139,10 @@ report 6697 "Create Ret.-Related Documents"
 
     var
         Vend: Record Vendor;
-        TempRetRelDoc: Record "Returns-Related Document" temporary;
         CopyDocMgt: Codeunit "Copy Document Mgt.";
 
     protected var
+        TempRetRelDoc: Record "Returns-Related Document" temporary;
         POPurchHeader: Record "Purchase Header";
         PROPurchHeader: Record "Purchase Header";
         SOSalesHeader: Record "Sales Header";
@@ -160,7 +160,7 @@ report 6697 "Create Ret.-Related Documents"
     procedure ShowDocuments()
     begin
         if TempRetRelDoc.FindFirst() then
-            PAGE.Run(PAGE::"Returns-Related Documents", TempRetRelDoc);
+            Page.Run(Page::"Returns-Related Documents", TempRetRelDoc);
     end;
 
     [IntegrationEvent(false, false)]

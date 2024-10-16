@@ -111,7 +111,9 @@ report 7306 "Get Inbound Source Documents"
     var
         WhseWkshCreate: Codeunit "Whse. Worksheet-Create";
 
+#pragma warning disable AA0074
         Text000: Label 'There are no Warehouse Worksheet Lines created.';
+#pragma warning restore AA0074
 
     protected var
         WhseWkshTemplateName: Code[10];

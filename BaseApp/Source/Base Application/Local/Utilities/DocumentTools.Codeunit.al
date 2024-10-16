@@ -233,24 +233,6 @@ codeunit 10601 DocumentTools
         exit(false);
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by SuggestVendorPaymentUpdateRemittance.', '22.0')]
-    [EventSubscriber(ObjectType::Report, Report::"Suggest Vendor Payments", 'OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer', '', false, false)]
-    local procedure SuggestPaymentUpdateRemittance(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
-    var
-        Vendor: Record Vendor;
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-    begin
-        Vendor.Get(TempPaymentBuffer."Vendor No.");
-        GenJournalLine.Validate("Remittance Account Code", Vendor."Remittance Account Code");
-        if VendorLedgerEntry.Get(TempPaymentBuffer."Vendor Ledg. Entry No.") then begin
-            GenJournalLine.Validate("External Document No.", VendorLedgerEntry."External Document No.");
-            GenJournalLine.Validate("Applies-to Ext. Doc. No.", VendorLedgerEntry."External Document No.");
-            GenJournalLine.Validate(KID, VendorLedgerEntry.KID);
-        end;
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Report, Report::"Suggest Vendor Payments", 'OnBeforeUpdateGnlJnlLineDimensionsFromVendorPaymentBuffer', '', false, false)]
     local procedure SuggestVendorPaymentUpdateRemittance(var GenJournalLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)
     var

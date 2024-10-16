@@ -25,7 +25,7 @@ table 700 "Error Message"
 
             trigger OnValidate()
             begin
-                "Table Number" := GetTableNo("Record ID");
+                Rec."Table Number" := GetTableNo(Rec."Record ID");
             end;
         }
         field(3; "Field Number"; Integer)
@@ -34,8 +34,8 @@ table 700 "Error Message"
 
             trigger OnValidate()
             begin
-                if "Table Number" = 0 then
-                    "Field Number" := 0;
+                if Rec."Table Number" = 0 then
+                    Rec."Field Number" := 0;
             end;
         }
         field(4; "Message Type"; Option)
@@ -49,14 +49,8 @@ table 700 "Error Message"
         {
             Caption = 'Description';
             Editable = false;
-#if not CLEAN22
-            // Description and Message fields are sync'd with database events in "Error Message Management"
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
             ObsoleteReason = 'Replaced by "Message" which has an increase in field length.';
         }
         field(6; "Additional Information"; Text[250])
@@ -80,7 +74,7 @@ table 700 "Error Message"
 
             trigger OnValidate()
             begin
-                "Context Table Number" := GetTableNo("Context Record ID");
+                Rec."Context Table Number" := GetTableNo(Rec."Context Record ID");
             end;
         }
         field(11; "Field Name"; Text[80])
@@ -105,8 +99,8 @@ table 700 "Error Message"
 
             trigger OnValidate()
             begin
-                if "Context Table Number" = 0 then
-                    "Context Field Number" := 0;
+                if Rec."Context Table Number" = 0 then
+                    Rec."Context Field Number" := 0;
             end;
         }
         field(14; "Context Table Number"; Integer)
@@ -152,9 +146,6 @@ table 700 "Error Message"
         {
             Caption = 'Description';
             Editable = false;
-#if not CLEAN22
-            // Description and Message fields are sync'd with database events in "Error Message Management"
-#endif
         }
         field(23; "Reg. Err. Msg. System ID"; Guid) // Link temporary error message with registered (committed) error message.
         {
@@ -212,9 +203,9 @@ table 700 "Error Message"
     trigger OnInsert()
     begin
         Rec.Validate("Created On", CurrentDateTime());
-        if not Context then begin
-            CachedLastID := ID;
-            CachedRegisterID := "Register ID";
+        if not Rec.Context then begin
+            CachedLastID := Rec.ID;
+            CachedRegisterID := Rec."Register ID";
         end;
     end;
 
@@ -227,17 +218,17 @@ table 700 "Error Message"
         OnDrillDownSource(Rec, SourceFieldNo, IsHandled);
         if not IsHandled then
             case SourceFieldNo of
-                FieldNo("Context Record ID"):
+                FieldNo(Rec."Context Record ID"):
                     begin
-                        if not RecRef.Get("Context Record ID") then
-                            error(ErrorContextNotFoundErr, Format("Context Record ID"));
-                        PageManagement.PageRunAtField("Context Record ID", "Context Field Number", false);
+                        if not RecRef.Get(Rec."Context Record ID") then
+                            error(ErrorContextNotFoundErr, Format(Rec."Context Record ID"));
+                        PageManagement.PageRunAtField(Rec."Context Record ID", Rec."Context Field Number", false);
                     end;
-                FieldNo("Record ID"):
+                FieldNo(Rec."Record ID"):
                     if IsDimSetEntryInconsistency() then
                         RunDimSetEntriesPage()
                     else
-                        PageManagement.PageRunAtField("Record ID", "Field Number", false);
+                        PageManagement.PageRunAtField(Rec."Record ID", Rec."Field Number", false);
             end
     end;
 
@@ -247,7 +238,7 @@ table 700 "Error Message"
         RecId: RecordId;
     begin
         RecId := "Record ID";
-        exit((RecId.TableNo = Database::"Dimension Set Entry") and ("Field Number" = DimensionSetEntry.FieldNo("Global Dimension No.")));
+        exit((RecId.TableNo() = Database::"Dimension Set Entry") and (Rec."Field Number" = DimensionSetEntry.FieldNo("Global Dimension No.")));
     end;
 
     local procedure RunDimSetEntriesPage()
@@ -255,7 +246,7 @@ table 700 "Error Message"
         DimensionSetEntry: Record "Dimension Set Entry";
         DimensionSetEntries: Page "Dimension Set Entries";
     begin
-        DimensionSetEntry.Get("Record ID");
+        DimensionSetEntry.Get(Rec."Record ID");
         DimensionSetEntries.SetRecord(DimensionSetEntry);
         DimensionSetEntries.SetUpdDimSetGlblDimNoVisible();
         DimensionSetEntries.Run();
@@ -273,10 +264,10 @@ table 700 "Error Message"
         if not DataTypeManagement.GetRecordRefAndFieldRef(RecRelatedVariant, FieldNumber, RecordRef, FieldRef) then
             exit(0);
 
-        TempRecordRef.Open(RecordRef.Number, true);
+        TempRecordRef.Open(RecordRef.Number(), true);
         EmptyFieldRef := TempRecordRef.Field(FieldNumber);
 
-        if FieldRef.Value <> EmptyFieldRef.Value then
+        if FieldRef.Value() <> EmptyFieldRef.Value() then
             exit(0);
 
         IsHandled := false;
@@ -284,7 +275,7 @@ table 700 "Error Message"
         if IsHandled then
             exit(0);
 
-        NewDescription := StrSubstNo(IfEmptyErr, FieldRef.Caption, Format(RecordRef.RecordId));
+        NewDescription := StrSubstNo(IfEmptyErr, FieldRef.Caption(), Format(RecordRef.RecordId()));
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -301,10 +292,10 @@ table 700 "Error Message"
         if not DataTypeManagement.GetRecordRefAndFieldRef(RecRelatedVariant, FieldNumber, RecordRef, FieldRef) then
             exit(0);
 
-        TempRecordRef.Open(RecordRef.Number, true);
+        TempRecordRef.Open(RecordRef.Number(), true);
         EmptyFieldRef := TempRecordRef.Field(FieldNumber);
 
-        if FieldRef.Value = EmptyFieldRef.Value then
+        if FieldRef.Value() = EmptyFieldRef.Value() then
             exit(0);
 
         IsHandled := false;
@@ -312,7 +303,7 @@ table 700 "Error Message"
         if IsHandled then
             exit(0);
 
-        NewDescription := StrSubstNo(IfNotEmptyErr, FieldRef.Caption, Format(RecordRef.RecordId));
+        NewDescription := StrSubstNo(IfNotEmptyErr, FieldRef.Caption(), Format(RecordRef.RecordId()));
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -327,11 +318,11 @@ table 700 "Error Message"
         if not DataTypeManagement.GetRecordRefAndFieldRef(RecRelatedVariant, FieldNumber, RecordRef, FieldRef) then
             exit(0);
 
-        StringLength := StrLen(Format(FieldRef.Value));
+        StringLength := StrLen(Format(FieldRef.Value()));
         if StringLength <= MaxLength then
             exit(0);
 
-        NewDescription := StrSubstNo(IfLengthExceededErr, FieldRef.Caption, Format(RecordRef.RecordId), MaxLength, StringLength);
+        NewDescription := StrSubstNo(IfLengthExceededErr, FieldRef.Caption(), Format(RecordRef.RecordId()), MaxLength, StringLength);
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -345,10 +336,10 @@ table 700 "Error Message"
         if not DataTypeManagement.GetRecordRefAndFieldRef(RecRelatedVariant, FieldNumber, RecordRef, FieldRef) then
             exit(0);
 
-        if DelChr(Format(FieldRef.Value), '=', ValidCharacters) = '' then
+        if DelChr(Format(FieldRef.Value()), '=', ValidCharacters) = '' then
             exit(0);
 
-        NewDescription := StrSubstNo(IfInvalidCharactersErr, FieldRef.Caption, Format(RecordRef.RecordId));
+        NewDescription := StrSubstNo(IfInvalidCharactersErr, FieldRef.Caption(), Format(RecordRef.RecordId()));
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -362,7 +353,7 @@ table 700 "Error Message"
         if FieldValueIsWithinFilter(RecRelatedVariant, FieldNumber, RecordRef, FieldRef, '%1..%2', LowerBound, UpperBound) then
             exit(0);
 
-        NewDescription := StrSubstNo(IfOutsideRangeErr, FieldRef.Caption, Format(RecordRef.RecordId), LowerBound, UpperBound);
+        NewDescription := StrSubstNo(IfOutsideRangeErr, FieldRef.Caption(), Format(RecordRef.RecordId()), LowerBound, UpperBound);
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -376,7 +367,7 @@ table 700 "Error Message"
         if FieldValueIsWithinFilter(RecRelatedVariant, FieldNumber, RecordRef, FieldRef, '<=%1', LowerBound, '') then
             exit(0);
 
-        NewDescription := StrSubstNo(IfGreaterThanErr, FieldRef.Caption, Format(RecordRef.RecordId), LowerBound);
+        NewDescription := StrSubstNo(IfGreaterThanErr, FieldRef.Caption(), Format(RecordRef.RecordId()), LowerBound);
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -390,7 +381,7 @@ table 700 "Error Message"
         if FieldValueIsWithinFilter(RecRelatedVariant, FieldNumber, RecordRef, FieldRef, '>=%1', UpperBound, '') then
             exit(0);
 
-        NewDescription := StrSubstNo(IfLessThanErr, FieldRef.Caption, Format(RecordRef.RecordId), UpperBound);
+        NewDescription := StrSubstNo(IfLessThanErr, FieldRef.Caption(), Format(RecordRef.RecordId()), UpperBound);
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -404,7 +395,7 @@ table 700 "Error Message"
         if FieldValueIsWithinFilter(RecRelatedVariant, FieldNumber, RecordRef, FieldRef, '<>%1', ValueVariant, '') then
             exit(0);
 
-        NewDescription := StrSubstNo(IfEqualToErr, FieldRef.Caption, Format(RecordRef.RecordId), ValueVariant);
+        NewDescription := StrSubstNo(IfEqualToErr, FieldRef.Caption(), Format(RecordRef.RecordId()), ValueVariant);
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -418,7 +409,7 @@ table 700 "Error Message"
         if FieldValueIsWithinFilter(RecRelatedVariant, FieldNumber, RecordRef, FieldRef, '=%1', ValueVariant, '') then
             exit(0);
 
-        NewDescription := StrSubstNo(IfNotEqualToErr, FieldRef.Caption, Format(RecordRef.RecordId), ValueVariant);
+        NewDescription := StrSubstNo(IfNotEqualToErr, FieldRef.Caption(), Format(RecordRef.RecordId()), ValueVariant);
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -427,19 +418,19 @@ table 700 "Error Message"
     var
         RecordRef: RecordRef;
     begin
-        LogSimpleMessage("Message Type", NewDescription);
-        Validate("Support Url", SupportURL);
-        Validate("Context Field Number", ContextFieldNumber);
+        Rec.LogSimpleMessage("Message Type", NewDescription);
+        Rec.Validate("Support Url", SupportURL);
+        Rec.Validate("Context Field Number", ContextFieldNumber);
         case true of
-            RecRelatedVariant.IsInteger:
-                Validate("Table Number", RecRelatedVariant);
+            RecRelatedVariant.IsInteger():
+                Rec.Validate("Table Number", RecRelatedVariant);
             DataTypeManagement.GetRecordRef(RecRelatedVariant, RecordRef):
-                Validate("Record ID", RecordRef.RecordId);
+                Rec.Validate("Record ID", RecordRef.RecordId());
         end;
-        Validate("Field Number", SourceFieldNumber);
-        Modify(true);
+        Rec.Validate("Field Number", SourceFieldNumber);
+        Rec.Modify(true);
 
-        exit(ID);
+        exit(Rec.ID);
     end;
 
     procedure LogSimpleMessage(MessageType: Option; NewDescription: Text): Integer
@@ -458,22 +449,22 @@ table 700 "Error Message"
 
         AssertRecordTemporaryOrInContext();
 
-        ID := FindLastMessageID() + 1;
+        Rec.ID := FindLastMessageID() + 1;
 
-        Init();
-        Validate("Message Type", MessageType);
-        Validate("Message", CopyStr(NewDescription, 1, MaxStrLen("Message")));
-        Validate("Context Record ID", ContextErrorMessage."Context Record ID");
-        Validate("Context Field Number", ContextErrorMessage."Context Field Number");
-        Validate("Additional Information", ContextErrorMessage."Additional Information");
+        Rec.Init();
+        Rec.Validate("Message Type", MessageType);
+        Rec.Validate("Message", CopyStr(NewDescription, 1, MaxStrLen(Rec."Message")));
+        Rec.Validate("Context Record ID", ContextErrorMessage."Context Record ID");
+        Rec.Validate("Context Field Number", ContextErrorMessage."Context Field Number");
+        Rec.Validate("Additional Information", ContextErrorMessage."Additional Information");
         if ErrorCallStack <> '' then
-            SetErrorCallStack(ErrorCallStack)
+            Rec.SetErrorCallStack(ErrorCallStack)
         else
-            if "Message Type" = "Message Type"::Error then
-                SetErrorCallStack(ErrorMessageMgt.GetCurrCallStack());
-        Insert(true);
+            if Rec."Message Type" = Rec."Message Type"::Error then
+                Rec.SetErrorCallStack(ErrorMessageMgt.GetCurrCallStack());
+        Rec.Insert(true);
 
-        exit(ID);
+        exit(Rec.ID);
     end;
 
     procedure LogMessage(RecRelatedVariant: Variant; FieldNumber: Integer; MessageType: Option; NewDescription: Text): Integer
@@ -488,54 +479,54 @@ table 700 "Error Message"
         if IsHandled then
             exit;
 
-        if RecRelatedVariant.IsInteger then
+        if RecRelatedVariant.IsInteger() then
             TableNumber := RecRelatedVariant
         else begin
             if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecordRef) then
                 exit(0);
 
-            ErrorMessageID := FindRecord(RecordRef.RecordId, FieldNumber, MessageType, NewDescription);
+            ErrorMessageID := Rec.FindRecord(RecordRef.RecordId(), FieldNumber, MessageType, NewDescription);
             if ErrorMessageID <> 0 then
                 exit(ErrorMessageID);
         end;
 
-        LogSimpleMessage(MessageType, NewDescription);
+        Rec.LogSimpleMessage(MessageType, NewDescription);
         if TableNumber = 0 then
-            Validate("Record ID", RecordRef.RecordId)
+            Rec.Validate("Record ID", RecordRef.RecordId())
         else
-            Validate("Table Number", TableNumber);
-        Validate("Field Number", FieldNumber);
-        Modify(true);
+            Rec.Validate("Table Number", TableNumber);
+        Rec.Validate("Field Number", FieldNumber);
+        Rec.Modify(true);
 
-        exit(ID);
+        exit(Rec.ID);
     end;
 
     procedure LogDetailedMessage(RecRelatedVariant: Variant; FieldNumber: Integer; MessageType: Option; NewDescription: Text; AdditionalInformation: Text[250]; SupportUrl: Text[250]): Integer
     begin
-        LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription);
-        Validate("Additional Information", AdditionalInformation);
-        Validate("Support Url", SupportUrl);
-        Modify(true);
+        Rec.LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription);
+        Rec.Validate("Additional Information", AdditionalInformation);
+        Rec.Validate("Support Url", SupportUrl);
+        Rec.Modify(true);
 
-        exit(ID);
+        exit(Rec.ID);
     end;
 
     procedure LogLastError()
     begin
-        LogLastError(true);
+        Rec.LogLastError(true);
     end;
 
     internal procedure LogLastError(ClearError: Boolean)
     begin
-        if (GetLastErrorCode <> '') and (GetLastErrorText <> '') then begin
+        if (GetLastErrorCode() <> '') and (GetLastErrorText() <> '') then begin
             if ErrorMessageMgt.GetLastContext(Rec) then begin
-                ID := FindLastMessageID() + 1;
-                Validate("Message Type", "Message Type"::Error);
-                Validate("Message", CopyStr(GetLastErrorText(), 1, MaxStrLen("Message")));
-                SetErrorCallStack(GetLastErrorCallStack());
-                Insert(true);
+                Rec.ID := FindLastMessageID() + 1;
+                Rec.Validate("Message Type", Rec."Message Type"::Error);
+                Rec.Validate("Message", CopyStr(GetLastErrorText(), 1, MaxStrLen(Rec."Message")));
+                Rec.SetErrorCallStack(GetLastErrorCallStack());
+                Rec.Insert(true);
             end else
-                LogSimpleMessage("Message Type"::Error, GetLastErrorText, GetLastErrorCallStack());
+                Rec.LogSimpleMessage("Message Type"::Error, GetLastErrorText(), GetLastErrorCallStack());
 
             if ClearError then
                 ClearLastError();
@@ -547,10 +538,10 @@ table 700 "Error Message"
         if MessageID = 0 then
             exit;
 
-        Get(MessageID);
-        Validate("Additional Information", AdditionalInformation);
-        Validate("Support Url", SupportUrl);
-        Modify(true);
+        Rec.Get(MessageID);
+        Rec.Validate("Additional Information", AdditionalInformation);
+        Rec.Validate("Support Url", SupportUrl);
+        Rec.Modify(true);
     end;
 
     local procedure FindLastMessageID(): Integer
@@ -558,7 +549,7 @@ table 700 "Error Message"
         ErrorMessage: Record "Error Message";
         TempErrorMessage: Record "Error Message" temporary;
     begin
-        if IsTemporary then begin
+        if Rec.IsTemporary() then begin
             TempErrorMessage.Copy(Rec, true);
             exit(TempErrorMessage.FindLastID());
         end;
@@ -568,9 +559,9 @@ table 700 "Error Message"
 
     procedure FindLastID(): Integer
     begin
-        Reset();
-        if FindLast() then
-            exit(ID);
+        Rec.Reset();
+        if Rec.FindLast() then
+            exit(Rec.ID);
     end;
 
     procedure GetContext(var ErrorMessage: Record "Error Message") Result: Boolean
@@ -582,28 +573,28 @@ table 700 "Error Message"
     procedure GetLastID(): Integer
     begin
         ClearFilters();
-        SetRange(Context, false);
-        SetRange("Register ID", "Register ID");
+        Rec.SetRange(Context, false);
+        Rec.SetRange("Register ID", Rec."Register ID");
 
-        if not FindLast() then
+        if not Rec.FindLast() then
             exit(0);
 
-        CachedLastID := ID;
-        CachedRegisterID := "Register ID";
-        exit(ID);
+        CachedLastID := Rec.ID;
+        CachedRegisterID := Rec."Register ID";
+        exit(Rec.ID);
     end;
 
     procedure GetCachedLastID(): Integer
     begin
-        if CachedRegisterID <> "Register ID" then
-            exit(GetLastID());
+        if CachedRegisterID <> Rec."Register ID" then
+            exit(Rec.GetLastID());
 
         exit(CachedLastID);
     end;
 
     local procedure GetTableNo(RecordID: RecordID): Integer
     begin
-        exit(RecordID.TableNo);
+        exit(RecordID.TableNo());
     end;
 
     procedure SetContext(ContextRecordVariant: Variant)
@@ -612,12 +603,12 @@ table 700 "Error Message"
     begin
         Clear(ContextErrorMessage);
         case true of
-            ContextRecordVariant.IsRecordId:
+            ContextRecordVariant.IsRecordId():
                 ContextErrorMessage.Validate("Context Record ID", ContextRecordVariant);
-            ContextRecordVariant.IsInteger:
+            ContextRecordVariant.IsInteger():
                 ContextErrorMessage."Context Table Number" := ContextRecordVariant;
             DataTypeManagement.GetRecordRef(ContextRecordVariant, RecordRef):
-                ContextErrorMessage.Validate("Context Record ID", RecordRef.RecordId)
+                ContextErrorMessage.Validate("Context Record ID", RecordRef.RecordId())
         end;
     end;
 
@@ -627,7 +618,7 @@ table 700 "Error Message"
 
         ClearFilters();
         SetContextFilter();
-        DeleteAll(true);
+        Rec.DeleteAll(true);
     end;
 
     procedure ClearLogRec(RecordVariant: Variant)
@@ -637,7 +628,7 @@ table 700 "Error Message"
         ClearFilters();
         SetContextFilter();
         SetRecordFilter(RecordVariant);
-        DeleteAll(true);
+        Rec.DeleteAll(true);
     end;
 
     procedure HasErrorMessagesRelatedTo(RecRelatedVariant: Variant): Boolean
@@ -650,9 +641,11 @@ table 700 "Error Message"
             exit(false);
 
         ClearFilters();
+        if not Rec.IsTemporary() then
+            Rec.ReadIsolation := ReadIsolation::ReadCommitted;
         SetContextFilter();
-        SetRange("Record ID", RecordRef.RecordId);
-        exit(not IsEmpty);
+        Rec.SetRange("Record ID", RecordRef.RecordId());
+        exit(not Rec.IsEmpty());
     end;
 
     procedure ErrorMessageCount(LowestSeverityMessageType: Option): Integer
@@ -660,18 +653,20 @@ table 700 "Error Message"
         AssertRecordTemporaryOrInContext();
 
         ClearFilters();
+        if not Rec.IsTemporary() then
+            Rec.ReadIsolation := ReadIsolation::ReadCommitted;
         SetContextFilter();
-        SetRange(Context, false);
-        SetRange("Message Type", "Message Type"::Error, LowestSeverityMessageType);
-        exit(Count);
+        Rec.SetRange(Context, false);
+        Rec.SetRange("Message Type", Rec."Message Type"::Error, LowestSeverityMessageType);
+        exit(Rec.Count());
     end;
 
     procedure HasErrors(ShowMessage: Boolean): Boolean
     begin
-        if ErrorMessageCount("Message Type"::Error) = 0 then
+        if ErrorMessageCount(Rec."Message Type"::Error) = 0 then
             exit(false);
 
-        if ShowMessage and GuiAllowed then
+        if ShowMessage and GuiAllowed() then
             Message(HasErrorsMsg);
 
         exit(true);
@@ -685,23 +680,23 @@ table 700 "Error Message"
         AssertRecordTemporaryOrInContext();
 
         ClearFilters();
-        SetRange(Context, false);
-        if IsEmpty() then
-            Error(GetLastErrorText);
+        Rec.SetRange(Context, false);
+        if Rec.IsEmpty() then
+            Error(GetLastErrorText());
 
         IsHandled := false;
         OnShowErrorsOnBeforeErrorMessagesRun(Rec, IsPageOpen, IsHandled);
         if IsHandled then
             exit(IsPageOpen);
 
-        if GuiAllowed then begin
+        if GuiAllowed() then begin
             ErrorMessages.SetRecords(Rec);
             ErrorMessages.Run();
             IsPageOpen := true;
         end else begin
-            SetRange("Message Type", "Message Type"::Error);
-            if FindFirst() then
-                Error("Message");
+            Rec.SetRange("Message Type", Rec."Message Type"::Error);
+            if Rec.FindFirst() then
+                Error(Rec."Message");
             IsPageOpen := false;
         end;
     end;
@@ -714,9 +709,11 @@ table 700 "Error Message"
         AssertRecordTemporaryOrInContext();
 
         ClearFilters();
+        if not Rec.IsTemporary() then
+            Rec.ReadIsolation := ReadIsolation::ReadCommitted;
         SetContextFilter();
-        SetRange(Context, false);
-        if IsEmpty() then
+        Rec.SetRange(Context, false);
+        if Rec.IsEmpty() then
             exit;
 
         IsHandled := false;
@@ -724,15 +721,15 @@ table 700 "Error Message"
         if IsHandled then
             exit(ErrorString);
 
-        if GuiAllowed then begin
+        if GuiAllowed() then begin
             ErrorMessages.SetRecords(Rec);
             ErrorMessages.Run();
         end;
 
-        ErrorString := ToString();
+        ErrorString := Rec.ToString();
 
         if RollBackOnError then
-            if HasErrors(false) then
+            if Rec.HasErrors(false) then
                 Error('');
 
         exit;
@@ -745,15 +742,17 @@ table 700 "Error Message"
         AssertRecordTemporaryOrInContext();
 
         ClearFilters();
+        if not Rec.IsTemporary() then
+            Rec.ReadIsolation := ReadIsolation::ReadCommitted;
         SetContextFilter();
-        SetCurrentKey("Message Type", ID);
-        SetRange(Context, false);
-        if FindSet() then
+        Rec.SetCurrentKey("Message Type", Rec.ID);
+        Rec.SetRange(Context, false);
+        if Rec.FindSet() then
             repeat
                 if ErrorString <> '' then
                     ErrorString += '\';
-                ErrorString += Format("Message Type") + ': ' + "Message";
-            until Next() = 0;
+                ErrorString += Format(Rec."Message Type") + ': ' + Rec."Message";
+            until Rec.Next() = 0;
         ClearFilters();
         exit(ErrorString);
     end;
@@ -762,8 +761,8 @@ table 700 "Error Message"
     begin
         AssertRecordTemporaryOrInContext();
 
-        if HasErrors(false) then
-            Error(ToString());
+        if Rec.HasErrors(false) then
+            Error(Rec.ToString());
     end;
 
     local procedure FieldValueIsWithinFilter(RecRelatedVariant: Variant; FieldNumber: Integer; var RecordRef: RecordRef; var FieldRef: FieldRef; FilterString: Text; FilterValue1: Variant; FilterValue2: Variant): Boolean
@@ -774,35 +773,37 @@ table 700 "Error Message"
         if not DataTypeManagement.GetRecordRefAndFieldRef(RecRelatedVariant, FieldNumber, RecordRef, FieldRef) then
             exit(false);
 
-        TempRecordRef.Open(RecordRef.Number, true);
+        TempRecordRef.Open(RecordRef.Number(), true);
         TempRecordRef.Init();
         TempFieldRef := TempRecordRef.Field(FieldNumber);
-        TempFieldRef.Value(FieldRef.Value);
+        TempFieldRef.Value(FieldRef.Value());
         TempRecordRef.Insert();
 
         TempFieldRef.SetFilter(FilterString, FilterValue1, FilterValue2);
 
-        exit(not TempRecordRef.IsEmpty);
+        exit(not TempRecordRef.IsEmpty());
     end;
 
     procedure FindRecord(RecordID: RecordID; FieldNumber: Integer; MessageType: Option; NewDescription: Text) FoundID: Integer
     begin
         ClearFilters();
+        if not Rec.IsTemporary() then
+            Rec.ReadIsolation := ReadIsolation::ReadCommitted;
         SetContextFilter();
-        SetRange(Context, false);
-        SetRange("Record ID", RecordID);
-        SetRange("Field Number", FieldNumber);
-        SetRange("Message Type", MessageType);
-        SetRange("Message", CopyStr(NewDescription, 1, MaxStrLen("Message")));
+        Rec.SetRange(Context, false);
+        Rec.SetRange("Record ID", RecordID);
+        Rec.SetRange("Field Number", FieldNumber);
+        Rec.SetRange("Message Type", MessageType);
+        Rec.SetRange("Message", CopyStr(NewDescription, 1, MaxStrLen(Rec."Message")));
         FoundID := 0;
-        if FindFirst() then
-            FoundID := ID;
+        if Rec.FindFirst() then
+            FoundID := Rec.ID;
         ClearFilters();
     end;
 
     local procedure AssertRecordTemporary()
     begin
-        if not IsTemporary then
+        if not Rec.IsTemporary() then
             Error(DevMsgNotTemporaryErr);
     end;
 
@@ -865,7 +866,7 @@ table 700 "Error Message"
         if not DataTypeManagement.GetRecordRef(ContextRecordVariant, RecordRef) then
             exit;
 
-        ErrorMessage.SetRange("Context Record ID", RecordRef.RecordId);
+        ErrorMessage.SetRange("Context Record ID", RecordRef.RecordId());
         ErrorMessage.CopyToTemp(Rec);
     end;
 
@@ -874,16 +875,16 @@ table 700 "Error Message"
         LocalContextErrorMessage: Record "Error Message";
     begin
         LocalContextErrorMessage := ContextErrorMessage;
-        Reset();
+        Rec.Reset();
         ContextErrorMessage := LocalContextErrorMessage;
     end;
 
     local procedure SetContextFilter()
     begin
         if ContextErrorMessage."Context Table Number" = 0 then
-            SetRange("Context Record ID")
+            Rec.SetRange("Context Record ID")
         else
-            SetRange("Context Record ID", ContextErrorMessage."Context Record ID");
+            Rec.SetRange("Context Record ID", ContextErrorMessage."Context Record ID");
     end;
 
     local procedure SetRecordFilter(RecordVariant: Variant)
@@ -891,7 +892,7 @@ table 700 "Error Message"
         RecordRef: RecordRef;
     begin
         DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
-        SetRange("Record ID", RecordRef.RecordId);
+        Rec.SetRange("Record ID", RecordRef.RecordId());
     end;
 
     procedure GetErrorCallStack(): Text
@@ -899,10 +900,10 @@ table 700 "Error Message"
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
-        if not "Error Call Stack".HasValue() then
+        if not Rec."Error Call Stack".HasValue() then
             exit('');
-        CalcFields("Error Call Stack");
-        "Error Call Stack".CreateInStream(InStream, TEXTENCODING::Windows);
+        Rec.CalcFields("Error Call Stack");
+        Rec."Error Call Stack".CreateInStream(InStream, TextEncoding::Windows);
         exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
@@ -910,7 +911,7 @@ table 700 "Error Message"
     var
         OutStream: OutStream;
     begin
-        "Error Call Stack".CreateOutStream(OutStream, TEXTENCODING::Windows);
+        Rec."Error Call Stack".CreateOutStream(OutStream, TextEncoding::Windows);
         OutStream.Write(NewCallStack);
     end;
 
@@ -918,7 +919,7 @@ table 700 "Error Message"
     var
         CallStack: Text;
     begin
-        CallStack := GetErrorCallStack();
+        CallStack := Rec.GetErrorCallStack();
         if CallStack <> '' then
             Message(CallStack);
     end;

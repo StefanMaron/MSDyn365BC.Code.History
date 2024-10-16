@@ -238,18 +238,16 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         AmountValue: Decimal;
     begin
         AmountValue := LibraryRandom.RandDec(1000, 2);
-        with IssuedFinChMemoLine do begin
-            SetRange("Finance Charge Memo No.", IssuedFinChMemoHeader."No.");
-            FindLast();
-            Init();
-            "Line No." := "Line No." + 10000;
-            Type := Type::"Customer Ledger Entry";
-            "Document Type" := DocumentType;
-            "Document No." := Format(DocumentType);
-            Description := Format(DocumentType);
-            Amount := AmountValue;
-            Insert();
-        end;
+        IssuedFinChMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChMemoHeader."No.");
+        IssuedFinChMemoLine.FindLast();
+        IssuedFinChMemoLine.Init();
+        IssuedFinChMemoLine."Line No." := IssuedFinChMemoLine."Line No." + 10000;
+        IssuedFinChMemoLine.Type := IssuedFinChMemoLine.Type::"Customer Ledger Entry";
+        IssuedFinChMemoLine."Document Type" := DocumentType;
+        IssuedFinChMemoLine."Document No." := Format(DocumentType);
+        IssuedFinChMemoLine.Description := Format(DocumentType);
+        IssuedFinChMemoLine.Amount := AmountValue;
+        IssuedFinChMemoLine.Insert();
     end;
 
     local procedure EInvoiceFinChMemo(): Text[1024]

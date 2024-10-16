@@ -314,18 +314,26 @@ report 295 "Combine Shipments"
         NoOfskippedShiment: Integer;
         ReportLanguage: Integer;
         ReportFormatRegion: Text[80];
+#pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
         Text001: Label 'Enter the document date.';
         Text002: Label 'Combining shipments...\\';
+#pragma warning disable AA0470
         Text003: Label 'Customer No.    #1##########\';
         Text004: Label 'Order No.       #2##########\';
         Text005: Label 'Shipment No.    #3##########';
         Text007: Label 'Not all the invoices were posted. A total of %1 invoices were not posted.';
+#pragma warning restore AA0470
         Text008: Label 'There is nothing to combine.';
+#pragma warning disable AA0470
         Text010: Label 'The shipments are now combined and the number of invoices created is %1.';
+#pragma warning restore AA0470
         Text011: Label 'The shipments are now combined, and the number of invoices created is %1.\%2 Shipments with nonstandard payment terms have not been combined.', Comment = '%1-Number of invoices,%2-Number Of shipments';
+#pragma warning restore AA0074
         VATDateEmptyErr: Label 'Enter the VAT date.';
+#pragma warning disable AA0470
         NotAllInvoicesCreatedMsg: Label 'Not all the invoices were created. A total of %1 invoices were not created.';
+#pragma warning restore AA0470
 
     protected var
         SalesHeader: Record "Sales Header";

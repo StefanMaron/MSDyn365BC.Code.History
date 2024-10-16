@@ -46,11 +46,9 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
         FinChMemoHeader.SetRange("No.", FinChMemoHeaderNo);
         REPORT.Run(REPORT::"Issue Finance Charge Memos", false, true, FinChMemoHeader);
 
-        with IssuedFinChargeMemoHeader do begin
-            SetFilter("Pre-Assigned No.", FinChMemoHeaderNo);
-            FindFirst();
-            exit("No.");
-        end;
+        IssuedFinChargeMemoHeader.SetFilter("Pre-Assigned No.", FinChMemoHeaderNo);
+        IssuedFinChargeMemoHeader.FindFirst();
+        exit(IssuedFinChargeMemoHeader."No.");
     end;
 
     [Scope('OnPrem')]
@@ -61,16 +59,14 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
     begin
         EInvoiceHelper.CreateCustomer(Customer);
 
-        with FinChMemoHeader do begin
-            Init();
-            Validate("Customer No.", Customer."No.");
-            FinanceChargeTerms.FindFirst();
-            Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
-            "Post Interest" := true;
-            "Post Additional Fee" := true;
-            "Your Reference" := TestValueTxt;
-            Insert(true);
-        end;
+        FinChMemoHeader.Init();
+        FinChMemoHeader.Validate("Customer No.", Customer."No.");
+        FinanceChargeTerms.FindFirst();
+        FinChMemoHeader.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
+        FinChMemoHeader."Post Interest" := true;
+        FinChMemoHeader."Post Additional Fee" := true;
+        FinChMemoHeader."Your Reference" := TestValueTxt;
+        FinChMemoHeader.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -79,19 +75,18 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
         FinanceChargeMemoLine: Record "Finance Charge Memo Line";
         Counter: Integer;
     begin
-        for Counter := 1 to NoOfLines do
-            with FinanceChargeMemoLine do begin
-                Init();
-                "Finance Charge Memo No." := FinanceChargeMemoHeaderNo;
-                LineNo := LineNo + 10000;
-                "Line No." := LineNo;
-                "VAT Prod. Posting Group" := VATProdPostGroupCode;
-                Validate(Type, Type::"G/L Account");
-                Validate("No.", CreateGLAccount(VATProdPostGroupCode));
-                Description := TestValueTxt;
-                Validate(Amount, LibraryRandom.RandInt(1000));
-                Insert(true);
-            end;
+        for Counter := 1 to NoOfLines do begin
+            FinanceChargeMemoLine.Init();
+            FinanceChargeMemoLine."Finance Charge Memo No." := FinanceChargeMemoHeaderNo;
+            LineNo := LineNo + 10000;
+            FinanceChargeMemoLine."Line No." := LineNo;
+            FinanceChargeMemoLine."VAT Prod. Posting Group" := VATProdPostGroupCode;
+            FinanceChargeMemoLine.Validate(Type, FinanceChargeMemoLine.Type::"G/L Account");
+            FinanceChargeMemoLine.Validate("No.", CreateGLAccount(VATProdPostGroupCode));
+            FinanceChargeMemoLine.Description := TestValueTxt;
+            FinanceChargeMemoLine.Validate(Amount, LibraryRandom.RandInt(1000));
+            FinanceChargeMemoLine.Insert(true);
+        end;
     end;
 
     local procedure CreateGLAccount(VATProdPostGroupCode: Code[20]): Code[20]

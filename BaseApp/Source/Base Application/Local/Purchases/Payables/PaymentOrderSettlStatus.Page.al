@@ -135,7 +135,7 @@ page 15000012 "Payment Order - Settl. Status"
         WaitingJournalLine.SetRange("Payment Order ID - Settled", RemPaymOrder.ID);
 
         // Count the number of payments placed in each journal
-        if WaitingJournalLine.Find('-') then begin
+        if WaitingJournalLine.Find('-') then
             repeat
                 JournalFound := false;
                 for i := 1 to NumberOfLines do
@@ -156,7 +156,6 @@ page 15000012 "Payment Order - Settl. Status"
                     end;
                 end;
             until WaitingJournalLine.Next() = 0;
-        end;
 
         // Select lines to be shown
         Rec.SetRange(Number, 1, NumberOfLines);

@@ -381,13 +381,19 @@ table 7320 "Warehouse Shipment Header"
         NoSeries: Codeunit "No. Series";
         WmsManagement: Codeunit "WMS Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You cannot change the %1, because the document has one or more lines.';
         Text003: Label 'You are not allowed to use location code %1.';
         Text006: Label 'You have changed %1 on the %2, but it has not been changed on the existing Warehouse Shipment Lines.\';
+#pragma warning restore AA0470
         Text007: Label 'You must update the existing Warehouse Shipment Lines manually.';
+#pragma warning disable AA0470
         Text008: Label 'You have modified the %1.\\Do you want to update the lines?';
+#pragma warning restore AA0470
         Text009: Label 'The items have been picked. If you delete the warehouse shipment, then the items will remain in the shipping area until you put them away.\Related item tracking information that is defined during the pick will be deleted.\Are you sure that you want to delete the warehouse shipment?';
+#pragma warning restore AA0074
 
     protected var
         HideValidationDialog: Boolean;

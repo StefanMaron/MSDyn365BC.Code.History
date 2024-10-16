@@ -9,7 +9,7 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -17,8 +17,6 @@ using Microsoft.Projects.TimeSheet;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Utilities;
 
@@ -452,7 +450,7 @@ table 207 "Res. Journal Line"
         OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterFindResUnitCost(var ResourceCost: Record "Resource Cost")
     begin
@@ -579,67 +577,37 @@ table 207 "Res. Journal Line"
         OnAfterCopyResJnlLineFromSalesLine(SalesLine, Rec);
     end;
 
-    procedure CopyFromServHeader(ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Moved to table Service Header', '25.0')]
+    procedure CopyFromServHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        "Document Date" := ServiceHeader."Document Date";
-        "Reason Code" := ServiceHeader."Reason Code";
-        "Order No." := ServiceHeader."No.";
-
-        OnAfterCopyResJnlLineFromServHeader(ServiceHeader, Rec);
+        ServiceHeader.CopyToResJournalLine(Rec);
     end;
+#endif
 
-    procedure CopyFromServLine(ServiceLine: Record "Service Line")
+#if not CLEAN25
+    [Obsolete('Moved to table Service Line', '25.0')]
+    procedure CopyFromServLine(ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
-        "Posting Date" := ServiceLine."Posting Date";
-        "Order Type" := "Order Type"::Service;
-        "Order Line No." := ServiceLine."Line No.";
-        "Resource No." := ServiceLine."No.";
-        Description := ServiceLine.Description;
-        "Work Type Code" := ServiceLine."Work Type Code";
-        "Shortcut Dimension 1 Code" := ServiceLine."Shortcut Dimension 1 Code";
-        "Shortcut Dimension 2 Code" := ServiceLine."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := ServiceLine."Dimension Set ID";
-        "Unit of Measure Code" := ServiceLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := ServiceLine."Qty. per Unit of Measure";
-        "Gen. Bus. Posting Group" := ServiceLine."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := ServiceLine."Gen. Prod. Posting Group";
-        "Source Type" := "Source Type"::Customer;
-        "Source No." := ServiceLine."Customer No.";
-        "Time Sheet No." := ServiceLine."Time Sheet No.";
-        "Time Sheet Line No." := ServiceLine."Time Sheet Line No.";
-        "Time Sheet Date" := ServiceLine."Time Sheet Date";
-        "Job No." := ServiceLine."Job No.";
-
-        OnAfterCopyResJnlLineFromServLine(ServiceLine, Rec);
+        ServiceLine.CopyToResJournalLine(Rec);
     end;
+#endif
 
-    procedure CopyFromServShptHeader(ServShptHeader: Record "Service Shipment Header")
+#if not CLEAN25
+    [Obsolete('Moved to table Service Line', '25.0')]
+    procedure CopyFromServShptHeader(ServShptHeader: Record Microsoft.Service.History."Service Shipment Header")
     begin
-        "Document Date" := ServShptHeader."Document Date";
-        "Reason Code" := ServShptHeader."Reason Code";
-        "Source Type" := "Source Type"::Customer;
-        "Source No." := ServShptHeader."Customer No.";
-
-        OnAfterCopyResJnlLineFromServShptHeader(ServShptHeader, Rec);
+        ServShptHeader.CopyToResJournalLine(Rec);
     end;
+#endif
 
-    procedure CopyFromServShptLine(ServShptLine: Record "Service Shipment Line")
+#if not CLEAN25
+    [Obsolete('Moved to table Service Shipment Line', '25.0')]
+    procedure CopyFromServShptLine(ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
     begin
-        "Posting Date" := ServShptLine."Posting Date";
-        "Resource No." := ServShptLine."No.";
-        Description := ServShptLine.Description;
-        "Work Type Code" := ServShptLine."Work Type Code";
-        "Unit of Measure Code" := ServShptLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := ServShptLine."Qty. per Unit of Measure";
-        "Shortcut Dimension 1 Code" := ServShptLine."Shortcut Dimension 1 Code";
-        "Shortcut Dimension 2 Code" := ServShptLine."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := ServShptLine."Dimension Set ID";
-        "Gen. Bus. Posting Group" := ServShptLine."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := ServShptLine."Gen. Prod. Posting Group";
-        "Entry Type" := "Entry Type"::Usage;
-
-        OnAfterCopyResJnlLineFromServShptLine(ServShptLine, Rec);
+        ServShptLine.CopyToResJournalLine(Rec);
     end;
+#endif
 
     procedure CopyFromJobJnlLine(JobJnlLine: Record "Job Journal Line")
     var
@@ -799,7 +767,7 @@ table 207 "Res. Journal Line"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterInitResourceCost(var ResourceCost: Record "Resource Cost")
     begin
@@ -817,25 +785,58 @@ table 207 "Res. Journal Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyResJnlLineFromServHeader(var ServiceHeader: Record "Service Header"; var ResJournalLine: Record "Res. Journal Line")
+#if not CLEAN25
+    internal procedure RunOnAfterCopyResJnlLineFromServHeader(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ResJournalLine: Record "Res. Journal Line")
     begin
+        OnAfterCopyResJnlLineFromServHeader(ServiceHeader, ResJournalLine);
     end;
 
+    [Obsolete('Moved to table Service Header', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyResJnlLineFromServLine(var ServLine: Record "Service Line"; var ResJnlLine: Record "Res. Journal Line")
+    local procedure OnAfterCopyResJnlLineFromServHeader(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ResJournalLine: Record "Res. Journal Line")
     begin
+    end;
+#endif
+
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyResJnlLineFromServLine(var ServLine: Record Microsoft.Service.Document."Service Line"; var ResJnlLine: Record "Res. Journal Line")
+    begin
+        OnAfterCopyResJnlLineFromServLine(ServLine, ResJnlLine);
     end;
 
+    [Obsolete('Moved to table Service Header', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyResJnlLineFromServShptHeader(var ServiceShipmentHeader: Record "Service Shipment Header"; var ResJournalLine: Record "Res. Journal Line")
+    local procedure OnAfterCopyResJnlLineFromServLine(var ServLine: Record Microsoft.Service.Document."Service Line"; var ResJnlLine: Record "Res. Journal Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyResJnlLineFromServShptHeader(var ServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header"; var ResJournalLine: Record "Res. Journal Line")
+    begin
+        OnAfterCopyResJnlLineFromServShptHeader(ServiceShipmentHeader, ResJournalLine);
     end;
 
+    [Obsolete('Moved to table Service Header', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyResJnlLineFromServShptLine(var ServShptLine: Record "Service Shipment Line"; var ResJnlLine: Record "Res. Journal Line")
+    local procedure OnAfterCopyResJnlLineFromServShptHeader(var ServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header"; var ResJournalLine: Record "Res. Journal Line")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyResJnlLineFromServShptLine(var ServShptLine: Record Microsoft.Service.History."Service Shipment Line"; var ResJnlLine: Record "Res. Journal Line")
+    begin
+        OnAfterCopyResJnlLineFromServShptLine(ServShptLine, ResJnlLine);
+    end;
+
+    [Obsolete('Moved to table Service Header', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyResJnlLineFromServShptLine(var ServShptLine: Record Microsoft.Service.History."Service Shipment Line"; var ResJnlLine: Record "Res. Journal Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyResJnlLineFromJobJnlLine(var ResJnlLine: Record "Res. Journal Line"; var JobJnlLine: Record "Job Journal Line")
@@ -857,7 +858,7 @@ table 207 "Res. Journal Line"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeFindResPrice(ResJournalLine: Record "Res. Journal Line"; var ResourcePrice: Record "Resource Price")
@@ -890,7 +891,7 @@ table 207 "Res. Journal Line"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitResourceCost(var ResJournalLine: Record "Res. Journal Line"; var ResourceCost: Record "Resource Cost")

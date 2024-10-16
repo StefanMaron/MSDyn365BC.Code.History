@@ -484,7 +484,9 @@ page 521 "Application Worksheet"
         ItemFilter: Text;
         LocationFilter: Text;
         DocumentFilter: Text;
+#pragma warning disable AA0074
         Text003: Label 'After the window is closed, the system will check for and reapply open entries.\Do you want to close the window?';
+#pragma warning restore AA0074
         RevertAllQst: Label 'Are you sure that you want to undo all changes?';
         NothingToRevertMsg: Label 'Nothing to undo.';
         RevertCompletedMsg: Label 'The changes have been undone.';

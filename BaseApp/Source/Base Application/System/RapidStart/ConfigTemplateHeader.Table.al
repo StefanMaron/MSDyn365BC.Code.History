@@ -114,8 +114,12 @@ table 8618 "Config. Template Header"
         ConfigTemplateLine: Record "Config. Template Line";
         ConfigValidateMgt: Codeunit "Config. Validate Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Template lines that relate to %1 exists. Delete the lines to change the Table ID.';
         Text001: Label 'A new instance %1 has been created in table %2 %3.', Comment = '%2 = Table ID, %3 = Table Caption';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure TestXRec()
     var

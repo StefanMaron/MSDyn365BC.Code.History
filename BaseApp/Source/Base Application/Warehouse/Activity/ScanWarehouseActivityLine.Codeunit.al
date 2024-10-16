@@ -12,6 +12,23 @@ codeunit 7388 "Scan Warehouse Activity Line"
 {
     var
         BarcodeDoesNotMatchErr: Label 'Scanned barcode does not match with the defined %1 in the line.', Comment = '%1 - Serial No. or Lot No. or Package No. or GTIN/Item Reference';
+        BarcodeNotFoundErr: Label 'Barcode not found. Please try again or enter the value manually.';
+
+
+    internal procedure CheckAndSetBarcode(var WarehouseActivityLine: Record "Warehouse Activity Line"; Barcode: Text; var NeedsRefresh: Boolean; var AllLinesAreDone: Boolean)
+    begin
+        if Barcode = '' then
+            exit;
+
+        if not ValidateBarcode(WarehouseActivityLine, Barcode) then
+            Error(BarcodeNotFoundErr)
+        else
+            if WarehouseActivityLine."Qty. Outstanding" = WarehouseActivityLine."Qty. to Handle" then
+                if not GetNextUnfullfilledLine(WarehouseActivityLine) then
+                    AllLinesAreDone := true
+                else
+                    NeedsRefresh := true;
+    end;
 
     internal procedure ValidateBarcode(var WarehouseActivityLine: Record "Warehouse Activity Line"; Barcode: Text): Boolean
     var
@@ -92,6 +109,16 @@ codeunit 7388 "Scan Warehouse Activity Line"
         end;
     end;
 
+    internal procedure UnfullfilledLineExists(var WarehouseActivityLine: Record "Warehouse Activity Line"): Boolean
+    var
+        RemainingWarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        RemainingWarehouseActivityLine.CopyFilters(WarehouseActivityLine);
+        RemainingWarehouseActivityLine.CalcSums("Qty. Outstanding", "Qty. to Handle");
+        if RemainingWarehouseActivityLine."Qty. Outstanding" <> RemainingWarehouseActivityLine."Qty. to Handle" then
+            exit(true);
+    end;
+
     local procedure IsGTIN(var WarehouseActivityLine: Record "Warehouse Activity Line"; Barcode: Text): Boolean
     var
         Item: Record Item;
@@ -152,5 +179,27 @@ codeunit 7388 "Scan Warehouse Activity Line"
             LotNosByBinCode.Open();
             exit(LotNosByBinCode.Read());
         end;
+    end;
+
+    local procedure GetNextUnfullfilledLine(var WarehouseActivityLine: Record "Warehouse Activity Line"): Boolean
+    begin
+        if not UnfullfilledLineExists(WarehouseActivityLine) then
+            exit(false);
+
+        while WarehouseActivityLine.Next() <> 0 do // Scan till end of the record set
+            if WarehouseActivityLine."Qty. Outstanding" <> WarehouseActivityLine."Qty. to Handle" then
+                exit(true);
+
+        // Did not find any unfulfilled line from the point it started to check to the end of the set
+        if WarehouseActivityLine.FindSet() then begin
+            if WarehouseActivityLine."Qty. Outstanding" <> WarehouseActivityLine."Qty. to Handle" then
+                exit(true);
+
+            // Start the search from top again
+            while WarehouseActivityLine.Next() <> 0 do // Scan till end of the record set
+                if WarehouseActivityLine."Qty. Outstanding" <> WarehouseActivityLine."Qty. to Handle" then
+                    exit(true);
+        end;
+        exit(false);
     end;
 }

@@ -151,7 +151,9 @@ page 5961 "Service Email Queue"
     var
         ServMailMgt: Codeunit ServMailManagement;
 
+#pragma warning disable AA0074
         Text000: Label 'This email  has already been sent.';
         Text001: Label 'There are no items to process.';
+#pragma warning restore AA0074
 }
 

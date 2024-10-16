@@ -25,9 +25,8 @@ codeunit 134851 "Purchase Over Receipt"
         IsInitialized: Boolean;
         QuantityAfterOverReceiptErr: Label 'Quantity is wrong after over receipt.';
         OverReceiptNotificationTxt: Label 'An over-receipt quantity is recorded on purchase order %1.', Comment = '%1: Purchase order number';
-        QtyToReceiveOverReceiptErr: Label 'Validation error for Field: Qty. to Receive,  Message = ''You cannot enter more than 10 in the Over-Receipt Quantity field.''';
+        QtyToReceiveOverReceiptErr: Label 'Validation error for Field: Qty. to Receive,  Message = ''Qty. to Receive isn''t valid.''';
         WarehouseRcvRequiredErr: Label 'Warehouse Receive is required for this line. The entered information may be disregarded by warehouse activities.';
-        CheckOverReceiptAllowedForWhseReceiptLineErr: Label 'Source Document must be equal to ''%1''  in Warehouse Receipt Line: No.=%2, Line No.=%3. Current value is ''%4''.', Comment = '%1: Expected Source Document; %2: Warehouse Receipt No.; %3: Warehouse Receipt Line No.; %4: Actual Source Document';
 
     [Test]
     [Scope('OnPrem')]
@@ -709,10 +708,7 @@ codeunit 134851 "Purchase Over Receipt"
         // [WHEN] Set "Over-Receipt Quantity"
         // [THEN] Error is raised: "Source Document must be Purchase Order.."
         asserterror WarehouseReceiptLine.Validate("Over-Receipt Quantity", LibraryRandom.RandInt(10));
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(
-          StrSubstNo(CheckOverReceiptAllowedForWhseReceiptLineErr, WarehouseReceiptLine."Source Document"::"Purchase Order",
-          WarehouseReceiptLine."No.", WarehouseReceiptLine."Line No.", WarehouseReceiptLine."Source Document"));
+        Assert.ExpectedTestFieldError(WarehouseReceiptLine.FieldCaption("Source Document"), Format(WarehouseReceiptLine."Source Document"::"Purchase Order"));
     end;
 
     [Test]
@@ -1532,7 +1528,7 @@ codeunit 134851 "Purchase Over Receipt"
         // [WHEN] Validate "Over-Receipt Quantity" = 12
         // [THEN] Error: Cannot enter more than 10 in OR Qty (allowed value by the ORC)
         asserterror WarehouseActivityLine.Validate("Over-Receipt Quantity", 12);
-        Assert.ExpectedError('You cannot enter more than 10 in the Over-Receipt Quantity field.');
+        Assert.ExpectedError('The selected Over-Receipt Code - ' + WarehouseActivityLine."Over-Receipt Code" + ', allows you to receive up to 20 units.');
 
         // [THEN] Quantity = 10
         WarehouseActivityLine.TestField(Quantity, 10);
@@ -1643,7 +1639,7 @@ codeunit 134851 "Purchase Over Receipt"
         // [WHEN] Set Over-Receipt Quantity
         // [THEN] Error is raised: "Source Document must be Purchase Order.."
         asserterror WarehouseActivityLine.Validate("Over-Receipt Quantity", LibraryRandom.RandInt(10));
-        Assert.ExpectedError('Source Document must be equal to');
+        Assert.ExpectedTestFieldError(WarehouseActivityLine.FieldCaption("Source Document"), Format(WarehouseActivityLine."Source Document"::"Purchase Order"));
     end;
 
     [Test]
@@ -1670,7 +1666,7 @@ codeunit 134851 "Purchase Over Receipt"
         // [WHEN] Set Over-Receipt Quantity
         // [THEN] Error is raised: "Source Document must be Purchase Order"
         asserterror WarehouseActivityLine.Validate("Over-Receipt Quantity", LibraryRandom.RandInt(10));
-        Assert.ExpectedError('Source Document must be equal to');
+        Assert.ExpectedTestFieldError(WarehouseActivityLine.FieldCaption("Source Document"), Format(WarehouseActivityLine."Source Document"::"Purchase Order"));
     end;
 
     [Test]
@@ -1697,7 +1693,7 @@ codeunit 134851 "Purchase Over Receipt"
         // [WHEN] Set Over-Receipt Quantity
         // [THEN] Error is raised: "Source Document must be Purchase Order"
         asserterror WarehouseActivityLine.Validate("Over-Receipt Quantity", LibraryRandom.RandInt(10));
-        Assert.ExpectedError('Source Document must be equal to');
+        Assert.ExpectedTestFieldError(WarehouseActivityLine.FieldCaption("Source Document"), Format(WarehouseActivityLine."Source Document"::"Purchase Order"));
     end;
 
     [Test]

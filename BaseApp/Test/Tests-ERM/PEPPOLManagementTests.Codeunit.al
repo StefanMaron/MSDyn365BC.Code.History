@@ -404,7 +404,7 @@
 
         // Verify
         Assert.AreEqual(
-          CompanyInfo."Country/Region Code" + EInvoiceDocumentEncode.GetVATRegNo(CompanyInfo."VAT Registration No.",true), CompanyID, '');
+          CompanyInfo."Country/Region Code" + EInvoiceDocumentEncode.GetVATRegNo(CompanyInfo."VAT Registration No.", true), CompanyID, '');
         Assert.AreEqual(CountryRegion."VAT Scheme", CompanyIDSchemeID, '');
         Assert.AreEqual('VAT', TaxSchemeID, '');
     end;
@@ -2535,6 +2535,7 @@
     [Scope('OnPrem')]
     procedure ValidateSalesInvoicePageContainFields()
     var
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         SalesInvoice: TestPage "Sales Invoice";
         SalesInvoiceSubform: TestPage "Sales Invoice Subform";
     begin
@@ -2551,7 +2552,8 @@
 
         AssertVisibility(SalesInvoice."Due Date".Visible(), 'Sales Invoice.Due Date');
 
-        AssertVisibility(SalesInvoiceSubform.Type.Visible(), 'Sales Line.Type');
+        if not ApplicationAreaMgmtFacade.IsFoundationEnabled() then
+            AssertVisibility(SalesInvoiceSubform.Type.Visible(), 'Sales Line.Type');
         AssertVisibility(SalesInvoiceSubform."No.".Visible(), 'Sales Line.To.');
         AssertVisibility(SalesInvoiceSubform.Quantity.Visible(), 'Sales Line.Quantity');
         AssertVisibility(SalesInvoiceSubform."Unit of Measure Code".Visible(), 'Sales Line.Unit of Measure Code');
@@ -2561,6 +2563,7 @@
     [Scope('OnPrem')]
     procedure ValidateSalesCreditMemoPageContainFields()
     var
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         SalesCreditMemo: TestPage "Sales Credit Memo";
         SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
     begin
@@ -2577,7 +2580,8 @@
         AssertVisibility(SalesCreditMemo."Shipment Date".Visible(), 'Sales Credit Memo.Shipment Date');
         AssertVisibility(SalesCreditMemo."Due Date".Visible(), 'Sales Credit Memo.Due Date');
 
-        AssertVisibility(SalesCrMemoSubform.Type.Visible(), 'Sales Credit Memo Line.Type');
+        if not ApplicationAreaMgmtFacade.IsFoundationEnabled() then
+            AssertVisibility(SalesCrMemoSubform.Type.Visible(), 'Sales Credit Memo Line.Type');
         AssertVisibility(SalesCrMemoSubform."No.".Visible(), 'Sales Credit Memo Line.No.');
         AssertVisibility(SalesCrMemoSubform.Quantity.Visible(), 'Sales Credit Memo Line.Quantity');
         AssertVisibility(SalesCrMemoSubform."Unit of Measure Code".Visible(), 'Sales Credit Memo Line.Unit of Measure');
@@ -3271,11 +3275,9 @@
     var
         Cust: Record Customer;
     begin
-        with Cust do begin
-            Get(CustNo);
-            Validate(GLN, '1234567891231');
-            Modify(true);
-        end;
+        Cust.Get(CustNo);
+        Cust.Validate(GLN, '1234567891231');
+        Cust.Modify(true);
     end;
 
     local procedure CreateCurrencyCode(): Code[10]
@@ -3365,13 +3367,11 @@
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
-        with ElectronicDocumentFormat do begin
-            Init();
-            Code := NewCode;
-            Usage := NewUsage;
-            "Codeunit ID" := NewCodeunitID;
-            if Insert() then;
-        end;
+        ElectronicDocumentFormat.Init();
+        ElectronicDocumentFormat.Code := NewCode;
+        ElectronicDocumentFormat.Usage := NewUsage;
+        ElectronicDocumentFormat."Codeunit ID" := NewCodeunitID;
+        if ElectronicDocumentFormat.Insert() then;
     end;
 
     local procedure ConfigureVATPostingSetup()
@@ -3386,11 +3386,9 @@
     var
         CompanyInfo: Record "Company Information";
     begin
-        with CompanyInfo do begin
-            Get();
-            Validate(GLN, '1234567891231');
-            Modify(true);
-        end;
+        CompanyInfo.Get();
+        CompanyInfo.Validate(GLN, '1234567891231');
+        CompanyInfo.Modify(true);
     end;
 
     local procedure AttachAppliesToDocToHeaderFromPostedCreditMemo(var SalesHeader: Record "Sales Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -3419,20 +3417,18 @@
 
     local procedure GetVATAmt(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line")
     begin
-        with VATAmtLine do begin
-            Init();
-            "VAT Identifier" := SalesLine."Tax Category";
-            "VAT Calculation Type" := SalesLine."VAT Calculation Type";
-            "Tax Group Code" := SalesLine."Tax Group Code";
-            "VAT %" := SalesLine."VAT %";
-            "VAT Base" := SalesLine.Amount;
-            "Amount Including VAT" := SalesLine."Amount Including VAT";
-            "Line Amount" := SalesLine."Line Amount";
-            if SalesLine."Allow Invoice Disc." then
-                "Inv. Disc. Base Amount" := SalesLine."Line Amount";
-            "Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
-            InsertLine();
-        end;
+        VATAmtLine.Init();
+        VATAmtLine."VAT Identifier" := SalesLine."Tax Category";
+        VATAmtLine."VAT Calculation Type" := SalesLine."VAT Calculation Type";
+        VATAmtLine."Tax Group Code" := SalesLine."Tax Group Code";
+        VATAmtLine."VAT %" := SalesLine."VAT %";
+        VATAmtLine."VAT Base" := SalesLine.Amount;
+        VATAmtLine."Amount Including VAT" := SalesLine."Amount Including VAT";
+        VATAmtLine."Line Amount" := SalesLine."Line Amount";
+        if SalesLine."Allow Invoice Disc." then
+            VATAmtLine."Inv. Disc. Base Amount" := SalesLine."Line Amount";
+        VATAmtLine."Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
+        VATAmtLine.InsertLine();
     end;
 
     local procedure AssertVisibility(IsVisible: Boolean; Name: Text)
@@ -3627,11 +3623,9 @@
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("SWIFT Code", Format(LibraryRandom.RandIntInRange(1000000, 9999999)));
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("SWIFT Code", Format(LibraryRandom.RandIntInRange(1000000, 9999999)));
+        CompanyInformation.Modify(true);
     end;
 
     local procedure UpdateElectronicDocumentFormatSetup()

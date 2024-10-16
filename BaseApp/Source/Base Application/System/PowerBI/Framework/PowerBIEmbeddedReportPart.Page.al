@@ -434,6 +434,7 @@ page 6325 "Power BI Embedded Report Part"
 #else
                     PowerBIElementCard.SetDisplayedElement(Rec);
 #endif
+                    PowerBIElementCard.SetPowerBIFilter(PowerBIFilter);
                     PowerBIElementCard.Run();
 
                     ReloadPageState();
@@ -522,9 +523,6 @@ page 6325 "Power BI Embedded Report Part"
                 trigger OnAction()
                 var
                     PowerBIReportUploads: Record "Power BI Report Uploads";
-#if not CLEAN22
-                    PowerBIServiceStatusSetup: Record "Power BI Service Status Setup";
-#endif
                     PowerBIContextSettings: Record "Power BI Context Settings";
                     PowerBICustomerReports: Record "Power BI Customer Reports";
                     LocalPowerBIDisplayedElement: Record "Power BI Displayed Element";
@@ -544,9 +542,6 @@ page 6325 "Power BI Embedded Report Part"
                         PowerBIUserStatus.DeleteAll();
                         PowerBIReportConfiguration.DeleteAll();
                         PowerBIUserConfiguration.DeleteAll();
-#endif
-#if not CLEAN22
-                        PowerBIServiceStatusSetup.DeleteAll();
 #endif
                         PowerBIContextSettings.DeleteAll();
                         LocalPowerBIDisplayedElement.DeleteAll();

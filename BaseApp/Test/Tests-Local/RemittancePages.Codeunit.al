@@ -458,13 +458,11 @@ codeunit 144134 "Remittance - Pages"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, "Document Type", "Account Type"::"G/L Account", GLAccNo, LibraryRandom.RandInt(10));
-            "Bal. Account Type" := "Bal. Account Type"::Vendor;
-            "Bal. Account No." := VendorNo;
-            Modify();
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type", GenJournalLine."Account Type"::"G/L Account", GLAccNo, LibraryRandom.RandInt(10));
+        GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Vendor;
+        GenJournalLine."Bal. Account No." := VendorNo;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 

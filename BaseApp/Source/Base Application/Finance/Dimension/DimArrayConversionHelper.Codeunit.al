@@ -21,8 +21,6 @@ using Microsoft.Projects.Resources.Journal;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
 using System.Environment;
 
 codeunit 488 "Dim. Array Conversion Helper"
@@ -175,9 +173,9 @@ codeunit 488 "Dim. Array Conversion Helper"
                 exit(2);
             Database::"Phys. Invt. Order Line":
                 exit(1);
-            Database::"Service Header":
+            Database::Microsoft.Service.Document."Service Header":
                 exit(5);
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 exit(3);
             Database::"Planning Component":
                 exit(1);
@@ -201,13 +199,13 @@ codeunit 488 "Dim. Array Conversion Helper"
                 exit(3);
             Database::"Res. Journal Line":
                 exit(3);
-            Database::"Service Contract Header":
+            Database::Microsoft.Service.Contract."Service Contract Header":
                 exit(5);
-            Database::"Service Item Line":
+            Database::Microsoft.Service.Document."Service Item Line":
                 exit(3);
             Database::"Standard General Journal Line":
                 exit(5);
-            Database::"Standard Service Line":
+            Database::Microsoft.Service.Document."Standard Service Line":
                 exit(1);
         end;
 

@@ -912,11 +912,9 @@ codeunit 134376 "ERM Reminders - Grace Period"
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
         CustomerPostingGroup.Validate("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
         CustomerPostingGroup.Modify(true);
-        with Customer do begin
-            Validate("Reminder Terms Code", ReminderTermsCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Reminder Terms Code", ReminderTermsCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; Amount: Decimal)
@@ -1117,13 +1115,11 @@ codeunit 134376 "ERM Reminders - Grace Period"
 
     local procedure FilterReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; DocumentNo: Code[20]; LineType: Enum "Reminder Line Type"; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        with ReminderLine do begin
-            SetRange("Reminder No.", ReminderNo);
-            SetRange("Line Type", LineType);
-            SetRange(Type, Type::"Customer Ledger Entry");
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-        end;
+        ReminderLine.SetRange("Reminder No.", ReminderNo);
+        ReminderLine.SetRange("Line Type", LineType);
+        ReminderLine.SetRange(Type, ReminderLine.Type::"Customer Ledger Entry");
+        ReminderLine.SetRange("Document Type", DocumentType);
+        ReminderLine.SetRange("Document No.", DocumentNo);
     end;
 
     local procedure VerifyAddnlFeeOnReminderLines(ReminderNo: Code[20]; ReminderTermsCode: Code[10]; ReminderLevelNo: Integer)
@@ -1255,11 +1251,9 @@ codeunit 134376 "ERM Reminders - Grace Period"
     var
         ReminderLine: Record "Reminder Line";
     begin
-        with ReminderLine do begin
-            FilterReminderLine(ReminderLine, ReminderNo, InvoiceNo, "Line Type"::"Reminder Line", "Document Type"::Invoice);
-            FindFirst();
-            TestField("No. of Reminders", ExpectedLevel);
-        end;
+        FilterReminderLine(ReminderLine, ReminderNo, InvoiceNo, ReminderLine."Line Type"::"Reminder Line", ReminderLine."Document Type"::Invoice);
+        ReminderLine.FindFirst();
+        ReminderLine.TestField("No. of Reminders", ExpectedLevel);
     end;
 
     local procedure VerifyReminderLinesCount(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; LineType: Enum "Reminder Line Type"; LinesCount: Integer)

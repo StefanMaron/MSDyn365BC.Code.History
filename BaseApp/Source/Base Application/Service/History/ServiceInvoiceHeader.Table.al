@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Service.History;
+namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.DirectDebit;
@@ -1009,6 +1009,15 @@ table 5992 "Service Invoice Header"
         end;
     end;
 
+    procedure OpenStatistics()
+    var
+        StatPageID: Integer;
+    begin
+        StatPageID := Page::"Service Invoice Statistics";
+        OnOpenStatisticsOnAfterSetStatPageID(Rec, StatPageID);
+        Page.RunModal(StatPageID, Rec);
+    end;
+
     [Scope('OnPrem')]
     procedure AccountCodeLineSpecified(): Boolean
     var
@@ -1080,6 +1089,11 @@ table 5992 "Service Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceInvoiceHeader: Record "Service Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceInvoiceHeader: Record "Service Invoice Header"; var StatPageID: Integer);
     begin
     end;
 }

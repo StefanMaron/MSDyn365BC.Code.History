@@ -1,4 +1,4 @@
-codeunit 144128 "DocumentTools Codeunit UT"
+﻿codeunit 144128 "DocumentTools Codeunit UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -387,9 +387,8 @@ codeunit 144128 "DocumentTools Codeunit UT"
         // Execute
         if not ShouldFail then
             DocumentTools.TestKIDSetup(SalesSetup)
-        else begin
+        else
             asserterror DocumentTools.TestKIDSetup(SalesSetup);
-        end;
     end;
 
     [Normal]

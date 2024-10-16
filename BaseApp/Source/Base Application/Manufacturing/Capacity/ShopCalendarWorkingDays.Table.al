@@ -89,8 +89,12 @@ table 99000752 "Shop Calendar Working Days"
     var
         ShopCalendar: Record "Shop Calendar Working Days";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be higher than %2.';
         Text001: Label 'There is redundancy in the Shop Calendar. Actual work shift %1 from : %2 to %3. Conflicting work shift %4 from : %5 to %6.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CheckRedundancy()
     var

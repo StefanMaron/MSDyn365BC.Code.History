@@ -28,7 +28,9 @@ codeunit 70 "Purch.-Calc.Discount"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Service Charge';
+#pragma warning restore AA0074
         PurchLine: Record "Purchase Line";
         VendInvDisc: Record "Vendor Invoice Disc.";
         VendPostingGr: Record "Vendor Posting Group";

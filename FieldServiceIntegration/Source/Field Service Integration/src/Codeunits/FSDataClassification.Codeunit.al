@@ -28,6 +28,7 @@ codeunit 6614 "FS Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(Database::"FS Customer Asset Category");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"FS Project Task");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"FS Resource Pay Type");
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"FS Warehouse");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"FS Work Order");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"FS Work Order Product");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"FS Work Order Service");

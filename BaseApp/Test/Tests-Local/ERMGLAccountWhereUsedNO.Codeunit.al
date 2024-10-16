@@ -124,12 +124,10 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
 
     local procedure CreateRemittanceAccount(var RemittanceAccount: Record "Remittance Account")
     begin
-        with RemittanceAccount do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Remittance Account");
-            "Round off/Divergence Acc. No." := LibraryERM.CreateGLAccountNo();
-            Insert();
-        end;
+        RemittanceAccount.Init();
+        RemittanceAccount.Code := LibraryUtility.GenerateRandomCode(RemittanceAccount.FieldNo(Code), DATABASE::"Remittance Account");
+        RemittanceAccount."Round off/Divergence Acc. No." := LibraryERM.CreateGLAccountNo();
+        RemittanceAccount.Insert();
     end;
 
     local procedure ValidateWhereUsedRecord(ExpectedTableCaption: Text; ExpectedFieldCaption: Text; ExpectedLineValue: Text)

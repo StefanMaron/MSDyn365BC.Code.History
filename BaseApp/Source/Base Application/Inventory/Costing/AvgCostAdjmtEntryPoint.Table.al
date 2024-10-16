@@ -198,7 +198,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
             exit;
         end;
 
-        if not PeriodMgt.FindDate('', CalendarPeriod, "Analysis Period Type".FromInteger(FiscalYearAccPeriod."Average Cost Period" - 1)) then
+        if not PeriodMgt.FindDate('', CalendarPeriod, "Analysis Period Type".FromInteger(FiscalYearAccPeriod."Average Cost Period".AsInteger() - 1)) then
             FiscalYearAccPeriod.Get(CalendarPeriod."Period Start");
 
         if FiscalYearAccPeriod."Average Cost Period" in

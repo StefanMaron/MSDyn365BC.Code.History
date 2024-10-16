@@ -29,6 +29,8 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         Text004Err: Label 'must not be changed when a quantity is reserved';
         Text005Err: Label 'Codeunit is not initialized correctly.';
         Text006Err: Label 'You cannot define item tracking on %1 %2', Comment = '%1 - Operation No. caption, %2 - Operation No. value';
+        ItemJournalTxt: Label 'Item Journal';
+        SourceDoc4Txt: Label '%1 %2 %3 %4', Locked = true;
 
     procedure CreateReservation(var ItemJournalLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry")
     var
@@ -406,7 +408,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         IsHandled := false;
         OnCallItemTrackingOnBeforeCallItemJnlLineItemTracking(ItemJournalLine, IsHandled);
         if not IsHandled then begin
-            TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+            InitFromItemJnlLine(TrackingSpecification, ItemJournalLine);
             if IsReclass then
                 ItemTrackingLines.SetRunMode(Enum::"Item Tracking Run Mode"::Reclass);
             ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
@@ -438,7 +440,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             exit;
 
         ItemTrackingSetup.CopyTrackingFromItemJnlLine(ItemJournalLine);
-        TempTrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+        InitFromItemJnlLine(TempTrackingSpecification, ItemJournalLine);
         TempTrackingSpecification.CopyTrackingFromItemTrackingSetup(ItemTrackingSetup);
         TempTrackingSpecification."Expiration Date" := ItemJournalLine."Expiration Date";
         TempTrackingSpecification."Warranty Date" := ItemJournalLine."Warranty Date";
@@ -457,7 +459,8 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     begin
         if not TempTrackingSpecification.FindSet() then
             exit;
-        SourceTrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+
+        InitFromItemJnlLine(SourceTrackingSpecification, ItemJournalLine);
 
         Clear(ItemTrackingLines);
         ItemTrackingLines.SetRunMode(Enum::"Item Tracking Run Mode"::Reclass);
@@ -689,5 +692,107 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     local procedure OnCreateReservationOnBeforeCreateReservation(var ItemJournalLine: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var Description: Text[100]; var ExpectedDate: Date; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceForReservationOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    // codeunit Create Reserv. Entry
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Reserv. Entry", 'OnCheckSourceTypeSubtype', '', false, false)]
+    local procedure CheckSourceTypeSubtype(var ReservationEntry: Record "Reservation Entry"; var IsError: Boolean)
+    begin
+        if MatchThisTable(ReservationEntry."Source Type") then
+            // Item Journal Lines with Entry Type Transfer can carry reservations during posting:
+            IsError := (ReservationEntry."Source Subtype" <> 4) and (ReservationEntry."Source Ref. No." <> 0);
+    end;
+
+    // codeunit Reservation Engine Mgt. subscribers
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnGetActivePointerFieldsOnBeforeAssignArrayValues', '', false, false)]
+    local procedure OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean; var IsHandled: Boolean)
+    begin
+        if TableID = Database::"Item Journal Line" then begin
+            PointerFieldIsActive[1] := true;  // Type
+            PointerFieldIsActive[2] := true;  // SubType
+            PointerFieldIsActive[3] := true;  // ID
+            PointerFieldIsActive[4] := true;  // BatchName
+            PointerFieldIsActive[6] := true;  // RefNo
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnCreateText', '', false, false)]
+    local procedure OnAfterCreateText(ReservationEntry: Record "Reservation Entry"; var Description: Text[80])
+    begin
+        if ReservationEntry."Source Type" = Database::"Item Journal Line" then
+            Description :=
+                StrSubstNo(
+                    SourceDoc4Txt, ItemJournalTxt, Enum::"Item Ledger Entry Type".FromInteger(ReservationEntry."Source Subtype"),
+                    ReservationEntry."Source ID", ReservationEntry."Source Batch Name");
+    end;
+
+    procedure InitFromItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJnlLine: Record "Item Journal Line")
+    begin
+        TrackingSpecification.Init();
+        TrackingSpecification.SetItemData(
+            ItemJnlLine."Item No.", ItemJnlLine.Description, ItemJnlLine."Location Code", ItemJnlLine."Variant Code",
+            ItemJnlLine."Bin Code", ItemJnlLine."Qty. per Unit of Measure", ItemJnlLine."Qty. Rounding Precision (Base)");
+        TrackingSpecification.SetSource(
+            Database::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name", ItemJnlLine."Line No.",
+            ItemJnlLine."Journal Batch Name", 0);
+        TrackingSpecification.SetQuantities(
+            ItemJnlLine."Quantity (Base)", ItemJnlLine.Quantity, ItemJnlLine."Quantity (Base)", ItemJnlLine.Quantity,
+            ItemJnlLine."Quantity (Base)", 0, 0);
+
+        OnAfterInitFromItemJnlLine(TrackingSpecification, ItemJnlLine);
+#if not CLEAN25
+        TrackingSpecification.RunOnAfterInitFromItemJnlLine(TrackingSpecification, ItemJnlLine);
+#endif
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnBeforeCheckApplyFromItemEntrySourceType', '', false, false)]
+    local procedure OnBeforeCheckApplyFromItemEntrySourceType(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+        if not MatchThisTable(TrackingSpecification."Source Type") then
+            exit;
+
+        if ((TrackingSpecification."Source Subtype" in [0, 2, 6]) and (TrackingSpecification."Quantity (Base)" < 0)) or
+            ((TrackingSpecification."Source Subtype" in [1, 3, 4, 5]) and (TrackingSpecification."Quantity (Base)" > 0))
+        then
+            TrackingSpecification.FieldError("Quantity (Base)");
+
+        IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnUpdateSourceCost', '', false, false)]
+    local procedure ReservationEntryOnUpdateSourceCost(ReservationEntry: Record "Reservation Entry"; UnitCost: Decimal)
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        QtyReserved: Decimal;
+    begin
+        if MatchThisTable(ReservationEntry."Source Type") then begin
+            ItemJnlLine.Get(ReservationEntry."Source ID", ReservationEntry."Source Batch Name", ReservationEntry."Source Ref. No.");
+            if ItemJnlLine."Qty. per Unit of Measure" <> 0 then
+                ItemJnlLine."Unit Cost" :=
+                    Round(ItemJnlLine."Unit Cost" / ItemJnlLine."Qty. per Unit of Measure");
+            if ItemJnlLine."Quantity (Base)" <> 0 then
+                ItemJnlLine."Unit Cost" :=
+                    Round(
+                        (ItemJnlLine."Unit Cost" * (ItemJnlLine."Quantity (Base)" - QtyReserved) + UnitCost * QtyReserved) /
+                         ItemJnlLine."Quantity (Base)", 0.00001);
+            if ItemJnlLine."Qty. per Unit of Measure" <> 0 then
+                ItemJnlLine."Unit Cost" :=
+                    Round(ItemJnlLine."Unit Cost" * ItemJnlLine."Qty. per Unit of Measure");
+            ItemJnlLine.Validate("Unit Cost");
+            ItemJnlLine.Modify();
+        end;
+    end;
+
 }
 

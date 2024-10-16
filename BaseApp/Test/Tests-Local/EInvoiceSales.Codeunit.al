@@ -1621,12 +1621,10 @@ codeunit 144103 "E-Invoice Sales"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate(GLN, '1234567890128');
-            Validate("SWIFT Code", 'MIDLGB22Z0K');
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate(GLN, '1234567890128');
+        CompanyInformation.Validate("SWIFT Code", 'MIDLGB22Z0K');
+        CompanyInformation.Modify(true);
     end;
 
     local procedure GetCrMemoCustomizationID(): Text[250]
@@ -1703,14 +1701,12 @@ codeunit 144103 "E-Invoice Sales"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader.Get(HeaderId);
-        with Customer do begin
-            Init();
-            Address := SalesCrMemoHeader."Ship-to Address";
-            "Address 2" := SalesCrMemoHeader."Ship-to Address 2";
-            City := SalesCrMemoHeader."Ship-to City";
-            "Post Code" := SalesCrMemoHeader."Ship-to Post Code";
-            "Country/Region Code" := SalesCrMemoHeader."Ship-to Country/Region Code";
-        end;
+        Customer.Init();
+        Customer.Address := SalesCrMemoHeader."Ship-to Address";
+        Customer."Address 2" := SalesCrMemoHeader."Ship-to Address 2";
+        Customer.City := SalesCrMemoHeader."Ship-to City";
+        Customer."Post Code" := SalesCrMemoHeader."Ship-to Post Code";
+        Customer."Country/Region Code" := SalesCrMemoHeader."Ship-to Country/Region Code";
         EInvoiceXMLXSDValidation.VerifyAddress(XMLFileName, XPath, Customer);
     end;
 
@@ -1720,14 +1716,12 @@ codeunit 144103 "E-Invoice Sales"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.Get(SalesInvoiceHeaderId);
-        with Customer do begin
-            Init();
-            Address := SalesInvoiceHeader."Ship-to Address";
-            "Address 2" := SalesInvoiceHeader."Ship-to Address 2";
-            City := SalesInvoiceHeader."Ship-to City";
-            "Post Code" := SalesInvoiceHeader."Ship-to Post Code";
-            "Country/Region Code" := SalesInvoiceHeader."Ship-to Country/Region Code";
-        end;
+        Customer.Init();
+        Customer.Address := SalesInvoiceHeader."Ship-to Address";
+        Customer."Address 2" := SalesInvoiceHeader."Ship-to Address 2";
+        Customer.City := SalesInvoiceHeader."Ship-to City";
+        Customer."Post Code" := SalesInvoiceHeader."Ship-to Post Code";
+        Customer."Country/Region Code" := SalesInvoiceHeader."Ship-to Country/Region Code";
         EInvoiceXMLXSDValidation.VerifyAddress(XMLFileName, XPath, Customer);
     end;
 

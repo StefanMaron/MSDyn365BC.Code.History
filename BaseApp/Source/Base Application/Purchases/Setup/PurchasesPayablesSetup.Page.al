@@ -45,6 +45,11 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if amounts are rounded for purchase invoices. Rounding is applied as specified in the Inv. Rounding Precision (LCY) field in the General Ledger Setup window. ';
                 }
+                field(DefaultGLAccountQuantity; Rec."Default G/L Account Quantity")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that Quantity is set to 1 on lines of type G/L Account.';
+                }
                 field("Create Item from Item No."; Rec."Create Item from Item No.")
                 {
                     ApplicationArea = Basic, Suite;

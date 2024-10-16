@@ -12,7 +12,6 @@ codeunit 134066 "Analysis View Table-UT"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
-        Expected: Label 'Blocked must be equal to ''No''  in Analysis View: Code=%1. Current value is ''Yes''';
         SameDimensionCodeError: Label 'This dimension is used in the following setup: Analysis View Card.';
         AreNotEqualError: Label 'The dimension code value is not equal to previous value.';
         DimensionCode: Option Code1,Code2,Code3,Code4;
@@ -30,7 +29,7 @@ codeunit 134066 "Analysis View Table-UT"
         asserterror AnalysisView.Validate("Dimension 2 Code", CreateDimension());
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(StrSubstNo(Expected, AnalysisView.Code));
+        Assert.ExpectedTestFieldError(AnalysisView.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -46,7 +45,7 @@ codeunit 134066 "Analysis View Table-UT"
         asserterror AnalysisView.Validate("Dimension 3 Code", CreateDimension());
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(StrSubstNo(Expected, AnalysisView.Code));
+        Assert.ExpectedTestFieldError(AnalysisView.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -62,7 +61,7 @@ codeunit 134066 "Analysis View Table-UT"
         asserterror AnalysisView.Validate("Dimension 4 Code", CreateDimension());
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(StrSubstNo(Expected, AnalysisView.Code));
+        Assert.ExpectedTestFieldError(AnalysisView.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]

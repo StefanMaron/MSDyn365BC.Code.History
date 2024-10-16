@@ -26,7 +26,6 @@ codeunit 137015 "SCM Pick Worksheet"
         ErrorDifferentAvailQty: Label 'Quantity Available to Pick on pick worksheet line different from expected.';
         ErrorDifferentQtyOnPickLine: Label 'Quantity to Handle on pick line different from expected.';
         IsInitialized: Boolean;
-        AdjmtBinCodeErr: Label 'Adjustment Bin must be equal to ''No''';
         AvailableQtyToPickMsg: Label 'AvailableQtyToPick returned wrong value.';
 
     [Test]
@@ -566,6 +565,7 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         Location: Record Location;
+        Bin: Record Bin;
     begin
         // [FEATURE] [Whse. Worksheet Line]
         // [SCENARIO 378631] Procedure "GetBin" of "Whse. Worksheet Line" table should clear global variable Bin if Bin code is blank
@@ -579,7 +579,7 @@ codeunit 137015 "SCM Pick Worksheet"
         asserterror WhseWorksheetLine.CheckBin(Location.Code, Location."Adjustment Bin Code", false);
 
         // [GIVEN] Catch Error "Adjustment Bin must be equal to 'No'"
-        Assert.ExpectedError(AdjmtBinCodeErr);
+        Assert.ExpectedTestFieldError(Bin.FieldCaption("Adjustment Bin"), Format(false));
 
         // [WHEN] Run CheckBin again with Location "X" and Bin blank
         WhseWorksheetLine.CheckBin(Location.Code, '', false);
@@ -1792,9 +1792,9 @@ codeunit 137015 "SCM Pick Worksheet"
         repeat
             if QtyToHandle <> 0 then
                 WhseActivityLine.Validate("Qty. to Handle", QtyToHandle);
-            if (WhseActivityLine."Action Type" = WhseActivityLine."Action Type"::Take) and (TakeBinCode <> '') then begin
-                WhseActivityLine."Bin Code" := TakeBinCode;
-            end else
+            if (WhseActivityLine."Action Type" = WhseActivityLine."Action Type"::Take) and (TakeBinCode <> '') then
+                WhseActivityLine."Bin Code" := TakeBinCode
+            else
                 if (WhseActivityLine."Action Type" = WhseActivityLine."Action Type"::Place) and (PlaceBinCode <> '') then
                     WhseActivityLine."Bin Code" := PlaceBinCode;
 
@@ -1805,9 +1805,9 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseActivityHeader.SetRange(Type, ActivityType);
         WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
         WhseActivityHeader.FindFirst();
-        if (ActivityType = ActivityType::"Put-away") or (ActivityType = ActivityType::Pick) then begin
-            LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
-        end else
+        if (ActivityType = ActivityType::"Put-away") or (ActivityType = ActivityType::Pick) then
+            LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader)
+        else
             LibraryWarehouse.PostInventoryActivity(WhseActivityHeader, false);
     end;
 

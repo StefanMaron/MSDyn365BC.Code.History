@@ -85,6 +85,25 @@ table 265 "Document Entry"
         OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
     end;
 
+    procedure InsertIntoDocEntry(DocTableID: Integer; DocTableName: Text; DocNoOfRecords: Integer)
+    begin
+        InsertIntoDocEntry(DocTableID, Enum::"Document Entry Document Type"::" ", DocTableName, DocNoOfRecords);
+    end;
+
+    procedure InsertIntoDocEntry(DocTableID: Integer; DocType: Enum "Document Entry Document Type"; DocTableName: Text; DocNoOfRecords: Integer)
+    begin
+        if DocNoOfRecords = 0 then
+            exit;
+
+        Rec.Init();
+        Rec."Entry No." := Rec."Entry No." + 1;
+        Rec."Table ID" := DocTableID;
+        Rec."Document Type" := DocType;
+        Rec."Table Name" := CopyStr(DocTableName, 1, MaxStrLen(Rec."Table Name"));
+        Rec."No. of Records" := DocNoOfRecords;
+        Rec.Insert();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var DocumentEntry: Record "Document Entry"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin

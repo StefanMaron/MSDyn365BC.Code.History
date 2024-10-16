@@ -27,7 +27,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         ConfirmStartCouplingReply: Boolean;
         CRMCouplingPageDoCancel: Boolean;
         IsInitialized: Boolean;
-        StatusMustBeActiveErr: Label 'Status must be equal to ''Active''';
         BlockedMustBeNoErr: Label 'Blocked must be equal to ''No''';
         SyncNowScheduledMsg: Label 'The synchronization has been scheduled.';
         SyncNowSkippedMsg: Label 'The synchronization has been skipped. The record is already coupled.';
@@ -1040,7 +1039,7 @@ codeunit 139162 "CRM Integration Mgt Test"
           'VERSION(1) SORTING(Field1) WHERE(Field38=1(0))', ExpectedIntTableFilter, true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure DefaultTableMappingCustPriceGroup()
@@ -1917,7 +1916,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         asserterror CRMSalesOrderToSalesOrder.CreateInNAV(CRMSalesorder, SalesHeader);
 
         // [THEN] Error message because CRM Product is is of state 'Retired'
-        Assert.ExpectedError(StatusMustBeActiveErr);
+        Assert.ExpectedTestFieldError(CRMProduct.FieldCaption(StateCode), Format(CRMProduct.StatusCode::Active));
     end;
 
     [Test]
@@ -1955,7 +1954,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         asserterror CRMSalesOrderToSalesOrder.CreateInNAV(CRMSalesorder, SalesHeader);
 
         // [THEN] Error message because CRM Product is of state 'Retired'
-        Assert.ExpectedError(StatusMustBeActiveErr);
+        Assert.ExpectedTestFieldError(CRMProduct.FieldCaption(StateCode), Format(CRMProduct.StatusCode::Active));
     end;
 
     [Test]
@@ -2299,7 +2298,7 @@ codeunit 139162 "CRM Integration Mgt Test"
           ' SALESPEOPLE - Dataverse synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
           ' ITEM-PRODUCT - Dynamics 365 Sales synchronization job.');
-#if not CLEAN23
+#if not CLEAN25
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
           ' CUSTPRCGRP-PRICE - Dynamics 365 Sales synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
@@ -2358,15 +2357,13 @@ codeunit 139162 "CRM Integration Mgt Test"
 
     local procedure CreateUserWithAccessKey(var User: Record User): Text[80]
     begin
-        with User do begin
-            Init();
-            Validate("User Name", LibraryUtility.GenerateGUID());
-            Validate("License Type", "License Type"::"Full User");
-            Validate("User Security ID", CreateGuid());
-            Insert(true);
+        User.Init();
+        User.Validate("User Name", LibraryUtility.GenerateGUID());
+        User.Validate("License Type", User."License Type"::"Full User");
+        User.Validate("User Security ID", CreateGuid());
+        User.Insert(true);
 
-            exit(IdentityManagement.CreateWebServicesKeyNoExpiry("User Security ID"));
-        end;
+        exit(IdentityManagement.CreateWebServicesKeyNoExpiry(User."User Security ID"));
     end;
 
     local procedure RunHyperlinkTest(RecordID: RecordID)
@@ -2533,12 +2530,14 @@ codeunit 139162 "CRM Integration Mgt Test"
         CDSCompany: Record "CDS Company";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMConnectionSetup."Unit Group Mapping Enabled" := EnableUnitGroupMapping;
@@ -2564,15 +2563,13 @@ codeunit 139162 "CRM Integration Mgt Test"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        with IntegrationTableMapping do begin
-            SetRange("Table ID", TableID);
-            FindFirst();
-            Assert.AreEqual(IntegrationDirection, Direction, FieldName(Direction));
-            Assert.AreEqual(IntegrationTableID, "Integration Table ID", FieldName("Integration Table ID"));
-            Assert.AreEqual(TableFilter, GetTableFilter(), FieldName("Table Filter"));
-            Assert.AreEqual(IntegrationTableFilter, GetIntegrationTableFilter(), FieldName("Integration Table Filter"));
-            Assert.AreEqual(SynchOnlyCoupledRecords, "Synch. Only Coupled Records", FieldName("Synch. Only Coupled Records"));
-        end;
+        IntegrationTableMapping.SetRange("Table ID", TableID);
+        IntegrationTableMapping.FindFirst();
+        Assert.AreEqual(IntegrationDirection, IntegrationTableMapping.Direction, IntegrationTableMapping.FieldName(Direction));
+        Assert.AreEqual(IntegrationTableID, IntegrationTableMapping."Integration Table ID", IntegrationTableMapping.FieldName("Integration Table ID"));
+        Assert.AreEqual(TableFilter, IntegrationTableMapping.GetTableFilter(), IntegrationTableMapping.FieldName("Table Filter"));
+        Assert.AreEqual(IntegrationTableFilter, IntegrationTableMapping.GetIntegrationTableFilter(), IntegrationTableMapping.FieldName("Integration Table Filter"));
+        Assert.AreEqual(SynchOnlyCoupledRecords, IntegrationTableMapping."Synch. Only Coupled Records", IntegrationTableMapping.FieldName("Synch. Only Coupled Records"));
     end;
 
     local procedure VerifyCRMPriceLevel(CRMPricelevel: Record "CRM Pricelevel"; CurrencyCode: Code[10])

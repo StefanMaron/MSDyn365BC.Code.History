@@ -15,11 +15,15 @@ codeunit 5930 ServAllocationManagement
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot allocate a resource to the service order %1 because it is %2.';
         Text001: Label '%1 with the field %2 selected cannot be found.';
         Text002: Label 'Do you want to allocate the %1 %2 to all nonactive Service Order Allocations on the Service Item Lines with the %3 other than %4?';
         Text003: Label 'There are no %1 lines to split the corresponding %2.';
         Text004: Label 'You cannot change the resource allocation for service item line %1 because the %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AllocateDate(DocumentType: Integer; DocumentNo: Code[20]; EntryNo: Integer; ResNo: Code[20]; ResGrNo: Code[20]; CurrentDate: Date; Quantity: Decimal)
     var

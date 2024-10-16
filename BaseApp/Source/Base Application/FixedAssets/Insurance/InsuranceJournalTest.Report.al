@@ -201,8 +201,12 @@ report 5622 "Insurance Journal - Test"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be specified.';
         Text001: Label '%1 %2 does not exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Insurance_Journal_Batch__NameCaptionLbl: Label 'Journal Batch';
         Insurance_Journal___TestCaptionLbl: Label 'Insurance Journal - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

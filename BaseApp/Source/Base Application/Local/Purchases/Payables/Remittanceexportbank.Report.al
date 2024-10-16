@@ -104,15 +104,14 @@ report 15000050 "Remittance - export (Bank)"
                         // Unstructured and structured payments must be grouped separately.
                         // Structured payments: those with either KID or External Doc. No. filled out
                         // Unstructured payments: those with recipient ref. 1-3 filled out
-                        if not GenJournalLineRec."Structured Payment" then
+                        if not GenJournalLineRec."Structured Payment" then begin
                             if GenJournalLineRec."Remittance Type" = GenJournalLineRec."Remittance Type"::Domestic then begin
                                 if GenJournalLineRec."Recipient Ref. 1" = '' then
                                     Error(Text006, GenJournalLineRec."Line No.");
-                            end else begin
+                            end else
                                 if GenJournalLineRec."Recipient Ref. Abroad" = '' then
                                     Error(Text009, GenJournalLineRec."Line No.");
-                            end
-                        else
+                        end else
                             UnstructuredPaym := false;
                         GenJournalLineRec.SetRange("Structured Payment", GenJournalLineRec."Structured Payment");
 

@@ -228,16 +228,14 @@ codeunit 143009 "Library - Remittance"
     var
         ReturnFileSetup: Record "Return File Setup";
     begin
-        with ReturnFileSetup do begin
-            SetRange("Agreement Code", AgreementCode);
-            DeleteAll(true);
+        ReturnFileSetup.SetRange("Agreement Code", AgreementCode);
+        ReturnFileSetup.DeleteAll(true);
 
-            Init();
-            Validate("Agreement Code", AgreementCode);
-            Validate("Line No.", 10000);
-            Validate("Return File Name", CopyStr(FilePath, 1, MaxStrLen("Return File Name")));
-            Insert(true);
-        end;
+        ReturnFileSetup.Init();
+        ReturnFileSetup.Validate("Agreement Code", AgreementCode);
+        ReturnFileSetup.Validate("Line No.", 10000);
+        ReturnFileSetup.Validate("Return File Name", CopyStr(FilePath, 1, MaxStrLen(ReturnFileSetup."Return File Name")));
+        ReturnFileSetup.Insert(true);
     end;
 
     [Scope('OnPrem')]

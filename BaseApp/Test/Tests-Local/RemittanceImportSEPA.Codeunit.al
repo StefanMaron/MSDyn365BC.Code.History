@@ -1292,11 +1292,9 @@ codeunit 144136 "Remittance - Import SEPA"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            Validate("LCY Code", NewLCYCode);
-            Modify();
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("LCY Code", NewLCYCode);
+        GLSetup.Modify();
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -1339,9 +1337,8 @@ codeunit 144136 "Remittance - Import SEPA"
         PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
         i: Integer;
     begin
-        with GenJournalLine do
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name", "Document Type"::Payment, "Account Type"::Vendor, '', 0);
+        LibraryERM.CreateGeneralJnlLine(
+              GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, '', 0);
         for i := 1 to ArrayLen(ErrorText) do begin
             ErrorText[i] := LibraryUtility.GenerateGUID();
             PaymentJnlExportErrorText.CreateNew(GenJournalLine, ErrorText[i], LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
@@ -1712,33 +1709,27 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure VerifyWaitingJournal(WaitingJournal: Record "Waiting Journal"; ExpectedCurrencyCode: Code[10]; ExpectedAmount: Decimal; ExpectedAmountLCY: Decimal; ExpectedCurrencyFactor: Decimal)
     begin
-        with WaitingJournal do begin
-            Find();
-            TestField("Currency Code", ExpectedCurrencyCode);
-            TestField(Amount, ExpectedAmount);
-            TestField("Amount (LCY)", ExpectedAmountLCY);
-            Assert.AreNearlyEqual(ExpectedCurrencyFactor, "Currency Factor", 0.000000000000001, '');
-        end;
+        WaitingJournal.Find();
+        WaitingJournal.TestField("Currency Code", ExpectedCurrencyCode);
+        WaitingJournal.TestField(Amount, ExpectedAmount);
+        WaitingJournal.TestField("Amount (LCY)", ExpectedAmountLCY);
+        Assert.AreNearlyEqual(ExpectedCurrencyFactor, WaitingJournal."Currency Factor", 0.000000000000001, '');
     end;
 
     local procedure VerifyGenJnlAfterDiffExchRateImport(WaitingJournal: Record "Waiting Journal")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with WaitingJournal do begin
-            Find();
-            GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
-            GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
-            Assert.AreEqual(2, GenJournalLine.COUNT, 'expected 2 gen. jnl. lines after camt054 file import');
-
-            // Payment:
-            GenJournalLine.FindSet();
-            VerifyGenJournalLineAmounts(GenJournalLine, "Currency Code", Amount, "Amount (LCY)", "Currency Factor");
-
-            // Balance:
-            GenJournalLine.Next();
-            VerifyGenJournalLineAmounts(GenJournalLine, '', -"Amount (LCY)", -"Amount (LCY)", 0);
-        end;
+        WaitingJournal.Find();
+        GenJournalLine.SetRange("Journal Template Name", WaitingJournal."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", WaitingJournal."Journal Batch Name");
+        Assert.AreEqual(2, GenJournalLine.COUNT, 'expected 2 gen. jnl. lines after camt054 file import');
+        // Payment:
+        GenJournalLine.FindSet();
+        VerifyGenJournalLineAmounts(GenJournalLine, WaitingJournal."Currency Code", WaitingJournal.Amount, WaitingJournal."Amount (LCY)", WaitingJournal."Currency Factor");
+        // Balance:
+        GenJournalLine.Next();
+        VerifyGenJournalLineAmounts(GenJournalLine, '', -WaitingJournal."Amount (LCY)", -WaitingJournal."Amount (LCY)", 0);
     end;
 
     local procedure VerifyGenJnlAfterDiffExchRateTwoPmtImport(WaitingJournal: array[2] of Record "Waiting Journal")
@@ -1755,11 +1746,9 @@ codeunit 144136 "Remittance - Import SEPA"
 
         // Payment:
         GenJournalLine.FindSet();
-        with WaitingJournal[1] do
-            VerifyGenJournalLineAmounts(GenJournalLine, "Currency Code", Amount, "Amount (LCY)", "Currency Factor");
+        VerifyGenJournalLineAmounts(GenJournalLine, WaitingJournal[1]."Currency Code", WaitingJournal[1].Amount, WaitingJournal[1]."Amount (LCY)", WaitingJournal[1]."Currency Factor");
         GenJournalLine.Next();
-        with WaitingJournal[2] do
-            VerifyGenJournalLineAmounts(GenJournalLine, "Currency Code", Amount, "Amount (LCY)", "Currency Factor");
+        VerifyGenJournalLineAmounts(GenJournalLine, WaitingJournal[2]."Currency Code", WaitingJournal[2].Amount, WaitingJournal[2]."Amount (LCY)", WaitingJournal[2]."Currency Factor");
 
         // Balance:
         GenJournalLine.Next();
@@ -1769,12 +1758,10 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure VerifyGenJournalLineAmounts(GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; ExpectedAmount: Decimal; ExpectedAmountLCY: Decimal; CurrencyFactor: Decimal)
     begin
-        with GenJournalLine do begin
-            TestField("Currency Code", CurrencyCode);
-            TestField(Amount, ExpectedAmount);
-            TestField("Amount (LCY)", ExpectedAmountLCY);
-            Assert.AreNearlyEqual(CurrencyFactor, "Currency Factor", 0.000000000000001, '');
-        end;
+        GenJournalLine.TestField("Currency Code", CurrencyCode);
+        GenJournalLine.TestField(Amount, ExpectedAmount);
+        GenJournalLine.TestField("Amount (LCY)", ExpectedAmountLCY);
+        Assert.AreNearlyEqual(CurrencyFactor, GenJournalLine."Currency Factor", 0.000000000000001, '');
     end;
 
     local procedure WritePainFileToDisk(Destination: Text)

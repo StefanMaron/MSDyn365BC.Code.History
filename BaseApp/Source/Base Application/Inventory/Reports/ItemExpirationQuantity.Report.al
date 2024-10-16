@@ -110,6 +110,8 @@ report 5809 "Item Expiration - Quantity"
 
     requestpage
     {
+        AboutTitle = 'About Item Expiration – Quantity';
+        AboutText = 'Shows current inventory levels for items with expiration date tracking enabled and highlight stock on hand that''''s expired or soon to be expired.';
         SaveValues = true;
 
         layout
@@ -191,8 +193,10 @@ report 5809 "Item Expiration - Quantity"
         i: Integer;
         TotalInvtQty: Decimal;
 
+#pragma warning disable AA0074
         Text002: Label 'Enter the ending date.';
         Text003: Label 'The minimum permitted value is 1D.';
+#pragma warning restore AA0074
 
     procedure InitializeRequest(NewPeriodStartDate: Date; NewPeriodLength: DateFormula)
     begin

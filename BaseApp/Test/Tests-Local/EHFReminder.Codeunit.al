@@ -321,42 +321,6 @@ codeunit 144005 "EHF Reminder"
         LibraryXPathXMLReader.VerifyNodeCountByXPath('//cac:InvoiceLine', 2);
     end;
 
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure ExportIssuedReminderandCheckDataInExportedXMLFile()
-    var
-        IssuedReminderHeader: Record "Issued Reminder Header";
-        IssuedReminderLine: Record "Issued Reminder Line";
-        ExportEHFReminder: Codeunit "Export EHF Reminder";
-        TempBlob: Codeunit "Temp Blob";
-        FileName: Text;
-        DocumentNo: Code[20];
-        i: Integer;
-    begin
-        // [SCENARIO 442285] Electronic document for issued reminder and check the data availablility in exported xml file.
-        Initialize();
-
-        // [GIVEN] Issued Reminder
-        DocumentNo := EInvoiceReminderHelper.CreateReminder();
-        IssuedReminderHeader.SetRange("No.", DocumentNo);
-        IssuedReminderHeader.FindFirst();
-
-        // [WHEN] Export Issued Reminder
-        ExportEHFReminder.GenerateXMLFile(TempBlob, FileName, IssuedReminderHeader);
-
-        // [THEN] Verify data availablilty for Issued Reminder Line in Xml
-        InitXMLData(FileName);
-        VerifyXMLGeneralInfo(IssuedReminderHeader, IssuedReminderHeader."Your Reference");
-        IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
-        IssuedReminderLine.FindSet();
-        repeat
-            VerifyXmlLine(IssuedReminderLine, i);
-            i += 1;
-        until IssuedReminderLine.Next() = 0;
-    end;
-#endif
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

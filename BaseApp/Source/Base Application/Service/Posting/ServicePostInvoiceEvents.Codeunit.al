@@ -230,4 +230,24 @@ codeunit 827 "Service Post Invoice Events"
     local procedure OnPrepareLineAfterGetGenPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; ServiceLineACY: Record "Service Line")
     begin
     end;
+
+    procedure RunOnAfterPrepareInvoicePostingBuffer(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        OnAfterPrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareInvoicePostingBuffer(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+    end;
+
+    procedure RunOnBeforePrepareInvoicePostingBuffer(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        OnBeforePrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepareInvoicePostingBuffer(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+    end;
 }

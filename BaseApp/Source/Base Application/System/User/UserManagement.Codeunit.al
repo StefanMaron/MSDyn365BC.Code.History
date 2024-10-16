@@ -48,9 +48,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Contract;
-using Microsoft.Service.History;
-using Microsoft.Service.Ledger;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
@@ -114,13 +111,15 @@ codeunit 418 "User Management"
                   TableData "Ins. Coverage Ledger Entry" = rm,
                   TableData "Insurance Register" = rm,
                   TableData "Value Entry" = rm,
-                  TableData "Service Ledger Entry" = rm,
-                  TableData "Service Register" = rm,
-                  TableData "Contract Gain/Loss Entry" = rm,
-                  TableData "Filed Service Contract Header" = rm,
-                  TableData "Service Shipment Header" = rm,
-                  TableData "Service Invoice Header" = rm,
-                  TableData "Service Cr.Memo Header" = rm,
+#if not CLEAN25
+                  TableData Microsoft.Service.Ledger."Service Ledger Entry" = rm,
+                  TableData Microsoft.Service.Ledger."Service Register" = rm,
+                  TableData Microsoft.Service.Contract."Contract Gain/Loss Entry" = rm,
+                  TableData Microsoft.Service.Contract."Filed Service Contract Header" = rm,
+                  TableData Microsoft.Service.History."Service Shipment Header" = rm,
+                  TableData Microsoft.Service.History."Service Invoice Header" = rm,
+                  TableData Microsoft.Service.History."Service Cr.Memo Header" = rm,
+#endif
                   TableData "Return Shipment Header" = rm,
                   TableData "Return Receipt Header" = rm,
                   TableData "Item Budget Entry" = rm,
@@ -177,8 +176,10 @@ codeunit 418 "User Management"
         DontShowAgainTok: Label 'Don''t show me again';
         ShowMoreLinkTok: Label 'Show more';
 #endif
+#pragma warning disable AA0470
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
-        UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1, %2, %3 and %4 are supported in the online environment.', Comment = '%1,%2,%3,%4 = license type';
+#pragma warning restore AA0470
+        UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1, %2, %3, %4 and %5 are supported in the online environment.', Comment = '%1,%2,%3,%4,%5 = license type';
         DisableUserMsg: Label 'To permanently disable a user, go to your Microsoft 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Microsoft 365.';
         WindowsSecurityIdNotEditableOnSaaSErr: Label 'Windows security identifier is not supported in online environments.';
 
@@ -566,8 +567,8 @@ codeunit 418 "User Management"
             exit;
 
         if EnvironmentInfo.IsSaaS() then
-            if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application, User."License Type"::"AAD Group"]) then
-                Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application, User."License Type"::"AAD Group");
+            if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application, User."License Type"::"AAD Group", User."License Type"::Agent]) then
+                Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application, User."License Type"::"AAD Group", User."License Type"::Agent);
     end;
 
     [IntegrationEvent(false, false)]

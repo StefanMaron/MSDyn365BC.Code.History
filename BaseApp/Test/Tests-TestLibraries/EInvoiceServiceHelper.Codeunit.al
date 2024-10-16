@@ -18,12 +18,10 @@ codeunit 143010 "E-Invoice Service Helper"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        with ServiceMgtSetup do begin
-            Get();
-            Validate("E-Invoice Service Invoice Path", Path);
-            Validate("E-Invoice Serv. Cr. Memo Path", Path);
-            Modify(true);
-        end;
+        ServiceMgtSetup.Get();
+        ServiceMgtSetup.Validate("E-Invoice Service Invoice Path", Path);
+        ServiceMgtSetup.Validate("E-Invoice Serv. Cr. Memo Path", Path);
+        ServiceMgtSetup.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -113,14 +111,12 @@ codeunit 143010 "E-Invoice Service Helper"
         EInvoiceHelper.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServHeader, DocumentType, Customer."No.");
 
-        with ServHeader do begin
-            Validate("Bill-to Customer No.", Customer."No.");
+        ServHeader.Validate("Bill-to Customer No.", Customer."No.");
 
-            "Your Reference" := Customer."No.";
-            "External Document No." := TestValueTxt;
+        ServHeader."Your Reference" := Customer."No.";
+        ServHeader."External Document No." := TestValueTxt;
 
-            Modify(true);
-        end;
+        ServHeader.Modify(true);
     end;
 
     local procedure CreateServiceLines(ServHeader: Record "Service Header"; NoOfLines: Integer; VATProdPostGroupCode: Code[20])
@@ -128,16 +124,15 @@ codeunit 143010 "E-Invoice Service Helper"
         ServLine: Record "Service Line";
         Counter: Integer;
     begin
-        for Counter := 1 to NoOfLines do
-            with ServLine do begin
-                LibraryService.CreateServiceLine(
-                  ServLine,
-                  ServHeader,
-                  Type::Item,
-                  EInvoiceHelper.CreateItem(VATProdPostGroupCode));
-                Validate(Quantity, LibraryRandom.RandInt(5));
-                Modify(true);
-            end;
+        for Counter := 1 to NoOfLines do begin
+            LibraryService.CreateServiceLine(
+              ServLine,
+              ServHeader,
+              ServLine.Type::Item,
+              EInvoiceHelper.CreateItem(VATProdPostGroupCode));
+            ServLine.Validate(Quantity, LibraryRandom.RandInt(5));
+            ServLine.Modify(true);
+        end;
     end;
 
     local procedure BlankUNECECodes(ServHeader: Record "Service Header")

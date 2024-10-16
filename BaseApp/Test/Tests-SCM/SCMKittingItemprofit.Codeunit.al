@@ -445,12 +445,10 @@ codeunit 137312 "SCM Kitting - Item profit"
 
     local procedure FindSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindFirst();
     end;
 
     local procedure FindComponent(Item: Record Item; var BOMComponent: Record "BOM Component"; ComponentIndex: Integer)
@@ -589,7 +587,7 @@ codeunit 137312 "SCM Kitting - Item profit"
                 LibrarySales.PostSalesDocument(SalesHeader, true, ShouldInvoice)
             else
                 PostAssemblyOrderQty(AssemblyHeader, OrderQty)
-        end else begin
+        end else
             if IsATO then begin
                 SalesLine.Find();
                 SalesLine.Validate("Qty. to Ship", Round(SalesLine."Qty. to Ship" / 2, 0.00001));
@@ -598,7 +596,6 @@ codeunit 137312 "SCM Kitting - Item profit"
                 AssemblyHeader.Find();
             end else
                 PostAssemblyOrderQty(AssemblyHeader, OrderQty / 2);
-        end;
 
         // Exercise
         Item.SetFilter("No.", GetItemsFromAsmListAsFilter(Item));

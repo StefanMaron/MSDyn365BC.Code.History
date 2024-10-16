@@ -1842,12 +1842,10 @@ codeunit 144129 "Remittance - Export Test"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Batch Name", BatchName);
-            FindLast();
-            Assert.AreEqual(DimValue1Code, "Shortcut Dimension 1 Code", FieldCaption("Shortcut Dimension 1 Code"));
-            Assert.AreEqual(DimValue2Code, "Shortcut Dimension 2 Code", FieldCaption("Shortcut Dimension 2 Code"));
-        end;
+        GenJournalLine.SetRange("Journal Batch Name", BatchName);
+        GenJournalLine.FindLast();
+        Assert.AreEqual(DimValue1Code, GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine.FieldCaption("Shortcut Dimension 1 Code"));
+        Assert.AreEqual(DimValue2Code, GenJournalLine."Shortcut Dimension 2 Code", GenJournalLine.FieldCaption("Shortcut Dimension 2 Code"));
     end;
 
     local procedure VerifyInstrPrty(var TempBlob: Codeunit "Temp Blob"; ExpectedValue: Text)

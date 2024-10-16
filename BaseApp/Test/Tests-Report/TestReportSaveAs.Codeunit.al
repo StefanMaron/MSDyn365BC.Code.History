@@ -93,15 +93,13 @@ codeunit 134607 "Test Report SaveAs"
     var
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
-        with JobQueueEntry do begin
-            Init();
-            "Object Type to Run" := "Object Type to Run"::Report;
-            "Object ID to Run" := ReportID;
-            "Report Output Type" := OutputType;
-            Description := Format(ReportID);
-            "Run in User Session" := true;
-            Insert(true);
-        end;
+        JobQueueEntry.Init();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Report;
+        JobQueueEntry."Object ID to Run" := ReportID;
+        JobQueueEntry."Report Output Type" := OutputType;
+        JobQueueEntry.Description := Format(ReportID);
+        JobQueueEntry."Run in User Session" := true;
+        JobQueueEntry.Insert(true);
         Commit();
 
         LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);

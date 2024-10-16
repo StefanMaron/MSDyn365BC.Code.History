@@ -425,7 +425,7 @@ codeunit 136361 "UT C Copy Job"
         VerifyJobPlanningLineLedgerEntryFields(Job[2]."No.", JobTask."Job Task No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CopyJobWithPriceDiffCurrency()
@@ -782,16 +782,14 @@ codeunit 136361 "UT C Copy Job"
     begin
         LibraryJob.CreateJobWIPMethod(JobWIPMethod);
 
-        with JobTask do begin
-            SetRange("Job No.", JobNo);
-            SetRange("Job Task Type", JobTaskType);
-            FindSet(true);
-            repeat
-                "WIP-Total" := "WIP-Total"::Total;
-                "WIP Method" := JobWIPMethod.Code;
-                Modify();
-            until Next() = 0;
-        end;
+        JobTask.SetRange("Job No.", JobNo);
+        JobTask.SetRange("Job Task Type", JobTaskType);
+        JobTask.FindSet(true);
+        repeat
+            JobTask."WIP-Total" := JobTask."WIP-Total"::Total;
+            JobTask."WIP Method" := JobWIPMethod.Code;
+            JobTask.Modify();
+        until JobTask.Next() = 0;
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -811,7 +809,7 @@ codeunit 136361 "UT C Copy Job"
         JobPlanningLine.Modify();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[20])
     begin
         LibraryJob.CreateJobGLAccountPrice(
@@ -1149,23 +1147,19 @@ codeunit 136361 "UT C Copy Job"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        with JobPlanningLine do begin
-            SetRange("Job No.", JobNo);
-            SetRange("Job Task No.", JobTaskNo);
-            FindFirst();
-            TestField("Ledger Entry No.", 0);
-            TestField("Ledger Entry Type", "Ledger Entry Type"::" ");
-        end;
+        JobPlanningLine.SetRange("Job No.", JobNo);
+        JobPlanningLine.SetRange("Job Task No.", JobTaskNo);
+        JobPlanningLine.FindFirst();
+        JobPlanningLine.TestField("Ledger Entry No.", 0);
+        JobPlanningLine.TestField("Ledger Entry Type", JobPlanningLine."Ledger Entry Type"::" ");
     end;
 
     local procedure VerifyJobTaskDimension(JobNo: Code[20]; JobTaskNo: Code[20]; DimCode: Code[20]; DimValueCode: Code[20])
     var
         JobTaskDimension: Record "Job Task Dimension";
     begin
-        with JobTaskDimension do begin
-            Get(JobNo, JobTaskNo, DimCode);
-            TestField("Dimension Value Code", DimValueCode);
-        end;
+        JobTaskDimension.Get(JobNo, JobTaskNo, DimCode);
+        JobTaskDimension.TestField("Dimension Value Code", DimValueCode);
     end;
 
     local procedure VerifyJobTaskDimensionCount(JobNo: Code[20]; JobTaskNo: Code[20]; ExpectedCount: Integer)

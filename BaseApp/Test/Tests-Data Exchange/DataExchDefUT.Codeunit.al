@@ -258,7 +258,7 @@ codeunit 132543 "Data Exch. Def UT"
         // Verify that there are 3 records in 1227 table with different Line Types.
         LineTypeCount := 1;
         DataExchLineDef1.SetRange("Data Exch. Def Code", DataExchCode);
-        if DataExchLineDef1.FindSet() then begin
+        if DataExchLineDef1.FindSet() then
             repeat
                 case LineTypeCount of
                     1:
@@ -271,7 +271,6 @@ codeunit 132543 "Data Exch. Def UT"
 
                 LineTypeCount := LineTypeCount + 1;
             until DataExchLineDef1.Next() = 0;
-        end
     end;
 
     [Test]

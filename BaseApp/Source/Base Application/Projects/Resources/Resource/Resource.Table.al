@@ -23,9 +23,6 @@ using Microsoft.Projects.TimeSheet;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
-using Microsoft.Service.Resources;
-using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Security.User;
 
@@ -642,30 +639,6 @@ table 156 Resource
             Caption = 'Default Deferral Template Code';
             TableRelation = "Deferral Template"."Deferral Code";
         }
-        field(5900; "Qty. on Service Order"; Decimal)
-        {
-            CalcFormula = sum("Service Order Allocation"."Allocated Hours" where(Posted = const(false),
-                                                                                  "Resource No." = field("No."),
-                                                                                  "Allocation Date" = field("Date Filter"),
-                                                                                  Status = const(Active)));
-            Caption = 'Qty. on Service Order';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(5901; "Service Zone Filter"; Code[10])
-        {
-            Caption = 'Service Zone Filter';
-            TableRelation = "Service Zone";
-        }
-        field(5902; "In Customer Zone"; Boolean)
-        {
-            CalcFormula = exist("Resource Service Zone" where("Resource No." = field("No."),
-                                                               "Service Zone Code" = field("Service Zone Filter")));
-            Caption = 'In Customer Zone';
-            Editable = false;
-            FieldClass = FlowField;
-        }
     }
 
     keys
@@ -734,20 +707,6 @@ table 156 Resource
         ExtTextHeader.SetRange("Table Name", ExtTextHeader."Table Name"::Resource);
         ExtTextHeader.SetRange("No.", "No.");
         ExtTextHeader.DeleteAll(true);
-
-        ResSkill.Reset();
-        ResSkill.SetRange(Type, ResSkill.Type::Resource);
-        ResSkill.SetRange("No.", "No.");
-        ResSkill.DeleteAll();
-
-        ResLoc.Reset();
-        ResLoc.SetCurrentKey("Resource No.", "Starting Date");
-        ResLoc.SetRange("Resource No.", "No.");
-        ResLoc.DeleteAll();
-
-        ResServZone.Reset();
-        ResServZone.SetRange("Resource No.", "No.");
-        ResServZone.DeleteAll();
 
         ResUnitMeasure.Reset();
         ResUnitMeasure.SetRange("Resource No.", "No.");
@@ -849,22 +808,25 @@ table 156 Resource
         ExtTextHeader: Record "Extended Text Header";
         PostCode: Record "Post Code";
         GenProdPostingGrp: Record "Gen. Product Posting Group";
-        ResSkill: Record "Resource Skill";
-        ResLoc: Record "Resource Location";
-        ResServZone: Record "Resource Service Zone";
         ResUnitMeasure: Record "Resource Unit of Measure";
         PlanningLine: Record "Job Planning Line";
         NoSeries: Codeunit "No. Series";
         MoveEntries: Codeunit MoveEntries;
         DimMgt: Codeunit DimensionManagement;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Do you want to change %1?';
         Text002: Label 'You cannot change %1 because there are ledger entries for this resource.';
         Text005: Label '%1 cannot be changed since unprocessed time sheet lines exist for this resource.';
         Text006: Label 'You cannot delete %1 %2 because unprocessed time sheet lines exist for this resource.', Comment = 'You cannot delete Resource LIFT since unprocessed time sheet lines exist for this resource.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BaseUnitOfMeasureQtyMustBeOneErr: Label 'The quantity per base unit of measure must be 1. %1 is set up with %2 per unit of measure.', Comment = '%1 Name of Unit of measure (e.g. BOX, PCS, KG...), %2 Qty. of %1 per base unit of measure ';
         CannotDeleteResourceErr: Label 'You cannot delete resource %1 because it is used in one or more project planning lines.', Comment = '%1 = Resource No.';
+#pragma warning disable AA0470
         DocumentExistsErr: Label 'You cannot delete resource %1 because there are one or more outstanding %2 that include this resource.', Comment = '%1 = Resource No.';
+#pragma warning restore AA0470
         PrivacyBlockedPostErr: Label 'You cannot post this line because resource %1 is blocked due to privacy.', Comment = '%1=resource no.';
         PrivacyBlockedErr: Label 'You cannot create this line because resource %1 is blocked due to privacy.', Comment = '%1=resource no.';
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';

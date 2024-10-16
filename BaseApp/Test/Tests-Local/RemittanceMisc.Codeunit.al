@@ -110,44 +110,37 @@ codeunit 144135 "Remittance - Misc"
 
         // [GIVEN] Vendor "V" with "Payment Type Code Abroad" = "X", "Specification (Norges Bank)" = "Y"
         CreateVendorWithPmtTypeCodeAbroad(Vendor);
-        with GenJournalLine do
-            for DocumentType := "Document Type"::" ".AsInteger() to "Document Type"::Reminder.AsInteger() do
-                if DocumentType <> "Document Type"::Invoice.AsInteger() then begin
-                    // [GIVEN] Purchase Journal Line with "Document Type" = " "("Credit Memo", "Finance Charge Memo", Payment, Refund, Reminder), "Account Type" = "Vendor"
-                    Init();
-                    Validate("Document Type", DocumentType);
-                    Validate("Account Type", "Account Type"::Vendor);
-
-                    // [WHEN] Validate Purchase Journal line "Account No." = "V"
-                    Validate("Account No.", Vendor."No.");
-
-                    // [THEN] Purchase Journal Line's "Payment Type Code Abroad" = "", "Specification (Norges Bank)" = ""
-                    VerifyPurchJnlLinePmtTypeCodeAbroad(GenJournalLine, '', '');
-                end;
+        for DocumentType := GenJournalLine."Document Type"::" ".AsInteger() to GenJournalLine."Document Type"::Reminder.AsInteger() do
+            if DocumentType <> GenJournalLine."Document Type"::Invoice.AsInteger() then begin
+                // [GIVEN] Purchase Journal Line with "Document Type" = " "("Credit Memo", "Finance Charge Memo", Payment, Refund, Reminder), "Account Type" = "Vendor"
+                GenJournalLine.Init();
+                GenJournalLine.Validate("Document Type", DocumentType);
+                GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Vendor);
+                // [WHEN] Validate Purchase Journal line "Account No." = "V"
+                GenJournalLine.Validate("Account No.", Vendor."No.");
+                // [THEN] Purchase Journal Line's "Payment Type Code Abroad" = "", "Specification (Norges Bank)" = ""
+                VerifyPurchJnlLinePmtTypeCodeAbroad(GenJournalLine, '', '');
+            end;
     end;
 
     local procedure CreateVendorWithPmtTypeCodeAbroad(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            "Payment Type Code Abroad" := MockPaymentTypeCodeAbroad();
-            "Specification (Norges Bank)" := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+        Vendor."Payment Type Code Abroad" := MockPaymentTypeCodeAbroad();
+        Vendor."Specification (Norges Bank)" := LibraryUtility.GenerateGUID();
+        Vendor.Modify();
     end;
 
     local procedure MockPaymentTypeCodeAbroad(): Code[2]
     var
         PaymentTypeCodeAbroad: Record "Payment Type Code Abroad";
     begin
-        with PaymentTypeCodeAbroad do begin
-            Init();
-            Code :=
-              CopyStr(
-                LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payment Type Code Abroad"), 1, MaxStrLen(Code));
-            Insert();
-            exit(Code);
-        end;
+        PaymentTypeCodeAbroad.Init();
+        PaymentTypeCodeAbroad.Code :=
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(PaymentTypeCodeAbroad.FieldNo(Code), DATABASE::"Payment Type Code Abroad"), 1, MaxStrLen(PaymentTypeCodeAbroad.Code));
+        PaymentTypeCodeAbroad.Insert();
+        exit(PaymentTypeCodeAbroad.Code);
     end;
 
     local procedure GetKIDNumber(): Code[10]
@@ -159,12 +152,10 @@ codeunit 144135 "Remittance - Misc"
 
     local procedure VerifyPurchJnlLinePmtTypeCodeAbroad(GenJournalLine: Record "Gen. Journal Line"; ExpectedPmtTypeCodeAbroad: Code[2]; ExpectedSpecNorgesBank: Code[60])
     begin
-        with GenJournalLine do begin
-            Assert.AreEqual(
-              ExpectedPmtTypeCodeAbroad, "Payment Type Code Abroad", FieldCaption("Payment Type Code Abroad"));
-            Assert.AreEqual(
-              ExpectedSpecNorgesBank, "Specification (Norges Bank)", FieldCaption("Specification (Norges Bank)"));
-        end;
+        Assert.AreEqual(
+          ExpectedPmtTypeCodeAbroad, GenJournalLine."Payment Type Code Abroad", GenJournalLine.FieldCaption("Payment Type Code Abroad"));
+        Assert.AreEqual(
+          ExpectedSpecNorgesBank, GenJournalLine."Specification (Norges Bank)", GenJournalLine.FieldCaption("Specification (Norges Bank)"));
     end;
 }
 

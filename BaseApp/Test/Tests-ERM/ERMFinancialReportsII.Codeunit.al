@@ -17,7 +17,6 @@
         ValidationErr: Label '%1 must be %2 in Report.';
         WarningMsg: Label 'Statement Ending Balance is not equal to Total Balance.';
         HeaderDimensionTxt: Label '%1 - %2';
-        PostingGroupErr: Label 'The Customer Posting Group does not exist.';
         NoSeriesGapWarningMsg: Label 'There is a gap in the number series.';
         NoSeriesInformationMsg: Label 'The number series %1 %2 has been used for the following entries:', Comment = '%1=Field Value;%2=Field Value;';
         TotalTxt: Label 'Total %1';
@@ -133,7 +132,7 @@
         asserterror REPORT.Run(REPORT::"Reminder - Test");
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(PostingGroupErr);
+        Assert.ExpectedErrorCannotFind(Database::"Customer Posting Group");
     end;
 
     [Test]
@@ -1476,17 +1475,14 @@
         // [GIVEN] Issued Reminder Header.
         LibraryReportDataset.SetFileName(LibraryUtility.GenerateGUID());
         MockIssuedReminder(IssuedRmdrHdr);
-
         // [GIVEN] Issued Reminder Lines:
         // [GIVEN] Type = "Customer Ledger Entry", Remaining Amount = "A1", Amount = "A2";
         // [GIVEN] Type = " ", Remaining Amount = 0, Amount = 0;
         // [GIVEN] Type = "G/L Account", Remaining Amount = 0, Amount = "A3";
-        with LibraryRandom do begin
-            MockIssuedReminderLine(
-              IssuedRmdrLine[1], IssuedRmdrHdr, IssuedRmdrLine[1].Type::"Customer Ledger Entry", RandIntInRange(1, 10), RandIntInRange(1, 10));
-            MockIssuedReminderLine(IssuedRmdrLine[2], IssuedRmdrHdr, IssuedRmdrLine[2].Type::" ", 0, 0);
-            MockIssuedReminderLine(IssuedRmdrLine[3], IssuedRmdrHdr, IssuedRmdrLine[3].Type::"G/L Account", 0, RandIntInRange(1, 10));
-        end;
+        MockIssuedReminderLine(
+          IssuedRmdrLine[1], IssuedRmdrHdr, IssuedRmdrLine[1].Type::"Customer Ledger Entry", LibraryRandom.RandIntInRange(1, 10), LibraryRandom.RandIntInRange(1, 10));
+        MockIssuedReminderLine(IssuedRmdrLine[2], IssuedRmdrHdr, IssuedRmdrLine[2].Type::" ", 0, 0);
+        MockIssuedReminderLine(IssuedRmdrLine[3], IssuedRmdrHdr, IssuedRmdrLine[3].Type::"G/L Account", 0, LibraryRandom.RandIntInRange(1, 10));
 
         // [WHEN] Report Reminder is run.
         Commit();
@@ -1649,15 +1645,13 @@
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         ClearGeneralJournalLines(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::" ",
-              "Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", BankAccountNo);
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccountNo);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1681,15 +1675,13 @@
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         ClearGeneralJournalLines(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::" ",
-              "Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
-            Validate("External Document No.", CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1, 35));
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", BankAccountNo);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("External Document No.", CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1, 35));
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccountNo);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1765,12 +1757,10 @@
         Item: Record Item;
         LibraryInventory: Codeunit "Library - Inventory";
     begin
-        with Item do begin
-            LibraryInventory.CreateItem(Item);
-            Validate("VAT Prod. Posting Group", VATProdPostingGrp);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGrp);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreateReminderTerm(var ReminderTerms: Record "Reminder Terms")
@@ -1789,14 +1779,12 @@
         ReminderTerms: Record "Reminder Terms";
     begin
         CreateReminderTerm(ReminderTerms);
-        with Customer do begin
-            LibrarySales.CreateCustomer(Customer);
-            Validate("Reminder Terms Code", ReminderTerms.Code);
-            Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms());
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Reminder Terms Code", ReminderTerms.Code);
+        Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms());
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCurrencyWithMultipleExchangeRates(): Code[10]
@@ -1817,17 +1805,15 @@
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(
-              SalesHeader, "Document Type"::Invoice,
-              CreateCustomerWithReminderSetup(VATPostingSetup."VAT Bus. Posting Group"));
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::Item,
-              CreateItem(VATPostingSetup."VAT Prod. Posting Group"),
-              LibraryRandom.RandDec(10, 2));
-            SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-            SalesLine.Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Invoice,
+            CreateCustomerWithReminderSetup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item,
+          CreateItem(VATPostingSetup."VAT Prod. Posting Group"),
+          LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -1848,12 +1834,10 @@
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(CreateCustomer());
-            Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Get(CreateCustomer());
+        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateFinanceChargeTerms(): Code[10]
@@ -1922,16 +1906,14 @@
         ReminderMake: Codeunit "Reminder-Make";
     begin
         LibraryERM.CreateReminderHeader(ReminderHeader);
-        with ReminderHeader do begin
-            Validate("Customer No.", CustomerNo);
-            Validate("Posting Date", DocumentDate);
-            Validate("Document Date", DocumentDate);
-            Modify(true);
-            CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-            ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgEntryLineFeeOn);
-            ReminderMake.Code();
-            exit("No.");
-        end;
+        ReminderHeader.Validate("Customer No.", CustomerNo);
+        ReminderHeader.Validate("Posting Date", DocumentDate);
+        ReminderHeader.Validate("Document Date", DocumentDate);
+        ReminderHeader.Modify(true);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgEntryLineFeeOn);
+        ReminderMake.Code();
+        exit(ReminderHeader."No.");
     end;
 
     local procedure CreateIssuedReminderWithInterestAmount(var IssuedReminderHeader: Record "Issued Reminder Header"; VATCalculationType: Enum "Tax Calculation Type")
@@ -2001,13 +1983,11 @@
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
-        with CurrencyExchangeRate do begin
-            Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
-            Validate("Adjustment Exch. Rate Amount", LibraryRandom.RandDec(10, 2));
-            Validate("Relational Exch. Rate Amount", "Adjustment Exch. Rate Amount");
-            Validate("Relational Adjmt Exch Rate Amt", "Adjustment Exch. Rate Amount");
-            Modify(true);
-        end;
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", LibraryRandom.RandDec(10, 2));
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Adjustment Exch. Rate Amount");
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Adjustment Exch. Rate Amount");
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateGenJnlBatchesWithLines(var GenJnlTemplateName: Code[10]; var FirstGenJnlBatchName: Code[10]; var SecondGenJnlBatchName: Code[10])
@@ -2127,28 +2107,24 @@
     var
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
-        with IssuedReminderLine do begin
-            SetRange("VAT %", VAT);
-            FindIssuedReminderLine(IssuedReminderLine, ReminderNo, ReminderType);
-            CalcSums(Amount);
-            CalcSums("VAT Amount");
-            TotalAmount := Amount;
-            TotalVATAmount := "VAT Amount";
-        end;
+        IssuedReminderLine.SetRange("VAT %", VAT);
+        FindIssuedReminderLine(IssuedReminderLine, ReminderNo, ReminderType);
+        IssuedReminderLine.CalcSums(Amount);
+        IssuedReminderLine.CalcSums("VAT Amount");
+        TotalAmount := IssuedReminderLine.Amount;
+        TotalVATAmount := IssuedReminderLine."VAT Amount";
     end;
 
     local procedure SumAmountOnIssuedFinChargeMemoLineWithVAT(FinanceChargeMemoNo: Code[20]; VAT: Decimal; var TotalAmount: Decimal; var TotalVATAmount: Decimal)
     var
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
     begin
-        with IssuedFinChargeMemoLine do begin
-            SetRange("VAT %", VAT);
-            FindIssuedFinChargeMemoLine(IssuedFinChargeMemoLine, FinanceChargeMemoNo);
-            CalcSums(Amount);
-            CalcSums("VAT Amount");
-            TotalAmount := Amount;
-            TotalVATAmount := "VAT Amount";
-        end;
+        IssuedFinChargeMemoLine.SetRange("VAT %", VAT);
+        FindIssuedFinChargeMemoLine(IssuedFinChargeMemoLine, FinanceChargeMemoNo);
+        IssuedFinChargeMemoLine.CalcSums(Amount);
+        IssuedFinChargeMemoLine.CalcSums("VAT Amount");
+        TotalAmount := IssuedFinChargeMemoLine.Amount;
+        TotalVATAmount := IssuedFinChargeMemoLine."VAT Amount";
     end;
 
     local procedure GetFinanceChargeMemoLine(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; FinanceChargeMemoNo: Code[20]; Type: Option)
@@ -3163,21 +3139,6 @@
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure RHReminderNos(var ReminderNos: TestRequestPage "Reminder Nos.")
-    var
-        ReminderNo1: Variant;
-        ReminderNo2: Variant;
-    begin
-        CurrentSaveValuesId := REPORT::"Reminder Nos.";
-        LibraryVariableStorage.Dequeue(ReminderNo1);
-        LibraryVariableStorage.Dequeue(ReminderNo2);
-
-        ReminderNos."Issued Reminder Header".SetFilter("No.", StrSubstNo('%1|%2', ReminderNo1, ReminderNo2));
-        ReminderNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure RHReminder(var Reminder: TestRequestPage Reminder)
     begin
         CurrentSaveValuesId := REPORT::Reminder;
@@ -3219,21 +3180,6 @@
         FinanceChargeMemoTest."Finance Charge Memo Header".SetFilter("No.", FinChargeMemoNo);
         FinanceChargeMemoTest.ShowDimensions.SetValue(ShowDimension);
         FinanceChargeMemoTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure RHFinanceChargeMemoNos(var FinanceChargeMemoNos: TestRequestPage "Finance Charge Memo Nos.")
-    var
-        FinanceChargeMemoNo1: Variant;
-        FinanceChargeMemoNo2: Variant;
-    begin
-        CurrentSaveValuesId := REPORT::"Finance Charge Memo Nos.";
-        LibraryVariableStorage.Dequeue(FinanceChargeMemoNo1);
-        LibraryVariableStorage.Dequeue(FinanceChargeMemoNo2);
-        FinanceChargeMemoNos."Issued Fin. Charge Memo Header".SetFilter(
-          "No.", StrSubstNo('%1|%2', FinanceChargeMemoNo1, FinanceChargeMemoNo2));
-        FinanceChargeMemoNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

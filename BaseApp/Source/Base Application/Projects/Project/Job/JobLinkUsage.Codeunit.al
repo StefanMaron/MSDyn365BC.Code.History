@@ -24,7 +24,11 @@ codeunit 1026 "Job Link Usage"
         UOMMgt: Codeunit "Unit of Measure Management";
         CalledFromInvtPutawayPick: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The specified %1 does not have %2 enabled.', Comment = 'The specified Project Planning Line does not have Usage Link enabled.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ConfirmUsageWithBlankLineTypeQst: Label 'Usage will not be linked to the project planning line because the Line Type field is empty.\\Do you want to continue?';
 
     internal procedure ApplyUsage(JobLedgerEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line"; IsCalledFromInventoryPutawayPick: Boolean)

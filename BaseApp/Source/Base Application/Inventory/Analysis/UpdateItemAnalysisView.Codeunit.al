@@ -56,13 +56,17 @@ codeunit 7150 "Update Item Analysis View"
         LastItemBudgetEntryNo: Integer;
         LastEntryNoIsInitialized: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Analysis View     #1############################\\';
         Text006: Label 'Updating table    #2############################\';
         Text007: Label 'Speed: (Entries/s)#4########\';
         Text008: Label 'Average Speed     #5########';
         Text009: Label '#6############### @3@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\';
+#pragma warning restore AA0470
         Text010: Label 'Summarizing';
         Text011: Label 'Updating Database';
+#pragma warning restore AA0074
 
     procedure InitLastEntryNo()
     begin

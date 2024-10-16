@@ -4,8 +4,6 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Peppol;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using System.IO;
 using System.Reflection;
 using System.Telemetry;
@@ -44,10 +42,7 @@ table 61 "Electronic Document Format"
                 PEPPOLManagement: Codeunit "PEPPOL Management";
                 FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
-                if "Codeunit ID" in
-                    [Codeunit::"PEPPOL Validation", Codeunit::"PEPPOL Service Validation",
-                    Codeunit::"Exp. Sales Inv. PEPPOL BIS3.0", Codeunit::"Exp. Sales CrM. PEPPOL BIS3.0",
-                    Codeunit::"Exp. Serv.Inv. PEPPOL BIS3.0", Codeunit::"Exp. Serv.CrM. PEPPOL BIS3.0"] then begin
+                if ShouldLogUptake() then begin
                     FeatureTelemetry.LogUptake('0000KOQ', PEPPOLManagement.GetPeppolTelemetryTok(), Enum::"Feature Uptake Status"::Discovered);
                     FeatureTelemetry.LogUptake('0000KOR', PEPPOLManagement.GetPeppolTelemetryTok(), Enum::"Feature Uptake Status"::"Set up");
                 end;
@@ -117,15 +112,15 @@ table 61 "Electronic Document Format"
         RecRef: RecordRef;
         EntryFileInStream: InStream;
         ZipFileOutStream: OutStream;
-        DocumentUsage: Option "Sales Invoice","Sales Credit Memo";
+        DocumentUsage: Enum "Electronic Document Format Usage";
         StartID: Integer;
         EndID: Integer;
         IsMissingFileContent: Boolean;
     begin
-        GetDocumentUsage(DocumentUsage, DocumentVariant);
+        GetDocumentFormatUsage(DocumentUsage, DocumentVariant);
 
         if not Get(ElectronicFormat, DocumentUsage) then begin
-            Usage := "Electronic Document Format Usage".FromInteger(DocumentUsage);
+            Usage := DocumentUsage;
             Error(NonExistingDocumentFormatErr, ElectronicFormat, Format(Usage));
         end;
 
@@ -192,15 +187,15 @@ table 61 "Electronic Document Format"
         RecordExportBuffer.DeleteAll();
     end;
 
-    procedure ValidateElectronicServiceDocument(ServiceHeader: Record "Service Header"; ElectronicFormat: Code[20])
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit "Serv. Electr. Doc. Format"', '25.0')]
+    procedure ValidateElectronicServiceDocument(ServiceHeader: Record Microsoft.Service.Document."Service Header"; ElectronicFormat: Code[20])
     var
-        ElectronicDocumentFormat: Record "Electronic Document Format";
+        ServElectrDocFormat: Codeunit "Serv. Electr. Doc. Format";
     begin
-        if not ElectronicDocumentFormat.Get(ElectronicFormat, Usage::"Service Validation") then
-            exit; // no validation required
-
-        CODEUNIT.Run(ElectronicDocumentFormat."Codeunit ID", ServiceHeader);
+        ServElectrDocFormat.ValidateElectronicServiceDocument(ServiceHeader, ElectronicFormat);
     end;
+#endif
 
     procedure ValidateElectronicSalesDocument(SalesHeader: Record "Sales Header"; ElectronicFormat: Code[20])
     var
@@ -245,36 +240,54 @@ table 61 "Electronic Document Format"
                     StrSubstNo('%1 - %2 %3.%4', FileMgt.StripNotsupportChrInFileName(CompanyName), DocumentType, DocumentNo, Extension), 1, 250);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by GetDocumentFormatUsage() with enum parameter', '25.0')]
     procedure GetDocumentUsage(var DocumentUsage: Option; DocumentVariant: Variant)
     var
+        DocumentFormatUsage: Enum "Electronic Document Format Usage";
+    begin
+        DocumentFormatUsage := "Electronic Document Format Usage".FromInteger(DocumentUsage);
+        GetDocumentFormatUsage(DocumentFormatUsage, DocumentVariant);
+        DocumentUsage := DocumentFormatUsage.AsInteger();
+    end;
+#endif
+
+    procedure GetDocumentFormatUsage(var DocumentFormatUsage: Enum "Electronic Document Format Usage"; DocumentVariant: Variant)
+    var
         DocumentRecordRef: RecordRef;
+#if not CLEAN25
+        DocumentUsage: Option;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        OnBeforeGetDocumentFormatUsage(Rec, DocumentVariant, DocumentFormatUsage, IsHandled);
+#if not CLEAN25
+        DocumentUsage := DocumentFormatUsage.AsInteger();
         OnBeforeGetDocumentUsage(Rec, DocumentVariant, DocumentUsage, IsHandled);
+        DocumentFormatUsage := "Electronic Document Format Usage".FromInteger(DocumentUsage);
+#endif
         if IsHandled then
             exit;
 
         DocumentRecordRef.GetTable(DocumentVariant);
         case DocumentRecordRef.Number of
             Database::"Sales Invoice Header":
-                DocumentUsage := Usage::"Sales Invoice".AsInteger();
+                DocumentFormatUsage := DocumentFormatUsage::"Sales Invoice";
             Database::"Sales Cr.Memo Header":
-                DocumentUsage := Usage::"Sales Credit Memo".AsInteger();
-            Database::"Service Invoice Header":
-                DocumentUsage := Usage::"Service Invoice".AsInteger();
-            Database::"Service Cr.Memo Header":
-                DocumentUsage := Usage::"Service Credit Memo".AsInteger();
+                DocumentFormatUsage := DocumentFormatUsage::"Sales Credit Memo";
             Database::"Sales Header":
-                GetDocumentUsageForSalesHeader(DocumentUsage, DocumentVariant);
-            Database::"Service Header":
-                GetDocumentUsageForServiceHeader(DocumentUsage, DocumentVariant);
+                GetDocumentUsageForSalesHeader(DocumentFormatUsage, DocumentVariant);
             Database::Job:
-                DocumentUsage := Usage::"Job Quote".AsInteger();
+                DocumentFormatUsage := DocumentFormatUsage::"Job Quote";
             Database::"Job Task":
-                DocumentUsage := Usage::"Job Task Quote".AsInteger();
-            else
-                Error(UnSupportedTableTypeErr, DocumentRecordRef.Caption);
+                DocumentFormatUsage := DocumentFormatUsage::"Job Task Quote";
+            else begin
+                IsHandled := false;
+                OnGetDocumentFormatUsageCaseElse(DocumentRecordRef, DocumentFormatUsage, IsHandled);
+                if not IsHandled then
+                    Error(UnSupportedTableTypeErr, DocumentRecordRef.Caption);
+            end;
         end;
     end;
 
@@ -283,9 +296,6 @@ table 61 "Electronic Document Format"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesHeader: Record "Sales Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        ServiceHeader: Record "Service Header";
         Job: Record Job;
         DocumentRecordRef: RecordRef;
         DocumentNo: Code[20];
@@ -308,21 +318,6 @@ table 61 "Electronic Document Format"
                     SalesCrMemoHeader := DocumentVariant;
                     exit(SalesCrMemoHeader."No.");
                 end;
-            DATABASE::"Service Invoice Header":
-                begin
-                    ServiceInvoiceHeader := DocumentVariant;
-                    exit(ServiceInvoiceHeader."No.");
-                end;
-            DATABASE::"Service Cr.Memo Header":
-                begin
-                    ServiceCrMemoHeader := DocumentVariant;
-                    exit(ServiceCrMemoHeader."No.");
-                end;
-            DATABASE::"Service Header":
-                begin
-                    ServiceHeader := DocumentVariant;
-                    exit(ServiceHeader."No.");
-                end;
             DATABASE::"Sales Header":
                 begin
                     SalesHeader := DocumentVariant;
@@ -335,7 +330,7 @@ table 61 "Electronic Document Format"
                 end;
             else begin
                 IsHandled := false;
-                OnGetDocumentNoCaseElse(DocumentVariant, DocumentNo, IsHandled);
+                OnGetDocumentNoCaseElse(DocumentVariant, DocumentNo, IsHandled, DocumentRecordRef);
                 if IsHandled then
                     exit(DocumentNo);
 
@@ -344,12 +339,20 @@ table 61 "Electronic Document Format"
         end;
     end;
 
-    local procedure GetDocumentUsageForSalesHeader(var DocumentUsage: Option; SalesHeader: Record "Sales Header")
+    local procedure GetDocumentUsageForSalesHeader(var DocumentFormatUsage: Enum "Electronic Document Format Usage"; SalesHeader: Record "Sales Header")
     var
+#if not CLEAN25
+        DocumentUsage: Option;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        OnBeforeGetDocumentFormatUsageForSalesHeader(Rec, SalesHeader, DocumentFormatUsage, IsHandled);
+#if not CLEAN25
+        DocumentUsage := DocumentFormatUsage.AsInteger();
         OnBeforeGetDocumentUsageForSalesHeader(Rec, SalesHeader, DocumentUsage, IsHandled);
+        DocumentFormatUsage := "Electronic Document Format Usage".FromInteger(DocumentUsage);
+#endif
         if IsHandled then
             exit;
 
@@ -357,30 +360,11 @@ table 61 "Electronic Document Format"
             SalesHeader."Document Type"::Order:
                 exit;
             SalesHeader."Document Type"::Invoice:
-                DocumentUsage := Usage::"Sales Invoice".AsInteger();
+                DocumentFormatUsage := Usage::"Sales Invoice";
             SalesHeader."Document Type"::"Credit Memo":
-                DocumentUsage := Usage::"Sales Credit Memo".AsInteger();
+                DocumentFormatUsage := Usage::"Sales Credit Memo";
             else
                 Error(UnSupportedDocumentTypeErr, Format(SalesHeader."Document Type"));
-        end;
-    end;
-
-    local procedure GetDocumentUsageForServiceHeader(var DocumentUsage: Option; ServiceHeader: Record "Service Header")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeGetDocumentUsageForServiceHeader(Rec, ServiceHeader, DocumentUsage, IsHandled);
-        if IsHandled then
-            exit;
-
-        case ServiceHeader."Document Type" of
-            ServiceHeader."Document Type"::Invoice:
-                DocumentUsage := Usage::"Service Invoice".AsInteger();
-            ServiceHeader."Document Type"::"Credit Memo":
-                DocumentUsage := Usage::"Service Credit Memo".AsInteger();
-            else
-                Error(UnSupportedDocumentTypeErr, Format(ServiceHeader."Document Type"));
         end;
     end;
 
@@ -403,7 +387,6 @@ table 61 "Electronic Document Format"
     procedure GetDocumentType(DocumentVariant: Variant) DocumentTypeText: Text[50]
     var
         DummySalesHeader: Record "Sales Header";
-        DummyServiceHeader: Record "Service Header";
         TranslationHelper: Codeunit "Translation Helper";
         ReportDistributionManagement: Codeunit "Report Distribution Management";
         DocumentRecordRef: RecordRef;
@@ -417,21 +400,11 @@ table 61 "Electronic Document Format"
                 DocumentRecordRef := DocumentVariant;
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
-                DocumentTypeText := Format(DummySalesHeader."Document Type"::Invoice);
+                DocumentTypeText := Format("Sales Document Type"::Invoice);
             DATABASE::"Sales Cr.Memo Header":
-                DocumentTypeText := Format(DummySalesHeader."Document Type"::"Credit Memo");
-            DATABASE::"Service Invoice Header":
-                DocumentTypeText := Format(DummyServiceHeader."Document Type"::Invoice);
-            DATABASE::"Service Cr.Memo Header":
-                DocumentTypeText := Format(DummyServiceHeader."Document Type"::"Credit Memo");
+                DocumentTypeText := Format("Sales Document Type"::"Credit Memo");
             DATABASE::Job:
-                DocumentTypeText := Format(DummyServiceHeader."Document Type"::Quote);
-            DATABASE::"Service Header":
-                begin
-                    DummyServiceHeader := DocumentVariant;
-                    if DummyServiceHeader."Document Type" = DummyServiceHeader."Document Type"::Quote then
-                        DocumentTypeText := Format(DummyServiceHeader."Document Type"::Quote);
-                end;
+                DocumentTypeText := Format("Sales Document Type"::Quote);
             DATABASE::"Sales Header":
                 begin
                     DummySalesHeader := DocumentVariant;
@@ -439,7 +412,7 @@ table 61 "Electronic Document Format"
                         DocumentTypeText := Format(DummySalesHeader."Document Type"::Quote);
                 end;
             else
-                OnGetDocumentTypeCaseElse(DocumentVariant, DocumentTypeText);
+                OnGetDocumentTypeCaseElse(DocumentVariant, DocumentTypeText, DocumentRecordRef);
         end;
 
         TranslationHelper.RestoreGlobalLanguage();
@@ -461,34 +434,68 @@ table 61 "Electronic Document Format"
         ElectronicDocumentFormat.Insert();
     end;
 
+    local procedure ShouldLogUptake() Result: Boolean
+    begin
+        if "Codeunit ID" in [
+            Codeunit::"PEPPOL Validation", Codeunit::"Exp. Sales Inv. PEPPOL BIS3.0", Codeunit::"Exp. Sales CrM. PEPPOL BIS3.0"]
+        then
+            exit(true);
+
+        OnAfterShouldLogUptake(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnDiscoverElectronicFormat()
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeGetDocumentFormatUsage', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDocumentUsage(ElectronicDocumentFormat: Record "Electronic Document Format"; DocumentVariant: Variant; var DocumentUsage: Option; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDocumentFormatUsage(ElectronicDocumentFormat: Record "Electronic Document Format"; DocumentVariant: Variant; var DocumentFormatUsage: Enum "Electronic Document Format Usage"; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeGetDocumentFormatUsageForSalesHeader', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDocumentUsageForSalesHeader(ElectronicDocumentFormat: Record "Electronic Document Format"; SalesHeader: Record "Sales Header"; var DocumentUsage: Option; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDocumentUsageForServiceHeader(ElectronicDocumentFormat: Record "Electronic Document Format"; ServiceHeader: Record "Service Header"; var DocumentUsage: Option; var IsHandled: Boolean)
+    local procedure OnBeforeGetDocumentFormatUsageForSalesHeader(ElectronicDocumentFormat: Record "Electronic Document Format"; SalesHeader: Record "Sales Header"; var DocumentUsage: Enum "Electronic Document Format Usage"; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    internal procedure RunOnBeforeGetDocumentUsageForServiceHeader(ElectronicDocumentFormat: Record "Electronic Document Format"; ServiceHeader: Record Microsoft.Service.Document."Service Header"; var DocumentUsage: Option; var IsHandled: Boolean)
+    begin
+        OnBeforeGetDocumentUsageForServiceHeader(ElectronicDocumentFormat, ServiceHeader, DocumentUsage, IsHandled);
+    end;
+
+    [Obsolete('Replaced by event OnBeforeGetDocumentFormatUsageForServiceHeader in codeunit "Serv. Electr. Doc. Format"', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDocumentUsageForServiceHeader(ElectronicDocumentFormat: Record "Electronic Document Format"; ServiceHeader: Record Microsoft.Service.Document."Service Header"; var DocumentUsage: Option; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentNoCaseElse(DocumentVariant: Variant; var DocumentNo: Code[20]; var IsHandled: Boolean; DocumentRecordRef: RecordRef)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetDocumentNoCaseElse(DocumentVariant: Variant; var DocumentNo: Code[20]; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnGetDocumentTypeCaseElse(DocumentVariant: Variant; var DocumentTypeText: Text[50])
+    local procedure OnGetDocumentTypeCaseElse(DocumentVariant: Variant; var DocumentTypeText: Text[50]; DocumentRecordRef: RecordRef)
     begin
     end;
 
@@ -509,6 +516,16 @@ table 61 "Electronic Document Format"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAttachmentFileName(RecordVariant: Variant; DocumentNo: Code[20]; DocumentType: Text; Extension: Code[3]; var IsHandled: Boolean; var FileName: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentFormatUsageCaseElse(DocumentRecordRef: RecordRef; var DocumentFormatUsage: Enum "Electronic Document Format Usage"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldLogUptake(var ElectronicDocumentFormat: Record "Electronic Document Format"; var Result: Boolean)
     begin
     end;
 }

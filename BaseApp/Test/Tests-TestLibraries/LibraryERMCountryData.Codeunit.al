@@ -199,37 +199,36 @@ codeunit 131305 "Library - ERM Country Data"
         GenPostingSetup: Record "General Posting Setup";
     begin
         PrepareNormalGenPostingSetup(NormalGeneralPostingSetup);
-        with GenPostingSetup do
-            if FindSet(true) then
-                repeat
-                    if "Sales Account" = '' then
-                        Validate("Sales Account", NormalGeneralPostingSetup."Sales Account");
-                    if "Purch. Account" = '' then
-                        Validate("Purch. Account", NormalGeneralPostingSetup."Purch. Account");
-                    if "Sales Credit Memo Account" = '' then
-                        Validate("Sales Credit Memo Account", NormalGeneralPostingSetup."Sales Credit Memo Account");
-                    if "Purch. Credit Memo Account" = '' then
-                        Validate("Purch. Credit Memo Account", NormalGeneralPostingSetup."Purch. Credit Memo Account");
-                    if "Sales Prepayments Account" = '' then
-                        Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
-                    if "Purch. Prepayments Account" = '' then
-                        Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
-                    if "Sales Line Disc. Account" = '' then
-                        Validate("Sales Line Disc. Account", NormalGeneralPostingSetup."Sales Line Disc. Account");
-                    if "Purch. Line Disc. Account" = '' then
-                        Validate("Purch. Line Disc. Account", NormalGeneralPostingSetup."Purch. Line Disc. Account");
-                    if "Sales Inv. Disc. Account" = '' then
-                        Validate("Sales Inv. Disc. Account", NormalGeneralPostingSetup."Sales Inv. Disc. Account");
-                    if "Purch. Inv. Disc. Account" = '' then
-                        Validate("Purch. Inv. Disc. Account", NormalGeneralPostingSetup."Purch. Inv. Disc. Account");
-                    if "Direct Cost Applied Account" = '' then
-                        Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account");
-                    if "Overhead Applied Account" = '' then
-                        Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
-                    if "Purchase Variance Account" = '' then
-                        Validate("Purchase Variance Account", NormalGeneralPostingSetup."Purchase Variance Account");
-                    Modify(true);
-                until Next() = 0;
+        if GenPostingSetup.FindSet(true) then
+            repeat
+                if GenPostingSetup."Sales Account" = '' then
+                    GenPostingSetup.Validate("Sales Account", NormalGeneralPostingSetup."Sales Account");
+                if GenPostingSetup."Purch. Account" = '' then
+                    GenPostingSetup.Validate("Purch. Account", NormalGeneralPostingSetup."Purch. Account");
+                if GenPostingSetup."Sales Credit Memo Account" = '' then
+                    GenPostingSetup.Validate("Sales Credit Memo Account", NormalGeneralPostingSetup."Sales Credit Memo Account");
+                if GenPostingSetup."Purch. Credit Memo Account" = '' then
+                    GenPostingSetup.Validate("Purch. Credit Memo Account", NormalGeneralPostingSetup."Purch. Credit Memo Account");
+                if GenPostingSetup."Sales Prepayments Account" = '' then
+                    GenPostingSetup.Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
+                if GenPostingSetup."Purch. Prepayments Account" = '' then
+                    GenPostingSetup.Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
+                if GenPostingSetup."Sales Line Disc. Account" = '' then
+                    GenPostingSetup.Validate("Sales Line Disc. Account", NormalGeneralPostingSetup."Sales Line Disc. Account");
+                if GenPostingSetup."Purch. Line Disc. Account" = '' then
+                    GenPostingSetup.Validate("Purch. Line Disc. Account", NormalGeneralPostingSetup."Purch. Line Disc. Account");
+                if GenPostingSetup."Sales Inv. Disc. Account" = '' then
+                    GenPostingSetup.Validate("Sales Inv. Disc. Account", NormalGeneralPostingSetup."Sales Inv. Disc. Account");
+                if GenPostingSetup."Purch. Inv. Disc. Account" = '' then
+                    GenPostingSetup.Validate("Purch. Inv. Disc. Account", NormalGeneralPostingSetup."Purch. Inv. Disc. Account");
+                if GenPostingSetup."Direct Cost Applied Account" = '' then
+                    GenPostingSetup.Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account");
+                if GenPostingSetup."Overhead Applied Account" = '' then
+                    GenPostingSetup.Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
+                if GenPostingSetup."Purchase Variance Account" = '' then
+                    GenPostingSetup.Validate("Purchase Variance Account", NormalGeneralPostingSetup."Purchase Variance Account");
+                GenPostingSetup.Modify(true);
+            until GenPostingSetup.Next() = 0;
     end;
 
     local procedure CreateMissingGeneralPostingSetup()
@@ -298,28 +297,24 @@ codeunit 131305 "Library - ERM Country Data"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetFilter("VAT Number", '<>%1', '');
-            if FindSet(true) then
-                repeat
-                    Validate("VAT Number", '');
-                    Modify(true);
-                until Next() = 0;
-        end;
+        VATPostingSetup.SetFilter("VAT Number", '<>%1', '');
+        if VATPostingSetup.FindSet(true) then
+            repeat
+                VATPostingSetup.Validate("VAT Number", '');
+                VATPostingSetup.Modify(true);
+            until VATPostingSetup.Next() = 0;
     end;
 #else
     local procedure RemoveVATCodesFromVATPostingSetup()
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetFilter("VAT Code", '<>%1', '');
-            if FindSet(true) then
-                repeat
-                    Validate("VAT Code", '');
-                    Modify(true);
-                until Next() = 0;
-        end;
+        VATPostingSetup.SetFilter("VAT Code", '<>%1', '');
+        if VATPostingSetup.FindSet(true) then
+            repeat
+                VATPostingSetup.Validate("VAT Code", '');
+                VATPostingSetup.Modify(true);
+            until VATPostingSetup.Next() = 0;
     end;
 #endif
 
@@ -343,21 +338,20 @@ codeunit 131305 "Library - ERM Country Data"
         NormalVATPostingSetup: Record "VAT Posting Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        with VATPostingSetup do begin
-            NormalVATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
-            NormalVATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
-            LibraryERM.FindVATPostingSetup(NormalVATPostingSetup, NormalVATPostingSetup."VAT Calculation Type"::"Normal VAT");
-            if Get(VATBusPostingGroup, VATProdPostingGroup) then
-                exit;
-            LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup, VATProdPostingGroup);
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            Validate("VAT Identifier",
-                LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
-            Validate("VAT %", 25); // Hardcoding to match W1.
-            Validate("Sales VAT Account", NormalVATPostingSetup."Sales VAT Account");
-            Validate("Purchase VAT Account", NormalVATPostingSetup."Purchase VAT Account");
-            Modify(true);
-        end;
+        NormalVATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
+        NormalVATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
+        LibraryERM.FindVATPostingSetup(NormalVATPostingSetup, NormalVATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        if VATPostingSetup.Get(VATBusPostingGroup, VATProdPostingGroup) then
+            exit;
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup, VATProdPostingGroup);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT Identifier",
+            LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+        VATPostingSetup.Validate("VAT %", 25);
+        // Hardcoding to match W1.
+        VATPostingSetup.Validate("Sales VAT Account", NormalVATPostingSetup."Sales VAT Account");
+        VATPostingSetup.Validate("Purchase VAT Account", NormalVATPostingSetup."Purchase VAT Account");
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure UpdateGenProdPostingSetupOnPrepAccount()

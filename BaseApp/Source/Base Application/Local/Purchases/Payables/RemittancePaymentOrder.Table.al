@@ -46,7 +46,7 @@ table 15000001 "Remittance Payment Order"
         field(30; "Number Sent"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count ("Waiting Journal" where("Payment Order ID - Sent" = field(ID)));
+            CalcFormula = count ("Waiting Journal" where("Payment Order ID - Sent" = field(ID)));
             Caption = 'Number Sent';
             Editable = false;
             FieldClass = FlowField;
@@ -54,7 +54,7 @@ table 15000001 "Remittance Payment Order"
         field(31; "Number Approved"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count ("Waiting Journal" where("Payment Order ID - Approved" = field(ID)));
+            CalcFormula = count ("Waiting Journal" where("Payment Order ID - Approved" = field(ID)));
             Caption = 'Number Approved';
             Editable = false;
             FieldClass = FlowField;
@@ -62,7 +62,7 @@ table 15000001 "Remittance Payment Order"
         field(32; "Number Settled"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count ("Waiting Journal" where("Payment Order ID - Settled" = field(ID)));
+            CalcFormula = count ("Waiting Journal" where("Payment Order ID - Settled" = field(ID)));
             Caption = 'Number Settled';
             Editable = false;
             FieldClass = FlowField;
@@ -70,7 +70,7 @@ table 15000001 "Remittance Payment Order"
         field(33; "Number Rejected"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count ("Waiting Journal" where("Payment Order ID - Rejected" = field(ID)));
+            CalcFormula = count ("Waiting Journal" where("Payment Order ID - Rejected" = field(ID)));
             Caption = 'Number Rejected';
             Editable = false;
             FieldClass = FlowField;

@@ -29,9 +29,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
-using Microsoft.Service.Email;
-using Microsoft.Service.Item;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Ledger;
 using System.Threading;
@@ -191,14 +188,6 @@ page 9035 "Data Administration"
                         RunObject = Report "Delete Invd Purch. Ret. Orders";
                         Ellipsis = true;
                     }
-                    action(DeleteInvoicedServiceOrders)
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Delete Service Orders';
-                        ToolTip = 'Delete Service Orders';
-                        RunObject = Report "Delete Invoiced Service Orders";
-                        Ellipsis = true;
-                    }
                     action(DeleteRegisteredWarehouseDocuments)
                     {
                         ApplicationArea = Warehouse;
@@ -309,33 +298,6 @@ page 9035 "Data Administration"
                         ToolTip = 'Delete Expired Components';
 
                         RunObject = report "Delete Expired Components";
-                        Ellipsis = true;
-                    }
-                    action(ServiceEmailQueue)
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Delete Service Email Queue';
-                        ToolTip = 'Delete Service Email Queue';
-
-                        RunObject = report "Delete Service Email Queue";
-                        Ellipsis = true;
-                    }
-                    action(DeleteServiceDocumentLog)
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Delete Service Document Log';
-                        ToolTip = 'Delete Service Document Log';
-
-                        RunObject = report "Delete Service Document Log";
-                        Ellipsis = true;
-                    }
-                    action(DeleteServiceItemLog)
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Delete Service Item Log';
-                        ToolTip = 'Delete Service Item Log';
-
-                        RunObject = report "Delete Service Item Log";
                         Ellipsis = true;
                     }
                     action(DeleteDetachedMedia)

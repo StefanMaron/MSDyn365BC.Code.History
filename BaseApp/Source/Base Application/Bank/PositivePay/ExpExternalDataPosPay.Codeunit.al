@@ -13,7 +13,9 @@ codeunit 1709 "Exp. External Data Pos. Pay"
     end;
 
     var
+#pragma warning disable AA0470
         ExternalContentErr: Label '%1 is empty.';
+#pragma warning restore AA0470
         DownloadFromStreamErr: Label 'The file has not been saved.';
 
     [Scope('OnPrem')]

@@ -1,16 +1,10 @@
 namespace Microsoft.Foundation.Navigate;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 page 99000822 "Order Tracking"
 {
@@ -261,13 +255,17 @@ page 99000822 "Order Tracking"
         EndingDate: Date;
         DerivedTrackingQty: Decimal;
         IsPlanning: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'Information about untracked quantity is only available for calculated planning lines.';
+#pragma warning restore AA0074
         DemandedByVisible: Boolean;
         SuppliedByVisible: Boolean;
         UntrackedButtonEnable: Boolean;
         SuppliedByIndent: Integer;
 
-    procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetSalesLine(var CurrentSalesLine: Record Microsoft.Sales.Document."Sales Line")
     begin
         OrderTrackingMgt.SetSalesLine(CurrentSalesLine);
 
@@ -276,6 +274,7 @@ page 99000822 "Order Tracking"
         StartingDate := CurrentSalesLine."Shipment Date";
         EndingDate := CurrentSalesLine."Shipment Date";
     end;
+#endif
 
     procedure SetReqLine(var CurrentReqLine: Record "Requisition Line")
     begin
@@ -291,7 +290,9 @@ page 99000822 "Order Tracking"
             PlanningTransparency.SetCurrReqLine(CurrentReqLine);
     end;
 
-    procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetPurchLine(var CurrentPurchLine: Record Microsoft.Purchases.Document."Purchase Line")
     begin
         OrderTrackingMgt.SetPurchLine(CurrentPurchLine);
 
@@ -300,8 +301,11 @@ page 99000822 "Order Tracking"
         StartingDate := CurrentPurchLine."Expected Receipt Date";
         EndingDate := CurrentPurchLine."Expected Receipt Date";
     end;
+#endif
 
-    procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetProdOrderLine(var CurrentProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
         OrderTrackingMgt.SetProdOrderLine(CurrentProdOrderLine);
 
@@ -310,8 +314,11 @@ page 99000822 "Order Tracking"
         StartingDate := CurrentProdOrderLine."Starting Date";
         EndingDate := CurrentProdOrderLine."Ending Date";
     end;
+#endif
 
-    procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetProdOrderComponent(var CurrentProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
         OrderTrackingMgt.SetProdOrderComp(CurrentProdOrderComp);
 
@@ -320,8 +327,11 @@ page 99000822 "Order Tracking"
         StartingDate := CurrentProdOrderComp."Due Date";
         EndingDate := CurrentProdOrderComp."Due Date";
     end;
+#endif
 
-    procedure SetAsmHeader(var CurrentAsmHeader: Record "Assembly Header")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetAsmHeader(var CurrentAsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
         OrderTrackingMgt.SetAsmHeader(CurrentAsmHeader);
 
@@ -330,8 +340,11 @@ page 99000822 "Order Tracking"
         StartingDate := CurrentAsmHeader."Due Date";
         EndingDate := CurrentAsmHeader."Due Date";
     end;
+#endif
 
-    procedure SetAsmLine(var CurrentAsmLine: Record "Assembly Line")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetAsmLine(var CurrentAsmLine: Record Microsoft.Assembly.Document."Assembly Line")
     begin
         OrderTrackingMgt.SetAsmLine(CurrentAsmLine);
 
@@ -340,6 +353,7 @@ page 99000822 "Order Tracking"
         StartingDate := CurrentAsmLine."Due Date";
         EndingDate := CurrentAsmLine."Due Date";
     end;
+#endif
 
     procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component")
     begin
@@ -377,7 +391,9 @@ page 99000822 "Order Tracking"
         EndingDate := TempItemLedgEntry."Posting Date";
     end;
 
-    procedure SetServLine(var CurrentServLine: Record "Service Line")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetServLine(var CurrentServLine: Record Microsoft.Service.Document."Service Line")
     begin
         OrderTrackingMgt.SetServLine(CurrentServLine);
 
@@ -386,8 +402,11 @@ page 99000822 "Order Tracking"
         StartingDate := CurrentServLine."Needed by Date";
         EndingDate := CurrentServLine."Needed by Date";
     end;
+#endif
 
-    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
     begin
         OrderTrackingMgt.SetJobPlanningLine(CurrentJobPlanningLine);
 
@@ -396,6 +415,7 @@ page 99000822 "Order Tracking"
         StartingDate := CurrentJobPlanningLine."Planning Date";
         EndingDate := CurrentJobPlanningLine."Planning Date";
     end;
+#endif
 
     procedure SetVariantRec(SourceRecordVar: Variant; NewItemNo: Code[20]; NewQuantity: Decimal; NewStartingDate: Date; NewEndingDate: Date)
     begin

@@ -359,8 +359,8 @@ page 7374 "Bin Contents"
                         EditinExcelFilters: Codeunit "Edit in Excel Filters";
                         ODataUtility: Codeunit "ODataUtility";
                     begin
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Location Code")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Location Code", Enum::"Edit in Excel Edm Type"::"Edm.String");
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Zone Code")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Zone Code", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Location Code")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Location Code", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Zone Code")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Zone Code", Enum::"Edit in Excel Edm Type"::"Edm.String");
                         EditinExcel.EditPageInExcel(Text.CopyStr(CurrPage.Caption, 1, 240), Page::"Bin Contents", EditinExcelFilters, StrSubstNo(ExcelFileNameTxt, Rec."Location Code", Rec."Zone Code"));
                     end;
                 }
@@ -402,7 +402,11 @@ page 7374 "Bin Contents"
         ZoneCode: Code[10];
         DataCaption: Text[80];
         ItemDescription: Text[100];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Location code is not allowed for user %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ExcelFileNameTxt: Label 'BinContents - LocationCode %1 - ZoneCode %2', Comment = '%1 = Location Code; %2 = Zone Code';
         LocFilter: Text;
         IsSaaSExcelAddinEnabled: Boolean;

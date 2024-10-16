@@ -169,14 +169,12 @@ codeunit 143000 "E-Invoice Sales Helper"
 
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
 
-        with SalesHeader do begin
-            Validate("Bill-to Customer No.", Customer."No.");
+        SalesHeader.Validate("Bill-to Customer No.", Customer."No.");
 
-            "Your Reference" := Customer."No.";
-            Validate("Shipment Date", "Posting Date");
+        SalesHeader."Your Reference" := Customer."No.";
+        SalesHeader.Validate("Shipment Date", SalesHeader."Posting Date");
 
-            Modify(true);
-        end;
+        SalesHeader.Modify(true);
     end;
 
     local procedure CreateSalesLines(SalesHeader: Record "Sales Header"; NoOfLines: Integer; VATProdPostGroupCode: Code[20])
@@ -219,25 +217,23 @@ codeunit 143000 "E-Invoice Sales Helper"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         GLAccount: Record "G/L Account";
     begin
-        with VATPostingSetup do begin
-            Init();
-            LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-            "VAT Prod. Posting Group" := VATProductPostingGroup.Code;
-            "VAT Bus. Posting Group" := VATBusPostingGrCode;
+        VATPostingSetup.Init();
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup."VAT Bus. Posting Group" := VATBusPostingGrCode;
 
-            if ReverseCharge then
-                "VAT Calculation Type" := "VAT Calculation Type"::"Reverse Charge VAT"
-            else
-                "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
-            "VAT %" := VATRate;
-            "VAT Identifier" := 'VAT' + Format(VATRate, 0, '<Integer>');
-            "Tax Category" := 'AA';
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("Sales VAT Account", GLAccount."No.");
-            Insert();
+        if ReverseCharge then
+            VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT"
+        else
+            VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
+        VATPostingSetup."VAT %" := VATRate;
+        VATPostingSetup."VAT Identifier" := 'VAT' + Format(VATRate, 0, '<Integer>');
+        VATPostingSetup."Tax Category" := 'AA';
+        LibraryERM.CreateGLAccount(GLAccount);
+        VATPostingSetup.Validate("Sales VAT Account", GLAccount."No.");
+        VATPostingSetup.Insert();
 
-            exit("VAT Prod. Posting Group");
-        end;
+        exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 }
 

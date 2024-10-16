@@ -227,18 +227,17 @@ codeunit 144182 "ERM NO Reports 3 Test"
         CreateGLAccount(GLAccount, VATPostingSetup."VAT Prod. Posting Group");
 
         LineNo := 10000;
-        for Counter := 1 to NumberOfReminderLines do
-            with ReminderLine do begin
-                Init();
-                "Reminder No." := ReminderHeader."No.";
-                Type := Type::"G/L Account";
-                LineNo := LineNo + 10000;
-                "Line No." := LineNo;
-                Validate("No.", GLAccount."No.");
-                Description := 'Reminder line dummy description';
-                Validate(Amount, LibraryRandom.RandInt(1000));
-                Insert(true);
-            end;
+        for Counter := 1 to NumberOfReminderLines do begin
+            ReminderLine.Init();
+            ReminderLine."Reminder No." := ReminderHeader."No.";
+            ReminderLine.Type := ReminderLine.Type::"G/L Account";
+            LineNo := LineNo + 10000;
+            ReminderLine."Line No." := LineNo;
+            ReminderLine.Validate("No.", GLAccount."No.");
+            ReminderLine.Description := 'Reminder line dummy description';
+            ReminderLine.Validate(Amount, LibraryRandom.RandInt(1000));
+            ReminderLine.Insert(true);
+        end;
     end;
 
     local procedure CreateReminderDocForCustomer(var ReminderHeader: Record "Reminder Header"; Customer: Record Customer)
@@ -261,17 +260,15 @@ codeunit 144182 "ERM NO Reports 3 Test"
 
         repeat
             CustLedgerEntry.CalcFields(Amount);
-            with ReminderLine do begin
-                Init();
-                "Reminder No." := ReminderHeader."No.";
-                Type := Type::"Customer Ledger Entry";
-                LineNo := LineNo + 10000;
-                "Line No." := LineNo;
-                Validate("Entry No.", CustLedgerEntry."Entry No.");
-                Description := 'Reminder line dummy description';
-                Validate(Amount, 100);
-                Insert(true);
-            end;
+            ReminderLine.Init();
+            ReminderLine."Reminder No." := ReminderHeader."No.";
+            ReminderLine.Type := ReminderLine.Type::"Customer Ledger Entry";
+            LineNo := LineNo + 10000;
+            ReminderLine."Line No." := LineNo;
+            ReminderLine.Validate("Entry No.", CustLedgerEntry."Entry No.");
+            ReminderLine.Description := 'Reminder line dummy description';
+            ReminderLine.Validate(Amount, 100);
+            ReminderLine.Insert(true);
         until (CustLedgerEntry.Next() = 0);
     end;
 
@@ -282,13 +279,11 @@ codeunit 144182 "ERM NO Reports 3 Test"
         LibraryERM.CreateReminderHeader(ReminderHeader);
         LibraryERM.CreateReminderTerms(ReminderTerms);
 
-        with ReminderHeader do begin
-            Validate("Customer No.", Customer."No.");
-            Validate("Reminder Terms Code", ReminderTerms.Code);
-            Validate("Post Interest", false);
-            Validate("Post Additional Fee", false);
-            Modify(true);
-        end;
+        ReminderHeader.Validate("Customer No.", Customer."No.");
+        ReminderHeader.Validate("Reminder Terms Code", ReminderTerms.Code);
+        ReminderHeader.Validate("Post Interest", false);
+        ReminderHeader.Validate("Post Additional Fee", false);
+        ReminderHeader.Modify(true);
     end;
 
     local procedure ExecuteAndVerifyCustomerCollectionReport(ReminderHeader: Record "Reminder Header")

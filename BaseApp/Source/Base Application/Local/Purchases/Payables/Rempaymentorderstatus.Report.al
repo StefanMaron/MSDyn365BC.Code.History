@@ -116,7 +116,7 @@ report 15000006 "Rem. payment order status"
             }
             dataitem(WaitingJournalStatus; "Integer")
             {
-                DataItemTableView = sorting(Number) WHERE(Number = filter(1 .. 4));
+                DataItemTableView = sorting(Number) where(Number = filter(1 .. 4));
                 column(Number; Number)
                 {
                 }

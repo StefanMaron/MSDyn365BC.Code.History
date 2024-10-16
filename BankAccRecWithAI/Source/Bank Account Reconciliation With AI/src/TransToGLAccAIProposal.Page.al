@@ -1,6 +1,7 @@
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.Statement;
+using System.Security.User;
 using Microsoft.Finance.GeneralLedger.Journal;
 
 page 7252 "Trans. To GL Acc. AI Proposal"
@@ -8,7 +9,7 @@ page 7252 "Trans. To GL Acc. AI Proposal"
     Caption = 'Copilot Proposals for Posting Differences to G/L Accounts';
     DataCaptionExpression = PageCaptionLbl;
     PageType = PromptDialog;
-    IsPreview = true;
+    IsPreview = false;
     Extensible = false;
     PromptMode = Generate;
     ApplicationArea = All;
@@ -106,6 +107,7 @@ page 7252 "Trans. To GL Acc. AI Proposal"
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ShowMandatory = true;
                     ToolTip = 'Specifies the template for the journal batch in which the proposed payments will be created.';
 
                     trigger OnValidate()
@@ -130,6 +132,7 @@ page 7252 "Trans. To GL Acc. AI Proposal"
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ShowMandatory = true;
                     ToolTip = 'Specifies the journal batch in which the proposed payments will be created.';
 
                     trigger OnValidate()
@@ -200,6 +203,7 @@ page 7252 "Trans. To GL Acc. AI Proposal"
             {
                 Caption = 'Keep it';
                 ToolTip = 'Post the difference amounts to G/L Accounts as proposed by Copilot.';
+                Enabled = (JournalTemplateName <> '') and (JournalBatchName <> '');
             }
             systemaction(Cancel)
             {
@@ -323,6 +327,7 @@ page 7252 "Trans. To GL Acc. AI Proposal"
         if not Rec.Insert() then
             Rec.Modify();
         PageCaptionLbl := StrSubstNo(ContentAreaCaptionTxt, BankAccNo, StatementNo, StatementDate);
+        VerifyAllowedPostingDates();
         Session.LogMessage('0000LFC', TelemetryCopilotProposedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
 
@@ -383,6 +388,24 @@ page 7252 "Trans. To GL Acc. AI Proposal"
     internal procedure SetPageCaption(InputPageCaption: Text);
     begin
         PageCaptionLbl := InputPageCaption;
+    end;
+
+    local procedure VerifyAllowedPostingDates()
+    var
+        TempBankAccRecAIProposal: Record "Bank Acc. Rec. AI Proposal" temporary;
+        BankAccRecTransToAcc: Codeunit "Bank Acc. Rec. Trans. to Acc.";
+        UserSetupManagement: Codeunit "User Setup Management";
+        FoundInvalidPostingDates: Boolean;
+    begin
+        CurrPage.ProposalDetails.Page.GetTempRecord(TempBankAccRecAIProposal);
+        if TempBankAccRecAIProposal.FindSet() then
+            repeat
+                if not UserSetupManagement.IsPostingDateValidWithGenJnlTemplate(TempBankAccRecAIProposal."Transaction Date", Rec."Journal Template Name") then
+                    FoundInvalidPostingDates := true;
+            until (TempBankAccRecAIProposal.Next() = 0) or FoundInvalidPostingDates;
+
+        if FoundInvalidPostingDates then
+            Message(BankAccRecTransToAcc.GetStatementLinesWithDisallowedDatesLbl());
     end;
 
     var

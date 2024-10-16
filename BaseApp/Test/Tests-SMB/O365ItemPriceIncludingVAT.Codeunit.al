@@ -16,8 +16,6 @@ codeunit 138014 "O365 Item Price Including VAT"
         LibraryRandom: Codeunit "Library - Random";
         WrongUnitPriceExclVATErr: Label 'Wrong Unit Price Excl. VAT.';
         LibraryApplicationArea: Codeunit "Library - Application Area";
-        VATBusPostingGrErr: Label 'VAT Bus. Posting Gr. (Price) must have a value in Sales & Receivables Setup: Primary Key=. It cannot be zero or empty.';
-        VATPostingSetupErr: Label 'The VAT Posting Setup does not exist. Identification fields and values: VAT Bus. Posting Group=''%1'',VAT Prod. Posting Group=''%2''', Comment = '%1 -  VAT Bus. Posting Group, %2 - VAT Prod. Posting Group';
 
     [Test]
     [Scope('OnPrem')]
@@ -28,13 +26,11 @@ codeunit 138014 "O365 Item Price Including VAT"
         // Setup
         Initialize();
 
-        with Item do begin
-            Init();
-            "Unit Price" := 0;
-            "Unit Price" := 1;
-            Validate("Price/Profit Calculation", "Price/Profit Calculation"::"Profit=Price-Cost");
-            Assert.AreEqual(0, "Profit %", 'Profit % should be 0 if Unit Price = 0')
-        end;
+        Item.Init();
+        Item."Unit Price" := 0;
+        Item."Unit Price" := 1;
+        Item.Validate("Price/Profit Calculation", Item."Price/Profit Calculation"::"Profit=Price-Cost");
+        Assert.AreEqual(0, Item."Profit %", 'Profit % should be 0 if Unit Price = 0')
     end;
 
     [Test]
@@ -52,11 +48,9 @@ codeunit 138014 "O365 Item Price Including VAT"
         CreateDefaultVATPostingSetup(BusPostingGroupValSetup, '');
         CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupValSetup);
 
-        with Item do begin
-            Init();
-            Validate("Price Includes VAT", true);
-            Assert.AreEqual(BusPostingGroupValSetup, "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
-        end;
+        Item.Init();
+        Item.Validate("Price Includes VAT", true);
+        Assert.AreEqual(BusPostingGroupValSetup, Item."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
     end;
 
     [Test]
@@ -78,12 +72,10 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupValSetup);
 
-        with Item do begin
-            Init();
-            "VAT Bus. Posting Gr. (Price)" := BusPostingGroupValItem;
-            Validate("Price Includes VAT", true);
-            Assert.AreEqual(BusPostingGroupValSetup, "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
-        end;
+        Item.Init();
+        Item."VAT Bus. Posting Gr. (Price)" := BusPostingGroupValItem;
+        Item.Validate("Price Includes VAT", true);
+        Assert.AreEqual(BusPostingGroupValSetup, Item."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
     end;
 
     [Test]
@@ -97,11 +89,9 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         CreateSalesSetupWithVATBusPostGrPrice('TEST');
 
-        with Item do begin
-            Init();
-            Validate("Price Includes VAT", false);
-            Assert.AreEqual('', "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
-        end;
+        Item.Init();
+        Item.Validate("Price Includes VAT", false);
+        Assert.AreEqual('', Item."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
     end;
 
     [Test]
@@ -118,12 +108,10 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         CreateSalesSetupWithVATBusPostGrPrice('TEST');
 
-        with Item do begin
-            Init();
-            "VAT Bus. Posting Gr. (Price)" := BusPostingGroupValItem;
-            Validate("Price Includes VAT", false);
-            Assert.AreEqual(BusPostingGroupValItem, "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
-        end;
+        Item.Init();
+        Item."VAT Bus. Posting Gr. (Price)" := BusPostingGroupValItem;
+        Item.Validate("Price Includes VAT", false);
+        Assert.AreEqual(BusPostingGroupValItem, Item."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
     end;
 
     [Test]
@@ -137,12 +125,10 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         CreateSalesSetupWithVATBusPostGrPrice('TEST');
 
-        with Item do begin
-            Init();
-            asserterror
-              Validate("Price Includes VAT", true);
-            Assert.ExpectedError('The VAT Posting Setup does not exist.');
-        end;
+        Item.Init();
+        asserterror
+          Item.Validate("Price Includes VAT", true);
+        Assert.ExpectedErrorCannotFind(Database::"VAT Posting Setup");
     end;
 
     [Test]
@@ -165,14 +151,12 @@ codeunit 138014 "O365 Item Price Including VAT"
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Sales Tax";
         VATPostingSetup.Modify();
 
-        with Item do begin
-            Init();
-            "Unit Price" := 2;
-            "Unit Cost" := 1;
-            asserterror
-              Validate("Price Includes VAT", true);
-            Assert.ExpectedError('Prices including VAT cannot be calculated when');
-        end;
+        Item.Init();
+        Item."Unit Price" := 2;
+        Item."Unit Cost" := 1;
+        asserterror
+          Item.Validate("Price Includes VAT", true);
+        Assert.ExpectedError('Prices including VAT cannot be calculated when');
     end;
 
     [Test]
@@ -190,11 +174,9 @@ codeunit 138014 "O365 Item Price Including VAT"
         CreateDefaultVATPostingSetup(BusPostingGroupValSetup, '');
         CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupValSetup);
 
-        with CustomerPriceGroup do begin
-            Init();
-            Validate("Price Includes VAT", true);
-            Assert.AreEqual(BusPostingGroupValSetup, "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
-        end;
+        CustomerPriceGroup.Init();
+        CustomerPriceGroup.Validate("Price Includes VAT", true);
+        Assert.AreEqual(BusPostingGroupValSetup, CustomerPriceGroup."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
     end;
 
     [Test]
@@ -215,12 +197,10 @@ codeunit 138014 "O365 Item Price Including VAT"
         CreateDefaultVATPostingSetup(BusPostingGroupValCPG, '');
         CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupValSetup);
 
-        with CustomerPriceGroup do begin
-            Init();
-            "VAT Bus. Posting Gr. (Price)" := BusPostingGroupValCPG;
-            Validate("Price Includes VAT", true);
-            Assert.AreEqual(BusPostingGroupValSetup, "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
-        end;
+        CustomerPriceGroup.Init();
+        CustomerPriceGroup."VAT Bus. Posting Gr. (Price)" := BusPostingGroupValCPG;
+        CustomerPriceGroup.Validate("Price Includes VAT", true);
+        Assert.AreEqual(BusPostingGroupValSetup, CustomerPriceGroup."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
     end;
 
     [Test]
@@ -234,11 +214,9 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         CreateSalesSetupWithVATBusPostGrPrice('TEST');
 
-        with CustomerPriceGroup do begin
-            Init();
-            Validate("Price Includes VAT", false);
-            Assert.AreEqual('', "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
-        end;
+        CustomerPriceGroup.Init();
+        CustomerPriceGroup.Validate("Price Includes VAT", false);
+        Assert.AreEqual('', CustomerPriceGroup."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
     end;
 
     [Test]
@@ -255,15 +233,13 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         CreateSalesSetupWithVATBusPostGrPrice('TEST');
 
-        with CustomerPriceGroup do begin
-            Init();
-            "VAT Bus. Posting Gr. (Price)" := BusPostingGroupValCPG;
-            Validate("Price Includes VAT", false);
-            Assert.AreEqual(BusPostingGroupValCPG, "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
-        end;
+        CustomerPriceGroup.Init();
+        CustomerPriceGroup."VAT Bus. Posting Gr. (Price)" := BusPostingGroupValCPG;
+        CustomerPriceGroup.Validate("Price Includes VAT", false);
+        Assert.AreEqual(BusPostingGroupValCPG, CustomerPriceGroup."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure TestForAllCustomersValidateItemNo()
@@ -276,19 +252,16 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         CreateItem(Item, 'ANYUOM', false, true, 'ANYVATGRP');
 
-        with SalesPrice do begin
-            Init();
-            "Sales Type" := "Sales Type"::"All Customers";
-            Validate("Item No.", Item."No.");
+        SalesPrice.Init();
+        SalesPrice."Sales Type" := SalesPrice."Sales Type"::"All Customers";
+        SalesPrice.Validate("Item No.", Item."No.");
 
-            Assert.AreEqual(Item."Sales Unit of Measure", "Unit of Measure Code", 'Wrong Unit of Measure.');
-            TestField("Variant Code", '');
-
-            // All values from Item
-            Assert.AreEqual(Item."Allow Invoice Disc.", "Allow Invoice Disc.", 'Wrong Allow Invoice Discount.');
-            Assert.AreEqual(Item."Price Includes VAT", "Price Includes VAT", 'Wrong Price Incl VAT.');
-            Assert.AreEqual(Item."VAT Bus. Posting Gr. (Price)", "VAT Bus. Posting Gr. (Price)", 'Wrong VAT Post Grp Price.');
-        end;
+        Assert.AreEqual(Item."Sales Unit of Measure", SalesPrice."Unit of Measure Code", 'Wrong Unit of Measure.');
+        SalesPrice.TestField("Variant Code", '');
+        // All values from Item
+        Assert.AreEqual(Item."Allow Invoice Disc.", SalesPrice."Allow Invoice Disc.", 'Wrong Allow Invoice Discount.');
+        Assert.AreEqual(Item."Price Includes VAT", SalesPrice."Price Includes VAT", 'Wrong Price Incl VAT.');
+        Assert.AreEqual(Item."VAT Bus. Posting Gr. (Price)", SalesPrice."VAT Bus. Posting Gr. (Price)", 'Wrong VAT Post Grp Price.');
     end;
 
     [Test]
@@ -319,20 +292,17 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         CreateItem(Item, 'BOX', false, true, 'DOMESTIC');
 
-        with SalesPrice do begin
-            Init();
-            "Sales Type" := SalesType;
-            Validate("Item No.", Item."No.");
+        SalesPrice.Init();
+        SalesPrice."Sales Type" := SalesType;
+        SalesPrice.Validate("Item No.", Item."No.");
 
-            Assert.AreEqual(Item."Sales Unit of Measure", "Unit of Measure Code", 'Wrong Unit of Measure.');
-            TestField("Variant Code", '');
-
-            // Value from Item
-            Assert.AreEqual(Item."Allow Invoice Disc.", "Allow Invoice Disc.", 'Wrong Allow Invoice Discount.');
-            // Values from Sales Price Init
-            Assert.AreEqual(false, "Price Includes VAT", 'Wrong Price Incl VAT.');
-            Assert.AreEqual('', "VAT Bus. Posting Gr. (Price)", 'Wrong VAT Post Grp Price.');
-        end;
+        Assert.AreEqual(Item."Sales Unit of Measure", SalesPrice."Unit of Measure Code", 'Wrong Unit of Measure.');
+        SalesPrice.TestField("Variant Code", '');
+        // Value from Item
+        Assert.AreEqual(Item."Allow Invoice Disc.", SalesPrice."Allow Invoice Disc.", 'Wrong Allow Invoice Discount.');
+        // Values from Sales Price Init
+        Assert.AreEqual(false, SalesPrice."Price Includes VAT", 'Wrong Price Incl VAT.');
+        Assert.AreEqual('', SalesPrice."VAT Bus. Posting Gr. (Price)", 'Wrong VAT Post Grp Price.');
     end;
 
     [Test]
@@ -347,17 +317,14 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         CreateItem(Item, 'BOX', false, true, 'DOMESTIC');
 
-        with SalesPrice do begin
-            Init();
-            "Item No." := Item."No.";
-            Validate("Sales Type", "Sales Type"::"All Customers");
-            TestField("Sales Code", '');
-
-            // All values from Item
-            Assert.AreEqual(Item."Allow Invoice Disc.", "Allow Invoice Disc.", 'Wrong Allow Invoice Discount.');
-            Assert.AreEqual(Item."Price Includes VAT", "Price Includes VAT", 'Wrong Price Incl VAT.');
-            Assert.AreEqual(Item."VAT Bus. Posting Gr. (Price)", "VAT Bus. Posting Gr. (Price)", 'Wrong VAT Post Grp Price.');
-        end;
+        SalesPrice.Init();
+        SalesPrice."Item No." := Item."No.";
+        SalesPrice.Validate("Sales Type", SalesPrice."Sales Type"::"All Customers");
+        SalesPrice.TestField("Sales Code", '');
+        // All values from Item
+        Assert.AreEqual(Item."Allow Invoice Disc.", SalesPrice."Allow Invoice Disc.", 'Wrong Allow Invoice Discount.');
+        Assert.AreEqual(Item."Price Includes VAT", SalesPrice."Price Includes VAT", 'Wrong Price Incl VAT.');
+        Assert.AreEqual(Item."VAT Bus. Posting Gr. (Price)", SalesPrice."VAT Bus. Posting Gr. (Price)", 'Wrong VAT Post Grp Price.');
     end;
 
     [Test]
@@ -374,14 +341,12 @@ codeunit 138014 "O365 Item Price Including VAT"
         Any := false;
         CreateItem(Item, 'BOX', Any, Any, 'any');
 
-        with SalesLineDiscount do begin
-            Init();
-            Type := Type::Item;
-            Validate(Code, Item."No.");
+        SalesLineDiscount.Init();
+        SalesLineDiscount.Type := SalesLineDiscount.Type::Item;
+        SalesLineDiscount.Validate(Code, Item."No.");
 
-            Assert.AreEqual(Item."Sales Unit of Measure", "Unit of Measure Code", 'Wrong Unit of Measure.');
-            TestField("Variant Code", '');
-        end;
+        Assert.AreEqual(Item."Sales Unit of Measure", SalesLineDiscount."Unit of Measure Code", 'Wrong Unit of Measure.');
+        SalesLineDiscount.TestField("Variant Code", '');
     end;
 #endif
 
@@ -474,6 +439,7 @@ codeunit 138014 "O365 Item Price Including VAT"
     procedure PriceIncludingVATChangeWhenThereIsNoValueInSalesSetupVATBusPostGrPriceAndThereIsCombinationInVatPostingSetup()
     var
         Item: Record Item;
+        SalesAndRecSetup: Record "Sales & Receivables Setup";
         BusPostingGroupValSetup: Code[10];
     begin
         // [FEATURE] [Item] [Price Incl. VAT]
@@ -492,8 +458,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         asserterror Item.Validate("Price Includes VAT", true);
 
         // [THEN] Error was shown
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(VATBusPostingGrErr);
+        Assert.ExpectedTestFieldError(SalesAndRecSetup.FieldCaption("VAT Bus. Posting Gr. (Price)"), '');
     end;
 
     [Test]
@@ -521,9 +486,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         asserterror Item.Validate("Price Includes VAT", true);
 
         // [THEN] Error was shown
-        Assert.ExpectedErrorCode('DB:RecordNotFound');
-        Assert.ExpectedError(StrSubstNo(
-            VATPostingSetupErr, SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)", Item."VAT Prod. Posting Group"));
+        Assert.ExpectedErrorCannotFind(Database::"VAT Posting Setup");
     end;
 
     [Test]
@@ -531,6 +494,7 @@ codeunit 138014 "O365 Item Price Including VAT"
     procedure PriceIncludingVATChangeWhenThereIsNoValueInSalesSetupVATBusPostGrPriceAndThereIsNoCombinationInVatPostingSetup()
     var
         Item: Record Item;
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         BusPostingGroupValSetup: Code[10];
         BusProdPostingGroupValSetup: Code[10];
     begin
@@ -551,8 +515,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         asserterror Item.Validate("Price Includes VAT", true);
 
         // [THEN] Error was shown
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(VATBusPostingGrErr);
+        Assert.ExpectedTestFieldError(SalesReceivablesSetup.FieldCaption("VAT Bus. Posting Gr. (Price)"), '');
     end;
 
     local procedure CreateItem(var Item: Record Item; UOMCode: Code[10]; AllowInvDisc: Boolean; PriceInclVAT: Boolean; VATBusPostGrpPrice: Code[10])
@@ -570,52 +533,44 @@ codeunit 138014 "O365 Item Price Including VAT"
         VATPostingSetup: Record "VAT Posting Setup";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
-        with VATBusinessPostingGroup do begin
-            if Get(VATBusPostingGroup) then
-                Delete();
+        if VATBusinessPostingGroup.Get(VATBusPostingGroup) then
+            VATBusinessPostingGroup.Delete();
 
-            Init();
-            Code := VATBusPostingGroup;
-            Insert();
-        end;
+        VATBusinessPostingGroup.Init();
+        VATBusinessPostingGroup.Code := VATBusPostingGroup;
+        VATBusinessPostingGroup.Insert();
 
-        with VATPostingSetup do begin
-            if Get(VATBusPostingGroup, VATProdPostingGroup) then
-                Delete();
+        if VATPostingSetup.Get(VATBusPostingGroup, VATProdPostingGroup) then
+            VATPostingSetup.Delete();
 
-            Init();
-            "VAT Bus. Posting Group" := VATBusPostingGroup;
-            "VAT Prod. Posting Group" := VATProdPostingGroup;
-            Insert();
-        end;
+        VATPostingSetup.Init();
+        VATPostingSetup."VAT Bus. Posting Group" := VATBusPostingGroup;
+        VATPostingSetup."VAT Prod. Posting Group" := VATProdPostingGroup;
+        VATPostingSetup.Insert();
     end;
 
     local procedure CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupVal: Code[20])
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesSetup do begin
-            if Get() then
-                Delete();
+        if SalesSetup.Get() then
+            SalesSetup.Delete();
 
-            Init();
-            "VAT Bus. Posting Gr. (Price)" := BusPostingGroupVal;
-            Insert();
-        end;
+        SalesSetup.Init();
+        SalesSetup."VAT Bus. Posting Gr. (Price)" := BusPostingGroupVal;
+        SalesSetup.Insert();
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        with VATPostingSetup do begin
-            Init();
-            "VAT Bus. Posting Group" := LibraryUtility.GenerateGUID();
-            "VAT Prod. Posting Group" := LibraryUtility.GenerateGUID();
-            "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
-            "VAT %" := LibraryRandom.RandInt(25);
-            Insert();
-        end;
+        VATPostingSetup.Init();
+        VATPostingSetup."VAT Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        VATPostingSetup."VAT Prod. Posting Group" := LibraryUtility.GenerateGUID();
+        VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
+        VATPostingSetup."VAT %" := LibraryRandom.RandInt(25);
+        VATPostingSetup.Insert();
 
         if VATProductPostingGroup.Get(VATPostingSetup."VAT Prod. Posting Group") then
             VATProductPostingGroup.Delete();

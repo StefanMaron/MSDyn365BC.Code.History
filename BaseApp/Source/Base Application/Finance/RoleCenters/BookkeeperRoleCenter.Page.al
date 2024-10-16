@@ -101,6 +101,10 @@ page 9004 "Bookkeeper Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part(ApprovalsActivities; "Approvals Activities")
             {
                 ApplicationArea = Basic, Suite;

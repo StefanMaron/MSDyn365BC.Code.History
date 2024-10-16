@@ -19,13 +19,8 @@ codeunit 6325 "Power BI Report Synchronizer"
         PageId: Text[50];
         IsLastAttempt: Boolean;
     begin
-#if not CLEAN22
-        if not DeploymentServiceAvailable() then
-            exit;
-#else
         if not EnvironmentInformation.IsSaaSInfrastructure() then
             exit;
-#endif
         PageId := CopyStr(Rec."Parameter String", 1, MaxStrLen(PageId));
 
 #if not CLEAN23
@@ -94,13 +89,8 @@ codeunit 6325 "Power BI Report Synchronizer"
         PowerBIReportUploads: Record "Power BI Report Uploads";
         ReportsToUpload: List of [Guid];
     begin
-#if not CLEAN22
-        if not DeploymentServiceAvailable() then
-            exit(false);
-#else
         if not EnvironmentInformation.IsSaaSInfrastructure() then
             exit(false);
-#endif
 
         // Upload
         if GetOutOfTheBoxReportsToUpload(Context, ReportsToUpload) then
@@ -241,19 +231,6 @@ codeunit 6325 "Power BI Report Synchronizer"
         Session.LogMessage('0000B61', StrSubstNo(BlobDoesNotExistTelemetryMsg, BlobId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
         exit(false);
     end;
-
-#if not CLEAN22
-    local procedure DeploymentServiceAvailable(): Boolean
-    begin
-        if not EnvironmentInformation.IsSaaSInfrastructure() then
-            exit(false);
-
-        if PowerBiServiceMgt.IsPBIServiceAvailable() then
-            exit(true);
-
-        exit(false);
-    end;
-#endif
 
     local procedure GetOutOfTheBoxBlobIdForDeployment(Context: Text[50]): Guid
     var
@@ -468,7 +445,7 @@ codeunit 6325 "Power BI Report Synchronizer"
     local procedure UpdateParameters(PowerBIServiceProvider: Interface "Power BI Service Provider"; var PowerBIReportUploads: Record "Power BI Report Uploads"; DatasetId: Text)
     var
         UrlHelper: Codeunit "Url Helper";
-        BusinessCentralAccessToken: Text;
+        BusinessCentralAccessToken: SecretText;
         OperationResult: DotNet OperationResult;
         GatewayId: Guid;
         DataSourceId: Guid;
@@ -485,8 +462,8 @@ codeunit 6325 "Power BI Report Synchronizer"
             exit;
         end; // If it fails and we should not retry, we should ignore the step and try to go ahead (e.g. for custom uploaded reports)
 
-        BusinessCentralAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
-        if BusinessCentralAccessToken = '' then begin
+        BusinessCentralAccessToken := AzureAdMgt.GetAccessTokenAsSecretText(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
+        if BusinessCentralAccessToken.IsEmpty() then begin
             Session.LogMessage('0000B63', EmptyAccessTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
             PowerBIReportUploads.Validate("Report Upload Status", PowerBIReportUploads."Report Upload Status"::ParametersUpdated);
             exit;

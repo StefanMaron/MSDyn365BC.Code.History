@@ -41,18 +41,17 @@ codeunit 144200 "Recurring Orders Tests"
         Commit();
 
         // Check that Recurring Groups are only valid for Blanket Orders
-        with SalesHeader do
-            for NewDocType := "Document Type"::Quote.AsInteger() to "Document Type"::"Return Order".AsInteger() do begin
-                Init();
-                Validate("Document Type", NewDocType);
-                if NewDocType = "Document Type"::"Blanket Order".AsInteger() then begin
-                    Validate("Recurring Group Code", RecurringGroup.Code);
-                    Assert.AreEqual(RecurringGroup.Code, "Recurring Group Code", '');
-                end else begin
-                    asserterror Validate("Recurring Group Code", RecurringGroup.Code);
-                    Assert.ExpectedError(Format("Document Type"::"Blanket Order"));
-                end;
+        for NewDocType := SalesHeader."Document Type"::Quote.AsInteger() to SalesHeader."Document Type"::"Return Order".AsInteger() do begin
+            SalesHeader.Init();
+            SalesHeader.Validate("Document Type", NewDocType);
+            if NewDocType = SalesHeader."Document Type"::"Blanket Order".AsInteger() then begin
+                SalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
+                Assert.AreEqual(RecurringGroup.Code, SalesHeader."Recurring Group Code", '');
+            end else begin
+                asserterror SalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
+                Assert.ExpectedError(Format(SalesHeader."Document Type"::"Blanket Order"));
             end;
+        end;
     end;
 
     [Test]
@@ -525,11 +524,9 @@ codeunit 144200 "Recurring Orders Tests"
 
     local procedure CreateRecurringSetup(var RecurringGroup: Record "Recurring Group")
     begin
-        with RecurringGroup do begin
-            Init();
-            Code := LibraryUTUtility.GetNewCode10();
-            Insert();
-        end;
+        RecurringGroup.Init();
+        RecurringGroup.Code := LibraryUTUtility.GetNewCode10();
+        RecurringGroup.Insert();
     end;
 
     local procedure CreateBlanketSalesOrder(var SalesHeader: Record "Sales Header")
@@ -554,30 +551,24 @@ codeunit 144200 "Recurring Orders Tests"
         Commit();
 
         BlanketSalesHeader.SetRecFilter();
-        with CreateRecurringOrders do begin
-            SetHiddenError(HiddenError);
-            SetCreatingDate(ProcessingDate);
-            SetTableView(BlanketSalesHeader);
-            UseRequestPage := false;
-            Run();
-        end;
+        CreateRecurringOrders.SetHiddenError(HiddenError);
+        CreateRecurringOrders.SetCreatingDate(ProcessingDate);
+        CreateRecurringOrders.SetTableView(BlanketSalesHeader);
+        CreateRecurringOrders.UseRequestPage := false;
+        CreateRecurringOrders.Run();
 
-        with SalesOrderHeader do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Sell-to Customer No.", BlanketSalesHeader."Sell-to Customer No.");
-            FindFirst();
-        end;
+        SalesOrderHeader.SetRange("Document Type", SalesOrderHeader."Document Type"::Order);
+        SalesOrderHeader.SetRange("Sell-to Customer No.", BlanketSalesHeader."Sell-to Customer No.");
+        SalesOrderHeader.FindFirst();
     end;
 
     local procedure FindSalesLineWithItem(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::Item);
-            SetFilter("No.", '<>%1', '');
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetFilter("No.", '<>%1', '');
+        SalesLine.FindFirst();
     end;
 
     [MessageHandler]

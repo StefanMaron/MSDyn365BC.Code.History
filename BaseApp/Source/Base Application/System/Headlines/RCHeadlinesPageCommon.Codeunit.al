@@ -15,8 +15,10 @@ codeunit 1440 "RC Headlines Page Common"
     procedure HeadlineOnOpenPage(RoleCenterPageID: Integer)
     var
         RCHeadlinesUserData: Record "RC Headlines User Data";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        RCHeadlinesUserData2: Record "RC Headlines User Data";
     begin
-        if RCHeadlinesUserData.WritePermission() then begin
+        if RCHeadlinesUserData2.WritePermission() then begin
             if not RCHeadlinesUserData.Get(UserSecurityId(), RoleCenterPageID) then begin
                 RCHeadlinesUserData.Init();
                 RCHeadlinesUserData."Role Center Page ID" := RoleCenterPageID;

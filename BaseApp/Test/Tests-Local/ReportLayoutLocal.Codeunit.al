@@ -47,40 +47,38 @@ codeunit 141000 "Report Layout - Local"
     begin
         // [FEATURE] [VAT] [Trade Settlement] [DEMO]
         // [SCENARIO 168591] Demodata "VAT Reporting Code" list
-        with VATReportingCode do begin
-            VerifyDemoDataVATCodePurch('0', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('1', "Trade Settlement 2017 Box No."::"14", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('11', "Trade Settlement 2017 Box No."::"15", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('12', "Trade Settlement 2017 Box No."::"15", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('13', "Trade Settlement 2017 Box No."::"16", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('14', "Trade Settlement 2017 Box No."::"17", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('15', "Trade Settlement 2017 Box No."::"18", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('2', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('21', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('22', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('23', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodeSales('3', "Trade Settlement 2017 Box No."::"3", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodeSales('31', "Trade Settlement 2017 Box No."::"4", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodeSales('32', "Trade Settlement 2017 Box No."::"4", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodeSales('33', "Trade Settlement 2017 Box No."::"5", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('4', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodeSales('5', "Trade Settlement 2017 Box No."::"6", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodeSales('51', "Trade Settlement 2017 Box No."::"7", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodeSales('52', "Trade Settlement 2017 Box No."::"8", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodeSales('6', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodeSales('7', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('81', "Trade Settlement 2017 Box No."::"9", "Reverse Charge Report Box No."::"17");
-            VerifyDemoDataVATCodePurch('82', "Trade Settlement 2017 Box No."::"9", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('83', "Trade Settlement 2017 Box No."::"10", "Reverse Charge Report Box No."::"18");
-            VerifyDemoDataVATCodePurch('84', "Trade Settlement 2017 Box No."::"10", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('85', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('86', "Trade Settlement 2017 Box No."::"12", "Reverse Charge Report Box No."::"17");
-            VerifyDemoDataVATCodePurch('87', "Trade Settlement 2017 Box No."::"12", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('88', "Trade Settlement 2017 Box No."::"12", "Reverse Charge Report Box No."::"17");
-            VerifyDemoDataVATCodePurch('89', "Trade Settlement 2017 Box No."::"12", "Reverse Charge Report Box No."::" ");
-            VerifyDemoDataVATCodePurch('91', "Trade Settlement 2017 Box No."::"13", "Reverse Charge Report Box No."::"14");
-            VerifyDemoDataVATCodePurch('92', "Trade Settlement 2017 Box No."::"14", "Reverse Charge Report Box No."::" ");
-        end;
+        VerifyDemoDataVATCodePurch('0', VATReportingCode."Trade Settlement 2017 Box No."::" ", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('1', VATReportingCode."Trade Settlement 2017 Box No."::"14", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('11', VATReportingCode."Trade Settlement 2017 Box No."::"15", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('12', VATReportingCode."Trade Settlement 2017 Box No."::"15", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('13', VATReportingCode."Trade Settlement 2017 Box No."::"16", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('14', VATReportingCode."Trade Settlement 2017 Box No."::"17", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('15', VATReportingCode."Trade Settlement 2017 Box No."::"18", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('2', VATReportingCode."Trade Settlement 2017 Box No."::" ", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('21', VATReportingCode."Trade Settlement 2017 Box No."::" ", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('22', VATReportingCode."Trade Settlement 2017 Box No."::" ", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('23', VATReportingCode."Trade Settlement 2017 Box No."::" ", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodeSales('3', VATReportingCode."Trade Settlement 2017 Box No."::"3", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodeSales('31', VATReportingCode."Trade Settlement 2017 Box No."::"4", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodeSales('32', VATReportingCode."Trade Settlement 2017 Box No."::"4", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodeSales('33', VATReportingCode."Trade Settlement 2017 Box No."::"5", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('4', VATReportingCode."Trade Settlement 2017 Box No."::" ", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodeSales('5', VATReportingCode."Trade Settlement 2017 Box No."::"6", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodeSales('51', VATReportingCode."Trade Settlement 2017 Box No."::"7", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodeSales('52', VATReportingCode."Trade Settlement 2017 Box No."::"8", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodeSales('6', VATReportingCode."Trade Settlement 2017 Box No."::" ", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodeSales('7', VATReportingCode."Trade Settlement 2017 Box No."::" ", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('81', VATReportingCode."Trade Settlement 2017 Box No."::"9", VATReportingCode."Reverse Charge Report Box No."::"17");
+        VerifyDemoDataVATCodePurch('82', VATReportingCode."Trade Settlement 2017 Box No."::"9", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('83', VATReportingCode."Trade Settlement 2017 Box No."::"10", VATReportingCode."Reverse Charge Report Box No."::"18");
+        VerifyDemoDataVATCodePurch('84', VATReportingCode."Trade Settlement 2017 Box No."::"10", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('85', VATReportingCode."Trade Settlement 2017 Box No."::" ", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('86', VATReportingCode."Trade Settlement 2017 Box No."::"12", VATReportingCode."Reverse Charge Report Box No."::"17");
+        VerifyDemoDataVATCodePurch('87', VATReportingCode."Trade Settlement 2017 Box No."::"12", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('88', VATReportingCode."Trade Settlement 2017 Box No."::"12", VATReportingCode."Reverse Charge Report Box No."::"17");
+        VerifyDemoDataVATCodePurch('89', VATReportingCode."Trade Settlement 2017 Box No."::"12", VATReportingCode."Reverse Charge Report Box No."::" ");
+        VerifyDemoDataVATCodePurch('91', VATReportingCode."Trade Settlement 2017 Box No."::"13", VATReportingCode."Reverse Charge Report Box No."::"14");
+        VerifyDemoDataVATCodePurch('92', VATReportingCode."Trade Settlement 2017 Box No."::"14", VATReportingCode."Reverse Charge Report Box No."::" ");
     end;
 
     [Test]

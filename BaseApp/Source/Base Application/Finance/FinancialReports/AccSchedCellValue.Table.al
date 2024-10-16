@@ -1,8 +1,5 @@
 namespace Microsoft.Finance.FinancialReports;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 342 "Acc. Sched. Cell Value"
 {
     Caption = 'Acc. Sched. Cell Value';

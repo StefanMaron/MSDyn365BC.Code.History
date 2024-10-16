@@ -361,12 +361,11 @@ report 15000062 "Remittance - Import (Bank)"
             // 3. Error. Status had different value then expected.
             if RemAgreement."Receipt Return Required" or
                (WaitingJournal."Remittance Status" <= WaitingJournal."Remittance Status"::Sent)
-            then begin
+            then
                 if WaitingJournal."Remittance Status" = WaitingJournal."Remittance Status"::Sent then
                     WaitingJournal.Validate("Remittance Status", WaitingJournal."Remittance Status"::Approved)
                 else
                     WaitingJournal.FieldError("Remittance Status");
-            end;
             WaitingJournal.Validate("Payment Order ID - Approved", PaymOrder.ID);
             WaitingJournal.Modify();
         end else

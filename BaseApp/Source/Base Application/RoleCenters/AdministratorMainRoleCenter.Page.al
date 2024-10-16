@@ -32,7 +32,6 @@ using Microsoft.Projects.TimeSheet;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Setup;
 using System.AI;
 using System.Automation;
 using System.DataAdministration;
@@ -327,13 +326,6 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Report Selections Reminder/Fin. Charge';
                         RunObject = page "Report Selection - Reminder";
                         Tooltip = 'Open the Report Selections Reminder/Fin. Charge page.';
-                    }
-                    action("Report Selection Service")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Report Selections Service';
-                        RunObject = page "Report Selection - Service";
-                        Tooltip = 'Open the Report Selections Service page.';
                     }
                     action("Report Selection Sales")
                     {
@@ -649,18 +641,6 @@ page 8900 "Administrator Main Role Center"
                     RunObject = page "Users";
                     Tooltip = 'Open the Users page.';
                 }
-#if not CLEAN22
-                action("User Groups")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'User Groups';
-                    RunObject = page "User Groups";
-                    Visible = false; // cannot control the visibility with the feature switch
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the Security Groups action.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 action("Security Groups")
                 {
                     ApplicationArea = Basic, Suite;

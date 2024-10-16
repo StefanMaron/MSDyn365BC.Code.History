@@ -24,36 +24,34 @@ codeunit 143003 "E-Invoice Helper"
     procedure CreateCustomer(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            GLN := TestValueTxt;
-            "Account Code" := TestValueTxt;
+        Customer.GLN := TestValueTxt;
+        Customer."Account Code" := TestValueTxt;
 
-            if not TempPredefinedCustomer.IsEmpty() then begin
-                Address := TempPredefinedCustomer.Address;
-                "Address 2" := TempPredefinedCustomer."Address 2";
-                Validate("Country/Region Code", TempPredefinedCustomer."Country/Region Code");
-                City := TempPredefinedCustomer.City;
-                "Post Code" := TempPredefinedCustomer."Post Code";
-                Name := TempPredefinedCustomer.Name;
-                "Phone No." := TempPredefinedCustomer."Phone No.";
-                "Fax No." := TempPredefinedCustomer."Fax No.";
-                "E-Mail" := TempPredefinedCustomer."E-Mail";
-                TempPredefinedCustomer."No." := "No.";
-                "Currency Code" := TempPredefinedCustomer."Currency Code";
-                "VAT Registration No." := TempPredefinedCustomer."VAT Registration No.";
-                Validate("E-Invoice", TempPredefinedCustomer."E-Invoice");
-            end else begin
-                Address := TestValueTxt;
-                "Address 2" := TestValueTxt;
-                Validate("Country/Region Code", 'NO');
-                City := TestValueTxt;
-                "Post Code" := TestValueTxt;
-                "VAT Registration No." := '123456785';
-                Validate("E-Invoice", true);
-            end;
-
-            Modify(true);
+        if not TempPredefinedCustomer.IsEmpty() then begin
+            Customer.Address := TempPredefinedCustomer.Address;
+            Customer."Address 2" := TempPredefinedCustomer."Address 2";
+            Customer.Validate("Country/Region Code", TempPredefinedCustomer."Country/Region Code");
+            Customer.City := TempPredefinedCustomer.City;
+            Customer."Post Code" := TempPredefinedCustomer."Post Code";
+            Customer.Name := TempPredefinedCustomer.Name;
+            Customer."Phone No." := TempPredefinedCustomer."Phone No.";
+            Customer."Fax No." := TempPredefinedCustomer."Fax No.";
+            Customer."E-Mail" := TempPredefinedCustomer."E-Mail";
+            TempPredefinedCustomer."No." := Customer."No.";
+            Customer."Currency Code" := TempPredefinedCustomer."Currency Code";
+            Customer."VAT Registration No." := TempPredefinedCustomer."VAT Registration No.";
+            Customer.Validate("E-Invoice", TempPredefinedCustomer."E-Invoice");
+        end else begin
+            Customer.Address := TestValueTxt;
+            Customer."Address 2" := TestValueTxt;
+            Customer.Validate("Country/Region Code", 'NO');
+            Customer.City := TestValueTxt;
+            Customer."Post Code" := TestValueTxt;
+            Customer."VAT Registration No." := '123456785';
+            Customer.Validate("E-Invoice", true);
         end;
+
+        Customer.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -75,20 +73,16 @@ codeunit 143003 "E-Invoice Helper"
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        with Item do begin
-            LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item);
 
-            Description := TestValueTxt;
-            Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
-            Validate("Unit Price", LibraryRandom.RandInt(100));
-            Modify(true);
-        end;
+        Item.Description := TestValueTxt;
+        Item.Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
+        Item.Validate("Unit Price", LibraryRandom.RandInt(100));
+        Item.Modify(true);
 
-        with UnitOfMeasure do begin
-            Get(Item."Sales Unit of Measure");
-            "International Standard Code" := DefaultUNECERec20Code();
-            Modify(true);
-        end;
+        UnitOfMeasure.Get(Item."Sales Unit of Measure");
+        UnitOfMeasure."International Standard Code" := DefaultUNECERec20Code();
+        UnitOfMeasure.Modify(true);
 
         ItemUnitOfMeasure.Get(Item."No.", UnitOfMeasure.Code);
         ItemUnitOfMeasure."Qty. per Unit of Measure" := LibraryRandom.RandInt(10);
@@ -112,20 +106,18 @@ codeunit 143003 "E-Invoice Helper"
     [Scope('OnPrem')]
     procedure InitExpectedCustomerInfo(var TempExpectedCustomerInfo: Record Customer temporary)
     begin
-        with TempExpectedCustomerInfo do begin
-            Init();
-            Address := 'Kanalvej 1';
-            "Address 2" := 'Kanalvej 42';
-            City := 'Kongens Lyngby';
-            "Post Code" := 'DK-2800';
-            "Country/Region Code" := 'DK';
-            Name := 'New Domicile';
-            "Phone No." := '45870000';
-            "Fax No." := '45870001';
-            "E-Mail" := 'mdcc@mdcc.dk';
-            "VAT Registration No." := '987654321';
-            "E-Invoice" := true;
-        end;
+        TempExpectedCustomerInfo.Init();
+        TempExpectedCustomerInfo.Address := 'Kanalvej 1';
+        TempExpectedCustomerInfo."Address 2" := 'Kanalvej 42';
+        TempExpectedCustomerInfo.City := 'Kongens Lyngby';
+        TempExpectedCustomerInfo."Post Code" := 'DK-2800';
+        TempExpectedCustomerInfo."Country/Region Code" := 'DK';
+        TempExpectedCustomerInfo.Name := 'New Domicile';
+        TempExpectedCustomerInfo."Phone No." := '45870000';
+        TempExpectedCustomerInfo."Fax No." := '45870001';
+        TempExpectedCustomerInfo."E-Mail" := 'mdcc@mdcc.dk';
+        TempExpectedCustomerInfo."VAT Registration No." := '987654321';
+        TempExpectedCustomerInfo."E-Invoice" := true;
     end;
 
     [Scope('OnPrem')]
@@ -141,14 +133,12 @@ codeunit 143003 "E-Invoice Helper"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("E-Invoice Sales Invoice Path", Path);
-            Validate("E-Invoice Sales Cr. Memo Path", Path);
-            Validate("E-Invoice Reminder Path", Path);
-            Validate("E-Invoice Fin. Charge Path", Path);
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("E-Invoice Sales Invoice Path", Path);
+        SalesReceivablesSetup.Validate("E-Invoice Sales Cr. Memo Path", Path);
+        SalesReceivablesSetup.Validate("E-Invoice Reminder Path", Path);
+        SalesReceivablesSetup.Validate("E-Invoice Fin. Charge Path", Path);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -156,13 +146,11 @@ codeunit 143003 "E-Invoice Helper"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("KID Setup", NewKIDSetup);
-            "Document No. length" := DocNoLength;
-            "Customer No. length" := CustNoLength;
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("KID Setup", NewKIDSetup);
+        SalesReceivablesSetup."Document No. length" := DocNoLength;
+        SalesReceivablesSetup."Customer No. length" := CustNoLength;
+        SalesReceivablesSetup.Modify(true);
     end;
 }
 

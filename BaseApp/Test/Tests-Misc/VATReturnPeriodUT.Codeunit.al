@@ -132,19 +132,17 @@ codeunit 134281 "VAT Return Period UT"
         BindSubscription(VATReturnPeriodUT);
         VATReportMgt.CreateAndStartAutoUpdateVATReturnPeriodJob(VATReportSetup);
 
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
-            SetRange("Object ID to Run", VATReportSetup."Auto Receive Period CU ID");
-            FindFirst();
-            TestField("Run on Mondays", true);
-            TestField("Run on Tuesdays", true);
-            TestField("Run on Wednesdays", true);
-            TestField("Run on Thursdays", true);
-            TestField("Run on Fridays", true);
-            TestField("Run on Saturdays", false);
-            TestField("Run on Sundays", false);
-            TestField("Maximum No. of Attempts to Run", 1);
-        end;
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", VATReportSetup."Auto Receive Period CU ID");
+        JobQueueEntry.FindFirst();
+        JobQueueEntry.TestField("Run on Mondays", true);
+        JobQueueEntry.TestField("Run on Tuesdays", true);
+        JobQueueEntry.TestField("Run on Wednesdays", true);
+        JobQueueEntry.TestField("Run on Thursdays", true);
+        JobQueueEntry.TestField("Run on Fridays", true);
+        JobQueueEntry.TestField("Run on Saturdays", false);
+        JobQueueEntry.TestField("Run on Sundays", false);
+        JobQueueEntry.TestField("Maximum No. of Attempts to Run", 1);
     end;
 
     [Test]
@@ -1577,45 +1575,37 @@ codeunit 134281 "VAT Return Period UT"
 
     local procedure MockVATReturnPeriod(var VATReturnPeriod: Record "VAT Return Period"; NewStatus: Option; NewDueDate: Date)
     begin
-        with VATReturnPeriod do begin
-            "No." := LibraryUtility.GenerateGUID();
-            Status := NewStatus;
-            "Start Date" := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
-            "End Date" := DMY2Date(31, 3, Date2DMY(WorkDate(), 3));
-            "Due Date" := NewDueDate;
-            Insert();
-        end;
+        VATReturnPeriod."No." := LibraryUtility.GenerateGUID();
+        VATReturnPeriod.Status := NewStatus;
+        VATReturnPeriod."Start Date" := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
+        VATReturnPeriod."End Date" := DMY2Date(31, 3, Date2DMY(WorkDate(), 3));
+        VATReturnPeriod."Due Date" := NewDueDate;
+        VATReturnPeriod.Insert();
     end;
 
     local procedure MockLinkedVATReturn(var VATReportHeader: Record "VAT Report Header"; var VATReturnPeriod: Record "VAT Return Period")
     begin
-        with VATReportHeader do begin
-            "VAT Report Config. Code" := "VAT Report Config. Code"::"VAT Return";
-            "No." := LibraryUtility.GenerateGUID();
-            "Return Period No." := VATReturnPeriod."No.";
-            Insert(true);
-        end;
+        VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
+        VATReportHeader."No." := LibraryUtility.GenerateGUID();
+        VATReportHeader."Return Period No." := VATReturnPeriod."No.";
+        VATReportHeader.Insert(true);
         VATReturnPeriod."VAT Return No." := VATReportHeader."No.";
         VATReturnPeriod.Modify();
     end;
 
     local procedure MockVATReturn(var VATReportHeader: Record "VAT Report Header")
     begin
-        with VATReportHeader do begin
-            "VAT Report Config. Code" := "VAT Report Config. Code"::"VAT Return";
-            "No." := LibraryUtility.GenerateGUID();
-            Insert(true);
-        end;
+        VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
+        VATReportHeader."No." := LibraryUtility.GenerateGUID();
+        VATReportHeader.Insert(true);
     end;
 
     local procedure MockJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; CodeunitID: Integer)
     begin
-        with JobQueueEntry do begin
-            ID := CreateGuid();
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CodeunitID;
-            Insert();
-        end;
+        JobQueueEntry.ID := CreateGuid();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CodeunitID;
+        JobQueueEntry.Insert();
     end;
 
     local procedure MockFailedJobLogEntry(JobDateTime: DateTime)
@@ -1624,14 +1614,12 @@ codeunit 134281 "VAT Return Period UT"
         VATReportSetup: Record "VAT Report Setup";
     begin
         VATReportSetup.Get();
-        with JobQueueLogEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(JobQueueLogEntry, FieldNo("Entry No."));
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := VATReportSetup."Auto Receive Period CU ID";
-            Status := Status::Error;
-            "Start Date/Time" := JobDateTime;
-            Insert();
-        end;
+        JobQueueLogEntry."Entry No." := LibraryUtility.GetNewRecNo(JobQueueLogEntry, JobQueueLogEntry.FieldNo("Entry No."));
+        JobQueueLogEntry."Object Type to Run" := JobQueueLogEntry."Object Type to Run"::Codeunit;
+        JobQueueLogEntry."Object ID to Run" := VATReportSetup."Auto Receive Period CU ID";
+        JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
+        JobQueueLogEntry."Start Date/Time" := JobDateTime;
+        JobQueueLogEntry.Insert();
     end;
 
     local procedure OpenVATReturnPeriodList(var VATReturnPeriodList: TestPage "VAT Return Period List"; VATReturnPeriod: Record "VAT Return Period")
@@ -1662,52 +1650,44 @@ codeunit 134281 "VAT Return Period UT"
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        with VATReportSetup do begin
-            Get();
-            "VAT Return No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
-            "VAT Return Period No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
-            Evaluate("Period Reminder Calculation", StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(10, 20)));
-            "Report Version" := LibraryVATReport.CreateVATReportConfigurationNo();
-            "Update Period Job Frequency" := "Update Period Job Frequency"::Never;
-            "Manual Receive Period CU ID" := 0;
-            "Receive Submitted Return CU ID" := 0;
-            "Auto Receive Period CU ID" := 0;
-            Modify();
-        end;
+        VATReportSetup.Get();
+        VATReportSetup."VAT Return No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
+        VATReportSetup."VAT Return Period No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
+        Evaluate(VATReportSetup."Period Reminder Calculation", StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(10, 20)));
+        VATReportSetup."Report Version" := LibraryVATReport.CreateVATReportConfigurationNo();
+        VATReportSetup."Update Period Job Frequency" := VATReportSetup."Update Period Job Frequency"::Never;
+        VATReportSetup."Manual Receive Period CU ID" := 0;
+        VATReportSetup."Receive Submitted Return CU ID" := 0;
+        VATReportSetup."Auto Receive Period CU ID" := 0;
+        VATReportSetup.Modify();
     end;
 
     local procedure SetManualReceivePeriodCUID(NewManualReceivePeriodCUID: Integer)
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        with VATReportSetup do begin
-            Get();
-            "Manual Receive Period CU ID" := NewManualReceivePeriodCUID;
-            Modify();
-        end;
+        VATReportSetup.Get();
+        VATReportSetup."Manual Receive Period CU ID" := NewManualReceivePeriodCUID;
+        VATReportSetup.Modify();
     end;
 
     local procedure SetReceiveSubmittedReturnCUID(NewReceiveSubmittedReturnCUID: Integer)
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        with VATReportSetup do begin
-            Get();
-            "Receive Submitted Return CU ID" := NewReceiveSubmittedReturnCUID;
-            Modify();
-        end;
+        VATReportSetup.Get();
+        VATReportSetup."Receive Submitted Return CU ID" := NewReceiveSubmittedReturnCUID;
+        VATReportSetup.Modify();
     end;
 
     local procedure SetAutoReceivePeriodCUID(UpdatePeriodJobFrequency: Option; AutoReceivePeriodCUID: Integer)
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        with VATReportSetup do begin
-            Get();
-            "Update Period Job Frequency" := UpdatePeriodJobFrequency;
-            "Auto Receive Period CU ID" := AutoReceivePeriodCUID;
-            Modify();
-        end;
+        VATReportSetup.Get();
+        VATReportSetup."Update Period Job Frequency" := UpdatePeriodJobFrequency;
+        VATReportSetup."Auto Receive Period CU ID" := AutoReceivePeriodCUID;
+        VATReportSetup.Modify();
     end;
 
     local procedure GetManualInsertNotificationGUID(): Guid
@@ -1719,27 +1699,23 @@ codeunit 134281 "VAT Return Period UT"
     var
         MyNotifications: Record "My Notifications";
     begin
-        with MyNotifications do begin
-            if not Get(UserId, GetManualInsertNotificationGUID()) then begin
-                "User Id" := UserId;
-                "Notification Id" := GetManualInsertNotificationGUID();
-                Insert();
-            end;
-            Enabled := NewEnabled;
-            Modify();
+        if not MyNotifications.Get(UserId, GetManualInsertNotificationGUID()) then begin
+            MyNotifications."User Id" := UserId;
+            MyNotifications."Notification Id" := GetManualInsertNotificationGUID();
+            MyNotifications.Insert();
         end;
+        MyNotifications.Enabled := NewEnabled;
+        MyNotifications.Modify();
     end;
 
     local procedure VerifyVATReturnAfterCopyFromReturnPeriod(VATReportHeader: Record "VAT Report Header"; VATReturnPeriod: Record "VAT Return Period"; ExpectedPeriodYear: Integer; ExpectedPeriodType: Option; ExpectedPeriodNo: Integer)
     begin
-        with VATReportHeader do begin
-            TestField("Return Period No.", VATReturnPeriod."No.");
-            TestField("Start Date", VATReturnPeriod."Start Date");
-            TestField("End Date", VATReturnPeriod."End Date");
-            TestField("Period Year", ExpectedPeriodYear);
-            TestField("Period Type", ExpectedPeriodType);
-            TestField("Period No.", ExpectedPeriodNo);
-        end;
+        VATReportHeader.TestField("Return Period No.", VATReturnPeriod."No.");
+        VATReportHeader.TestField("Start Date", VATReturnPeriod."Start Date");
+        VATReportHeader.TestField("End Date", VATReturnPeriod."End Date");
+        VATReportHeader.TestField("Period Year", ExpectedPeriodYear);
+        VATReportHeader.TestField("Period Type", ExpectedPeriodType);
+        VATReportHeader.TestField("Period No.", ExpectedPeriodNo);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnBeforeScheduleTask', '', false, false)]

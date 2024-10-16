@@ -167,6 +167,7 @@ page 1612 "Office Admin. Credentials"
         NextEnabled: Boolean;
         FinishEnabled: Boolean;
         MissingCredentialErr: Label 'You must specify both an email address and a password.';
+        [NonDebuggable]
         PasswordText: Text;
 
     local procedure NextStep(Backwards: Boolean)

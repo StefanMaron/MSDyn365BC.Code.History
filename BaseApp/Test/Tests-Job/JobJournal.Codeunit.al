@@ -27,12 +27,9 @@ codeunit 136305 "Job Journal"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-        BlankJobNoError: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12, %13=%14. It cannot be zero or empty.', Comment = '%1=Field name,%2=Table name,%3=Field,%4=Field value,%5=Field,%6=Field value,%7=Field,%8=Field value,%9=Field,%10=Field value,%11=Field,%12=Field value,%13=Field,%14=Field value';
-        JobTaskTypeError: Label '%1 must be equal to ''Posting''  in %2: %3=%4, %5=%6. Current value is ''%7''.', Comment = '%1= Field name,%2=Table name,%3=Field,%4=Field value,%5=Field,%6=Field value,%7=Field value';
         FieldCodeError: Label '%1 cannot be specified when %2 is %3.';
-        FieldsBlankError: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10. It cannot be zero or empty.', Comment = '%1=Field,%2=TableName,%3=Fieldname,%4=FieldValue,%5=Fieldname,%6=FieldValue,%7=Fieldname,%8=FieldValue,%9=Fieldname,%10=FieldValue';
         TestForBlankValuesPassed: Label 'It was expected a known failure for ''%1'', since it contains invalid blank field values.';
         RecordNotFound: Label 'DB:RecordNotFound';
 #endif
@@ -229,7 +226,7 @@ codeunit 136305 "Job Journal"
           JobJournalLine.FieldCaption("Unit of Measure Code"));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure UnitCostFactorOnJobGLJournalLine()
@@ -308,7 +305,7 @@ codeunit 136305 "Job Journal"
         DeleteJobJournalTemplate(JobJournalLine."Journal Template Name");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure JobItemPriceCreation()
@@ -347,13 +344,7 @@ codeunit 136305 "Job Journal"
         asserterror LibraryJob.CreateJobItemPrice(JobItemPrice, '', JobTask."Job Task No.", Item."No.", '', '', Item."Base Unit of Measure");  // Blank value is for Job No., Currency Code and Variant Code.
 
         // [THEN] Verify error message for Blank Job No.
-        with JobItemPrice do
-            Assert.ExpectedError(
-              StrSubstNo(
-                BlankJobNoError, FieldCaption("Job No."), TableCaption(), FieldCaption("Job No."), '', FieldCaption("Job Task No."),
-                "Job Task No.",
-                FieldCaption("Item No."), "Item No.", FieldCaption("Variant Code"), "Variant Code", FieldCaption("Unit of Measure Code"),
-                "Unit of Measure Code", FieldCaption("Currency Code"), "Currency Code"));
+        Assert.ExpectedTestFieldError(JobItemPrice.FieldCaption("Job No."), '');
     end;
 
     [Test]
@@ -402,10 +393,7 @@ codeunit 136305 "Job Journal"
             JobItemPrice, JobTask."Job No.", JobTask."Job Task No.", Item."No.", '', '', Item."Base Unit of Measure");  // Blank value is for Currency Code and Variant Code.
 
         // [THEN] Verify the contents of the error message
-        Assert.ExpectedError(
-          StrSubstNo(
-            JobTaskTypeError, JobTask.FieldCaption("Job Task Type"), JobTask.TableCaption(), JobTask.FieldCaption("Job No."),
-            JobTask."Job No.", JobTask.FieldCaption("Job Task No."), JobTask."Job Task No.", JobTask."Job Task Type"));
+        Assert.ExpectedTestFieldError(JobTask.FieldCaption("Job Task Type"), '');
     end;
 
     [Test]
@@ -523,7 +511,7 @@ codeunit 136305 "Job Journal"
         VerifyPostingGroupOnJobLedgerEntry(DocumentNo, JobTask."Job No.", JobPlanningLine."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure JobResourcePricesWithTypeResource()
@@ -561,12 +549,7 @@ codeunit 136305 "Job Journal"
             JobResourcePrice, '', JobTask."Job Task No.", JobResourcePrice.Type::Resource, LibraryResource.CreateResourceNo(), '', '');  // Blank value is for Work Type Code and Currency Code.
 
         // [THEN] Verify error message for Blank Job No.
-        with JobResourcePrice do
-            Assert.ExpectedError(
-              StrSubstNo(
-                BlankJobNoError, FieldCaption("Job No."), TableCaption(), FieldCaption("Job No."), '', FieldCaption("Job Task No."),
-                "Job Task No.", FieldCaption(Type), Type, FieldCaption(Code), Code, FieldCaption("Work Type Code"), "Work Type Code",
-                FieldCaption("Currency Code"), "Currency Code"));
+        Assert.ExpectedTestFieldError(JobResourcePrice.FieldCaption("Job No."), '');
     end;
 
     [Test]
@@ -615,10 +598,7 @@ codeunit 136305 "Job Journal"
             JobResourcePrice, JobTask."Job No.", JobTask."Job Task No.", JobResourcePrice.Type::Resource, Resource."No.", '', '');  // Blank value is for Work Type Code and Currency Code.
 
         // [THEN] Verify that the correct error is reported
-        Assert.ExpectedError(
-          StrSubstNo(
-            JobTaskTypeError, JobTask.FieldCaption("Job Task Type"), JobTask.TableCaption(), JobTask.FieldCaption("Job No."),
-            JobTask."Job No.", JobTask.FieldCaption("Job Task No."), JobTask."Job Task No.", JobTask."Job Task Type"));
+        Assert.ExpectedTestFieldError(JobTask.FieldCaption("Job Task Type"), Format(JobTask."Job Task Type"::Posting));
     end;
 
     [Test]
@@ -789,7 +769,7 @@ codeunit 136305 "Job Journal"
         ChangeItemQuantityAndVerifyNoStockWarning(JobJournalLine);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure JobResourcePricesWithBlankTypeGroupResource()
@@ -874,11 +854,7 @@ codeunit 136305 "Job Journal"
         asserterror LibraryJob.CreateJobGLAccountPrice(JobGLAccountPrice, '', '', '', '');  // Passing blank values for Job No, Job Task No, GL Account No. and Currency Code.
 
         // [THEN] Verify error message when Job No. is not filled for Job GL Account Price.
-        with JobGLAccountPrice do
-            Assert.ExpectedError(
-              StrSubstNo(
-                FieldsBlankError, FieldCaption("Job No."), TableCaption(), FieldCaption("Job No."), '', FieldCaption("Job Task No."), '',
-                FieldCaption("G/L Account No."), '', FieldCaption("Currency Code"), ''));
+        Assert.ExpectedTestFieldError(JobGLAccountPrice.FieldCaption("Job No."), '');
     end;
 
     [Test]
@@ -898,11 +874,7 @@ codeunit 136305 "Job Journal"
         asserterror LibraryJob.CreateJobGLAccountPrice(JobGLAccountPrice, JobTask."Job No.", '', '', '');  // Passing blank values for Job Task No, GL Account No. and Currency Code.
 
         // [THEN] Verify error message when GL Account No. is not filled for Job GL Account Price.
-        with JobGLAccountPrice do
-            Assert.ExpectedError(
-              StrSubstNo(
-                FieldsBlankError, FieldCaption("G/L Account No."), TableCaption(), FieldCaption("Job No."), "Job No.",
-                FieldCaption("Job Task No."), '', FieldCaption("G/L Account No."), '', FieldCaption("Currency Code"), ''));
+        Assert.ExpectedTestFieldError(JobGLAccountPrice.FieldCaption("G/L Account No."), '');
     end;
 
     [Test]
@@ -1579,7 +1551,7 @@ codeunit 136305 "Job Journal"
         VerifyDifferentCostsInJobLedgerEntry(GenJournalLine, Amount);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('JobJournalTemplateListPageHandler,JobCalcRemainingUsageRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1918,20 +1890,15 @@ codeunit 136305 "Job Journal"
     begin
         // [FEATURE] [Job Journal] [LCY]
         // [SCENARIO] Setting "Unit Price" = 0 in job journal line sets "Line Amount (LCY)" and "Line Discount Amount (LCY)" to 0
-
-        with JobJournalLine do begin
-            // [GIVEN] Job Journal Line with "Line Amount (LCY)" <> 0 and "Line Discount Amount (LCY)" <> 0
-            Init();
-            "Line Amount (LCY)" := LibraryRandom.RandDecInRange(100, 200, 2);
-            "Line Discount Amount (LCY)" := LibraryRandom.RandDecInRange(100, 200, 2);
-
-            // [WHEN] Set "Unit Price" = 0
-            Validate("Unit Price", 0);
-
-            // [THEN] "Line Amount (LCY)" = 0 and "Line Discount Amount (LCY)" = 0
-            TestField("Line Amount (LCY)", 0);
-            TestField("Line Discount Amount (LCY)", 0);
-        end;
+        // [GIVEN] Job Journal Line with "Line Amount (LCY)" <> 0 and "Line Discount Amount (LCY)" <> 0
+        JobJournalLine.Init();
+        JobJournalLine."Line Amount (LCY)" := LibraryRandom.RandDecInRange(100, 200, 2);
+        JobJournalLine."Line Discount Amount (LCY)" := LibraryRandom.RandDecInRange(100, 200, 2);
+        // [WHEN] Set "Unit Price" = 0
+        JobJournalLine.Validate("Unit Price", 0);
+        // [THEN] "Line Amount (LCY)" = 0 and "Line Discount Amount (LCY)" = 0
+        JobJournalLine.TestField("Line Amount (LCY)", 0);
+        JobJournalLine.TestField("Line Discount Amount (LCY)", 0);
     end;
 
     [Test]
@@ -2811,7 +2778,6 @@ codeunit 136305 "Job Journal"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure ValidateDefaultBillToCustomerAfterChangeSellToContactNoinJobCardByValidatePageField()
     var
@@ -3011,7 +2977,7 @@ codeunit 136305 "Job Journal"
         NoSeriesCode := '';
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateAndUpdateJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobTask: Record "Job Task")
     begin
         LibraryJob.CreateJobGLAccountPrice(
@@ -3170,7 +3136,7 @@ codeunit 136305 "Job Journal"
         exit(Resource."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateJobItemPrice(var JobItemPrice: Record "Job Item Price")
     var
         Item: Record Item;
@@ -3199,16 +3165,14 @@ codeunit 136305 "Job Journal"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", AccountNo, LibraryRandom.RandDec(100, 2));
 
-        with GenJournalLine do begin
-            Validate("Bal. Account Type", BalAccountType);
-            Validate("Bal. Account No.", BalAccountNo);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Job Line Type", "Job Line Type"::"Both Budget and Billable");
-            Validate("Job No.", JobNo);
-            Validate("Job Task No.", JobTaskNo);
-            Validate("Job Quantity", LibraryRandom.RandDec(10, 2));
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Bal. Account Type", BalAccountType);
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Job Line Type", GenJournalLine."Job Line Type"::"Both Budget and Billable");
+        GenJournalLine.Validate("Job No.", JobNo);
+        GenJournalLine.Validate("Job Task No.", JobTaskNo);
+        GenJournalLine.Validate("Job Quantity", LibraryRandom.RandDec(10, 2));
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; ResourceNo: Code[20])
@@ -3226,12 +3190,10 @@ codeunit 136305 "Job Journal"
         JobTask.Get(ItemLedgerEntry."Job No.", ItemLedgerEntry."Job Task No.");
         LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::" ", JobTask, JobJournalLine);
 
-        with JobJournalLine do begin
-            Validate(Type, Type::Item);
-            Validate("No.", ItemLedgerEntry."Item No.");
-            Validate(Quantity, ItemLedgerEntry.Quantity);
-            Validate("Applies-from Entry", ItemLedgerEntry."Entry No.");
-        end;
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", ItemLedgerEntry."Item No.");
+        JobJournalLine.Validate(Quantity, ItemLedgerEntry.Quantity);
+        JobJournalLine.Validate("Applies-from Entry", ItemLedgerEntry."Entry No.");
     end;
 
     local procedure CreateJobJournalLineWithBlankUOM(var JobJournalLine: Record "Job Journal Line"; ItemNo: Code[20]; JobJournalLineType: Enum "Job Journal Line Type")
@@ -3239,13 +3201,11 @@ codeunit 136305 "Job Journal"
         JobTask: Record "Job Task";
     begin
         CreateJobWithJobTask(JobTask);
-        with JobJournalLine do begin
-            LibraryJob.CreateJobJournalLine("Line Type"::" ", JobTask, JobJournalLine);
-            Validate(Type, JobJournalLineType);
-            Validate("No.", ItemNo);
-            Validate("Unit of Measure Code", '');
-            Modify(true);
-        end;
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::" ", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLineType);
+        JobJournalLine.Validate("No.", ItemNo);
+        JobJournalLine.Validate("Unit of Measure Code", '');
+        JobJournalLine.Modify(true);
     end;
 
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; No: Code[20]; ConsumableType: Enum "Job Planning Line Type")
@@ -3410,7 +3370,7 @@ codeunit 136305 "Job Journal"
         ResourceUnitOfMeasure.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateJobResourcePrice(var JobResourcePrice: Record "Job Resource Price"; Type: Option; No: Code[20])
     var
         JobTask: Record "Job Task";
@@ -3424,18 +3384,16 @@ codeunit 136305 "Job Journal"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            Init();
-            "Source Type" := Database::"Job Journal Line";
-            "Source ID" := JobJournalLine."Journal Template Name";
-            "Source Batch Name" := JobJournalLine."Journal Batch Name";
-            "Source Ref. No." := JobJournalLine."Line No.";
-            "Source Subtype" := JobJournalLine."Entry Type".AsInteger();
-            "Source Prod. Order Line" := 0;
-            "Reservation Status" := "Reservation Status"::Reservation;
-            "Quantity (Base)" := LibraryRandom.RandDecInRange(1000, 2000, 2);
-            Insert();
-        end;
+        ReservationEntry.Init();
+        ReservationEntry."Source Type" := Database::"Job Journal Line";
+        ReservationEntry."Source ID" := JobJournalLine."Journal Template Name";
+        ReservationEntry."Source Batch Name" := JobJournalLine."Journal Batch Name";
+        ReservationEntry."Source Ref. No." := JobJournalLine."Line No.";
+        ReservationEntry."Source Subtype" := JobJournalLine."Entry Type".AsInteger();
+        ReservationEntry."Source Prod. Order Line" := 0;
+        ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Reservation;
+        ReservationEntry."Quantity (Base)" := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        ReservationEntry.Insert();
     end;
 
     local procedure DeleteJobJournalTemplate(Name: Code[10])
@@ -3459,11 +3417,9 @@ codeunit 136305 "Job Journal"
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; JobNo: Code[20]; EntryType: Enum "Item Ledger Entry Type")
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Job No.", JobNo);
-            SetRange("Entry Type", EntryType);
-            FindFirst();
-        end;
+        ItemLedgerEntry.SetRange("Job No.", JobNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
@@ -3513,7 +3469,7 @@ codeunit 136305 "Job Journal"
         SalesLine.FindFirst();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure ModifyJobItemPriceForUnitPrice(var JobItemPrice: Record "Job Item Price"; UnitPrice: Decimal)
     begin
         JobItemPrice.Validate("Unit Price", UnitPrice);
@@ -3603,7 +3559,7 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure UpdateLineDiscountPctOnJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price")
     begin
         JobGLAccountPrice.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));  // Taking Random value for Line Discount Percent.
@@ -3628,7 +3584,7 @@ codeunit 136305 "Job Journal"
         SourceCodeSetup.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure UpdateUnitCostFactorOnJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price")
     begin
         JobGLAccountPrice.Validate("Unit Cost Factor", LibraryRandom.RandDec(10, 2));  // Taking Random value for Unit Cost Factor.

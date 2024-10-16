@@ -801,13 +801,13 @@ codeunit 134334 "ERM Vendor Statistics"
 
         // [THEN] 'Placeholder' text is not present under 'This Year', 'Last Year', 'To Date' fields
         ClearLastError();
-        AssertError VisibleValue := VendorStatistics.Text001.Visible();
+        asserterror VisibleValue := VendorStatistics.Text001.Visible();
         Assert.ExpectedError('is not found on the page');
         ClearLastError();
-        AssertError VisibleValue := VendorStatistics.Control81.Visible();
+        asserterror VisibleValue := VendorStatistics.Control81.Visible();
         Assert.ExpectedError('is not found on the page');
         ClearLastError();
-        AssertError VisibleValue := VendorStatistics.Control82.Visible();
+        asserterror VisibleValue := VendorStatistics.Control82.Visible();
         Assert.ExpectedError('is not found on the page');
     end;
 
@@ -897,14 +897,12 @@ codeunit 134334 "ERM Vendor Statistics"
 
     local procedure CreateBasicVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20])
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate();
-            "Vendor No." := VendorNo;
-            Open := true;
-            Insert();
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Posting Date" := WorkDate();
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure CreateVendorLedgerEntryWithDueDate(var VendorLedgEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DueDate: Date)
@@ -916,29 +914,25 @@ codeunit 134334 "ERM Vendor Statistics"
 
     local procedure MockDetailedVendorLedgerEntryWithDueDate(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate();
-            "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
-            "Initial Entry Due Date" := VendorLedgerEntry."Due Date";
-            "Vendor No." := VendorLedgerEntry."Vendor No.";
-            Amount := LibraryRandom.RandDec(1000, 2);
-            Insert();
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Posting Date" := WorkDate();
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
+        DetailedVendorLedgEntry."Initial Entry Due Date" := VendorLedgerEntry."Due Date";
+        DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
+        DetailedVendorLedgEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure MockDetailedVendorLedgerEntryWithPostingDate(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; PostingDate: Date)
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Posting Date" := PostingDate;
-            "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
-            "Vendor No." := VendorLedgerEntry."Vendor No.";
-            Amount := LibraryRandom.RandDec(1000, 2);
-            Insert();
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Posting Date" := PostingDate;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
+        DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
+        DetailedVendorLedgEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure FindCurrency(var Currency: Record Currency)
@@ -1029,16 +1023,14 @@ codeunit 134334 "ERM Vendor Statistics"
 
     local procedure MockDtldVendLedgEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendNo: Code[20]; PostingDate: Date; InitialEntryDueDate: Date)
     begin
-        with DetailedVendorLedgEntry do begin
-            "Entry No." :=
-              LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Vendor No." := VendNo;
-            "Posting Date" := PostingDate;
-            "Initial Entry Due Date" := InitialEntryDueDate;
-            Amount := LibraryRandom.RandDec(100, 2);
-            "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        DetailedVendorLedgEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Vendor No." := VendNo;
+        DetailedVendorLedgEntry."Posting Date" := PostingDate;
+        DetailedVendorLedgEntry."Initial Entry Due Date" := InitialEntryDueDate;
+        DetailedVendorLedgEntry.Amount := LibraryRandom.RandDec(100, 2);
+        DetailedVendorLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure MockPurchLine(VendNo: Code[20]; DocType: Enum "Purchase Document Type"; OutstandingAmountLCY: Decimal; AmtRcdNotInvoicedLCY: Decimal)

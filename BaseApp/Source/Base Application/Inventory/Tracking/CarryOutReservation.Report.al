@@ -5,7 +5,6 @@ using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 report 300 "Carry Out Reservation"
 {
@@ -28,8 +27,6 @@ report 300 "Carry Out Reservation"
                         SetRange("Source Type", Database::"Sales Line");
                     DemandType::"Transfer Orders":
                         SetRange("Source Type", Database::"Transfer Line");
-                    DemandType::"Service Orders":
-                        SetRange("Source Type", Database::"Service Line");
                     DemandType::"Job Usage":
                         SetRange("Source Type", Database::"Job Planning Line");
                     DemandType::"Assembly Components":
@@ -37,7 +34,7 @@ report 300 "Carry Out Reservation"
                     DemandType::"Production Components":
                         SetRange("Source Type", Database::"Prod. Order Component");
                     else
-                        OnCarryOutReservationOtherDemandType(ReservationWkshLine);
+                        OnCarryOutReservationOtherDemandType(ReservationWkshLine, DemandType);
                 end;
             end;
 
@@ -112,7 +109,7 @@ report 300 "Carry Out Reservation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCarryOutReservationOtherDemandType(var ReservationWkshLine: Record "Reservation Wksh. Line")
+    local procedure OnCarryOutReservationOtherDemandType(var ReservationWkshLine: Record "Reservation Wksh. Line"; DemandType: Enum "Reservation Demand Type")
     begin
     end;
 }

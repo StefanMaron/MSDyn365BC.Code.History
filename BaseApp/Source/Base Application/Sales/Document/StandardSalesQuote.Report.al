@@ -230,6 +230,9 @@ report 1304 "Standard Sales - Quote"
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(ShipToPhoneNo; Header."Ship-to Phone No.")
+            {
+            }
             column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
             {
             }
@@ -341,12 +344,20 @@ report 1304 "Standard Sales - Quote"
             column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
-            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber())
+#if not CLEAN25
+            column(GlobalLocationNumber; '')
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Not in use anymore.';
+                ObsoleteTag = '25.0';
             }
-            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl())
+            column(GlobalLocationNumber_Lbl; '')
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Not in use anymore.';
+                ObsoleteTag = '25.0';
             }
+#endif
             column(LegalEntityType; Cust.GetLegalEntityType())
             {
             }
@@ -994,6 +1005,13 @@ report 1304 "Standard Sales - Quote"
             LayoutFile = './Sales/Document/StandardSalesQuoteBlue.docx';
             Caption = 'Standard Sales Quote - Blue (Word)';
             Summary = 'The Standard Sales Quote - Blue (Word) provides a basic layout with a blue theme.';
+        }
+        layout("StandardSalesQuoteBlueThemable.docx")
+        {
+            Type = Word;
+            LayoutFile = './Sales/Document/StandardSalesQuoteBlueThemable.docx';
+            Caption = 'Standard Sales Quote - blue themable Word layout';
+            Summary = 'The Standard Sales Quote - Themable (Word) provides a basic Themable layout.';
         }
         layout("StandardSalesQuoteEmail.docx")
         {

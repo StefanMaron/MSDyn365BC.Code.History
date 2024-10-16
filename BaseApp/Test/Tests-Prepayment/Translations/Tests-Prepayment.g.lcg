@@ -212,15 +212,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment IV - NamedType PrepaymentCMErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1036302780 - NamedType 2197140399" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VAT Calculation Type must be equal to '%1'  in VAT Posting Setup]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment IV - NamedType PrepmtVATCalcTypeErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1036302780 - NamedType 3570334092" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong ACY amount on rounding entry.]]></Val>

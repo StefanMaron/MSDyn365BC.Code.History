@@ -1,4 +1,4 @@
-codeunit 139145 "PEPPOL BIS BillingTests"
+﻿codeunit 139145 "PEPPOL BIS BillingTests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1436,6 +1436,44 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Assert.AreEqual(CountryRegion."VAT Scheme", CustPartyLegalEntityIDSchemeID, '');
     end;
 
+    [Test]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoiceDocumentAttachment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentAttachment: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+        Base64Convert: Codeunit "Base64 Convert";
+        RecordRef: RecordRef;
+        XMLFilePath: Text;
+        InStream: InStream;
+        OutStream: OutStream;
+    begin
+        // [FEATURE] [Invoice] [Document Attachment]
+        // 
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndGLN(), SalesHeader."Document Type"::Invoice, GetTaxCategoryS(), LibraryRandom.RandIntInRange(10, 20)));
+
+        TempBlob.CreateOutStream(OutStream);
+        OutStream.WriteText('Test');
+        TempBlob.CreateInStream(InStream);
+        RecordRef.GetTable(SalesInvoiceHeader);
+        DocumentAttachment.SaveAttachmentFromStream(InStream, RecordRef, 'Test.pdf');
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter();
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice());
+
+        // [THEN] 
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AdditionalDocumentReference', 'cbc:ID', SalesInvoiceHeader."No.");
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:Attachment', 'cbc:EmbeddedDocumentBinaryObject', Base64Convert.ToBase64('Test'));
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -1478,11 +1516,9 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     var
         Cust: Record Customer;
     begin
-        with Cust do begin
-            Get(CustNo);
-            Validate(GLN, '1234567891231');
-            Modify(true);
-        end;
+        Cust.Get(CustNo);
+        Cust.Validate(GLN, '1234567891231');
+        Cust.Modify(true);
     end;
 
     local procedure CreateCurrencyCode(): Code[10]
@@ -1501,14 +1537,12 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
-        with ElectronicDocumentFormat do begin
-            Init();
-            Code := NewCode;
-            Usage := NewUsage;
-            "Codeunit ID" := NewCodeunitID;
-            if Insert() then;
-            exit(Code);
-        end;
+        ElectronicDocumentFormat.Init();
+        ElectronicDocumentFormat.Code := NewCode;
+        ElectronicDocumentFormat.Usage := NewUsage;
+        ElectronicDocumentFormat."Codeunit ID" := NewCodeunitID;
+        if ElectronicDocumentFormat.Insert() then;
+        exit(ElectronicDocumentFormat.Code);
     end;
 
     local procedure CreateBISElectronicDocumentFormatSalesInvoice(): Code[20]
@@ -1551,11 +1585,9 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     var
         CompanyInfo: Record "Company Information";
     begin
-        with CompanyInfo do begin
-            Get();
-            Validate(GLN, '1234567891231');
-            Modify(true);
-        end;
+        CompanyInfo.Get();
+        CompanyInfo.Validate(GLN, '1234567891231');
+        CompanyInfo.Modify(true);
     end;
 
     local procedure CreatePostSalesDoc(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"): Code[20]
@@ -1728,8 +1760,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     var
         EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
     begin
-        with CompanyInformation do
-            exit(EInvoiceDocumentEncode.GetVATRegNo("VAT Registration No.", false));
+        exit(EInvoiceDocumentEncode.GetVATRegNo(CompanyInformation."VAT Registration No.", false));
     end;
 
     local procedure GetGLNSchemeID(): Text
@@ -1741,16 +1772,14 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     var
         EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
     begin
-        with CompanyInformation do
-            exit("Country/Region Code" + EInvoiceDocumentEncode.GetVATRegNo("VAT Registration No.", true));
+        exit(CompanyInformation."Country/Region Code" + EInvoiceDocumentEncode.GetVATRegNo(CompanyInformation."VAT Registration No.", true));
     end;
 
     local procedure GetCustomerVATRegNo(Customer: Record Customer): Text
     var
         EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
     begin
-        with Customer do
-            exit(EInvoiceDocumentEncode.GetVATRegNo("VAT Registration No.", false));
+        exit(EInvoiceDocumentEncode.GetVATRegNo(Customer."VAT Registration No.", false));
     end;
 
     local procedure GetGNLID(): Code[13]
@@ -1855,26 +1884,22 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        with SalesInvoiceLine do begin
-            Init();
-            "Document No." := DocumentNo;
-            "Line No." := LibraryUtility.GetNewRecNo(SalesInvoiceLine, FieldNo("Line No."));
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        SalesInvoiceLine.Init();
+        SalesInvoiceLine."Document No." := DocumentNo;
+        SalesInvoiceLine."Line No." := LibraryUtility.GetNewRecNo(SalesInvoiceLine, SalesInvoiceLine.FieldNo("Line No."));
+        SalesInvoiceLine.Description := LibraryUtility.GenerateGUID();
+        SalesInvoiceLine.Insert();
     end;
 
     local procedure MockTextSalesCrMemoLine(DocumentNo: Code[20])
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesCrMemoLine do begin
-            Init();
-            "Document No." := DocumentNo;
-            "Line No." := LibraryUtility.GetNewRecNo(SalesCrMemoLine, FieldNo("Line No."));
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        SalesCrMemoLine.Init();
+        SalesCrMemoLine."Document No." := DocumentNo;
+        SalesCrMemoLine."Line No." := LibraryUtility.GetNewRecNo(SalesCrMemoLine, SalesCrMemoLine.FieldNo("Line No."));
+        SalesCrMemoLine.Description := LibraryUtility.GenerateGUID();
+        SalesCrMemoLine.Insert();
     end;
 
     local procedure PEPPOLXMLExport(DocumentVariant: Variant; FormatCode: Code[20]): Text

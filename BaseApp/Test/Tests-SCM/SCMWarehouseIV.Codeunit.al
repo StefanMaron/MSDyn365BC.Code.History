@@ -37,7 +37,6 @@ codeunit 137407 "SCM Warehouse IV"
         RackNo: Code[20];
         SectionNo: Code[20];
         LevelNo: Code[20];
-        BinTemplateCodeError: Label 'Code must have a value in Bin Template: Code=. It cannot be zero or empty.';
         BinCodeLengthError: Label 'The length of From Rack+From Section+From Level is greater than the maximum length of %1 (%2).', Comment = '%1 = Caption Bin Code, %2 = Field Length of Bin Code';
         BinCodeNotExistError: Label 'Bin Code Must Not Exists.';
         MustSetupWhseEmployeeErr: Label 'You must first set up user %1 as a warehouse employee.';
@@ -45,7 +44,6 @@ codeunit 137407 "SCM Warehouse IV"
         ShouldBeTxt: Label '%1 should be %2', Comment = '%1 = Field, %2 = Expected availability';
         EnabledTxt: Label 'enabled';
         DisabledTxt: Label 'disabled';
-        BinMandatoryTxt: Label 'Bin Mandatory must be equal to ''No''  in Location';
         DateError: Label '%1 must be equal to %2 in Service Item Table.', Comment = '%1 = Warranty Date fields caption, %2 = Expected Date values';
         ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignLotAndQty;
         ItemTrackingModeWithVerification: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignLotAndQty,VerifyWarrantyDate;
@@ -1088,6 +1086,7 @@ codeunit 137407 "SCM Warehouse IV"
     procedure CalculateBinWithOutTemplateCode()
     var
         Location: Record Location;
+        BinTemplate: Record "Bin Template";
         BinCreationWorksheet: TestPage "Bin Creation Worksheet";
     begin
         // Run Calculate Bins report without Bin template Code and handle error dialog.
@@ -1102,7 +1101,7 @@ codeunit 137407 "SCM Warehouse IV"
         asserterror BinCreationWorksheet.CalculateBins.Invoke();
 
         // [THEN] Error Message.
-        Assert.AreEqual(StrSubstNo(BinTemplateCodeError), GetLastErrorText, UnknownFailure);
+        Assert.ExpectedTestFieldError(BinTemplate.FieldCaption(Code), '');
     end;
 
     [Test]
@@ -1552,7 +1551,7 @@ codeunit 137407 "SCM Warehouse IV"
         asserterror PostedInvtPutAwayHeader.Delete(true);
 
         // [THEN] Delete failed.
-        Assert.ExpectedError(BinMandatoryTxt);
+        Assert.ExpectedTestFieldError(Location.FieldCaption("Bin Mandatory"), Format(false));
     end;
 
     [Test]
@@ -1597,7 +1596,7 @@ codeunit 137407 "SCM Warehouse IV"
         asserterror PostedInvtPickHeader.Delete(true);
 
         // [THEN] Delete failed.
-        Assert.ExpectedError(BinMandatoryTxt);
+        Assert.ExpectedTestFieldError(Location.FieldCaption("Bin Mandatory"), Format(false));
     end;
 
     [Test]
@@ -1832,15 +1831,12 @@ codeunit 137407 "SCM Warehouse IV"
 
         // [THEN] Service Item is created with Warranty Starting Date (Parts) = Warranty Starting Date (Labor)
         // [THEN] Warranty Ending Date (Parts) = 1/2/2020 <> Warranty Ending Date (Labor) = 1/2/2021
-        with ServiceItem do begin
-            SetRange("Item No.", Item."No.");
-            FindFirst();
-            TestField("Warranty Starting Date (Parts)", WarrantyStartingDateWhenItemTrackingExists);
-            TestField("Warranty Starting Date (Labor)", WarrantyStartingDateWhenItemTrackingExists);
-            TestField("Warranty Ending Date (Parts)", WarrantyStartDate);
-            TestField("Warranty Ending Date (Labor)", CalcDate(DefaultWarrantyDuration, WarrantyStartingDateWhenItemTrackingExists));
-        end;
-
+        ServiceItem.SetRange("Item No.", Item."No.");
+        ServiceItem.FindFirst();
+        ServiceItem.TestField("Warranty Starting Date (Parts)", WarrantyStartingDateWhenItemTrackingExists);
+        ServiceItem.TestField("Warranty Starting Date (Labor)", WarrantyStartingDateWhenItemTrackingExists);
+        ServiceItem.TestField("Warranty Ending Date (Parts)", WarrantyStartDate);
+        ServiceItem.TestField("Warranty Ending Date (Labor)", CalcDate(DefaultWarrantyDuration, WarrantyStartingDateWhenItemTrackingExists));
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1898,14 +1894,11 @@ codeunit 137407 "SCM Warehouse IV"
 
         // [WHEN] Post Receipt
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-
         // [THEN] Service Item is created with Warranty Starting Date (Parts) = Warranty Starting Date (Labor) = 1/1/2021
-        with ServiceItem do begin
-            SetRange("Item No.", Item."No.");
-            FindFirst();
-            TestField("Warranty Starting Date (Parts)", PurchaseHeader."Posting Date");
-            TestField("Warranty Starting Date (Labor)", "Warranty Starting Date (Parts)");
-        end;
+        ServiceItem.SetRange("Item No.", Item."No.");
+        ServiceItem.FindFirst();
+        ServiceItem.TestField("Warranty Starting Date (Parts)", PurchaseHeader."Posting Date");
+        ServiceItem.TestField("Warranty Starting Date (Labor)", ServiceItem."Warranty Starting Date (Parts)");
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -2563,15 +2556,13 @@ codeunit 137407 "SCM Warehouse IV"
                             Assert.ExpectedConfirm('exceeds the available capacity', LibraryVariableStorage.DequeueText());// Violation confirmation?
                     end;
                 Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.":
-                    begin
-                        // [THEN] Item Journal Posting throws error for weight violation, else succeeds
-                        if WeightViolation or QtyViolation then begin
-                            asserterror ItemJnlPost.Run(ItemJournalLine);
-                            Assert.ExpectedError('exceeds the available capacity');
-                        end else begin
-                            ItemJnlPost.Run(ItemJournalLine);
-                            Assert.ExpectedConfirm('Do you want to post the journal lines?', LibraryVariableStorage.DequeueText());
-                        end;
+                    // [THEN] Item Journal Posting throws error for weight violation, else succeeds
+                    if WeightViolation or QtyViolation then begin
+                        asserterror ItemJnlPost.Run(ItemJournalLine);
+                        Assert.ExpectedError('exceeds the available capacity');
+                    end else begin
+                        ItemJnlPost.Run(ItemJournalLine);
+                        Assert.ExpectedConfirm('Do you want to post the journal lines?', LibraryVariableStorage.DequeueText());
                     end;
             end;
         end;
@@ -3754,10 +3745,7 @@ codeunit 137407 "SCM Warehouse IV"
         // [WHEN] Purchase Order
         case BinCapacityPolicy of
             Location."Bin Capacity Policy"::"Never Check Capacity":
-                begin
-                    LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-                    // [THEN] Purchase Order is successfully posted
-                end;
+                LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true); // [THEN] Purchase Order is successfully posted
             Location."Bin Capacity Policy"::"Allow More Than Max. Capacity":
                 begin
                     LibraryVariableStorage.Enqueue(true);
@@ -4662,14 +4650,13 @@ codeunit 137407 "SCM Warehouse IV"
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
         i: Integer;
     begin
-        for i := 1 to 3 do
-            with WhseInternalPickHeader do begin
-                Init();
-                "No." := LibraryUtility.GenerateGUID();
-                "Location Code" := LocationCode;
-                Insert();
-                DocumentNo[i] := "No.";
-            end;
+        for i := 1 to 3 do begin
+            WhseInternalPickHeader.Init();
+            WhseInternalPickHeader."No." := LibraryUtility.GenerateGUID();
+            WhseInternalPickHeader."Location Code" := LocationCode;
+            WhseInternalPickHeader.Insert();
+            DocumentNo[i] := WhseInternalPickHeader."No.";
+        end;
     end;
 
     local procedure InsertThreeInternalPutAways(LocationCode: Code[10]; var DocumentNo: array[3] of Code[20])
@@ -4677,14 +4664,13 @@ codeunit 137407 "SCM Warehouse IV"
         WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header";
         i: Integer;
     begin
-        for i := 1 to 3 do
-            with WhseInternalPutAwayHeader do begin
-                Init();
-                "No." := LibraryUtility.GenerateGUID();
-                "Location Code" := LocationCode;
-                Insert();
-                DocumentNo[i] := "No.";
-            end;
+        for i := 1 to 3 do begin
+            WhseInternalPutAwayHeader.Init();
+            WhseInternalPutAwayHeader."No." := LibraryUtility.GenerateGUID();
+            WhseInternalPutAwayHeader."Location Code" := LocationCode;
+            WhseInternalPutAwayHeader.Insert();
+            DocumentNo[i] := WhseInternalPutAwayHeader."No.";
+        end;
     end;
 
     local procedure InsertThreeRegisteredWhseActivities(ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; var DocumentNo: array[3] of Code[20])
@@ -4692,35 +4678,30 @@ codeunit 137407 "SCM Warehouse IV"
         RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
         i: Integer;
     begin
-        for i := 1 to 3 do
-            with RegisteredWhseActivityHdr do begin
-                Init();
-                Type := ActivityType;
-                "No." := LibraryUtility.GenerateGUID();
-                "Location Code" := LocationCode;
-                Insert();
-                DocumentNo[i] := "No.";
-            end;
+        for i := 1 to 3 do begin
+            RegisteredWhseActivityHdr.Init();
+            RegisteredWhseActivityHdr.Type := ActivityType;
+            RegisteredWhseActivityHdr."No." := LibraryUtility.GenerateGUID();
+            RegisteredWhseActivityHdr."Location Code" := LocationCode;
+            RegisteredWhseActivityHdr.Insert();
+            DocumentNo[i] := RegisteredWhseActivityHdr."No.";
+        end;
     end;
 
     local procedure MockPostedInvtPutAway(var PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header"; LocationCode: Code[10])
     begin
-        with PostedInvtPutAwayHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Posted Invt. Put-away Header");
-            "Location Code" := LocationCode;
-            Insert();
-        end;
+        PostedInvtPutAwayHeader.Init();
+        PostedInvtPutAwayHeader."No." := LibraryUtility.GenerateRandomCode(PostedInvtPutAwayHeader.FieldNo("No."), DATABASE::"Posted Invt. Put-away Header");
+        PostedInvtPutAwayHeader."Location Code" := LocationCode;
+        PostedInvtPutAwayHeader.Insert();
     end;
 
     local procedure MockPostedInvtPick(var PostedInvtPickHeader: Record "Posted Invt. Pick Header"; LocationCode: Code[10])
     begin
-        with PostedInvtPickHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Posted Invt. Pick Header");
-            "Location Code" := LocationCode;
-            Insert();
-        end;
+        PostedInvtPickHeader.Init();
+        PostedInvtPickHeader."No." := LibraryUtility.GenerateRandomCode(PostedInvtPickHeader.FieldNo("No."), DATABASE::"Posted Invt. Pick Header");
+        PostedInvtPickHeader."Location Code" := LocationCode;
+        PostedInvtPickHeader.Insert();
     end;
 
     local procedure NoSeriesSetup()

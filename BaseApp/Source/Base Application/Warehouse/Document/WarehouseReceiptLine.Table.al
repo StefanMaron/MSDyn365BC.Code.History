@@ -422,46 +422,36 @@ table 7317 "Warehouse Receipt Line"
         }
         key(Key2; "Source Type", "Source Subtype", "Source No.", "Source Line No.")
         {
-            MaintainSIFTIndex = false;
-            SumIndexFields = "Qty. Outstanding (Base)";
+            IncludedFields = "Qty. Outstanding (Base)";
         }
         key(Key3; "No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.")
         {
-            MaintainSQLIndex = false;
         }
         key(Key4; "No.", "Sorting Sequence No.")
         {
-            MaintainSQLIndex = false;
         }
         key(Key5; "No.", "Shelf No.")
         {
-            MaintainSQLIndex = false;
         }
         key(Key6; "No.", "Item No.")
         {
-            MaintainSQLIndex = false;
         }
         key(Key7; "No.", "Source Document", "Source No.")
         {
-            MaintainSQLIndex = false;
         }
         key(Key8; "No.", "Due Date")
         {
-            MaintainSQLIndex = false;
         }
         key(Key9; "No.", "Bin Code")
         {
-            MaintainSQLIndex = false;
         }
         key(Key10; "Item No.", "Location Code", "Variant Code")
         {
-            MaintainSIFTIndex = false;
-            SumIndexFields = "Qty. Outstanding (Base)";
+            IncludedFields = "Qty. Outstanding (Base)";
         }
         key(Key11; "Bin Code", "Location Code")
         {
-            MaintainSIFTIndex = false;
-            SumIndexFields = Cubage, Weight;
+            IncludedFields = Cubage, Weight;
         }
     }
 
@@ -501,12 +491,18 @@ table 7317 "Warehouse Receipt Line"
         CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         UseCrossDock: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot rename a %1.';
         Text002: Label 'You cannot handle more than the outstanding %1 units.';
+#pragma warning restore AA0470
         Text003: Label 'Cancelled.';
+#pragma warning disable AA0470
         Text004: Label '%1 %2 is not completely received.\Do you really want to delete the %1?';
         Text005: Label 'You cannot Cross-Dock  more than the %1 units to be received.';
         Text006: Label 'Cross-Docking is disabled for this %1 and/or %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
 
@@ -523,7 +519,7 @@ table 7317 "Warehouse Receipt Line"
         "Line No." := "Line No." + 10000;
     end;
 
-    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
         OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
 
@@ -585,7 +581,7 @@ table 7317 "Warehouse Receipt Line"
         exit(Status);
     end;
 
-    local procedure GetLocation(LocationCode: Code[10])
+    procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
             Location.GetLocationSetup(LocationCode, Location)

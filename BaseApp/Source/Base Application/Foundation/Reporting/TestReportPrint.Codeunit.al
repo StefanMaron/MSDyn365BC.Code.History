@@ -9,9 +9,6 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.FixedAssets.Insurance;
 using Microsoft.FixedAssets.Journal;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Setup;
 using Microsoft.Projects.Project.Journal;
@@ -20,11 +17,7 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Journal;
-#if not CLEAN22
-using System.IO;
-#endif
 
 codeunit 228 "Test Report-Print"
 {
@@ -38,15 +31,9 @@ codeunit 228 "Test Report-Print"
         GenJnlTemplate: Record "Gen. Journal Template";
         VATStmtTmpl: Record "VAT Statement Template";
         ItemJnlTemplate: Record "Item Journal Template";
-#if not CLEAN22
-        IntraJnlTemplate: Record "Intrastat Jnl. Template";
-#endif
         GenJnlLine: Record "Gen. Journal Line";
         VATStmtLine: Record "VAT Statement Line";
         ItemJnlLine: Record "Item Journal Line";
-#if not CLEAN22
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-#endif
         ResJnlTemplate: Record "Res. Journal Template";
         ResJnlLine: Record "Res. Journal Line";
         JobJnlTemplate: Record "Job Journal Template";
@@ -124,24 +111,6 @@ codeunit 228 "Test Report-Print"
         ItemJnlTemplate.TestField("Test Report ID");
         REPORT.Run(ItemJnlTemplate."Test Report ID", true, false, ItemJnlLine);
     end;
-
-
-#if not CLEAN22
-    [Scope('OnPrem')]
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure PrintIntrastatJnlLine(var NewIntrastatJnlLine: Record "Intrastat Jnl. Line")
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        IntrastatJnlLine.Copy(NewIntrastatJnlLine);
-        IntrastatJnlLine.SetCurrentKey(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method");
-        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
-        IntraJnlTemplate.Get(IntrastatJnlLine."Journal Template Name");
-        IntraJnlTemplate.TestField("Checklist Report ID");
-        REPORT.SaveAsPdf(IntraJnlTemplate."Checklist Report ID", FileManagement.ServerTempFileName('tmp'), IntrastatJnlLine);
-    end;
-#endif
 
     procedure PrintResJnlBatch(ResJnlBatch: Record "Res. Journal Batch")
     begin
@@ -246,16 +215,15 @@ codeunit 228 "Test Report-Print"
         REPORT.Run(InsuranceJnlTempl."Test Report ID", true, false, InsuranceJnlLine);
     end;
 
-    procedure PrintServiceHeader(NewServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit "Serv. Test Report-Print"', '25.0')]
+    procedure PrintServiceHeader(NewServiceHeader: Record Microsoft.Service.Document."Service Header")
     var
-        ServiceHeader: Record "Service Header";
+        ServTestReportPrint: Codeunit "Serv. Test Report Print";
     begin
-        ServiceHeader := NewServiceHeader;
-        ServiceHeader.SetRecFilter();
-        CalcServDisc(ServiceHeader);
-        ReportSelection.PrintWithCheckForCust(
-            ReportSelection.Usage::"SM.Test", ServiceHeader, ServiceHeader.FieldNo("Bill-to Customer No."));
+        ServTestReportPrint.PrintServiceHeader(NewServiceHeader);
     end;
+#endif
 
     procedure PrintWhseJnlBatch(WhseJnlBatch: Record "Warehouse Journal Batch")
     begin
@@ -346,24 +314,6 @@ codeunit 228 "Test Report-Print"
         OnAfterCalcPurchDiscount(PurchHeader, PurchLine);
     end;
 
-    local procedure CalcServDisc(var ServHeader: Record "Service Header")
-    var
-        ServLine: Record "Service Line";
-        SalesSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesSetup.Get();
-        if SalesSetup."Calc. Inv. Discount" then begin
-            ServLine.Reset();
-            ServLine.SetRange("Document Type", ServHeader."Document Type");
-            ServLine.SetRange("Document No.", ServHeader."No.");
-            ServLine.FindFirst();
-            OnCalcServDiscOnBeforeRun(ServHeader, ServLine);
-            CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServLine);
-            ServHeader.Get(ServHeader."Document Type", ServHeader."No.");
-            Commit();
-        end;
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcSalesDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
@@ -399,10 +349,18 @@ codeunit 228 "Test Report-Print"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnCalcServDiscOnBeforeRun(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ServiceLine: Record Microsoft.Service.Document."Service Line")
+    begin
+        OnCalcServDiscOnBeforeRun(ServiceHeader, ServiceLine);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit "Serv. Test Report-Print"', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCalcServDiscOnBeforeRun(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    local procedure OnCalcServDiscOnBeforeRun(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPrintGenJnlLineOnAfterGenJnlLineCopy(var GenJnlLine: Record "Gen. Journal Line")

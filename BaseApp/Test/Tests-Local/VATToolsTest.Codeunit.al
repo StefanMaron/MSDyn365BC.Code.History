@@ -430,10 +430,8 @@ codeunit 144001 "VAT Tools Test"
 
         NoOfNorwegianVATPeriods := 6;
         for PeriodNo := 1 to NoOfNorwegianVATPeriods do begin
-            with VATPeriod do begin
-                Assert.AreEqual("Start Month", 2 * PeriodNo - 1, 'Periods should be two months long.');
-                Assert.AreEqual("Start Day", 1, 'Day should be the first in the month.');
-            end;
+            Assert.AreEqual(VATPeriod."Start Month", 2 * PeriodNo - 1, 'Periods should be two months long.');
+            Assert.AreEqual(VATPeriod."Start Day", 1, 'Day should be the first in the month.');
             VATPeriod.Next();
         end;
     end;
@@ -1069,21 +1067,19 @@ codeunit 144001 "VAT Tools Test"
         VATBusPostingGroup: Record "VAT Business Posting Group";
         VATProdPostingGroup: Record "VAT Product Posting Group";
     begin
-        with LibraryPurch do begin
-            LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-            LibraryERM.FindVATBusinessPostingGroup(VATBusPostingGroup);
-            LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
-            LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
-            VATPostingSetup."Purchase VAT Account" := CreateGLAccount();
-            VATPostingSetup."VAT %" := 25;
-            VATPostingSetup.Modify();
-            CreatePurchDoc(PurchHeader, PurchLine, GeneralPostingSetup, VATPostingSetup);
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.FindVATBusinessPostingGroup(VATBusPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
+        VATPostingSetup."Purchase VAT Account" := CreateGLAccount();
+        VATPostingSetup."VAT %" := 25;
+        VATPostingSetup.Modify();
+        CreatePurchDoc(PurchHeader, PurchLine, GeneralPostingSetup, VATPostingSetup);
 
-            PurchHeader.Validate("Posting Date", PostingDate);
-            PurchHeader.Modify(true);
+        PurchHeader.Validate("Posting Date", PostingDate);
+        PurchHeader.Modify(true);
 
-            exit(PostPurchaseDocument(PurchHeader, true, true));
-        end;
+        exit(LibraryPurch.PostPurchaseDocument(PurchHeader, true, true));
     end;
 
     [Normal]
@@ -1168,12 +1164,10 @@ codeunit 144001 "VAT Tools Test"
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            Get(GLAccNo);
-            Validate("Gen. Prod. Posting Group", GenProdPostGroupCode);
-            Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
-            Modify(true);
-        end;
+        GLAccount.Get(GLAccNo);
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProdPostGroupCode);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
+        GLAccount.Modify(true);
     end;
 
     local procedure CreateGLAccount(): Code[20]
@@ -1188,13 +1182,11 @@ codeunit 144001 "VAT Tools Test"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        with LibraryERM do begin
-            SelectGenJnlBatch(GenJournalBatch);
-            ClearGenJournalLines(GenJournalBatch);
-            CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-              AccountType, AccountNo, -Amount);
-        end;
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          AccountType, AccountNo, -Amount);
     end;
 
     local procedure CreateAndPostGenJnlLine(AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal): Code[20]
@@ -1372,22 +1364,20 @@ codeunit 144001 "VAT Tools Test"
 
     local procedure MockVATEntryWithVATCode(var VATEntry: Record "VAT Entry"; PostingDate: Date; VATReportingCode: Code[20])
     begin
-        with VATEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FIELDNO("Entry No."));
-            "Posting Date" := PostingDate;
-            "VAT Reporting Date" := PostingDate;
-            Closed := FALSE;
-            "VAT Number" := VATReportingCode;
-            Amount := LibraryRandom.RandDec(1000, 2);
-            Base := LibraryRandom.RandDec(1000, 2);
-            "Remaining Unrealized Amount" := LibraryRandom.RandDec(1000, 2);
-            "Remaining Unrealized Base" := LibraryRandom.RandDec(1000, 2);
-            "Additional-Currency Amount" := LibraryRandom.RandDec(1000, 2);
-            "Additional-Currency Base" := LibraryRandom.RandDec(1000, 2);
-            "Add.-Curr. Rem. Unreal. Amount" := LibraryRandom.RandDec(1000, 2);
-            "Add.-Curr. Rem. Unreal. Base" := LibraryRandom.RandDec(1000, 2);
-            Insert();
-        end;
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FIELDNO("Entry No."));
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
+        VATEntry.Closed := FALSE;
+        VATEntry."VAT Number" := VATReportingCode;
+        VATEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        VATEntry.Base := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Remaining Unrealized Amount" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Remaining Unrealized Base" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Additional-Currency Amount" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Additional-Currency Base" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Add.-Curr. Rem. Unreal. Amount" := LibraryRandom.RandDec(1000, 2);
+        VATEntry."Add.-Curr. Rem. Unreal. Base" := LibraryRandom.RandDec(1000, 2);
+        VATEntry.Insert();
     end;
 
     local procedure SuggestLinesWithPeriod(VATReportHeader: Record "VAT Report Header"; Selection: Enum "VAT Statement Report Selection"; PeriodSelection: Enum "VAT Statement Report Period Selection"; PeriodYear: Integer; PeriodNo: Integer; AmountInACY: Boolean);
@@ -1453,14 +1443,12 @@ codeunit 144001 "VAT Tools Test"
     var
         VATStatementReportLine: Record "VAT Statement Report Line";
     begin
-        with VATStatementReportLine do begin
-            SetRange("VAT Report No.", VATReportHeader."No.");
-            SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
-            SetRange("Box No.", BoxNo);
-            FindFirst();
-            TestField(Base, ExpectedBase);
-            TestField(Amount, ExpectedAmount);
-        end;
+        VATStatementReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
+        VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
+        VATStatementReportLine.SetRange("Box No.", BoxNo);
+        VATStatementReportLine.FindFirst();
+        VATStatementReportLine.TestField(Base, ExpectedBase);
+        VATStatementReportLine.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure DeleteSettledVATPeriods()

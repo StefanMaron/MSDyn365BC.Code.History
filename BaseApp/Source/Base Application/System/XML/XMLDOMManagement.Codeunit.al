@@ -66,6 +66,7 @@ codeunit 6224 "XML DOM Management"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AddElementWithPrefix(var XMLNode: DotNet XmlNode; NodeName: Text; NodeText: Text; Prefix: Text; NameSpace: Text; var CreatedXMLNode: DotNet XmlNode): Integer
     var
         NewChildNode: DotNet XmlNode;

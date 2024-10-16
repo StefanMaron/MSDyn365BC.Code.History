@@ -8,6 +8,8 @@ page 5637 "FA Reclass. Journal Templates"
     PageType = List;
     SourceTable = "FA Reclass. Journal Template";
     UsageCategory = Administration;
+    AboutTitle = 'About Fixed Asset Reclassification Journal Templates';
+    AboutText = 'With the FA Reclass Journal Templates, you can create new templates, review created templates, define batches that will be used in the FA Reclass Journal.';
 
     layout
     {
@@ -71,6 +73,8 @@ page 5637 "FA Reclass. Journal Templates"
                     Image = Description;
                     RunObject = Page "FA Reclass. Journal Batches";
                     RunPageLink = "Journal Template Name" = field(Name);
+                    AboutTitle = 'Manage Batches';
+                    AboutText = 'Specify or review the batches that you have added against an FA ReclassJnl Template.';
                     ToolTip = 'View or edit multiple journals for a specific template. You can use batches when you need multiple journals of a certain type.';
                     Scope = Repeater;
                 }

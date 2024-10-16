@@ -708,31 +708,27 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            IBAN := 'SE6795000099604247929021';
-            "SWIFT Code" := 'NDEASESS';
-            "Payment Export Format" := BankExpImpSetup;
-            "Credit Transfer Msg. Nos." := LibraryERM.CreateNoSeriesCode();
-            Modify();
-            exit("No.");
-        end;
+        BankAccount.IBAN := 'SE6795000099604247929021';
+        BankAccount."SWIFT Code" := 'NDEASESS';
+        BankAccount."Payment Export Format" := BankExpImpSetup;
+        BankAccount."Credit Transfer Msg. Nos." := LibraryERM.CreateNoSeriesCode();
+        BankAccount.Modify();
+        exit(BankAccount."No.");
     end;
 
     local procedure CreateNorgeBankExportImportSetup(ThreshAmt: Decimal): Code[20]
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        with BankExportImportSetup do begin
-            BankExportImportSetup.Init();
-            Code := LibraryUtility.GenerateGUID();
-            Direction := Direction::Export;
-            "Processing Codeunit ID" := CODEUNIT::"Norge SEPA CC-Export File";
-            "Processing XMLport ID" := XMLPORT::"SEPA CT pain.001.001.09";
-            "Check Export Codeunit" := CODEUNIT::"SEPA CT-Check Line";
-            "Reg.Reporting Thresh.Amt (LCY)" := ThreshAmt;
-            Insert();
-            exit(Code);
-        end;
+        BankExportImportSetup.Init();
+        BankExportImportSetup.Code := LibraryUtility.GenerateGUID();
+        BankExportImportSetup.Direction := BankExportImportSetup.Direction::Export;
+        BankExportImportSetup."Processing Codeunit ID" := CODEUNIT::"Norge SEPA CC-Export File";
+        BankExportImportSetup."Processing XMLport ID" := XMLPORT::"SEPA CT pain.001.001.09";
+        BankExportImportSetup."Check Export Codeunit" := CODEUNIT::"SEPA CT-Check Line";
+        BankExportImportSetup."Reg.Reporting Thresh.Amt (LCY)" := ThreshAmt;
+        BankExportImportSetup.Insert();
+        exit(BankExportImportSetup.Code);
     end;
 
     local procedure CreateRegRepCode(): Code[10]
@@ -897,12 +893,10 @@ codeunit 144137 "ERM Norge SEPA CT"
 
     local procedure MockGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; BankExportImportSetupCode: Code[20])
     begin
-        with GenJournalLine do begin
-            "Journal Template Name" := GenJournalBatch."Journal Template Name";
-            "Journal Batch Name" := GenJournalBatch.Name;
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := CreateBankAccountWithExportSetup(BankExportImportSetupCode);
-        end;
+        GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+        GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
+        GenJournalLine."Bal. Account No." := CreateBankAccountWithExportSetup(BankExportImportSetupCode);
     end;
 
     local procedure VerifyTagRgltryRptg(XMLParentNode: DotNet XmlNode; GenJnlLineRegRepCode: Record "Gen. Jnl. Line Reg. Rep. Code")

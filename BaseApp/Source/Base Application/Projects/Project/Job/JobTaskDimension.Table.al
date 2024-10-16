@@ -104,8 +104,12 @@ table 1002 "Job Task Dimension"
 
     var
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'At least one dimension value code must have a value. Enter a value or delete the %1. ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure UpdateGlobalDim(DimensionValue: Code[20])
     var

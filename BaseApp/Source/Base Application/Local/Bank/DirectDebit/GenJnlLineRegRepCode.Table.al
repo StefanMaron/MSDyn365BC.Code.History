@@ -34,7 +34,7 @@ table 10608 "Gen. Jnl. Line Reg. Rep. Code"
         }
         field(5; "Reg. Code Description"; Text[35])
         {
-            CalcFormula = Lookup("Regulatory Reporting Code".Description where(Code = field("Reg. Code")));
+            CalcFormula = lookup("Regulatory Reporting Code".Description where(Code = field("Reg. Code")));
             Caption = 'Reg. Code Description';
             FieldClass = FlowField;
         }

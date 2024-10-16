@@ -208,29 +208,25 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", GenJournalLine."Document No.");
-            SetRange("G/L Account No.", GenJournalLine."Account No.");
-            FindFirst();
-            Assert.AreNearlyEqual(
-              GenJournalLine."VAT Amount", "VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
-              StrSubstNo(
-                AmountError, FieldCaption("VAT Amount"), GenJournalLine."VAT Amount", TableCaption(), FieldCaption("Entry No."), "Entry No."));
-        end;
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange("G/L Account No.", GenJournalLine."Account No.");
+        GLEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          GenJournalLine."VAT Amount", GLEntry."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
+          StrSubstNo(
+            AmountError, GLEntry.FieldCaption("VAT Amount"), GenJournalLine."VAT Amount", GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
     local procedure VerifyAmountOnVATEntry(GenJournalLine: Record "Gen. Journal Line")
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", GenJournalLine."Document No.");
-            FindFirst();
-            Assert.AreNearlyEqual(
-              GenJournalLine."VAT Amount", Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
-              StrSubstNo(
-                AmountError, FieldCaption(Amount), GenJournalLine."VAT Amount", TableCaption(), FieldCaption("Entry No."), "Entry No."));
-        end;
+        VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        VATEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          GenJournalLine."VAT Amount", VATEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
+          StrSubstNo(
+            AmountError, VATEntry.FieldCaption(Amount), GenJournalLine."VAT Amount", VATEntry.TableCaption(), VATEntry.FieldCaption("Entry No."), VATEntry."Entry No."));
     end;
 
     [ConfirmHandler]

@@ -215,7 +215,7 @@ page 20 "General Ledger Entries"
                 }
                 field("VAT Amount"; Rec."VAT Amount")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;

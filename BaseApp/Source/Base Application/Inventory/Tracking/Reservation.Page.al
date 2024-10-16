@@ -1,19 +1,9 @@
 ﻿namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Planning;
-using Microsoft.Inventory.Requisition;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 page 498 Reservation
 {
@@ -410,13 +400,19 @@ page 498 Reservation
         HandleItemTracking: Boolean;
         NoteTextVisible: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Fully reserved.';
         Text001: Label 'Full automatic Reservation is not possible.\Reserve manually.';
         Text002: Label 'There is nothing available to reserve.';
+#pragma warning disable AA0470
         Text003: Label 'Do you want to cancel all reservations in the %1?';
+#pragma warning restore AA0470
         Text005: Label 'There are no reservations to cancel.';
         Text008: Label 'Action canceled.';
+#pragma warning disable AA0470
         Text009: Label '%1 of the %2 are nonspecific and may be available.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ReservConfirmQst: Label 'Do you want to reserve specific tracking numbers?';
 
     procedure SetReservSource(CurrentRecordVar: Variant)
@@ -440,32 +436,34 @@ page 498 Reservation
         UpdateReservFrom();
 
         // Invoke events for compatibility with 15.X, to be removed after obsoleting events below
+#if not CLEAN25
         case SourceRecRef.Number of
-            Database::"Sales Line":
+            Database::Microsoft.Sales.Document."Sales Line":
                 OnAfterSetSalesLine(Rec, ReservEntry);
-            Database::"Requisition Line":
+            Database::Microsoft.Inventory.Requisition."Requisition Line":
                 OnAfterSetReqLine(Rec, ReservEntry);
-            Database::"Purchase Line":
+            Database::Microsoft.Purchases.Document."Purchase Line":
                 OnAfterSetPurchLine(Rec, ReservEntry);
-            Database::"Item Journal Line":
+            Database::Microsoft.Inventory.Journal."Item Journal Line":
                 OnAfterSetItemJnlLine(Rec, ReservEntry);
-            Database::"Prod. Order Line":
+            Database::Microsoft.Manufacturing.Document."Prod. Order Line":
                 OnAfterSetProdOrderLine(Rec, ReservEntry);
-            Database::"Prod. Order Component":
+            Database::Microsoft.Manufacturing.Document."Prod. Order Component":
                 OnAfterSetProdOrderComponent(Rec, ReservEntry);
-            Database::"Assembly Header":
+            Database::Microsoft.Assembly.Document."Assembly Header":
                 OnAfterSetAssemblyHeader(Rec, ReservEntry);
-            Database::"Assembly Line":
+            Database::Microsoft.Assembly.Document."Assembly Line":
                 OnAfterSetAssemblyLine(Rec, ReservEntry);
-            Database::"Planning Component":
+            Database::Microsoft.Inventory.Planning."Planning Component":
                 OnAfterSetPlanningComponent(Rec, ReservEntry);
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 OnAfterSetServiceLine(Rec, ReservEntry);
-            Database::"Job Planning Line":
+            Database::Microsoft.Projects.Project.Planning."Job Planning Line":
                 OnAfterSetJobPlanningLine(Rec, ReservEntry);
-            Database::"Transfer Line":
+            Database::Microsoft.Inventory.Transfer."Transfer Line":
                 OnAfterSetTransLine(Rec, ReservEntry);
         end;
+#endif
     end;
 
     procedure SetReservEntry(ReservEntry2: Record "Reservation Entry")
@@ -755,65 +753,101 @@ page 498 Reservation
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit SalesLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSalesLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit ReqLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReqLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit PurchLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit TransferLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTransLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit ServiceLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetServiceLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit ProdOrderLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetProdOrderLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit ProdOrderCompReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetProdOrderComponent(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit ItemJnlLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetItemJnlLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit JobPlanningLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetJobPlanningLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit AssemblyHeaderReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetAssemblyHeader(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit AssemblyLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetAssemblyLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event in codeunit PlngComponentReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPlanningComponent(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoReserve(ReservEntry: Record "Reservation Entry"; var FullAutoReservation: Boolean; QtyToReserve: Decimal; QtyReserved: Decimal; QtyToReserveBase: Decimal; QtyReservedBase: Decimal; var IsHandled: Boolean);

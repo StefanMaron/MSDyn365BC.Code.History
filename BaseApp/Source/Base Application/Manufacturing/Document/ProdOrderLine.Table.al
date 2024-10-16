@@ -3,6 +3,7 @@ namespace Microsoft.Manufacturing.Document;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.UOM;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
@@ -50,11 +51,15 @@ table 5406 "Prod. Order Line"
             var
                 IsHandled: Boolean;
             begin
-                ProdOrderLineReserve.VerifyChange(Rec, xRec);
-                TestField("Finished Quantity", 0);
-                CalcFields("Reserved Quantity");
-                TestField("Reserved Quantity", 0);
-                ProdOrderWarehouseMgt.ProdOrderLineVerifyChange(Rec, xRec);
+                IsHandled := false;
+                OnValidateItemNoOnBeforeCheckReservations(Rec, xRec, CurrFieldNo, IsHandled);
+                if not IsHandled then begin
+                    ProdOrderLineReserve.VerifyChange(Rec, xRec);
+                    TestField("Finished Quantity", 0);
+                    CalcFields("Reserved Quantity");
+                    TestField("Reserved Quantity", 0);
+                    ProdOrderWarehouseMgt.ProdOrderLineVerifyChange(Rec, xRec);
+                end;
                 if ("Item No." <> xRec."Item No.") and ("Line No." <> 0) then begin
                     DeleteRelations();
                     "Variant Code" := '';
@@ -917,10 +922,16 @@ table 5406 "Prod. Order Line"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'A %1 %2 cannot be inserted, modified, or deleted.';
+#pragma warning restore AA0470
         Text99000000: Label 'You cannot delete %1 %2 because there is at least one %3 associated with it.', Comment = '%1 = Table Caption; %2 = Field Value; %3 = Table Caption';
+#pragma warning disable AA0470
         Text99000001: Label 'You cannot rename a %1.';
         Text99000002: Label 'You cannot change %1 when %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Text99000004Err: Label 'You cannot modify %1 %2 because there is at least one %3 associated with it.', Comment = '%1 = Field Caption; %2 = Field Value; %3 = Table Caption';
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
@@ -996,6 +1007,14 @@ table 5406 "Prod. Order Line"
         end;
 
         WhseOutputProdRelease.DeleteLine(Rec);
+    end;
+
+    procedure ShowOrderTracking()
+    var
+        OrderTracking: Page "Order Tracking";
+    begin
+        OrderTracking.SetVariantRec(Rec, Rec."Item No.", Rec."Remaining Qty. (Base)", Rec."Due Date", Rec."Due Date");
+        OrderTracking.RunModal();
     end;
 
     procedure ShowReservation()
@@ -1126,7 +1145,7 @@ table 5406 "Prod. Order Line"
         OnAfterGetSKU(Rec, Result);
     end;
 
-    local procedure GetUpdateFromSKU()
+    procedure GetUpdateFromSKU()
     var
         IsHandled: Boolean;
     begin
@@ -1772,6 +1791,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateEndingTimeOnBeforeRecalculate(var ProdOrderLine: Record "Prod. Order Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnBeforeCheckReservations(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -10,7 +10,6 @@ using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Setup;
 
 codeunit 1400 DocumentNoVisibility
 {
@@ -21,7 +20,6 @@ codeunit 1400 DocumentNoVisibility
         IsVendNoInitialized: Boolean;
         IsEmployeeNoInitialized: Boolean;
         IsItemNoInitialized: Boolean;
-        IsServiceItemNoInitialized: Boolean;
         IsBankNoInitialized: Boolean;
         IsFANoInitialized: Boolean;
         IsResNoInitialized: Boolean;
@@ -32,7 +30,6 @@ codeunit 1400 DocumentNoVisibility
         VendNoVisible: Boolean;
         EmployeeNoVisible: Boolean;
         ItemNoVisible: Boolean;
-        ServiceItemNoVisible: Boolean;
         BankNoVisible: Boolean;
         FANoVisible: Boolean;
         ResNoVisible: Boolean;
@@ -40,7 +37,6 @@ codeunit 1400 DocumentNoVisibility
         TransferOrdNoVisible: Boolean;
         ContactNoVisible: Boolean;
         SalesDocsNoVisible: Dictionary of [Integer, Boolean];
-        ServiceDocsNoVisible: Dictionary of [Integer, Boolean];
         PurchaseDocsNoVisible: Dictionary of [Integer, Boolean];
 
     procedure ClearState()
@@ -55,8 +51,6 @@ codeunit 1400 DocumentNoVisibility
         IsJobNoInitialized := false;
         IsTransferOrdNoInitialized := false;
         IsContactNoInitialized := false;
-        IsServiceItemNoInitialized := false;
-        ServiceItemNoVisible := false;
         CustNoVisible := false;
         VendNoVisible := false;
         EmployeeNoVisible := false;
@@ -69,7 +63,6 @@ codeunit 1400 DocumentNoVisibility
         ContactNoVisible := false;
 
         Clear(SalesDocsNoVisible);
-        Clear(ServiceDocsNoVisible);
         Clear(PurchaseDocsNoVisible);
     end;
 
@@ -105,37 +98,15 @@ codeunit 1400 DocumentNoVisibility
         exit(Result);
     end;
 
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Document No. Visibility', '25.0')]
     procedure ServiceDocumentNoIsVisible(DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract; DocNo: Code[20]): Boolean
     var
-        NoSeries: Record "No. Series";
-        ServiceNoSeriesSetup: Page "Service No. Series Setup";
-        DocNoSeries: Code[20];
-        IsHandled: Boolean;
-        Result: Boolean;
+        ServDocumentNoVisibility: Codeunit "Serv. Document No. Visibility";
     begin
-        IsHandled := false;
-        OnBeforeServiceDocumentNoIsVisible(DocType, DocNo, Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        if DocNo <> '' then
-            exit(false);
-
-        if ServiceDocsNoVisible.ContainsKey(DocType) then
-            exit(ServiceDocsNoVisible.Get(DocType));
-
-        DocNoSeries := DetermineServiceSeriesNo(DocType);
-        if not NoSeries.Get(DocNoSeries) then begin
-            ServiceNoSeriesSetup.SetFieldsVisibility(DocType);
-            ServiceNoSeriesSetup.RunModal();
-            DocNoSeries := DetermineServiceSeriesNo(DocType);
-        end;
-
-        Result := ForceShowNoSeriesForDocNo(DocNoSeries);
-        ServiceDocsNoVisible.Add(DocType, Result);
-
-        exit(Result);
+        exit(ServDocumentNoVisibility.ServiceDocumentNoIsVisible(DocType, DocNo));
     end;
+#endif
 
     procedure PurchaseDocumentNoIsVisible(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]): Boolean
     var
@@ -253,26 +224,15 @@ codeunit 1400 DocumentNoVisibility
         exit(ItemNoVisible);
     end;
 
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Document No. Visibility', '25.0')]
     procedure ServiceItemNoIsVisible(): Boolean
     var
-        NoSeriesCode: Code[20];
-        IsHandled: Boolean;
-        IsVisible: Boolean;
+        ServDocumentNoVisibility: Codeunit "Serv. Document No. Visibility";
     begin
-        IsHandled := false;
-        IsVisible := false;
-        OnBeforeServiceItemNoIsVisible(IsVisible, IsHandled);
-        if IsHandled then
-            exit(IsVisible);
-
-        if IsServiceItemNoInitialized then
-            exit(ServiceItemNoVisible);
-        IsServiceItemNoInitialized := true;
-
-        NoSeriesCode := DetermineServiceItemSeriesNo();
-        ServiceItemNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
-        exit(ServiceItemNoVisible);
+        exit(ServDocumentNoVisibility.ServiceItemNoIsVisible());
     end;
+#endif
 
     procedure FixedAssetNoIsVisible(): Boolean
     var
@@ -457,8 +417,6 @@ codeunit 1400 DocumentNoVisibility
     local procedure DetermineSalesSeriesNo(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo): Code[20]
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        IsHandled: Boolean;
-        ReturnValue: Code[20];
     begin
         SalesReceivablesSetup.Get();
         case DocType of
@@ -478,37 +436,14 @@ codeunit 1400 DocumentNoVisibility
                 exit(SalesReceivablesSetup."Reminder Nos.");
             DocType::FinChMemo:
                 exit(SalesReceivablesSetup."Fin. Chrg. Memo Nos.");
-            else begin
-                IsHandled := false;
-                OnDeterminePurchaseSeriesNoOnElseDocType(DocType, ReturnValue, IsHandled);
-                if IsHandled then
-                    exit(ReturnValue);
-            end;
-        end;
-    end;
-
-    local procedure DetermineServiceSeriesNo(DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract): Code[20]
-    var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
-    begin
-        ServiceMgtSetup.Get();
-        case DocType of
-            DocType::Quote:
-                exit(ServiceMgtSetup."Service Quote Nos.");
-            DocType::Order:
-                exit(ServiceMgtSetup."Service Order Nos.");
-            DocType::Invoice:
-                exit(ServiceMgtSetup."Service Invoice Nos.");
-            DocType::"Credit Memo":
-                exit(ServiceMgtSetup."Service Credit Memo Nos.");
-            DocType::Contract:
-                exit(ServiceMgtSetup."Service Contract Nos.");
         end;
     end;
 
     local procedure DeterminePurchaseSeriesNo(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"): Code[20]
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        IsHandled: Boolean;
+        ReturnValue: Code[20];
     begin
         PurchasesPayablesSetup.Get();
         case DocType of
@@ -524,6 +459,13 @@ codeunit 1400 DocumentNoVisibility
                 exit(PurchasesPayablesSetup."Blanket Order Nos.");
             DocType::"Return Order":
                 exit(PurchasesPayablesSetup."Return Order Nos.");
+            else begin
+                IsHandled := false;
+                OnDeterminePurchaseSeriesNoOnElseDocType(DocType, ReturnValue, IsHandled);
+                if IsHandled then
+                    exit(ReturnValue);
+            end;
+
         end;
     end;
 
@@ -561,15 +503,6 @@ codeunit 1400 DocumentNoVisibility
         InventorySetup.SetLoadFields("Item Nos.");
         InventorySetup.Get();
         exit(InventorySetup."Item Nos.");
-    end;
-
-    local procedure DetermineServiceItemSeriesNo(): Code[20]
-    var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
-    begin
-        ServiceMgtSetup.SetLoadFields("Service Item Nos.");
-        ServiceMgtSetup.Get();
-        exit(ServiceMgtSetup."Service Item Nos.");
     end;
 
     local procedure DetermineFixedAssetSeriesNo(): Code[20]
@@ -694,10 +627,18 @@ codeunit 1400 DocumentNoVisibility
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceDocumentNoIsVisible(DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceDocumentNoIsVisible(DocType, DocNo, IsVisible, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Document No. Visibility', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceDocumentNoIsVisible(DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseDocumentNoIsVisible(DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
@@ -724,10 +665,18 @@ codeunit 1400 DocumentNoVisibility
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceItemNoIsVisible(var IsVisible: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceItemNoIsVisible(IsVisible, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Document No. Visibility', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceItemNoIsVisible(var IsVisible: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFixedAssetNoIsVisible(var IsVisible: Boolean; var IsHandled: Boolean)

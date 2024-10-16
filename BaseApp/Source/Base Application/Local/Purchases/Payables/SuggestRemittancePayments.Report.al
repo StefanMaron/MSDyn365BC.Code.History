@@ -404,9 +404,6 @@ report 15000001 "Suggest Remittance Payments"
     local procedure MakeGenJnlLines()
     var
         GenJnlLine3: Record "Gen. Journal Line";
-#if not CLEAN22
-        TempPaymentBuffer: Record "Payment Buffer" temporary;
-#endif
     begin
         TempVendorPaymentBuffer.Reset();
         TempVendorPaymentBuffer.DeleteAll();
@@ -523,11 +520,6 @@ report 15000001 "Suggest Remittance Payments"
 
                 GenJnlLine."Dimension Set ID" := TempVendorPaymentBuffer."Dimension Set ID";
                 UpdateDimensions(GenJnlLine);
-#if not CLEAN22
-                TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
-                OnBeforeGenJnlLineInsert(GenJnlLine, TempPaymentBuffer);
-                TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
-#endif
                 OnBeforeGenJnlLineInsertVendorPaymentBuffer(GenJnlLine, TempVendorPaymentBuffer);
                 GenJnlLine.Insert();
                 GenJnlLineInserted := true;
@@ -637,14 +629,6 @@ report 15000001 "Suggest Remittance Payments"
     local procedure OnBeforeCalcPostingDate(VendorLedgerEntry: Record "Vendor Ledger Entry"; ReplacePostingDateWithDueDate: Boolean; UsePaymentDisc: Boolean; LastDueDateToPayReq: Date; var NewPostingDate: Date; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by OnBeforeGenJnlLineInsertVendorPaymentBuffer.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; var TempPaymentBuffer: Record "Payment Buffer" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsertVendorPaymentBuffer(var GenJournalLine: Record "Gen. Journal Line"; var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)

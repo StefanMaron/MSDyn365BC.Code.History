@@ -388,7 +388,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         asserterror RunCancelIssuedReminder(IssuedReminderHeader);
 
         // [THEN] Error "Cancelled must be equal to 'No' ..."
-        Assert.ExpectedError('Canceled must be equal to ''No''');
+        Assert.ExpectedTestFieldError(IssuedReminderHeader.FieldCaption(Canceled), Format(false));
     end;
 
     [Test]
@@ -1763,20 +1763,16 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
     local procedure MockReminderLine(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header")
     begin
-        with ReminderLine do begin
-            "Reminder No." := ReminderHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(ReminderLine, FieldNo("Line No."));
-            Insert();
-        end;
+        ReminderLine."Reminder No." := ReminderHeader."No.";
+        ReminderLine."Line No." := LibraryUtility.GetNewRecNo(ReminderLine, ReminderLine.FieldNo("Line No."));
+        ReminderLine.Insert();
     end;
 
     local procedure MockFinChargeMemoLine(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
-        with FinanceChargeMemoLine do begin
-            "Finance Charge Memo No." := FinanceChargeMemoHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(FinanceChargeMemoLine, FieldNo("Line No."));
-            Insert();
-        end;
+        FinanceChargeMemoLine."Finance Charge Memo No." := FinanceChargeMemoHeader."No.";
+        FinanceChargeMemoLine."Line No." := LibraryUtility.GetNewRecNo(FinanceChargeMemoLine, FinanceChargeMemoLine.FieldNo("Line No."));
+        FinanceChargeMemoLine.Insert();
     end;
 
     local procedure MockTwoIssuedRemindersSingleCustomer(var IssuedReminderHeader: Record "Issued Reminder Header")
@@ -1787,25 +1783,21 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     begin
         LibrarySales.CreateCustomer(Customer);
         for RemindersQty := 1 to 2 do begin
-            with IssuedReminderHeader do begin
-                Init();
-                "No." := LibraryUtility.GenerateGUID();
-                "Customer No." := Customer."No.";
-                "Customer Posting Group" := Customer."Gen. Bus. Posting Group";
-                "VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
-                "Posting Date" := WorkDate();
-                "Document Date" := WorkDate();
-                "Due Date" := WorkDate();
-                Insert();
-            end;
-            with IssuedReminderLine do begin
-                Init();
-                "Reminder No." := IssuedReminderHeader."No.";
-                Amount := LibraryRandom.RandDec(100, 2);
-                Type := Type::"Customer Ledger Entry";
-                "Line No." := 1;
-                Insert();
-            end;
+            IssuedReminderHeader.Init();
+            IssuedReminderHeader."No." := LibraryUtility.GenerateGUID();
+            IssuedReminderHeader."Customer No." := Customer."No.";
+            IssuedReminderHeader."Customer Posting Group" := Customer."Gen. Bus. Posting Group";
+            IssuedReminderHeader."VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
+            IssuedReminderHeader."Posting Date" := WorkDate();
+            IssuedReminderHeader."Document Date" := WorkDate();
+            IssuedReminderHeader."Due Date" := WorkDate();
+            IssuedReminderHeader.Insert();
+            IssuedReminderLine.Init();
+            IssuedReminderLine."Reminder No." := IssuedReminderHeader."No.";
+            IssuedReminderLine.Amount := LibraryRandom.RandDec(100, 2);
+            IssuedReminderLine.Type := IssuedReminderLine.Type::"Customer Ledger Entry";
+            IssuedReminderLine."Line No." := 1;
+            IssuedReminderLine.Insert();
         end;
     end;
 
@@ -2116,20 +2108,16 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
     local procedure VerifyReminderLineDescription(ReminderLine: Record "Reminder Line"; ExpectedType: Enum "Reminder Line Type"; ExpectedNo: Code[20]; ExpectedDescription: Text)
     begin
-        with ReminderLine do begin
-            Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));
-            Assert.AreEqual(ExpectedNo, "No.", FieldCaption("No."));
-            Assert.AreEqual(ExpectedDescription, Description, FieldCaption(Description));
-        end;
+        Assert.AreEqual(ExpectedType, ReminderLine.Type, ReminderLine.FieldCaption(Type));
+        Assert.AreEqual(ExpectedNo, ReminderLine."No.", ReminderLine.FieldCaption("No."));
+        Assert.AreEqual(ExpectedDescription, ReminderLine.Description, ReminderLine.FieldCaption(Description));
     end;
 
     local procedure VerifyFinChargeMemoLineDescription(FinanceChargeMemoLine: Record "Finance Charge Memo Line"; ExpectedType: Option; ExpectedNo: Code[20]; ExpectedDescription: Text)
     begin
-        with FinanceChargeMemoLine do begin
-            Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));
-            Assert.AreEqual(ExpectedNo, "No.", FieldCaption("No."));
-            Assert.AreEqual(ExpectedDescription, Description, FieldCaption(Description));
-        end;
+        Assert.AreEqual(ExpectedType, FinanceChargeMemoLine.Type, FinanceChargeMemoLine.FieldCaption(Type));
+        Assert.AreEqual(ExpectedNo, FinanceChargeMemoLine."No.", FinanceChargeMemoLine.FieldCaption("No."));
+        Assert.AreEqual(ExpectedDescription, FinanceChargeMemoLine.Description, FinanceChargeMemoLine.FieldCaption(Description));
     end;
 
     local procedure VerifyRecreatedReminder(IssuedReminderHeader: Record "Issued Reminder Header"; NewReminderNo: Code[20])

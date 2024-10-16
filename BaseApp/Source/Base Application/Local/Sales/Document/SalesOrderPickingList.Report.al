@@ -436,8 +436,8 @@ report 10606 "Sales Order Picking List"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
@@ -533,7 +533,7 @@ report 10606 "Sales Order Picking List"
         SalesLine: Record "Sales Line" temporary;
         RespCenter: Record "Responsibility Center";
         DimSetEntry: Record "Dimension Set Entry";
-        Language: Codeunit Language;
+        GlobalLanguage: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];

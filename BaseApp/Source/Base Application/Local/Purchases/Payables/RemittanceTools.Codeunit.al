@@ -310,10 +310,9 @@ codeunit 15000002 "Remittance Tools"
         // EVALUATE(amount,amountStr) is not in use, since amountStr is not allways a correct number.
         // Extract digits:
         FormattedAmount := '0';  // Is min. a '0'.
-        for i := 1 to StrLen(AmountText) do begin
+        for i := 1 to StrLen(AmountText) do
             if StrPos('0123456789', CopyStr(AmountText, i, 1)) > 0 then
                 FormattedAmount := FormattedAmount + CopyStr(AmountText, i, 1);
-        end;
         Evaluate(AmountNum, FormattedAmount);
         FormattedAmount := FormatNum(AmountNum, Length, false);  // False = no decimals.
         exit(FormattedAmount);

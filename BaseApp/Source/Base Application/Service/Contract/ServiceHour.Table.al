@@ -82,10 +82,14 @@ table 5910 "Service Hour"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be later than %2.';
         Text001: Label '%1 must be earlier than %2.';
         Text002: Label 'You must specify %1.';
+#pragma warning restore AA0470
         Text003: Label 'Do you want to copy the default service calendar?';
+#pragma warning restore AA0074
 
     local procedure CheckTime()
     begin

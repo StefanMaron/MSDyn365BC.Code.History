@@ -12,8 +12,10 @@ codeunit 1607 "GLN Calculator"
     end;
 
     var
+#pragma warning disable AA0470
         GLNLengthErr: Label 'The GLN length should be %1 and not %2.';
         GLNCheckDigitErr: Label 'The GLN %1 is not valid.';
+#pragma warning restore AA0470
 
     procedure AssertValidCheckDigit13(GLNValue: Code[20])
     begin

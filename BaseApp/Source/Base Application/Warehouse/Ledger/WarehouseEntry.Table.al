@@ -17,6 +17,7 @@ table 7312 "Warehouse Entry"
     Caption = 'Warehouse Entry';
     DrillDownPageID = "Warehouse Entries";
     LookupPageID = "Warehouse Entries";
+    Permissions = TableData "Warehouse Entry" = ri;
     DataClassification = CustomerContent;
 
     fields
@@ -71,6 +72,18 @@ table 7312 "Warehouse Entry"
         {
             Caption = 'Qty. (Base)';
             DecimalPlaces = 0 : 5;
+        }
+        field(12; "Warehouse Register No."; Integer)
+        {
+            Caption = 'Warehouse Register No.';
+            Editable = false;
+            TableRelation = "Warehouse Register";
+        }
+        field(13; "SIFT Bucket No."; Integer)
+        {
+            Caption = 'SIFT Bucket No.';
+            ToolTip = 'Specifies an automatically generated number that is used by the system to enable better concurrency.';
+            Editable = false;
         }
         field(20; "Source Type"; Integer)
         {
@@ -253,33 +266,28 @@ table 7312 "Warehouse Entry"
         }
         key(Key4; "Serial No.", "Item No.", "Variant Code", "Location Code", "Bin Code")
         {
-            SumIndexFields = "Qty. (Base)";
+            IncludedFields = "Qty. (Base)";
         }
-#pragma warning disable AS0009
-        key(Key5; "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.")
-#pragma warning restore AS0009
+        key(Key5; "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.", "SIFT Bucket No.")
         {
             SumIndexFields = "Qty. (Base)", Cubage, Weight, Quantity;
         }
-#pragma warning disable AS0009
-        key(Key6; "Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code", "Lot No.", "Serial No.", Dedicated, "Package No.")
-#pragma warning restore AS0009
+        key(Key7; "Bin Code", "Location Code", "Item No.", "SIFT Bucket No.")
         {
-            SumIndexFields = "Qty. (Base)", Cubage, Weight;
+            SumIndexFields = Cubage, Weight, Quantity, "Qty. (Base)";
         }
-        key(Key7; "Bin Code", "Location Code", "Item No.")
+        key(Key8; "Location Code", "Item No.", "Variant Code", "Zone Code", "Bin Code", "Lot No.", "SIFT Bucket No.")
         {
-            SumIndexFields = Cubage, Weight, "Qty. (Base)";
+            SumIndexFields = Quantity, "Qty. (Base)";
         }
-        key(Key8; "Location Code", "Item No.", "Variant Code", "Zone Code", "Bin Code", "Lot No.")
+        key(key9; "Warehouse Register No.")
         {
-            SumIndexFields = "Qty. (Base)";
         }
     }
 
     fieldgroups
     {
-        fieldgroup(DropDown; "Entry No.", "Registering Date", "Entry No.", "Location Code", "Item No.")
+        fieldgroup(DropDown; "Entry No.", "Registering Date", "Location Code", "Item No.")
         {
         }
     }
@@ -287,6 +295,40 @@ table 7312 "Warehouse Entry"
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingType: Enum "Item Tracking Type";
+
+    procedure InsertRecord(UseLegacyPosting: Boolean)
+    begin
+        if UseLegacyPosting then
+            Insert()
+        else
+            InsertRecord();
+    end;
+
+    procedure InsertRecord()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        Rec."SIFT Bucket No." := Rec."Warehouse Register No." mod 5;
+        if not Insert() then begin
+            SequenceNoMgt.RebaseSeqNo(DATABASE::"Warehouse Entry");
+            "Entry No." := SequenceNoMgt.GetNextSeqNo(DATABASE::"Warehouse Entry");
+            Insert();
+        end;
+    end;
+
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Warehouse Entry"));
+    end;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure ClearTrackingFilter()
     begin
@@ -330,13 +372,6 @@ table 7312 "Warehouse Entry"
         SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup);
         if ExcludeDedicatedBinContent then
             SetRange(Dedicated, false);
-    end;
-
-    procedure GetLastEntryNo(): Integer;
-    var
-        FindRecordManagement: Codeunit "Find Record Management";
-    begin
-        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)

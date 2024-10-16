@@ -46,11 +46,9 @@ codeunit 143017 "E-Invoice Reminder Helper"
         ReminderHeader.SetRange("No.", ReminderHeaderNo);
         REPORT.Run(REPORT::"Issue Reminders", false, true, ReminderHeader);
 
-        with IssuedReminderHeader do begin
-            SetFilter("Pre-Assigned No.", ReminderHeaderNo);
-            FindFirst();
-            exit("No.");
-        end;
+        IssuedReminderHeader.SetFilter("Pre-Assigned No.", ReminderHeaderNo);
+        IssuedReminderHeader.FindFirst();
+        exit(IssuedReminderHeader."No.");
     end;
 
     [Scope('OnPrem')]
@@ -61,16 +59,14 @@ codeunit 143017 "E-Invoice Reminder Helper"
     begin
         EInvoiceHelper.CreateCustomer(Customer);
 
-        with ReminderHeader do begin
-            Init();
-            Validate("Customer No.", Customer."No.");
-            ReminderTerms.FindFirst();
-            Validate("Reminder Terms Code", ReminderTerms.Code);
-            "Post Interest" := true;
-            "Post Additional Fee" := true;
-            "Your Reference" := TestValueTxt;
-            Insert(true);
-        end;
+        ReminderHeader.Init();
+        ReminderHeader.Validate("Customer No.", Customer."No.");
+        ReminderTerms.FindFirst();
+        ReminderHeader.Validate("Reminder Terms Code", ReminderTerms.Code);
+        ReminderHeader."Post Interest" := true;
+        ReminderHeader."Post Additional Fee" := true;
+        ReminderHeader."Your Reference" := TestValueTxt;
+        ReminderHeader.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -79,19 +75,18 @@ codeunit 143017 "E-Invoice Reminder Helper"
         ReminderLine: Record "Reminder Line";
         Counter: Integer;
     begin
-        for Counter := 1 to NoOfLines do
-            with ReminderLine do begin
-                Init();
-                "Reminder No." := ReminderHeaderNo;
-                LineNo := LineNo + 10000;
-                "Line No." := LineNo;
-                "VAT Prod. Posting Group" := VATProdPostGroupCode;
-                Validate(Type, Type::"G/L Account");
-                Validate("No.", CreateGLAccount(VATProdPostGroupCode));
-                Description := TestValueTxt;
-                Validate(Amount, LibraryRandom.RandInt(1000));
-                Insert(true);
-            end;
+        for Counter := 1 to NoOfLines do begin
+            ReminderLine.Init();
+            ReminderLine."Reminder No." := ReminderHeaderNo;
+            LineNo := LineNo + 10000;
+            ReminderLine."Line No." := LineNo;
+            ReminderLine."VAT Prod. Posting Group" := VATProdPostGroupCode;
+            ReminderLine.Validate(Type, ReminderLine.Type::"G/L Account");
+            ReminderLine.Validate("No.", CreateGLAccount(VATProdPostGroupCode));
+            ReminderLine.Description := TestValueTxt;
+            ReminderLine.Validate(Amount, LibraryRandom.RandInt(1000));
+            ReminderLine.Insert(true);
+        end;
     end;
 
     local procedure CreateGLAccount(VATProdPostGroupCode: Code[20]): Code[20]

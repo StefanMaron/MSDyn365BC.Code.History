@@ -452,8 +452,14 @@ table 5076 "Segment Header"
         SegHistMgt: Codeunit SegHistoryManagement;
 
 #if not CLEAN23
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 = %2 can not be specified for %3 %4.\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 #endif
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'You have modified %1.\\Do you want to update the segment lines where the Interaction Template Code is %2?';
         Text003: Label '%1 may not be modified without updating lines when inherited attachments exist.';
         Text005: Label 'Segment %1 already contains %2 %3.\Are you sure you want to reuse a %4?';
@@ -461,6 +467,8 @@ table 5076 "Segment Header"
         Text010: Label 'Do you want to create %1 %2?';
         Text011: Label 'You have modified %1.\\Do you want to update the corresponding segment lines?';
         Text012: Label 'You have modified %1.\\Do you want to apply the %1 %2 to all segment lines?', Comment = 'You have modified Meeting.\\Do you want to apply the Meeting BUS to all segment lines?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         WordTemplateUsedErr: Label 'You cannot use an attachment when a Word template has been specified.';
         TempTemplateFileNameLbl: Label 'Temp Template';
         TempTemplateExtensionLbl: Label '.docx', Locked = true;
@@ -843,9 +851,6 @@ table 5076 "Segment Header"
                 SavedSegCriteriaLine.Type := SegCriteriaLine.Type;
                 SavedSegCriteriaLine."Table No." := SegCriteriaLine."Table No.";
                 SavedSegCriteriaLine."Table View" := SegCriteriaLine."Table View";
-#if not CLEAN22
-                SavedSegCriteriaLine.View := CopyStr(SegCriteriaLine."Table View", 1, 250);
-#endif
                 SavedSegCriteriaLine."Allow Existing Contacts" := SegCriteriaLine."Allow Existing Contacts";
                 SavedSegCriteriaLine."Expand Contact" := SegCriteriaLine."Expand Contact";
                 SavedSegCriteriaLine."Allow Company with Persons" := SegCriteriaLine."Allow Company with Persons";

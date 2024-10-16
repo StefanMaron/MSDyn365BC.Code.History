@@ -212,11 +212,6 @@ report 5085 "Contact Cover Sheet"
         }
 
         trigger OnInit()
-        begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
         var
             SegManagement: Codeunit SegManagement;
         begin

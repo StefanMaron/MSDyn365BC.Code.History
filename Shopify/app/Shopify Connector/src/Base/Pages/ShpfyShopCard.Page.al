@@ -66,8 +66,10 @@ page 30101 "Shpfy Shop Card"
 #if not CLEAN23
                         if BulkOperationMgt.IsBulkOperationFeatureEnabled() then
 #endif
-                            BulkOperationMgt.EnableBulkOperations(Rec);
+                        BulkOperationMgt.EnableBulkOperations(Rec);
                         Rec."B2B Enabled" := Rec.GetB2BEnabled();
+                        Rec."Weight Unit" := Rec.GetShopWeightUnit();
+                        Rec.SyncCountries();
                         FeatureTelemetry.LogUptake('0000HUT', 'Shopify', Enum::"Feature Uptake Status"::"Set up");
                     end;
                 }
@@ -167,29 +169,12 @@ page 30101 "Shpfy Shop Card"
                     ToolTip = 'Specifies whether D365BC can update products when synchronizing to Shopify.';
                     Editable = Rec."Sync Item" = rec."Sync Item"::"To Shopify";
                 }
-#if not CLEAN22
-                field(ItemTemplateCode; Rec."Item Template Code")
-                {
-                    ApplicationArea = All;
-                    ShowMandatory = true;
-                    Caption = 'Item Template Code';
-                    ToolTip = 'Specifies which item template to use when creating unknown items.';
-                    Editable = Rec."Auto Create Unknown Items";
-                    Visible = not NewTemplatesEnabled;
-                    ObsoleteReason = 'Replaced by Item Templ. Code';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field(ItemTemplCode; Rec."Item Templ. Code")
                 {
                     ApplicationArea = All;
                     ShowMandatory = true;
                     ToolTip = 'Specifies which item template to use when creating unknown items.';
                     Editable = Rec."Auto Create Unknown Items";
-#if not CLEAN22
-                    Visible = NewTemplatesEnabled;
-#endif
                 }
                 field(SyncItemImages; Rec."Sync Item Images")
                 {
@@ -260,6 +245,23 @@ page 30101 "Shpfy Shop Card"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the status of a product in Shopify via the sync when an item is removed in Shopify or an item is blocked in Business Central.';
+                }
+#if not CLEAN26
+                field("Items Mapped to Products"; Rec."Items Mapped to Products")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies if only the items that are mapped to Shopify products/Shopify variants are synchronized from Posted Sales Invoices to Shopify.';
+                    Visible = false;
+                    ObsoleteReason = 'This setting is not used.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                }
+#endif
+                field(WeightUnit; Rec."Weight Unit")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the weight unit of the Shopify Shop.';
                 }
             }
             group(PriceSynchronization)
@@ -353,28 +355,12 @@ page 30101 "Shpfy Shop Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if unknown customers are automatically created in D365BC when synchronizing from Shopify.';
                 }
-#if not CLEAN22
-                field(CustomerTemplateCode; Rec."Customer Template Code")
-                {
-                    ApplicationArea = All;
-                    ShowMandatory = true;
-                    Caption = 'Customer/Company Template Code';
-                    ToolTip = 'Specifies which customer template to use when creating unknown customers.';
-                    Visible = not NewTemplatesEnabled;
-                    ObsoleteReason = 'Generic Templates will be replaced with Customer Templates. Use Customer Templ. Code instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field(CustomerTemplCode; Rec."Customer Templ. Code")
                 {
                     Caption = 'Customer/Company Template Code';
                     ToolTip = 'Specifies which customer template to use when creating unknown customers.';
                     ShowMandatory = true;
                     ApplicationArea = All;
-#if not CLEAN22
-                    Visible = NewTemplatesEnabled;
-#endif
                 }
                 field(DefaultCustomer; Rec."Default Customer No.")
                 {
@@ -549,6 +535,11 @@ page 30101 "Shpfy Shop Card"
                     end;
                 }
 #endif
+                field("Posted Invoice Sync"; Rec."Posted Invoice Sync")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies whether the posted sales invoices can be synchronized to Shopify.';
+                }
             }
             group(ReturnsAndRefunds)
             {
@@ -572,6 +563,12 @@ page 30101 "Shpfy Shop Card"
                     ShowCaption = false;
                     Visible = IsReturnRefundsVisible;
 
+                    field("Return Location Priority"; Rec."Return Location Priority")
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Return Location Priority';
+                        ToolTip = 'Specifies the priority of the return location.';
+                    }
                     field("Location Code of Returns"; Rec."Return Location")
                     {
                         ApplicationArea = All;
@@ -675,6 +672,19 @@ page 30101 "Shpfy Shop Card"
                 RunObject = page "Shpfy Payment Methods Mapping";
                 RunPageLink = "Shop Code" = field(Code);
                 ToolTip = 'Maps the Shopify payment methods to the related payment methods and prioritize them.';
+            }
+            action(PaymentTerms)
+            {
+                ApplicationArea = All;
+                Caption = 'Payment Terms Mapping';
+                Image = SuggestPayment;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                RunObject = page "Shpfy Payment Terms Mapping";
+                RunPageLink = "Shop Code" = field(Code);
+                ToolTip = 'Maps the Shopify payment terms to the related payment terms and prioritize them.';
             }
             action(Orders)
             {
@@ -792,6 +802,19 @@ page 30101 "Shpfy Shop Card"
                 RunPageLink = "Shop Code" = field(Code);
                 ToolTip = 'View a list of Shopify catalogs for the shop.';
                 Visible = Rec."B2B Enabled";
+            }
+            action(Languages)
+            {
+                ApplicationArea = All;
+                Caption = 'Languages';
+                Image = Translations;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                RunObject = Page "Shpfy Languages";
+                RunPageLink = "Shop Code" = field(Code);
+                ToolTip = 'View a list of Shopify Languages for the shop.';
             }
         }
         area(Processing)
@@ -999,6 +1022,42 @@ page 30101 "Shpfy Shop Card"
                         Report.Run(Report::"Shpfy Sync Shipm. to Shopify");
                     end;
                 }
+                action(SyncPostedSalesInvoices)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Sync Posted Sales Invoices';
+                    Image = Export;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Synchronize posted sales invoices to Shopify. Synchronization will be performed only if the Posted Invoice Sync field is enabled in the Shopify shop.';
+
+                    trigger OnAction();
+                    var
+                        ExportInvoicetoShpfy: Report "Shpfy Sync Invoices to Shpfy";
+                    begin
+                        ExportInvoicetoShpfy.SetShop(Rec.Code);
+                        ExportInvoicetoShpfy.Run();
+                    end;
+                }
+                action(SyncDisputes)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Sync Disputes';
+                    Image = ErrorLog;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedOnly = true;
+                    ToolTip = 'Synchronize dispute information with related payment transactions.';
+
+                    trigger OnAction()
+                    var
+                        BackgroundSyncs: Codeunit "Shpfy Background Syncs";
+                    begin
+                        BackgroundSyncs.DisputesSync(Rec.Code);
+                    end;
+                }
                 action(SyncAll)
                 {
                     ApplicationArea = All;
@@ -1018,6 +1077,10 @@ page 30101 "Shpfy Shop Card"
                         BackgroundSyncs.InventorySync(Rec);
                         BackgroundSyncs.ProductImagesSync(Rec, '');
                         BackgroundSyncs.ProductPricesSync(Rec);
+                        if Rec."B2B Enabled" then begin
+                            BackgroundSyncs.CompanySync(Rec);
+                            BackgroundSyncs.CatalogPricesSync(Rec, '');
+                        end;
                     end;
                 }
             }
@@ -1094,9 +1157,6 @@ page 30101 "Shpfy Shop Card"
     }
 
     var
-#if not CLEAN22
-        NewTemplatesEnabled: Boolean;
-#endif
         IsReturnRefundsVisible: Boolean;
         ApiVersion: Text;
         ApiVersionExpiryDate: Date;
@@ -1111,9 +1171,6 @@ page 30101 "Shpfy Shop Card"
     trigger OnOpenPage()
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
-#if not CLEAN22
-        ShpfyTemplates: Codeunit "Shpfy Templates";
-#endif
         CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
         ShopMgt: Codeunit "Shpfy Shop Mgt.";
         AuthenticationMgt: Codeunit "Shpfy Authentication Mgt.";
@@ -1121,9 +1178,6 @@ page 30101 "Shpfy Shop Card"
         ApiVersionExpiryDateTime: DateTime;
     begin
         FeatureTelemetry.LogUptake('0000HUU', 'Shopify', Enum::"Feature Uptake Status"::Discovered);
-#if not CLEAN22
-        NewTemplatesEnabled := ShpfyTemplates.NewTemplatesEnabled();
-#endif
         if Rec.Enabled then begin
             ApiVersion := CommunicationMgt.GetApiVersion();
             ApiVersionExpiryDateTime := CommunicationMgt.GetApiVersionExpiryDate();
@@ -1141,6 +1195,7 @@ page 30101 "Shpfy Shop Card"
                 if Confirm(StrSubstNo(ScopeChangeConfirmLbl, Rec.Code)) then begin
                     Rec.RequestAccessToken();
                     Rec."B2B Enabled" := Rec.GetB2BEnabled();
+                    Rec."Weight Unit" := Rec.GetShopWeightUnit();
                     Rec.Modify();
                 end else begin
                     Rec.Enabled := false;

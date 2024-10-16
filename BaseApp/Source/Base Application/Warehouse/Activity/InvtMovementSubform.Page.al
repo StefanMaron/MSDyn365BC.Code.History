@@ -5,6 +5,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Availability;
 
 page 7383 "Invt. Movement Subform"
 {
@@ -338,7 +339,7 @@ page 7383 "Invt. Movement Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByEvent());
+                            ItemAvailability("Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -350,7 +351,7 @@ page 7383 "Invt. Movement Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByPeriod());
+                            ItemAvailability("Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -362,7 +363,7 @@ page 7383 "Invt. Movement Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByVariant());
+                            ItemAvailability("Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -375,7 +376,7 @@ page 7383 "Invt. Movement Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByLocation());
+                            ItemAvailability("Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -405,7 +406,7 @@ page 7383 "Invt. Movement Subform"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
         WMSMgt: Codeunit "WMS Management";
 
     local procedure ShowSourceLine()
@@ -421,9 +422,9 @@ page 7383 "Invt. Movement Subform"
         BinContent.ShowBinContents(Rec."Location Code", Rec."Item No.", Rec."Variant Code", '')
     end;
 
-    local procedure ItemAvailability(AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    local procedure ItemAvailability(AvailabilityType: Enum "Item Availability Type")
     begin
-        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, AvailabilityType);
+        WarehouseAvailabilityMgt.ShowItemAvailabilityFromWhseActivLine(Rec, AvailabilityType);
     end;
 
     procedure AutofillQtyToHandle()

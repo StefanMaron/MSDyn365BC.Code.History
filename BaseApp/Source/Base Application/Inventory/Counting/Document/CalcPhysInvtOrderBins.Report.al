@@ -114,7 +114,7 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
 
     requestpage
     {
-
+        SaveValues = true;
         layout
         {
             area(content)

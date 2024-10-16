@@ -1,7 +1,6 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
-using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
@@ -383,7 +382,7 @@ page 99000832 "Released Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByEvent());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(ItemAvailabilityByPeriod)
@@ -395,7 +394,7 @@ page 99000832 "Released Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByPeriod());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(ItemAvailabilityByVariant)
@@ -407,7 +406,7 @@ page 99000832 "Released Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByVariant());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(ItemAvailabilityByLocation)
@@ -420,7 +419,7 @@ page 99000832 "Released Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByLocation());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -443,7 +442,7 @@ page 99000832 "Released Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByBOM());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -506,7 +505,7 @@ page 99000832 "Released Prod. Order Lines"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -566,7 +565,7 @@ page 99000832 "Released Prod. Order Lines"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
         DescriptionIndent: Integer;
         StartingTime: Time;
         EndingTime: Time;
@@ -590,16 +589,8 @@ page 99000832 "Released Prod. Order Lines"
     end;
 
     procedure ShowTracking()
-    var
-        TrackingForm: Page "Order Tracking";
     begin
-        TrackingForm.SetProdOrderLine(Rec);
-        TrackingForm.RunModal();
-    end;
-
-    local procedure ItemAvailability(AvailabilityType: Option)
-    begin
-        ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, AvailabilityType);
+        Rec.ShowOrderTracking();
     end;
 
     local procedure ShowProductionJournal()

@@ -255,17 +255,17 @@ codeunit 10637 "Import CAMT054"
 
     local procedure UpdateWaitingJournalWithAmtDtls(var WaitingJournal: Record "Waiting Journal"; AmtDtlsGenJournalLine: Record "Gen. Journal Line"): Boolean
     begin
-        if (WaitingJournal."Currency Code" = AmtDtlsGenJournalLine."Source Currency Code") AND
+        if (WaitingJournal."Currency Code" = AmtDtlsGenJournalLine."Source Currency Code") and
            (GetCurrencyCode('') = AmtDtlsGenJournalLine."Currency Code")
         then
-            if (WaitingJournal.Amount <> AmtDtlsGenJournalLine.Amount) OR
+            if (WaitingJournal.Amount <> AmtDtlsGenJournalLine.Amount) or
                (WaitingJournal."Amount (LCY)" <> AmtDtlsGenJournalLine."Amount (LCY)")
             then begin
                 WaitingJournal.Amount := AmtDtlsGenJournalLine.Amount;
                 WaitingJournal."Amount (LCY)" := AmtDtlsGenJournalLine."Amount (LCY)";
                 WaitingJournal."Currency Factor" := 1 / AmtDtlsGenJournalLine."Currency Factor";
                 exit(true);
-            END;
+            end;
 
         exit(false);
     end;

@@ -112,17 +112,15 @@ codeunit 144183 "MIR Fin. Charge Memo"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with IssuedFinChargeMemoHeader do begin
-            Init();
-            Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header"));
-            Validate("Customer No.", Customer."No.");
-            Validate("Customer Posting Group", Customer."Customer Posting Group");
+        IssuedFinChargeMemoHeader.Init();
+        IssuedFinChargeMemoHeader.Validate("No.", LibraryUtility.GenerateRandomCode(IssuedFinChargeMemoHeader.FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header"));
+        IssuedFinChargeMemoHeader.Validate("Customer No.", Customer."No.");
+        IssuedFinChargeMemoHeader.Validate("Customer Posting Group", Customer."Customer Posting Group");
 
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Insert(true);
-            exit("No.");
-        end;
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        IssuedFinChargeMemoHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        IssuedFinChargeMemoHeader.Insert(true);
+        exit(IssuedFinChargeMemoHeader."No.");
     end;
 
     local procedure CreateIssuedFinChargeMemoLine(IssuedFinChargeMemoNo: Code[20]; MIREntry: Boolean): Decimal
@@ -130,19 +128,17 @@ codeunit 144183 "MIR Fin. Charge Memo"
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
         RecRef: RecordRef;
     begin
-        with IssuedFinChargeMemoLine do begin
-            Init();
-            Validate("Finance Charge Memo No.", IssuedFinChargeMemoNo);
-            RecRef.GetTable(IssuedFinChargeMemoLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
+        IssuedFinChargeMemoLine.Init();
+        IssuedFinChargeMemoLine.Validate("Finance Charge Memo No.", IssuedFinChargeMemoNo);
+        RecRef.GetTable(IssuedFinChargeMemoLine);
+        IssuedFinChargeMemoLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, IssuedFinChargeMemoLine.FieldNo("Line No.")));
+        IssuedFinChargeMemoLine.Insert(true);
 
-            Validate(Type, Type::"G/L Account");
-            Validate("Detailed Interest Rates Entry", MIREntry);
-            Validate(Amount, LibraryRandom.RandDecInRange(1000, 5000, 2));
-            Modify(true);
-            exit(Amount);
-        end;
+        IssuedFinChargeMemoLine.Validate(Type, IssuedFinChargeMemoLine.Type::"G/L Account");
+        IssuedFinChargeMemoLine.Validate("Detailed Interest Rates Entry", MIREntry);
+        IssuedFinChargeMemoLine.Validate(Amount, LibraryRandom.RandDecInRange(1000, 5000, 2));
+        IssuedFinChargeMemoLine.Modify(true);
+        exit(IssuedFinChargeMemoLine.Amount);
     end;
 
     local procedure ExportFinChargeMemoAndVerify(ShowMIRDetail: Boolean)
@@ -173,16 +169,14 @@ codeunit 144183 "MIR Fin. Charge Memo"
     begin
         LibraryReportDataset.LoadDataSetFile();
 
-        with IssuedFinChargeMemoLine do begin
-            SetRange("Finance Charge Memo No.", IssuedFinChargeMemoNo);
-            FindSet();
-            repeat
-                if ShowMIRDetail or not "Detailed Interest Rates Entry" then
-                    LibraryReportDataset.AssertElementWithValueExists('LineNo_IssuFinChrgMemoLine', "Line No.")
-                else
-                    LibraryReportDataset.AssertElementWithValueNotExist('LineNo_IssuFinChrgMemoLine', "Line No.")
-            until Next() = 0;
-        end;
+        IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoNo);
+        IssuedFinChargeMemoLine.FindSet();
+        repeat
+            if ShowMIRDetail or not IssuedFinChargeMemoLine."Detailed Interest Rates Entry" then
+                LibraryReportDataset.AssertElementWithValueExists('LineNo_IssuFinChrgMemoLine', IssuedFinChargeMemoLine."Line No.")
+            else
+                LibraryReportDataset.AssertElementWithValueNotExist('LineNo_IssuFinChrgMemoLine', IssuedFinChargeMemoLine."Line No.")
+        until IssuedFinChargeMemoLine.Next() = 0;
     end;
 
     local procedure VerifyAmountsWithMIREntry(TotalAmount: Decimal; AmountLine: array[5] of Decimal; AmountMIRLine: array[5] of Decimal)

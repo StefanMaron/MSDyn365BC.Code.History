@@ -29,13 +29,8 @@ table 701 "Error Message Register"
         {
             Caption = 'Description';
             DataClassification = SystemMetadata;
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
             ObsoleteReason = 'Replaced by "Message"';
         }
         field(5; Errors; Integer)

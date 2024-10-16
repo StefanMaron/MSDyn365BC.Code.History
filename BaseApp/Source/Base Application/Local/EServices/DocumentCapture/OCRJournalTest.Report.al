@@ -311,10 +311,9 @@ report 15000100 "OCR Journal - Test"
                                         begin
                                             if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') or
                                                ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')
-                                            then begin
+                                            then
                                                 if "Gen. Posting Type" = "Gen. Posting Type"::" " then
                                                     AddError(StrSubstNo(Text002, FieldCaption("Gen. Posting Type")));
-                                            end;
                                             if ("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
                                                ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
                                             then begin
@@ -337,7 +336,7 @@ report 15000100 "OCR Journal - Test"
                                             then
                                                 AddError(StrSubstNo(AccountsNotCompletedMsg, "Account Type"));
 
-                                            if "Document Type" <> "Document Type"::" " then begin
+                                            if "Document Type" <> "Document Type"::" " then
                                                 if "Account Type" = "Account Type"::Customer then
                                                     case "Document Type" of
                                                         "Document Type"::"Credit Memo":
@@ -365,8 +364,7 @@ report 15000100 "OCR Journal - Test"
                                                                 WarningIfNegativeAmt("Gen. Journal Line");
                                                         else
                                                             WarningIfPositiveAmt("Gen. Journal Line");
-                                                    end
-                                            end;
+                                                    end;
 
                                             if Amount * "Sales/Purch. (LCY)" < 0 then
                                                 AddError(
@@ -404,10 +402,9 @@ report 15000100 "OCR Journal - Test"
                                         begin
                                             if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
                                                ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')
-                                            then begin
+                                            then
                                                 if "Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::" " then
                                                     AddError(StrSubstNo(Text002, FieldCaption("Bal. Gen. Posting Type")));
-                                            end;
                                             if ("Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" ") and
                                                ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
                                             then begin
@@ -430,14 +427,14 @@ report 15000100 "OCR Journal - Test"
                                             then
                                                 AddError(StrSubstNo(BalAccountsNotCompletedMsg, "Bal. Account Type"));
 
-                                            if "Document Type" <> "Document Type"::" " then begin
+                                            if "Document Type" <> "Document Type"::" " then
                                                 if ("Bal. Account Type" = "Bal. Account Type"::Customer) =
                                                    ("Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"])
                                                 then
                                                     WarningIfNegativeAmt("Gen. Journal Line")
                                                 else
-                                                    WarningIfPositiveAmt("Gen. Journal Line")
-                                            end;
+                                                    WarningIfPositiveAmt("Gen. Journal Line");
+
                                             if Amount * "Sales/Purch. (LCY)" > 0 then
                                                 AddError(
                                                   StrSubstNo(

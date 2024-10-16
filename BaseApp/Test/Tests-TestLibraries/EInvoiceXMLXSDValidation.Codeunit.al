@@ -28,28 +28,27 @@ codeunit 143002 "E-Invoice XML XSD Validation"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        with TempVATEntry do
-            case VATPercentage of
-                0:
-                    begin
-                        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
-                            exit('K');
-                        VATProductPostingGroup.SetRange(Code, "VAT Prod. Posting Group");
-                        if VATProductPostingGroup.FindFirst() and VATProductPostingGroup."Outside Tax Area" then
-                            exit('Z');
-                        exit('E');
-                    end;
-                10:
-                    exit('AA');
-                11.11:
-                    exit('R');
-                15:
-                    exit('H');
-                25:
-                    exit('S');
-                else
-                    Error(UnsupportedVATRateErr, "VAT Base Discount %");
-            end;
+        case VATPercentage of
+            0:
+                begin
+                    if TempVATEntry."VAT Calculation Type" = TempVATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
+                        exit('K');
+                    VATProductPostingGroup.SetRange(Code, TempVATEntry."VAT Prod. Posting Group");
+                    if VATProductPostingGroup.FindFirst() and VATProductPostingGroup."Outside Tax Area" then
+                        exit('Z');
+                    exit('E');
+                end;
+            10:
+                exit('AA');
+            11.11:
+                exit('R');
+            15:
+                exit('H');
+            25:
+                exit('S');
+            else
+                Error(UnsupportedVATRateErr, TempVATEntry."VAT Base Discount %");
+        end;
     end;
 
     local procedure InvertInvoiceVATAmounts(var VATEntry: Record "VAT Entry")

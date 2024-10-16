@@ -114,7 +114,9 @@ table 5972 "Contract/Service Discount"
         ContractChangeLog: Record "Contract Change Log";
         ServMgtSetup: Record "Service Mgt. Setup";
 
+#pragma warning disable AA0074
         Text000: Label 'You cannot rename the record.';
+#pragma warning restore AA0074
 
     local procedure VerifyContractOpen()
     var

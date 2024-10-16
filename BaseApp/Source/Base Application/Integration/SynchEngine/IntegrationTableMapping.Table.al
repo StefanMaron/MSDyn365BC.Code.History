@@ -71,11 +71,15 @@ table 5335 "Integration Table Mapping"
         {
             Caption = 'Table Config Template Code';
             TableRelation = "Config. Template Header".Code where("Table ID" = field("Table ID"));
+            /// Replaced with Integration Table Config Template table for Dataverse type mappings
+            /// used only for Master Data Management mappings
         }
         field(9; "Int. Tbl. Config Template Code"; Code[10])
         {
             Caption = 'Int. Tbl. Config Template Code';
             TableRelation = "Config. Template Header".Code where("Table ID" = field("Integration Table ID"));
+            /// Replaced with Integration Table Config Template table for Dataverse type mappings
+            /// used only for Master Data Management mappings
         }
         field(10; Direction; Option)
         {
@@ -340,9 +344,21 @@ table 5335 "Integration Table Mapping"
     trigger OnDelete()
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
+        ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
+        TableConfigTemplate: Record "Table Config Template";
+        IntTableConfigTemplate: Record "Int. Table Config Template";
     begin
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Name);
         IntegrationFieldMapping.DeleteAll();
+
+        ManIntegrationTableMapping.SetRange(Name, Name);
+        if ManIntegrationTableMapping.IsEmpty() then begin
+            TableConfigTemplate.SetRange("Integration Table Mapping Name", Name);
+            TableConfigTemplate.DeleteAll();
+
+            IntTableConfigTemplate.SetRange("Integration Table Mapping Name", Name);
+            IntTableConfigTemplate.DeleteAll();
+        end;
     end;
 
     var
@@ -368,6 +384,7 @@ table 5335 "Integration Table Mapping"
         ChangeDirectionMultiCompanyMsg: Label 'This mapping is set up for multi-company synchronization. We strongly recommend to set the direction of this mapping to ''From Integration''. \\If you set it up to synchronize bidirectionally or to synchronize ''To Integration'', to avoid duplicates being created, use match-based coupling or consolidated filtering across companies instead of just unchecking the Synch. Only Coupled Records checkbox. \\If your number series do not guarantee uniqueness of primary key values across multiple companies, then use a Transformation Rule in the direction ''To Integration'' to add a prefix to primary key values, to ensure their uniqueness in Dataverse.';
         DirectionFieldsErr: Label 'You must set the direction of at least one enabled integration field mapping to ''%1''. Choose the Fields action to edit the integration field mappings.', Comment = '%1 - an option value';
         DirectionFieldsNoUIHintErr: Label 'You must set the direction of at least one enabled integration field mapping to ''%1''.', Comment = '%1 - an option value';
+        MultipleConfigTemplatesLbl: Label '%1 templates', Comment = '%1 - number of templates';
 
     procedure FindFilteredRec(RecordRef: RecordRef; var OutOfMapFilter: Boolean) Found: Boolean
     var
@@ -398,6 +415,13 @@ table 5335 "Integration Table Mapping"
         SetRange("Table ID", TableId);
         SetRange("Delete After Synchronization", false);
         exit(FindFirst());
+    end;
+
+    procedure DoesExistForTable(TableId: Integer): Boolean
+    begin
+        SetRange("Table ID", TableId);
+        SetRange("Delete After Synchronization", false);
+        exit(not IsEmpty());
     end;
 
     procedure IsFullSynch(): Boolean
@@ -878,8 +902,6 @@ table 5335 "Integration Table Mapping"
         "Uncouple Codeunit ID" := UncoupleCodeunitId;
         Validate("Integration Table UID Fld. No.", IntegrationTableUIDFieldNo);
         "Int. Tbl. Modified On Fld. No." := IntegrationTableModifiedFieldNo;
-        "Table Config Template Code" := TableConfigTemplateCode;
-        "Int. Tbl. Config Template Code" := IntegrationTableConfigTemplateCode;
         Direction := DirectionArg;
         "Int. Tbl. Caption Prefix" := Prefix;
         "Synch. Only Coupled Records" := SynchOnlyCoupledRecords;
@@ -888,6 +910,10 @@ table 5335 "Integration Table Mapping"
         else
             "Coupling Codeunit ID" := Codeunit::"CDS Int. Table Couple";
         Insert(true);
+        if TableConfigTemplateCode <> '' then
+            CreateTableConfigTemplate(Rec, TableConfigTemplateCode);
+        if IntegrationTableConfigTemplateCode <> '' then
+            CreateIntTableConfigTemplate(Rec, IntegrationTableConfigTemplateCode);
     end;
 
     [Scope('Cloud')]
@@ -903,13 +929,15 @@ table 5335 "Integration Table Mapping"
         "Uncouple Codeunit ID" := UncoupleCodeunitId;
         Validate("Integration Table UID Fld. No.", IntegrationTableUIDFieldNo);
         "Int. Tbl. Modified On Fld. No." := IntegrationTableModifiedFieldNo;
-        "Table Config Template Code" := TableConfigTemplateCode;
-        "Int. Tbl. Config Template Code" := IntegrationTableConfigTemplateCode;
         Direction := DirectionArg;
         "Int. Tbl. Caption Prefix" := Prefix;
         "Synch. Only Coupled Records" := SynchOnlyCoupledRecords;
         "Coupling Codeunit ID" := CouplingCodeunitId;
         Insert(true);
+        if TableConfigTemplateCode <> '' then
+            CreateTableConfigTemplate(Rec, TableConfigTemplateCode);
+        if IntegrationTableConfigTemplateCode <> '' then
+            CreateIntTableConfigTemplate(Rec, IntegrationTableConfigTemplateCode);
     end;
 
     procedure SetFullSyncStartAndCommit()
@@ -1061,9 +1089,128 @@ table 5335 "Integration Table Mapping"
                 Message(CompanyFilterResetMsg);
     end;
 
+    procedure IsMappingEnabled(RequestedDirection: Option Bidirectional,ToIntegrationTable,FromIntegrationTable): Boolean
+    var
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        IsHandled, Result : Boolean;
+    begin
+        OnBeforeIsMappingEnabled(RequestedDirection, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if Rec.Direction <> RequestedDirection then
+            case RequestedDirection of
+                RequestedDirection::Bidirectional:
+                    exit(false);
+                RequestedDirection::FromIntegrationTable:
+                    if Rec.Direction = Rec.Direction::ToIntegrationTable then
+                        exit(false);
+                RequestedDirection::ToIntegrationTable:
+                    if Rec.Direction = Rec.Direction::FromIntegrationTable then
+                        exit(false);
+            end;
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Rec.Name);
+        case RequestedDirection of
+            RequestedDirection::Bidirectional:
+                IntegrationFieldMapping.SetRange(Direction, IntegrationFieldMapping.Direction::Bidirectional);
+            RequestedDirection::FromIntegrationTable:
+                IntegrationFieldMapping.SetFilter(Direction, '%1|%2', IntegrationFieldMapping.Direction::FromIntegrationTable, IntegrationFieldMapping.Direction::Bidirectional);
+            RequestedDirection::ToIntegrationTable:
+                IntegrationFieldMapping.SetFilter(Direction, '%1|%2', IntegrationFieldMapping.Direction::ToIntegrationTable, IntegrationFieldMapping.Direction::Bidirectional);
+        end;
+        IntegrationFieldMapping.SetRange(Status, IntegrationFieldMapping.Status::Enabled);
+        exit(not IntegrationFieldMapping.IsEmpty());
+    end;
+
+    procedure IsFieldMappingEnabled(FieldNo: Integer; IntegrationTableFieldNo: Integer; RequestedDirection: Option Bidirectional,ToIntegrationTable,FromIntegrationTable): Boolean
+    var
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        IsHandled, Result : Boolean;
+    begin
+        OnBeforeIsFieldMappingEnabled(FieldNo, IntegrationTableFieldNo, RequestedDirection, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if not IsMappingEnabled(RequestedDirection) then
+            exit(false);
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Rec.Name);
+        IntegrationFieldMapping.SetRange("Field No.", FieldNo);
+        IntegrationFieldMapping.SetRange("Integration Table Field No.", IntegrationTableFieldNo);
+        case RequestedDirection of
+            RequestedDirection::Bidirectional:
+                IntegrationFieldMapping.SetRange(Direction, IntegrationFieldMapping.Direction::Bidirectional);
+            RequestedDirection::FromIntegrationTable:
+                IntegrationFieldMapping.SetFilter(Direction, '%1|%2', IntegrationFieldMapping.Direction::FromIntegrationTable, IntegrationFieldMapping.Direction::Bidirectional);
+            RequestedDirection::ToIntegrationTable:
+                IntegrationFieldMapping.SetFilter(Direction, '%1|%2', IntegrationFieldMapping.Direction::ToIntegrationTable, IntegrationFieldMapping.Direction::Bidirectional);
+        end;
+        IntegrationFieldMapping.SetRange(Status, IntegrationFieldMapping.Status::Enabled);
+        exit(not IntegrationFieldMapping.IsEmpty());
+    end;
+
     local procedure OneDayInMiliseconds(): Integer
     begin
         exit(24 * 60 * 60 * 1000)
+    end;
+
+    procedure GetTableConfigTemplates(IntegrationTableMappingName: Code[20]): Text
+    var
+        TableConfigTemplate: Record "Table Config Template";
+    begin
+        TableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        case TableConfigTemplate.Count() of
+            0:
+                exit('');
+            1:
+                begin
+                    TableConfigTemplate.FindFirst();
+                    exit(TableConfigTemplate."Table Config Template Code");
+                end;
+            else
+                exit(StrSubstNo(MultipleConfigTemplatesLbl, Format(TableConfigTemplate.Count())));
+        end;
+    end;
+
+    procedure GetIntTableConfigTemplates(IntegrationTableMappingName: Code[20]): Text
+    var
+        IntegrationTableConfigTemplate: Record "Int. Table Config Template";
+    begin
+        IntegrationTableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        case IntegrationTableConfigTemplate.Count() of
+            0:
+                exit('');
+            1:
+                begin
+                    IntegrationTableConfigTemplate.FindFirst();
+                    exit(IntegrationTableConfigTemplate."Int. Tbl. Config Template Code");
+                end;
+            else
+                exit(StrSubstNo(MultipleConfigTemplatesLbl, Format(IntegrationTableConfigTemplate.Count())));
+        end;
+    end;
+
+    local procedure CreateTableConfigTemplate(IntegrationTableMapping: Record "Integration Table Mapping"; TableConfigTemplateCode: Code[10])
+    var
+        TableConfigTemplate: Record "Table Config Template";
+    begin
+        TableConfigTemplate."Integration Table Mapping Name" := IntegrationTableMapping.Name;
+        TableConfigTemplate.Validate("Table ID", IntegrationTableMapping."Table ID");
+        TableConfigTemplate.Validate("Integration Table ID", IntegrationTableMapping."Integration Table ID");
+        TableConfigTemplate.Validate("Table Config Template Code", TableConfigTemplateCode);
+        TableConfigTemplate.Insert();
+    end;
+
+    local procedure CreateIntTableConfigTemplate(IntegrationTableMapping: Record "Integration Table Mapping"; IntegrationTableConfigTemplateCode: Code[10])
+    var
+        IntTableConfigTemplate: Record "Int. Table Config Template";
+    begin
+        IntTableConfigTemplate."Integration Table Mapping Name" := IntegrationTableMapping.Name;
+        IntTableConfigTemplate.Validate("Integration Table ID", IntegrationTableMapping."Integration Table ID");
+        IntTableConfigTemplate.Validate("Table ID", IntegrationTableMapping."Table ID");
+        IntTableConfigTemplate.Validate("Int. Tbl. Config Template Code", IntegrationTableConfigTemplateCode);
+        IntTableConfigTemplate.Insert();
     end;
 
     [IntegrationEvent(false, false)]
@@ -1083,6 +1230,16 @@ table 5335 "Integration Table Mapping"
 
     [IntegrationEvent(false, false)]
     internal procedure OnDisableMultiCompanySynchronization(var IntegrationTableMapping: Record "Integration Table Mapping"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsMappingEnabled(RequestedDirection: Option Bidirectional,ToIntegrationTable,FromIntegrationTable; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsFieldMappingEnabled(FieldNo: Integer; IntegrationTableFieldNo: Integer; RequestedDirection: Option Bidirectional,ToIntegrationTable,FromIntegrationTable; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

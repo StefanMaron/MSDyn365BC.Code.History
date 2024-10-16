@@ -103,6 +103,10 @@ table 1108 "Cost Accounting Setup"
 
     var
         CostRegister: Record "Cost Register";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The starting date can no longer be defined. According to Register No. %1, general ledger entries have already been transferred to Cost Accounting.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

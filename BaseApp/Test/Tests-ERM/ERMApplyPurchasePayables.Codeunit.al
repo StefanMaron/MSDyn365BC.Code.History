@@ -1383,16 +1383,14 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     var
         VATReportingCode: Record "VAT Reporting Code";
     begin
-        with VATPostingSetup do begin
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
-            SetFilter("VAT Number", '<>''''');
-            if FindSet() then
-                repeat
-                    VATReportingCode.Get("VAT Number");
-                    if VATReportingCode."Gen. Posting Type" = VATReportingCode."Gen. Posting Type"::Purchase then
-                        exit;
-                until Next() = 0;
-        end;
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
+        VATPostingSetup.SetFilter("VAT Number", '<>''''');
+        if VATPostingSetup.FindSet() then
+            repeat
+                VATReportingCode.Get(VATPostingSetup."VAT Number");
+                if VATReportingCode."Gen. Posting Type" = VATReportingCode."Gen. Posting Type"::Purchase then
+                    exit;
+            until VATPostingSetup.Next() = 0;
 
         Assert.Fail(VATPostingSetupErr);
     end;
@@ -1401,16 +1399,14 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     var
         VATCode: Record "VAT Code";
     begin
-        with VATPostingSetup do begin
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
-            SetFilter("VAT Code", '<>''''');
-            if FindSet() then
-                repeat
-                    VATCode.Get("VAT Code");
-                    if VATCode."Gen. Posting Type" = VATCode."Gen. Posting Type"::Purchase then
-                        exit;
-                until Next() = 0;
-        end;
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
+        VATPostingSetup.SetFilter("VAT Code", '<>''''');
+        if VATPostingSetup.FindSet() then
+            repeat
+                VATCode.Get(VATPostingSetup."VAT Code");
+                if VATCode."Gen. Posting Type" = VATCode."Gen. Posting Type"::Purchase then
+                    exit;
+            until VATPostingSetup.Next() = 0;
 
         Assert.Fail(VATPostingSetupErr);
     end;
@@ -1524,14 +1520,12 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
     local procedure PostInvoice(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do begin
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Invoice,
-              LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandIntInRange(10, 100));
-            Validate("External Document No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandIntInRange(10, 100));
+        GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreateAndPostGenJournalLineWithPmtDiscExclVAT(PmtDiscExclVAT: Boolean; GLAccountNo: Code[20])
@@ -1794,28 +1788,24 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        with GenJnlLine do begin
-            LibraryERM.SelectGenJnlBatch(GenJnlBatch);
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
-            "Applies-to ID" := AppliesToID;
-            Modify();
-        end;
+        LibraryERM.SelectGenJnlBatch(GenJnlBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment, AccType, AccNo, 0);
+        GenJnlLine."Applies-to ID" := AppliesToID;
+        GenJnlLine.Modify();
     end;
 
     local procedure CreateGenJnlLineWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AppliesToDocNo: Code[20])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        with GenJnlLine do begin
-            LibraryERM.SelectGenJnlBatch(GenJnlBatch);
-            LibraryERM.ClearGenJournalLines(GenJnlBatch);
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
-            "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-            "Applies-to Doc. No." := AppliesToDocNo;
-            Modify();
-        end;
+        LibraryERM.SelectGenJnlBatch(GenJnlBatch);
+        LibraryERM.ClearGenJournalLines(GenJnlBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment, AccType, AccNo, 0);
+        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
+        GenJnlLine."Applies-to Doc. No." := AppliesToDocNo;
+        GenJnlLine.Modify();
     end;
 
     local procedure CreatePaymentJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
@@ -1863,21 +1853,17 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
     local procedure FindOpenInvVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
-        with VendLedgEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Applying Entry", false);
-            SetRange(Open, true);
-            FindFirst();
-        end;
+        VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
+        VendLedgEntry.SetRange("Applying Entry", false);
+        VendLedgEntry.SetRange(Open, true);
+        VendLedgEntry.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
     end;
 
     local procedure GetVendorWithPaymentTerms(var PaymentTerms: Record "Payment Terms"): Code[20]
@@ -2016,15 +2002,12 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
     local procedure ValidateVendLedgEntrClosed(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        with VendorLedgerEntry do begin
-            // Update record to reflect changes done by codeunit.
-            Get("Entry No.");
-            CalcFields(Amount, "Remaining Amount");
-
-            // Check that the invoice closed and has no remaining amount.
-            Assert.IsFalse(Open, InvoiceError);
-            Assert.IsTrue("Remaining Amount" = 0.0, 'Invoice has remaining amount');
-        end;
+        // Update record to reflect changes done by codeunit.
+        VendorLedgerEntry.Get(VendorLedgerEntry."Entry No.");
+        VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        // Check that the invoice closed and has no remaining amount.
+        Assert.IsFalse(VendorLedgerEntry.Open, InvoiceError);
+        Assert.IsTrue(VendorLedgerEntry."Remaining Amount" = 0.0, 'Invoice has remaining amount');
     end;
 
     local procedure VerifyDiscountValueInVendorLedger(GenJournalLine: Record "Gen. Journal Line"; PmtDiscountAmount: Decimal)
@@ -2070,15 +2053,13 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
     local procedure VerifyExtDocNoAmount(GenJournalLine: Record "Gen. Journal Line"; ExpectedExtDocNo: Code[35]; ExpectedAmount: Decimal)
     begin
-        with GenJournalLine do begin
-            Find();
-            Assert.AreEqual(
-              ExpectedExtDocNo, "Applies-to Ext. Doc. No.",
-              StrSubstNo(WrongValErr, FieldCaption("Applies-to Ext. Doc. No."), ExpectedExtDocNo, TableCaption));
-            Assert.AreEqual(
-              ExpectedAmount, Amount,
-              StrSubstNo(WrongValErr, FieldCaption(Amount), ExpectedAmount, TableCaption));
-        end;
+        GenJournalLine.Find();
+        Assert.AreEqual(
+          ExpectedExtDocNo, GenJournalLine."Applies-to Ext. Doc. No.",
+          StrSubstNo(WrongValErr, GenJournalLine.FieldCaption("Applies-to Ext. Doc. No."), ExpectedExtDocNo, GenJournalLine.TableCaption));
+        Assert.AreEqual(
+          ExpectedAmount, GenJournalLine.Amount,
+          StrSubstNo(WrongValErr, GenJournalLine.FieldCaption(Amount), ExpectedAmount, GenJournalLine.TableCaption));
     end;
 
     local procedure VerifyPaymentWithDetailedEntries(VendorNo: Code[20]; CurrencyCode: Code[10]; EntryNoInvoice1: Integer; EntryNoInvoice2: Integer; AppliedEntries1: Integer; AppliedEntries2: Integer)

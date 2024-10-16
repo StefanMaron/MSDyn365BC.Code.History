@@ -7,7 +7,6 @@ namespace Microsoft.Utilities;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Purchases.History;
-using Microsoft.Service.History;
 using System.Environment.Configuration;
 using System.Security.User;
 
@@ -234,10 +233,6 @@ codeunit 1330 "Instruction Mgt."
                 PageId := Page::"Posted Purchase Invoice";
             DataBase::"Purch. Cr. Memo Hdr.":
                 PageId := Page::"Posted Purchase Credit Memo";
-            DataBase::"Service Invoice Header":
-                PageId := Page::"Posted Service Invoice";
-            DataBase::"Service Cr.Memo Header":
-                PageId := Page::"Posted Service Credit Memo";
         end;
         OnShowPostedDocumentOnBeforePageRun(RecVariant, CalledFromPageId, PageId);
         Page.Run(PageId, RecVariant);

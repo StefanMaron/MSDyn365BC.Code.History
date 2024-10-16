@@ -1075,14 +1075,12 @@ codeunit 144111 "E-Invoice Service"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.Get(HeaderId);
-        with Customer do begin
-            Init();
-            Address := ServiceCrMemoHeader."Ship-to Address";
-            "Address 2" := ServiceCrMemoHeader."Ship-to Address 2";
-            City := ServiceCrMemoHeader."Ship-to City";
-            "Post Code" := ServiceCrMemoHeader."Ship-to Post Code";
-            "Country/Region Code" := ServiceCrMemoHeader."Ship-to Country/Region Code";
-        end;
+        Customer.Init();
+        Customer.Address := ServiceCrMemoHeader."Ship-to Address";
+        Customer."Address 2" := ServiceCrMemoHeader."Ship-to Address 2";
+        Customer.City := ServiceCrMemoHeader."Ship-to City";
+        Customer."Post Code" := ServiceCrMemoHeader."Ship-to Post Code";
+        Customer."Country/Region Code" := ServiceCrMemoHeader."Ship-to Country/Region Code";
         EInvoiceXMLXSDValidation.VerifyAddress(XMLFileName, XPath, Customer);
     end;
 
@@ -1092,14 +1090,12 @@ codeunit 144111 "E-Invoice Service"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.Get(HeaderId);
-        with Customer do begin
-            Init();
-            Address := ServiceInvoiceHeader."Ship-to Address";
-            "Address 2" := ServiceInvoiceHeader."Ship-to Address 2";
-            City := ServiceInvoiceHeader."Ship-to City";
-            "Post Code" := ServiceInvoiceHeader."Ship-to Post Code";
-            "Country/Region Code" := ServiceInvoiceHeader."Ship-to Country/Region Code";
-        end;
+        Customer.Init();
+        Customer.Address := ServiceInvoiceHeader."Ship-to Address";
+        Customer."Address 2" := ServiceInvoiceHeader."Ship-to Address 2";
+        Customer.City := ServiceInvoiceHeader."Ship-to City";
+        Customer."Post Code" := ServiceInvoiceHeader."Ship-to Post Code";
+        Customer."Country/Region Code" := ServiceInvoiceHeader."Ship-to Country/Region Code";
         EInvoiceXMLXSDValidation.VerifyAddress(XMLFileName, XPath, Customer);
     end;
 

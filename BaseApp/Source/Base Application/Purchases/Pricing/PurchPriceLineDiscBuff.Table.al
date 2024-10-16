@@ -6,7 +6,7 @@ using Microsoft.Inventory.Item;
 table 1315 "Purch. Price Line Disc. Buff."
 {
     Caption = 'Purch. Price Line Disc. Buff.';
-#if not CLEAN23
+#if not CLEAN25
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
@@ -101,7 +101,7 @@ table 1315 "Purch. Price Line Disc. Buff."
     {
     }
 
-#if not CLEAN23
+#if not CLEAN25
     procedure LoadDataForItem(Item: Record Item)
     var
         PurchasePrice: Record "Purchase Price";

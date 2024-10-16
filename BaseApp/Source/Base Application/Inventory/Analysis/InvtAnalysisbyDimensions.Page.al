@@ -539,7 +539,9 @@ page 7159 "Invt. Analysis by Dimensions"
         PeriodInitialized: Boolean;
         ShowColumnName: Boolean;
         ShowOppositeSign: Boolean;
+#pragma warning disable AA0074
         Text100: Label 'Period';
+#pragma warning restore AA0074
         NewItemAnalysisCode: Code[10];
         Dim1FilterEnable: Boolean;
         Dim2FilterEnable: Boolean;

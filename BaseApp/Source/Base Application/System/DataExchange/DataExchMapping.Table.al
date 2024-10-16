@@ -118,7 +118,9 @@ table 1224 "Data Exch. Mapping"
 
     var
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
+#pragma warning disable AA0470
         RecordNameFormatTok: Label '%1 to %2';
+#pragma warning restore AA0470
         RenameErr: Label 'You cannot rename the record if one or more field mapping lines exist.';
 
     procedure InsertRec(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableId: Integer; NewName: Text[250]; MappingCodeunit: Integer; DataExchNoFieldId: Integer; DataExchLineFieldId: Integer)

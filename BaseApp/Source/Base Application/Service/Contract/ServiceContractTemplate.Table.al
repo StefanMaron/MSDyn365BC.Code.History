@@ -202,8 +202,12 @@ table 5968 "Service Contract Template"
         ServMgtSetup: Record "Service Mgt. Setup";
         NoSeries: Codeunit "No. Series";
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
         Text000: Label 'You cannot checkmark this field because you do not have permissions for the Service Order Management Area.';
+#pragma warning disable AA0470
         Text001: Label 'You cannot select both %1 and %2 check boxes.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEdit(OldServContractTmplt: Record "Service Contract Template"): Boolean
     begin

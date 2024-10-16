@@ -30,11 +30,8 @@ codeunit 137260 "SCM Inventory Item Tracking"
         RegisterWhseMessage: Label 'The journal lines were successfully registered.You are now';
         AvailabilityWarining: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         ITConfirmMessage: Label 'Item tracking is defined for item';
-        DeletedSalesLineError: Label 'The Sales Line does not exist.';
         DeletionMessage: Label 'Do you want to delete it anyway?';
-        DeletedPurchaseLineError: Label 'The Purchase Line does not exist.';
         DeleteSalesLineWhseShptError: Label 'The Sales Line cannot be deleted when a related Warehouse Shipment Line exists.';
-        PurchaseHeaderExistError: Label 'The Purchase Header does not exist.';
         ReservEntryError: Label 'There is no Reservation Entry within the filter.';
         RequisitionLineError: Label 'There is no Requisition Line within the filter.';
         CannotMatchItemTrackingErr: Label 'Cannot match item tracking.\Document No.: %1, Line No.: %2, Item: %3 %4', Comment = '%1 - source document no., %2 - source document line no., %3 - item no., %4 - item description';
@@ -49,7 +46,6 @@ codeunit 137260 "SCM Inventory Item Tracking"
         PostJournalQst: Label 'Do you want to post the journal lines?';
         JournalPostedMsg: Label 'The journal lines were successfully posted.';
         CouldNotRegisterWhseActivityErr: Label 'Could not register Warehouse Activity.';
-        QtyHandledMustBeZeroErr: Label 'Quantity Handled (Base) must be equal to ''0''';
         OrderToOrderBindingOnSalesLineQst: Label 'Registering the pick will remove the existing order-to-order reservation for the sales order.\Do you want to continue?';
 
     [Test]
@@ -260,7 +256,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         asserterror SalesLine.Get(SalesLine."Document Type"::Order, SalesLine."Document No.", SalesLine."Line No.");
 
         // Verify: Verify error for Sales Line deletion.
-        Assert.ExpectedError(DeletedSalesLineError);
+        Assert.ExpectedErrorCannotFind(Database::"Sales Line");
     end;
 
     [Test]
@@ -522,7 +518,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         asserterror SalesLine.Get(SalesLine."Document Type"::Order, SalesLine."Document No.", SalesLine."Line No.");
 
         // Verify: Verify error for Sales Line deletion using Order Tracking.
-        Assert.ExpectedError(DeletedSalesLineError);
+        Assert.ExpectedErrorCannotFind(Database::"Sales Line");
     end;
 
     [Test]
@@ -691,7 +687,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         asserterror PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", PurchaseLine."Line No.");
 
         // Verify: Verify error for Purchase Line deletion.
-        Assert.ExpectedError(DeletedPurchaseLineError);
+        Assert.ExpectedErrorCannotFind(Database::"Purchase Line");
     end;
 
     [Test]
@@ -757,7 +753,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         asserterror PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
 
         // Verify: Verify error while finding Purchase Order after deleting Item Tracking Lines and Purchase Header.
-        Assert.ExpectedError(PurchaseHeaderExistError);
+        Assert.ExpectedErrorCannotFind(Database::"Purchase Header");
     end;
 
     [Test]
@@ -1293,12 +1289,10 @@ codeunit 137260 "SCM Inventory Item Tracking"
         // [GIVEN] Create manufactured Item with Item B as BOM component.
         LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, Item."No.", 1);
         CreateItem(ManufItem, '');
-        with ManufItem do begin
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Reordering Policy", "Reordering Policy"::Order);
-            Validate("Production BOM No.", ProductionBOMHeader."No.");
-            Modify(true);
-        end;
+        ManufItem.Validate("Replenishment System", ManufItem."Replenishment System"::"Prod. Order");
+        ManufItem.Validate("Reordering Policy", ManufItem."Reordering Policy"::Order);
+        ManufItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ManufItem.Modify(true);
 
         // [GIVEN] Add stock for Items A and B (warehouse location).
         LocationCode := CreateWhseLocation(false);
@@ -1308,11 +1302,10 @@ codeunit 137260 "SCM Inventory Item Tracking"
           ItemJournalLine, ItemJournalBatch, Item."No.", LocationCode, '', LibraryRandom.RandIntInRange(10, 20),
           ItemJournalLine."Entry Type"::"Positive Adjmt.");
         LotNo := LibraryUtility.GenerateGUID();
-        with LibraryVariableStorage do begin // for ItemTrackingLinesPageHandler
-            Enqueue(TrackingOption::AssignLotNo);
-            Enqueue(LotNo);
-            Enqueue(ItemJournalLine.Quantity);
-        end;
+
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(ItemJournalLine.Quantity);
         ItemJournalLine.OpenItemTrackingLines(false);
         CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item2."No.", LocationCode, '', LibraryRandom.RandIntInRange(10, 20),
@@ -1615,6 +1608,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         SalesLine: Record "Sales Line";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         LotNo: array[2] of Code[20];
         Quantity: array[2] of Decimal;
     begin
@@ -1646,7 +1640,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         asserterror AssignLotNoToSalesLine(SalesLine, LotNo[2]);
 
         // [THEN] Field update fails with error
-        Assert.ExpectedError(QtyHandledMustBeZeroErr);
+        Assert.ExpectedTestFieldError(WhseItemTrackingLine.FieldCaption("Quantity Handled (Base)"), Format(0));
 
         // [THEN] Lot No. in pick line is "LOT1"
         FindWhseActivityLine(WarehouseActivityLine, WarehouseShipmentHeader);
@@ -1663,6 +1657,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        TrackingSpecification: Record "Tracking Specification";
         LotNo: array[2] of Code[20];
         Quantity: array[2] of Decimal;
     begin
@@ -1694,7 +1689,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         asserterror AssignLotNoToSalesLine(SalesLine, LotNo[2]);
 
         // [THEN] Field update fails with error
-        Assert.ExpectedError(QtyHandledMustBeZeroErr);
+        Assert.ExpectedTestFieldError(TrackingSpecification.FieldCaption("Quantity Handled (Base)"), Format(0));
     end;
 
     [Test]
@@ -2609,15 +2604,13 @@ codeunit 137260 "SCM Inventory Item Tracking"
         RequisitionLine: Record "Requisition Line";
     begin
         CleanUpAndCreateReqLine(RequisitionLine, ItemNo, '', Quantity);
-        with RequisitionLine do begin
-            Validate("Location Code", LocationCode);
-            Validate("Ending Date", WorkDate());
-            Modify(true);
-            SetRange("Worksheet Template Name", "Worksheet Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            SetRange("Line No.", "Line No.");
-            REPORT.RunModal(REPORT::"Refresh Planning Demand", false, false, RequisitionLine);
-        end;
+        RequisitionLine.Validate("Location Code", LocationCode);
+        RequisitionLine.Validate("Ending Date", WorkDate());
+        RequisitionLine.Modify(true);
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionLine."Journal Batch Name");
+        RequisitionLine.SetRange("Line No.", RequisitionLine."Line No.");
+        REPORT.RunModal(REPORT::"Refresh Planning Demand", false, false, RequisitionLine);
     end;
 
     local procedure AssignITAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; Invoice: Boolean)
@@ -2684,17 +2677,16 @@ codeunit 137260 "SCM Inventory Item Tracking"
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         FindWkshTemplate(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
-        with RequisitionLine do begin
-            DeleteAll(true);
-            LibraryPlanning.CreateRequisitionLine(
-              RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
-            Validate(Type, Type::Item);
-            Validate("No.", No);
-            Validate("Vendor No.", VendorNo);
-            Validate(Quantity, QtyToSet);  // Using Random value for Quantity.
-            Validate("Action Message", "Action Message"::New);
-            Modify(true);
-        end;
+        RequisitionLine.DeleteAll(true);
+        LibraryPlanning.CreateRequisitionLine(
+          RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", No);
+        RequisitionLine.Validate("Vendor No.", VendorNo);
+        RequisitionLine.Validate(Quantity, QtyToSet);
+        // Using Random value for Quantity.
+        RequisitionLine.Validate("Action Message", RequisitionLine."Action Message"::New);
+        RequisitionLine.Modify(true);
     end;
 
     local procedure CreateSalesOrderWithBin(var SalesLine: Record "Sales Line"; No: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
@@ -2866,13 +2858,11 @@ codeunit 137260 "SCM Inventory Item Tracking"
     local procedure ModifyWhsePick(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; QtyToSet: Decimal)
     begin
         FindWhseActivityLine(WarehouseActivityLine, WarehouseShipmentHeader);
-        with WarehouseActivityLine do begin
-            FindSet();
-            repeat
-                Validate("Qty. to Handle", QtyToSet);
-                Modify(true);
-            until Next() = 0;
-        end;
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToSet);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure RegisterWhsePick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseActivityLine: Record "Warehouse Activity Line")
@@ -2885,11 +2875,9 @@ codeunit 137260 "SCM Inventory Item Tracking"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Get(LocationCode);
-            Validate("Bin Mandatory", BinMandatoryToSet);
-            Modify(true);
-        end;
+        Location.Get(LocationCode);
+        Location.Validate("Bin Mandatory", BinMandatoryToSet);
+        Location.Modify(true);
     end;
 
     local procedure SelectItemJournalAndPostItemJournalLine(var LotNo: Code[10]; BinCode: Code[20]; NewBinCode: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; NewLotNo: Code[10]; Quantity: Integer; ExpirationDate: Date; ItemJournalTemplateType: Enum "Item Journal Template Type"; EntryType: Enum "Item Ledger Document Type"; IsReclass: Boolean)
@@ -2918,26 +2906,27 @@ codeunit 137260 "SCM Inventory Item Tracking"
         ProdOrderLine: Record "Prod. Order Line";
         ProductionJournalMgt: Codeunit "Production Journal Mgt";
     begin
-        with LibraryVariableStorage do begin // Enqueue for ItemTrackingLinesPageHandler
-            Enqueue(TrackingOption::AssignLotNos);
-            Enqueue(2); // Number of lines
-            Enqueue(LibraryUtility.GenerateGUID()); // Lot No to assign
-            Enqueue(Quantity1);
-            LotNo := LibraryUtility.GenerateGUID();
-            Enqueue(LotNo); // Lot no to assign
-            Enqueue(Quantity2);
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNos);
+        LibraryVariableStorage.Enqueue(2);
+        // Number of lines
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        // Lot No to assign
+        LibraryVariableStorage.Enqueue(Quantity1);
+        LotNo := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(LotNo);
+        // Lot no to assign
+        LibraryVariableStorage.Enqueue(Quantity2);
 
-            Enqueue(Quantity1 + Quantity2); // Enqueue for ProductionJournalHandler
-            Enqueue(PostJournalQst); // Enqueue for ConfirmHandler
-            Enqueue(JournalPostedMsg); // Enqueue for MessageHandler
-        end;
+        LibraryVariableStorage.Enqueue(Quantity1 + Quantity2);
+        // Enqueue for ProductionJournalHandler
+        LibraryVariableStorage.Enqueue(PostJournalQst);
+        // Enqueue for ConfirmHandler
+        LibraryVariableStorage.Enqueue(JournalPostedMsg); // Enqueue for MessageHandler
 
-        with ProdOrderLine do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            ProductionOrder.Get(ProductionOrder.Status::Released, "Prod. Order No.");
-            ProductionJournalMgt.Handling(ProductionOrder, "Line No.");
-        end;
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
+        ProductionOrder.Get(ProductionOrder.Status::Released, ProdOrderLine."Prod. Order No.");
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
     end;
 
     local procedure PostWhseAdjustmentItemJournal(ItemNo: Code[20]; PostingDate: Date)
@@ -3088,11 +3077,9 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
     local procedure FilterReservationBySource(var ReservEntry: Record "Reservation Entry"; SourceType: Integer; SourceNo: Code[20]; SourceRefNo: Integer)
     begin
-        with ReservEntry do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source ID", SourceNo);
-            SetRange("Source Ref. No.", SourceRefNo);
-        end;
+        ReservEntry.SetRange("Source Type", SourceType);
+        ReservEntry.SetRange("Source ID", SourceNo);
+        ReservEntry.SetRange("Source Ref. No.", SourceRefNo);
     end;
 
     local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
@@ -3106,15 +3093,13 @@ codeunit 137260 "SCM Inventory Item Tracking"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
+        WarehouseEntry.SetRange("Location Code", LocationCode);
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.FindFirst();
 
-            LotNos[1] := "Lot No.";
-            FindLast();
-            LotNos[2] := "Lot No.";
-        end;
+        LotNos[1] := WarehouseEntry."Lot No.";
+        WarehouseEntry.FindLast();
+        LotNos[2] := WarehouseEntry."Lot No.";
     end;
 
     local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
@@ -3182,11 +3167,9 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
     local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Whse. Document Type", "Whse. Document Type"::Shipment);
-            SetRange("Whse. Document No.", WarehouseShipmentHeader."No.");
-            FindSet();
-        end;
+        WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Shipment);
+        WarehouseActivityLine.SetRange("Whse. Document No.", WarehouseShipmentHeader."No.");
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindWhseActivityHeaderBySalesHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SalesHeader: Record "Sales Header")
@@ -3336,14 +3319,12 @@ codeunit 137260 "SCM Inventory Item Tracking"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Action Type", ActionType);
-            FindFirst();
-            Validate("Qty. to Handle", NewQtyToHandle);
-            Modify(true);
-            SplitLine(WarehouseActivityLine);
-        end;
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Qty. to Handle", NewQtyToHandle);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.SplitLine(WarehouseActivityLine);
     end;
 
     local procedure SplitWhseActivityLineAndUpdateTracking(ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type"; NewQtyToHandle: Decimal; LotNos: array[2] of Code[20])
@@ -3354,21 +3335,19 @@ codeunit 137260 "SCM Inventory Item Tracking"
     begin
         SplitWhseActivityLine(ItemNo, ActionType, NewQtyToHandle);
 
-        with WarehouseActivityLine do begin
-            SetRange("Action Type", ActionType);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            ZoneCode := "Zone Code";
-            BinCode := "Bin Code";
-            Validate("Lot No.", LotNos[1]);
-            Modify(true);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.FindFirst();
+        ZoneCode := WarehouseActivityLine."Zone Code";
+        BinCode := WarehouseActivityLine."Bin Code";
+        WarehouseActivityLine.Validate("Lot No.", LotNos[1]);
+        WarehouseActivityLine.Modify(true);
 
-            FindLast();
-            Validate("Zone Code", ZoneCode);
-            Validate("Bin Code", BinCode);
-            Validate("Lot No.", LotNos[2]);
-            Modify(true);
-        end;
+        WarehouseActivityLine.FindLast();
+        WarehouseActivityLine.Validate("Zone Code", ZoneCode);
+        WarehouseActivityLine.Validate("Bin Code", BinCode);
+        WarehouseActivityLine.Validate("Lot No.", LotNos[2]);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure UpdateExpirationDateOnWhseItemTrackingLine(LocationCode: Code[10]; ItemNo: Code[20])
@@ -3449,52 +3428,44 @@ codeunit 137260 "SCM Inventory Item Tracking"
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            FilterReservationBySource(ReservEntry, DATABASE::"Sales Line", SalesLine."Document No.", SalesLine."Line No.");
-            SetRange(Positive, false);
-            SetRange("Lot No.", LotNo);
-            CalcSums(Quantity);
-            TestField(Quantity, -SalesLine.Quantity);
-        end;
+        FilterReservationBySource(ReservEntry, DATABASE::"Sales Line", SalesLine."Document No.", SalesLine."Line No.");
+        ReservEntry.SetRange(Positive, false);
+        ReservEntry.SetRange("Lot No.", LotNo);
+        ReservEntry.CalcSums(Quantity);
+        ReservEntry.TestField(Quantity, -SalesLine.Quantity);
     end;
 
     local procedure VerifyReservedQuantity(DocumentType: Option; DocumentNo: Code[20]; ExpectedQty: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Source Type", DATABASE::"Sales Line");
-            SetRange("Source Subtype", DocumentType);
-            SetRange("Source ID", DocumentNo);
-            CalcSums(Quantity);
+        ReservationEntry.SetRange("Source Type", DATABASE::"Sales Line");
+        ReservationEntry.SetRange("Source Subtype", DocumentType);
+        ReservationEntry.SetRange("Source ID", DocumentNo);
+        ReservationEntry.CalcSums(Quantity);
 
-            TestField(Quantity, ExpectedQty);
-        end;
+        ReservationEntry.TestField(Quantity, ExpectedQty);
     end;
 
     local procedure VerifySerialReservation(SalesLine: Record "Sales Line"; SerialNo: Code[50])
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            FilterReservationBySource(ReservEntry, DATABASE::"Sales Line", SalesLine."Document No.", SalesLine."Line No.");
-            FindFirst();
-            TestField("Serial No.", SerialNo);
-        end;
+        FilterReservationBySource(ReservEntry, DATABASE::"Sales Line", SalesLine."Document No.", SalesLine."Line No.");
+        ReservEntry.FindFirst();
+        ReservEntry.TestField("Serial No.", SerialNo);
     end;
 
     local procedure VerifyTrackingSpecQtyToInvoice(SalesLine: Record "Sales Line")
     var
         TrackingSpec: Record "Tracking Specification";
     begin
-        with TrackingSpec do begin
-            SetRange("Item No.", SalesLine."No.");
-            SetRange("Source Type", DATABASE::"Sales Line");
-            SetRange("Source Subtype", SalesLine."Document Type");
-            SetRange("Source ID", SalesLine."Document No.");
-            FindFirst();
-            TestField("Qty. to Invoice (Base)", -SalesLine."Qty. to Invoice");
-        end;
+        TrackingSpec.SetRange("Item No.", SalesLine."No.");
+        TrackingSpec.SetRange("Source Type", DATABASE::"Sales Line");
+        TrackingSpec.SetRange("Source Subtype", SalesLine."Document Type");
+        TrackingSpec.SetRange("Source ID", SalesLine."Document No.");
+        TrackingSpec.FindFirst();
+        TrackingSpec.TestField("Qty. to Invoice (Base)", -SalesLine."Qty. to Invoice");
     end;
 
     local procedure VerifyLotNoInWarehouseActivityLine(ItemNo: Code[20]; SalesHeaderNo: Code[20]; ExpectedLotNo: Code[10])
@@ -3724,15 +3695,13 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LotNo: Text;
         LotQty: Decimal;
     begin
-        with ItemTrackingLines do begin
-            First();
-            for LinesToProcess := LibraryVariableStorage.DequeueInteger() downto 1 do begin
-                LotNo := LibraryVariableStorage.DequeueText();
-                LotQty := LibraryVariableStorage.DequeueDecimal();
-                "Lot No.".SetValue(LotNo);
-                "Quantity (Base)".SetValue(LotQty);
-                Next();
-            end;
+        ItemTrackingLines.First();
+        for LinesToProcess := LibraryVariableStorage.DequeueInteger() downto 1 do begin
+            LotNo := LibraryVariableStorage.DequeueText();
+            LotQty := LibraryVariableStorage.DequeueDecimal();
+            ItemTrackingLines."Lot No.".SetValue(LotNo);
+            ItemTrackingLines."Quantity (Base)".SetValue(LotQty);
+            ItemTrackingLines.Next();
         end;
     end;
 }

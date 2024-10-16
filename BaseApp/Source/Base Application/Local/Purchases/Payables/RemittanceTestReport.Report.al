@@ -376,25 +376,17 @@ report 15000002 "Remittance Test Report"
                     AccountName := '';
                     case "Gen. Journal Line"."Account Type" of
                         "Gen. Journal Line"."Account Type"::"G/L Account":
-                            begin
-                                if GenLedgAccount.Get("Account No.") then
-                                    AccountName := GenLedgAccount.Name;
-                            end;
+                            if GenLedgAccount.Get("Account No.") then
+                                AccountName := GenLedgAccount.Name;
                         "Gen. Journal Line"."Account Type"::Customer:
-                            begin
-                                if Customer.Get("Account No.") then
-                                    AccountName := Customer.Name;
-                            end;
+                            if Customer.Get("Account No.") then
+                                AccountName := Customer.Name;
                         "Gen. Journal Line"."Account Type"::Vendor:
-                            begin
-                                if Vendor.Get("Account No.") then
-                                    AccountName := Vendor.Name;
-                            end;
+                            if Vendor.Get("Account No.") then
+                                AccountName := Vendor.Name;
                         "Gen. Journal Line"."Account Type"::"Bank Account":
-                            begin
-                                if BankAccount.Get("Account No.") then
-                                    AccountName := BankAccount.Name;
-                            end;
+                            if BankAccount.Get("Account No.") then
+                                AccountName := BankAccount.Name;
                     end;
 
                     LineCheck("Gen. Journal Line");

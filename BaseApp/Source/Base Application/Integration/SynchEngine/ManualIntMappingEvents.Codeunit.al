@@ -6,12 +6,11 @@ codeunit 5369 "Manual Int Mapping Events"
         IntegrationTableMapping: Record "Integration Table Mapping";
         ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
         ManIntFieldMapping: Record "Man. Int. Field Mapping";
-
     begin
         ManIntegrationTableMapping.Reset();
         if ManIntegrationTableMapping.FindSet() then
             repeat
-                if not ManIntegrationTableMapping.Get(ManIntegrationTableMapping.Name) then begin
+                if not IntegrationTableMapping.Get(ManIntegrationTableMapping.Name) then begin
                     ManIntegrationTableMapping.InsertIntegrationTableMapping(
                         IntegrationTableMapping,
                         ManIntegrationTableMapping.Name,
@@ -19,8 +18,6 @@ codeunit 5369 "Manual Int Mapping Events"
                         ManIntegrationTableMapping."Integration Table ID",
                         ManIntegrationTableMapping."Integration Table UID",
                         ManIntegrationTableMapping."Int. Tbl. Modified On Id",
-                        ManIntegrationTableMapping."Table Config Template Code",
-                        ManIntegrationTableMapping."Int. Tbl. Config Template Code",
                         ManIntegrationTableMapping."Sync Only Coupled Records",
                         ManIntegrationTableMapping.Direction
                         );

@@ -26,24 +26,28 @@ page 6323 "Power BI Element Card"
                     InitializeAddIn();
                 end;
 
-                trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; activePageFilters: Text; CorrelationId: Text)
+                trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
-                    LogCorrelationIdForEmbedType(CorrelationId, Enum::"Power BI Element Type"::Report);
+                    LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::Report);
+                    if not AvailableReportLevelFilters.ReadFrom(ReportFilters) then
+                        Clear(AvailableReportLevelFilters);
+
+                    PushFiltersToAddin();
                 end;
 
                 trigger DashboardLoaded(CorrelationId: Text)
                 begin
-                    LogCorrelationIdForEmbedType(CorrelationId, Enum::"Power BI Element Type"::Dashboard);
+                    LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::Dashboard);
                 end;
 
                 trigger DashboardTileLoaded(CorrelationId: Text)
                 begin
-                    LogCorrelationIdForEmbedType(CorrelationId, Enum::"Power BI Element Type"::"Dashboard Tile");
+                    LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::"Dashboard Tile");
                 end;
 
                 trigger ReportVisualLoaded(CorrelationId: Text)
                 begin
-                    LogCorrelationIdForEmbedType(CorrelationId, Enum::"Power BI Element Type"::"Report Visual");
+                    LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::"Report Visual");
                 end;
 
                 trigger ErrorOccurred(Operation: Text; ErrorText: Text)
@@ -133,11 +137,14 @@ page 6323 "Power BI Element Card"
 
     var
         PowerBIDisplayedElement: Record "Power BI Displayed Element";
+        PowerBIFilter: Record "Power BI Filter";
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        PowerBiFilterHelper: Codeunit "Power BI Filter Helper";
 #if not CLEAN25
         ErrorMessageText: Text;
 #endif
+        AvailableReportLevelFilters: JsonArray;
         ErrorNotificationMsg: Label 'An error occurred while loading Power BI. Your Power BI embedded content might not work. Here are the error details: "%1: %2"', Comment = '%1: a short error code. %2: a verbose error message in english';
         UnsupportedElementTypeErr: Label 'Displaying Power BI elements of type %1 is currently not supported.', Comment = '%1 = an element type, such as Report or Workspace';
         UnauthorizedErr: Label 'You do not have a Power BI account. If you have just activated a license, it might take several minutes for the changes to be effective in Power BI.';
@@ -148,6 +155,76 @@ page 6323 "Power BI Element Card"
     procedure SetDisplayedElement(InputPowerBIDisplayedElement: Record "Power BI Displayed Element")
     begin
         PowerBIDisplayedElement := InputPowerBIDisplayedElement;
+    end;
+
+    internal procedure SetPowerBIFilter(var NewPowerBIFilter: Record "Power BI Filter")
+    begin
+        PowerBIFilter.Copy(NewPowerBIFilter, true);
+
+        PushFiltersToAddin();
+    end;
+
+    /// <summary>
+    /// Filters the currently displayed Power BI report to multiple values.
+    /// These values are picked from the field number <paramref name="FieldNumber"/> in the records within the filter of <paramref name="FilteringVariant"/>.
+    /// </summary>
+    /// <remarks>
+    /// The values will be applied to the first filter defined in the Power BI report. If no record falls within the filter, the filter is reset to all values.
+    /// </remarks>
+    /// <param name="FilteringVariant">A Record or RecordRef filtered to the records to show in the Power BI Report.</param>
+    /// <param name="FieldNumber">The number of the field of <paramref name="FilteringVariant"/> that should be used for filtering the Power BI Report.</param>
+    procedure SetFilterToMultipleValues(FilteringVariant: Variant; FieldNumber: Integer)
+    var
+        FilteringRecordRef: RecordRef;
+    begin
+        case true of
+            FilteringVariant.IsRecordRef():
+                FilteringRecordRef := FilteringVariant;
+            FilteringVariant.IsRecord():
+                FilteringRecordRef.GetTable(FilteringVariant);
+            else
+                exit;
+        end;
+
+        PowerBiFilterHelper.RecordRefToFilterRecord(FilteringRecordRef, FieldNumber, PowerBiFilter);
+
+        PushFiltersToAddin();
+    end;
+
+    /// <summary>
+    /// Filters the currently displayed Power BI report to a single value. Only values of primitive types (such as Text, Code, Guid, Integer, Date) are supported.
+    /// </summary>
+    /// <remarks>
+    /// The value will be applied to the first filter defined in the Power BI report.
+    /// </remarks>
+    /// <param name="InputSelectionVariant">A value to set as filter for the Power BI Report.</param>
+    procedure SetCurrentListSelection(InputSelectionVariant: Variant)
+    begin
+        PowerBiFilterHelper.VariantToFilterRecord(InputSelectionVariant, PowerBiFilter);
+        PushFiltersToAddin();
+    end;
+
+    local procedure PushFiltersToAddin()
+    var
+        ReportFiltersJArray: JsonArray;
+        ReportFiltersToSet: Text;
+        AvailableReportFiltersText: Text;
+    begin
+        if AvailableReportLevelFilters.Count() = 0 then
+            exit;
+
+        if PowerBIDisplayedElement.ElementType <> PowerBIDisplayedElement.ElementType::"Report" then
+            exit;
+
+        ReportFiltersJArray := PowerBiFilterHelper.MergeIntoFirstFilter(AvailableReportLevelFilters, PowerBiFilter);
+
+        ReportFiltersJArray.WriteTo(ReportFiltersToSet);
+        AvailableReportLevelFilters.WriteTo(AvailableReportFiltersText);
+
+        if ReportFiltersToSet = AvailableReportFiltersText then
+            exit;
+
+        CurrPage.PowerBIManagement.UpdateReportFilters(ReportFiltersToSet);
     end;
 
     local procedure ShowError(ErrorCategory: Text; ErrorMessage: Text)
@@ -205,7 +282,7 @@ page 6323 "Power BI Element Card"
         CurrPage.Update();
     end;
 
-    local procedure LogCorrelationIdForEmbedType(CorrelationId: Text; EmbedType: Enum "Power BI Element Type")
+    local procedure LogVisualLoaded(CorrelationId: Text; EmbedType: Enum "Power BI Element Type")
     begin
         Session.LogMessage('0000KAF', StrSubstNo(EmbedCorrelationTelemetryTxt, EmbedType, CorrelationId),
         Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());

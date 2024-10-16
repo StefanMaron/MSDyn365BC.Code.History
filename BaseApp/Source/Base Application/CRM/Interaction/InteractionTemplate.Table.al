@@ -275,8 +275,12 @@ table 5064 "Interaction Template"
     end;
 
     var
+#pragma warning disable AA0074
         Text003: Label '%1 = %2 can not be specified for %3 %4.', Comment = '%1 = Wizard Action caption, %2= Wizard Action, %3 = Interaction Template, %4 = Code ';
+#pragma warning disable AA0470
         Text004: Label 'Do you want to create %1 %2?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         WordTemplateCodeCannotBeSetForImportActionErr: Label '%1 = %2 can not be specified for %3 %4.', Comment = '%1 = Word Template Code caption, %2= Word Template Code, %3 = Wizard Action, %4 = Action';
         RemoveAttachmentQst: Label 'You cannot use a Word template when an attachment is specified. Do you want to remove the attachment?';
 

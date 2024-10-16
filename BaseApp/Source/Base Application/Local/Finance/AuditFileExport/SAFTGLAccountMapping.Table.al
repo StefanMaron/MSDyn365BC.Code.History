@@ -44,7 +44,7 @@ table 10624 "SAFT G/L Account Mapping"
         }
         field(50; "G/L Account Name"; Text[100])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("G/L Account No.")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("G/L Account No.")));
             FieldClass = FlowField;
         }
     }

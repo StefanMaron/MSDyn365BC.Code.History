@@ -277,6 +277,10 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage used to calculate the default contract value of a service item when it is created.';
                 }
+                field("Del. Filed Cont. w. main Cont."; Rec."Del. Filed Cont. w. main Cont.")
+                {
+                    ApplicationArea = Service;
+                }
             }
             group(Numbering)
             {
@@ -355,6 +359,20 @@ page 5919 "Service Mgt. Setup"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number series code that will be used to assign a document number to the journal lines.';
+                }
+            }
+            group(Archiving)
+            {
+                Caption = 'Archiving';
+                field("Archive Quotes"; Rec."Archive Quotes")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies if you want to archive service quotes when they are deleted.';
+                }
+                field("Archive Orders"; Rec."Archive Orders")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies if you want to archive service orders when they are deleted.';
                 }
             }
             group("Journal Templates")

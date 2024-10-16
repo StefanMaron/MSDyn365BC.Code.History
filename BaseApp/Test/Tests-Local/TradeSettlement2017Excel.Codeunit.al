@@ -1083,18 +1083,15 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [GIVEN] VAT Posting Setup with blank "VAT Bus. Posting Group".
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, '', VATProductPostingGroup.Code);
-
         // [GIVEN] VAT Entry with this VAT Posting Setup. Amount = "X".
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-            "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            Type := Type::Sale;
-            "Posting Date" := WorkDate();
-            Amount := LibraryRandom.RandDecInRange(100, 200, 2);
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry.Amount := LibraryRandom.RandDecInRange(100, 200, 2);
+        VATEntry.Insert();
 
         // [WHEN] Run Trade Settlement 2017 report.
         Commit();
@@ -1149,61 +1146,55 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATPct: Decimal; VATSettlementRate: Option; SalesVATReportingCode: Code[20]; PurchaseVATReportingCode: Code[20])
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPct);
-        with VATPostingSetup do begin
-            Validate("VAT Settlement Rate", VATSettlementRate);
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("Sale VAT Reporting Code", SalesVATReportingCode);
-            Validate("Purch. VAT Reporting Code", PurchaseVATReportingCode);
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Settlement Rate", VATSettlementRate);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sale VAT Reporting Code", SalesVATReportingCode);
+        VATPostingSetup.Validate("Purch. VAT Reporting Code", PurchaseVATReportingCode);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateVATCode(ReportBoxNo: Option; ReverseChargeBoxNo: Option): Code[20]
     var
         VATReportingCode: Record "VAT Reporting Code";
     begin
-        with VATReportingCode do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), Database::"VAT Reporting Code");
-            "Gen. Posting Type" := "Gen. Posting Type"::Sale;
-            "Trade Settlement 2017 Box No." := ReportBoxNo;
-            "Reverse Charge Report Box No." := ReverseChargeBoxNo;
-            Insert(true);
-            exit(Code);
-        end;
+        VATReportingCode.Init();
+        VATReportingCode.Code := LibraryUtility.GenerateRandomCode(VATReportingCode.FieldNo(Code), Database::"VAT Reporting Code");
+        VATReportingCode."Gen. Posting Type" := VATReportingCode."Gen. Posting Type"::Sale;
+        VATReportingCode."Trade Settlement 2017 Box No." := ReportBoxNo;
+        VATReportingCode."Reverse Charge Report Box No." := ReverseChargeBoxNo;
+        VATReportingCode.Insert(true);
+        exit(VATReportingCode.Code);
     end;
 #else
+
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATPct: Decimal; VATSettlementRate: Option; SalesVATReportingCode: Code[10]; PurchaseVATReportingCode: Code[10])
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPct);
-        with VATPostingSetup do begin
-            Validate("VAT Settlement Rate", VATSettlementRate);
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("Sales VAT Reporting Code", SalesVATReportingCode);
-            Validate("Purchase VAT Reporting Code", PurchaseVATReportingCode);
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Settlement Rate", VATSettlementRate);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Reporting Code", SalesVATReportingCode);
+        VATPostingSetup.Validate("Purchase VAT Reporting Code", PurchaseVATReportingCode);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateVATCode(ReportBoxNo: Option; ReverseChargeBoxNo: Option): Code[10]
     var
         VATCode: Record "VAT Code";
     begin
-        with VATCode do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Code");
-            "Gen. Posting Type" := "Gen. Posting Type"::Sale;
-            "Trade Settlement 2017 Box No." := ReportBoxNo;
-            "Reverse Charge Report Box No." := ReverseChargeBoxNo;
-            Insert(true);
-            exit(Code);
-        end;
+        VATCode.Init();
+        VATCode.Code := LibraryUtility.GenerateRandomCode(VATCode.FieldNo(Code), DATABASE::"VAT Code");
+        VATCode."Gen. Posting Type" := VATCode."Gen. Posting Type"::Sale;
+        VATCode."Trade Settlement 2017 Box No." := ReportBoxNo;
+        VATCode."Reverse Charge Report Box No." := ReverseChargeBoxNo;
+        VATCode.Insert(true);
+        exit(VATCode.Code);
     end;
 #endif
+
     local procedure CreatePostSalesInvoice(var VATBase: Decimal; var VATAmount: Decimal; VATPostingSetup: Record "VAT Posting Setup"; CustomerNo: Code[20])
     var
         SalesHeader: Record "Sales Header";

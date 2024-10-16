@@ -915,12 +915,10 @@
     var
         Item: Record Item;
     begin
-        with Item do begin
-            LibraryInventory.CreateItem(Item);
-            Validate("Costing Method", "Costing Method"::FIFO);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal)
@@ -955,13 +953,12 @@
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst();
-            Validate("Qty. to Receive", 1); // specific value needed for test
-            Modify(true);
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Qty. to Receive", 1);
+        // specific value needed for test
+        PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice);
     end;
 

@@ -457,22 +457,18 @@ codeunit 144180 "ERM NO Reports Test"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Print VAT specification in LCY" := VATSpecificationInLCY;
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Print VAT specification in LCY" := VATSpecificationInLCY;
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure UpdateSalesSetup(InvoiceRounding: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Invoice Rounding", InvoiceRounding);
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Invoice Rounding", InvoiceRounding);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure CreateCustomerWithVATBusPostingGroup(VATBusPostingGroupCode: Code[20]): Code[20]
