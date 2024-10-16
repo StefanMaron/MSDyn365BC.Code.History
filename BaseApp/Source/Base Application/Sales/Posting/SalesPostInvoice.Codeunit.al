@@ -183,7 +183,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
 
         SalesPostInvoiceEvents.RunOnPrepareLineOnBeforeAdjustTotalAmounts(SalesLine, TotalAmount, TotalAmountACY, SalesHeader.GetUseDate());
         DeferralUtilities.AdjustTotalAmountForDeferralsNoBase(
-            SalesLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY);
+            SalesLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, SalesLine."Inv. Discount Amount" + SalesLine."Line Discount Amount", SalesLineACY."Inv. Discount Amount" + SalesLineACY."Line Discount Amount");
 
         IsHandled := false;
         SalesPostInvoiceEvents.RunOnPrepareLineOnBeforeSetAmounts(
@@ -215,7 +215,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
                 SalesLine, InvoicePostingBuffer, SalesHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
             PrepareDeferralLine(
                 SalesHeader, SalesLine, InvoicePostingBuffer.Amount, InvoicePostingBuffer."Amount (ACY)",
-                AmtToDefer, AmtToDeferACY, DeferralAccount, SalesAccount);
+                AmtToDefer, AmtToDeferACY, DeferralAccount, SalesAccount, SalesLine."Inv. Discount Amount" + SalesLine."Line Discount Amount", SalesLineACY."Inv. Discount Amount" + SalesLineACY."Line Discount Amount");
             SalesPostInvoiceEvents.RunOnPrepareLineOnAfterPrepareDeferralLine(
                 SalesLine, InvoicePostingBuffer, SalesHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
         end;
@@ -646,7 +646,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         end;
     end;
 
-    local procedure PrepareDeferralLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; AmountLCY: Decimal; AmountACY: Decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; SalesAccount: Code[20])
+    local procedure PrepareDeferralLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; AmountLCY: Decimal; AmountACY: Decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; SalesAccount: Code[20]; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     var
         DeferralTemplate: Record "Deferral Template";
         DeferralPostingBuffer: Record "Deferral Posting Buffer";
@@ -670,7 +670,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
                     DeferralPostingBuffer, SalesHeader, SalesLine, AmountLCY, AmountACY,
                     RemainAmtToDefer, RemainAmtToDeferACY, DeferralAccount, SalesAccount);
                 DeferralPostingBuffer.PrepareInitialAmounts(
-                  AmountLCY, AmountACY, RemainAmtToDefer, RemainAmtToDeferACY, SalesAccount, DeferralAccount);
+                  AmountLCY, AmountACY, RemainAmtToDefer, RemainAmtToDeferACY, SalesAccount, DeferralAccount, DiscountAmount, DiscountAmountACY);
                 DeferralPostingBuffer.Update(DeferralPostingBuffer);
                 if (RemainAmtToDefer <> 0) or (RemainAmtToDeferACY <> 0) then begin
                     DeferralPostingBuffer.PrepareRemainderSales(

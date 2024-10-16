@@ -442,6 +442,9 @@ report 2000001 "File Domestic Payments"
                     Error(Text017, FileName);
 
             FullFileName := FileName;
+
+            if FullFileName = '' then
+                FullFileName := DomesticPaymentsFileNameTxt;
         end;
     end;
 
@@ -512,6 +515,7 @@ report 2000001 "File Domestic Payments"
         NonSalariesCaptionLbl: Label 'Non-Salaries';
         PmtTypeTextCaptionLbl: Label '(*) Please specify payment type ("Salaries" or "Non-Salaries") in the upper right corner of the issue voucher.';
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
+        DomesticPaymentsFileNameTxt: Label 'DomesticPayments.txt';
 
     [Scope('OnPrem')]
     procedure FillCustomerData(PaymentJnlLine: Record "Payment Journal Line")

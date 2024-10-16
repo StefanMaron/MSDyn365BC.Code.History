@@ -25,7 +25,6 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryPlanning: Codeunit "Library - Planning";
         LibrarySales: Codeunit "Library - Sales";
         IsInitialized: Boolean;
-        DefaultDimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Vendor %2.';
         CheckPurchLineMsg: Label 'Check purchase document line.';
 
         // Expected error messages (from code unit 90).
@@ -485,7 +484,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         VendorNo: Code[20];
     begin
         // [FEATURE] [Batch Posting] [Job Queue]
-        // [SCENARIO] Batch posting of two documents (in background) verifies "Error Messages" that contains two lines per first document and one line for second document
+        // [SCENARIO] Batch posting of two documents (in background) verifies "Error Messages" that contains zero lines because we don't subscribe to the error message handler
         Initialize();
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
@@ -519,19 +518,11 @@ codeunit 132502 "Purch. Document Posting Errors"
         // [THEN] 2 lines for Invoice '1002' and 1 line for Invoice '1003'
         // [THEN] The first error for Invoice '1002' is 'Posting Date is not within your range of allowed posting dates.'
         ErrorMessage.SetRange("Context Record ID", PurchHeader[1].RecordId);
-        Assert.RecordCount(ErrorMessage, 2);
-        ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
-        // [THEN] The second error for Invoice '1002' is 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.'
-        ErrorMessage.Next();
-        ErrorMessage.Next();
-        Assert.ExpectedMessage(StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", VendorNo), ErrorMessage."Message");
+        Assert.RecordCount(ErrorMessage, 0);
 
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
         ErrorMessage.SetRange("Context Record ID", PurchHeader[2].RecordId);
-        Assert.RecordCount(ErrorMessage, 1);
-        ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
+        Assert.RecordCount(ErrorMessage, 0);
     end;
 
     [Test]

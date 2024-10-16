@@ -473,6 +473,9 @@ report 2000021 "File Domiciliations"
                 Error(Text006);
             FullFileName := FileName;
         end;
+
+        if FullFileName = '' then
+            FullFileName := DomiciliationsPaymentsTxt;
     end;
 
     var
@@ -559,6 +562,7 @@ report 2000021 "File Domiciliations"
         ForReceiptCaptionLbl: Label 'For receipt,';
         TotalCaptionLbl: Label 'TOTAL', Comment = 'Total';
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
+        DomiciliationsPaymentsTxt: Label 'DomiciliationsPayments.txt';
 
     [Scope('OnPrem')]
     procedure FillCustomerData(DomicJnlLine: Record "Domiciliation Journal Line")

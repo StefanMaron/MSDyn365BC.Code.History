@@ -228,6 +228,9 @@ report 2000005 "File SEPA Payments"
             else
                 FullFileName := FileName;
 
+            if FullFileName = '' then
+                FullFileName := SEPAPaymentsFileNameTxt;
+
             Download(ServerFileName, '', '', AllFilesDescriptionTxt, FullFileName);
         end;
         Clear(XMLDomDoc);
@@ -237,7 +240,7 @@ report 2000005 "File SEPA Payments"
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
         XMLRootElement: DotNet XmlElement;
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -294,6 +297,7 @@ report 2000005 "File SEPA Payments"
         IncludeDimTextEnable: Boolean;
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
         DefaultFileNameTxt: Label 'Export.xml';
+        SEPAPaymentsFileNameTxt: Label 'SEPAPayments.txt';
 
     protected var
         GenJnlLine: Record "Gen. Journal Line";
