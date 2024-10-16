@@ -38,7 +38,11 @@ page 12445 "Select Reporting Period"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label '<Month Text>', Locked = true;
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label '<Year4>', Locked = true;
+#pragma warning restore AA0074
 }
 

@@ -164,7 +164,7 @@ table 17239 "Tax Reg. Norm Template Line"
         }
         field(12; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Reg. Norm Dim. Filter" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
+            CalcFormula = exist("Tax Reg. Norm Dim. Filter" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
                                                                    "Norm Group Code" = field("Norm Group Code"),
                                                                    "Line No." = field("Line No.")));
             Caption = 'Dimensions Filters';
@@ -241,7 +241,11 @@ table 17239 "Tax Reg. Norm Template Line"
         TaxRegNormGroup: Record "Tax Register Norm Group";
         TaxRegNormTemplateLine: Record "Tax Reg. Norm Template Line";
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text2001: Label '%1 must be empty if %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ValidateChange(Incident: Boolean)

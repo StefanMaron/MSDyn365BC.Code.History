@@ -178,13 +178,11 @@ codeunit 144509 "ERM FA Depreciation Groups"
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
           GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Fixed Asset", FixedAssetNo,
           Amount);
-        with GenJournalLine do begin
-            Validate("Posting Date", PostingDate);
-            Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("FA Posting Type", GenJournalLine."FA Posting Type"::"Acquisition Cost");
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalLine.Modify(true);
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -212,13 +210,11 @@ codeunit 144509 "ERM FA Depreciation Groups"
     var
         FADeprGroup: Record "Depreciation Group";
     begin
-        with FADeprGroup do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Depreciation Group");
-            "Tax Depreciation Rate" := LibraryRandom.RandDec(10, 2);
-            Insert();
-            exit(Code);
-        end;
+        FADeprGroup.Init();
+        FADeprGroup.Code := LibraryUtility.GenerateRandomCode(FADeprGroup.FieldNo(Code), DATABASE::"Depreciation Group");
+        FADeprGroup."Tax Depreciation Rate" := LibraryRandom.RandDec(10, 2);
+        FADeprGroup.Insert();
+        exit(FADeprGroup.Code);
     end;
 
     local procedure GetReleaseDeprBookCode(): Code[10]
@@ -241,11 +237,9 @@ codeunit 144509 "ERM FA Depreciation Groups"
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
-        with FADeprBook do begin
-            Get(FANo, DeprBookCode);
-            CalcFields("Acquisition Cost");
-            exit("Acquisition Cost");
-        end;
+        FADeprBook.Get(FANo, DeprBookCode);
+        FADeprBook.CalcFields("Acquisition Cost");
+        exit(FADeprBook."Acquisition Cost");
     end;
 
     local procedure SetFADeprBookMethodDBSLRUTaxGroup(FANo: Code[20])
@@ -254,22 +248,18 @@ codeunit 144509 "ERM FA Depreciation Groups"
         FADeprBook: Record "FA Depreciation Book";
     begin
         FASetup.Get();
-        with FADeprBook do begin
-            Get(FANo, FASetup."Release Depr. Book");
-            Validate("Depreciation Method", "Depreciation Method"::"DB/SL-RU Tax Group");
-            Modify(true);
-        end;
+        FADeprBook.Get(FANo, FASetup."Release Depr. Book");
+        FADeprBook.Validate("Depreciation Method", FADeprBook."Depreciation Method"::"DB/SL-RU Tax Group");
+        FADeprBook.Modify(true);
     end;
 
     local procedure SetMinGroupBalanceValue(MinGroupBalance: Decimal)
     var
         TaxRegsterSetup: Record "Tax Register Setup";
     begin
-        with TaxRegsterSetup do begin
-            Get();
-            Validate("Min. Group Balance", MinGroupBalance);
-            Modify(true);
-        end;
+        TaxRegsterSetup.Get();
+        TaxRegsterSetup.Validate("Min. Group Balance", MinGroupBalance);
+        TaxRegsterSetup.Modify(true);
     end;
 
     local procedure CalcGroupDepreciation(var DocumentNo: Code[20]; DeprBookCode: Code[10]; DeprDate: Date; Post: Boolean; DeprGroupCode: Code[10]) DeprAmount: Decimal
@@ -351,29 +341,25 @@ codeunit 144509 "ERM FA Depreciation Groups"
         GLSetup: Record "General Ledger Setup";
     begin
         GLSetup.Get();
-        with FAGLJournalLine do begin
-            SetRange("Posting Date", PostingDate);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Account Type", "Account Type"::"Fixed Asset");
-            SetRange("Account No.", FANo);
-            SetRange("Depreciation Book Code", FADeprBookCode);
-            FindFirst();
-            Assert.AreNearlyEqual(ExpectedAmount, Amount, GLSetup."Amount Rounding Precision", FieldCaption(Amount));
-        end;
+        FAGLJournalLine.SetRange("Posting Date", PostingDate);
+        FAGLJournalLine.SetRange("Document No.", DocumentNo);
+        FAGLJournalLine.SetRange("Account Type", FAGLJournalLine."Account Type"::"Fixed Asset");
+        FAGLJournalLine.SetRange("Account No.", FANo);
+        FAGLJournalLine.SetRange("Depreciation Book Code", FADeprBookCode);
+        FAGLJournalLine.FindFirst();
+        Assert.AreNearlyEqual(ExpectedAmount, FAGLJournalLine.Amount, GLSetup."Amount Rounding Precision", FAGLJournalLine.FieldCaption(Amount));
     end;
 
     local procedure VerifyFALedgerEntry(PostingDate: Date; DocumentNo: Code[20]; FANo: Code[20]; FADeprBookCode: Code[10]; ExpectedAmount: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            SetRange("FA Posting Date", PostingDate);
-            SetRange("Document No.", DocumentNo);
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", FADeprBookCode);
-            FindFirst();
-            Assert.AreNearlyEqual(ExpectedAmount, Amount, 0.01, FieldCaption(Amount));
-        end;
+        FALedgerEntry.SetRange("FA Posting Date", PostingDate);
+        FALedgerEntry.SetRange("Document No.", DocumentNo);
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetRange("Depreciation Book Code", FADeprBookCode);
+        FALedgerEntry.FindFirst();
+        Assert.AreNearlyEqual(ExpectedAmount, FALedgerEntry.Amount, 0.01, FALedgerEntry.FieldCaption(Amount));
     end;
 }
 

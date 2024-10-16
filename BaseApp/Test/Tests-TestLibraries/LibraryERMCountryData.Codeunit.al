@@ -320,92 +320,89 @@ codeunit 131305 "Library - ERM Country Data"
         GenPostingSetup: Record "General Posting Setup";
     begin
         PrepareNormalGenPostingSetup(NormalGeneralPostingSetup);
-        with GenPostingSetup do
-            if FindSet(true) then
-                repeat
-                    if "Sales Account" = '' then
-                        Validate("Sales Account", NormalGeneralPostingSetup."Sales Account");
-                    if "Purch. Account" = '' then
-                        Validate("Purch. Account", NormalGeneralPostingSetup."Purch. Account");
-                    if "Sales Credit Memo Account" = '' then
-                        Validate("Sales Credit Memo Account", NormalGeneralPostingSetup."Sales Credit Memo Account");
-                    if "Purch. Credit Memo Account" = '' then
-                        Validate("Purch. Credit Memo Account", NormalGeneralPostingSetup."Purch. Credit Memo Account");
-                    if "Sales Prepayments Account" = '' then
-                        Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
-                    if "Purch. Prepayments Account" = '' then
-                        Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
-                    if "Purch. Pmt. Disc. Debit Acc." = '' then
-                        "Purch. Pmt. Disc. Debit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.";
-                    if "Purch. Pmt. Disc. Credit Acc." = '' then
-                        "Purch. Pmt. Disc. Credit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Disc. Credit Acc.";
-                    if "Purch. Pmt. Tol. Debit Acc." = '' then
-                        "Purch. Pmt. Tol. Debit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.";
-                    if "Purch. Pmt. Tol. Credit Acc." = '' then
-                        "Purch. Pmt. Tol. Credit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Tol. Credit Acc.";
-                    if "Direct Cost Applied Account" = '' then
-                        Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account");
-                    if "Overhead Applied Account" = '' then
-                        Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
-                    if "Purchase Variance Account" = '' then
-                        Validate("Purchase Variance Account", NormalGeneralPostingSetup."Purchase Variance Account");
-                    if "COGS Account" = '' then
-                        Validate("COGS Account", NormalGeneralPostingSetup."COGS Account");
-                    if "COGS Account (Interim)" = '' then
-                        Validate("COGS Account (Interim)", NormalGeneralPostingSetup."COGS Account (Interim)");
-                    if "Invt. Accrual Acc. (Interim)" = '' then
-                        Validate("Invt. Accrual Acc. (Interim)", NormalGeneralPostingSetup."Invt. Accrual Acc. (Interim)");
-                    if "Inventory Adjmt. Account" = '' then
-                        Validate("Inventory Adjmt. Account", NormalGeneralPostingSetup."Inventory Adjmt. Account");
-                    if "Sales Line Disc. Account" = '' then
-                        Validate("Sales Line Disc. Account", NormalGeneralPostingSetup."Sales Line Disc. Account");
-                    "Sales Inv. Disc. Account" := "Purch. Account";
-                    if "Purch. Line Disc. Account" = '' then
-                        "Purch. Line Disc. Account" := "Sales Line Disc. Account";
-                    if "Purch. Inv. Disc. Account" = '' then
-                        "Purch. Inv. Disc. Account" := "Sales Inv. Disc. Account";
-                    Modify(true);
-                until Next() = 0;
+        if GenPostingSetup.FindSet(true) then
+            repeat
+                if GenPostingSetup."Sales Account" = '' then
+                    GenPostingSetup.Validate("Sales Account", NormalGeneralPostingSetup."Sales Account");
+                if GenPostingSetup."Purch. Account" = '' then
+                    GenPostingSetup.Validate("Purch. Account", NormalGeneralPostingSetup."Purch. Account");
+                if GenPostingSetup."Sales Credit Memo Account" = '' then
+                    GenPostingSetup.Validate("Sales Credit Memo Account", NormalGeneralPostingSetup."Sales Credit Memo Account");
+                if GenPostingSetup."Purch. Credit Memo Account" = '' then
+                    GenPostingSetup.Validate("Purch. Credit Memo Account", NormalGeneralPostingSetup."Purch. Credit Memo Account");
+                if GenPostingSetup."Sales Prepayments Account" = '' then
+                    GenPostingSetup.Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
+                if GenPostingSetup."Purch. Prepayments Account" = '' then
+                    GenPostingSetup.Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
+                if GenPostingSetup."Purch. Pmt. Disc. Debit Acc." = '' then
+                    GenPostingSetup."Purch. Pmt. Disc. Debit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.";
+                if GenPostingSetup."Purch. Pmt. Disc. Credit Acc." = '' then
+                    GenPostingSetup."Purch. Pmt. Disc. Credit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Disc. Credit Acc.";
+                if GenPostingSetup."Purch. Pmt. Tol. Debit Acc." = '' then
+                    GenPostingSetup."Purch. Pmt. Tol. Debit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.";
+                if GenPostingSetup."Purch. Pmt. Tol. Credit Acc." = '' then
+                    GenPostingSetup."Purch. Pmt. Tol. Credit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Tol. Credit Acc.";
+                if GenPostingSetup."Direct Cost Applied Account" = '' then
+                    GenPostingSetup.Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account");
+                if GenPostingSetup."Overhead Applied Account" = '' then
+                    GenPostingSetup.Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
+                if GenPostingSetup."Purchase Variance Account" = '' then
+                    GenPostingSetup.Validate("Purchase Variance Account", NormalGeneralPostingSetup."Purchase Variance Account");
+                if GenPostingSetup."COGS Account" = '' then
+                    GenPostingSetup.Validate("COGS Account", NormalGeneralPostingSetup."COGS Account");
+                if GenPostingSetup."COGS Account (Interim)" = '' then
+                    GenPostingSetup.Validate("COGS Account (Interim)", NormalGeneralPostingSetup."COGS Account (Interim)");
+                if GenPostingSetup."Invt. Accrual Acc. (Interim)" = '' then
+                    GenPostingSetup.Validate("Invt. Accrual Acc. (Interim)", NormalGeneralPostingSetup."Invt. Accrual Acc. (Interim)");
+                if GenPostingSetup."Inventory Adjmt. Account" = '' then
+                    GenPostingSetup.Validate("Inventory Adjmt. Account", NormalGeneralPostingSetup."Inventory Adjmt. Account");
+                if GenPostingSetup."Sales Line Disc. Account" = '' then
+                    GenPostingSetup.Validate("Sales Line Disc. Account", NormalGeneralPostingSetup."Sales Line Disc. Account");
+                GenPostingSetup."Sales Inv. Disc. Account" := GenPostingSetup."Purch. Account";
+                if GenPostingSetup."Purch. Line Disc. Account" = '' then
+                    GenPostingSetup."Purch. Line Disc. Account" := GenPostingSetup."Sales Line Disc. Account";
+                if GenPostingSetup."Purch. Inv. Disc. Account" = '' then
+                    GenPostingSetup."Purch. Inv. Disc. Account" := GenPostingSetup."Sales Inv. Disc. Account";
+                GenPostingSetup.Modify(true);
+            until GenPostingSetup.Next() = 0;
     end;
 
     local procedure PrepareNormalGenPostingSetup(var GenPostingSetup: Record "General Posting Setup")
     begin
-        with GenPostingSetup do begin
-            Reset();
-            SetFilter("Gen. Bus. Posting Group", '<>%1', '');
-            SetFilter("Gen. Prod. Posting Group", '<>%1', '');
-            SetFilter("Sales Account", '<>%1', '');
-            SetFilter("Purch. Account", '<>%1', '');
-            SetFilter("Sales Inv. Disc. Account", '<>%1', '');
-            SetFilter("Sales Line Disc. Account", '<>%1', '');
-            SetFilter("COGS Account", '<>%1', '');
-            SetFilter("Inventory Adjmt. Account", '<>%1', '');
-            FindFirst();
-            "Sales Inv. Disc. Account" := "Purch. Account";
-            if "Purch. Line Disc. Account" = '' then
-                "Purch. Line Disc. Account" := "Sales Line Disc. Account";
-            if "Purch. Inv. Disc. Account" = '' then
-                "Purch. Inv. Disc. Account" := "Sales Inv. Disc. Account";
-            if "Invt. Accrual Acc. (Interim)" = '' then
-                "Invt. Accrual Acc. (Interim)" := "Inventory Adjmt. Account";
-            if "Sales Pmt. Disc. Debit Acc." = '' then
-                "Sales Pmt. Disc. Debit Acc." := "Sales Inv. Disc. Account";
-            if "Sales Pmt. Disc. Credit Acc." = '' then
-                "Sales Pmt. Disc. Credit Acc." := "Sales Line Disc. Account";
-            if "COGS Account (Interim)" = '' then
-                "COGS Account (Interim)" := "COGS Account";
-            if "Direct Cost Applied Account" = '' then
-                Validate("Direct Cost Applied Account", "COGS Account");
-            if "Overhead Applied Account" = '' then
-                Validate("Overhead Applied Account", "COGS Account (Interim)");
-            if "Purchase Variance Account" = '' then
-                Validate("Purchase Variance Account", "Invt. Accrual Acc. (Interim)");
-            if "Sales Prepayments Account" = '' then
-                Validate("Sales Prepayments Account", "Purch. Account");
-            if "Purch. Prepayments Account" = '' then
-                Validate("Purch. Prepayments Account", "Sales Account");
-            Modify(true);
-        end;
+        GenPostingSetup.Reset();
+        GenPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
+        GenPostingSetup.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
+        GenPostingSetup.SetFilter("Sales Account", '<>%1', '');
+        GenPostingSetup.SetFilter("Purch. Account", '<>%1', '');
+        GenPostingSetup.SetFilter("Sales Inv. Disc. Account", '<>%1', '');
+        GenPostingSetup.SetFilter("Sales Line Disc. Account", '<>%1', '');
+        GenPostingSetup.SetFilter("COGS Account", '<>%1', '');
+        GenPostingSetup.SetFilter("Inventory Adjmt. Account", '<>%1', '');
+        GenPostingSetup.FindFirst();
+        GenPostingSetup."Sales Inv. Disc. Account" := GenPostingSetup."Purch. Account";
+        if GenPostingSetup."Purch. Line Disc. Account" = '' then
+            GenPostingSetup."Purch. Line Disc. Account" := GenPostingSetup."Sales Line Disc. Account";
+        if GenPostingSetup."Purch. Inv. Disc. Account" = '' then
+            GenPostingSetup."Purch. Inv. Disc. Account" := GenPostingSetup."Sales Inv. Disc. Account";
+        if GenPostingSetup."Invt. Accrual Acc. (Interim)" = '' then
+            GenPostingSetup."Invt. Accrual Acc. (Interim)" := GenPostingSetup."Inventory Adjmt. Account";
+        if GenPostingSetup."Sales Pmt. Disc. Debit Acc." = '' then
+            GenPostingSetup."Sales Pmt. Disc. Debit Acc." := GenPostingSetup."Sales Inv. Disc. Account";
+        if GenPostingSetup."Sales Pmt. Disc. Credit Acc." = '' then
+            GenPostingSetup."Sales Pmt. Disc. Credit Acc." := GenPostingSetup."Sales Line Disc. Account";
+        if GenPostingSetup."COGS Account (Interim)" = '' then
+            GenPostingSetup."COGS Account (Interim)" := GenPostingSetup."COGS Account";
+        if GenPostingSetup."Direct Cost Applied Account" = '' then
+            GenPostingSetup.Validate("Direct Cost Applied Account", GenPostingSetup."COGS Account");
+        if GenPostingSetup."Overhead Applied Account" = '' then
+            GenPostingSetup.Validate("Overhead Applied Account", GenPostingSetup."COGS Account (Interim)");
+        if GenPostingSetup."Purchase Variance Account" = '' then
+            GenPostingSetup.Validate("Purchase Variance Account", GenPostingSetup."Invt. Accrual Acc. (Interim)");
+        if GenPostingSetup."Sales Prepayments Account" = '' then
+            GenPostingSetup.Validate("Sales Prepayments Account", GenPostingSetup."Purch. Account");
+        if GenPostingSetup."Purch. Prepayments Account" = '' then
+            GenPostingSetup.Validate("Purch. Prepayments Account", GenPostingSetup."Sales Account");
+        GenPostingSetup.Modify(true);
     end;
 
     local procedure ClearUnrealTypeInVATPostingSetup()
@@ -425,24 +422,20 @@ codeunit 131305 "Library - ERM Country Data"
         NormalVATPostingSetup: Record "VAT Posting Setup";
     begin
         PrepareNormalVATPostingSetup(NormalVATPostingSetup);
-        with VATPostingSetup do begin
-            if FindSet(true) then
-                repeat
-                    Validate("Sales VAT Account", NormalVATPostingSetup."Sales VAT Account");
-                    Validate("Purchase VAT Account", NormalVATPostingSetup."Purchase VAT Account");
-                    Modify(true);
-                until Next() = 0;
-        end;
+        if VATPostingSetup.FindSet(true) then
+            repeat
+                VATPostingSetup.Validate("Sales VAT Account", NormalVATPostingSetup."Sales VAT Account");
+                VATPostingSetup.Validate("Purchase VAT Account", NormalVATPostingSetup."Purchase VAT Account");
+                VATPostingSetup.Modify(true);
+            until VATPostingSetup.Next() = 0;
     end;
 
     local procedure PrepareNormalVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATPostingSetup do begin
-            SetFilter("Sales VAT Account", '<>%1', '');
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, "VAT Calculation Type"::"Normal VAT");
-            Validate("Purchase VAT Account", "Sales VAT Account");
-            Modify(true);
-        end;
+        VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("Purchase VAT Account", VATPostingSetup."Sales VAT Account");
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure ClearStartingDateInNoSeries()

@@ -848,6 +848,7 @@
         Assert.AreEqual(ReportSelections.Usage::"Asm.Order", 51, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"P.Asm.Order", 52, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"S.Order Pick Instruction", 53, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SM.Item Worksheet", 70, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"P.V.Remit.", 84, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"C.Statement", 85, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"V.Remittance", 86, 'Wrong Usage option value.');
@@ -1867,46 +1868,40 @@
 
     local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; CustomerNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage")
     begin
-        with CustomReportSelection do begin
-            Validate("Source Type", DATABASE::Customer);
-            Validate("Source No.", CustomerNo);
-            Validate(Usage, ReportUsage);
-            Validate(Sequence, Count + 1);
-            Validate("Report ID", ReportID);
-            Validate("Use for Email Attachment", UseForEmailAttachment);
-            Validate("Use for Email Body", UseForEmailBody);
-            Validate("Email Body Layout Code", EmailBodyLayoutCode);
-            Validate("Send To Email", SendToAddress);
-            Insert();
-        end;
+        CustomReportSelection.Validate("Source Type", DATABASE::Customer);
+        CustomReportSelection.Validate("Source No.", CustomerNo);
+        CustomReportSelection.Validate(Usage, ReportUsage);
+        CustomReportSelection.Validate(Sequence, CustomReportSelection.Count + 1);
+        CustomReportSelection.Validate("Report ID", ReportID);
+        CustomReportSelection.Validate("Use for Email Attachment", UseForEmailAttachment);
+        CustomReportSelection.Validate("Use for Email Body", UseForEmailBody);
+        CustomReportSelection.Validate("Email Body Layout Code", EmailBodyLayoutCode);
+        CustomReportSelection.Validate("Send To Email", SendToAddress);
+        CustomReportSelection.Insert();
     end;
 
     local procedure InsertCustomReportSelectionVendor(var CustomReportSelection: Record "Custom Report Selection"; VendorNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage")
     begin
-        with CustomReportSelection do begin
-            Validate("Source Type", DATABASE::Vendor);
-            Validate("Source No.", VendorNo);
-            Validate(Usage, ReportUsage);
-            Validate(Sequence, Count + 1);
-            Validate("Report ID", ReportID);
-            Validate("Use for Email Attachment", UseForEmailAttachment);
-            Validate("Use for Email Body", UseForEmailBody);
-            Validate("Send To Email", SendToAddress);
-            Insert();
-        end;
+        CustomReportSelection.Validate("Source Type", DATABASE::Vendor);
+        CustomReportSelection.Validate("Source No.", VendorNo);
+        CustomReportSelection.Validate(Usage, ReportUsage);
+        CustomReportSelection.Validate(Sequence, CustomReportSelection.Count + 1);
+        CustomReportSelection.Validate("Report ID", ReportID);
+        CustomReportSelection.Validate("Use for Email Attachment", UseForEmailAttachment);
+        CustomReportSelection.Validate("Use for Email Body", UseForEmailBody);
+        CustomReportSelection.Validate("Send To Email", SendToAddress);
+        CustomReportSelection.Insert();
     end;
 
     local procedure InsertReportSelections(var ReportSelections: Record "Report Selections"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage")
     begin
-        with ReportSelections do begin
-            Validate(Usage, ReportUsage);
-            Validate(Sequence, Format(Count + 1));
-            Validate("Report ID", ReportID);
-            Validate("Use for Email Attachment", UseForEmailAttachment);
-            Validate("Use for Email Body", UseForEmailBody);
-            Validate("Email Body Layout Code", EmailBodyLayoutCode);
-            Insert(true);
-        end;
+        ReportSelections.Validate(Usage, ReportUsage);
+        ReportSelections.Validate(Sequence, Format(ReportSelections.Count + 1));
+        ReportSelections.Validate("Report ID", ReportID);
+        ReportSelections.Validate("Use for Email Attachment", UseForEmailAttachment);
+        ReportSelections.Validate("Use for Email Body", UseForEmailBody);
+        ReportSelections.Validate("Email Body Layout Code", EmailBodyLayoutCode);
+        ReportSelections.Insert(true);
     end;
 
     local procedure PostSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -2033,11 +2028,6 @@
     local procedure GetStandardSalesInvoiceReportID(): Integer
     begin
         exit(REPORT::"Standard Sales - Invoice");
-    end;
-
-    local procedure GetSalesInvoiceNosReportID(): Integer
-    begin
-        exit(REPORT::"Sales Invoice Nos.");
     end;
 
     local procedure GetReportIDForPurchaseOrder(): Integer

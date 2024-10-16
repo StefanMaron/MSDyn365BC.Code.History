@@ -370,11 +370,31 @@ report 17303 "Calculate FE Depr. with Norm"
         DateEnd: Date;
         Periodicity: Option Month,Quarter,Year;
         AccountPeriod: Text[30];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label '%1 %2 %3\\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1002: Label 'Planned depreciation amount in current period %4\ ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1003: Label 'Planned depreciation amount in previous period %5\\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1004: Label 'Calculated FE depreciation amount after normalization %6\ ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1005: Label 'is less than actual depreciation amount for previous period %7.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrReport_PAGENOCaptionLbl: Label 'Label1000000039';
         Control1000000040CaptionLbl: Label 'Label1000000040';
         Tax_Difference__CodeCaptionLbl: Label 'Tax Diff. Code';

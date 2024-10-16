@@ -20,7 +20,7 @@ codeunit 44 ReportManagement
 
     var
         NotSupportedErr: Label 'The value is not supported.';
-        NoWritePermissionsErr: Label 'Unable to set the default printer. You need the Write permission for the Printer Selection table.';
+        NoWritePermissionsErr: Label 'Unable to set the default printer. You need write (Insert, Modify and Delete) permission for the Printer Selection table.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'GetPrinterName', '', false, false)]
     local procedure GetPrinterNameSubscriber(ReportID: Integer; var PrinterName: Text[250])
@@ -48,12 +48,13 @@ codeunit 44 ReportManagement
     local procedure OnSetAsDefaultPrinterForCurrentUser(PrinterID: Text; UserID: Text; var IsHandled: Boolean)
     var
         PrinterSelection: Record "Printer Selection";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        PrinterSelection2: Record "Printer Selection";
     begin
         if IsHandled then
             exit;
 
-        Clear(PrinterSelection);
-        if not PrinterSelection.WritePermission then
+        if not PrinterSelection2.WritePermission then
             Error(NoWritePermissionsErr);
 
         if PrinterSelection.Get(UserID, 0) then begin

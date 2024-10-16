@@ -137,8 +137,12 @@ page 1113 "Cost Accounting Setup"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'This field specifies that only general ledger entries from this posting date are transferred to Cost Accounting.\\Are you sure that you want to set the date to %1?';
+#pragma warning restore AA0470
         Text002: Label 'All previous general ledger entries will be transferred to Cost Accounting. Do you want to continue?';
         Text003: Label 'The change was canceled.';
+#pragma warning restore AA0074
 }
 

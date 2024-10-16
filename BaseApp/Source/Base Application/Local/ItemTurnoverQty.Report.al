@@ -526,10 +526,20 @@ report 12469 "Item Turnover (Qty.)"
         CreditQuantity: Decimal;
         DebitCost: Decimal;
         CreditCost: Decimal;
+#pragma warning disable AA0074
         Text12400: Label 'Select Print Quantity or Print Cost or Print Group Totals';
+#pragma warning restore AA0074
         PeriodText: Text[100];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12401: Label 'Total Cost for %1 %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12402: Label 'Total Quantity for %1 %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ShowDetails: Boolean;
         Debit: Decimal;
         Credit: Decimal;
@@ -609,13 +619,29 @@ report 12469 "Item Turnover (Qty.)"
     [Scope('OnPrem')]
     procedure FillReportParameters()
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'for period from %1 to %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Replace zero values by blanks';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'Skip accounts without net change  ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Skip accounts without ending balance';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'Skip lines with zero values';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label '(in currency units)';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label '(in thousands)';
+#pragma warning restore AA0074
     begin
         case RoundingPrecision of
             RoundingPrecision::"0.001":

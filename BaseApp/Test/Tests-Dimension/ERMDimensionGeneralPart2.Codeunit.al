@@ -1406,13 +1406,10 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // Setup.
         Initialize();
-
         // Exercise.
-        with GLBudgetName do begin
-            Init();
-            Validate(Name, LibraryUtility.GenerateGUID());
-            Insert();
-        end;
+        GLBudgetName.Init();
+        GLBudgetName.Validate(Name, LibraryUtility.GenerateGUID());
+        GLBudgetName.Insert();
 
         // Verify.
         VerifyLookupInAccountScheduleOverview(GLBudgetFilterControlId, GLBudgetName.Name); // G/L Budget Filter
@@ -1428,13 +1425,10 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // Setup.
         Initialize();
-
         // Exercise.
-        with CostBudgetName do begin
-            Init();
-            Validate(Name, LibraryUtility.GenerateGUID());
-            Insert();
-        end;
+        CostBudgetName.Init();
+        CostBudgetName.Validate(Name, LibraryUtility.GenerateGUID());
+        CostBudgetName.Insert();
 
         // Verify.
         VerifyLookupInAccountScheduleOverview(CostBudgetFilterControlId, CostBudgetName.Name); // Cost Budget Filter
@@ -1459,11 +1453,9 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
 
         LibraryERM.CreateAnalysisView(AnalysisView);
-        with AnalysisView do begin
-            Validate("Date Compression", "Date Compression"::None);
-            Validate("Dimension 1 Code", Dimension.Code);
-            Modify(true);
-        end;
+        AnalysisView.Validate("Date Compression", AnalysisView."Date Compression"::None);
+        AnalysisView.Validate("Dimension 1 Code", Dimension.Code);
+        AnalysisView.Modify(true);
 
         // Exercise.
         NoOfGLEntries := LibraryRandom.RandIntInRange(2, 10);
@@ -2821,28 +2813,24 @@ codeunit 134480 "ERM Dimension General Part 2"
         AnalysisLineTemplate: Record "Analysis Line Template";
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
-        with AnalysisLine do begin
-            LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, AnalysisLineTemplate."Analysis Area"::Sales);
-            AnalysisLineTemplate.Validate("Item Analysis View Code", ItemAnalysisViewCode);
-            AnalysisLineTemplate.Modify(true);
-            LibraryInventory.CreateAnalysisLine(AnalysisLine, AnalysisLineTemplate."Analysis Area", AnalysisLineTemplate.Name);
-            Validate("Row Ref. No.", LibraryUtility.GenerateGUID());
-            Validate(Type, Type::Customer);
-            Validate(Range, CustomerNo);
-            Validate("Dimension 1 Totaling", TotalDimValueCode);
-            Modify(true);
-        end;
+        LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, AnalysisLineTemplate."Analysis Area"::Sales);
+        AnalysisLineTemplate.Validate("Item Analysis View Code", ItemAnalysisViewCode);
+        AnalysisLineTemplate.Modify(true);
+        LibraryInventory.CreateAnalysisLine(AnalysisLine, AnalysisLineTemplate."Analysis Area", AnalysisLineTemplate.Name);
+        AnalysisLine.Validate("Row Ref. No.", LibraryUtility.GenerateGUID());
+        AnalysisLine.Validate(Type, AnalysisLine.Type::Customer);
+        AnalysisLine.Validate(Range, CustomerNo);
+        AnalysisLine.Validate("Dimension 1 Totaling", TotalDimValueCode);
+        AnalysisLine.Modify(true);
 
-        with AnalysisColumn do begin
-            LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, AnalysisColumnTemplate."Analysis Area"::Sales);
-            LibraryInventory.CreateAnalysisColumn(AnalysisColumn, AnalysisColumnTemplate."Analysis Area", AnalysisColumnTemplate.Name);
-            Validate("Column No.", LibraryUtility.GenerateGUID());
-            Validate("Column Type", "Column Type"::"Net Change");
-            Validate("Ledger Entry Type", "Ledger Entry Type"::"Item Entries");
-            Validate("Value Type", "Value Type"::"Sales Amount");
-            Validate(Invoiced, true);
-            Modify(true);
-        end;
+        LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, AnalysisColumnTemplate."Analysis Area"::Sales);
+        LibraryInventory.CreateAnalysisColumn(AnalysisColumn, AnalysisColumnTemplate."Analysis Area", AnalysisColumnTemplate.Name);
+        AnalysisColumn.Validate("Column No.", LibraryUtility.GenerateGUID());
+        AnalysisColumn.Validate("Column Type", AnalysisColumn."Column Type"::"Net Change");
+        AnalysisColumn.Validate("Ledger Entry Type", AnalysisColumn."Ledger Entry Type"::"Item Entries");
+        AnalysisColumn.Validate("Value Type", AnalysisColumn."Value Type"::"Sales Amount");
+        AnalysisColumn.Validate(Invoiced, true);
+        AnalysisColumn.Modify(true);
     end;
 
     local procedure CreateAnalysisAndSalesInvoice(var ItemAnalysisView: Record "Item Analysis View"; var SalesLine: Record "Sales Line"; UpdatePosting: Boolean) PostingDate: Date
@@ -2913,12 +2901,10 @@ codeunit 134480 "ERM Dimension General Part 2"
     begin
         // Take Random Values for Quantity and Sales Price and Assign Values in Global Variables.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        with SalesHeader do begin
-            Validate("Order Date", DocDate);
-            Validate("Posting Date", DocDate);
-            Validate("Shipment Date", DocDate);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Order Date", DocDate);
+        SalesHeader.Validate("Posting Date", DocDate);
+        SalesHeader.Validate("Shipment Date", DocDate);
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         exit(SalesLine."Line Amount");
@@ -2931,12 +2917,10 @@ codeunit 134480 "ERM Dimension General Part 2"
     begin
         // Take Random Values for Quantity and Sales Price and Assign Values in Global Variables.
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
-        with PurchHeader do begin
-            Validate("Order Date", DocDate);
-            Validate("Posting Date", DocDate);
-            Validate("Expected Receipt Date", DocDate);
-            Modify(true);
-        end;
+        PurchHeader.Validate("Order Date", DocDate);
+        PurchHeader.Validate("Posting Date", DocDate);
+        PurchHeader.Validate("Expected Receipt Date", DocDate);
+        PurchHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         exit(PurchLine."Line Amount");
@@ -3187,11 +3171,9 @@ codeunit 134480 "ERM Dimension General Part 2"
     begin
         LibraryDimension.CreateDimension(Dimension);
 
-        with DimensionValue do begin
-            LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-            StandardDimValueCode := Code;
-            CreateTotalDimensionValue(Dimension.Code, TotalDimValueCode);
-        end;
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        StandardDimValueCode := DimensionValue.Code;
+        CreateTotalDimensionValue(Dimension.Code, TotalDimValueCode);
     end;
 
     local procedure CreateTotalDimensionValue(DimensionCode: Code[20]; var TotalDimValueCode: Code[20])
@@ -3200,21 +3182,19 @@ codeunit 134480 "ERM Dimension General Part 2"
         FirstDimValueCode: Code[20];
         LastDimValueCode: Code[20];
     begin
-        with DimensionValue do begin
-            LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
-            TotalDimValueCode := Code;
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
+        TotalDimValueCode := DimensionValue.Code;
 
-            SetRange("Dimension Code", DimensionCode);
-            FindFirst();
-            FirstDimValueCode := Code;
-            FindLast();
-            LastDimValueCode := Code;
+        DimensionValue.SetRange("Dimension Code", DimensionCode);
+        DimensionValue.FindFirst();
+        FirstDimValueCode := DimensionValue.Code;
+        DimensionValue.FindLast();
+        LastDimValueCode := DimensionValue.Code;
 
-            Get("Dimension Code", TotalDimValueCode);
-            Validate("Dimension Value Type", "Dimension Value Type"::Total);
-            Validate(Totaling, StrSubstNo('%1..%2', FirstDimValueCode, LastDimValueCode));
-            Modify(true);
-        end;
+        DimensionValue.Get(DimensionValue."Dimension Code", TotalDimValueCode);
+        DimensionValue.Validate("Dimension Value Type", DimensionValue."Dimension Value Type"::Total);
+        DimensionValue.Validate(Totaling, StrSubstNo('%1..%2', FirstDimValueCode, LastDimValueCode));
+        DimensionValue.Modify(true);
     end;
 
     local procedure CreateSalespersonWithDefaultDim(var SalespersonPurchaser: Record "Salesperson/Purchaser"; DimensionCode: Code[20]; DimensionValueCode: Code[20])
@@ -3230,11 +3210,9 @@ codeunit 134480 "ERM Dimension General Part 2"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            "Additional Reporting Currency" := CurrencyCode;
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup."Additional Reporting Currency" := CurrencyCode;
+        GLSetup.Modify(true);
     end;
 
     local procedure GetNextItemDefaultDims(var Item: Record Item; Steps: Integer)
@@ -3421,12 +3399,10 @@ codeunit 134480 "ERM Dimension General Part 2"
     var
         AnalysisViewEntry: Record "Analysis View Entry";
     begin
-        with AnalysisViewEntry do begin
-            SetRange("Analysis View Code", AnalysisViewCode);
-            SetRange("Dimension 1 Value Code", Dimension1Value);
-            SetRange("Account No.", AccountNo);
-            Assert.AreEqual(ExpectedNoOfEntries, Count, WrongNumberOfAnalysisViewEntriesErr);
-        end;
+        AnalysisViewEntry.SetRange("Analysis View Code", AnalysisViewCode);
+        AnalysisViewEntry.SetRange("Dimension 1 Value Code", Dimension1Value);
+        AnalysisViewEntry.SetRange("Account No.", AccountNo);
+        Assert.AreEqual(ExpectedNoOfEntries, AnalysisViewEntry.Count, WrongNumberOfAnalysisViewEntriesErr);
     end;
 
     local procedure VerifyTestValidationError()
@@ -3462,14 +3438,12 @@ codeunit 134480 "ERM Dimension General Part 2"
     var
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
     begin
-        with AnalysisViewBudgetEntry do begin
-            Init();
-            "Analysis View Code" := AnalysisViewCode;
-            "G/L Account No." := GLAccountNo;
-            "Posting Date" := PostingDate;
-            Amount := LibraryRandom.RandDec(1000, 2);
-            Insert();
-        end;
+        AnalysisViewBudgetEntry.Init();
+        AnalysisViewBudgetEntry."Analysis View Code" := AnalysisViewCode;
+        AnalysisViewBudgetEntry."G/L Account No." := GLAccountNo;
+        AnalysisViewBudgetEntry."Posting Date" := PostingDate;
+        AnalysisViewBudgetEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        AnalysisViewBudgetEntry.Insert();
 
         exit(AnalysisViewBudgetEntry.Amount);
     end;

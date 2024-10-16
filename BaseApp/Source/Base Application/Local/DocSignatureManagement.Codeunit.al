@@ -6,10 +6,18 @@ codeunit 12420 "Doc. Signature Management"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must define Employee with type %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DefaultSignSetup: Record "Default Signature Setup";
         DocSign: Record "Document Signature";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You must define %1 in %2 for %3=%4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure MoveDocSignToPostedDocSign(var FromDocSign: Record "Document Signature"; FromTableID: Integer; FromDocType: Integer; FromDocNo: Code[20]; ToTableID: Integer; ToDocNo: Code[20])

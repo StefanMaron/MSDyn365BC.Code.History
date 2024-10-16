@@ -19,7 +19,7 @@ table 17205 "Tax Register Term Formula"
         }
         field(3; "Expression Type"; Option)
         {
-            CalcFormula = Lookup("Tax Register Term"."Expression Type" where("Term Code" = field("Term Code")));
+            CalcFormula = lookup("Tax Register Term"."Expression Type" where("Term Code" = field("Term Code")));
             Caption = 'Expression Type';
             FieldClass = FlowField;
             OptionCaption = 'Plus/Minus,Multiply/Divide,Compare';
@@ -185,7 +185,7 @@ table 17205 "Tax Register Term Formula"
         }
         field(14; "Norm Jurisdiction Code"; Code[10])
         {
-            CalcFormula = Lookup("Tax Register Section"."Norm Jurisdiction Code" where(Code = field("Section Code")));
+            CalcFormula = lookup("Tax Register Section"."Norm Jurisdiction Code" where(Code = field("Section Code")));
             Caption = 'Norm Jurisdiction Code';
             Editable = false;
             FieldClass = FlowField;
@@ -224,10 +224,20 @@ table 17205 "Tax Register Term Formula"
 
     var
         TaxRegTermFormula: Record "Tax Register Term Formula";
+#pragma warning disable AA0074
         Text000: Label 'Operation must be + or -.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Operation must be * or /.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Operation must be Compare.';
+#pragma warning restore AA0074
         TaxRegSection: Record "Tax Register Section";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'cannot be %1 if Account Type is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

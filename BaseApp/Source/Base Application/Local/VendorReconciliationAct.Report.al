@@ -976,8 +976,12 @@ report 14911 "Vendor - Reconciliation Act"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'There is no debt between %2 and %3 at %1', Comment = 'Must be translated: ìá %1 ¼ÑªñÒ %2 ¿ %3 ºáñ«½ªÑ¡¡«ßÔý «ÔßÒÔßÔóÒÑÔ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label '%2 debt amount to %3 is %4 (%5) %6 at %1.', Comment = 'Must be translated: ìá %1 ºáñ«½ªÑ¡¡«ßÔý %2 »ÑÓÑñ %3 ß«ßÔáó½´ÑÔ %4 (%5) %6.';
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -991,7 +995,9 @@ report 14911 "Vendor - Reconciliation Act"
         PrintCustomerData: Boolean;
         MinDate: Date;
         MaxDate: Date;
+#pragma warning disable AA0074
         Text002: Label 'Starting Date and Ending Date should be filled.';
+#pragma warning restore AA0074
         FirstDate: Date;
         TotalInvAmount: Decimal;
         TotalPayAmount: Decimal;
@@ -1015,8 +1021,14 @@ report 14911 "Vendor - Reconciliation Act"
         DocumentAmount: Decimal;
         RemainingAmount: Decimal;
         TempAmount: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Report currency code: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'rub';
+#pragma warning restore AA0074
         EntryDescription: Text[1024];
         PostingDate: Date;
         OtherCurrApplAmount: Decimal;
@@ -1027,7 +1039,9 @@ report 14911 "Vendor - Reconciliation Act"
         DebitTotalBalance: Decimal;
         ProcessedPayEntries: Record "Detailed Vendor Ledg. Entry" temporary;
         ProcessedVendInvoices: Record "Vendor Ledger Entry" temporary;
+#pragma warning disable AA0074
         Text007: Label '(AR)';
+#pragma warning restore AA0074
         FileName: Text;
         ReconActReportHelper: Codeunit "Recon. Act Report Helper";
         FirstVendor: Boolean;
@@ -1456,7 +1470,7 @@ report 14911 "Vendor - Reconciliation Act"
         SrcDetailedVendLedgEntry.SetRange(Unapplied, false);
         SrcDetailedVendLedgEntry.SetFilter("Posting Date", '..%1', MaxDate);
         SrcDetailedVendLedgEntry.SetRange("Entry Type", SrcDetailedVendLedgEntry."Entry Type"::Application);
-        if SrcDetailedVendLedgEntry.FindSet() then begin
+        if SrcDetailedVendLedgEntry.FindSet() then
             repeat
                 if SrcDetailedVendLedgEntry."Vendor Ledger Entry No." =
                    SrcDetailedVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -1467,7 +1481,7 @@ report 14911 "Vendor - Reconciliation Act"
                       "Applied Vend. Ledger Entry No.", SrcDetailedVendLedgEntry."Applied Vend. Ledger Entry No.");
                     AppliedDetailedVendLedgEntry.SetRange("Entry Type", AppliedDetailedVendLedgEntry."Entry Type"::Application);
                     AppliedDetailedVendLedgEntry.SetRange(Unapplied, false);
-                    if AppliedDetailedVendLedgEntry.FindSet() then begin
+                    if AppliedDetailedVendLedgEntry.FindSet() then
                         repeat
                             if AppliedDetailedVendLedgEntry."Vendor Ledger Entry No." <>
                                AppliedDetailedVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -1480,7 +1494,6 @@ report 14911 "Vendor - Reconciliation Act"
                                         if AppldVendLedgEntryTmp.Insert() then;
                                 end;
                         until AppliedDetailedVendLedgEntry.Next() = 0;
-                    end;
                 end else
                     if AppliedVendLedgEntry.Get(SrcDetailedVendLedgEntry."Applied Vend. Ledger Entry No.") then begin
                         AppldVendLedgEntryTmp := SrcDetailedVendLedgEntry;
@@ -1488,7 +1501,6 @@ report 14911 "Vendor - Reconciliation Act"
                         if AppldVendLedgEntryTmp.Insert() then;
                     end;
             until SrcDetailedVendLedgEntry.Next() = 0;
-        end;
     end;
 
     local procedure GetInitialDebitCreditBalance(var InitialDebitAmount: Decimal; var InitialCreditAmount: Decimal)
@@ -1560,12 +1572,11 @@ report 14911 "Vendor - Reconciliation Act"
                 InitialCreditAmount += -Amount
             else
                 InitialDebitAmount += Amount;
-        end else begin
+        end else
             if DetailedVendLedgEntry."Entry Type" <> DetailedVendLedgEntry."Entry Type"::Application then
                 InitialDebitAmount += Amount
             else
                 InitialCreditAmount += -Amount;
-        end;
     end;
 
     local procedure ClearAmounts()

@@ -148,7 +148,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
 
                 trigger OnPostDataItem()
                 begin
-                    if not Preview then
+                    if not PreviewReport then
                         CODEUNIT.Run(CODEUNIT::"Sales Cr. Memo-Printed", Header);
                 end;
 
@@ -181,10 +181,9 @@ report 12484 "Posted Cr. M. Factura-Invoice"
 
                 SalesCrMemoLine.SetRange("Attached to Line No.", 0);
 
-                if "Currency Code" <> '' then begin
+                if "Currency Code" <> '' then
                     if not Currency.Get("Currency Code") then
                         Currency.Description := DollarUSATxt;
-                end;
 
                 CurrencyWrittenAmount := FacturaInvoiceHelper.GetCurrencyAmtCode("Currency Code", AmountInvoiceCurrent);
                 FacturaInvoiceHelper.GetCurrencyInfo(CurrencyWrittenAmount, CurrencyDigitalCode, CurrencyDescription);
@@ -211,7 +210,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                     TempTrackingSpecBuffer, "No.", DATABASE::"Sales Cr.Memo Header", 0);
 
                 if LogInteraction then
-                    if not Preview then begin
+                    if not PreviewReport then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               6, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -220,7 +219,6 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                             SegManagement.LogDocument(
                               6, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
             end;
 
             trigger OnPreDataItem()
@@ -266,7 +264,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                         Caption = 'Log Interaction';
                         ToolTip = 'Specifies that interactions with the related contact are logged.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -349,7 +347,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
         TotalAmountText: array[3] of Text;
         TrackingSpecCount: Integer;
         CurrencyDigitalCode: Code[3];
-        Preview: Boolean;
+        PreviewReport: Boolean;
         FileName: Text;
 
     [Scope('OnPrem')]

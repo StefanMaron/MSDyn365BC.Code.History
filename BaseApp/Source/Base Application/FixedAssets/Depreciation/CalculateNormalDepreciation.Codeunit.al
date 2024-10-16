@@ -67,18 +67,62 @@ codeunit 5611 "Calculate Normal Depreciation"
         DeprBonus: Boolean;
         DeprBonusAmount: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Force No. of Days must only be specified if %1 %2 = %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%2 must not be 100 for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%2 must be %3 if %4 %5 = %6 for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%2 must not be later than %3 for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label '%1 %2 must not be used together with the Half-Year Convention for %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label '%1 must not be used together with the Half-Year Convention for %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label '%1 must be %2 or later for %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label '%1 must not be used together with %2 for %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 must not be used together with %2 = %3 for %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12400: Label 'Previous periods Depreciation wasn''t calculated';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12401: Label 'Depreciation was already calculated';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12402: Label 'Depreciation already calculated for Depr. Period Starting Date %1\FA Code %2\FA Depreciation Book Code %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Calculate(var DeprAmount: Decimal; var NumberOfDays4: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer; Period: Date)
     var
@@ -145,7 +189,7 @@ codeunit 5611 "Calculate Normal Depreciation"
             if (DeprMethodRU = DeprMethodRU::SLRU) or
                (DeprMethodRU = DeprMethodRU::DBSLRU) or
                (DeprMethodRU = DeprMethodRU::DBSLRUTaxGroup)
-            then begin
+            then
                 if (FADeprBook."Depreciation Starting Date" <= DeprPeriod) and not SkipOnZero then begin
                     OK := false;
                     case DepreciationCalc.ExistingDeprPeriods(FANo, DeprBookCode, Period) of
@@ -164,7 +208,6 @@ codeunit 5611 "Calculate Normal Depreciation"
                         exit;
                     end;
                 end;
-            end;
 
             if DeprMethodRU = DeprMethodRU::DBSLRUTaxGroup then begin
                 FA.TestField("Depreciation Group");
@@ -897,7 +940,7 @@ codeunit 5611 "Calculate Normal Depreciation"
             FirstDeprDate := DeprPeriod;
             DaysInPeriod := 30;
             NumberOfDays := DaysInPeriod;
-        end else begin
+        end else
             if DateFromProjection > 0D then
                 FirstDeprDate := DateFromProjection
             else begin
@@ -908,7 +951,6 @@ codeunit 5611 "Calculate Normal Depreciation"
                 if UseDeprStartingDate then
                     FirstDeprDate := DeprStartingDate;
             end;
-        end;
 
         if FirstDeprDate < DeprStartingDate then
             FirstDeprDate := DeprStartingDate;

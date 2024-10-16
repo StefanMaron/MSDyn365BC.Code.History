@@ -201,8 +201,12 @@ report 7390 "Whse. Calculate Inventory"
         Window: Dialog;
         StockProposal: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Enter the %1.';
         Text002: Label 'Processing bins    #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         Bin: Record Bin;

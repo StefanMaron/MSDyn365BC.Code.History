@@ -496,10 +496,18 @@ report 12442 "Customer Entries Analysis"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Debit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Credit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'LCY';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Balance at';
+#pragma warning restore AA0074
         ApplCustLedgerEntry: Record "Cust. Ledger Entry";
         ApplicationLocalization: Codeunit "Localisation Management";
         CurrentDate: Text[30];

@@ -611,36 +611,6 @@ page 6408 "Workflow - Customer Entity"
                     ApplicationArea = All;
                     Caption = 'Shipping Agent Service Code', Locked = true;
                 }
-                field(serviceZoneCode; Rec."Service Zone Code")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Service Zone Code', Locked = true;
-                }
-                field(contractGainLossAmount; Rec."Contract Gain/Loss Amount")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Contract Gain/Loss Amount', Locked = true;
-                }
-                field(shipToFilter; Rec."Ship-to Filter")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Ship-to Filter', Locked = true;
-                }
-                field(outstandingServOrdersLcy; Rec."Outstanding Serv. Orders (LCY)")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Outstanding Serv. Orders (LCY)', Locked = true;
-                }
-                field(servShippedNotInvoicedLcy; Rec."Serv Shipped Not Invoiced(LCY)")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Serv Shipped Not Invoiced(LCY)', Locked = true;
-                }
-                field(outstandingServInvoicesLcy; Rec."Outstanding Serv.Invoices(LCY)")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Outstanding Serv.Invoices(LCY)', Locked = true;
-                }
                 field(allowLineDisc; Rec."Allow Line Disc.")
                 {
                     ApplicationArea = All;

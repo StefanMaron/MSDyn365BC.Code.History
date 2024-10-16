@@ -211,12 +211,24 @@ table 17209 "Tax Register G/L Entry"
         GLCorrAnalysisView: Record "G/L Corr. Analysis View";
         TaxRegisterName: Record "Tax Register";
         TaxRegMgt: Codeunit "Tax Register Mgt.";
+#pragma warning disable AA0074
         Text000: Label '1,5,,Debit Dimension 1 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label '1,5,,Debit Dimension 2 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label '1,5,,Debit Dimension 3 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label '1,5,,Credit Dimension 1 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label '1,5,,Credit Dimension 2 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label '1,5,,Credit Dimension 3 Value Code';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure Navigating()

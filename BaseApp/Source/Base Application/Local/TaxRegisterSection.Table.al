@@ -108,7 +108,7 @@ table 17207 "Tax Register Section"
         }
         field(16; "Page Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Page Name';
             Editable = false;
@@ -359,23 +359,59 @@ table 17207 "Tax Register Section"
 
     var
         TaxReg: Record "Tax Register";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'You cannot use the same dimension twice in the same %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1002: Label 'If you change the section declaration, the tax statement entries will be deleted.\You will have to update again.\\Do you want to change the section declaration?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1004: Label 'Ending Date cannot be less then %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1005: Label 'Ending Date cannot be changed if Status is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1006: Label '%1 cannot be set %2 if not ending build registers.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1008: Label 'Value cannot change if %1 is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1009: Label 'You cannot delete Tax Register Section because Status is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxRegTemplate: Record "Tax Register Template";
         TaxRegTerm: Record "Tax Register Term";
         TaxRegTermFormula: Record "Tax Register Term Formula";
         TaxRegMgt: Codeunit "Tax Register Mgt.";
+#pragma warning disable AA0074
         Text1010: Label 'Starting Date and Ending Date are in different year.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1011: Label 'Value must be negative.';
+#pragma warning restore AA0074
         FileMgt: Codeunit "File Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1013: Label 'Do you want to update the %2 field on the lines to reflect the new value of %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FileName: Text[1024];
+#pragma warning disable AA0074
         Text1015: Label 'Select a filename to export settings to.';
+#pragma warning restore AA0074
 
     local procedure CheckUseDimCode(FieldNumber: Integer; xRecDimCode: Code[20]; DimCode: Code[20])
     begin

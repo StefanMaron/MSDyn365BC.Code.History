@@ -276,19 +276,35 @@ report 17301 "Calculate Tax Diff. for Calc."
         DisposalDate: Date;
         Periodicity: Option Month,Quarter,Year;
         AccountPeriod: Text[30];
+#pragma warning disable AA0074
         Text1000: Label 'You must specify Journal Template and Journal Batch.';
+#pragma warning restore AA0074
         DocumentNo: Code[20];
         Total: Integer;
         Processing: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'Processing  #1########\@2@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TemplateName: Code[10];
         BatchName: Code[10];
         AmountBase: Decimal;
         AmountTax: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1002: Label '%1 is in last month of the year then transformation should be made';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1003: Label 'to constant temporary differencies posted within accounting period.\';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1004: Label 'Perform required preparations for transformations?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12411: Label 'DT-';
+#pragma warning restore AA0074
         DisposedFixedAsset: Boolean;
 
     [Scope('OnPrem')]

@@ -93,12 +93,11 @@ page 17335 "Tax Dif G/L Corr. Dim. Filters"
     [Scope('OnPrem')]
     procedure AddValue2Fiter(DimCode: Code[20]; var DimCodeFilter: Code[250])
     begin
-        if DimCode <> '' then begin
+        if DimCode <> '' then
             if DimCodeFilter = '' then
                 DimCodeFilter := DimCode
             else
                 DimCodeFilter := DimCodeFilter + '|' + DimCode;
-        end;
     end;
 }
 

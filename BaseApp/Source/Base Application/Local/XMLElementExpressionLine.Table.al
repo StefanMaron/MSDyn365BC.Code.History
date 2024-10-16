@@ -51,7 +51,7 @@ table 26572 "XML Element Expression Line"
         field(25; "Table ID"; Integer)
         {
             Caption = 'Table ID';
-            TableRelation = AllObj."Object ID" where("Object Type" = CONST(Table));
+            TableRelation = AllObj."Object ID" where("Object Type" = const(Table));
         }
         field(27; "Field ID"; Integer)
         {
@@ -65,7 +65,7 @@ table 26572 "XML Element Expression Line"
         }
         field(28; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup(Field.FieldName where(TableNo = field("Table ID"),
+            CalcFormula = lookup(Field.FieldName where(TableNo = field("Table ID"),
                                                         "No." = field("Field ID")));
             Caption = 'Field Name';
             Editable = false;
@@ -117,7 +117,11 @@ table 26572 "XML Element Expression Line"
     var
         StatutoryReport: Record "Statutory Report";
         XMLElementLine: Record "XML Element Line";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Expression cannot be modified because %1 %2 contains report data.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         StatutoryReportSetup: Record "Statutory Report Setup";
 
     [Scope('OnPrem')]
@@ -177,22 +181,18 @@ table 26572 "XML Element Expression Line"
                     RecordRef.GetTable(Employee);
                 end;
             Source::"Export Log":
-                begin
-                    if ExportLogEntryNo <> '' then begin
-                        ExportLogEntry.Get(ExportLogEntryNo);
-                        RecordRef.GetTable(ExportLogEntry);
-                    end else
-                        exit('');
-                end;
+                if ExportLogEntryNo <> '' then begin
+                    ExportLogEntry.Get(ExportLogEntryNo);
+                    RecordRef.GetTable(ExportLogEntry);
+                end else
+                    exit('');
             Source::"Data Header":
-                begin
-                    if DataHeaderNo <> '' then begin
-                        StatutoryReportDataHeader.Get(DataHeaderNo);
-                        StatutoryReportDataHeader.CalcFields("Requisites Quantity", "Set Requisites Quantity");
-                        RecordRef.GetTable(StatutoryReportDataHeader);
-                    end else
-                        exit('');
-                end;
+                if DataHeaderNo <> '' then begin
+                    StatutoryReportDataHeader.Get(DataHeaderNo);
+                    StatutoryReportDataHeader.CalcFields("Requisites Quantity", "Set Requisites Quantity");
+                    RecordRef.GetTable(StatutoryReportDataHeader);
+                end else
+                    exit('');
             Source::Report:
                 begin
                     StatutoryReport.Get("Report Code");

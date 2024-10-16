@@ -36,11 +36,15 @@ codeunit 5641 "FA Reclass. Check Line"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'must be the same in all journal lines';
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
         DeprBookCode: Code[10];
         NewDeprBookCode: Code[10];
+#pragma warning disable AA0074
         Text001: Label 'must be the same in all journal lines';
+#pragma warning restore AA0074
 
     local procedure CheckNewDeprBookCode(FAReclassJnlLine: Record "FA Reclass. Journal Line")
     begin

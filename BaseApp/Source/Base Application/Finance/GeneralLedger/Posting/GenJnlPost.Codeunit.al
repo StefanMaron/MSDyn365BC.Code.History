@@ -26,12 +26,30 @@ codeunit 231 "Gen. Jnl.-Post"
     var
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         JournalsScheduledMsg: Label 'Journal lines have been scheduled for posting.';
+#pragma warning disable AA0074
         Text000: Label 'cannot be filtered when posting recurring journals';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Do you want to post the journal lines?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'The journal lines were successfully posted.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Using %1 for Declining Balance can result in misleading numbers for subsequent years. You should manually check the postings and correct them if necessary. Do you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label '%1 in %2 must not be equal to %3 in %4.', Comment = 'Source Code in Genenral Journal Template must not be equal to Job G/L WIP in Source Code Setup.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GenJnlsScheduled: Boolean;
         PreviewMode: Boolean;
         JnlType: Option " ","VAT Settlement","Future Exp","VAT Reinstatement";

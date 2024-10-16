@@ -142,7 +142,9 @@ report 5620 "Insurance - Analysis"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'U';
+#pragma warning restore AA0074
         InsuranceFilter: Text;
         OverUnderInsured: Decimal;
         TotalAmounts: array[4] of Decimal;

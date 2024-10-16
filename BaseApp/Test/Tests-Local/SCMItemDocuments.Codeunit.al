@@ -749,13 +749,11 @@ codeunit 147111 "SCM Item Documents"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            FindFirst();
-            TestField(Quantity, ExpectedQty);
-        end;
+        WarehouseEntry.SetRange("Location Code", LocationCode);
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Entry Type", EntryType);
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField(Quantity, ExpectedQty);
     end;
 
     [ModalPageHandler]

@@ -492,7 +492,9 @@ page 5965 "Service Quote Subform"
 
     var
         ServLoanerMgt: Codeunit ServLoanerManagement;
+#pragma warning disable AA0470
         CannotOpenWindowErr: Label 'You cannot open the window because %1 is %2 in the %3 table.';
+#pragma warning restore AA0470
 
     local procedure RegisterServInvLines()
     var

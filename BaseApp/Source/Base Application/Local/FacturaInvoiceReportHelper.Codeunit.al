@@ -12,7 +12,9 @@ codeunit 14931 "Factura-Invoice Report Helper"
         PrevDocumentPageNo: Integer;
         CurrentDocumentNo: Text;
         CurrentDocumentDate: Text;
+#pragma warning disable AA0470
         InvoiceTxt: Label 'Invoice %1 from %2 Page %3';
+#pragma warning restore AA0470
         LineNo: Integer;
 
     [Scope('OnPrem')]

@@ -15,22 +15,54 @@ codeunit 12400 "Localisation Management"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Zero';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'thousand1;thousand2;thousand5,million1;million2;million5,billion1;billion2;billion5,trillion1;trillion2;trillion5';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label '*** *** ***';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName01: Label 'January';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName02: Label 'February';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName03: Label 'March';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName04: Label 'April';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName05: Label 'May';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName06: Label 'June';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName07: Label 'July';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName08: Label 'August';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName09: Label 'September';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName10: Label 'October';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName11: Label 'November';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         MonthName12: Label 'December';
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         ShouldBeLaterErr: Label '%1 should be later than %2.';
+#pragma warning restore AA0470
         HundredsTxt: Label 'hundred,two hundred,three  hundred,four  hundred,five  hundred,six  hundred,seven  hundred,eight  hundred,nine  hundred';
         TeensTxt: Label 'ten,eleven,twelve,thirteen,fourteen,fifteen,sixteen,seventeen,eighteen,nineteen';
         DozensTxt: Label 'twenty,thirty,forty,fifty,sixty,seventy,eighty,ninety';

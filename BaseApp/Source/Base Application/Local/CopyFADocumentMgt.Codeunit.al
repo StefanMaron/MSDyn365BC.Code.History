@@ -6,11 +6,25 @@ codeunit 12472 "Copy FA Document Mgt."
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Please enter a Document No.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 %2 cannot be copied onto itself.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'The existing lines for %1 %2 will be deleted.\\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Do you want to continue?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'The document line(s) with a G/L account where direct posting is not allowed have not been copied to the new document by the Copy Document batch job.';
+#pragma warning restore AA0074
         FADocType: Option Writeoff,Release,Disposal,"Posted Writeoff","Posted Release","Posted Disposal";
         IncludeHeader: Boolean;
         CreateToHeader: Boolean;

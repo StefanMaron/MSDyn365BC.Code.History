@@ -77,7 +77,11 @@ table 5643 "Depreciation Table Line"
     var
         DeprTableHeader: Record "Depreciation Table Header";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure NewRecord()
     var

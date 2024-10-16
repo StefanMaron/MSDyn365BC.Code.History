@@ -16,7 +16,7 @@ codeunit 134487 "Default Dimension"
         LibraryUtility: Codeunit "Library - Utility";
         NoValidateErr: Label 'The field No. of table Default Dimension contains a value (%1) that cannot be found in the related table (%2)';
         LibraryRapidStart: Codeunit "Library - Rapid Start";
-	RenameErr: Label 'You cannot rename %1.';
+        RenameErr: Label 'You cannot rename %1.';
 
     [Test]
     [HandlerFunctions('DefaultDimensionsMPH')]
@@ -87,15 +87,14 @@ codeunit 134487 "Default Dimension"
         // [SCENARIO] All tables returned by COD408.DefaultDimObjectNoList() have captions, are not obsolete, and Primary Key of one field.
         DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
         TempAllObjWithCaption.SetFilter("Object ID", '<>%1&<>%2', DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
-        with TempAllObjWithCaption do
-            if FindSet() then
-                repeat
-                    TableMetadata.Get("Object ID");
-                    if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed then
-                        TableMetadata.FieldError(ObsoleteState);
-                    TestField("Object Caption");
-                    Assert.IsTrue(PKContainsOneField("Object ID"), 'PK contains not one field:' + Format("Object ID"));
-                until Next() = 0;
+        if TempAllObjWithCaption.FindSet() then
+            repeat
+                TableMetadata.Get(TempAllObjWithCaption."Object ID");
+                if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed then
+                    TableMetadata.FieldError(ObsoleteState);
+                TempAllObjWithCaption.TestField("Object Caption");
+                Assert.IsTrue(PKContainsOneField(TempAllObjWithCaption."Object ID"), 'PK contains not one field:' + Format(TempAllObjWithCaption."Object ID"));
+            until TempAllObjWithCaption.Next() = 0;
     end;
 
     [Test]

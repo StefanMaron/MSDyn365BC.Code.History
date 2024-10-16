@@ -37,21 +37,14 @@ codeunit 137088 "SCM Order Planning - III"
         GlobalChildItemNo: Code[20];
         IsInitialized: Boolean;
         ValidationError: Label '%1  must be %2 in %3.';
-        NoErrorText: Label 'No. must be equal to ''%1''  in Requisition Line';
-        DateErrorText: Label 'Demand Date must be equal to ''%1''  in Requisition Line';
-        QuantityErrorText: Label 'Demand Quantity (Base) must be equal to ''%1''  in Requisition Line';
-        LocationErrorText: Label 'Location Code must be equal to ''%1''  in Requisition Line';
-        ErrorText: Label 'Error Message Must be same.';
         ExpectedQuantity: Decimal;
         QuantityError: Label 'Available Quantity must match.';
         OrderTrackingMessage: Label 'The change will not affect existing entries.';
         UnexpectedMessageDialog: Label 'Unexpected Message dialog.  %1';
         LineCountError: Label 'There should be '' %1 '' line(s) in the planning worksheet for item. ';
-        ReserveError: Label 'Reserve must be equal to ''%1''  in Requisition Line';
         LineExistErr: Label 'Requistion line in %1 worksheet should exist for item %2';
         PurchaseLineQuantityBaseErr: Label '%1.%2 must be nearly equal to %3.', Comment = '%1 : Purchase Line, %2 : Quantity (Base), %3 : Value.';
         BOMFixedQtyCalcFormulaErr: Label 'BOM Fixed Quantity Calculation Formula should be used to calculate the values.';
-        BOMFixedQtyTypeErr: Label 'Type must be equal to ''Item''';
 
     [Test]
     [HandlerFunctions('MakeSupplyOrdersPageHandler')]
@@ -81,7 +74,7 @@ codeunit 137088 "SCM Order Planning - III"
         asserterror MakeSupplyOrdersActiveOrder(ProductionOrder."No.");
 
         // Verify : Check that error message is same as accepted during make order when change Production Order Item No. after calculate plan.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(NoErrorText, ChildItem2."No.")) > 0, GetLastErrorText);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("No."), ChildItem2."No.");
     end;
 
     [Test]
@@ -109,7 +102,7 @@ codeunit 137088 "SCM Order Planning - III"
         asserterror MakeSupplyOrdersActiveOrder(ProductionOrder."No.");
 
         // Verify : Check that error message is same as accepted during make order when change Production Order Location Code after calculate plan.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(LocationErrorText, LocationBlue.Code)) > 0, GetLastErrorText);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("Location Code"), LocationBlue.Code);
     end;
 
     [Test]
@@ -142,7 +135,7 @@ codeunit 137088 "SCM Order Planning - III"
         asserterror MakeSupplyOrdersActiveOrder(ProductionOrder."No.");
 
         // Verify : Check that error message is same as accepted during make order when change Production Order Quantity after calculate plan.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(QuantityErrorText, Quantity2)) > 0, GetLastErrorText);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("Demand Quantity (Base)"), Format(Quantity2));
     end;
 
     [Test]
@@ -175,7 +168,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // Verify : Check that error message is same as accepted during make order when change Production Order Due Date after calculate plan.
         ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(DateErrorText, ProductionOrder."Due Date" - 1)) > 0, GetLastErrorText);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("Demand Date"), Format(ProductionOrder."Due Date" - 1));
     end;
 
     [Test]
@@ -539,9 +532,9 @@ codeunit 137088 "SCM Order Planning - III"
         FindRequisitionLine(RequisitionLine, SalesHeader."No.", Item."No.", LocationBlue.Code);
         asserterror RequisitionLine.Validate(Reserve, ReserveOnRequistition);
         if ReserveOnRequistition then
-            Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ReserveError, false)) > 0, ErrorText)
+            Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption(Reserve), Format(false))
         else
-            Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ReserveError, true)) > 0, ErrorText);
+            Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption(Reserve), Format(true));
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -2428,7 +2421,7 @@ codeunit 137088 "SCM Order Planning - III"
         asserterror ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
 
         // [THEN] Error is thrown as it is not allowed to use fixed quantity calculation formula for phantom BOM
-        Assert.ExpectedError(BOMFixedQtyTypeErr);
+        Assert.ExpectedTestFieldError(ProductionBOMLine.FieldCaption(Type), Format(ProductionBOMLine.Type::Item));
     end;
 
     [Test]
@@ -2769,15 +2762,13 @@ codeunit 137088 "SCM Order Planning - III"
         // [WHEN] Post Purchase Receipt
         ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
-        // [THEN] Verify Purchase Receipt entry is closed
-        ItemLedgerEntry.SetLoadFields("Remaining Quantity");
+        // [THEN] Verify consumption is not posted automatically due to reservation.        
         ItemLedgerEntry.SetRange("Posting Date", PurchaseHeader."Posting Date");
         ItemLedgerEntry.SetRange("Document No.", ReceiptNo);
         ItemLedgerEntry.SetRange("Job No.", JobPlanningLine."Job No.");
         ItemLedgerEntry.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
-        ItemLedgerEntry.FindFirst();
-        Assert.AreEqual(0, ItemLedgerEntry."Remaining Quantity", 'Purchase Receipt entry not closed');
+        Assert.IsTrue(ItemLedgerEntry.IsEmpty, 'Purchase Receipt entry with project link posted');
 
         // [GIVEN] Purchase invoice with the same vendor.
         // [GIVEN] Populate the invoice lines using "Get Receipt Lines" function.
@@ -3250,16 +3241,14 @@ codeunit 137088 "SCM Order Planning - III"
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
         MakeSupplyOrdersYesNo: Codeunit "Make Supply Orders (Yes/No)";
     begin
-        with TempManufacturingUserTemplate do begin
-            Init();
-            "User ID" := UserId;
-            "Make Orders" := "Make Orders"::"The Active Order";
-            "Create Purchase Order" := "Create Purchase Order"::"Make Purch. Orders";
-            "Create Production Order" := "Create Production Order"::" ";
-            "Create Transfer Order" := "Create Transfer Order"::" ";
-            "Create Assembly Order" := "Create Assembly Order"::" ";
-            Insert();
-        end;
+        TempManufacturingUserTemplate.Init();
+        TempManufacturingUserTemplate."User ID" := UserId;
+        TempManufacturingUserTemplate."Make Orders" := TempManufacturingUserTemplate."Make Orders"::"The Active Order";
+        TempManufacturingUserTemplate."Create Purchase Order" := TempManufacturingUserTemplate."Create Purchase Order"::"Make Purch. Orders";
+        TempManufacturingUserTemplate."Create Production Order" := TempManufacturingUserTemplate."Create Production Order"::" ";
+        TempManufacturingUserTemplate."Create Transfer Order" := TempManufacturingUserTemplate."Create Transfer Order"::" ";
+        TempManufacturingUserTemplate."Create Assembly Order" := TempManufacturingUserTemplate."Create Assembly Order"::" ";
+        TempManufacturingUserTemplate.Insert();
 
         OrderPlanningMgt.PlanSpecificSalesOrder(ReqLine, SalesOrderNo);
         if not MakePurchOrders then begin
@@ -3652,15 +3641,13 @@ codeunit 137088 "SCM Order Planning - III"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            FindFirst();
-            TestField("Reservation Status", "Reservation Status"::Reservation);
-            Get("Entry No.", not Positive);
-            TestField("Source Type", ReservedFromSourceType);
-            TestField("Reservation Status", "Reservation Status"::Reservation);
-            TestField(Binding, Binding::"Order-to-Order");
-        end;
+        ReservationEntry.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
+        ReservationEntry.TestField("Source Type", ReservedFromSourceType);
+        ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.TestField(Binding, ReservationEntry.Binding::"Order-to-Order");
     end;
 
     local procedure VerifyPlanningLineStartEndDateTime(PlanningRoutingLine: Record "Planning Routing Line"; ExpectedStartingDateTime: DateTime; ExpectedEndingDateTime: DateTime)

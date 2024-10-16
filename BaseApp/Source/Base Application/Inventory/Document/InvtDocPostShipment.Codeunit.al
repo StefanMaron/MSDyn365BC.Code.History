@@ -18,6 +18,7 @@ using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Journal;
+using System.Utilities;
 
 codeunit 5851 "Invt. Doc.-Post Shipment"
 {
@@ -39,6 +40,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+        RecordLinkManagement: Codeunit "Record Link Management";
         Window: Dialog;
         LineCount: Integer;
         HideProgressWindow: Boolean;
@@ -91,7 +93,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
 
         if InvtSetup."Automatic Cost Posting" then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast() then;
+            GLEntry.GetLastEntryNo();
         end;
         // Insert shipment header
         InvtShptHeader.LockTable();
@@ -125,11 +127,13 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
           DocSign, DATABASE::"Invt. Document Header", InvtDocHeader."Document Type".AsInteger(), InvtDocHeader."No.",
           DATABASE::"Invt. Shipment Header", InvtShptHeader."No.");
 
-        if InvtSetup."Copy Comments to Invt. Doc." then
+        if InvtSetup."Copy Comments to Invt. Doc." then begin
             CopyCommentLines(
                 Enum::"Inventory Comment Document Type"::"Inventory Shipment",
                 Enum::"Inventory Comment Document Type"::"Posted Inventory Shipment",
                 InvtDocHeader."No.", InvtShptHeader."No.");
+            RecordLinkManagement.CopyLinks(InvtDocHeader, InvtShptHeader);
+        end;
         // Insert shipment lines
         LineCount := 0;
         InvtShptLine.LockTable();
@@ -422,7 +426,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         HideValidationDialog := NewHideValidationDialog;
     end;
 
-    internal procedure SetPreviewMode(NewPreviewMode: Boolean)
+    procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;
     end;

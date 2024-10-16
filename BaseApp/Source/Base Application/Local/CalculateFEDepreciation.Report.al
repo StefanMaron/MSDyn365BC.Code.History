@@ -397,12 +397,34 @@ report 17302 "Calculate FE Depreciation"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Force No. of Days must be activated.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Depreciating future expense      #1##########\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Not depreciating future expense  #2##########\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Inserting journal lines          #3##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLineTmp: Record "Gen. Journal Line" temporary;
         FAJnlLine: Record "FA Journal Line";
@@ -428,7 +450,9 @@ report 17302 "Calculate FE Depreciation"
         GenJnlNextLineNo: Integer;
         LineNo: Integer;
         Period: Date;
+#pragma warning disable AA0074
         Text12407: Label 'FE Posting Date must be into Accounting Period.';
+#pragma warning restore AA0074
         DeprAmount: Decimal;
         Custom1Amount: Decimal;
         NumberOfDays: Integer;
@@ -437,11 +461,21 @@ report 17302 "Calculate FE Depreciation"
         JnlNextLineNoLoc: Integer;
         AccountPeriod: Text[30];
         ProgressiveTotal: Boolean;
+#pragma warning disable AA0074
         Text12409: Label 'Posting Date must be into Accounting Period.';
+#pragma warning restore AA0074
         Details: Boolean;
+#pragma warning disable AA0074
         Text12411: Label 'FED-';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12410: Label ' FE Depreciation';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12412: Label 'No. of Days in Fiscal Year for Depr. Book %1 = %2 will calculate incorrect depreciation amounts. Continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DepreciationBookFilter: Code[250];
         DaysFieldEnable: Boolean;
 

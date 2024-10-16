@@ -363,12 +363,18 @@ report 14928 "Unrealized VAT Analysis"
         CollapseAll: Boolean;
         ViewBy: Option "G/L Account",Invoice;
         ViewByCaption: Text[250];
+#pragma warning disable AA0074
         Text001: Label 'G/L Account View';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Invoice View';
+#pragma warning restore AA0074
         IsGLAccountView: Boolean;
         RequestFilter: Text;
         VendorAgreementNo: Code[20];
+#pragma warning disable AA0074
         Text010: Label 'Agreement No.: ';
+#pragma warning restore AA0074
         IsInvoice: Boolean;
         VAT_EntryCaptionLbl: Label 'Unrealized VAT Analysis';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

@@ -387,19 +387,25 @@ report 15 "Consolidation - Test File"
         NextErrorIndex: Integer;
         ErrorText: array[100] of Text[250];
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the file name.';
         Text001: Label 'The file to be imported has an unknown format.';
+#pragma warning disable AA0470
         Text002: Label 'The %1 in the file to be imported (%2) does not match the %1 in the %3 (%4).';
         Text005: Label 'The business unit %1 %2 is not unique.\\';
         Text006: Label 'Delete %1 in the extra records.';
         Text009: Label 'Period: %1..%2';
         Text017: Label '%1 must be Yes in %2 %3.';
         Text018: Label 'There are more than %1 errors.';
+#pragma warning restore AA0470
         Text031: Label 'Import from Text File';
         Text034: Label 'Import from XML File';
+#pragma warning disable AA0470
         Text036: Label 'Imported checksum (%1) does not equal the calculated checksum (%2). The file may be corrupt.';
         Text037: Label 'The entered %1, %2, does not equal the %1 on this %3, %4.';
+#pragma warning restore AA0470
         Text039: Label 'The file was successfully uploaded to server.';
+#pragma warning restore AA0074
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Consolidation___Test_FileCaptionLbl: Label 'Consolidation - Test File';
         Errors_in_Business_Unit_CaptionLbl: Label 'Errors in Business Unit:';

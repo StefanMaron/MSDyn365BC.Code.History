@@ -29,7 +29,7 @@ table 17240 "Tax Reg. Norm Term"
 
             trigger OnValidate()
             begin
-                if "Expression Type" <> xRec."Expression Type" then begin
+                if "Expression Type" <> xRec."Expression Type" then
                     if xRec."Expression Type" = xRec."Expression Type"::Compare then begin
                         if not Confirm(Text21000900, false, xRec."Expression Type") then
                             Error('');
@@ -41,7 +41,6 @@ table 17240 "Tax Reg. Norm Term"
                         Validate(Expression, '');
                     end else
                         ValidateChangeDeclaration(true);
-                end;
             end;
         }
         field(5; Expression; Text[250])
@@ -148,7 +147,11 @@ table 17240 "Tax Reg. Norm Term"
     var
         TaxRegNormTermFormula: Record "Tax Reg. Norm Term Formula";
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000900: Label 'Delete linked line %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ValidateChangeDeclaration(Incident: Boolean)

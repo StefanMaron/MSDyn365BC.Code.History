@@ -60,7 +60,7 @@ report 14905 "Letter of Attorney M-2A"
                 TestField("Buy-from Vendor Name");
                 Employee.Get("Employee No.");
 
-                if not Preview then begin
+                if not PreviewReport then begin
                     if "Letter of Attorney No." = '' then
                         "Letter of Attorney No." := NoSeries.GetNextNo(PurchSetup."Released Letter of Attor. Nos.");
                     Release();
@@ -138,7 +138,7 @@ report 14905 "Letter of Attorney M-2A"
                         Caption = 'Print Item List';
                         ToolTip = 'Specifies if you want to print the detailed list of items that are covered by this Letter of Attorney M-2A.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                     }
@@ -165,7 +165,7 @@ report 14905 "Letter of Attorney M-2A"
         Counter: Integer;
         PrintItemList: Boolean;
         BICTxt: Label ' BIC ';
-        Preview: Boolean;
+        PreviewReport: Boolean;
         FileName: Text;
 
     [Scope('OnPrem')]
@@ -181,7 +181,7 @@ report 14905 "Letter of Attorney M-2A"
     procedure InitializeRequest(NewFileName: Text; NewPreview: Boolean)
     begin
         FileName := NewFileName;
-        Preview := NewPreview;
+        PreviewReport := NewPreview;
     end;
 }
 

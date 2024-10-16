@@ -596,28 +596,24 @@ codeunit 130512 "Library - Purchase"
         CurrencyFactor := LibraryRandom.RandInt(100);
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate()), CurrencyFactor, CurrencyFactor);
         CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Currency Code", CurrencyCode);
-            "VAT Registration No." := CopyStr(LibraryUtility.GenerateRandomXMLText(10), 1, 10);
-            Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
-            Validate("VAT Agent", true);
-            Validate("VAT Agent Type", "VAT Agent Type"::"Non-resident");
-            Validate("VAT Payment Source Type", "VAT Payment Source Type"::"Internal Funds");
-            Validate("VAT Agent Prod. Posting Group", VATProductPostingGroup.Code);
-            Validate("Tax Authority No.", CreateVendorTaxAuthority());
-            Modify(true);
-        end;
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor."VAT Registration No." := CopyStr(LibraryUtility.GenerateRandomXMLText(10), 1, 10);
+        Vendor.Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
+        Vendor.Validate("VAT Agent", true);
+        Vendor.Validate("VAT Agent Type", Vendor."VAT Agent Type"::"Non-resident");
+        Vendor.Validate("VAT Payment Source Type", Vendor."VAT Payment Source Type"::"Internal Funds");
+        Vendor.Validate("VAT Agent Prod. Posting Group", VATProductPostingGroup.Code);
+        Vendor.Validate("Tax Authority No.", CreateVendorTaxAuthority());
+        Vendor.Modify(true);
 
         LibraryERM.CreateVATPostingSetup(
           VATPostingSetup, Vendor."VAT Bus. Posting Group", Vendor."VAT Agent Prod. Posting Group");
-        with VATPostingSetup do begin
-            Validate("VAT Identifier", LibraryUtility.GenerateGUID());
-            Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
-            Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
 
         exit(Vendor."No.");
     end;
@@ -814,6 +810,9 @@ codeunit 130512 "Library - Purchase"
     var
         NoSeries: Codeunit "No. Series";
         PurchPost: Codeunit "Purch.-Post";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        DocumentFieldNo: Integer;
     begin
         // Post the purchase document.
         // Depending on the document type and posting type return the number of the:
@@ -831,19 +830,19 @@ codeunit 130512 "Library - Purchase"
                 if PurchaseHeader.Invoice and (PurchaseHeader."Posting No. Series" <> '') then begin
                     if (PurchaseHeader."Posting No." = '') then
                         PurchaseHeader."Posting No." := NoSeries.GetNextNo(PurchaseHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Posting No. Series"));
-                    DocumentNo := PurchaseHeader."Posting No.";
+                    DocumentFieldNo := PurchaseHeader.FieldNo("Last Posting No.");
                 end;
             PurchaseHeader."Document Type"::Order:
                 begin
                     if PurchaseHeader.Receive and (PurchaseHeader."Receiving No. Series" <> '') then begin
                         if (PurchaseHeader."Receiving No." = '') then
                             PurchaseHeader."Receiving No." := NoSeries.GetNextNo(PurchaseHeader."Receiving No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Receiving No. Series"));
-                        DocumentNo := PurchaseHeader."Receiving No.";
+                        DocumentFieldNo := PurchaseHeader.FieldNo("Last Receiving No.");
                     end;
                     if PurchaseHeader.Invoice and (PurchaseHeader."Posting No. Series" <> '') then begin
                         if (PurchaseHeader."Posting No." = '') then
                             PurchaseHeader."Posting No." := NoSeries.GetNextNo(PurchaseHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Posting No. Series"));
-                        DocumentNo := PurchaseHeader."Posting No.";
+                        DocumentFieldNo := PurchaseHeader.FieldNo("Last Posting No.");
                     end;
                 end;
             PurchaseHeader."Document Type"::"Return Order":
@@ -851,12 +850,12 @@ codeunit 130512 "Library - Purchase"
                     if PurchaseHeader.Ship and (PurchaseHeader."Return Shipment No. Series" <> '') then begin
                         if (PurchaseHeader."Return Shipment No." = '') then
                             PurchaseHeader."Return Shipment No." := NoSeries.GetNextNo(PurchaseHeader."Return Shipment No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Return Shipment No. Series"));
-                        DocumentNo := PurchaseHeader."Return Shipment No.";
+                        DocumentFieldNo := PurchaseHeader.FieldNo("Last Return Shipment No.");
                     end;
                     if PurchaseHeader.Invoice and (PurchaseHeader."Posting No. Series" <> '') then begin
                         if (PurchaseHeader."Posting No." = '') then
                             PurchaseHeader."Posting No." := NoSeries.GetNextNo(PurchaseHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Posting No. Series"));
-                        DocumentNo := PurchaseHeader."Posting No.";
+                        DocumentFieldNo := PurchaseHeader.FieldNo("Last Posting No.");
                     end;
                 end;
             else
@@ -864,6 +863,10 @@ codeunit 130512 "Library - Purchase"
         end;
 
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
+
+        RecRef.GetTable(PurchaseHeader);
+        FieldRef := RecRef.Field(DocumentFieldNo);
+        DocumentNo := FieldRef.Value();
     end;
 
     procedure QuoteMakeOrder(var PurchaseHeader: Record "Purchase Header"): Code[20]

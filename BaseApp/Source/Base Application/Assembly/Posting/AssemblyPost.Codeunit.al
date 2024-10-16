@@ -99,7 +99,9 @@ codeunit 900 "Assembly-Post"
         SourceCode: Code[10];
         PostingDateExists: Boolean;
         ReplacePostingDate: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'is not within your range of allowed posting dates.', Comment = 'starts with "Posting Date"';
+#pragma warning disable AA0470
         Text002: Label 'The combination of dimensions used in %1 %2 is blocked. %3.', Comment = '%1 = Document Type, %2 = Document No.';
         Text003: Label 'The combination of dimensions used in %1 %2, line no. %3 is blocked. %4.', Comment = '%1 = Document Type, %2 = Document No.';
         Text004: Label 'The dimensions that are used in %1 %2 are not valid. %3.', Comment = '%1 = Document Type, %2 = Document No.';
@@ -107,9 +109,15 @@ codeunit 900 "Assembly-Post"
         Text007: Label 'Posting lines              #2######';
         Text008: Label 'Posting %1';
         Text009: Label '%1 should be blank for comment text: %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ShowProgress: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text010: Label 'Undoing %1';
+#pragma warning restore AA0470
         Text011: Label 'Posted assembly order %1 cannot be restored because the number of lines in assembly order %2 has changed.', Comment = '%1=Posted Assembly Order No. field value,%2=Assembly Header Document No field value';
+#pragma warning restore AA0074
         SuppressCommit: Boolean;
         PreviewMode: Boolean;
 
@@ -374,7 +382,7 @@ codeunit 900 "Assembly-Post"
         AssemblyHeader.LockTable();
         if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast() then;
+            GLEntry.GetLastEntryNo();
         end;
     end;
 
@@ -1375,6 +1383,7 @@ codeunit 900 "Assembly-Post"
         SalesLine: Record "Sales Line";
         FromTrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         IsATOHeader: Boolean;
         ReservStatus: Enum "Reservation Status";
         IsHandled: Boolean;
@@ -1411,7 +1420,7 @@ codeunit 900 "Assembly-Post"
                                 CreateReservEntry.SetDisallowCancellation(true);
                                 CreateReservEntry.SetBinding("Reservation Binding"::"Order-to-Order");
 
-                                FromTrackingSpecification.InitFromSalesLine(SalesLine);
+                                SalesLineReserve.InitFromSalesLine(FromTrackingSpecification, SalesLine);
                                 FromTrackingSpecification."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
                                 FromTrackingSpecification.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
                                 CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);

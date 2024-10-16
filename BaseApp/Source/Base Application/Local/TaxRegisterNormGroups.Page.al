@@ -134,8 +134,12 @@ page 17247 "Tax Register Norm Groups"
     end;
 
     var
+#pragma warning disable AA0074
         Text1000: Label 'Nothing to calculate';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1001: Label 'Present';
+#pragma warning restore AA0074
         HasDetailsHideValue: Boolean;
 
     [Scope('OnPrem')]

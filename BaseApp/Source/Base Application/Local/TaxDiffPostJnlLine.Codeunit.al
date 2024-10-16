@@ -15,10 +15,24 @@ codeunit 17301 "Tax Diff.-Post Jnl. Line"
         FE: Record "Fixed Asset";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         NextEntryNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1003: Label '=%1 can not be less than %2=%3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1004: Label 'Wrong posting order. Start balance of tax difference changed.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1005: Label 'must be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1006: Label 'Depr. bonus for %1 has been already recovered.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

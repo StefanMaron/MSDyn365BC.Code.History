@@ -191,8 +191,12 @@ report 12403 "Cash Ingoing Order"
     end;
 
     var
+#pragma warning disable AA0470
         PrintQst: Label 'If %1 is not empty then it will be changed during posting\\Do you want to continue printing?';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         CannotBeUsedErr: Label 'Cannot be used if %1 %2.', Comment = 'Parameter 1 - field caption, parameter 2 - bank payment type';
+#pragma warning restore AA0470
         CompanyInfo: Record "Company Information";
         BankAcc: Record "Bank Account";
         CheckLedgEntry: Record "Check Ledger Entry";
@@ -214,8 +218,12 @@ report 12403 "Cash Ingoing Order"
         PrintTest: Boolean;
         PaymentCheckNo: Text[20];
         CashierFullName: Text[100];
+#pragma warning disable AA0470
         WrongDocumentNoErr: Label 'The number of the document %1 does not match the input mask %2 or greater than the last number.';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         CurrencyTxt: Label '%1 Rub., %2 kop.';
+#pragma warning restore AA0470
         WrittenAmountNumber: Text[250];
         CurrencyText: Text[30];
         EmptyCurrencyTxt: Label 'Rub., kop.';

@@ -88,7 +88,7 @@ report 12455 "Create VAT Purchase Ledger"
 
                     GetRealVATDate(PurchVATEntry, "Transaction No.", RealVATEntryDate);
 
-                    if RealVATEntryDate = 0D then begin
+                    if RealVATEntryDate = 0D then
                         if VATEntry1.Get("Unrealized VAT Entry No.") then begin
                             VendLedgEntry.Reset();
                             VendLedgEntry.SetCurrentKey("Transaction No.");
@@ -104,7 +104,6 @@ report 12455 "Create VAT Purchase Ledger"
                                     until DtldVendLedgEntry.Next() = 0;
                             end;
                         end;
-                    end;
 
                     if RealVATEntryDate = 0D then
                         RealVATEntryDate := PurchVATEntry."Posting Date";
@@ -683,8 +682,14 @@ report 12455 "Create VAT Purchase Ledger"
         OtherPercents: Option "Not Select",Total,Detail;
         UseExternal: Boolean;
         OrigDocNo: Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label 'cannot be %1 if Tax Invoice Amount Type is %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12401: Label 'Creation is not possible!';
+#pragma warning restore AA0074
         ClearOperation: Boolean;
         RealVATEntryDate: Date;
         Partial: Boolean;
@@ -773,12 +778,10 @@ report 12455 "Create VAT Purchase Ledger"
             VATEntry."Tax Invoice Amount Type"::VAT:
                 case VATEntry."VAT Calculation Type" of
                     VATEntry."VAT Calculation Type"::"Full VAT":
-
                         begin
-                            if VATEntry."VAT Correction" then begin
-                                AmountBuffer."VAT Correction" := true;
-                                //CheckVAT(VATEntry,VATPostingSetup."VAT %", VATPostingSetup."VAT Exempt")
-                            end else
+                            if VATEntry."VAT Correction" then
+                                AmountBuffer."VAT Correction" := true
+                            else
                                 AmountBuffer."Full VAT Amount" := VATEntry.Amount;
                             CheckVAT(VATEntry, VATPostingSetup."VAT %", VATPostingSetup."VAT Exempt");
                         end;
@@ -796,14 +799,12 @@ report 12455 "Create VAT Purchase Ledger"
             VATEntry."Tax Invoice Amount Type"::"Sales Tax":
                 case VATEntry."VAT Calculation Type" of
                     VATEntry."VAT Calculation Type"::"Full VAT":
-                        begin
-                            if VATEntry."VAT Correction" = true then begin
-                                AmountBuffer."VAT Correction" := true;
-                                AmountBuffer."Sales Tax Amount" := VATEntry.Amount;
-                                AmountBuffer."Sales Tax Base" := VATEntry.Base;
-                            end else
-                                AmountBuffer."Full Sales Tax Amount" := VATEntry.Amount;
-                        end;
+                        if VATEntry."VAT Correction" = true then begin
+                            AmountBuffer."VAT Correction" := true;
+                            AmountBuffer."Sales Tax Amount" := VATEntry.Amount;
+                            AmountBuffer."Sales Tax Base" := VATEntry.Base;
+                        end else
+                            AmountBuffer."Full Sales Tax Amount" := VATEntry.Amount;
                     VATEntry."VAT Calculation Type"::"Sales Tax":
                         begin
                             AmountBuffer."Sales Tax Amount" := VATEntry.Amount;

@@ -27,7 +27,6 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalBatchError: Label 'Gen. Journal Batch name is blank.';
         UnknownError: Label 'Unknown Error.';
         WrongPaymentMethodCodeErr: Label 'Field Payment Method Code should be updated.';
-        GenPostingTypeErr: Label 'Gen. Posting Type must not be';
         NotLinearCalcErr: Label 'Computational complexity must be linear';
 
     [Test]
@@ -345,7 +344,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Error occurs: "Gen. Posting Type must not be Purchase in Gen. Journal Line..."
-        Assert.ExpectedError(GenPostingTypeErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Gen. Posting Type"), '');
     end;
 
     [Test]
@@ -382,7 +381,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Error occurs: "Gen. Posting Type must not be Sale in Gen. Journal Line..."
-        Assert.ExpectedError(GenPostingTypeErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Gen. Posting Type"), '');
     end;
 
     [Test]
@@ -448,7 +447,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
 
         // [THEN] Posting fails with error on value "Purchase" of field "Gen. Posting Type" on Gen. Journal Line 20000
         Assert.ExpectedErrorCode('TableError');
-        Assert.ExpectedError(GenPostingTypeErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Gen. Posting Type"), '');
     end;
 
     [Test]
@@ -490,7 +489,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
 
         // [THEN] Posting fails with error on value "Purchase" of field "Gen. Posting Type" on Gen. Journal Line 20000
         Assert.ExpectedErrorCode('TableError');
-        Assert.ExpectedError(GenPostingTypeErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Gen. Posting Type"), '');
     end;
 
     [Test]
@@ -534,7 +533,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
 
         // [THEN] Posting fails with error on value "Purchase" of field "Gen. Posting Type" on Gen. Journal Line 30000
         Assert.ExpectedErrorCode('TableError');
-        Assert.ExpectedError(GenPostingTypeErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Gen. Posting Type"), '');
     end;
 
     local procedure Initialize()
@@ -700,11 +699,9 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Sale);
-            Modify();
-            exit("No.");
-        end;
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        GLAccount.Modify();
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateGLAccountNoPurchase(): Code[20]
@@ -712,11 +709,9 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Purchase);
-            Modify();
-            exit("No.");
-        end;
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        GLAccount.Modify();
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateAndUpdateGLAccountWithVATPostingSetup(var GLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type")
@@ -801,16 +796,14 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJnlTemplate.Get(GenJnlTemplateName);
         StandardGeneralJournal.SetRange("Journal Template Name", GenJnlTemplate.Name);
         StandardGeneralJournal.FindFirst();
-        with StdGenJnlLine do begin
-            Init();
-            Validate("Journal Template Name", GenJnlTemplate.Name);
-            Validate("Standard Journal Code", StandardGeneralJournal.Code);
-            "Line No." := 10000;
-            Validate("Source Code", GenJnlTemplate."Source Code");
-            Validate("Account Type", "Account Type"::"G/L Account");
-            Validate("Account No.", LibraryERM.CreateGLAccountNo());
-            Insert(true);
-        end;
+        StdGenJnlLine.Init();
+        StdGenJnlLine.Validate("Journal Template Name", GenJnlTemplate.Name);
+        StdGenJnlLine.Validate("Standard Journal Code", StandardGeneralJournal.Code);
+        StdGenJnlLine."Line No." := 10000;
+        StdGenJnlLine.Validate("Source Code", GenJnlTemplate."Source Code");
+        StdGenJnlLine.Validate("Account Type", StdGenJnlLine."Account Type"::"G/L Account");
+        StdGenJnlLine.Validate("Account No.", LibraryERM.CreateGLAccountNo());
+        StdGenJnlLine.Insert(true);
     end;
 
     local procedure VerifyAmountToApplyError(VendorLedgerEntry: Record "Vendor Ledger Entry")

@@ -176,7 +176,9 @@ report 12485 "FA Comparative Sheet INV-18"
         FixedAsset: Record "Fixed Asset";
         Member1: Code[20];
         Member2: Code[20];
+#pragma warning disable AA0074
         Text19021143: Label 'Commission Members';
+#pragma warning restore AA0074
         FileName: Text;
         IsHeaderPrinted: Boolean;
 

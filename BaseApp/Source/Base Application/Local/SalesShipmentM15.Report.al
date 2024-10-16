@@ -72,7 +72,7 @@ report 12472 "Sales Shipment M-15"
 
                 trigger OnPostDataItem()
                 begin
-                    if not Preview then
+                    if not PreviewReport then
                         CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
                 end;
 
@@ -112,7 +112,7 @@ report 12472 "Sales Shipment M-15"
                 CheckSignature(ReleasedBy, ReleasedBy."Employee Type"::ReleasedBy);
                 CheckSignature(ReceivedBy, ReceivedBy."Employee Type"::ReceivedBy);
 
-                if not Preview then begin
+                if not PreviewReport then begin
                     if ArchiveDocument then
                         ArchiveManagement.StoreSalesDocument(Header, LogInteraction);
 
@@ -181,7 +181,7 @@ report 12472 "Sales Shipment M-15"
                         Caption = 'Log Interaction';
                         ToolTip = 'Specifies that interactions with the related contact are logged.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -241,7 +241,7 @@ report 12472 "Sales Shipment M-15"
         LineCount: Integer;
         ArchiveDocument: Boolean;
         LogInteraction: Boolean;
-        Preview: Boolean;
+        PreviewReport: Boolean;
         CopiesNumber: Integer;
         TotalAmount: array[8] of Decimal;
         LastTotalAmount: array[8] of Decimal;
@@ -269,7 +269,7 @@ report 12472 "Sales Shipment M-15"
         NoSeries: Codeunit "No. Series";
     begin
         if PostingNo = '' then
-            if Preview then
+            if PreviewReport then
                 PostingNo := NoSeries.PeekNextNo(SeriesNoCode, Header."Posting Date")
             else begin
                 PostingNo := NoSeries.GetNextNo(SeriesNoCode, Header."Posting Date");
@@ -281,7 +281,7 @@ report 12472 "Sales Shipment M-15"
     procedure SetFileNameSilent(NewFileName: Text; NewPreview: Boolean)
     begin
         FileName := NewFileName;
-        Preview := NewPreview;
+        PreviewReport := NewPreview;
     end;
 
     local procedure FillReportHeader()

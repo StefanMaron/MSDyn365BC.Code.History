@@ -19,7 +19,11 @@ codeunit 17308 "FA Entry - Edit"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 cannot be changed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FALedgerEntry: Record "FA Ledger Entry";
         DepreciationBook: Record "Depreciation Book";
         TaxRegisterSetup: Record "Tax Register Setup";

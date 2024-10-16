@@ -113,7 +113,7 @@ report 14966 "Sales Corr. Factura-Invoice"
 
                 trigger OnPostDataItem()
                 begin
-                    if not Preview then
+                    if not PreviewReport then
                         CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
                 end;
 
@@ -125,11 +125,11 @@ report 14966 "Sales Corr. Factura-Invoice"
                         CurrReport.Break();
 
                     if Header."Posting No." = '' then begin
-                        if Preview then
+                        if PreviewReport then
                             Header."Posting No." := NoSeries.PeekNextNo(Header."Posting No. Series", Header."Posting Date")
                         else
                             Header."Posting No." := NoSeries.GetNextNo(Header."Posting No. Series", Header."Posting Date");
-                        if not Preview then
+                        if not PreviewReport then
                             Header.Modify();
                     end;
                     ReportNos[1] := Header."Posting No.";
@@ -172,7 +172,7 @@ report 14966 "Sales Corr. Factura-Invoice"
                 else
                     KPPCode := Customer."KPP Code";
 
-                if not Preview then begin
+                if not PreviewReport then begin
                     if ArchiveDocument then
                         ArchiveManagement.StoreSalesDocument(Header, LogInteraction);
                     if LogInteraction then begin
@@ -235,7 +235,7 @@ report 14966 "Sales Corr. Factura-Invoice"
                         Caption = 'Log Interaction';
                         ToolTip = 'Specifies that interactions with the related contact are logged.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -312,7 +312,7 @@ report 14966 "Sales Corr. Factura-Invoice"
         CurrencyDigitalCode: Code[3];
         ReportNos: array[4] of Text;
         ReportDates: array[4] of Text;
-        Preview: Boolean;
+        PreviewReport: Boolean;
 
     [Scope('OnPrem')]
     procedure IncrAmount(var TotalAmount: array[3] of Decimal; Amount: Decimal; AmountIncludingVAT: Decimal)
@@ -548,10 +548,9 @@ report 14966 "Sales Corr. Factura-Invoice"
     var
         i: Integer;
     begin
-        for i := 1 to 3 do begin
+        for i := 1 to 3 do
             if LineValues[i] = '' then
                 LineValues[i] := '-';
-        end;
     end;
 }
 

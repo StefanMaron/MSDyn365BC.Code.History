@@ -7,22 +7,58 @@ codeunit 17303 "Tax Calc. Mgt."
 
     var
         TaxCalcSection: Record "Tax Calc. Section";
+#pragma warning disable AA0074
         Text1000: Label 'STANDARD';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1006: Label '\\Continue?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1007: Label 'Existing data will be deleted.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1008: Label 'Illegal begin date period.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1009: Label 'There are no data in %2 for period ending at %1. Do you want to proceed anyway?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1011: Label 'Illegal end date period.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1012: Label 'End date must be set.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1013: Label 'Begin date must be set.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1014: Label 'Section code must be defined.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1015: Label 'must be %1 or %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text000: Label '1,5,,Dimension 1 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label '1,5,,Dimension 2 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label '1,5,,Dimension 3 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label '1,5,,Dimension 4 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'january,february,march,april,may,june,july,august,september,october,november,december';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'first quarter,second quarter,third quarter,fourth quarter';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure FindDate(SearchString: Text[10]; var Calendar: Record Date; PeriodType: Option ,,Month,Quarter,Year; AmountType: Option "Current Period","Tax Period") Found: Boolean
@@ -162,7 +198,7 @@ codeunit 17303 "Tax Calc. Mgt."
 
         TaxCalcHeader.SetRange("Section Code", TaxCalcSectionCode);
         TaxCalcHeader.SetRange("Table ID", DATABASE::"Tax Calc. G/L Entry");
-        if TaxCalcHeader.Find('-') then begin
+        if TaxCalcHeader.Find('-') then
             repeat
                 TaxCalcAccumulat.SetRange("Register No.", TaxCalcHeader."No.");
                 if not TaxCalcAccumulat.IsEmpty() then
@@ -174,7 +210,6 @@ codeunit 17303 "Tax Calc. Mgt."
                     end;
                 TaxCalcAccumulat.DeleteAll();
             until TaxCalcHeader.Next() = 0;
-        end;
 
         if DateBegin = TaxCalcSection."Starting Date" then
             TaxCalcSection."No G/L Entries Date" := 0D
@@ -209,13 +244,12 @@ codeunit 17303 "Tax Calc. Mgt."
 
         TaxCalcHeader.SetRange("Section Code", SectionCode);
         TaxCalcHeader.SetRange("Table ID", DATABASE::"Tax Calc. G/L Entry");
-        if TaxCalcHeader.FindSet() then begin
+        if TaxCalcHeader.FindSet() then
             repeat
                 TaxCalcAccum.SetRange("Register No.", TaxCalcHeader."No.");
                 if TaxCalcAccum.IsEmpty() then
                     exit(false);
             until TaxCalcHeader.Next() = 0;
-        end;
         exit(true);
     end;
 

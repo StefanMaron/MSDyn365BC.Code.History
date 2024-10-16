@@ -317,7 +317,7 @@ page 12424 "Payment Order List"
 
                     BankAccount.Reset();
                     BankAccount.SetRange("No.", Rec."Bal. Account No.");
-                    if BankAccount.FindFirst() then begin
+                    if BankAccount.FindFirst() then
                         if BankAccount."Account Type" <> BankAccount."Account Type"::"Bank Account" then begin
                             GenJnlLine.Reset();
                             GenJnlLine.Copy(Rec);
@@ -327,7 +327,6 @@ page 12424 "Payment Order List"
                             DocumentPrint.PrintCashOrder(GenJnlLine);
                         end else
                             DocumentPrint.PrintCheck(Rec);
-                    end;
                 end;
             }
             group(Posting)

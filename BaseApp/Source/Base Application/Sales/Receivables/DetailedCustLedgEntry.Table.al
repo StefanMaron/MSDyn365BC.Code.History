@@ -273,14 +273,7 @@ table 379 "Detailed Cust. Ledg. Entry"
         key(Key3; "Cust. Ledger Entry No.", "Entry Type", "Posting Date", "Prepmt. Diff. in TA")
         {
         }
-        key(Key4; "Ledger Entry Amount", "Cust. Ledger Entry No.", "Posting Date", "Prepmt. Diff. in TA")
-        {
-            IncludedFields = Amount, "Amount (LCY)", "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced with "Key17" for better peformance.';
-            ObsoleteTag = '18.0';
-        }
-        key(Key5; "Initial Document Type", "Entry Type", "Customer No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Agreement No.", "Prepmt. Diff. in TA", "Posting Date")
+        key(Key5; "Initial Document Type", "Entry Type", "Customer No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Posting Date")
         {
             SumIndexFields = Amount, "Amount (LCY)";
         }

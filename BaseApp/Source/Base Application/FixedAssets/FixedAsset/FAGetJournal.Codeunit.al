@@ -22,10 +22,22 @@ codeunit 5639 "FA Get Journal"
         InsuranceJnlBatch: Record "Insurance Journal Batch";
         TemplateName2: Code[10];
         BatchName2: Code[10];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot copy in current journal Control table %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label 'FA Journal Setup with Depreciation Book Code %1 User ID %2 does not exist';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot duplicate using the current journal. Check the table %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure JnlName(DeprBookCode: Code[10]; BudgetAsset: Boolean; FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; var TemplateName: Code[10]; var BatchName: Code[10])
     var

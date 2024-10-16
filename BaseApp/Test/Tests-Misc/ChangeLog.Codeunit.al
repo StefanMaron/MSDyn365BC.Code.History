@@ -883,16 +883,14 @@ codeunit 139031 "Change Log"
     var
         LastEntryNo: Integer;
     begin
-        with CVLedgerEntryBuffer do begin
-            if FindLast() then
-                LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Posting Date" := WorkDate();
-            Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Description)), 1, MaxStrLen(Description));
-            Open := true;
-            Insert();
-        end;
+        if CVLedgerEntryBuffer.FindLast() then
+            LastEntryNo := CVLedgerEntryBuffer."Entry No.";
+        CVLedgerEntryBuffer.Init();
+        CVLedgerEntryBuffer."Entry No." := LastEntryNo + 1;
+        CVLedgerEntryBuffer."Posting Date" := WorkDate();
+        CVLedgerEntryBuffer.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CVLedgerEntryBuffer.Description)), 1, MaxStrLen(CVLedgerEntryBuffer.Description));
+        CVLedgerEntryBuffer.Open := true;
+        CVLedgerEntryBuffer.Insert();
     end;
 
     local procedure CreateAndLogInsert(var RecRef: RecordRef)
@@ -950,29 +948,25 @@ codeunit 139031 "Change Log"
 
     local procedure MockChangeLogEntry(var ChangeLogEntry: Record "Change Log Entry"; NewTableNoValue: Integer; NewFieldNoValue: Integer; NewValue: Text)
     begin
-        with ChangeLogEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ChangeLogEntry, FieldNo("Entry No."));
-            "Table No." := NewTableNoValue;
-            "Field No." := NewFieldNoValue;
-            "Record ID" := RecordId;
-            "New Value" := CopyStr(NewValue, 1, MaxStrLen("New Value"));
-            Insert();
-        end;
+        ChangeLogEntry.Init();
+        ChangeLogEntry."Entry No." := LibraryUtility.GetNewRecNo(ChangeLogEntry, ChangeLogEntry.FieldNo("Entry No."));
+        ChangeLogEntry."Table No." := NewTableNoValue;
+        ChangeLogEntry."Field No." := NewFieldNoValue;
+        ChangeLogEntry."Record ID" := ChangeLogEntry.RecordId;
+        ChangeLogEntry."New Value" := CopyStr(NewValue, 1, MaxStrLen(ChangeLogEntry."New Value"));
+        ChangeLogEntry.Insert();
     end;
 
     local procedure MockTableForChangeLog(TableNo: Integer)
     var
         ChangeLogSetupTable: Record "Change Log Setup (Table)";
     begin
-        with ChangeLogSetupTable do begin
-            Init();
-            "Table No." := TableNo;
-            "Log Insertion" := "Log Insertion"::"All Fields";
-            "Log Modification" := "Log Modification"::"All Fields";
-            "Log Deletion" := "Log Deletion"::"All Fields";
-            Insert();
-        end;
+        ChangeLogSetupTable.Init();
+        ChangeLogSetupTable."Table No." := TableNo;
+        ChangeLogSetupTable."Log Insertion" := ChangeLogSetupTable."Log Insertion"::"All Fields";
+        ChangeLogSetupTable."Log Modification" := ChangeLogSetupTable."Log Modification"::"All Fields";
+        ChangeLogSetupTable."Log Deletion" := ChangeLogSetupTable."Log Deletion"::"All Fields";
+        ChangeLogSetupTable.Insert();
     end;
 
     local procedure DummyLog()

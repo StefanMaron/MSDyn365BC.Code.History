@@ -76,7 +76,7 @@ table 17208 "Tax Register Accumulation"
         }
         field(51; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Register Dim. Filter" where("Section Code" = field("Section Code"),
+            CalcFormula = exist("Tax Register Dim. Filter" where("Section Code" = field("Section Code"),
                                                                   "Tax Register No." = field("Tax Register No."),
                                                                   Define = const(Template),
                                                                   "Line No." = field("Template Line No.")));

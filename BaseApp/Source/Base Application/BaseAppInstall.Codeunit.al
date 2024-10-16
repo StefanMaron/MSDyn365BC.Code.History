@@ -5,22 +5,21 @@
 namespace Microsoft;
 
 using Microsoft.Upgrade;
+#if not CLEAN25
 using System.Reflection;
+#endif
 
 codeunit 5000 "BaseApp Install"
 {
     SubType = Install;
-
-    trigger OnInstallAppPerDatabase()
-    begin
-        DisableBlankProfile();
-    end;
 
     trigger OnInstallAppPerCompany()
     begin
         AddWordTemplateTables();
     end;
 
+#if not CLEAN25
+    [Obsolete('Disabling the BLANK profile is now done using a profile extension object.', '25.0')]
     procedure DisableBlankProfile()
     var
         AllProfile: Record "All Profile";
@@ -31,6 +30,7 @@ codeunit 5000 "BaseApp Install"
                 AllProfile.Modify();
             end;
     end;
+#endif
 
     local procedure AddWordTemplateTables()
     var

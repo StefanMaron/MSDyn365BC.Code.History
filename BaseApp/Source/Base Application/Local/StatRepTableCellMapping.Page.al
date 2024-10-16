@@ -161,14 +161,6 @@ page 26594 "Stat. Rep. Table Cell Mapping"
                         case Rec."Int. Source Type" of
                             Rec."Int. Source Type"::"Acc. Schedule":
                                 begin
-#if not CLEAN22
-                                    if AccScheduleName.Get(Rec."Int. Source No.") then
-                                        if (Rec."Int. Source Col. Lay. Name" = '') and (AccScheduleName."Default Column Layout" <> '') then begin
-                                            Rec."Int. Source Col. Lay. Name" := AccScheduleName."Default Column Layout";
-                                            Rec.Modify();
-                                            Commit();
-                                        end;
-#endif
                                     Rec.TestField("Int. Source Col. Lay. Name");
                                     ColumnLayout.FilterGroup(2);
                                     ColumnLayout.SetRange("Column Layout Name", Rec."Int. Source Col. Lay. Name");
@@ -208,9 +200,6 @@ page 26594 "Stat. Rep. Table Cell Mapping"
     end;
 
     var
-#if not CLEAN22
-        AccScheduleName: Record "Acc. Schedule Name";
-#endif
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         TaxRegisterTemplate: Record "Tax Register Template";

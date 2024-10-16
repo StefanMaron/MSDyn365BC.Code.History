@@ -6,7 +6,7 @@ page 12433 "Posted Advance Statement"
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Purch. Inv. Header";
-    SourceTableView = where("Empl. Purchase" = CONST(true));
+    SourceTableView = where("Empl. Purchase" = const(true));
 
     layout
     {
@@ -164,7 +164,7 @@ page 12433 "Posted Advance Statement"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Purch. Comment Sheet";
-                    RunPageLink = "Document Type" = CONST("Posted Invoice"),
+                    RunPageLink = "Document Type" = const("Posted Invoice"),
                                   "No." = field("No.");
                 }
                 action(Dimensions)

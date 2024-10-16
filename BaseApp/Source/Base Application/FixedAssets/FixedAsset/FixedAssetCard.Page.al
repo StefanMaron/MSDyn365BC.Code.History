@@ -20,6 +20,8 @@ page 5600 "Fixed Asset Card"
     SourceTableView = sorting("FA Type")
                       where("FA Type" = filter("Fixed Assets" | "Intangible Asset"));
     AdditionalSearchTerms = 'FA, Asset Profile, Property Details, Tangible Asset Info, Asset Data, Capital Good Info, Asset Detail, Ownership Info, Property Data';
+    AboutTitle = 'About Fixed Asset Card';
+    AboutText = 'With the **Fixed Asset Card**, you manage information about a fixed asset and specify the Class Subclass and Depreciation details. From here you can also drill down on past and ongoing fixed asset activity.';
 
     layout
     {
@@ -133,6 +135,8 @@ page 5600 "Fixed Asset Card"
             part(DepreciationBook; "FA Depreciation Books Subform")
             {
                 ApplicationArea = FixedAssets;
+                AboutTitle = 'About Depreciation Table List';
+                AboutText = 'Here you overview all the fixed assets with registered depreciation books, FA Posting Group, Depreciation Method, Starting date, Ending date, No. of depreciation years, Depreciation percentage, Book value details.';
                 SubPageLink = "FA No." = field("No.");
             }
             group(Classification)
@@ -182,6 +186,8 @@ page 5600 "Fixed Asset Card"
             group(Maintenance)
             {
                 Caption = 'Maintenance';
+                AboutTitle = 'Manage the Fixed Asset Maintenance';
+                AboutText = 'Specify the vendor, warranty and service date details.';
                 field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = FixedAssets;
@@ -383,10 +389,23 @@ page 5600 "Fixed Asset Card"
                 Caption = 'Fixed Asset Picture';
                 SubPageLink = "No." = field("No.");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Fixed Asset"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Fixed Asset"),
                               "No." = field("No.");
             }
@@ -537,7 +556,7 @@ page 5600 "Fixed Asset Card"
                     RunObject = Page "FA Ledger Entries";
                     RunPageLink = "FA No." = field("No.");
                     RunPageView = sorting("FA No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -549,7 +568,7 @@ page 5600 "Fixed Asset Card"
                     RunObject = Page "FA Error Ledger Entries";
                     RunPageLink = "Canceled from FA No." = field("No.");
                     RunPageView = sorting("Canceled from FA No.")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View the entries that have been posted as a result of you using the Cancel function to cancel an entry.';
                 }
                 action("Main&tenance Ledger Entries")

@@ -69,59 +69,57 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         LibraryTaxAcc.CreateFALedgerEntry(FALedgerEntry, FANo, DeprBookCode, PostingDate);
-        with FALedgerEntry do begin
-            "Belonging to Manufacturing" := "Belonging to Manufacturing"::Production;
-            "FA Type" := "FA Type"::"Fixed Assets";
-            Amount := SumFieldNo;
-            case SumFieldNo of
-                61:
-                    "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
-                62:
-                    "FA Posting Type" := "FA Posting Type"::"Write-Down";
-                72:
-                    begin
-                        "FA Posting Type" := "FA Posting Type"::Depreciation;
-                        "Depr. Bonus" := false;
-                    end;
-                86:
-                    begin
-                        "FA Posting Type" := "FA Posting Type"::"Gain/Loss";
-                        "Depr. Group Elimination" := false;
-                    end;
-                85:
-                    "FA Posting Type" := "FA Posting Type"::"Proceeds on Disposal";
-                91:
-                    begin
-                        "FA Posting Type" := "FA Posting Type"::"Gain/Loss";
-                        "Depr. Group Elimination" := true;
-                    end;
-                92:
-                    begin
-                        "FA Posting Type" := "FA Posting Type"::Depreciation;
-                        "Depr. Bonus" := true;
-                        "Depr. Bonus %" := SumFieldNo;
-                    end;
-                93:
-                    begin
-                        "FA Posting Type" := "FA Posting Type"::Depreciation;
-                        "Depr. Bonus" := true;
-                        "Depr. Bonus Recovery Date" := PostingDate;
-                    end;
-                94:
-                    begin
-                        "FA Posting Type" := "FA Posting Type"::"Gain/Loss";
-                        "Result on Disposal" := "Result on Disposal"::Gain;
-                        "Sales Gain Amount" := SumFieldNo;
-                    end;
-                95:
-                    begin
-                        "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
-                        "Reclassification Entry" := true;
-                        Quantity := 1;
-                    end;
-            end;
-            Modify();
+        FALedgerEntry."Belonging to Manufacturing" := FALedgerEntry."Belonging to Manufacturing"::Production;
+        FALedgerEntry."FA Type" := FALedgerEntry."FA Type"::"Fixed Assets";
+        FALedgerEntry.Amount := SumFieldNo;
+        case SumFieldNo of
+            61:
+                FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Acquisition Cost";
+            62:
+                FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Write-Down";
+            72:
+                begin
+                    FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::Depreciation;
+                    FALedgerEntry."Depr. Bonus" := false;
+                end;
+            86:
+                begin
+                    FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Gain/Loss";
+                    FALedgerEntry."Depr. Group Elimination" := false;
+                end;
+            85:
+                FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Proceeds on Disposal";
+            91:
+                begin
+                    FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Gain/Loss";
+                    FALedgerEntry."Depr. Group Elimination" := true;
+                end;
+            92:
+                begin
+                    FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::Depreciation;
+                    FALedgerEntry."Depr. Bonus" := true;
+                    FALedgerEntry."Depr. Bonus %" := SumFieldNo;
+                end;
+            93:
+                begin
+                    FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::Depreciation;
+                    FALedgerEntry."Depr. Bonus" := true;
+                    FALedgerEntry."Depr. Bonus Recovery Date" := PostingDate;
+                end;
+            94:
+                begin
+                    FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Gain/Loss";
+                    FALedgerEntry."Result on Disposal" := FALedgerEntry."Result on Disposal"::Gain;
+                    FALedgerEntry."Sales Gain Amount" := SumFieldNo;
+                end;
+            95:
+                begin
+                    FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Acquisition Cost";
+                    FALedgerEntry."Reclassification Entry" := true;
+                    FALedgerEntry.Quantity := 1;
+                end;
         end;
+        FALedgerEntry.Modify();
     end;
 
     local procedure CreateFALedgerEntryFE(FANo: Code[20]; DeprBookCode: Code[10]; PostingDate: Date; SumFieldNo: Integer)
@@ -129,18 +127,16 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         LibraryTaxAcc.CreateFALedgerEntry(FALedgerEntry, FANo, DeprBookCode, PostingDate);
-        with FALedgerEntry do begin
-            Amount := SumFieldNo;
-            case SumFieldNo of
-                61:
-                    "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
-                62:
-                    "FA Posting Type" := "FA Posting Type"::"Write-Down";
-                72:
-                    "FA Posting Type" := "FA Posting Type"::Depreciation;
-            end;
-            Modify();
+        FALedgerEntry.Amount := SumFieldNo;
+        case SumFieldNo of
+            61:
+                FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Acquisition Cost";
+            62:
+                FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Write-Down";
+            72:
+                FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::Depreciation;
         end;
+        FALedgerEntry.Modify();
     end;
 
     local procedure CreateFASumFieldNoArray(var SumFieldNoArray: array[10] of Integer)
@@ -226,12 +222,10 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         TaxRegSetup: Record "Tax Register Setup";
     begin
         LibraryTaxAcc.CreateTaxAccDeprBook(DeprBook);
-        with TaxRegSetup do begin
-            Get();
-            Validate("Tax Depreciation Book", DeprBook.Code);
-            Validate("Create Data for Printing Forms", true);
-            Modify(true);
-        end;
+        TaxRegSetup.Get();
+        TaxRegSetup.Validate("Tax Depreciation Book", DeprBook.Code);
+        TaxRegSetup.Validate("Create Data for Printing Forms", true);
+        TaxRegSetup.Modify(true);
     end;
 
     local procedure UpdateTaxRegSetupFE()
@@ -240,42 +234,36 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         TaxRegSetup: Record "Tax Register Setup";
     begin
         LibraryTaxAcc.CreateTaxAccDeprBook(DeprBook);
-        with TaxRegSetup do begin
-            Get();
-            Validate("Future Exp. Depreciation Book", DeprBook.Code);
-            Modify(true);
-        end;
+        TaxRegSetup.Get();
+        TaxRegSetup.Validate("Future Exp. Depreciation Book", DeprBook.Code);
+        TaxRegSetup.Modify(true);
     end;
 
     local procedure UpdateTaxRegTemplateFA(var TaxRegTemplate: Record "Tax Register Template"; SumFieldNo: Integer; DeprBookCode: Code[10])
     begin
-        with TaxRegTemplate do begin
-            Validate("Expression Type", "Expression Type"::SumField);
-            Validate("Belonging to Manufacturing", "Belonging to Manufacturing"::Production);
-            Validate("FA Type", "FA Type"::"Fixed Assets");
-            Validate("Depr. Book Filter", DeprBookCode);
-            Validate(Period, 'CP..ED');
-            Validate("Sum Field No.", SumFieldNo);
-            Expression := Format(SumFieldNo);
-            case SumFieldNo of
-                92:
-                    Validate("Depr. Bonus % Filter", Format(SumFieldNo));
-                94:
-                    Validate("Result on Disposal", "Result on Disposal"::Gain);
-            end;
-            Modify(true);
+        TaxRegTemplate.Validate("Expression Type", TaxRegTemplate."Expression Type"::SumField);
+        TaxRegTemplate.Validate("Belonging to Manufacturing", TaxRegTemplate."Belonging to Manufacturing"::Production);
+        TaxRegTemplate.Validate("FA Type", TaxRegTemplate."FA Type"::"Fixed Assets");
+        TaxRegTemplate.Validate("Depr. Book Filter", DeprBookCode);
+        TaxRegTemplate.Validate(Period, 'CP..ED');
+        TaxRegTemplate.Validate("Sum Field No.", SumFieldNo);
+        TaxRegTemplate.Expression := Format(SumFieldNo);
+        case SumFieldNo of
+            92:
+                TaxRegTemplate.Validate("Depr. Bonus % Filter", Format(SumFieldNo));
+            94:
+                TaxRegTemplate.Validate("Result on Disposal", TaxRegTemplate."Result on Disposal"::Gain);
         end;
+        TaxRegTemplate.Modify(true);
     end;
 
     local procedure UpdateTaxRegTemplateFE(var TaxRegTemplate: Record "Tax Register Template"; SumFieldNo: Integer; DeprBookCode: Code[10])
     begin
-        with TaxRegTemplate do begin
-            Validate("Expression Type", "Expression Type"::SumField);
-            Validate("Depr. Book Filter", DeprBookCode);
-            Validate(Period, 'CP..ED');
-            Validate("Sum Field No.", SumFieldNo);
-            Modify(true);
-        end;
+        TaxRegTemplate.Validate("Expression Type", TaxRegTemplate."Expression Type"::SumField);
+        TaxRegTemplate.Validate("Depr. Book Filter", DeprBookCode);
+        TaxRegTemplate.Validate(Period, 'CP..ED');
+        TaxRegTemplate.Validate("Sum Field No.", SumFieldNo);
+        TaxRegTemplate.Modify(true);
     end;
 
     [ConfirmHandler]

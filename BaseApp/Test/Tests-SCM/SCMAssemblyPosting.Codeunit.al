@@ -20,10 +20,8 @@ codeunit 137915 "SCM Assembly Posting"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
-        TextGetLastErrorText: Label 'Actual error: ''%1''. Expected: ''%2''';
         ErrItemNoEmpty: Label 'Item No. must have a value in Assembly Header:';
         ErrNotOnInventory: Label 'on inventory.';
-        ErrOrderDoesNotExist: Label 'The Assembly Header does not exist';
         ErrOrderAlreadyExists: Label 'cannot be created, because it already exists or has been posted.';
         DefaultBatch: Label 'DEFAULT';
         LibraryDimension: Codeunit "Library - Dimension";
@@ -211,8 +209,7 @@ codeunit 137915 "SCM Assembly Posting"
 
         // verify original order is deleted.
         asserterror AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrOrderDoesNotExist) > 0,
-          StrSubstNo(TextGetLastErrorText, GetLastErrorText, ErrOrderDoesNotExist));
+        Assert.ExpectedErrorCannotFind(Database::"Assembly Header");
 
         // delete posted assembly order
         PostedAssemblyHeader.FindLast();
@@ -293,8 +290,7 @@ codeunit 137915 "SCM Assembly Posting"
           AssemblyCommentLineItemLine1, AssemblyCommentLineItemLine2);
         // verify original order is deleted.
         asserterror AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrOrderDoesNotExist) > 0,
-          StrSubstNo(TextGetLastErrorText, GetLastErrorText, ErrOrderDoesNotExist));
+        Assert.ExpectedErrorCannotFind(Database::"Assembly Header");
 
         // delete last posted assembly order
         PostedAssemblyHeader.FindLast();
@@ -1116,85 +1112,83 @@ codeunit 137915 "SCM Assembly Posting"
             PostedAssemblyLine.Get(PostedAssemblyDocumentNo, PostedAssemblyLineNo);
             Assert.AreEqual(PostedAssemblyLine.Type::Item, PostedAssemblyLine.Type, Identifier);
         end;
-        with ItemLedgEntry do begin
-            CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
-            Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Posting Date", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Item No.", "Source No.", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."No.", "Document No.", Identifier);
-            Assert.AreEqual("Source Type"::Item, "Source Type", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Document Date", Identifier);
-            AssemblySetup.Get();
-            Assert.AreEqual(AssemblySetup."Posted Assembly Order Nos.", "No. Series", Identifier);
-            Assert.AreEqual("Document Type"::"Posted Assembly", "Document Type", Identifier);
-            Assert.AreEqual("Order Type"::Assembly, "Order Type", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Order No.", "Order No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Line No.", "Document Line No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Order Line No.", "Order Line No.", Identifier);
-            if PostedAssemblyLineNo <> 0 then begin
-                Assert.AreEqual("Entry Type"::"Assembly Consumption", "Entry Type", Identifier);
-                Assert.AreEqual(PostedAssemblyLine.Description, Description, Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Location Code", "Location Code", Identifier);
-                Assert.AreEqual(-1 * PostedAssemblyLine."Quantity (Base)", Quantity, Identifier);
-                Assert.AreEqual(false, Open, Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 1 Code", "Global Dimension 1 Code", Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 2 Code", "Global Dimension 2 Code", Identifier);
-                Assert.AreEqual(false, Positive, Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Dimension Set ID", "Dimension Set ID", Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Variant Code", "Variant Code", Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Qty. per Unit of Measure", "Qty. per Unit of Measure", Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Unit of Measure Code", "Unit of Measure Code", Identifier);
-                Assert.AreEqual(-1 * PostedAssemblyLine."Cost Amount", Round("Cost Amount (Actual)"), Identifier);
-                Assert.AreEqual(0, "Remaining Quantity", Identifier);
-                Item.Get(PostedAssemblyLine."No.");
-            end else begin
-                Assert.AreEqual("Entry Type"::"Assembly Output", "Entry Type", Identifier);
-                // Assert.AreEqual(PostedAssemblyHeader.Description,Description,Identifier);
-                Assert.AreEqual('', Description, Identifier); // commented above line and added this line
-                Assert.AreEqual(PostedAssemblyHeader."Location Code", "Location Code", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Quantity (Base)", Quantity, Identifier);
-                Assert.AreEqual(true, Open, Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Shortcut Dimension 1 Code", "Global Dimension 1 Code", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Shortcut Dimension 2 Code", "Global Dimension 2 Code", Identifier);
-                Assert.AreEqual(true, Positive, Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Dimension Set ID", "Dimension Set ID", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Variant Code", "Variant Code", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Qty. per Unit of Measure", "Qty. per Unit of Measure", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Unit of Measure Code", "Unit of Measure Code", Identifier);
-                Item.Get(PostedAssemblyHeader."Item No.");
-                UnitCost := Item."Overhead Rate" + Item."Last Direct Cost" * (1 + Item."Indirect Cost %" / 100);
-                Assert.AreNearlyEqual(
-                  Round(PostedAssemblyHeader."Quantity (Base)" * UnitCost, GeneralLedgerSetup."Amount Rounding Precision"),
-                  "Cost Amount (Actual)", GeneralLedgerSetup."Amount Rounding Precision", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Quantity (Base)", "Remaining Quantity", Identifier);
-            end;
-            Assert.AreEqual(Item."Item Category Code", "Item Category Code", Identifier);
-            Assert.AreEqual(Item."No.", "Item No.", Identifier);
-            Assert.AreEqual(Quantity, "Invoiced Quantity", Identifier);
-            Assert.AreEqual(true, "Completely Invoiced", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Last Invoice Date", Identifier);
-            Assert.AreEqual(0, "Cost Amount (Expected)", Identifier);
-            // "Applies-to Entry"
-            // "Drop Shipment"
-            // "Transaction Type"
-            // "Transport Method"
-            // "Country/Region Code"
-            // "Entry/Exit Point"
-            // "External Document No."
-            // Area
-            // "Transaction Specification"
-            // "Job No."
-            // "Job Task No."
-            // "Job Purchase"
-            // "Applied Entry to Adjust"
-            // Correction
-            // "Serial No."
-            // "Lot No."
-            // "Warranty Date"
-            // "Expiration Date"
-            // "Item Tracking"
-            // "Reserved Quantity"
+        ItemLedgEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
+        Assert.AreEqual(PostedAssemblyHeader."Posting Date", ItemLedgEntry."Posting Date", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Item No.", ItemLedgEntry."Source No.", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."No.", ItemLedgEntry."Document No.", Identifier);
+        Assert.AreEqual(ItemLedgEntry."Source Type"::Item, ItemLedgEntry."Source Type", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Posting Date", ItemLedgEntry."Document Date", Identifier);
+        AssemblySetup.Get();
+        Assert.AreEqual(AssemblySetup."Posted Assembly Order Nos.", ItemLedgEntry."No. Series", Identifier);
+        Assert.AreEqual(ItemLedgEntry."Document Type"::"Posted Assembly", ItemLedgEntry."Document Type", Identifier);
+        Assert.AreEqual(ItemLedgEntry."Order Type"::Assembly, ItemLedgEntry."Order Type", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Order No.", ItemLedgEntry."Order No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Line No.", ItemLedgEntry."Document Line No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Order Line No.", ItemLedgEntry."Order Line No.", Identifier);
+        if PostedAssemblyLineNo <> 0 then begin
+            Assert.AreEqual(ItemLedgEntry."Entry Type"::"Assembly Consumption", ItemLedgEntry."Entry Type", Identifier);
+            Assert.AreEqual(PostedAssemblyLine.Description, ItemLedgEntry.Description, Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Location Code", ItemLedgEntry."Location Code", Identifier);
+            Assert.AreEqual(-1 * PostedAssemblyLine."Quantity (Base)", ItemLedgEntry.Quantity, Identifier);
+            Assert.AreEqual(false, ItemLedgEntry.Open, Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 1 Code", ItemLedgEntry."Global Dimension 1 Code", Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 2 Code", ItemLedgEntry."Global Dimension 2 Code", Identifier);
+            Assert.AreEqual(false, ItemLedgEntry.Positive, Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Dimension Set ID", ItemLedgEntry."Dimension Set ID", Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Variant Code", ItemLedgEntry."Variant Code", Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Qty. per Unit of Measure", ItemLedgEntry."Qty. per Unit of Measure", Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Unit of Measure Code", ItemLedgEntry."Unit of Measure Code", Identifier);
+            Assert.AreEqual(-1 * PostedAssemblyLine."Cost Amount", Round(ItemLedgEntry."Cost Amount (Actual)"), Identifier);
+            Assert.AreEqual(0, ItemLedgEntry."Remaining Quantity", Identifier);
+            Item.Get(PostedAssemblyLine."No.");
+        end else begin
+            Assert.AreEqual(ItemLedgEntry."Entry Type"::"Assembly Output", ItemLedgEntry."Entry Type", Identifier);
+            // Assert.AreEqual(PostedAssemblyHeader.Description,Description,Identifier);
+            Assert.AreEqual('', ItemLedgEntry.Description, Identifier);
+            // commented above line and added this line
+            Assert.AreEqual(PostedAssemblyHeader."Location Code", ItemLedgEntry."Location Code", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Quantity (Base)", ItemLedgEntry.Quantity, Identifier);
+            Assert.AreEqual(true, ItemLedgEntry.Open, Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Shortcut Dimension 1 Code", ItemLedgEntry."Global Dimension 1 Code", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Shortcut Dimension 2 Code", ItemLedgEntry."Global Dimension 2 Code", Identifier);
+            Assert.AreEqual(true, ItemLedgEntry.Positive, Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Dimension Set ID", ItemLedgEntry."Dimension Set ID", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Variant Code", ItemLedgEntry."Variant Code", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Qty. per Unit of Measure", ItemLedgEntry."Qty. per Unit of Measure", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Unit of Measure Code", ItemLedgEntry."Unit of Measure Code", Identifier);
+            Item.Get(PostedAssemblyHeader."Item No.");
+            UnitCost := Item."Overhead Rate" + Item."Last Direct Cost" * (1 + Item."Indirect Cost %" / 100);
+            Assert.AreNearlyEqual(
+              Round(PostedAssemblyHeader."Quantity (Base)" * UnitCost, GeneralLedgerSetup."Amount Rounding Precision"),
+              ItemLedgEntry."Cost Amount (Actual)", GeneralLedgerSetup."Amount Rounding Precision", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Quantity (Base)", ItemLedgEntry."Remaining Quantity", Identifier);
         end;
-
+        Assert.AreEqual(Item."Item Category Code", ItemLedgEntry."Item Category Code", Identifier);
+        Assert.AreEqual(Item."No.", ItemLedgEntry."Item No.", Identifier);
+        Assert.AreEqual(ItemLedgEntry.Quantity, ItemLedgEntry."Invoiced Quantity", Identifier);
+        Assert.AreEqual(true, ItemLedgEntry."Completely Invoiced", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Posting Date", ItemLedgEntry."Last Invoice Date", Identifier);
+        Assert.AreEqual(0, ItemLedgEntry."Cost Amount (Expected)", Identifier);
+        // "Applies-to Entry"
+        // "Drop Shipment"
+        // "Transaction Type"
+        // "Transport Method"
+        // "Country/Region Code"
+        // "Entry/Exit Point"
+        // "External Document No."
+        // Area
+        // "Transaction Specification"
+        // "Job No."
+        // "Job Task No."
+        // "Job Purchase"
+        // "Applied Entry to Adjust"
+        // Correction
+        // "Serial No."
+        // "Lot No."
+        // "Warranty Date"
+        // "Expiration Date"
+        // "Item Tracking"
+        // "Reserved Quantity"
         ValueEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.");
         ValueEntry.SetRange("Document Type", ItemLedgEntry."Document Type");
         ValueEntry.SetRange("Document No.", PostedAssemblyHeader."No.");
@@ -1254,149 +1248,148 @@ codeunit 137915 "SCM Assembly Posting"
             Assert.AreEqual(CapLedgEntry.Type::Resource, CapLedgEntry.Type, Identifier);
         end;
 
-        with ValueEntry do begin
-            if PostedAssemblyLineNo <> 0 then begin
-                case PostedAssemblyLine.Type of
-                    PostedAssemblyLine.Type::Item:
-                        begin
-                            Assert.AreEqual(PostedAssemblyLine."No.", "Item No.", Identifier);
-                            Assert.AreEqual('', "No.", Identifier);
-                            Assert.AreEqual("Item Ledger Entry Type"::"Assembly Consumption", "Item Ledger Entry Type", Identifier);
-                            Assert.AreEqual(-1 * PostedAssemblyLine."Quantity (Base)", "Valued Quantity", Identifier);
-                            Assert.AreEqual(-1 * PostedAssemblyLine."Quantity (Base)", "Invoiced Quantity", Identifier);
-                            if PostedAssemblyLine."Unit Cost" <> "Cost per Unit" then
-                                Assert.AreEqual(Round(PostedAssemblyLine."Unit Cost" / PostedAssemblyLine."Qty. per Unit of Measure"),
-                                  Round("Cost per Unit"), Identifier);
-                            Assert.AreEqual(-1 * PostedAssemblyLine."Cost Amount", Round("Cost Amount (Actual)"), Identifier);
-                            Assert.AreEqual("Entry Type"::"Direct Cost", "Entry Type", Identifier);
-                            Assert.AreEqual(PostedAssemblyLine."Inventory Posting Group", "Inventory Posting Group", Identifier);
+        if PostedAssemblyLineNo <> 0 then begin
+            case PostedAssemblyLine.Type of
+                PostedAssemblyLine.Type::Item:
+                    begin
+                        Assert.AreEqual(PostedAssemblyLine."No.", ValueEntry."Item No.", Identifier);
+                        Assert.AreEqual('', ValueEntry."No.", Identifier);
+                        Assert.AreEqual(ValueEntry."Item Ledger Entry Type"::"Assembly Consumption", ValueEntry."Item Ledger Entry Type", Identifier);
+                        Assert.AreEqual(-1 * PostedAssemblyLine."Quantity (Base)", ValueEntry."Valued Quantity", Identifier);
+                        Assert.AreEqual(-1 * PostedAssemblyLine."Quantity (Base)", ValueEntry."Invoiced Quantity", Identifier);
+                        if PostedAssemblyLine."Unit Cost" <> ValueEntry."Cost per Unit" then
+                            Assert.AreEqual(Round(PostedAssemblyLine."Unit Cost" / PostedAssemblyLine."Qty. per Unit of Measure"),
+                              Round(ValueEntry."Cost per Unit"), Identifier);
+                        Assert.AreEqual(-1 * PostedAssemblyLine."Cost Amount", Round(ValueEntry."Cost Amount (Actual)"), Identifier);
+                        Assert.AreEqual(ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type", Identifier);
+                        Assert.AreEqual(PostedAssemblyLine."Inventory Posting Group", ValueEntry."Inventory Posting Group", Identifier);
+                    end;
+                PostedAssemblyLine.Type::Resource:
+                    begin
+                        Assert.AreEqual('', ValueEntry."Item No.", Identifier);
+                        Assert.AreEqual(PostedAssemblyLine."No.", ValueEntry."No.", Identifier);
+                        Assert.AreEqual(ValueEntry."Item Ledger Entry Type"::" ", ValueEntry."Item Ledger Entry Type", Identifier);
+                        Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", ValueEntry."Valued Quantity", Identifier);
+                        Assert.IsTrue(ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::"Indirect Cost"], Identifier);
+                        Resource.Get(ValueEntry."No.");
+                        case ValueEntry."Entry Type" of
+                            ValueEntry."Entry Type"::"Direct Cost":
+                                begin
+                                    if Resource."Direct Unit Cost" <> ValueEntry."Cost per Unit" then
+                                        Assert.AreEqual(Round(Resource."Direct Unit Cost"), Round(ValueEntry."Cost per Unit"), Identifier);
+                                    Assert.AreEqual(Round(Resource."Direct Unit Cost" * PostedAssemblyLine."Quantity (Base)"),
+                                      ValueEntry."Cost Amount (Actual)", Identifier);
+                                    Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", ValueEntry."Invoiced Quantity", Identifier);
+                                end;
+                            ValueEntry."Entry Type"::"Indirect Cost":
+                                begin
+                                    if Resource."Unit Cost" - Resource."Direct Unit Cost" <> ValueEntry."Cost per Unit" then
+                                        Assert.AreEqual(Round(Resource."Unit Cost" - Resource."Direct Unit Cost"), Round(ValueEntry."Cost per Unit"), Identifier);
+                                    Assert.AreEqual(Round(ValueEntry."Cost per Unit" * PostedAssemblyLine."Quantity (Base)"),
+                                      ValueEntry."Cost Amount (Actual)", Identifier);
+                                    Assert.AreEqual(0, ValueEntry."Invoiced Quantity", Identifier);
+                                end;
                         end;
-                    PostedAssemblyLine.Type::Resource:
-                        begin
-                            Assert.AreEqual('', "Item No.", Identifier);
-                            Assert.AreEqual(PostedAssemblyLine."No.", "No.", Identifier);
-                            Assert.AreEqual("Item Ledger Entry Type"::" ", "Item Ledger Entry Type", Identifier);
-                            Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", "Valued Quantity", Identifier);
-                            Assert.IsTrue("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::"Indirect Cost"], Identifier);
-                            Resource.Get("No.");
-                            case "Entry Type" of
-                                "Entry Type"::"Direct Cost":
-                                    begin
-                                        if Resource."Direct Unit Cost" <> "Cost per Unit" then
-                                            Assert.AreEqual(Round(Resource."Direct Unit Cost"), Round("Cost per Unit"), Identifier);
-                                        Assert.AreEqual(Round(Resource."Direct Unit Cost" * PostedAssemblyLine."Quantity (Base)"),
-                                          "Cost Amount (Actual)", Identifier);
-                                        Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", "Invoiced Quantity", Identifier);
-                                    end;
-                                "Entry Type"::"Indirect Cost":
-                                    begin
-                                        if Resource."Unit Cost" - Resource."Direct Unit Cost" <> "Cost per Unit" then
-                                            Assert.AreEqual(Round(Resource."Unit Cost" - Resource."Direct Unit Cost"), Round("Cost per Unit"), Identifier);
-                                        Assert.AreEqual(Round("Cost per Unit" * PostedAssemblyLine."Quantity (Base)"),
-                                          "Cost Amount (Actual)", Identifier);
-                                        Assert.AreEqual(0, "Invoiced Quantity", Identifier);
-                                    end;
-                            end;
-                            Assert.AreEqual('', "Inventory Posting Group", Identifier);
-                        end;
-                end;
-                Assert.AreEqual(ItemLedgEntry.Quantity, "Item Ledger Entry Quantity", Identifier);
-                Assert.AreEqual(PostedAssemblyLine.Description, Description, Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Location Code", "Location Code", Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 1 Code", "Global Dimension 1 Code", Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 2 Code", "Global Dimension 2 Code", Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Gen. Prod. Posting Group", "Gen. Prod. Posting Group", Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Dimension Set ID", "Dimension Set ID", Identifier);
-                Assert.AreEqual(PostedAssemblyLine."Variant Code", "Variant Code", Identifier);
-            end else begin
-                Assert.AreEqual(PostedAssemblyHeader."Item No.", "Item No.", Identifier);
-                Assert.AreEqual('', "No.", Identifier);
-                Assert.AreEqual("Item Ledger Entry Type"::"Assembly Output", "Item Ledger Entry Type", Identifier);
-                Item.Get("Item No.");
-                if Item.Description <> PostedAssemblyHeader.Description then
-                    Assert.AreEqual(PostedAssemblyHeader.Description, Description, Identifier)
-                else
-                    Assert.AreEqual('', Description, Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Location Code", "Location Code", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Inventory Posting Group", "Inventory Posting Group", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Quantity (Base)", "Valued Quantity", Identifier);
-                case "Entry Type" of
-                    "Entry Type"::"Indirect Cost":
-                        begin
-                            Assert.AreEqual(0, "Invoiced Quantity", Identifier);
-                            Assert.AreEqual(Round(Item."Overhead Rate" + Item."Last Direct Cost" * Item."Indirect Cost %" / 100),
-                              Round("Cost per Unit"), Identifier);
-                            Assert.AreEqual(0, "Item Ledger Entry Quantity", Identifier);
-                        end;
-                    "Entry Type"::"Direct Cost":
-                        begin
-                            Assert.AreEqual(PostedAssemblyHeader."Quantity (Base)", "Invoiced Quantity", Identifier);
-                            Assert.AreEqual(Round(Item."Last Direct Cost"), Round("Cost per Unit"), Identifier);
-                            Assert.AreEqual(ItemLedgEntry.Quantity, "Item Ledger Entry Quantity", Identifier);
-                        end;
-                end;
-                Assert.AreNearlyEqual(
-                  Round("Cost per Unit" * PostedAssemblyHeader."Quantity (Base)", GeneralLedgerSetup."Amount Rounding Precision"),
-                  "Cost Amount (Actual)", GeneralLedgerSetup."Amount Rounding Precision", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Shortcut Dimension 1 Code", "Global Dimension 1 Code", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Shortcut Dimension 2 Code", "Global Dimension 2 Code", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Gen. Prod. Posting Group", "Gen. Prod. Posting Group", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Dimension Set ID", "Dimension Set ID", Identifier);
-                Assert.AreEqual(PostedAssemblyHeader."Variant Code", "Variant Code", Identifier);
-                Assert.IsTrue("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::"Indirect Cost"], Identifier);
+                        Assert.AreEqual('', ValueEntry."Inventory Posting Group", Identifier);
+                    end;
             end;
-            Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Posting Date", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Item No.", "Source No.", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."No.", "Document No.", Identifier);
-            Assert.AreEqual('', "Source Posting Group", Identifier);
-            Assert.AreEqual(ItemLedgEntry."Entry No.", "Item Ledger Entry No.", Identifier);
-            // "Sales Amount (Actual)"
-            // "Salespers./Purch. Code"
-            // "Discount Amount"
-            Assert.AreEqual(UpperCase(UserId), "User ID", Identifier);
-            SourceCodeSetup.Get();
-            Assert.AreEqual(SourceCodeSetup.Assembly, "Source Code", Identifier);
-            // "Applies-to Entry"
-            Assert.AreEqual("Source Type"::Item, "Source Type", Identifier);
-            Assert.AreEqual(0, "Cost Posted to G/L", Identifier);
-            // "Reason Code"
-            // "Drop Shipment"
-            Assert.AreEqual('', "Journal Batch Name", Identifier);
-            Assert.AreEqual('', "Gen. Bus. Posting Group", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Document Date", Identifier);
-            // "External Document No."
-            Assert.AreEqual(0, "Cost Posted to G/L (ACY)", Identifier);
-            Assert.AreEqual(0, "Cost Amount (Actual) (ACY)", Identifier);
-            Assert.AreEqual(0, "Cost per Unit (ACY)", Identifier);
-            Assert.AreEqual("Document Type"::"Posted Assembly", "Document Type", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Line No.", "Document Line No.", Identifier);
-            Assert.AreEqual("Order Type"::Assembly, "Order Type", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Order No.", "Order No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Order Line No.", "Order Line No.", Identifier);
-            Assert.AreEqual(false, "Expected Cost", Identifier);
-            // "Item Charge No."
-            // "Valued By Average Cost"
-            // "Partial Revaluation"
-            // Inventoriable
-            if "Item Ledger Entry Type" = "Item Ledger Entry Type"::"Assembly Consumption" then
-                Assert.AreEqual(WorkDate(), "Valuation Date", Identifier) // special case- may be a bug!!!
+            Assert.AreEqual(ItemLedgEntry.Quantity, ValueEntry."Item Ledger Entry Quantity", Identifier);
+            Assert.AreEqual(PostedAssemblyLine.Description, ValueEntry.Description, Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Location Code", ValueEntry."Location Code", Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 1 Code", ValueEntry."Global Dimension 1 Code", Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 2 Code", ValueEntry."Global Dimension 2 Code", Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Gen. Prod. Posting Group", ValueEntry."Gen. Prod. Posting Group", Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Dimension Set ID", ValueEntry."Dimension Set ID", Identifier);
+            Assert.AreEqual(PostedAssemblyLine."Variant Code", ValueEntry."Variant Code", Identifier);
+        end else begin
+            Assert.AreEqual(PostedAssemblyHeader."Item No.", ValueEntry."Item No.", Identifier);
+            Assert.AreEqual('', ValueEntry."No.", Identifier);
+            Assert.AreEqual(ValueEntry."Item Ledger Entry Type"::"Assembly Output", ValueEntry."Item Ledger Entry Type", Identifier);
+            Item.Get(ValueEntry."Item No.");
+            if Item.Description <> PostedAssemblyHeader.Description then
+                Assert.AreEqual(PostedAssemblyHeader.Description, ValueEntry.Description, Identifier)
             else
-                Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Valuation Date", Identifier);
-            Assert.AreEqual("Variance Type"::" ", "Variance Type", Identifier);
-            Assert.AreEqual(0, "Cost Amount (Expected)", Identifier);
-            Assert.AreEqual(0, "Expected Cost Posted to G/L", Identifier);
-            // "Job No."
-            // "Job Task No."
-            // "Job Ledger Entry No."
-            Assert.AreEqual(false, Adjustment, Identifier);
-            // "Average Cost Exception"
-            Assert.AreEqual(CapLedgEntry."Entry No.", "Capacity Ledger Entry No.", Identifier);
-            if CapLedgEntry.IsEmpty() then
-                Assert.AreEqual(CapLedgEntry.Type::" ", Type, Identifier)
-            else
-                Assert.AreEqual(CapLedgEntry.Type, Type, Identifier);
-            Assert.AreEqual('', "Return Reason Code", Identifier);
+                Assert.AreEqual('', ValueEntry.Description, Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Location Code", ValueEntry."Location Code", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Inventory Posting Group", ValueEntry."Inventory Posting Group", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Quantity (Base)", ValueEntry."Valued Quantity", Identifier);
+            case ValueEntry."Entry Type" of
+                ValueEntry."Entry Type"::"Indirect Cost":
+                    begin
+                        Assert.AreEqual(0, ValueEntry."Invoiced Quantity", Identifier);
+                        Assert.AreEqual(Round(Item."Overhead Rate" + Item."Last Direct Cost" * Item."Indirect Cost %" / 100),
+                          Round(ValueEntry."Cost per Unit"), Identifier);
+                        Assert.AreEqual(0, ValueEntry."Item Ledger Entry Quantity", Identifier);
+                    end;
+                ValueEntry."Entry Type"::"Direct Cost":
+                    begin
+                        Assert.AreEqual(PostedAssemblyHeader."Quantity (Base)", ValueEntry."Invoiced Quantity", Identifier);
+                        Assert.AreEqual(Round(Item."Last Direct Cost"), Round(ValueEntry."Cost per Unit"), Identifier);
+                        Assert.AreEqual(ItemLedgEntry.Quantity, ValueEntry."Item Ledger Entry Quantity", Identifier);
+                    end;
+            end;
+            Assert.AreNearlyEqual(
+              Round(ValueEntry."Cost per Unit" * PostedAssemblyHeader."Quantity (Base)", GeneralLedgerSetup."Amount Rounding Precision"),
+              ValueEntry."Cost Amount (Actual)", GeneralLedgerSetup."Amount Rounding Precision", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Shortcut Dimension 1 Code", ValueEntry."Global Dimension 1 Code", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Shortcut Dimension 2 Code", ValueEntry."Global Dimension 2 Code", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Gen. Prod. Posting Group", ValueEntry."Gen. Prod. Posting Group", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Dimension Set ID", ValueEntry."Dimension Set ID", Identifier);
+            Assert.AreEqual(PostedAssemblyHeader."Variant Code", ValueEntry."Variant Code", Identifier);
+            Assert.IsTrue(ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::"Indirect Cost"], Identifier);
         end;
+        Assert.AreEqual(PostedAssemblyHeader."Posting Date", ValueEntry."Posting Date", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Item No.", ValueEntry."Source No.", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."No.", ValueEntry."Document No.", Identifier);
+        Assert.AreEqual('', ValueEntry."Source Posting Group", Identifier);
+        Assert.AreEqual(ItemLedgEntry."Entry No.", ValueEntry."Item Ledger Entry No.", Identifier);
+        // "Sales Amount (Actual)"
+        // "Salespers./Purch. Code"
+        // "Discount Amount"
+        Assert.AreEqual(UpperCase(UserId), ValueEntry."User ID", Identifier);
+        SourceCodeSetup.Get();
+        Assert.AreEqual(SourceCodeSetup.Assembly, ValueEntry."Source Code", Identifier);
+        // "Applies-to Entry"
+        Assert.AreEqual(ValueEntry."Source Type"::Item, ValueEntry."Source Type", Identifier);
+        Assert.AreEqual(0, ValueEntry."Cost Posted to G/L", Identifier);
+        // "Reason Code"
+        // "Drop Shipment"
+        Assert.AreEqual('', ValueEntry."Journal Batch Name", Identifier);
+        Assert.AreEqual('', ValueEntry."Gen. Bus. Posting Group", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Posting Date", ValueEntry."Document Date", Identifier);
+        // "External Document No."
+        Assert.AreEqual(0, ValueEntry."Cost Posted to G/L (ACY)", Identifier);
+        Assert.AreEqual(0, ValueEntry."Cost Amount (Actual) (ACY)", Identifier);
+        Assert.AreEqual(0, ValueEntry."Cost per Unit (ACY)", Identifier);
+        Assert.AreEqual(ValueEntry."Document Type"::"Posted Assembly", ValueEntry."Document Type", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Line No.", ValueEntry."Document Line No.", Identifier);
+        Assert.AreEqual(ValueEntry."Order Type"::Assembly, ValueEntry."Order Type", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Order No.", ValueEntry."Order No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Order Line No.", ValueEntry."Order Line No.", Identifier);
+        Assert.AreEqual(false, ValueEntry."Expected Cost", Identifier);
+        // "Item Charge No."
+        // "Valued By Average Cost"
+        // "Partial Revaluation"
+        // Inventoriable
+        if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::"Assembly Consumption" then
+            Assert.AreEqual(WorkDate(), ValueEntry."Valuation Date", Identifier)
+        // special case- may be a bug!!!
+        else
+            Assert.AreEqual(PostedAssemblyHeader."Posting Date", ValueEntry."Valuation Date", Identifier);
+        Assert.AreEqual(ValueEntry."Variance Type"::" ", ValueEntry."Variance Type", Identifier);
+        Assert.AreEqual(0, ValueEntry."Cost Amount (Expected)", Identifier);
+        Assert.AreEqual(0, ValueEntry."Expected Cost Posted to G/L", Identifier);
+        // "Job No."
+        // "Job Task No."
+        // "Job Ledger Entry No."
+        Assert.AreEqual(false, ValueEntry.Adjustment, Identifier);
+        // "Average Cost Exception"
+        Assert.AreEqual(CapLedgEntry."Entry No.", ValueEntry."Capacity Ledger Entry No.", Identifier);
+        if CapLedgEntry.IsEmpty() then
+            Assert.AreEqual(CapLedgEntry.Type::" ", ValueEntry.Type, Identifier)
+        else
+            Assert.AreEqual(CapLedgEntry.Type, ValueEntry.Type, Identifier);
+        Assert.AreEqual('', ValueEntry."Return Reason Code", Identifier);
     end;
 
     local procedure VerifyCapLE(CapLedgEntry: Record "Capacity Ledger Entry"; PostedAssemblyDocumentNo: Code[20]; PostedAssemblyLineNo: Integer)
@@ -1410,52 +1403,50 @@ codeunit 137915 "SCM Assembly Posting"
         PostedAssemblyHeader.Get(PostedAssemblyDocumentNo);
         PostedAssemblyLine.Get(PostedAssemblyDocumentNo, PostedAssemblyLineNo);
         Assert.AreEqual(PostedAssemblyLine.Type::Resource, PostedAssemblyLine.Type, Identifier);
-        with CapLedgEntry do begin
-            CalcFields("Direct Cost", "Overhead Cost");
-            Assert.AreEqual(PostedAssemblyLine."No.", "No.", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Posting Date", Identifier);
-            Assert.AreEqual(Type::Resource, Type, Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."No.", "Document No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine.Description, Description, Identifier);
-            Assert.AreEqual('', "Operation No.", Identifier);
-            Assert.AreEqual('', "Work Center No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", Quantity, Identifier);
-            Assert.AreEqual(0, "Setup Time", Identifier);
-            Assert.AreEqual(0, "Run Time", Identifier);
-            Assert.AreEqual(0, "Stop Time", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", "Invoiced Quantity", Identifier);
-            Assert.AreEqual(0, "Output Quantity", Identifier);
-            Assert.AreEqual(0, "Scrap Quantity", Identifier);
-            // "Concurrent Capacity"
-            Assert.AreEqual(PostedAssemblyLine."Unit of Measure Code", "Cap. Unit of Measure Code", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Qty. per Unit of Measure", "Qty. per Cap. Unit of Measure", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 1 Code", "Global Dimension 1 Code", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 2 Code", "Global Dimension 2 Code", Identifier);
-            // "Last Output Line"
-            Assert.AreEqual(true, "Completely Invoiced", Identifier);
-            Assert.AreEqual(0T, "Starting Time", Identifier);
-            Assert.AreEqual(0T, "Ending Time", Identifier);
-            Assert.AreEqual('', "Routing No.", Identifier);
-            Assert.AreEqual(0, "Routing Reference No.", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Item No.", "Item No.", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Variant Code", "Variant Code", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Unit of Measure Code", "Unit of Measure Code", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Qty. per Unit of Measure", "Qty. per Unit of Measure", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Document Date", Identifier);
-            // "External Document No."
-            Assert.AreEqual('', "Stop Code", Identifier);
-            Assert.AreEqual('', "Scrap Code", Identifier);
-            Assert.AreEqual('', "Work Center Group Code", Identifier);
-            Assert.AreEqual('', "Work Shift Code", Identifier);
-            Assert.AreEqual(false, Subcontracting, Identifier);
-            Assert.AreEqual("Order Type"::Assembly, "Order Type", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Order No.", "Order No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Order Line No.", "Order Line No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Dimension Set ID", "Dimension Set ID", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Cost Amount", "Direct Cost" + "Overhead Cost", Identifier);
-            Assert.AreEqual(0, "Direct Cost (ACY)", Identifier);
-            Assert.AreEqual(0, "Overhead Cost (ACY)", Identifier);
-        end;
+        CapLedgEntry.CalcFields("Direct Cost", "Overhead Cost");
+        Assert.AreEqual(PostedAssemblyLine."No.", CapLedgEntry."No.", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Posting Date", CapLedgEntry."Posting Date", Identifier);
+        Assert.AreEqual(CapLedgEntry.Type::Resource, CapLedgEntry.Type, Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."No.", CapLedgEntry."Document No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine.Description, CapLedgEntry.Description, Identifier);
+        Assert.AreEqual('', CapLedgEntry."Operation No.", Identifier);
+        Assert.AreEqual('', CapLedgEntry."Work Center No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", CapLedgEntry.Quantity, Identifier);
+        Assert.AreEqual(0, CapLedgEntry."Setup Time", Identifier);
+        Assert.AreEqual(0, CapLedgEntry."Run Time", Identifier);
+        Assert.AreEqual(0, CapLedgEntry."Stop Time", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", CapLedgEntry."Invoiced Quantity", Identifier);
+        Assert.AreEqual(0, CapLedgEntry."Output Quantity", Identifier);
+        Assert.AreEqual(0, CapLedgEntry."Scrap Quantity", Identifier);
+        // "Concurrent Capacity"
+        Assert.AreEqual(PostedAssemblyLine."Unit of Measure Code", CapLedgEntry."Cap. Unit of Measure Code", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Qty. per Unit of Measure", CapLedgEntry."Qty. per Cap. Unit of Measure", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 1 Code", CapLedgEntry."Global Dimension 1 Code", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 2 Code", CapLedgEntry."Global Dimension 2 Code", Identifier);
+        // "Last Output Line"
+        Assert.AreEqual(true, CapLedgEntry."Completely Invoiced", Identifier);
+        Assert.AreEqual(0T, CapLedgEntry."Starting Time", Identifier);
+        Assert.AreEqual(0T, CapLedgEntry."Ending Time", Identifier);
+        Assert.AreEqual('', CapLedgEntry."Routing No.", Identifier);
+        Assert.AreEqual(0, CapLedgEntry."Routing Reference No.", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Item No.", CapLedgEntry."Item No.", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Variant Code", CapLedgEntry."Variant Code", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Unit of Measure Code", CapLedgEntry."Unit of Measure Code", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Qty. per Unit of Measure", CapLedgEntry."Qty. per Unit of Measure", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Posting Date", CapLedgEntry."Document Date", Identifier);
+        // "External Document No."
+        Assert.AreEqual('', CapLedgEntry."Stop Code", Identifier);
+        Assert.AreEqual('', CapLedgEntry."Scrap Code", Identifier);
+        Assert.AreEqual('', CapLedgEntry."Work Center Group Code", Identifier);
+        Assert.AreEqual('', CapLedgEntry."Work Shift Code", Identifier);
+        Assert.AreEqual(false, CapLedgEntry.Subcontracting, Identifier);
+        Assert.AreEqual(CapLedgEntry."Order Type"::Assembly, CapLedgEntry."Order Type", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Order No.", CapLedgEntry."Order No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Order Line No.", CapLedgEntry."Order Line No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Dimension Set ID", CapLedgEntry."Dimension Set ID", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Cost Amount", CapLedgEntry."Direct Cost" + CapLedgEntry."Overhead Cost", Identifier);
+        Assert.AreEqual(0, CapLedgEntry."Direct Cost (ACY)", Identifier);
+        Assert.AreEqual(0, CapLedgEntry."Overhead Cost (ACY)", Identifier);
 
         ValueEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.");
         ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Assembly);
@@ -1485,45 +1476,43 @@ codeunit 137915 "SCM Assembly Posting"
         PostedAssemblyHeader.Get(PostedAssemblyDocumentNo);
         PostedAssemblyLine.Get(PostedAssemblyDocumentNo, PostedAssemblyLineNo);
         Assert.AreEqual(PostedAssemblyLine.Type::Resource, PostedAssemblyLine.Type, Identifier);
-        with ResLedgEntry do begin
-            Assert.AreEqual("Entry Type"::Usage, "Entry Type", Identifier);
-            Assert.AreEqual(PostedAssemblyDocumentNo, "Document No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."No.", "Resource No.", Identifier);
-            Resource.Get(PostedAssemblyLine."No.");
-            Assert.AreEqual(Resource."Resource Group No.", "Resource Group No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine.Description, Description, Identifier);
-            Assert.AreEqual('', "Work Type Code", Identifier);
-            Assert.AreEqual('', "Job No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Unit of Measure Code", "Unit of Measure Code", Identifier);
-            Assert.AreEqual(PostedAssemblyLine.Quantity, Quantity, Identifier);
-            Assert.AreEqual(Resource."Direct Unit Cost", "Direct Unit Cost", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Unit Cost", "Unit Cost", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Cost Amount", "Total Cost", Identifier);
-            Assert.AreEqual(0, "Unit Price", Identifier);
-            Assert.AreEqual(0, "Total Price", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 1 Code", "Global Dimension 1 Code", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 2 Code", "Global Dimension 2 Code", Identifier);
-            Assert.AreEqual(UpperCase(UserId), "User ID", Identifier);
-            SourceCodeSetup.Get();
-            Assert.AreEqual(SourceCodeSetup.Assembly, "Source Code", Identifier);
-            Assert.AreEqual(true, Chargeable, Identifier);
-            Assert.AreEqual('', "Journal Batch Name", Identifier);
-            Assert.AreEqual('', "Reason Code", Identifier);
-            Assert.AreEqual('', "Gen. Bus. Posting Group", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Gen. Prod. Posting Group", "Gen. Prod. Posting Group", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Document Date", Identifier);
-            Assert.AreEqual('', "External Document No.", Identifier);
-            AssemblySetup.Get();
-            Assert.AreEqual(AssemblySetup."Posted Assembly Order Nos.", "No. Series", Identifier);
-            Assert.AreEqual("Source Type"::" ", "Source Type", Identifier);
-            Assert.AreEqual('', "Source No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Qty. per Unit of Measure", "Qty. per Unit of Measure", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", "Quantity (Base)", Identifier);
-            Assert.AreEqual("Order Type"::Assembly, "Order Type", Identifier);
-            Assert.AreEqual(PostedAssemblyHeader."Order No.", "Order No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Order Line No.", "Order Line No.", Identifier);
-            Assert.AreEqual(PostedAssemblyLine."Dimension Set ID", "Dimension Set ID", Identifier);
-        end;
+        Assert.AreEqual(ResLedgEntry."Entry Type"::Usage, ResLedgEntry."Entry Type", Identifier);
+        Assert.AreEqual(PostedAssemblyDocumentNo, ResLedgEntry."Document No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."No.", ResLedgEntry."Resource No.", Identifier);
+        Resource.Get(PostedAssemblyLine."No.");
+        Assert.AreEqual(Resource."Resource Group No.", ResLedgEntry."Resource Group No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine.Description, ResLedgEntry.Description, Identifier);
+        Assert.AreEqual('', ResLedgEntry."Work Type Code", Identifier);
+        Assert.AreEqual('', ResLedgEntry."Job No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Unit of Measure Code", ResLedgEntry."Unit of Measure Code", Identifier);
+        Assert.AreEqual(PostedAssemblyLine.Quantity, ResLedgEntry.Quantity, Identifier);
+        Assert.AreEqual(Resource."Direct Unit Cost", ResLedgEntry."Direct Unit Cost", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Unit Cost", ResLedgEntry."Unit Cost", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Cost Amount", ResLedgEntry."Total Cost", Identifier);
+        Assert.AreEqual(0, ResLedgEntry."Unit Price", Identifier);
+        Assert.AreEqual(0, ResLedgEntry."Total Price", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 1 Code", ResLedgEntry."Global Dimension 1 Code", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 2 Code", ResLedgEntry."Global Dimension 2 Code", Identifier);
+        Assert.AreEqual(UpperCase(UserId), ResLedgEntry."User ID", Identifier);
+        SourceCodeSetup.Get();
+        Assert.AreEqual(SourceCodeSetup.Assembly, ResLedgEntry."Source Code", Identifier);
+        Assert.AreEqual(true, ResLedgEntry.Chargeable, Identifier);
+        Assert.AreEqual('', ResLedgEntry."Journal Batch Name", Identifier);
+        Assert.AreEqual('', ResLedgEntry."Reason Code", Identifier);
+        Assert.AreEqual('', ResLedgEntry."Gen. Bus. Posting Group", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Gen. Prod. Posting Group", ResLedgEntry."Gen. Prod. Posting Group", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Posting Date", ResLedgEntry."Document Date", Identifier);
+        Assert.AreEqual('', ResLedgEntry."External Document No.", Identifier);
+        AssemblySetup.Get();
+        Assert.AreEqual(AssemblySetup."Posted Assembly Order Nos.", ResLedgEntry."No. Series", Identifier);
+        Assert.AreEqual(ResLedgEntry."Source Type"::" ", ResLedgEntry."Source Type", Identifier);
+        Assert.AreEqual('', ResLedgEntry."Source No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Qty. per Unit of Measure", ResLedgEntry."Qty. per Unit of Measure", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Quantity (Base)", ResLedgEntry."Quantity (Base)", Identifier);
+        Assert.AreEqual(ResLedgEntry."Order Type"::Assembly, ResLedgEntry."Order Type", Identifier);
+        Assert.AreEqual(PostedAssemblyHeader."Order No.", ResLedgEntry."Order No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Order Line No.", ResLedgEntry."Order Line No.", Identifier);
+        Assert.AreEqual(PostedAssemblyLine."Dimension Set ID", ResLedgEntry."Dimension Set ID", Identifier);
     end;
 
     local procedure VerifyRegisters(PostedAssemblyHeader: Record "Posted Assembly Header")

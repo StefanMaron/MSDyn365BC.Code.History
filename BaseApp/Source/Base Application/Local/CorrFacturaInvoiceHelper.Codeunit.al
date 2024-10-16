@@ -10,11 +10,21 @@ codeunit 14932 "Corr. Factura-Invoice Helper"
         PrevDocumentPageNo: Integer;
         CurrentDocumentNos: array[4] of Text;
         CurrentDocumentDates: array[4] of Text;
+#pragma warning disable AA0470
         CorrInvTxt: Label 'CORRECTIVE FACTURA-INVOICE %1 from %2 (1)';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         ModInvTxt: Label 'CORRECTION OF CORRECTIVE FACTURA-INVOICE %1 from %2 (1a)';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         OrigInvTxt: Label 'TO FACTURA-INVOICE %1 from %2';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         RevInvTxt: Label 'with correction %1 from %2 (1b)';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         PageNoTxt: Label 'Page %1';
+#pragma warning restore AA0470
         LineNo: Integer;
 
     [Scope('OnPrem')]

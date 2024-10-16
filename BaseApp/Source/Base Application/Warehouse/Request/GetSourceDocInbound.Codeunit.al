@@ -5,6 +5,7 @@ using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Journal;
 using System.Text;
 using System.Reflection;
 
@@ -282,13 +283,16 @@ codeunit 5751 "Get Source Doc. Inbound"
     local procedure OpenWarehouseReceiptPage()
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WMSManagement: Codeunit "WMS Management";
         IsHandled: Boolean;
     begin
         GetSourceDocuments.GetLastReceiptHeader(WarehouseReceiptHeader);
         IsHandled := false;
         OnOpenWarehouseReceiptPage(WarehouseReceiptHeader, ServVendDocNo, IsHandled, GetSourceDocuments);
-        if not IsHandled then
+        if not IsHandled then begin            
+            WMSManagement.CheckUserIsWhseEmployeeForLocation(WarehouseReceiptHeader."Location Code", true);
             PAGE.Run(PAGE::"Warehouse Receipt", WarehouseReceiptHeader);
+        end
     end;
 
     local procedure UpdateReceiptHeaderStatus(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")

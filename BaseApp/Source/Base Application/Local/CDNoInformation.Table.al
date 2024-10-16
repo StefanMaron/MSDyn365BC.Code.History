@@ -2,9 +2,14 @@ table 12408 "CD No. Information"
 {
     Caption = 'CD No. Information';
     DataCaptionFields = Type, "No.", "Variant Code", "CD No.", Description;
-    ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by Package No. Information and FA CD No. Information tables.';
+#if CLEAN25
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#else
+    ObsoleteState = Pending;
     ObsoleteTag = '18.0';
+#endif
     DataClassification = CustomerContent;
 
     fields
@@ -52,6 +57,14 @@ table 12408 "CD No. Information"
         {
             Caption = 'CD Header No.';
             TableRelation = "CD No. Header";
+            ObsoleteReason = 'CD No. Header has been moved to CD Tracking extension.';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#endif
         }
         field(10; Description; Text[100])
         {

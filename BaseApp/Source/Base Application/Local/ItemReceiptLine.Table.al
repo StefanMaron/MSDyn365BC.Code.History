@@ -206,8 +206,13 @@ table 12452 "Item Receipt Line"
         {
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#endif
         }
         field(5807; "Applies-from Entry"; Integer)
         {

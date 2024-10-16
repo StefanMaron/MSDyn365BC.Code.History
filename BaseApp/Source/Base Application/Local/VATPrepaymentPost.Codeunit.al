@@ -23,7 +23,11 @@ codeunit 12410 "VAT Prepayment-Post"
         PostDescription: Text[50];
         PostingDocNo: Code[20];
         EntryType: Option Sale,Purchase;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'There is already posted %1 %2 %3 related to %4 %5 %6.   ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure InitGenJnlLines(CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
     var

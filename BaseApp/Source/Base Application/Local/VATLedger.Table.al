@@ -381,10 +381,22 @@ table 12404 "VAT Ledger"
         VATLedgerLine: Record "VAT Ledger Line";
         VATLedgerConnection: Record "VAT Ledger Connection";
         AccPeriod: Record "Accounting Period";
+#pragma warning disable AA0074
         Text12404: Label 'You cannot change fields for already created ledger.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12405: Label 'Please create next accounting period.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12406: Label 'VAT Purchase Ledger for period from %1 to %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12407: Label 'VAT Sales Ledger for period from %1 to %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldVATLedger: Record "VAT Ledger"): Boolean

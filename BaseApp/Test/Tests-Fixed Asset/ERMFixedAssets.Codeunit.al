@@ -23,8 +23,6 @@ codeunit 134451 "ERM Fixed Assets"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryErrorMessage: Codeunit "Library - Error Message";
         isInitialized: Boolean;
-        GLIntegrationDisposalError: Label '%1 must be equal to ''Yes''  in %2: %3=%4. Current value is ''No''.';
-        AllowCorrectionError: Label '%1 must have a value in %2: %3=%4. It cannot be zero or empty.';
         UnknownError: Label 'Unknown error.';
         DateConfirmMessage: Label 'Posting Date %1 is different from Work Date %2.Do you want to continue?';
         NoOfYears: Integer;
@@ -34,7 +32,6 @@ codeunit 134451 "ERM Fixed Assets"
         GenJournalBatchName: Code[10];
         FAJournalTemplateName: Code[10];
         FAJournalBatchName: Code[10];
-        DepreciationBookError: Label 'The %1 does not exist.';
         FADepreciationCreateError: Label 'FA Depreciation Book must be created for Fixed Asset No. %1';
         FADepreciationNotCreateError: Label 'FA Depreciation Book must not be created for Fixed Asset No. %1';
         NoOfYearsError: Label 'Total Number of Period No.must be equal to %1. Current value is %2.';
@@ -51,7 +48,6 @@ codeunit 134451 "ERM Fixed Assets"
         CannotPostSameMultipleFAWhenDeprBookValueZeroErr: Label 'You cannot select the Depr. Until FA Posting Date check box because there is no previous acquisition entry for fixed asset %1.', Comment = '%1 - Fixed Asset No.';
         FirstMustBeAcquisitionCostErr: Label 'The first entry must be an Acquisition Cost';
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
-        TestFieldThreeArgsErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.';
         DepreciationBookCodeMustMatchErr: Label 'Depreciation Book Code must match.';
 
     [Test]
@@ -162,12 +158,7 @@ codeunit 134451 "ERM Fixed Assets"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // 3.Verify: Verify "Depreciation Book" Integration- Disposal Error.
-        Assert.AreEqual(
-          StrSubstNo(
-            GLIntegrationDisposalError,
-            DepreciationBook.FieldCaption("G/L Integration - Disposal"), DepreciationBook.TableCaption(),
-            DepreciationBook.FieldCaption(Code), DepreciationBook.Code),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(DepreciationBook.FieldCaption("G/L Integration - Disposal"), Format(true));
     end;
 
     [Test]
@@ -489,12 +480,7 @@ codeunit 134451 "ERM Fixed Assets"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // 3.Verify: Verify "Depreciation Book" Allow Correction of Disposal Error.
-        Assert.AreEqual(
-          StrSubstNo(
-            AllowCorrectionError,
-            DepreciationBook.FieldCaption("Allow Correction of Disposal"), DepreciationBook.TableCaption(),
-            DepreciationBook.FieldCaption(Code), DepreciationBook.Code),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(DepreciationBook.FieldCaption("Allow Correction of Disposal"), '');
     end;
 
     [Test]
@@ -850,7 +836,6 @@ codeunit 134451 "ERM Fixed Assets"
     procedure CreateFADepreciationBooksError()
     var
         FixedAsset: Record "Fixed Asset";
-        DepreciationBook: Record "Depreciation Book";
     begin
         // Test error occurs on running Create FA Depreciation Books report without Depreciation Book Code and Copy From FA No.
 
@@ -863,7 +848,7 @@ codeunit 134451 "ERM Fixed Assets"
         asserterror RunCreateFADepreciationBooks(FixedAsset, '', '');
 
         // 3. Verify: Verify error occurs on running Create FA Depreciation Books Report without Depreciation Book Code and Copy From FA No.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookError, DepreciationBook.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]
@@ -1082,8 +1067,7 @@ codeunit 134451 "ERM Fixed Assets"
         asserterror RunCopyFixedAsset(FixedAsset."No.", '', NoOfFixedAssetCopied, '', false);
 
         // 3. Verify: Verify error occurs on running Copy Fixed Asset Report with Copy From FA No. as blank.
-        with FixedAsset do
-            Assert.AreEqual(StrSubstNo(BlankCopyFromFANoError, TableCaption(), FieldCaption("No.")), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(BlankCopyFromFANoError, FixedAsset.TableCaption(), FixedAsset.FieldCaption("No.")), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1719,14 +1703,7 @@ codeunit 134451 "ERM Fixed Assets"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Posting fails on "Depreciation Book Code" check
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(
-          StrSubstNo(
-            TestFieldThreeArgsErr,
-            PurchaseLine.FieldCaption("Depreciation Book Code"), PurchaseLine.TableCaption(),
-            PurchaseLine.FieldCaption("Document Type"), PurchaseLine."Document Type",
-            PurchaseLine.FieldCaption("Document No."), PurchaseLine."Document No.",
-            PurchaseLine.FieldCaption("Line No."), PurchaseLine."Line No."));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Depreciation Book Code"), '');
     end;
 
     [Test]
@@ -3573,16 +3550,14 @@ codeunit 134451 "ERM Fixed Assets"
         CreateFAJournalBatch(FAJnlBatch);
         CreateFAJournalLine(
           FAJnlLine, FAJnlBatch, FAJnlLine."FA Posting Type"::"Acquisition Cost", FANo, DeprBookCode, LibraryRandom.RandInt(100));
-        with FAJnlLine do begin
-            Validate("Use Duplication List", true);
-            LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(1));
-            Validate("Shortcut Dimension 1 Code", DimValue.Code);
-            LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(2));
-            Validate("Shortcut Dimension 2 Code", DimValue.Code);
-            Modify(true);
-            ShortcutDimValueCode[1] := "Shortcut Dimension 1 Code";
-            ShortcutDimValueCode[2] := "Shortcut Dimension 2 Code";
-        end;
+        FAJnlLine.Validate("Use Duplication List", true);
+        LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(1));
+        FAJnlLine.Validate("Shortcut Dimension 1 Code", DimValue.Code);
+        LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(2));
+        FAJnlLine.Validate("Shortcut Dimension 2 Code", DimValue.Code);
+        FAJnlLine.Modify(true);
+        ShortcutDimValueCode[1] := FAJnlLine."Shortcut Dimension 1 Code";
+        ShortcutDimValueCode[2] := FAJnlLine."Shortcut Dimension 2 Code";
     end;
 
     local procedure CreateGenJnlLineWithDimensionsAndUseDuplicationList(var GenJnlLine: Record "Gen. Journal Line"; var ShortcutDimValueCode: array[2] of Code[20]; FANo: Code[20]; DeprBookCode: Code[10])
@@ -3593,22 +3568,20 @@ codeunit 134451 "ERM Fixed Assets"
     begin
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, "Document Type"::" ",
-              "Account Type"::"Fixed Asset", FANo, "Bal. Account Type"::"G/L Account",
-              LibraryERM.CreateGLAccountNo(), LibraryRandom.RandInt(100));
-            Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            Validate("Depreciation Book Code", DeprBookCode);
-            Validate("Use Duplication List", true);
-            LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(1));
-            Validate("Shortcut Dimension 1 Code", DimValue.Code);
-            LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(2));
-            Validate("Shortcut Dimension 2 Code", DimValue.Code);
-            Modify(true);
-            ShortcutDimValueCode[1] := "Shortcut Dimension 1 Code";
-            ShortcutDimValueCode[2] := "Shortcut Dimension 2 Code";
-        end;
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Document Type"::" ",
+            GenJnlLine."Account Type"::"Fixed Asset", FANo, GenJnlLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo(), LibraryRandom.RandInt(100));
+        GenJnlLine.Validate("FA Posting Type", GenJnlLine."FA Posting Type"::"Acquisition Cost");
+        GenJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+        GenJnlLine.Validate("Use Duplication List", true);
+        LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(1));
+        GenJnlLine.Validate("Shortcut Dimension 1 Code", DimValue.Code);
+        LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(2));
+        GenJnlLine.Validate("Shortcut Dimension 2 Code", DimValue.Code);
+        GenJnlLine.Modify(true);
+        ShortcutDimValueCode[1] := GenJnlLine."Shortcut Dimension 1 Code";
+        ShortcutDimValueCode[2] := GenJnlLine."Shortcut Dimension 2 Code";
     end;
 
     local procedure CreatePostFixedAssetSalesInvoice(PostingDate: Date; FANo: Code[20]; UnitPrice: Decimal): Code[20]
@@ -3718,11 +3691,9 @@ codeunit 134451 "ERM Fixed Assets"
     var
         FADepreciationBook: Record "FA Depreciation Book";
     begin
-        with FADepreciationBook do begin
-            SetRange("FA No.", FANo);
-            FindFirst();
-            exit("Depreciation Book Code");
-        end;
+        FADepreciationBook.SetRange("FA No.", FANo);
+        FADepreciationBook.FindFirst();
+        exit(FADepreciationBook."Depreciation Book Code");
     end;
 
     local procedure ModifyIntegrationInBook(var DepreciationBook: Record "Depreciation Book")
@@ -3733,44 +3704,36 @@ codeunit 134451 "ERM Fixed Assets"
 
     local procedure FindSalesInvoiceGLEntryWithVATAmount(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; VATAmount: Decimal)
     begin
-        with GLEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Gen. Posting Type", "Gen. Posting Type"::Sale);
-            SetRange("VAT Amount", VATAmount);
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Sale);
+        GLEntry.SetRange("VAT Amount", VATAmount);
+        GLEntry.FindFirst();
     end;
 
     local procedure FindSalesInvoiceVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::Sale);
-            FindFirst();
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type"; GLAccountNo: Code[20])
     begin
-        with GLEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Gen. Posting Type", GenPostingType);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Gen. Posting Type", GenPostingType);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type")
     begin
-        with VATEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, GenPostingType);
-            FindFirst();
-        end;
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange(Type, GenPostingType);
+        VATEntry.FindFirst();
     end;
 
     local procedure OpenFAJnlSetupFromDepBook(DepreciationBookCode: Code[10])
@@ -4010,13 +3973,11 @@ codeunit 134451 "ERM Fixed Assets"
     var
         FALedgEntry: Record "FA Ledger Entry";
     begin
-        with FALedgEntry do begin
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
-            FindFirst();
-            Assert.AreEqual(ExpectedDeprDays, "No. of Depreciation Days", WrongDeprDaysErr);
-        end;
+        FALedgEntry.SetRange("FA No.", FANo);
+        FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
+        FALedgEntry.FindFirst();
+        Assert.AreEqual(ExpectedDeprDays, FALedgEntry."No. of Depreciation Days", WrongDeprDaysErr);
     end;
 
     local procedure VerifyFAJnlLineDimUseDuplicationList(DuplicatedDeprBookCode: Code[10]; ShortcutDimValueCode: array[2] of Code[20])
@@ -4292,4 +4253,7 @@ codeunit 134451 "ERM Fixed Assets"
         CancelFAEntries.OK().Invoke();
     end;
 }
+
+
+
 

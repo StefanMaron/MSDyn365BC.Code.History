@@ -46,9 +46,9 @@ report 12456 "Create VAT Sales Ledger"
                         if PaymentDate = 0D then begin
                             CustLedgEntry.Reset();
                             CustLedgEntry.SetCurrentKey("Transaction No.");
-                            if "Unrealized VAT Entry No." = 0 then begin
-                                CustLedgEntry.SetRange("Transaction No.", "Transaction No.");
-                            end else
+                            if "Unrealized VAT Entry No." = 0 then
+                                CustLedgEntry.SetRange("Transaction No.", "Transaction No.")
+                            else
                                 if VATEntry1.Get("Unrealized VAT Entry No.") then
                                     CustLedgEntry.SetRange("Transaction No.", VATEntry1."Transaction No.");
                             if CustLedgEntry.Find('-') then begin
@@ -539,7 +539,11 @@ report 12456 "Create VAT Sales Ledger"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label 'cannot be %1 if Tax Invoice Amount Type is %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompanyInfo: Record "Company Information";
         LedgerConnBuffer: Record "VAT Ledger Connection" temporary;
         LedgerBuffer: Record "VAT Ledger Line" temporary;
@@ -726,16 +730,15 @@ report 12456 "Create VAT Sales Ledger"
 
         LedgerBuffer.SetRange("Initial Document No.");
         LedgerBuffer.SetRange("Document No.", DocumentNo);
-        if VATEntry.Prepayment then begin
-            LedgerBuffer.SetRange(Method);
-        end else begin
+        if VATEntry.Prepayment then
+            LedgerBuffer.SetRange(Method)
+        else
             if VATEntry."Unrealized VAT Entry No." = 0 then
                 LedgerBuffer.SetRange(Method, LedgerBuffer.Method::Shipment)
             else
                 LedgerBuffer.SetRange(Method, LedgerBuffer.Method::Payment);
-        end;
         LedgerBuffer.SetRange(Prepayment, VATEntry.Prepayment);
-        if VATEntry."Corrective Doc. Type" <> VATEntry."Corrective Doc. Type"::" " then begin
+        if VATEntry."Corrective Doc. Type" <> VATEntry."Corrective Doc. Type"::" " then
             case VATEntry."Corrective Doc. Type" of
                 VATEntry."Corrective Doc. Type"::Correction:
                     LedgerBuffer.SetRange("Correction No.", CorrectionNo);
@@ -746,8 +749,8 @@ report 12456 "Create VAT Sales Ledger"
                         if RevisionOfCorrectionNo <> '' then
                             LedgerBuffer.SetRange("Revision of Corr. No.", RevisionOfCorrectionNo);
                     end;
-            end;
-        end else begin
+            end
+        else begin
             LedgerBuffer.SetRange("Correction No.");
             LedgerBuffer.SetRange("Revision No.");
             LedgerBuffer.SetRange("Revision of Corr. No.");

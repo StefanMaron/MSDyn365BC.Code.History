@@ -111,11 +111,9 @@ codeunit 144512 "ERM Calculate VAT per Lines"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Calc. VAT per Line", true);
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Calc. VAT per Line", true);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure PrepareVerificationAmounts()
@@ -171,18 +169,16 @@ codeunit 144512 "ERM Calculate VAT per Lines"
 
         if CurrencyCode <> '' then begin
             SetLCYFieldValues(LCYFieldValues);
-            with SalesLine do begin
-                SetRange("Document Type", SalesHeader."Document Type");
-                SetRange("Document No.", SalesHeader."No.");
-                FindSet();
-                repeat
-                    Assert.AreEqual(LCYFieldValues[Counter], "Amount (LCY)",
-                      StrSubstNo(IncorrectFieldValueErr, FieldCaption("Amount (LCY)")));
-                    Assert.AreEqual(LCYFieldValues[Counter + 1], "Amount Including VAT (LCY)",
-                      StrSubstNo(IncorrectFieldValueErr, FieldCaption("Amount Including VAT (LCY)")));
-                    Counter += 2;
-                until Next() = 0;
-            end;
+            SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+            SalesLine.SetRange("Document No.", SalesHeader."No.");
+            SalesLine.FindSet();
+            repeat
+                Assert.AreEqual(LCYFieldValues[Counter], SalesLine."Amount (LCY)",
+                  StrSubstNo(IncorrectFieldValueErr, SalesLine.FieldCaption("Amount (LCY)")));
+                Assert.AreEqual(LCYFieldValues[Counter + 1], SalesLine."Amount Including VAT (LCY)",
+                  StrSubstNo(IncorrectFieldValueErr, SalesLine.FieldCaption("Amount Including VAT (LCY)")));
+                Counter += 2;
+            until SalesLine.Next() = 0;
         end;
     end;
 
@@ -203,17 +199,15 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         Counter := 1;
         if CurrencyCode <> '' then begin
             SetLCYFieldValues(LCYFieldValues);
-            with SalesInvoiceLine do begin
-                SetRange("Document No.", DocumentNo);
-                FindSet();
-                repeat
-                    Assert.AreEqual(LCYFieldValues[Counter], "Amount (LCY)",
-                      StrSubstNo(IncorrectFieldValueErr, FieldCaption("Amount (LCY)")));
-                    Assert.AreEqual(LCYFieldValues[Counter + 1], "Amount Including VAT (LCY)",
-                      StrSubstNo(IncorrectFieldValueErr, FieldCaption("Amount Including VAT (LCY)")));
-                    Counter += 2;
-                until Next() = 0;
-            end;
+            SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+            SalesInvoiceLine.FindSet();
+            repeat
+                Assert.AreEqual(LCYFieldValues[Counter], SalesInvoiceLine."Amount (LCY)",
+                  StrSubstNo(IncorrectFieldValueErr, SalesInvoiceLine.FieldCaption("Amount (LCY)")));
+                Assert.AreEqual(LCYFieldValues[Counter + 1], SalesInvoiceLine."Amount Including VAT (LCY)",
+                  StrSubstNo(IncorrectFieldValueErr, SalesInvoiceLine.FieldCaption("Amount Including VAT (LCY)")));
+                Counter += 2;
+            until SalesInvoiceLine.Next() = 0;
         end;
     end;
 

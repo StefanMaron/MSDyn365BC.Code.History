@@ -6,19 +6,33 @@ codeunit 12406 PeriodReportManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label ' <Year4>', Locked = true;
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label '<Year4>', Locked = true;
+#pragma warning restore AA0074
         PeriodsNames: Text[250];
+#pragma warning disable AA0074
         Text002: Label 'one month,two  month,three  month,four  month,five  month,six  month,';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'seven  month,eight  month,nine  month,ten  month,eleven  month ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'first quarter,first half year,nine month, ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'january,february,march,april,may,june,july,august,september,october,november,december';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'first quarter,second quarter,third quarter,forth quarter';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CreatePeriodsNames(TotalAdding: Boolean; CalendarPeriod: Record Date)
     begin
-        if TotalAdding then begin
+        if TotalAdding then
             case CalendarPeriod."Period Type" of
                 CalendarPeriod."Period Type"::Month:
                     PeriodsNames := Text002 + Text003;
@@ -26,8 +40,8 @@ codeunit 12406 PeriodReportManagement
                     PeriodsNames := Text004;
                 else
                     PeriodsNames := '';
-            end;
-        end else
+            end
+        else
             case CalendarPeriod."Period Type" of
                 CalendarPeriod."Period Type"::Month:
                     PeriodsNames := Text005;
@@ -91,10 +105,10 @@ codeunit 12406 PeriodReportManagement
                     CalendarPeriod."Period Start" := CalcDate('<CQ+1D-1Q>', CalendarPeriod."Period Start");
                 end;
             else begin
-                    CalendarPeriod."Period Start" := DMY2Date(1, 1, YearNo);
-                    CalendarPeriod."Period Type" := CalendarPeriod."Period Type"::Year;
-                    PeriodsNames := '';
-                end
+                CalendarPeriod."Period Start" := DMY2Date(1, 1, YearNo);
+                CalendarPeriod."Period Type" := CalendarPeriod."Period Type"::Year;
+                PeriodsNames := '';
+            end
         end;
         CalendarPeriod.Get(CalendarPeriod."Period Type", CalendarPeriod."Period Start");
         CalendarPeriod."Period Start" := NormalDate(CalendarPeriod."Period Start");
@@ -176,11 +190,11 @@ codeunit 12406 PeriodReportManagement
                         CalendarPeriod."Period Start" := CalcDate('<-1Y>', CalendarPeriod."Period Start");
                 end;
             else begin
-                    CalendarPeriod."Period Type" := CalendarPeriod."Period Type"::Quarter;
-                    CalendarPeriod."Period Start" := CalcDate('<CQ+1D-1Q>', WorkDate());
-                    if Date2DMY(WorkDate(), 2) = 1 then
-                        CalendarPeriod."Period Start" := CalcDate('<-1Q>', CalendarPeriod."Period Start");
-                end;
+                CalendarPeriod."Period Type" := CalendarPeriod."Period Type"::Quarter;
+                CalendarPeriod."Period Start" := CalcDate('<CQ+1D-1Q>', WorkDate());
+                if Date2DMY(WorkDate(), 2) = 1 then
+                    CalendarPeriod."Period Start" := CalcDate('<-1Q>', CalendarPeriod."Period Start");
+            end;
         end;
         CalendarPeriod.Get(CalendarPeriod."Period Type", CalendarPeriod."Period Start");
         CalendarPeriod."Period Start" := NormalDate(CalendarPeriod."Period Start");

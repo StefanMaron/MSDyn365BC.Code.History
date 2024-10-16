@@ -277,9 +277,15 @@ report 17200 "Copy Tax Register Section"
         TaxRegDimValueComb: Record "Tax Register Dim. Value Comb.";
         TaxRegDimDefaultValue: Record "Tax Register Dim. Def. Value";
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
+#pragma warning disable AA0074
         Text1000: Label 'Please select source section.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1001: Label 'You can copy only one section.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1002: Label 'You cannot copy section to itself.';
+#pragma warning restore AA0074
         TaxRegGLCorrDimFilter: Record "Tax Reg. G/L Corr. Dim. Filter";
         FromSectionCode: Code[10];
 }

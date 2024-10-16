@@ -1093,8 +1093,12 @@ report 14910 "Customer - Reconciliation Act"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'There is no debt between %2 and %3 at %1', Comment = 'Must be translated: ìá %1 ¼ÑªñÒ %2 ¿ %3 ºáñ«½ªÑ¡¡«ßÔý «ÔßÒÔßÔóÒÑÔ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label '%2 debt amount to %3 is %4 (%5) %6 at %1.', Comment = 'Must be translated: ìá %1 ºáñ«½ªÑ¡¡«ßÔý %2 »ÑÓÑñ %3 ß«ßÔáó½´ÑÔ %4 (%5) %6.';
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -1112,7 +1116,9 @@ report 14910 "Customer - Reconciliation Act"
         PrintVendorData: Boolean;
         MinDate: Date;
         MaxDate: Date;
+#pragma warning disable AA0074
         Text002: Label 'Starting Date and Ending Date should be filled.';
+#pragma warning restore AA0074
         FirstDate: Date;
         TotalInvAmount: Decimal;
         TotalPayAmount: Decimal;
@@ -1138,8 +1144,14 @@ report 14910 "Customer - Reconciliation Act"
         RemainingDebitAmount: Decimal;
         RemainingCreditAmount: Decimal;
         TempAmount: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Report currency code: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'rub';
+#pragma warning restore AA0074
         EntryDescription: Text;
         PostingDate: Date;
         OtherCurrApplAmount: Decimal;
@@ -1316,7 +1328,7 @@ report 14910 "Customer - Reconciliation Act"
         DtldCustLedgEntry1.SetRange("Entry Type", DtldCustLedgEntry1."Entry Type"::Application);
         DtldCustLedgEntry1.SetRange(Unapplied, false);
         DtldCustLedgEntry1.SetRange("Posting Date", FromDate, MaxDate);
-        if DtldCustLedgEntry1.FindSet() then begin
+        if DtldCustLedgEntry1.FindSet() then
             repeat
                 if DtldCustLedgEntry1."Cust. Ledger Entry No." =
                    DtldCustLedgEntry1."Applied Cust. Ledger Entry No."
@@ -1329,7 +1341,7 @@ report 14910 "Customer - Reconciliation Act"
                     DtldCustLedgEntry2.SetRange("Entry Type", DtldCustLedgEntry2."Entry Type"::Application);
                     DtldCustLedgEntry2.SetRange(Unapplied, false);
                     DtldCustLedgEntry2.SetRange("Prepmt. Diff.", false);
-                    if DtldCustLedgEntry2.FindSet() then begin
+                    if DtldCustLedgEntry2.FindSet() then
                         repeat
                             CustLedgEntry2.Get(DtldCustLedgEntry2."Cust. Ledger Entry No.");
                             TempAppDtldCustLedgEntry := DtldCustLedgEntry2;
@@ -1337,7 +1349,6 @@ report 14910 "Customer - Reconciliation Act"
                             TempAppDtldCustLedgEntry."Amount (LCY)" := -TempAppDtldCustLedgEntry."Amount (LCY)";
                             if TempAppDtldCustLedgEntry.Insert() then;
                         until DtldCustLedgEntry2.Next() = 0;
-                    end;
                 end else
                     if not DtldCustLedgEntry1."Prepmt. Diff." and
                        CustLedgEntry2.Get(DtldCustLedgEntry1."Applied Cust. Ledger Entry No.")
@@ -1347,7 +1358,6 @@ report 14910 "Customer - Reconciliation Act"
                         if TempAppDtldCustLedgEntry.Insert() then;
                     end;
             until DtldCustLedgEntry1.Next() = 0;
-        end;
 
         exit(TempAppDtldCustLedgEntry.FindFirst())
     end;
@@ -1615,7 +1625,7 @@ report 14910 "Customer - Reconciliation Act"
         SourceDtldVendLedgEntry.SetRange(Unapplied, false);
         SourceDtldVendLedgEntry.SetFilter("Posting Date", '..%1', MaxDate);
         SourceDtldVendLedgEntry.SetRange("Entry Type", SourceDtldVendLedgEntry."Entry Type"::Application);
-        if SourceDtldVendLedgEntry.FindSet() then begin
+        if SourceDtldVendLedgEntry.FindSet() then
             repeat
                 if SourceDtldVendLedgEntry."Vendor Ledger Entry No." =
                    SourceDtldVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -1626,7 +1636,7 @@ report 14910 "Customer - Reconciliation Act"
                       "Applied Vend. Ledger Entry No.", SourceDtldVendLedgEntry."Applied Vend. Ledger Entry No.");
                     AppliedDtldVendLedgEntry.SetRange("Entry Type", AppliedDtldVendLedgEntry."Entry Type"::Application);
                     AppliedDtldVendLedgEntry.SetRange(Unapplied, false);
-                    if AppliedDtldVendLedgEntry.FindSet() then begin
+                    if AppliedDtldVendLedgEntry.FindSet() then
                         repeat
                             if AppliedDtldVendLedgEntry."Vendor Ledger Entry No." <>
                                AppliedDtldVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -1639,7 +1649,6 @@ report 14910 "Customer - Reconciliation Act"
                                         if TempAppDtldVendLedgEntry.Insert() then;
                                 end;
                         until AppliedDtldVendLedgEntry.Next() = 0;
-                    end;
                 end else
                     if AppliedVendLedgEntry.Get(SourceDtldVendLedgEntry."Applied Vend. Ledger Entry No.") then begin
                         TempAppDtldVendLedgEntry := SourceDtldVendLedgEntry;
@@ -1647,7 +1656,6 @@ report 14910 "Customer - Reconciliation Act"
                         if TempAppDtldVendLedgEntry.Insert() then;
                     end;
             until SourceDtldVendLedgEntry.Next() = 0;
-        end;
     end;
 
     local procedure GetInitialDebitCreditBalance(var InitialDebitAmount: Decimal; var InitialCreditAmount: Decimal)
@@ -1721,12 +1729,11 @@ report 14910 "Customer - Reconciliation Act"
                 InitialCreditAmount += -Amount
             else
                 InitialDebitAmount += Amount;
-        end else begin
+        end else
             if DtldVendLedgEntry."Entry Type" <> DtldVendLedgEntry."Entry Type"::Application then
                 InitialDebitAmount += Amount
             else
                 InitialCreditAmount += -Amount;
-        end;
     end;
 
     local procedure ClearAmounts()

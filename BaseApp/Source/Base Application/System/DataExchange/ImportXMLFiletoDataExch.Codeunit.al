@@ -21,7 +21,9 @@ codeunit 1203 "Import XML File to Data Exch."
     end;
 
     var
+#pragma warning disable AA0470
         ProgressMsg: Label 'Preparing line number #1#######';
+#pragma warning restore AA0470
         ProgressWindow: Dialog;
         WindowOpen: Boolean;
         StartTime: DateTime;

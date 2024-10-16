@@ -110,8 +110,16 @@ page 14919 "Excel Templates"
     var
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Do you want to replace the existing definition for template %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Do you want to delete the definition for template %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Filename: Text;
 }
 

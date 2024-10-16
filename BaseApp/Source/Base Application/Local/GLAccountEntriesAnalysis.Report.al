@@ -437,9 +437,15 @@
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Debit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Credit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Net Changes ';
+#pragma warning restore AA0074
         GLAcc1: Record "G/L Account";
         GLCorrespondenceBuffer: Record "G/L Correspondence Buffer";
         GLCorrespondenceBuffer2: Record "G/L Correspondence Buffer";
@@ -464,7 +470,9 @@
         DebitCreditSeparately: Boolean;
         NumberOfLinesByDebit: Integer;
         NumberOfLinesByCredit: Integer;
+#pragma warning disable AA0074
         Text010: Label 'Invoice ³', Comment = 'Must be translated: æþÑÔ ³';
+#pragma warning restore AA0074
         PageNo: Integer;
         GLAccURL: RecordRef;
         DifferenceExist: Boolean;

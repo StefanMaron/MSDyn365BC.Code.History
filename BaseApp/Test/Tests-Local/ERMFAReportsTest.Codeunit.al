@@ -256,16 +256,14 @@ codeunit 144714 "ERM FA Reports Test"
 
         PrintF6FAInvCard(FADeprBook."FA No.");
 
-        with MainAssetComponent do begin
-            SetRange("Main Asset No.", FADeprBook."FA No.");
-            FindFirst();
-            Assert.IsTrue(
-              LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, Format(Quantity)),
-              StrSubstNo(ValueNotExistErr, Quantity, 2));
-            Assert.IsTrue(
-              LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, Description),
-              StrSubstNo(ValueNotExistErr, Description, 2));
-        end;
+        MainAssetComponent.SetRange("Main Asset No.", FADeprBook."FA No.");
+        MainAssetComponent.FindFirst();
+        Assert.IsTrue(
+          LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, Format(MainAssetComponent.Quantity)),
+          StrSubstNo(ValueNotExistErr, MainAssetComponent.Quantity, 2));
+        Assert.IsTrue(
+          LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, MainAssetComponent.Description),
+          StrSubstNo(ValueNotExistErr, MainAssetComponent.Description, 2));
     end;
 
     [Test]
@@ -281,17 +279,15 @@ codeunit 144714 "ERM FA Reports Test"
 
         PrintF6FAInvCard(FADeprBook."FA No.");
 
-        with ItemFAPreciousMetal do begin
-            SetRange("Item Type", "Item Type"::FA);
-            SetRange("No.", FADeprBook."FA No.");
-            FindFirst();
-            Assert.IsTrue(
-              LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, Format(Quantity)),
-              StrSubstNo(ValueNotExistErr, Quantity, 2));
-            Assert.IsTrue(
-              LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, FormatAmount(Mass)),
-              StrSubstNo(ValueNotExistErr, Mass, 2));
-        end;
+        ItemFAPreciousMetal.SetRange("Item Type", ItemFAPreciousMetal."Item Type"::FA);
+        ItemFAPreciousMetal.SetRange("No.", FADeprBook."FA No.");
+        ItemFAPreciousMetal.FindFirst();
+        Assert.IsTrue(
+          LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, Format(ItemFAPreciousMetal.Quantity)),
+          StrSubstNo(ValueNotExistErr, ItemFAPreciousMetal.Quantity, 2));
+        Assert.IsTrue(
+          LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, FormatAmount(ItemFAPreciousMetal.Mass)),
+          StrSubstNo(ValueNotExistErr, ItemFAPreciousMetal.Mass, 2));
     end;
 
     [Test]
@@ -363,79 +359,69 @@ codeunit 144714 "ERM FA Reports Test"
 
     local procedure CreateFADocHeader(var FADocHeader: Record "FA Document Header")
     begin
-        with FADocHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Movement;
-            "No." := LibraryUtility.GenerateGUID();
-            Insert(true);
-            "Posting Date" := WorkDate();
-            "FA Posting Date" := WorkDate();
-            "FA Location Code" := CreateLocation();
-            "New FA Location Code" := CreateLocation();
-            Modify();
-        end;
+        FADocHeader.Init();
+        FADocHeader."Document Type" := FADocHeader."Document Type"::Movement;
+        FADocHeader."No." := LibraryUtility.GenerateGUID();
+        FADocHeader.Insert(true);
+        FADocHeader."Posting Date" := WorkDate();
+        FADocHeader."FA Posting Date" := WorkDate();
+        FADocHeader."FA Location Code" := CreateLocation();
+        FADocHeader."New FA Location Code" := CreateLocation();
+        FADocHeader.Modify();
     end;
 
     local procedure CreateFADocLine(var FADocLine: Record "FA Document Line"; FADocHeader: Record "FA Document Header"; FANo: Code[20]; DeprBookCode: Code[10])
     begin
-        with FADocLine do begin
-            Init();
-            "Document Type" := FADocHeader."Document Type";
-            "Document No." := FADocHeader."No.";
-            "Line No." := 10000;
-            Insert();
-            "FA No." := FANo;
-            "Depreciation Book Code" := DeprBookCode;
-            Quantity := LibraryRandom.RandInt(10);
-            Amount := LibraryRandom.RandInt(100);
-            "Book Value" := LibraryRandom.RandInt(1000);
-            "FA Posting Group" := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+        FADocLine.Init();
+        FADocLine."Document Type" := FADocHeader."Document Type";
+        FADocLine."Document No." := FADocHeader."No.";
+        FADocLine."Line No." := 10000;
+        FADocLine.Insert();
+        FADocLine."FA No." := FANo;
+        FADocLine."Depreciation Book Code" := DeprBookCode;
+        FADocLine.Quantity := LibraryRandom.RandInt(10);
+        FADocLine.Amount := LibraryRandom.RandInt(100);
+        FADocLine."Book Value" := LibraryRandom.RandInt(1000);
+        FADocLine."FA Posting Group" := LibraryUtility.GenerateGUID();
+        FADocLine.Modify();
     end;
 
     local procedure CreatePostedFADocHeader(var PostedFADocHeader: Record "Posted FA Doc. Header")
     begin
-        with PostedFADocHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Movement;
-            "No." := LibraryUtility.GenerateGUID();
-            "Posting Date" := WorkDate();
-            "FA Posting Date" := WorkDate();
-            "FA Location Code" := CreateLocation();
-            "New FA Location Code" := CreateLocation();
-            Insert();
-        end;
+        PostedFADocHeader.Init();
+        PostedFADocHeader."Document Type" := PostedFADocHeader."Document Type"::Movement;
+        PostedFADocHeader."No." := LibraryUtility.GenerateGUID();
+        PostedFADocHeader."Posting Date" := WorkDate();
+        PostedFADocHeader."FA Posting Date" := WorkDate();
+        PostedFADocHeader."FA Location Code" := CreateLocation();
+        PostedFADocHeader."New FA Location Code" := CreateLocation();
+        PostedFADocHeader.Insert();
     end;
 
     local procedure CreatePostedFADocLine(var PostedFADocLine: Record "Posted FA Doc. Line"; PostedFADocHeader: Record "Posted FA Doc. Header"; FANo: Code[20]; DeprBookCode: Code[10])
     begin
-        with PostedFADocLine do begin
-            Init();
-            "Document Type" := PostedFADocHeader."Document Type";
-            "Document No." := PostedFADocHeader."No.";
-            "Line No." := 10000;
-            Insert();
-            "FA No." := FANo;
-            "Depreciation Book Code" := DeprBookCode;
-            Quantity := LibraryRandom.RandInt(10);
-            Amount := LibraryRandom.RandInt(100);
-            "Book Value" := LibraryRandom.RandInt(1000);
-            "FA Posting Group" := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+        PostedFADocLine.Init();
+        PostedFADocLine."Document Type" := PostedFADocHeader."Document Type";
+        PostedFADocLine."Document No." := PostedFADocHeader."No.";
+        PostedFADocLine."Line No." := 10000;
+        PostedFADocLine.Insert();
+        PostedFADocLine."FA No." := FANo;
+        PostedFADocLine."Depreciation Book Code" := DeprBookCode;
+        PostedFADocLine.Quantity := LibraryRandom.RandInt(10);
+        PostedFADocLine.Amount := LibraryRandom.RandInt(100);
+        PostedFADocLine."Book Value" := LibraryRandom.RandInt(1000);
+        PostedFADocLine."FA Posting Group" := LibraryUtility.GenerateGUID();
+        PostedFADocLine.Modify();
     end;
 
     local procedure CreateLocation(): Code[10]
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Location);
-            Insert();
-            exit(Code);
-        end;
+        Location.Init();
+        Location.Code := LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location);
+        Location.Insert();
+        exit(Location.Code);
     end;
 
     local procedure CreateFALocation(): Code[10]
@@ -590,16 +576,14 @@ codeunit 144714 "ERM FA Reports Test"
 
     local procedure MockFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FADeprBook: Record "FA Depreciation Book"; PostingDate: Date; FAPostCategory: Option)
     begin
-        with FALedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FieldNo("Entry No."));
-            "FA No." := FADeprBook."FA No.";
-            "FA Posting Date" := PostingDate;
-            "Depreciation Book Code" := FADeprBook."Depreciation Book Code";
-            "FA Posting Category" := FAPostCategory;
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        FALedgerEntry.Init();
+        FALedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FALedgerEntry.FieldNo("Entry No."));
+        FALedgerEntry."FA No." := FADeprBook."FA No.";
+        FALedgerEntry."FA Posting Date" := PostingDate;
+        FALedgerEntry."Depreciation Book Code" := FADeprBook."Depreciation Book Code";
+        FALedgerEntry."FA Posting Category" := FAPostCategory;
+        FALedgerEntry.Amount := LibraryRandom.RandDec(100, 2);
+        FALedgerEntry.Insert();
     end;
 
     local procedure PrintF6FAInvCard(FANo: Code[20])
@@ -628,14 +612,12 @@ codeunit 144714 "ERM FA Reports Test"
     var
         ReportSelections: Record "Report Selections";
     begin
-        with ReportSelections do begin
-            Ascending(false);
-            SetRange(Usage, DocUsage);
-            FindSet();
-            repeat
-                LibraryVariableStorage.Enqueue("Report ID");
-            until Next() = 0;
-        end;
+        ReportSelections.Ascending(false);
+        ReportSelections.SetRange(Usage, DocUsage);
+        ReportSelections.FindSet();
+        repeat
+            LibraryVariableStorage.Enqueue(ReportSelections."Report ID");
+        until ReportSelections.Next() = 0;
     end;
 
     local procedure FilterFALedgerEntries(var FALedgEntry: Record "FA Ledger Entry"; FADeprBook: Record "FA Depreciation Book")
@@ -649,15 +631,13 @@ codeunit 144714 "ERM FA Reports Test"
         FALedgEntry: Record "FA Ledger Entry";
     begin
         FilterFALedgerEntries(FALedgEntry, FADeprBook);
-        with FALedgEntry do begin
-            SetRange("Initial Acquisition", InitialAcquisition);
-            FindSet();
-            repeat
-                Quantity := LibraryRandom.RandDecInRange(2, 5, 2);
-                "Reclassification Entry" := not InitialAcquisition;
-                Modify();
-            until Next() = 0;
-        end;
+        FALedgEntry.SetRange("Initial Acquisition", InitialAcquisition);
+        FALedgEntry.FindSet();
+        repeat
+            FALedgEntry.Quantity := LibraryRandom.RandDecInRange(2, 5, 2);
+            FALedgEntry."Reclassification Entry" := not InitialAcquisition;
+            FALedgEntry.Modify();
+        until FALedgEntry.Next() = 0;
     end;
 
     local procedure VerifyFA6TransferEntries(FADeprBook: Record "FA Depreciation Book")
@@ -665,22 +645,20 @@ codeunit 144714 "ERM FA Reports Test"
         FALedgEntry: Record "FA Ledger Entry";
         i: Integer;
     begin
-        with FALedgEntry do begin
-            SetCurrentKey(
-              "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type",
-              "FA Posting Date", "Part of Book Value", "Reclassification Entry");
-            FilterFALedgerEntries(FALedgEntry, FADeprBook);
-            SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            SetRange("Initial Acquisition", false);
-            SetFilter(Quantity, '>0');
-            SetRange("Reclassification Entry", true);
-            FindSet();
-            repeat
-                i += 1;
-                LibraryReportValidation.VerifyCellValue(58 + i, 39, FormatAmount(FADeprBook."Acquisition Cost" + FADeprBook.Depreciation));
-                LibraryReportValidation.VerifyCellValue(58 + i, 10, TransferOperationTypeTxt);
-            until Next() = 0;
-        end;
+        FALedgEntry.SetCurrentKey(
+            "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type",
+            "FA Posting Date", "Part of Book Value", "Reclassification Entry");
+        FilterFALedgerEntries(FALedgEntry, FADeprBook);
+        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
+        FALedgEntry.SetRange("Initial Acquisition", false);
+        FALedgEntry.SetFilter(Quantity, '>0');
+        FALedgEntry.SetRange("Reclassification Entry", true);
+        FALedgEntry.FindSet();
+        repeat
+            i += 1;
+            LibraryReportValidation.VerifyCellValue(58 + i, 39, FormatAmount(FADeprBook."Acquisition Cost" + FADeprBook.Depreciation));
+            LibraryReportValidation.VerifyCellValue(58 + i, 10, TransferOperationTypeTxt);
+        until FALedgEntry.Next() = 0;
     end;
 
     local procedure PrintFA15(DocumentNo: Code[20])

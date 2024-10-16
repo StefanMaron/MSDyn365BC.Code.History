@@ -743,8 +743,14 @@ page 12438 "Cash Order Journal"
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         ShortcutDimCode: array[8] of Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Void Check %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Void all printed checks?';
+#pragma warning restore AA0074
         BalanceVisible: Boolean;
         TotalBalanceVisible: Boolean;
 

@@ -186,8 +186,12 @@ report 12402 "Cash Outgoing Order"
     end;
 
     var
+#pragma warning disable AA0470
         PrintQst: Label 'If %1 is not empty then it will be changed during posting\\Do you want to continue printing?';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         CannotBeUsedErr: Label 'Cannot be used if %1 %2.', Comment = 'Parameter 1 - field caption, parameter 2 - bank payment type';
+#pragma warning restore AA0470
         CompanyInfo: Record "Company Information";
         BankAcc: Record "Bank Account";
         CheckLedgEntry: Record "Check Ledger Entry";
@@ -210,7 +214,9 @@ report 12402 "Cash Outgoing Order"
         PaymentCheckNo: Code[20];
         CashierFullName: Text[100];
         LastNo: Code[20];
+#pragma warning disable AA0470
         WrongDocumentNoErr: Label 'The number of the document %1 does not match the input mask %2 or greater than the last number.';
+#pragma warning restore AA0470
         CurrencyTxt: Label 'Rub., kop.';
         CurrencyText: Text[30];
         MinusTxt: Label '(minus)';

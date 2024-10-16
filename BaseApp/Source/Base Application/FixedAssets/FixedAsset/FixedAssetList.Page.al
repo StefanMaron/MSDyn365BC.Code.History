@@ -13,7 +13,7 @@ using System.Telemetry;
 using System.Text;
 
 page 5601 "Fixed Asset List"
-{ 
+{
     AdditionalSearchTerms = 'FA List, Asset Profile, Property Details, Tangible Asset Info, Asset Data, Capital Good Info, Asset Detail, Ownership Info, Property Data, Asset Log';
     ApplicationArea = FixedAssets;
     Caption = 'Fixed Assets';
@@ -22,6 +22,8 @@ page 5601 "Fixed Asset List"
     PageType = List;
     SourceTable = "Fixed Asset";
     UsageCategory = Lists;
+    AboutTitle = 'About Fixed Asset';
+    AboutText = 'Here you overview all registered fixed assets with their statistics, class, subclass, location code and acquired status.';
 
     layout
     {
@@ -97,10 +99,22 @@ page 5601 "Fixed Asset List"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Fixed Asset"), "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Fixed Asset"), "No." = field("No.");
             }
             systempart(Control1900383207; Links)
@@ -287,7 +301,7 @@ page 5601 "Fixed Asset List"
                     RunObject = Page "FA Ledger Entries";
                     RunPageLink = "FA No." = field("No.");
                     RunPageView = sorting("FA No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -299,7 +313,7 @@ page 5601 "Fixed Asset List"
                     RunObject = Page "FA Error Ledger Entries";
                     RunPageLink = "Canceled from FA No." = field("No.");
                     RunPageView = sorting("Canceled from FA No.")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View the entries that have been posted as a result of you using the cancel function to cancel an entry.';
                 }
                 action("Maintenance &Registration")
@@ -366,6 +380,14 @@ page 5601 "Fixed Asset List"
         }
         area(reporting)
         {
+            action("FixedAssetsAnalysis")
+            {
+                ApplicationArea = FixedAssets;
+                Caption = 'Analyze Fixed Assets';
+                Image = NonStockItem;
+                RunObject = Query "Fixed Assets Analysis";
+                ToolTip = 'Analyze (group, summarize, pivot) your Fixed Asset Ledger Entries with related Fixed Asset master data such as Fixed Asset, Asset Class/Subclass, and XXX.';
+            }
             action("Fixed Assets List")
             {
                 ApplicationArea = FixedAssets;
@@ -532,7 +554,9 @@ page 5601 "Fixed Asset List"
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
-
+                actionref(FixedAssetsAnalysis_Promoted; FixedAssetsAnalysis)
+                {
+                }
                 actionref(Analysis_Promoted; Analysis)
                 {
                 }

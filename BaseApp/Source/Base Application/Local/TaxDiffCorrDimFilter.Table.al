@@ -60,7 +60,7 @@ table 17322 "Tax Diff. Corr. Dim. Filter"
         }
         field(10; "Dimension Name"; Text[50])
         {
-            CalcFormula = Lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
+            CalcFormula = lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
                                                                Code = field("Dimension Value Filter")));
             Caption = 'Dimension Name';
             Editable = false;
@@ -108,7 +108,11 @@ table 17322 "Tax Diff. Corr. Dim. Filter"
     var
         Dimension: Record Dimension;
         TaxRegSection: Record "Tax Register Section";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure TaxRegDescription(): Text[250]

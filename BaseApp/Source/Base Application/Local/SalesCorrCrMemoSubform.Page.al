@@ -147,7 +147,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::"Event")
                         end;
                     }
                     action(Period)
@@ -158,7 +158,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Period)
                         end;
                     }
                     action(Variant)
@@ -170,7 +170,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Variant)
                         end;
                     }
                     action(Location)
@@ -182,7 +182,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Location)
                         end;
                     }
                     action("BOM Level")
@@ -193,7 +193,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::BOM)
                         end;
                     }
                 }
@@ -237,7 +237,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
+                    ToolTip = 'View or edit serial, lot and package numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -273,7 +273,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        SalesAvailabilityMgt: Codeunit "Sales Availability Mgt.";
         ShortcutDimCode: array[8] of Code[20];
 
     [Scope('OnPrem')]

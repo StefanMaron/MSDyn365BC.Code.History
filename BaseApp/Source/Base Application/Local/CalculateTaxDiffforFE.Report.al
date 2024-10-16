@@ -277,20 +277,40 @@ report 17300 "Calculate Tax Diff. for FE"
         Choices: Option ,"Fixed","Temporary";
         Choice: array[4] of Boolean;
         AccountPeriod: Text[30];
+#pragma warning disable AA0074
         Text1000: Label 'You must specify Journal Template and Journal Batch.';
+#pragma warning restore AA0074
         DocumentNo: Code[20];
         PostingDescription: Text[50];
         Total: Integer;
         Processing: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'Processing  #1########\@2@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TemplateName: Code[10];
         BatchName: Code[10];
         AccountDepreciation: Decimal;
         TaxAccountDepreciation: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1002: Label '%1  is in the last month of the year. Temporary differences posted within accounting period should be transformed to constant differences. Perform required preparations for transformations?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1005: Label 'DTD arising %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12411: Label 'DT-';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12410: Label '%1 %2 FE Tax Differences';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AccAcquisCost: Decimal;
         TaxAcquisCost: Decimal;
         CalcTDAcquisCost: Boolean;

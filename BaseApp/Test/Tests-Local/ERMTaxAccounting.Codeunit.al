@@ -272,17 +272,15 @@ codeunit 144515 "ERM Tax Accounting"
 
     local procedure InsertFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DeprBookCode: Code[10]; FAPostingDate: Date; PostingDate: Date; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     begin
-        with FALedgerEntry do begin
-            Init();
-            "Entry No." := GetLastFALedgerEntryNo() + 1;
-            "FA No." := FANo;
-            "Depreciation Book Code" := DeprBookCode;
-            "FA Posting Date" := FAPostingDate;
-            "Posting Date" := PostingDate;
-            "Part of Book Value" := true;
-            "FA Posting Type" := FAPostingType;
-            Insert();
-        end;
+        FALedgerEntry.Init();
+        FALedgerEntry."Entry No." := GetLastFALedgerEntryNo() + 1;
+        FALedgerEntry."FA No." := FANo;
+        FALedgerEntry."Depreciation Book Code" := DeprBookCode;
+        FALedgerEntry."FA Posting Date" := FAPostingDate;
+        FALedgerEntry."Posting Date" := PostingDate;
+        FALedgerEntry."Part of Book Value" := true;
+        FALedgerEntry."FA Posting Type" := FAPostingType;
+        FALedgerEntry.Insert();
     end;
 
     local procedure CreateTaxDiffDeprBonusEntry(FANo: Code[20]; FAPostingDate: Date; PostingDate: Date; TaxDiffCode: Code[10]; EntryAmount: Decimal)
@@ -294,12 +292,10 @@ codeunit 144515 "ERM Tax Accounting"
         InsertFALedgerEntry(
           FALedgerEntry, FANo, TaxRegisterSetup."Tax Depreciation Book", FAPostingDate, PostingDate,
           FALedgerEntry."FA Posting Type"::Depreciation);
-        with FALedgerEntry do begin
-            Validate("Depr. Bonus", true);
-            Validate(Amount, EntryAmount);
-            Validate("Tax Difference Code", TaxDiffCode);
-            Modify(true);
-        end;
+        FALedgerEntry.Validate("Depr. Bonus", true);
+        FALedgerEntry.Validate(Amount, EntryAmount);
+        FALedgerEntry.Validate("Tax Difference Code", TaxDiffCode);
+        FALedgerEntry.Modify(true);
     end;
 
     local procedure CreateTaxDiffFAEntry(FANo: Code[20]; FAPostingDate: Date; PostingDate: Date; TaxDiffCode: Code[10]; EntryAmount: Decimal)
@@ -312,21 +308,17 @@ codeunit 144515 "ERM Tax Accounting"
         InsertFALedgerEntry(
           FALedgerEntry, FANo, FASetup."Release Depr. Book", FAPostingDate, PostingDate,
           FALedgerEntry."FA Posting Type"::"Acquisition Cost");
-        with FALedgerEntry do begin
-            Validate(Amount, EntryAmount);
-            Validate("Tax Difference Code", TaxDiffCode);
-            Modify(true);
-        end;
+        FALedgerEntry.Validate(Amount, EntryAmount);
+        FALedgerEntry.Validate("Tax Difference Code", TaxDiffCode);
+        FALedgerEntry.Modify(true);
 
         TaxRegisterSetup.Get();
         InsertFALedgerEntry(
           FALedgerEntry, FANo, TaxRegisterSetup."Tax Depreciation Book", FAPostingDate, PostingDate,
           FALedgerEntry."FA Posting Type"::"Acquisition Cost");
-        with FALedgerEntry do begin
-            Validate(Amount, EntryAmount / 2);
-            Validate("Tax Difference Code", TaxDiffCode);
-            Modify(true);
-        end;
+        FALedgerEntry.Validate(Amount, EntryAmount / 2);
+        FALedgerEntry.Validate("Tax Difference Code", TaxDiffCode);
+        FALedgerEntry.Modify(true);
     end;
 
     local procedure CreateTaxDiffDisposalEntry(FANo: Code[20]; FAPostingDate: Date; PostingDate: Date; TaxDiffCode: Code[10]; EntryAmount: Decimal)
@@ -339,32 +331,26 @@ codeunit 144515 "ERM Tax Accounting"
         InsertFALedgerEntry(
           FALedgerEntry, FANo, FASetup."Release Depr. Book", FAPostingDate, PostingDate,
           FALedgerEntry."FA Posting Type"::"Gain/Loss");
-        with FALedgerEntry do begin
-            Validate(Amount, EntryAmount);
-            Validate("Tax Difference Code", TaxDiffCode);
-            Validate("Disposal Entry No.", 1);
-            Modify(true);
-        end;
+        FALedgerEntry.Validate(Amount, EntryAmount);
+        FALedgerEntry.Validate("Tax Difference Code", TaxDiffCode);
+        FALedgerEntry.Validate("Disposal Entry No.", 1);
+        FALedgerEntry.Modify(true);
 
         TaxRegisterSetup.Get();
         InsertFALedgerEntry(
           FALedgerEntry, FANo, TaxRegisterSetup."Tax Depreciation Book", FAPostingDate, PostingDate,
           FALedgerEntry."FA Posting Type"::"Proceeds on Disposal");
-        with FALedgerEntry do begin
-            Validate(Amount, EntryAmount / 2);
-            Validate("Tax Difference Code", TaxDiffCode);
-            Modify(true);
-        end;
+        FALedgerEntry.Validate(Amount, EntryAmount / 2);
+        FALedgerEntry.Validate("Tax Difference Code", TaxDiffCode);
+        FALedgerEntry.Modify(true);
 
         InsertFALedgerEntry(
           FALedgerEntry, FANo, TaxRegisterSetup."Tax Depreciation Book", FAPostingDate, PostingDate,
           FALedgerEntry."FA Posting Type"::"Gain/Loss");
-        with FALedgerEntry do begin
-            Validate(Amount, EntryAmount / 2);
-            Validate("Tax Difference Code", TaxDiffCode);
-            Validate("Disposal Entry No.", 1);
-            Modify(true);
-        end;
+        FALedgerEntry.Validate(Amount, EntryAmount / 2);
+        FALedgerEntry.Validate("Tax Difference Code", TaxDiffCode);
+        FALedgerEntry.Validate("Disposal Entry No.", 1);
+        FALedgerEntry.Modify(true);
     end;
 
     local procedure CreateTaxDiffFEDeprEntry(FANo: Code[20]; FAPostingDate: Date; PostingDate: Date; EntryAmount: Decimal)
@@ -377,19 +363,15 @@ codeunit 144515 "ERM Tax Accounting"
         InsertFALedgerEntry(
           FALedgerEntry, FANo, FASetup."Future Depr. Book", FAPostingDate, PostingDate,
           FALedgerEntry."FA Posting Type"::Depreciation);
-        with FALedgerEntry do begin
-            Validate(Amount, EntryAmount);
-            Modify(true);
-        end;
+        FALedgerEntry.Validate(Amount, EntryAmount);
+        FALedgerEntry.Modify(true);
 
         TaxRegisterSetup.Get();
         InsertFALedgerEntry(
           FALedgerEntry, FANo, TaxRegisterSetup."Future Exp. Depreciation Book", FAPostingDate, PostingDate,
           FALedgerEntry."FA Posting Type"::Depreciation);
-        with FALedgerEntry do begin
-            Validate(Amount, EntryAmount / 2);
-            Modify(true);
-        end;
+        FALedgerEntry.Validate(Amount, EntryAmount / 2);
+        FALedgerEntry.Modify(true);
     end;
 
     local procedure CreateFixedAsset(var FixedAsset: Record "Fixed Asset")
@@ -480,15 +462,13 @@ codeunit 144515 "ERM Tax Accounting"
     var
         GLCorrEntry: Record "G/L Correspondence Entry";
     begin
-        with GLCorrEntry do begin
-            Init();
-            Validate("Entry No.", GetLastGLCorrEntryNo() + 10000);
-            Validate("Posting Date", PostingDate);
-            Validate("Debit Account No.", AccountNo);
-            Validate("Credit Account No.", BalAccountNo);
-            Validate(Amount, 1000);
-            Insert(true);
-        end;
+        GLCorrEntry.Init();
+        GLCorrEntry.Validate("Entry No.", GetLastGLCorrEntryNo() + 10000);
+        GLCorrEntry.Validate("Posting Date", PostingDate);
+        GLCorrEntry.Validate("Debit Account No.", AccountNo);
+        GLCorrEntry.Validate("Credit Account No.", BalAccountNo);
+        GLCorrEntry.Validate(Amount, 1000);
+        GLCorrEntry.Insert(true);
     end;
 
     local procedure CreateTaxCalcSetupFA(var TaxCalcSectionCode: Code[10]; var TaxCalcHeaderNo: Code[10])
@@ -614,12 +594,10 @@ codeunit 144515 "ERM Tax Accounting"
         WriteOffForTaxLedger.Run();
 
         TaxRegisterSetup.Get();
-        with FALedgerEntry do begin
-            SetRange("FA No.", PurchaseLine."No.");
-            SetRange("Depreciation Book Code", TaxRegisterSetup."Tax Depreciation Book");
-            SetRange("FA Posting Type", "FA Posting Type"::"Proceeds on Disposal");
-            Assert.IsFalse(IsEmpty, EntryNotFoundErr);
-        end;
+        FALedgerEntry.SetRange("FA No.", PurchaseLine."No.");
+        FALedgerEntry.SetRange("Depreciation Book Code", TaxRegisterSetup."Tax Depreciation Book");
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal");
+        Assert.IsFalse(FALedgerEntry.IsEmpty, EntryNotFoundErr);
 
         RestoreGLIntegration(GLIntegration);
     end;

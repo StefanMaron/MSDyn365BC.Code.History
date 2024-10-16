@@ -51,10 +51,26 @@ codeunit 5632 "FA Jnl.-Post Line"
         ErrorEntryNo: Integer;
         ResultOnDisposal: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%2 must not be %3 in %4 %5 = %6 for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%2 = %3 must be canceled first for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 is not a %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 = %2 already exists for %5 (%3 = %4).';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure FAJnlPostLine(FAJnlLine: Record "FA Journal Line"; CheckLine: Boolean)
     var
@@ -546,7 +562,6 @@ codeunit 5632 "FA Jnl.-Post Line"
         FAPostingGr: Record "FA Posting Group";
         IsHandled: Boolean;
     begin
-        IsHandled := false;
         OnBeforePostAllocation(FALedgEntry, IsHandled);
         if IsHandled then
             exit;
@@ -734,7 +749,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                         EntryAmounts[3] := 0;
                     end;
             end;
-            for i := 1 to 3 do begin
+            for i := 1 to 3 do
                 if EntryAmounts[i] <> 0 then begin
                     FALedgEntry."FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
                     FALedgEntry."FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
@@ -746,13 +761,12 @@ codeunit 5632 "FA Jnl.-Post Line"
                     FAInsertLedgEntry.InsertFA(FALedgEntry);
                     PostAllocation(FALedgEntry);
                 end;
-            end;
         end;
         if DisposalType in [DisposalType::ErrorDisposal, DisposalType::LastErrorDisposal] then begin
             FALedgEntry.Correction := not InitialCorrection;
             CalculateDisposal.GetErrorDisposalLowValueFA(FALedgEntry, ErrorEntryNo, EntryAmounts, EntryNumbers);
             ResultOnDisposal := 2;
-            for i := 2 to 14 do begin
+            for i := 2 to 14 do
                 if EntryNumbers[i] <> 0 then begin
                     FALedgEntry.Amount := EntryAmounts[i];
                     FALedgEntry."Entry No." := EntryNumbers[i];
@@ -767,7 +781,6 @@ codeunit 5632 "FA Jnl.-Post Line"
                     FAInsertLedgEntry.InsertFA(FALedgEntry);
                     PostAllocation(FALedgEntry);
                 end;
-            end;
         end;
         FAInsertLedgEntry.CorrectEntries();
     end;

@@ -36,7 +36,6 @@ codeunit 136907 Resource
         WantToCreateContractQst: Label 'Do you want to create the contract using a contract template?';
         CannotModifyBaseUnitOfMeasureErr: Label 'You cannot modify %1 %2 for resource %3 because it is the resource''s %4.', Comment = '%1 Table name (Item Unit of measure), %2 Value of Measure (KG, PCS...), %3 Item ID, %4 Base unit of Measure';
         BaseUnitOfMeasureQtyMustBeOneErr: Label 'The quantity per base unit of measure must be 1. %1 is set up with %2 per unit of measure.', Comment = '%1 Name of Unit of measure (e.g. BOX, PCS, KG...), %2 Qty. of %1 per base unit of measure ';
-        JobTaskTypeErr: Label 'Project Task Type must be equal to ''Posting''  in Project Task:';
         JobLedgerEntryUpdatedMsg: Label 'The project ledger entry item costs have now been updated to equal the related item ledger entry actual costs.';
         NoJobLedgEntriesToUpdateMsg: Label 'There were no project ledger entries that needed to be updated';
         WantToPostJournalLinesQst: Label 'Do you want to post the journal lines?';
@@ -688,7 +687,7 @@ codeunit 136907 Resource
             JobTask."Job No.", JobTask."Job Task No.", LibraryRandom.RandDec(10, 2), PurchaseLine."Job Line Type"::Budget);
 
         // Verify.
-        Assert.ExpectedError(JobTaskTypeErr);
+        Assert.ExpectedTestFieldError(JobTask.FieldCaption("Job Task Type"), Format(JobTask."Job Task Type"::Posting));
     end;
 
     [Test]
@@ -1874,12 +1873,10 @@ codeunit 136907 Resource
 
     local procedure CreateJobPlanningLine(JobTask: Record "Job Task"; ResourceNo: Code[20]; UOMCode: Code[10]; var JobPlanningLine: Record "Job Planning Line")
     begin
-        with JobPlanningLine do begin
-            LibraryJob.CreateJobPlanningLine("Line Type"::Budget, Type::Resource, JobTask, JobPlanningLine);
-            "Unit of Measure Code" := UOMCode;
-            Validate("No.", ResourceNo);
-            Modify(true);
-        end;
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
+        JobPlanningLine."Unit of Measure Code" := UOMCode;
+        JobPlanningLine.Validate("No.", ResourceNo);
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure CreateJobPlanningLinesWithDifferentUOMCode(UOMCode: Code[10]; var ResourceUnitOfMeasure: Record "Resource Unit of Measure"; var JobTaskNo: Code[20]) "Count": Integer
@@ -1937,12 +1934,10 @@ codeunit 136907 Resource
 
     local procedure CreateResourceLocation(var ResourceLocation: Record "Resource Location"; ResourceNo: Code[20]; LocationCode: Code[10]; StartingDate: Date)
     begin
-        with ResourceLocation do begin
-            Validate("Location Code", LocationCode);
-            Validate("Starting Date", StartingDate);
-            Validate("Resource No.", ResourceNo);
-            Insert(true);
-        end;
+        ResourceLocation.Validate("Location Code", LocationCode);
+        ResourceLocation.Validate("Starting Date", StartingDate);
+        ResourceLocation.Validate("Resource No.", ResourceNo);
+        ResourceLocation.Insert(true);
     end;
 
     local procedure CreateResourceUnitOfMeasure(var ResourceUnitOfMeasure: Record "Resource Unit of Measure"; UOMCode: Code[10]; RelatedToBaseUnitOfMeas: Boolean)
@@ -1951,27 +1946,21 @@ codeunit 136907 Resource
         Resource: Record Resource;
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        with UnitOfMeasure do begin
-            Init();
-            Code := UOMCode;
-            Insert(true);
-        end;
+        UnitOfMeasure.Init();
+        UnitOfMeasure.Code := UOMCode;
+        UnitOfMeasure.Insert(true);
 
-        with Resource do begin
-            Init();
-            Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Resource));
-            LibraryERM.FindGenProductPostingGroup(GenProductPostingGroup);
-            Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
-            Insert(true);
-        end;
+        Resource.Init();
+        Resource.Validate("No.", LibraryUtility.GenerateRandomCode(Resource.FieldNo("No."), DATABASE::Resource));
+        LibraryERM.FindGenProductPostingGroup(GenProductPostingGroup);
+        Resource.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
+        Resource.Insert(true);
 
-        with ResourceUnitOfMeasure do begin
-            Init();
-            Validate("Resource No.", Resource."No.");
-            Validate(Code, UOMCode);
-            Validate("Related to Base Unit of Meas.", RelatedToBaseUnitOfMeas);
-            Insert(true);
-        end;
+        ResourceUnitOfMeasure.Init();
+        ResourceUnitOfMeasure.Validate("Resource No.", Resource."No.");
+        ResourceUnitOfMeasure.Validate(Code, UOMCode);
+        ResourceUnitOfMeasure.Validate("Related to Base Unit of Meas.", RelatedToBaseUnitOfMeas);
+        ResourceUnitOfMeasure.Insert(true);
 
         Resource.Validate("Base Unit of Measure", UOMCode);
         Resource.Modify(true);
@@ -2404,12 +2393,10 @@ codeunit 136907 Resource
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        with JobPlanningLine do begin
-            SetRange("Job Task No.", JobTaskNo);
-            Assert.IsTrue(UOMCodeLineCount < Count, StrSubstNo(JobPlanningLineCountErr, TableCaption(), UOMCodeLineCount));
-            SetFilter("Unit of Measure Code", Filter);
-            Assert.AreEqual(UOMCodeLineCount, Count, StrSubstNo(JobPlanningLineFilterErr, TableCaption(), GetFilters));
-        end;
+        JobPlanningLine.SetRange("Job Task No.", JobTaskNo);
+        Assert.IsTrue(UOMCodeLineCount < JobPlanningLine.Count, StrSubstNo(JobPlanningLineCountErr, JobPlanningLine.TableCaption(), UOMCodeLineCount));
+        JobPlanningLine.SetFilter("Unit of Measure Code", Filter);
+        Assert.AreEqual(UOMCodeLineCount, JobPlanningLine.Count, StrSubstNo(JobPlanningLineFilterErr, JobPlanningLine.TableCaption(), JobPlanningLine.GetFilters));
     end;
 
     local procedure VerifyBaseUnitOfMeasure(Res: Record Resource; BaseUnitOfMeasureCode: Code[10])

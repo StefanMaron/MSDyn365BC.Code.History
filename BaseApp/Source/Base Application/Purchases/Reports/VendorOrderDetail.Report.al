@@ -279,6 +279,8 @@ report 308 "Vendor - Order Detail"
 
     requestpage
     {
+        AboutTitle = 'About Vendor - Order Detail';
+        AboutText = 'Analyse your outstanding purchase orders to understand your expected purchase volume. Show all outstanding purchases and highlight overdue purchase lines for each vendor.';
         SaveValues = true;
 
         layout
@@ -352,8 +354,16 @@ report 308 "Vendor - Order Detail"
         OrderNoCaptionLbl: Label 'Order No.';
         TotalCaptionLbl: Label 'Total';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Receiving Date: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Purchase Order Line: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InitializeRequest(NewPrintAmountsInLCY: Boolean; NewPrintOnlyOnePerPage: Boolean)
     begin

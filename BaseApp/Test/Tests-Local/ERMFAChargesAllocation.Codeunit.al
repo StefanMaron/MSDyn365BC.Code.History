@@ -194,12 +194,10 @@ codeunit 144510 "ERM FA Charges Allocation"
 
     local procedure FindFADeprLedgerEntry(FixedAssetNo: Code[20]; var FALedgerEntry: Record "FA Ledger Entry"; FAChargeNo: Code[20]; DeprBookCode: Code[20])
     begin
-        with FALedgerEntry do begin
-            SetRange("FA No.", FixedAssetNo);
-            SetRange("FA Charge No.", FAChargeNo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            FindFirst();
-        end;
+        FALedgerEntry.SetRange("FA No.", FixedAssetNo);
+        FALedgerEntry.SetRange("FA Charge No.", FAChargeNo);
+        FALedgerEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        FALedgerEntry.FindFirst();
     end;
 
     local procedure VerifyFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; Amount: Decimal)
@@ -260,16 +258,14 @@ codeunit 144510 "ERM FA Charges Allocation"
         LibraryUtility: Codeunit "Library - Utility";
     begin
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        with FACharge do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"FA Charge");
-            "G/L Acc. for Released FA" := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
-            GLAccount.Get("G/L Acc. for Released FA");
-            "Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
-            "VAT Prod. Posting Group" := GLAccount."VAT Prod. Posting Group";
-            Insert();
-            SetEmptyTransVATType(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
-        end;
+        FACharge.Init();
+        FACharge."No." := LibraryUtility.GenerateRandomCode(FACharge.FieldNo("No."), DATABASE::"FA Charge");
+        FACharge."G/L Acc. for Released FA" := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
+        GLAccount.Get(FACharge."G/L Acc. for Released FA");
+        FACharge."Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
+        FACharge."VAT Prod. Posting Group" := GLAccount."VAT Prod. Posting Group";
+        FACharge.Insert();
+        SetEmptyTransVATType(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
         exit(FACharge."No.");
     end;
 
@@ -326,14 +322,12 @@ codeunit 144510 "ERM FA Charges Allocation"
         FASetup: Record "FA Setup";
     begin
         FASetup.Get();
-        with FADocLine do begin
-            SetRange("Document Type", "Document Type"::Release);
-            SetRange("FA No.", FANo);
-            FindFirst();
-            Validate("Depreciation Book Code", FASetup."Release Depr. Book");
-            Validate("New Depreciation Book Code", FASetup."Default Depr. Book");
-            Modify(true);
-        end;
+        FADocLine.SetRange("Document Type", FADocLine."Document Type"::Release);
+        FADocLine.SetRange("FA No.", FANo);
+        FADocLine.FindFirst();
+        FADocLine.Validate("Depreciation Book Code", FASetup."Release Depr. Book");
+        FADocLine.Validate("New Depreciation Book Code", FASetup."Default Depr. Book");
+        FADocLine.Modify(true);
     end;
 
     local procedure ChangeFAStatus(FANo: Code[20]; NewStatus: Option)

@@ -6,16 +6,48 @@ codeunit 17200 "Tax Register Term Mgt."
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         ErrorText1: Label '\\Following value has been calculated in the report\Line No.=%1, Column No.=%2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         ErrorText2: Label '\\Error in calculation of value in\No.=%3, Line No.=%4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         WinTestText: Label 'Check cycle reference in Terms\';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         ReportTest1: Label 'Check completed. Cycle reference not found.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         ReportTest2: Label 'Check completed. Cycle reference has been found for %1 items.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         ErrorConst: Label 'Section %1 Term %2\Wrong constant %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         ErrorType: Label 'Section %1 Term %2\G/L Account must be set with Type = %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         ErrorInvolve: Label 'Navision cannot calculate the formula due to cycle reference.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         ErrorValue: Label 'Wrong value or line number does not exist.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         ErrorDateFilter: Label 'Wrong value in Date Filter = %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GenTemplateProfile: Record "Gen. Template Profile";
         GenTermProfile: Record "Gen. Term Profile";
         TaxRegValueBuffer: Record "Drop Shpt. Post. Buffer" temporary;
@@ -29,13 +61,29 @@ codeunit 17200 "Tax Register Term Mgt."
         GlobalTemplateCode: Code[10];
         GlobalTemplateLineNo: Integer;
         GlobalDateFilter: Text;
+#pragma warning disable AA0074
         Text17200: Label 'IF TERM(%1) < 0 THEN ', Locked = true;
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text17201: Label ' elseIF TERM(%1) = 0 THEN ', Locked = true;
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text17202: Label ' elseIF TERM(%1) > 0 THEN ', Locked = true;
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text17203: Label 'Equal,Account,Term,CorrAcc,Norm,5,6,7,8,9,10';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text17204: Label 'DB-CR,DB,CR,4,5,6,7,8,9,10';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         InvalidSymbol: Label '@#^&*/-+(){}[]<>|\!:', Locked = true;
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         ErrorMassage: Label 'The line should not contains following special symbols %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CalcTermValue(var TermNameRecordRef: RecordRef; var TempDimBuf: Record "Dimension Buffer" temporary) Output: Decimal
     var

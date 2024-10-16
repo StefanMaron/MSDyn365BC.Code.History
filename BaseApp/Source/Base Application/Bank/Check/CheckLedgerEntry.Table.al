@@ -287,7 +287,7 @@ table 272 "Check Ledger Entry"
         }
         field(12427; "Bank Account Type"; Option)
         {
-            CalcFormula = Lookup("Bank Account"."Account Type" where("No." = field("Bank Account No.")));
+            CalcFormula = lookup("Bank Account"."Account Type" where("No." = field("Bank Account No.")));
             Caption = 'Bank Account Type';
             FieldClass = FlowField;
             OptionCaption = 'Bank Account,Cash Account';

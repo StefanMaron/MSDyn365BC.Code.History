@@ -12,16 +12,32 @@ codeunit 5638 FAJnlManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'ASSETS';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Fixed Asset Journal';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Recurring';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Recurring Fixed Asset Journal';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'DEFAULT';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Default Journal';
+#pragma warning restore AA0074
         OldFANo: Code[20];
         OpenFromBatch: Boolean;
+#pragma warning disable AA0074
         Text17300: Label 'TAXDIFF';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text17301: Label 'Tax Difference Journal';
+#pragma warning restore AA0074
 
     procedure TemplateSelection(PageID: Integer; PageTemplate: Option General,Difference; RecurringJnl: Boolean; var FAJnlLine: Record "FA Journal Line"; var JnlSelected: Boolean)
     var

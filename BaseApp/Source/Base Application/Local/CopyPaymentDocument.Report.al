@@ -70,15 +70,15 @@ report 12424 "Copy Payment Document"
                                     "Dimension Set ID" := GenJnlLine."Dimension Set ID";
                                 end;
                             end else begin
-                                        BankLedgEntry.SetCurrentKey("Document No.", "Posting Date");
-                                        BankLedgEntry.SetRange("Document No.", DocumentNo);
-                                        BankLedgEntry.SetRange("Posting Date", PostingDate);
-                                        if BankLedgEntry.Find('-') then begin
-                                            "Shortcut Dimension 1 Code" := BankLedgEntry."Global Dimension 1 Code";
-                                            "Shortcut Dimension 2 Code" := BankLedgEntry."Global Dimension 2 Code";
-                                            "Dimension Set ID" := GenJnlLine."Dimension Set ID";
-                                        end;
-                                    end;
+                            BankLedgEntry.SetCurrentKey("Document No.", "Posting Date");
+                            BankLedgEntry.SetRange("Document No.", DocumentNo);
+                            BankLedgEntry.SetRange("Posting Date", PostingDate);
+                            if BankLedgEntry.Find('-') then begin
+                                "Shortcut Dimension 1 Code" := BankLedgEntry."Global Dimension 1 Code";
+                                "Shortcut Dimension 2 Code" := BankLedgEntry."Global Dimension 2 Code";
+                                "Dimension Set ID" := GenJnlLine."Dimension Set ID";
+                            end;
+                        end;
                     end;
                     Modify();
                 end else
@@ -135,7 +135,9 @@ report 12424 "Copy Payment Document"
         CheckLedgerEntry: Record "Check Ledger Entry";
         DocumentNo: Code[20];
         PostingDate: Date;
+#pragma warning disable AA0074
         Text001: Label 'Document not found';
+#pragma warning restore AA0074
         BankLedgEntry: Record "Bank Account Ledger Entry";
         BankAccount: Record "Bank Account";
         SourceAccType: Integer;

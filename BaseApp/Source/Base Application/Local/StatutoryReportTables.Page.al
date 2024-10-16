@@ -343,7 +343,11 @@ page 26552 "Statutory Report Tables"
     var
         TableIndividualRequisite: Record "Table Individual Requisite";
         PageIndicRowNo: Code[10];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 or %2 should be Yes in %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure MoveUp()

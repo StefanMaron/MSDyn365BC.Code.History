@@ -467,10 +467,18 @@ report 14940 "Analytic Account Card by Dim."
         HidCreditDim3Filter: Code[250];
         HidBusUnitFilter: Code[250];
         GLAccountFilter: Text[250];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 must be filled in.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         HidGLAccountFilter: Text[250];
         FileName: Text;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 is not a valid dimension.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         LineCounter: Integer;
         Counter: Integer;
         TotalQty: Integer;
@@ -479,21 +487,49 @@ report 14940 "Analytic Account Card by Dim."
         TotalDimCreditAmount: Decimal;
         TotalDebitAmount: Decimal;
         TotalCreditAmount: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Total, %1 %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Dimension Code';
+#pragma warning restore AA0074
         SkipZeroNetChangeAccounts: Boolean;
+#pragma warning disable AA0074
         Text006: Label 'Sheets creating   @1@@@@@@@@@@@@@@\Sheets processing @2@@@@@@@@@@@@@@';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label 'No entries are found according to specified filters on the request form. There is nothing to export!';
+#pragma warning restore AA0074
         UseHiddenParameters: Boolean;
+#pragma warning disable AA0074
         Text008: Label 'G/L Corr. Analysis View Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text009: Label 'Starting Date';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text010: Label 'Ending Date';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text011: Label '1,6,,Debit Dimension 1 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text012: Label '1,6,,Debit Dimension 2 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text013: Label '1,6,,Debit Dimension 3 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text014: Label '1,6,,Credit Dimension 1 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text015: Label '1,6,,Credit Dimension 2 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text016: Label '1,6,,Credit Dimension 3 Filter';
+#pragma warning restore AA0074
         DebitDim1FilterEnable: Boolean;
         DebitDim2FilterEnable: Boolean;
         DebitDim3FilterEnable: Boolean;
@@ -540,9 +576,8 @@ report 14940 "Analytic Account Card by Dim."
                 if SheetNo = 1 then begin
                     ExcelMgt.OpenSheet('АК_сводная');
                     ExcelMgt.SetSheetName(SheetBuffer."Search Name");
-                end else begin
+                end else
                     ExcelMgt.CopySheet(LastSheetName, LastSheetName, SheetBuffer."Search Name");
-                end;
                 LastSheetName := SheetBuffer."Search Name";
                 Window.Update(1, Round(SheetNo / TotalQty * 10000, 1));
             until SheetBuffer.Next(-1) = 0;
@@ -641,35 +676,30 @@ report 14940 "Analytic Account Card by Dim."
     begin
         case GroupType of
             GroupType::Debit:
-                begin
-                    case DimCode of
-                        '':
-                            exit(-1);
-                        GLCorrAnalysisView."Debit Dimension 1 Code":
-                            exit(0);
-                        GLCorrAnalysisView."Debit Dimension 2 Code":
-                            exit(1);
-                        GLCorrAnalysisView."Debit Dimension 3 Code":
-                            exit(2);
-                        else
-                            exit(-1);
-                    end;
+                case DimCode of
+                    '':
+                        exit(-1);
+                    GLCorrAnalysisView."Debit Dimension 1 Code":
+                        exit(0);
+                    GLCorrAnalysisView."Debit Dimension 2 Code":
+                        exit(1);
+                    GLCorrAnalysisView."Debit Dimension 3 Code":
+                        exit(2);
+                    else
+                        exit(-1);
                 end;
-
             GroupType::Credit:
-                begin
-                    case DimCode of
-                        '':
-                            exit(-1);
-                        GLCorrAnalysisView."Credit Dimension 1 Code":
-                            exit(3);
-                        GLCorrAnalysisView."Credit Dimension 2 Code":
-                            exit(4);
-                        GLCorrAnalysisView."Credit Dimension 3 Code":
-                            exit(5);
-                        else
-                            exit(-1);
-                    end;
+                case DimCode of
+                    '':
+                        exit(-1);
+                    GLCorrAnalysisView."Credit Dimension 1 Code":
+                        exit(3);
+                    GLCorrAnalysisView."Credit Dimension 2 Code":
+                        exit(4);
+                    GLCorrAnalysisView."Credit Dimension 3 Code":
+                        exit(5);
+                    else
+                        exit(-1);
                 end;
         end;
     end;
@@ -770,7 +800,7 @@ report 14940 "Analytic Account Card by Dim."
             GLCorrAnalysisViewEntry.SetFilter("Credit Dimension 3 Value Code", CreditDim3Filter);
         GLCorrAnalysisViewEntry.FilterGroup(0);
 
-        if SelectedDimFilter <> '' then begin
+        if SelectedDimFilter <> '' then
             case DimOption of
                 0:
                     GLCorrAnalysisViewEntry.SetFilter("Debit Dimension 1 Value Code", SelectedDimFilter);
@@ -784,8 +814,8 @@ report 14940 "Analytic Account Card by Dim."
                     GLCorrAnalysisViewEntry.SetFilter("Credit Dimension 2 Value Code", SelectedDimFilter);
                 5:
                     GLCorrAnalysisViewEntry.SetFilter("Credit Dimension 3 Value Code", SelectedDimFilter);
-            end;
-        end else begin
+            end
+        else
             case DimOption of
                 0:
                     GLCorrAnalysisViewEntry.SetRange("Debit Dimension 1 Value Code");
@@ -800,7 +830,6 @@ report 14940 "Analytic Account Card by Dim."
                 5:
                     GLCorrAnalysisViewEntry.SetRange("Credit Dimension 3 Value Code");
             end;
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -925,12 +954,11 @@ report 14940 "Analytic Account Card by Dim."
     [Scope('OnPrem')]
     procedure AddStrValue(var Str: Text[1024]; AddStr: Text[250])
     begin
-        if AddStr <> '' then begin
+        if AddStr <> '' then
             if Str <> '' then
                 Str := Str + ', ' + AddStr
             else
                 Str := AddStr;
-        end;
     end;
 
     local procedure PageUpdateFiltersControls()

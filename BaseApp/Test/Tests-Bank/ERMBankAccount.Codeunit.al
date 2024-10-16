@@ -725,15 +725,13 @@ codeunit 134231 "ERM Bank Account"
         VendLedgEntry: Record "Vendor Ledger Entry";
         RecRef: RecordRef;
     begin
-        with VendLedgEntry do begin
-            Init();
-            RecRef.GetTable(VendLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Vendor No." := VendorBankAccount."Vendor No.";
-            "Recipient Bank Account" := VendorBankAccount.Code;
-            Open := IsOpen;
-            Insert();
-        end;
+        VendLedgEntry.Init();
+        RecRef.GetTable(VendLedgEntry);
+        VendLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, VendLedgEntry.FieldNo("Entry No."));
+        VendLedgEntry."Vendor No." := VendorBankAccount."Vendor No.";
+        VendLedgEntry."Recipient Bank Account" := VendorBankAccount.Code;
+        VendLedgEntry.Open := IsOpen;
+        VendLedgEntry.Insert();
     end;
 
     local procedure CreateCustLedgEntry(CustomerBankAccount: Record "Customer Bank Account"; IsOpen: Boolean)
@@ -741,15 +739,13 @@ codeunit 134231 "ERM Bank Account"
         CustLedgEntry: Record "Cust. Ledger Entry";
         RecRef: RecordRef;
     begin
-        with CustLedgEntry do begin
-            Init();
-            RecRef.GetTable(CustLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Customer No." := CustomerBankAccount."Customer No.";
-            "Recipient Bank Account" := CustomerBankAccount.Code;
-            Open := IsOpen;
-            Insert();
-        end;
+        CustLedgEntry.Init();
+        RecRef.GetTable(CustLedgEntry);
+        CustLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, CustLedgEntry.FieldNo("Entry No."));
+        CustLedgEntry."Customer No." := CustomerBankAccount."Customer No.";
+        CustLedgEntry."Recipient Bank Account" := CustomerBankAccount.Code;
+        CustLedgEntry.Open := IsOpen;
+        CustLedgEntry.Insert();
     end;
 
     local procedure CreateSWIFTCode(var SWIFTCode: Record "SWIFT Code")

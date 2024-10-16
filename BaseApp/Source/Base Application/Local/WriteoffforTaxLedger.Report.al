@@ -171,9 +171,17 @@ report 14934 "Write-off for Tax Ledger"
         Post: Boolean;
         FAJnlNextLineNo: Integer;
         GenJnlNextLineNo: Integer;
+#pragma warning disable AA0074
         Text000: Label 'You must specify New Posting Date.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Processing';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Fixed Asset #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure InitializeRequest(UseNewPostDate2: Boolean; NewPostingDate2: Date; Post2: Boolean)

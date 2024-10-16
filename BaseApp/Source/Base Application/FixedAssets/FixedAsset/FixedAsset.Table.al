@@ -1,4 +1,4 @@
-﻿namespace Microsoft.FixedAssets.FixedAsset;
+namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -35,6 +35,7 @@ table 5600 "Fixed Asset"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -48,6 +49,7 @@ table 5600 "Fixed Asset"
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -69,6 +71,7 @@ table 5600 "Fixed Asset"
         field(4; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            OptimizeForTextSearch = true;
         }
         field(5; "FA Class Code"; Code[10])
         {
@@ -215,6 +218,7 @@ table 5600 "Fixed Asset"
         field(17; "Serial No."; Text[50])
         {
             Caption = 'Serial No.';
+            OptimizeForTextSearch = true;
         }
         field(18; "Last Date Modified"; Date)
         {
@@ -336,6 +340,7 @@ table 5600 "Fixed Asset"
         field(12400; "Inventory Number"; Text[30])
         {
             Caption = 'Inventory Number';
+            OptimizeForTextSearch = true;
         }
         field(12401; "Depreciation Code"; Code[10])
         {
@@ -491,6 +496,7 @@ table 5600 "Fixed Asset"
         field(12410; "Factory No."; Text[30])
         {
             Caption = 'Factory No.';
+            OptimizeForTextSearch = true;
         }
         field(12411; "Initial Release Date"; Date)
         {
@@ -500,11 +506,13 @@ table 5600 "Fixed Asset"
         field(12412; "Status Document No."; Code[20])
         {
             Caption = 'Status Document No.';
+            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(12413; "Passport No."; Text[30])
         {
             Caption = 'Passport No.';
+            OptimizeForTextSearch = true;
         }
         field(12414; "Status Date"; Date)
         {
@@ -513,6 +521,7 @@ table 5600 "Fixed Asset"
         field(12415; "Manufacturing Year"; Text[4])
         {
             Caption = 'Manufacturing Year';
+            OptimizeForTextSearch = true;
         }
         field(12417; "Date Filter"; Date)
         {
@@ -547,7 +556,7 @@ table 5600 "Fixed Asset"
                                                         "G/L Account No." = field("G/L Account No. Filter"),
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                        "Posting Date" = field(UPPERLIMIT("G/L Starting Date Filter"))));
+                                                        "Posting Date" = field(upperlimit("G/L Starting Date Filter"))));
             Caption = 'G/L Starting Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -597,7 +606,7 @@ table 5600 "Fixed Asset"
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const("Fixed Asset"),
                                                         "Source No." = field("No."),
                                                         "G/L Account No." = field("G/L Account No. Filter"),
-                                                        "Posting Date" = field(UPPERLIMIT("Date Filter")),
+                                                        "Posting Date" = field(upperlimit("Date Filter")),
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter")));
             Caption = 'G/L Balance to Date';
@@ -611,10 +620,12 @@ table 5600 "Fixed Asset"
         field(12451; "Vehicle Model"; Text[30])
         {
             Caption = 'Vehicle Model';
+            OptimizeForTextSearch = true;
         }
         field(12452; "Vehicle Type"; Text[50])
         {
             Caption = 'Vehicle Type';
+            OptimizeForTextSearch = true;
         }
         field(12453; "Vehicle Reg. No."; Code[20])
         {
@@ -666,6 +677,7 @@ table 5600 "Fixed Asset"
         field(12470; Manufacturer; Text[30])
         {
             Caption = 'Manufacturer';
+            OptimizeForTextSearch = true;
         }
         field(12493; "Undepreciable FA"; Boolean)
         {
@@ -926,18 +938,60 @@ table 5600 "Fixed Asset"
         NoSeries: Codeunit "No. Series";
         DimMgt: Codeunit DimensionManagement;
 
+#pragma warning disable AA0074
         Text000: Label 'A main asset cannot be deleted.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot delete %1 %2 because it has associated depreciation books.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12401: Label 'Change service life?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12400: Label 'Future Depr. Book does not exist';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12402: Label 'The field %1 cannot be changed for a fixed asset with ledger entries.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12403: Label 'FA Status will be changed from %1 to %2. Continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12404: Label 'FA Location Code is empty in FA No.=%1. Assessed tax would not be calculated properly.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12405: Label 'OKATO Code is empty in FA No.=%1. Assessed tax would not be calculated properly.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12406: Label 'Region Code should be the same both in OKATO Code=%1 and in Assessed Tax Code=%2 for Fixed Asset=%3. \Assessed Tax would not be calculated properly.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12407: Label 'There are duplicate Assessed Tax Codes: Assessed Tax Code=%1 and Assessed Tax Code=%2. Remove one of them.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12408: Label 'Base Assessed Tax Code should exist for Assessed Tax Code=%1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12409: Label '%1 will be changed from %2 to %3 for %4 %5=%6, %7=%8. Continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         UnexpctedSubclassErr: Label 'This fixed asset subclass belongs to a different fixed asset class.';
         DontAskAgainActionTxt: Label 'Don''t ask again';
         NotificationNameTxt: Label 'Fixed Asset Acquisition Wizard';
@@ -1064,9 +1118,9 @@ table 5600 "Fixed Asset"
         AssessedTaxCodeDubl.SetRange("Rate %", AssessedTaxCode."Rate %");
         AssessedTaxCodeDubl.SetRange("Dec. Rate Tax Allowance Code", AssessedTaxCode."Dec. Rate Tax Allowance Code");
         AssessedTaxCodeDubl.SetFilter(Code, '<>%1', AssessedTaxCode.Code);
-        if AssessedTaxCode."Exemption Tax Allowance Code" = '' then begin
-            AssessedTaxCodeDubl.SetRange("Exemption Tax Allowance Code", '');
-        end else begin
+        if AssessedTaxCode."Exemption Tax Allowance Code" = '' then
+            AssessedTaxCodeDubl.SetRange("Exemption Tax Allowance Code", '')
+        else begin
             AssessedTaxCodeDubl.SetRange("Dec. Amount Tax Allowance Code", AssessedTaxCode."Dec. Amount Tax Allowance Code");
             AssessedTaxCodeDubl.SetRange("Exemption Tax Allowance Code", AssessedTaxCode."Exemption Tax Allowance Code");
         end;

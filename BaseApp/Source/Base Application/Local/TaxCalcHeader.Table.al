@@ -30,7 +30,7 @@ table 17308 "Tax Calc. Header"
         {
             BlankZero = true;
             Caption = 'Table ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = const(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
 
             trigger OnValidate()
             begin
@@ -48,16 +48,16 @@ table 17308 "Tax Calc. Header"
                     DATABASE::"Tax Calc. Accumulation":
                         "Storing Method" := "Storing Method"::Calculation;
                     else begin
-                            "Table ID" := DATABASE::"Tax Calc. G/L Entry";
-                            "Storing Method" := "Storing Method"::"Build Entry";
-                        end;
+                        "Table ID" := DATABASE::"Tax Calc. G/L Entry";
+                        "Storing Method" := "Storing Method"::"Build Entry";
+                    end;
                 end;
                 CalcFields("Table Name");
             end;
         }
         field(4; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -66,7 +66,7 @@ table 17308 "Tax Calc. Header"
         field(5; "Page ID"; Integer)
         {
             Caption = 'Page ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = const(Page));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Page));
 
             trigger OnValidate()
             begin
@@ -75,7 +75,7 @@ table 17308 "Tax Calc. Header"
         }
         field(6; "Form Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Form Name';
             FieldClass = FlowField;
@@ -153,7 +153,7 @@ table 17308 "Tax Calc. Header"
         }
         field(30; "Used in Statutory Report"; Boolean)
         {
-            CalcFormula = exist("Stat. Report Table Mapping" WHERE("Int. Source Type" = const("Tax Difference"),
+            CalcFormula = exist("Stat. Report Table Mapping" where("Int. Source Type" = const("Tax Difference"),
                                                                     "Int. Source Section Code" = field("Section Code"),
                                                                     "Int. Source No." = field("No.")));
             Caption = 'Used in Statutory Report';
@@ -218,9 +218,19 @@ table 17308 "Tax Calc. Header"
         TaxCalcSelectionSetup: Record "Tax Calc. Selection Setup";
         TaxCalcLine: Record "Tax Calc. Line";
         NotAllowedChar: Text[10];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1000: Label 'You can''t rename an %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'The value %1 has illegal symbol.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1002: Label 'All related dimension filters will be deleted. Continue?';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ShowDetails(TaxCalcLineNo: Integer)

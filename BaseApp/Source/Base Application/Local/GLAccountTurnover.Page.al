@@ -560,7 +560,7 @@ page 12405 "G/L Account Turnover"
                 Image = GL;
                 RunObject = Page "G/L Corresp. Gen. Ledger Lines";
                 RunPageLink = "Debit Account No." = field("No."),
-                              "Debit Account No." = field(FILTER(Totaling)),
+                              "Debit Account No." = field(filter(Totaling)),
                               "Debit Global Dim. 1 Filter" = field("Global Dimension 1 Filter"),
                               "Debit Global Dim. 2 Filter" = field("Global Dimension 2 Filter"),
                               "Date Filter" = field("Date Filter");

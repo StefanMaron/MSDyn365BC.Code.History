@@ -183,10 +183,9 @@ report 14939 "Pstd. Purch. Factura-Invoice"
 
                 PurchInvLine.SetRange("Attached to Line No.", 0);
 
-                if "Currency Code" <> '' then begin
+                if "Currency Code" <> '' then
                     if not Currency.Get("Currency Code") then
                         Currency.Description := DollarUSATxt;
-                end;
 
                 PaymentDocument :=
                   StrSubstNo(PaymentDocTxt, "Vendor Invoice No.", "Posting Date");

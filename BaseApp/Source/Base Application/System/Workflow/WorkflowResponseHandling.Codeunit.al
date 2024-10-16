@@ -25,12 +25,16 @@ codeunit 1521 "Workflow Response Handling"
     end;
 
     var
+#pragma warning disable AA0470
         NotSupportedResponseErr: Label 'Response %1 is not supported in the workflow.';
         CreateNotifEntryTxt: Label 'Create a notification for %1.', Comment = 'Create a notification for NAVUser.';
         CreatePmtLineAsyncTxt: Label 'Create a payment journal line in the background for journal template %1 and journal batch %2.', Comment = 'Create a payment journal line in the background for journal template GENERAL and journal batch DEFAULT.';
         CreatePmtLineTxt: Label 'Create a payment journal line for journal template %1 and journal batch %2.', Comment = 'Create a payment journal line for journal template GENERAL and journal batch DEFAULT.';
+#pragma warning restore AA0470
         DoNothingTxt: Label 'Do nothing.';
+#pragma warning disable AA0470
         CreateApprovalRequestsTxt: Label 'Create an approval request for the record using approver type %1 and %2.', Comment = 'Create an approval request for the record using approver type Approver and approver limit type Direct Approver.';
+#pragma warning restore AA0470
         CreateApprovalWorkflowGroupTxt: Label 'workflow user group code %1', Comment = '%1 = Workflow user group code';
         CreateApprovalApprovalLimitTxt: Label 'approver limit type %1', Comment = '%1 = Approval limit type';
         GetApprovalCommentTxt: Label 'Open Approval Comments page.';
@@ -51,9 +55,13 @@ codeunit 1521 "Workflow Response Handling"
         UserIDTok: Label '<User>';
         TemplateTok: Label '<Template>';
         GenJnlBatchTok: Label '<Batch>';
+#pragma warning disable AA0470
         UnsupportedRecordTypeErr: Label 'Record type %1 is not supported by this workflow response.', Comment = 'Record type Customer is not supported by this workflow response.';
+#pragma warning restore AA0470
         CreateOverdueNotifTxt: Label 'Create notification for overdue approval requests.';
+#pragma warning disable AA0470
         ResponseAlreadyExistErr: Label 'A response with description %1 already exists.';
+#pragma warning restore AA0470
         ApproverTypeTok: Label '<Approver Type>';
         ApproverLimitTypeTok: Label '<Approver Limit Type>';
         WorkflowUserGroupTok: Label '<Workflow User Group Code>';
@@ -62,14 +70,18 @@ codeunit 1521 "Workflow Response Handling"
         MessageTok: Label '<Message>';
         RestrictRecordUsageTxt: Label 'Add record restriction.';
         AllowRecordUsageTxt: Label 'Remove record restriction.';
+#pragma warning disable AA0470
         RestrictUsageDetailsTxt: Label 'The restriction was imposed by the %1 workflow, %2.', Comment = 'The restriction was imposed by the PIW workflow, Purchase Invoice Workflow.';
+#pragma warning restore AA0470
         MarkReadyForOCRTxt: Label 'Mark the incoming document ready for OCR.';
         SendToOCRTxt: Label 'Send the incoming document to OCR.';
         ReceiveFromOCRTxt: Label 'Receive the incoming document from OCR.';
         CreateDocFromIncomingDocTxt: Label 'Create a purchase document from an incoming document.';
         CreateReleasedDocFromIncomingDocTxt: Label 'Create a released purchase document from an incoming document.';
         CreateJournalFromIncomingDocTxt: Label 'Create journal line from incoming document.';
+#pragma warning disable AA0470
         RevertRecordValueTxt: Label 'Revert the value of the %1 field on the record and save the change.', Comment = 'Revert the value of the Credit Limit (LCY) field on the record and save the change.';
+#pragma warning restore AA0470
         RevertRecordFieldValueTok: Label '<Field>';
         ApplyNewValuesTxt: Label 'Apply the new values.';
         DiscardNewValuesTxt: Label 'Discard the new values.';
@@ -1409,7 +1421,7 @@ codeunit 1521 "Workflow Response Handling"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnShowMessageOnBeforeShowMessage(WorkflowStepArgument: Record "Workflow Step Argument"; var SuppressMessage:Boolean);
+    local procedure OnShowMessageOnBeforeShowMessage(WorkflowStepArgument: Record "Workflow Step Argument"; var SuppressMessage: Boolean);
     begin
     end;
 }

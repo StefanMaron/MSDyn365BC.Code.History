@@ -664,26 +664,22 @@ codeunit 137406 "SCM Item Reservation"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Replenishment System", "Replenishment System"::Assembly);
-            Validate("Assembly Policy", "Assembly Policy"::"Assemble-to-Order");
-            Modify(true);
-            AddComponentToAssemblyList(ComponentItem."No.", "No.", ComponentItem."Base Unit of Measure", 1);
-            exit("No.");
-        end;
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+        AddComponentToAssemblyList(ComponentItem."No.", Item."No.", ComponentItem."Base Unit of Measure", 1);
+        exit(Item."No.");
     end;
 
     local procedure CreateItemAutoReserved(var Item: Record Item)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        with Item do begin
-            Clear(Item);
-            LibraryInventory.CreateItem(Item);
-            Validate(Reserve, Reserve::Always);
-            Modify(true);
-            PostItemPositiveAdjmt("No.", '', ItemJournalLine);
-        end;
+        Clear(Item);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+        PostItemPositiveAdjmt(Item."No.", '', ItemJournalLine);
     end;
 
     local procedure AddComponentToAssemblyList(ComponentNo: Code[20]; ParentItemNo: Code[20]; UOM: Code[10]; QuantityPer: Decimal)
@@ -782,15 +778,13 @@ codeunit 137406 "SCM Item Reservation"
     begin
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemCategory(ItemCategory);
-        with Item do begin
-            Validate("Item Category Code", ItemCategory.Code);
-            Validate("Reordering Policy", "Reordering Policy"::"Lot-for-Lot");
-            Validate("Include Inventory", true);
-            Validate("Safety Stock Quantity", LibraryRandom.RandDecInRange(25, 30, 2));
-            Validate("Item Tracking Code", CreateItemTrackingCodeWithLot());
-            Validate("Lot Nos.", LotNos);
-            Modify(true);
-        end;
+        Item.Validate("Item Category Code", ItemCategory.Code);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Include Inventory", true);
+        Item.Validate("Safety Stock Quantity", LibraryRandom.RandDecInRange(25, 30, 2));
+        Item.Validate("Item Tracking Code", CreateItemTrackingCodeWithLot());
+        Item.Validate("Lot Nos.", LotNos);
+        Item.Modify(true);
     end;
 
     local procedure CreatePurchaseOrderWithItemTracking(ItemNo: Code[20]; LotNos: Code[20]; var PurchaseLine: Record "Purchase Line")
@@ -832,35 +826,29 @@ codeunit 137406 "SCM Item Reservation"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        with PurchaseHeader do begin
-            SetRange("Buy-from Vendor No.", VendorNo);
-            FindFirst();
-            Validate("Vendor Invoice No.", LibraryUtility.GenerateRandomCode(FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
-            Modify(true);
-            exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-        end;
+        PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
+        PurchaseHeader.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
     local procedure SelectAndCarryOutActionMsg(ItemNo: Code[20]; VendorNo: Code[20])
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-            ModifyAll("Vendor No.", VendorNo, true);
-            LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
-        end;
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.FindFirst();
+        RequisitionLine.ModifyAll("Vendor No.", VendorNo, true);
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
 
     local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template")
     begin
-        with ReqWkshTemplate do begin
-            SetRange(Type, Type::"Req.");
-            SetRange(Recurring, false);
-            FindFirst();
-        end;
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
+        ReqWkshTemplate.SetRange(Recurring, false);
+        ReqWkshTemplate.FindFirst();
     end;
 
     local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10])

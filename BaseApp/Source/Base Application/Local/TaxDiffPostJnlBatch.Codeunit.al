@@ -42,8 +42,16 @@ codeunit 17302 "Tax Diff.-Post Jnl. Batch"
         Wnd: Dialog;
         Total: Integer;
         Processing: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'Journal Batch Name  #1##########\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1002: Label 'Posting lines       #2###### @3@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure EmptyLine(): Boolean
     begin

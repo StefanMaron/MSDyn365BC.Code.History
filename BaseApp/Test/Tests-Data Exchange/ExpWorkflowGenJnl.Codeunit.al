@@ -207,9 +207,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         asserterror CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", GenJournalLine);
 
         // [THEN] Error "Payment Export Format must have a value" is thrown.
-        Assert.ExpectedError(
-          StrSubstNo('Payment Export Format must have a value in Bank Account: No.=%1', BankAccount."No."));
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedTestFieldError(BankAccount.FieldCaption("Payment Export Format"), '');
     end;
 
     [Test]
@@ -244,9 +242,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         asserterror CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", GenJournalLine);
 
         // [THEN] Error "Data Exch. Def. Code must have a value" is thrown.
-        Assert.ExpectedError(
-          StrSubstNo('Data Exch. Def. Code must have a value in Bank Export/Import Setup: Code=%1', BankExportImportSetup.Code));
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedTestFieldError(BankExportImportSetup.FieldCaption("Data Exch. Def. Code"), '');
     end;
 
     [Test]
@@ -272,9 +268,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         asserterror BankAccount.GetDataExchDefPaymentExport(DataExchDef);
 
         // [THEN] Error "Type must be equal to 'Payment Export'  in Data Exch. Def" is thrown.
-        Assert.ExpectedError(
-          StrSubstNo('Type must be equal to ''Payment Export''  in Data Exch. Def: Code=%1', DataExchDef.Code));
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedTestFieldError(DataExchDef.FieldCaption(Type), Format(DataExchDef.Type::"Payment Export"));
     end;
 
     local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor; PaymentType: Code[20])

@@ -1,8 +1,5 @@
 namespace Microsoft.Integration.Shopify;
 
-#if not CLEAN22
-using System.IO;
-#endif
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -40,24 +37,16 @@ page 30113 "Shpfy Order"
                     Editable = false;
                     ToolTip = 'Specifies the order number from Shopify.';
                 }
+#if not CLEAN25
                 field(RiskLevel; Rec."Risk Level")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies the risk level from the Shopify order.';
-                }
-#if not CLEAN22
-                field(TemplateCodeField; Rec."Customer Template Code")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Customer Template Code';
-                    Lookup = true;
-                    TableRelation = "Config. Template Header".Code where("Table Id" = const(18));
-                    ToolTip = 'Specifies the code for the template to create a new customer.';
-                    ObsoleteReason = 'Replaced by Customer Templ. Code';
+                    Visible = false;
+                    ObsoleteReason = 'This field is not imported.';
                     ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    Visible = not NewTemplatesEnabled;
+                    ObsoleteTag = '25.0';
                 }
 #endif
                 field(TemplCodeField; Rec."Customer Templ. Code")
@@ -67,9 +56,6 @@ page 30113 "Shpfy Order"
                     Lookup = true;
                     TableRelation = "Customer Templ.".Code;
                     ToolTip = 'Specifies the code for the template to create a new customer.';
-#if not CLEAN22
-                    Visible = NewTemplatesEnabled;
-#endif
                 }
                 field(SellToCustomerNo; Rec."Sell-to Customer No.")
                 {
@@ -81,6 +67,16 @@ page 30113 "Shpfy Order"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies how items on the Shopify Order are shipped to the customer.';
+                }
+                field(ShippingAgentCode; Rec."Shipping Agent Code")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies which shipping agent is used to transport the items on the Shopify Order to the customer.';
+                }
+                field(ShippingAgentServiceCode; Rec."Shipping Agent Service Code")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the code that represents the default shipping agent service you are using for this Shopify Order.';
                 }
                 field("Payment Method"; Rec."Payment Method Code")
                 {
@@ -915,6 +911,25 @@ page 30113 "Shpfy Order"
                     Page.Run(Page::"Shpfy Data Capture List", DataCapture);
                 end;
             }
+            action(Disputes)
+            {
+                ApplicationArea = All;
+                Caption = 'Disputes';
+                Image = OrderList;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'View the disputes related to order of the selected transaction.';
+
+                trigger OnAction();
+                var
+                    Dispute: Record "Shpfy Dispute";
+                begin
+                    Dispute.SetRange("Source Order Id", Rec."Shopify Order Id");
+                    Page.Run(Page::"Shpfy Disputes", Dispute);
+                end;
+            }
         }
     }
 
@@ -928,9 +943,6 @@ page 30113 "Shpfy Order"
         OrderCancelFailedErr: Label 'The order could not be cancelled. You can see the error message from Shopify Log Entries.';
         LogEntriesLbl: Label 'Log Entries';
         WorkDescription: Text;
-#if not CLEAN22
-        NewTemplatesEnabled: Boolean;
-#endif
 
     trigger OnAfterGetRecord()
     begin
@@ -938,14 +950,7 @@ page 30113 "Shpfy Order"
     end;
 
     trigger OnOpenPage()
-#if not CLEAN22
-    var
-        ShpfyTemplates: Codeunit "Shpfy Templates";
-#endif
     begin
-#if not CLEAN22
-        NewTemplatesEnabled := ShpfyTemplates.NewTemplatesEnabled();
-#endif
     end;
 }
 

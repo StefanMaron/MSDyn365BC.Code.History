@@ -1747,22 +1747,20 @@ codeunit 134984 "ERM Sales Report III"
 
         // [GIVEN] Invoice Gen. Jnl. Line with Amount 'X', Payment Gen. Jnl. Line with Amount 'Y', Payment Gen. Jnl. Line with Amount -'X'-'Y'
         LibrarySales.CreateCustomer(Customer);
-        with GenJournalLine[1] do begin
-            CreateGenJournalLine(
-              GenJournalLine[1], WorkDate(), Customer."No.",
-              "Document Type"::Invoice, "Document Type"::" ", '', LibraryRandom.RandIntInRange(500, 1000));
-            LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
+        CreateGenJournalLine(
+          GenJournalLine[1], WorkDate(), Customer."No.",
+          GenJournalLine[1]."Document Type"::Invoice, GenJournalLine[1]."Document Type"::" ", '', LibraryRandom.RandIntInRange(500, 1000));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
 
-            CreateGenJournalLine(
-              GenJournalLine[2], WorkDate() + 1, Customer."No.",
-              "Document Type"::Payment, "Document Type"::Invoice, "Document No.", LibraryRandom.RandIntInRange(-499, -1));
-            LibraryERM.PostGeneralJnlLine(GenJournalLine[2]);
+        CreateGenJournalLine(
+          GenJournalLine[2], WorkDate() + 1, Customer."No.",
+          GenJournalLine[1]."Document Type"::Payment, GenJournalLine[1]."Document Type"::Invoice, GenJournalLine[1]."Document No.", LibraryRandom.RandIntInRange(-499, -1));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[2]);
 
-            CreateGenJournalLine(
-              GenJournalLine[3], WorkDate() + 2, Customer."No.",
-              "Document Type"::Payment, "Document Type"::Invoice, "Document No.", -Amount - GenJournalLine[2].Amount);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine[3]);
-        end;
+        CreateGenJournalLine(
+          GenJournalLine[3], WorkDate() + 2, Customer."No.",
+          GenJournalLine[1]."Document Type"::Payment, GenJournalLine[1]."Document Type"::Invoice, GenJournalLine[1]."Document No.", -GenJournalLine[1].Amount - GenJournalLine[2].Amount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[3]);
 
         // [WHEN] "Customer - Balance to Date" report is run
         Customer.SetRecFilter();
@@ -2012,8 +2010,7 @@ codeunit 134984 "ERM Sales Report III"
         VATAmount := SalesLine[2]."Amount Including VAT" - SalesLine[2].Amount;
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
     end;
-
-
+    
     [Test]
     [HandlerFunctions('RHStandardSalesShipment')]
     [Scope('OnPrem')]
@@ -2500,7 +2497,7 @@ codeunit 134984 "ERM Sales Report III"
         Commit();
 
         // [WHEN] When run "Standard Statement" report for the customer "C" and Log Interaction = false 
-        LibraryVariableStorage.Enqueue(False);
+        LibraryVariableStorage.Enqueue(false);
         RequestPageXML := REPORT.RunRequestPage(REPORT::"Standard Statement");
         LibraryReportDataset.RunReportAndLoad(REPORT::"Standard Statement", Customer, RequestPageXML);
 
@@ -3169,16 +3166,14 @@ codeunit 134984 "ERM Sales Report III"
     begin
         LibrarySales.CreateCustomerWithAddress(Customer);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        with Customer do begin
-            "VAT Registration No." := LibraryUtility.GenerateGUID();
-            Validate("Shipment Method Code", CreateShipmentMethod());
-            Validate("Country/Region Code", CreateCountryRegion());
-            Validate("Salesperson Code", SalespersonPurchaser.Code);
-            Validate("Post Code", LibraryUtility.GenerateGUID());
-            Validate(City, LibraryUtility.GenerateGUID());
-            Modify(true);
-            exit("No.");
-        end;
+        Customer."VAT Registration No." := LibraryUtility.GenerateGUID();
+        Customer.Validate("Shipment Method Code", CreateShipmentMethod());
+        Customer.Validate("Country/Region Code", CreateCountryRegion());
+        Customer.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Customer.Validate("Post Code", LibraryUtility.GenerateGUID());
+        Customer.Validate(City, LibraryUtility.GenerateGUID());
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10])
@@ -3337,53 +3332,45 @@ codeunit 134984 "ERM Sales Report III"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
-        with Currency do begin
-            "Amount Rounding Precision" := AmountRoundingPrecision;
-            "Amount Decimal Places" := AmountDecimalPlaces;
-            "Unit-Amount Rounding Precision" := UnitAmountRoundingPrecision;
-            "Unit-Amount Decimal Places" := UnitAmountDecimalPlaces;
-            Modify();
-            exit(Code);
-        end;
+        Currency."Amount Rounding Precision" := AmountRoundingPrecision;
+        Currency."Amount Decimal Places" := AmountDecimalPlaces;
+        Currency."Unit-Amount Rounding Precision" := UnitAmountRoundingPrecision;
+        Currency."Unit-Amount Decimal Places" := UnitAmountDecimalPlaces;
+        Currency.Modify();
+        exit(Currency.Code);
     end;
 
     local procedure CreateAnalysisLine(var AnalysisLine: Record "Analysis Line"; AnalysisLineTemplateName: Code[10]; CustomerNo: Code[20]; IsBold: Boolean; IsItalic: Boolean; IsUnderlined: Boolean)
     begin
-        with AnalysisLine do begin
-            LibraryInventory.CreateAnalysisLine(AnalysisLine, "Analysis Area"::Sales, AnalysisLineTemplateName);
-            Validate("Row Ref. No.", LibraryUtility.GenerateGUID());
-            Validate(Type, Type::Customer);
-            Validate(Range, CustomerNo);
-            Validate(Bold, IsBold);
-            Validate(Italic, IsItalic);
-            Validate(Underline, IsUnderlined);
-            Modify(true);
-        end;
+        LibraryInventory.CreateAnalysisLine(AnalysisLine, AnalysisLine."Analysis Area"::Sales, AnalysisLineTemplateName);
+        AnalysisLine.Validate("Row Ref. No.", LibraryUtility.GenerateGUID());
+        AnalysisLine.Validate(Type, AnalysisLine.Type::Customer);
+        AnalysisLine.Validate(Range, CustomerNo);
+        AnalysisLine.Validate(Bold, IsBold);
+        AnalysisLine.Validate(Italic, IsItalic);
+        AnalysisLine.Validate(Underline, IsUnderlined);
+        AnalysisLine.Modify(true);
     end;
 
     local procedure CreateItemWithDetails(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Country/Region of Origin Code", CreateCountryRegion());
-            Validate("Net Weight", LibraryRandom.RandDecInRange(1000, 2000, 2));
-            Validate("Tariff No.", LibraryUtility.CreateCodeRecord(DATABASE::"Tariff Number"));
-            Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
-            Modify(true);
-        end;
+        Item.Validate("Country/Region of Origin Code", CreateCountryRegion());
+        Item.Validate("Net Weight", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        Item.Validate("Tariff No.", LibraryUtility.CreateCodeRecord(DATABASE::"Tariff Number"));
+        Item.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        Item.Modify(true);
     end;
 
     local procedure CreateShipmentMethod(): Code[10]
     var
         ShipmentMethod: Record "Shipment Method";
     begin
-        with ShipmentMethod do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Shipment Method");
-            Description := LibraryUtility.GenerateGUID();
-            Insert(true);
-            exit(Code);
-        end;
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), DATABASE::"Shipment Method");
+        ShipmentMethod.Description := LibraryUtility.GenerateGUID();
+        ShipmentMethod.Insert(true);
+        exit(ShipmentMethod.Code);
     end;
 
     local procedure CreateCountryRegion(): Code[10]
@@ -3391,11 +3378,9 @@ codeunit 134984 "ERM Sales Report III"
         CountryRegion: Record "Country/Region";
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
-        with CountryRegion do begin
-            Validate(Name, LibraryUtility.GenerateGUID());
-            Modify(true);
-            exit(Code);
-        end;
+        CountryRegion.Validate(Name, LibraryUtility.GenerateGUID());
+        CountryRegion.Modify(true);
+        exit(CountryRegion.Code);
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)
@@ -3446,27 +3431,23 @@ codeunit 134984 "ERM Sales Report III"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindLast();
-            exit("Lot No.");
-        end;
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.FindLast();
+        exit(ItemLedgEntry."Lot No.");
     end;
 
     local procedure ClearShiptoInfoForSalesHeader(var SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            Validate("Ship-to Name", '');
-            Validate("Ship-to Address", '');
-            Validate("Ship-to Address 2", '');
-            Validate("Ship-to City", '');
-            Validate("Ship-to Contact", '');
-            Validate("Location Code", '');
-            Validate("Shipment Date", 0D);
-            Validate("Ship-to Post Code", '');
-            Validate("Ship-to Country/Region Code", '');
-            Modify(true);
-        end;
+        SalesHeader.Validate("Ship-to Name", '');
+        SalesHeader.Validate("Ship-to Address", '');
+        SalesHeader.Validate("Ship-to Address 2", '');
+        SalesHeader.Validate("Ship-to City", '');
+        SalesHeader.Validate("Ship-to Contact", '');
+        SalesHeader.Validate("Location Code", '');
+        SalesHeader.Validate("Shipment Date", 0D);
+        SalesHeader.Validate("Ship-to Post Code", '');
+        SalesHeader.Validate("Ship-to Country/Region Code", '');
+        SalesHeader.Modify(true);
     end;
 
     local procedure DocumentEntriesForSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; ShowInLCY: Boolean)
@@ -3533,11 +3514,9 @@ codeunit 134984 "ERM Sales Report III"
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
     end;
 
     local procedure GetSalesDocAmounts(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; var Amount: Decimal; var AmountLCY: Decimal)
@@ -3574,16 +3553,14 @@ codeunit 134984 "ERM Sales Report III"
 
     local procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; EntryAmount: Decimal; PostingDate: Date)
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Posting Date" := PostingDate;
-            Amount := EntryAmount;
-            Open := true;
-            Insert();
-            MockInitialDtldCustLedgEntry(CustomerNo, "Entry No.", EntryAmount, PostingDate);
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry.Amount := EntryAmount;
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Insert();
+        MockInitialDtldCustLedgEntry(CustomerNo, CustLedgerEntry."Entry No.", EntryAmount, PostingDate);
     end;
 
     local procedure MockInitialDtldCustLedgEntry(CustomerNo: Code[20]; CustLedgEntryNo: Integer; EntryAmount: Decimal; PostingDate: Date)
@@ -3606,17 +3583,15 @@ codeunit 134984 "ERM Sales Report III"
 
     local procedure MockDtldCLE(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; CustLedgEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; EntryAmount: Decimal; UnappliedEntry: Boolean; PostingDate: Date)
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Entry Type" := EntryType;
-            "Posting Date" := PostingDate;
-            "Cust. Ledger Entry No." := CustLedgEntryNo;
-            Amount := EntryAmount;
-            Unapplied := UnappliedEntry;
-            Insert();
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Customer No." := CustomerNo;
+        DetailedCustLedgEntry."Entry Type" := EntryType;
+        DetailedCustLedgEntry."Posting Date" := PostingDate;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntryNo;
+        DetailedCustLedgEntry.Amount := EntryAmount;
+        DetailedCustLedgEntry.Unapplied := UnappliedEntry;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure SaveAgedAccountsReceivable(var Customer: Record Customer; AgingBy: Option; HeadingType: Option; PeriodLength: DateFormula; AmountLCY: Boolean; PrintDetails: Boolean)
@@ -3799,26 +3774,22 @@ codeunit 134984 "ERM Sales Report III"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            SetRange("Currency Code", CurrencyCode);
-            FindFirst();
-            Validate("Exchange Rate Amount", ExchangeRateAmt);
-            Validate("Relational Exch. Rate Amount", AdjmtExchRateAmt);
-            Validate("Adjustment Exch. Rate Amount", ExchangeRateAmt);
-            Validate("Relational Adjmt Exch Rate Amt", AdjmtExchRateAmt);
-            Modify(true);
-        end;
+        CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.FindFirst();
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRateAmt);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", AdjmtExchRateAmt);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", ExchangeRateAmt);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", AdjmtExchRateAmt);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure UpdateGeneralLedgerSetupForLCYCode(CurrencyCode: Code[10])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("LCY Code", CurrencyCode);
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("LCY Code", CurrencyCode);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure UpdateReportSelection(Usage: Enum "Report Selection Usage"; ReportID: Integer)
@@ -3837,44 +3808,39 @@ codeunit 134984 "ERM Sales Report III"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            Get(EntryNo);
-            CalcFields(Amount);
-            Open := Amount <> 0;
-            Modify();
-        end;
+        CustLedgerEntry.Get(EntryNo);
+        CustLedgerEntry.CalcFields(Amount);
+        CustLedgerEntry.Open := CustLedgerEntry.Amount <> 0;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure UpdateCompanyInfo()
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate(Name, LibraryUtility.GenerateGUID());
-            Validate("Name 2", LibraryUtility.GenerateGUID());
-            Validate(Address, LibraryUtility.GenerateGUID());
-            Validate("Address 2", LibraryUtility.GenerateGUID());
-            Validate("Post Code", LibraryUtility.GenerateGUID());
-            Validate(City, LibraryUtility.GenerateGUID());
-            Validate("E-Mail", LibraryUtility.GenerateGUID() + '@' + LibraryUtility.GenerateGUID());
-            Validate("Home Page", LibraryUtility.GenerateGUID());
-            Validate("Phone No.", LibraryUtility.GenerateGUID());
-            "VAT Registration No." := LibraryUtility.GenerateGUID();
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate(Name, LibraryUtility.GenerateGUID());
+        CompanyInformation.Validate("Name 2", LibraryUtility.GenerateGUID());
+        CompanyInformation.Validate(Address, LibraryUtility.GenerateGUID());
+        CompanyInformation.Validate("Address 2", LibraryUtility.GenerateGUID());
+        CompanyInformation.Validate("Post Code", LibraryUtility.GenerateGUID());
+        CompanyInformation.Validate(City, LibraryUtility.GenerateGUID());
+        CompanyInformation.Validate("E-Mail", LibraryUtility.GenerateGUID() + '@' + LibraryUtility.GenerateGUID());
+        CompanyInformation.Validate("Home Page", LibraryUtility.GenerateGUID());
+        CompanyInformation.Validate("Phone No.", LibraryUtility.GenerateGUID());
+        CompanyInformation."Country/Region Code" := ''; // Force to use address format from G/L setup, not from company info country.
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
+        CompanyInformation.Modify(true);
     end;
 
     local procedure UpdateGLSetupDefaultUnitAmountRounding()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Unit-Amount Rounding Precision" := 0.00001;
-            "Unit-Amount Decimal Places" := '2:5';
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Unit-Amount Rounding Precision" := 0.00001;
+        GeneralLedgerSetup."Unit-Amount Decimal Places" := '2:5';
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure UpdateNoSeriesOnItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; NoSeries: Code[20])
@@ -4005,7 +3971,7 @@ codeunit 134984 "ERM Sales Report III"
         ReportSelections.Init();
         ReportSelections.Usage := ReportSelectionUsage;
         ReportSelections."Report ID" := ReportId;
-        If ReportSelections.Insert() Then;
+        if ReportSelections.Insert() then;
     end;
 
     local procedure FormatDecimal(Value: Decimal; Decimals: Integer): Text
@@ -4292,12 +4258,10 @@ codeunit 134984 "ERM Sales Report III"
 
     local procedure VerifyXMLReport(XmlElementCaption: Text; XmlValue: Text; ValidateCaption: Text; ValidateValue: Decimal)
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            SetRange(XmlElementCaption, XmlValue);
-            GetLastRow();
-            AssertCurrentRowValueEquals(ValidateCaption, ValidateValue);
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange(XmlElementCaption, XmlValue);
+        LibraryReportDataset.GetLastRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals(ValidateCaption, ValidateValue);
     end;
 
     local procedure VerifyCustomerBalanceToDateWithLimitTotal(CustomerNo: Code[20]; GlobalDimension1Code: Code[20]; GlobalDimension2Code: Code[20]; CurrencyCode: Code[10])
@@ -4400,44 +4364,40 @@ codeunit 134984 "ERM Sales Report III"
 
         // Header - Company Information
         LibraryReportDataset.AssertCurrentRowValueEquals('DocumentDate', Format(SalesHeader."Document Date", 0, 4));
-        with CompanyInformation do begin
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyEMail', "E-Mail");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyHomePage', "Home Page");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyPhoneNo', "Phone No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyVATRegNo', "VAT Registration No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress1', Name);
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress2', "Name 2");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress3', Address);
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress4', "Address 2");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress5', "Post Code" + ' ' + City);
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress6', '');
-        end;
+
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyEMail', CompanyInformation."E-Mail");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyHomePage', CompanyInformation."Home Page");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyPhoneNo', CompanyInformation."Phone No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyVATRegNo', CompanyInformation."VAT Registration No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress1', CompanyInformation.Name);
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress2', CompanyInformation."Name 2");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress3', CompanyInformation.Address);
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress4', CompanyInformation."Address 2");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress5', CompanyInformation."Post Code" + ' ' + CompanyInformation.City);
+        if CountryRegion.Get(CompanyInformation."Country/Region Code") then
+            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress6', CountryRegion.Name);
 
         // Header - Customer Information
         Customer.Get(SalesHeader."Sell-to Customer No.");
         CountryRegion.Get(Customer."Country/Region Code");
-        with Customer do begin
-            LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress1', "No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress2', Address);
-            LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress3', "Address 2");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress4', City + ', ' + "Post Code");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress5', CountryRegion.Name);
-            LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress6', '');
-            LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress7', '');
-            LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress8', '');
-        end;
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress1', Customer."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress2', Customer.Address);
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress3', Customer."Address 2");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress4', Customer.City + ', ' + Customer."Post Code");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress5', CountryRegion.Name);
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress6', '');
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress7', '');
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress8', '');
 
         // Header - Document Information
         ShipmentMethod.Get(Customer."Shipment Method Code");
-        with SalesHeader do begin
-            LibraryReportDataset.AssertCurrentRowValueEquals('YourReference', "Your Reference");
-            LibraryReportDataset.AssertCurrentRowValueEquals('ExternalDocumentNo', "External Document No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', "No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('SalesPersonName', "Salesperson Code");
-            LibraryReportDataset.AssertCurrentRowValueEquals('ShipmentMethodDescription', ShipmentMethod.Description);
-            LibraryReportDataset.AssertCurrentRowValueEquals('Currency', LibraryERM.GetLCYCode());
-            LibraryReportDataset.AssertCurrentRowValueEquals('CustomerVATRegNo', Customer."VAT Registration No.");
-        end;
+        LibraryReportDataset.AssertCurrentRowValueEquals('YourReference', SalesHeader."Your Reference");
+        LibraryReportDataset.AssertCurrentRowValueEquals('ExternalDocumentNo', SalesHeader."External Document No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', SalesHeader."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('SalesPersonName', SalesHeader."Salesperson Code");
+        LibraryReportDataset.AssertCurrentRowValueEquals('ShipmentMethodDescription', ShipmentMethod.Description);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Currency', LibraryERM.GetLCYCode());
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerVATRegNo', Customer."VAT Registration No.");
 
         // Labels
         FormatDocument.SetTotalLabels(LibraryERM.GetLCYCode(), TotalAmountLbl, TotalAmountInclVATLbl, TotalAmounExclVATLbl);
@@ -4446,18 +4406,15 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertCurrentRowValueEquals('DeclartionLbl', 'For customs purposes only.');
         LibraryReportDataset.AssertCurrentRowValueEquals('SignatureLbl', 'For and on behalf of the above named company:');
         LibraryReportDataset.AssertCurrentRowValueEquals('SignatureNameLbl', 'Name (in print) Signature');
-
         // Lines: 1-2 with Quantity, 3 - zero quantity
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet();
-            VerifyProformaInvoiceLineValues(SalesLine, TotalWeight, TotalAmount, TotalVATAmount, TotalAmountInclVAT);
-            Next();
-            VerifyProformaInvoiceLineValues(SalesLine, TotalWeight, TotalAmount, TotalVATAmount, TotalAmountInclVAT);
-            Next();
-            VerifyProformaInvoiceZeroQtyLineValues(SalesLine);
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        VerifyProformaInvoiceLineValues(SalesLine, TotalWeight, TotalAmount, TotalVATAmount, TotalAmountInclVAT);
+        SalesLine.Next();
+        VerifyProformaInvoiceLineValues(SalesLine, TotalWeight, TotalAmount, TotalVATAmount, TotalAmountInclVAT);
+        SalesLine.Next();
+        VerifyProformaInvoiceZeroQtyLineValues(SalesLine);
 
         // Totals
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalWeight', TotalWeight);
@@ -4472,47 +4429,43 @@ codeunit 134984 "ERM Sales Report III"
         LineAmount: Decimal;
         VATAmount: Decimal;
     begin
-        with SalesLine do begin
-            Item.Get("No.");
-            LineAmount := Round(Amount * "Qty. to Invoice" / Quantity);
-            VATAmount := "Amount Including VAT" - Amount;
-            LibraryReportDataset.AssertCurrentRowValueEquals('ItemDescription', "No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CountryOfManufacturing', Item."Country/Region of Origin Code");
-            LibraryReportDataset.AssertCurrentRowValueEquals('Tariff', Item."Tariff No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', "Qty. to Invoice");
-            LibraryReportDataset.AssertCurrentRowValueEquals('Price', FormatDecimal(Round(Amount / Quantity, 0.00001), 5));
-            LibraryReportDataset.AssertCurrentRowValueEquals('NetWeight', Item."Net Weight");
-            LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', FormatDecimal(LineAmount, 2));
-            LibraryReportDataset.AssertCurrentRowValueEquals('VATPct', "VAT %");
-            LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', FormatDecimal(VATAmount, 2));
+        Item.Get(SalesLine."No.");
+        LineAmount := Round(SalesLine.Amount * SalesLine."Qty. to Invoice" / SalesLine.Quantity);
+        VATAmount := SalesLine."Amount Including VAT" - SalesLine.Amount;
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemDescription', SalesLine."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CountryOfManufacturing', Item."Country/Region of Origin Code");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Tariff', Item."Tariff No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', SalesLine."Qty. to Invoice");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Price', FormatDecimal(Round(SalesLine.Amount / SalesLine.Quantity, 0.00001), 5));
+        LibraryReportDataset.AssertCurrentRowValueEquals('NetWeight', Item."Net Weight");
+        LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', FormatDecimal(LineAmount, 2));
+        LibraryReportDataset.AssertCurrentRowValueEquals('VATPct', SalesLine."VAT %");
+        LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', FormatDecimal(VATAmount, 2));
 
-            TotalWeight += Round("Net Weight" * "Qty. to Invoice");
-            TotalAmount += LineAmount;
-            TotalVATAmount += VATAmount;
-            TotalAmountInclVAT += Round("Amount Including VAT" * "Qty. to Invoice" / Quantity);
+        TotalWeight += Round(SalesLine."Net Weight" * SalesLine."Qty. to Invoice");
+        TotalAmount += LineAmount;
+        TotalVATAmount += VATAmount;
+        TotalAmountInclVAT += Round(SalesLine."Amount Including VAT" * SalesLine."Qty. to Invoice" / SalesLine.Quantity);
 
-            Assert.IsTrue(LibraryReportDataset.GetNextRow(), Rep1302DatasetErr);
-        end;
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), Rep1302DatasetErr);
     end;
 
     local procedure VerifyProformaInvoiceZeroQtyLineValues(SalesLine: Record "Sales Line")
     var
         Item: Record Item;
     begin
-        with SalesLine do begin
-            Item.Get("No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('ItemDescription', "No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('CountryOfManufacturing', Item."Country/Region of Origin Code");
-            LibraryReportDataset.AssertCurrentRowValueEquals('Tariff', Item."Tariff No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', "Qty. to Invoice");
-            LibraryReportDataset.AssertCurrentRowValueEquals('Price', FormatDecimal("Unit Price", 2));
-            LibraryReportDataset.AssertCurrentRowValueEquals('NetWeight', Item."Net Weight");
-            LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', FormatDecimal(0, 2));
-            LibraryReportDataset.AssertCurrentRowValueEquals('VATPct', "VAT %");
-            LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', FormatDecimal(0, 2));
+        Item.Get(SalesLine."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemDescription', SalesLine."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CountryOfManufacturing', Item."Country/Region of Origin Code");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Tariff', Item."Tariff No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', SalesLine."Qty. to Invoice");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Price', FormatDecimal(SalesLine."Unit Price", 2));
+        LibraryReportDataset.AssertCurrentRowValueEquals('NetWeight', Item."Net Weight");
+        LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', FormatDecimal(0, 2));
+        LibraryReportDataset.AssertCurrentRowValueEquals('VATPct', SalesLine."VAT %");
+        LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', FormatDecimal(0, 2));
 
-            Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'wrong rep 1302 Pro Forma Invoice dataset');
-        end;
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'wrong rep 1302 Pro Forma Invoice dataset');
     end;
 
     local procedure VerifySalesShipmentDocFieldsExcel(SalesHeader: array[2] of Record "Sales Header")

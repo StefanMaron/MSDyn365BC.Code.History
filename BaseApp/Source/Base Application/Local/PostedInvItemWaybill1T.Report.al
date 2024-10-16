@@ -137,7 +137,7 @@ report 12420 "Posted Inv. Item Waybill 1-T"
                 SalesLine1.SetRange("Document No.", "No.");
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -146,7 +146,6 @@ report 12420 "Posted Inv. Item Waybill 1-T"
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
             end;
 
             trigger OnPreDataItem()

@@ -26,11 +26,21 @@ codeunit 8 AccSchedManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'DEFAULT';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Default Schedule';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Default Columns';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text012: Label 'You have entered an illegal value or a nonexistent row number.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text013: Label 'You have entered an illegal value or a nonexistent column number.';
+#pragma warning restore AA0074
         Text016Err: Label '%1\\ %2 %3 %4.', Locked = true;
         Text017Txt: Label 'The error occurred when the program tried to calculate:\';
         Text018Txt: Label 'Acc. Sched. Line: Row No. = %1, Line No. = %2, Totaling = %3\', Comment = '%1 = Row No., %2= Line No., %3 = Totaling';
@@ -59,14 +69,36 @@ codeunit 8 AccSchedManagement
         OldColumnLayoutName: Code[10];
         OldCalcAddCurr: Boolean;
         GLSetupRead: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text021: Label 'Conversion of dimension totaling filter %1 results in a filter that becomes too long.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BasePercentLine: array[50] of Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text022: Label 'You cannot have more than %1 lines with %2 of %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text023: Label 'Formulas ending with a percent sign require %2 %1 on a line before it.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text024: Label 'The %1 %3 on the %2 must equal the %4 %6 on the %5 when any Dimension Totaling is used in any Column.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         ColumnFormulaMsg: Label 'Column formula: %1.';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         RowConstantMsg: Label 'Row constant: %1.';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         ColumnFormulaErrorMsg: Label 'Column formula: %1. \Error: %2.';
+#pragma warning restore AA0470
         Recalculate: Boolean;
         SystemGeneratedAccSchedQst: Label 'This account schedule may be automatically updated by the system, so any changes you make may be lost. Do you want to make a copy?';
 
@@ -2958,7 +2990,7 @@ codeunit 8 AccSchedManagement
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnDrillDownTotalingTypeElseCase(var TempColumnLayout: Record "Column Layout" temporary; var AccSchedLine: Record "Acc. Schedule Line")
     begin
     end;

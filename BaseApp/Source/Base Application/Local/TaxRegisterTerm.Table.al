@@ -157,7 +157,11 @@ table 17204 "Tax Register Term"
         TaxRegisterTermFormula: Record "Tax Register Term Formula";
         TaxRegSection: Record "Tax Register Section";
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000900: Label 'Delete linked line for expression type %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure GenerateProfile()

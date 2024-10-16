@@ -8,10 +8,6 @@ using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.Setup;
-using System.Security.User;
-using System.Telemetry;
 
 codeunit 951 "Time Sheet Approval Management"
 {
@@ -25,15 +21,18 @@ codeunit 951 "Time Sheet Approval Management"
         ResourcesSetup: Record "Resources Setup";
         ResourceSetupRead: Boolean;
         NothingToSubmitErr: Label 'There is nothing to submit for line with %1=%2, %3=%4.', Comment = '%1 = Time Sheet No. caption; %2 = Time Sheet No. value; %3 = Line No. caption; %4 = Line No. value; Example = There is nothing to submit for line with Time Sheet No.=10, Line No.=10000.';
+#pragma warning disable AA0074
         Text002: Label 'You are not authorized to approve time sheet lines. Contact your time sheet administrator.';
-        Text003: Label 'Time sheet line cannot be reopened because there are linked service lines.';
+#pragma warning restore AA0074
         ProcessOpenLinesQst: Label '&All open lines with %2 defined [%1 line(s)],&Selected line(s) with %2 defined only', Comment = '%1 = Lines count, %2 = Type caption';
         ProcessSubmittedLinesQst: Label '&All submitted lines with %2 defined [%1 line(s)],&Selected line(s) with %2 defined only', Comment = '%1 = Lines count, %2 = Type caption';
         ProcessApprovedLinesQst: Label '&All approved lines with %2 defined [%1 line(s)],&Selected line(s) with %2 defined only', Comment = '%1 = Lines count, %2 = Type caption';
+#pragma warning disable AA0074
         Text007: Label 'Submit for approval';
         Text008: Label 'Reopen for editing';
         Text009: Label 'Approve for posting';
         Text010: Label 'Reject for correction';
+#pragma warning restore AA0074
         SubmitConfirmQst: Label 'Do you want to submit open lines?';
         ReopenConfirmQst: Label 'Do you want to reopen submitted lines?';
         ApproveConfirmQst: Label 'Do you want to approve submitted lines?';
@@ -47,14 +46,8 @@ codeunit 951 "Time Sheet Approval Management"
 
     procedure ProcessAction(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
     var
-        FeatureTelemetry: Codeunit "Feature Telemetry";
-#if not CLEAN22
-        TimeSheetManagement: Codeunit "Time Sheet Management";
-#endif
+        FeatureTelemetry: Codeunit System.Telemetry."Feature Telemetry";
     begin
-#if not CLEAN22
-        FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::Used);
-#endif
         case ActionType of
             ActionType::Submit:
                 Submit(TimeSheetLine);
@@ -100,9 +93,8 @@ codeunit 951 "Time Sheet Approval Management"
                 end;
             TimeSheetLine.Type::Absence:
                 TimeSheetLine.TestField("Cause of Absence Code");
-            TimeSheetLine.Type::Service:
-                TimeSheetLine.TestField("Service Order No.");
         end;
+        OnSubmitOnAfterCheck(TimeSheetLine);
         TimeSheetLine.UpdateApproverID();
         TimeSheetLine.Status := TimeSheetLine.Status::Submitted;
         OnSubmitOnBeforeTimeSheetLineModify(TimeSheetLine);
@@ -127,17 +119,9 @@ codeunit 951 "Time Sheet Approval Management"
     end;
 
     procedure ReopenSubmitted(var TimeSheetLine: Record "Time Sheet Line")
-#if not CLEAN22
-    var
-        TimeSheetMgt: Codeunit "Time Sheet Management";
-#endif
     begin
         if TimeSheetLine.Status = TimeSheetLine.Status::Open then
             exit;
-#if not CLEAN22
-        if not TimeSheetMgt.TimeSheetV2Enabled() then
-            TimeSheetLine.TestField(Status, TimeSheetLine.Status::Submitted);
-#endif
         TimeSheetLine.Status := TimeSheetLine.Status::Open;
         OnReopenSubmittedOnBeforeModify(TimeSheetLine);
         TimeSheetLine.Modify(true);
@@ -153,20 +137,12 @@ codeunit 951 "Time Sheet Approval Management"
     end;
 
     procedure ReopenApproved(var TimeSheetLine: Record "Time Sheet Line")
-#if not CLEAN22
-    var
-        TimeSheetMgt: Codeunit "Time Sheet Management";
-#endif
     begin
         if TimeSheetLine.Status = TimeSheetLine.Status::Submitted then
             exit;
-#if not CLEAN22
-        if not TimeSheetMgt.TimeSheetV2Enabled() then
-            TimeSheetLine.TestField(Status, TimeSheetLine.Status::Approved);
-#endif
         TimeSheetLine.TestField(Posted, false);
         CheckApproverPermissions(TimeSheetLine);
-        CheckLinkedServiceDoc(TimeSheetLine);
+        OnReopenApprovedOnBeforeCheckLinkedDoc(TimeSheetLine);
         TimeSheetLine.UpdateApproverID();
         TimeSheetLine.Status := TimeSheetLine.Status::Submitted;
         OnReopenApprovedOnBeforeTimeSheetLineModify(TimeSheetLine);
@@ -227,8 +203,6 @@ codeunit 951 "Time Sheet Approval Management"
         case TimeSheetLine.Type of
             TimeSheetLine.Type::Absence:
                 PostAbsence(TimeSheetLine);
-            TimeSheetLine.Type::Service:
-                AfterApproveServiceOrderTmeSheetEntries(TimeSheetLine);
         end;
 
         OnAfterApprove(TimeSheetLine);
@@ -296,7 +270,7 @@ codeunit 951 "Time Sheet Approval Management"
 
     local procedure CheckApproverPermissions(TimeSheetLine: Record "Time Sheet Line")
     var
-        UserSetup: Record "User Setup";
+        UserSetup: Record System.Security.User."User Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -310,36 +284,29 @@ codeunit 951 "Time Sheet Approval Management"
                 Error(Text002);
     end;
 
-    local procedure CheckLinkedServiceDoc(TimeSheetLine: Record "Time Sheet Line")
-    var
-        ServiceLine: Record "Service Line";
-    begin
-        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
-        ServiceLine.SetRange("Document No.", TimeSheetLine."Service Order No.");
-        ServiceLine.SetRange("Time Sheet No.", TimeSheetLine."Time Sheet No.");
-        ServiceLine.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
-        if not ServiceLine.IsEmpty() then
-            Error(Text003);
-    end;
-
+#if not CLEAN25
     [Obsolete('Replaced with GetTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
     procedure GetTimeSheetDialogText(ActionType: Option Submit,Reopen; LinesQty: Integer): Text[100]
     begin
         exit(CopyStr(GetTimeSheetActionDialogText(ActionType, LinesQty), 1, 100));
     end;
+#endif
 
     procedure GetTimeSheetActionDialogText(ActionType: Option Submit,Reopen; LinesQty: Integer): Text
     var
         TimeSheetLine: Record "Time Sheet Line";
         IsHandled: Boolean;
+#if not CLEAN25
         ReturnText: Text[100];
+#endif
         ReturnActionText: Text;
     begin
+#if not CLEAN25
         IsHandled := false;
         OnBeforeGetTimeSheetDialogText(ActionType, LinesQty, ReturnText, IsHandled);
         if IsHandled then
             exit(ReturnText);
-
+#endif
         IsHandled := false;
         OnBeforeGetTimeSheetActionDialogText(ActionType, LinesQty, ReturnActionText, IsHandled);
         if IsHandled then
@@ -353,24 +320,29 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+#if not CLEAN25
     [Obsolete('Replaced with GetManagerTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
     procedure GetManagerTimeSheetDialogText(ActionType: Option Approve,Reopen,Reject; LinesQty: Integer): Text[100]
     begin
         exit(CopyStr(GetManagerTimeSheetActionDialogText(ActionType, LinesQty), 1, 100));
     end;
+#endif
 
     procedure GetManagerTimeSheetActionDialogText(ActionType: Option Approve,Reopen,Reject; LinesQty: Integer): Text
     var
         TimeSheetLine: Record "Time Sheet Line";
         IsHandled: Boolean;
+#if not CLEAN25
         ReturnText: Text[100];
+#endif
         ReturnActionText: Text;
     begin
+#if not CLEAN25
         IsHandled := false;
         OnBeforeGetManagerTimeSheetDialogText(ActionType, LinesQty, ReturnText, IsHandled);
         if IsHandled then
             exit(ReturnText);
-
+#endif
         IsHandled := false;
         OnBeforeGetManagerTimeSheetActionDialogText(ActionType, LinesQty, ReturnActionText, IsHandled);
         if IsHandled then
@@ -385,24 +357,29 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+#if not CLEAN25
     [Obsolete('Replaced with GetCommonTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
     procedure GetCommonTimeSheetDialogText(ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject; LinesQty: Integer): Text[100]
     begin
         exit(CopyStr(GetCommonTimeSheetActionDialogText(ActionType, LinesQty), 1, 100));
     end;
+#endif
 
     procedure GetCommonTimeSheetActionDialogText(ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject; LinesQty: Integer): Text
     var
         TimeSheetLine: Record "Time Sheet Line";
         IsHandled: Boolean;
+#if not CLEAN25
         ReturnText: Text[100];
+#endif
         ReturnActionText: Text;
     begin
+#if not CLEAN25
         IsHandled := false;
         OnBeforeGetTimeSheetDialogText(ActionType, LinesQty, ReturnText, IsHandled);
         if IsHandled then
             exit(ReturnText);
-
+#endif
         IsHandled := false;
         OnBeforeGetCommonTimeSheetActionDialogText(ActionType, LinesQty, ReturnActionText, IsHandled);
         if IsHandled then
@@ -441,11 +418,13 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+#if not CLEAN25
     [Obsolete('Replaced with GetTimeSheetActionDialogInstruction to remove 100 characters limitation.', '25.0')]
     procedure GetTimeSheetDialogInstruction(ActionType: Option Submit,Reopen): Text[100]
     begin
         exit(CopyStr(GetTimeSheetActionDialogInstruction(ActionType), 1, 100));
     end;
+#endif
 
     procedure GetTimeSheetActionDialogInstruction(ActionType: Option Submit,Reopen): Text
     begin
@@ -457,11 +436,13 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+#if not CLEAN25
     [Obsolete('Replaced with GetManagerTimeSheetActionDialogInstruction to remove 100 characters limitation.', '25.0')]
     procedure GetManagerTimeSheetDialogInstruction(ActionType: Option Approve,Reopen,Reject): Text[100]
     begin
         exit(CopyStr(GetManagerTimeSheetActionDialogInstruction(ActionType), 1, 100));
     end;
+#endif
 
     procedure GetManagerTimeSheetActionDialogInstruction(ActionType: Option Approve,Reopen,Reject): Text
     begin
@@ -495,18 +476,6 @@ codeunit 951 "Time Sheet Approval Management"
         if not ResourceSetupRead then begin
             ResourcesSetup.Get();
             ResourceSetupRead := true;
-        end;
-    end;
-
-    local procedure AfterApproveServiceOrderTmeSheetEntries(var TimeSheetLine: Record "Time Sheet Line")
-    var
-        ServHeader: Record "Service Header";
-        ServMgtSetup: Record "Service Mgt. Setup";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
-    begin
-        if ServMgtSetup.Get() and ServMgtSetup."Copy Time Sheet to Order" then begin
-            ServHeader.Get(ServHeader."Document Type"::Order, TimeSheetLine."Service Order No.");
-            TimeSheetMgt.CreateServDocLinesFromTSLine(ServHeader, TimeSheetLine);
         end;
     end;
 
@@ -561,6 +530,11 @@ codeunit 951 "Time Sheet Approval Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnReopenApprovedOnBeforeCheckLinkedDoc(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnReopenSubmittedOnAfterModify(var TimeSheetLine: Record "Time Sheet Line")
     begin
     end;
@@ -590,11 +564,13 @@ codeunit 951 "Time Sheet Approval Management"
     begin
     end;
 
+#if not CLEAN25
     [Obsolete('Replaced with OnBeforeGetTimeSheetActionDialogText and OnBeforeGetCommonTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTimeSheetDialogText(ActionType: Option; LinesQty: Decimal; var ReturnText: Text[100]; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTimeSheetActionDialogText(ActionType: Option; LinesQty: Decimal; var ReturnActionText: Text; var IsHandled: Boolean)
@@ -606,11 +582,13 @@ codeunit 951 "Time Sheet Approval Management"
     begin
     end;
 
+#if not CLEAN25
     [Obsolete('Replaced with OnBeforeGetManagerTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetManagerTimeSheetDialogText(ActionType: Option; LinesQty: Decimal; var ReturnText: Text[100]; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetManagerTimeSheetActionDialogText(ActionType: Option; LinesQty: Decimal; var ReturnActionText: Text; var IsHandled: Boolean)
@@ -619,6 +597,11 @@ codeunit 951 "Time Sheet Approval Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReject(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSubmitOnAfterCheck(var TimeSheetLine: Record "Time Sheet Line")
     begin
     end;
 }

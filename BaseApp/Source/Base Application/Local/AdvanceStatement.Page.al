@@ -438,9 +438,15 @@ page 12431 "Advance Statement"
         UserMgt: Codeunit "User Setup Management";
         DocPrint: Codeunit "Document-Print";
 #if not CLEAN24
+#pragma warning disable AA0074
         Text12400: Label 'Select only one application method for advance.';
+#pragma warning restore AA0074
 #endif
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12401: Label 'Posting Date %1 in Advance Statement No. %2 must not be less than Posting Date in Empl. Purchase Entry No. %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ChangeExchangeRate: Page "Change Exchange Rate";
 
     local procedure ApproveCalcInvDisc()

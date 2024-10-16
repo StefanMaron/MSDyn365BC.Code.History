@@ -504,7 +504,7 @@ report 5692 "Calculate Depreciation"
         FAJnlLineCreatedCount: Integer;
         GenJnlLineCreatedCount: Integer;
         DeprUntilDateModified: Boolean;
-        SuppressCommit: Boolean;	
+        SuppressCommit: Boolean;
         Period: Date;
         CalendarPeriod: Record Date;
         DatePeriod: Record Date;
@@ -513,20 +513,56 @@ report 5692 "Calculate Depreciation"
         ProgressiveTotal: Boolean;
         DeprBonus: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Force No. of Days must be activated.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Depreciating fixed asset      #1##########\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Not depreciating fixed asset  #2##########\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Inserting journal lines       #3##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'Use Force No. of Days must be activated.';
+#pragma warning restore AA0074
         Details: Boolean;
+#pragma warning disable AA0074
         Text12411: Label 'DP-';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12410: Label ' FA Depreciation';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12412: Label 'No. of Days in Fiscal Year for Depr. Book %1 = %2 will calculate incorrect depreciation amounts. Continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
+#pragma warning disable AA0470
         CompletionStatsFAJnlMsg: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         CompletionStatsGenJnlMsg: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L journal lines were created.';
+#pragma warning restore AA0470
 
     protected var
         DeprBookCode: Code[10];
@@ -608,11 +644,11 @@ report 5692 "Calculate Depreciation"
             exit(FASetup."Release Depr. Book");
         exit(FASetup."Default Depr. Book");
     end;
-    
+
     procedure SetSuppressCommit(NewSuppressCommmit: Boolean)
     begin
-        SuppressCommit := NewSuppressCommmit;  
-    end;	  
+        SuppressCommit := NewSuppressCommmit;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateDepreciation(FANo: Code[20]; var TempGenJournalLine: Record "Gen. Journal Line" temporary; var TempFAJournalLine: Record "FA Journal Line" temporary; var DeprAmount: Decimal; var NumberOfDays: Integer; DeprBookCode: Code[10]; DeprUntilDate: Date; EntryAmounts: array[4] of Decimal; DaysInPeriod: Integer)

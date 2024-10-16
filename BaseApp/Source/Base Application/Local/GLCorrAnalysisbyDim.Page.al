@@ -461,12 +461,26 @@ page 14940 "G/L Corr. Analysis by Dim."
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'You have not yet defined an analysis view.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 is not a valid line definition.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label '1,6,,Debit Dimension 1 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label '1,6,,Debit Dimension 2 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label '1,6,,Debit Dimension 3 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label '1,6,,Credit Dimension 1 Filter';
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
         GLCorrAnalysisView: Record "G/L Corr. Analysis View";
         GLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry";
@@ -489,8 +503,12 @@ page 14940 "G/L Corr. Analysis by Dim."
         CreditDim2Filter: Text;
         CreditDim3Filter: Text;
         BusUnitFilter: Text;
+#pragma warning disable AA0074
         Text009: Label '1,6,,Credit Dimension 2 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text010: Label '1,6,,Credit Dimension 3 Filter';
+#pragma warning restore AA0074
         DebitAmount: Decimal;
         CreditAmount: Decimal;
         StartDate: Date;

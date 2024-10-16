@@ -1,7 +1,7 @@
 query 12400 "Value Entry Item Tariff No."
 {
     Caption = 'Value Entry Item Tariff No.';
-    OrderBy = Ascending(Tariff_No);
+    OrderBy = ascending(Tariff_No);
 
     elements
     {

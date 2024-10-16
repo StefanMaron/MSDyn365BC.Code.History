@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+using Microsoft.Foundation.Address;
+
 report 742 "VAT Report Request Page"
 {
     Caption = 'VAT Report Request Page';
@@ -43,7 +45,7 @@ report 742 "VAT Report Request Page"
                 VATStatementLine.FindSet();
 
                 VATStatement.InitializeRequest(
-                  VATStatementName, VATStatementLine, Selection, PeriodSelection, false, "Amounts in Add. Rep. Currency");
+                  VATStatementName, VATStatementLine, Selection, PeriodSelection, false, "Amounts in Add. Rep. Currency", "Country/Region Filter");
 
                 VATStatementReportLine.SetRange("VAT Report No.", "No.");
                 VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
@@ -152,6 +154,26 @@ report 742 "VAT Report Request Page"
                         Caption = 'Amounts in Add. Reporting Currency';
                         Importance = Additional;
                         ToolTip = 'Specifies if you want to report amounts in the additional reporting currency.';
+                    }
+                    field("Country/Region Filter"; Rec."Country/Region Filter")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the country/region to filter the VAT entries.';
+                        Importance = Additional;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            CountryRegion: Record "Country/Region";
+                            CountriesRegions: Page "Countries/Regions";
+                        begin
+                            CountriesRegions.LookupMode(true);
+                            if CountriesRegions.RunModal() = Action::LookupOK then begin
+                                CountriesRegions.GetRecord(CountryRegion);
+                                Rec."Country/Region Filter" := CountryRegion.Code;
+                                exit(true);
+                            end;
+                            exit(false);
+                        end;
                     }
                 }
             }

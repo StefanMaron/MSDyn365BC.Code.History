@@ -40,7 +40,7 @@ table 17242 "Tax Reg. Norm Accumulation"
         }
         field(8; "Line Type"; Option)
         {
-            CalcFormula = Lookup ("Tax Reg. Norm Template Line"."Line Type" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
+            CalcFormula = lookup("Tax Reg. Norm Template Line"."Line Type" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
                                                                                   "Norm Group Code" = field("Norm Group Code"),
                                                                                   "Line No." = field("Template Line No.")));
             Caption = 'Line Type';
@@ -66,7 +66,7 @@ table 17242 "Tax Reg. Norm Accumulation"
         }
         field(12; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Reg. Norm Dim. Filter" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
+            CalcFormula = exist("Tax Reg. Norm Dim. Filter" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
                                                                    "Norm Group Code" = field("Norm Group Code"),
                                                                    "Line No." = field("Template Line No.")));
             Caption = 'Dimensions Filters';

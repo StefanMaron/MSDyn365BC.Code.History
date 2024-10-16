@@ -7,20 +7,52 @@ codeunit 17201 "Tax Register Mgt."
 
     var
         TaxRegSection: Record "Tax Register Section";
+#pragma warning disable AA0074
         Text1000: Label 'DEFAULT';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1007: Label 'Existing data after %1 for table %2 will be deleted.\\Continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1008: Label 'Incorrect period start date.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1009: Label 'Data before %1 in table %2 not found.\\Continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1011: Label 'Incorrect period end date.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1012: Label 'End date must be defined.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1013: Label 'Start date must be define.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1014: Label 'Section code must be defined.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'january,february,march,april,may,june,july,august,september,october,november,december';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'first quarter,second quarter,third quarter,fourth quarter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text000: Label '1,5,,Dimension 1 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label '1,5,,Dimension 2 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label '1,5,,Dimension 3 Value Code';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label '1,5,,Dimension 4 Value Code';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure FindDate(SearchString: Text[10]; var Calendar: Record Date; PeriodType: Option ,,Month,Quarter,Year; AmountType: Option "Current Period","Tax Period") Found: Boolean
@@ -201,7 +233,7 @@ codeunit 17201 "Tax Register Mgt."
         TaxRegAccumulation.SetFilter("Starting Date", '%1..', StartDate);
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", DATABASE::"Tax Register G/L Entry");
-        if TaxReg.Find('-') then begin
+        if TaxReg.Find('-') then
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                 if not TaxRegAccumulation.IsEmpty() then
@@ -213,7 +245,6 @@ codeunit 17201 "Tax Register Mgt."
                     end;
                 TaxRegAccumulation.DeleteAll();
             until TaxReg.Next() = 0;
-        end;
 
         if StartDate = TaxRegSection."Starting Date" then
             TaxRegSection."Absence GL Entries Date" := 0D
@@ -248,13 +279,12 @@ codeunit 17201 "Tax Register Mgt."
 
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", TableID);
-        if TaxReg.FindSet() then begin
+        if TaxReg.FindSet() then
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                 if TaxRegAccumulation.IsEmpty() then
                     exit(false);
             until TaxReg.Next() = 0;
-        end;
         exit(true);
     end;
 
@@ -396,7 +426,7 @@ codeunit 17201 "Tax Register Mgt."
 
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", DATABASE::"Tax Register FA Entry");
-        if TaxReg.Find('-') then begin
+        if TaxReg.Find('-') then
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                 if not TaxRegAccumulation.IsEmpty() then
@@ -408,7 +438,6 @@ codeunit 17201 "Tax Register Mgt."
                     end;
                 TaxRegAccumulation.DeleteAll();
             until TaxReg.Next() = 0;
-        end;
 
         if StartDate = TaxRegSection."Starting Date" then
             TaxRegSection."Absence FA Entries Date" := 0D

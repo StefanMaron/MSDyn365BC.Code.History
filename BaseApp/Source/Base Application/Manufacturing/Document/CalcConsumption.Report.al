@@ -159,10 +159,14 @@ report 5405 "Calc. Consumption"
         ToBatchName: Code[10];
         NextConsumpJnlLineNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Calculating consumption...\\';
+#pragma warning disable AA0470
         Text001: Label 'Prod. Order No.   #1##########\';
         Text002: Label 'Item No.          #2##########\';
         Text003: Label 'Quantity          #3##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         LocationCode: Code[10];
@@ -263,6 +267,7 @@ report 5405 "Calc. Consumption"
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         TempReservEntry: Record "Reservation Entry" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         ItemTrackingLines: Page "Item Tracking Lines";
         Qty: Decimal;
         MinQty: Decimal;
@@ -312,7 +317,7 @@ report 5405 "Calc. Consumption"
             TempReservEntry.Reset();
             ItemTrackingMgt.SumUpItemTracking(TempReservEntry, TempTrackingSpecification, false, true);
 
-            SourceTrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+            ItemJnlLineReserve.InitFromItemJnlLine(SourceTrackingSpecification, ItemJournalLine);
             ItemTrackingLines.RegisterItemTrackingLines(
               SourceTrackingSpecification, ItemJournalLine."Posting Date", TempTrackingSpecification);
         end;

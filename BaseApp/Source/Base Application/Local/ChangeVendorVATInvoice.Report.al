@@ -131,10 +131,20 @@ report 14907 "Change Vendor VAT Invoice"
         InvoiceNo: Code[30];
         CreatePrepmtInvoice: Boolean;
         VATAmount: Decimal;
+#pragma warning disable AA0074
         Text001: Label 'VAT Base (LCY) and VAT Amount (LCY) must be positive.';
+#pragma warning restore AA0074
         VATBase: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'VAT for Prepayment %1 is successfully posted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'You must specify %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure SetInvParameters(InvNo: Code[30]; InvDate: Date; InvRcvdDate: Date)

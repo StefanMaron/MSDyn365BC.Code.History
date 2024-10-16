@@ -74,7 +74,7 @@ table 17314 "Tax Calc. Accumulation"
         }
         field(51; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Calc. Dim. Filter" where("Section Code" = field("Section Code"),
+            CalcFormula = exist("Tax Calc. Dim. Filter" where("Section Code" = field("Section Code"),
                                                                "Register No." = field("Register No."),
                                                                Define = const(Template),
                                                                "Line No." = field("Template Line No.")));
@@ -113,7 +113,11 @@ table 17314 "Tax Calc. Accumulation"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Formula: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure DrillDownAmount()

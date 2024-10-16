@@ -531,31 +531,26 @@ codeunit 137911 "SCM Calculate Assembly Cost"
 
     local procedure ValidateHeaderCostAmount(AsmHeader: Record "Assembly Header"; Expected: Decimal)
     begin
-        with AsmHeader do
-            Assert.AreEqual(Expected, "Cost Amount",
-              StrSubstNo('Item %1 Unitcost is %2 expected %3', "No.", "Cost Amount", Expected));
+        Assert.AreEqual(Expected, AsmHeader."Cost Amount",
+              StrSubstNo('Item %1 Unitcost is %2 expected %3', AsmHeader."No.", AsmHeader."Cost Amount", Expected));
     end;
 
     local procedure ValidateStandardCost(ItemNo: Code[20]; Expected: Decimal)
     var
         TestItem: Record Item;
     begin
-        with TestItem do begin
-            Get(ItemNo);
-            Assert.AreEqual("Standard Cost", Expected,
-              StrSubstNo('Standard cost is wrong for %1, Expected %2 got %3', "No.", Expected, "Standard Cost"))
-        end;
+        TestItem.Get(ItemNo);
+        Assert.AreEqual(TestItem."Standard Cost", Expected,
+          StrSubstNo('Standard cost is wrong for %1, Expected %2 got %3', TestItem."No.", Expected, TestItem."Standard Cost"))
     end;
 
     local procedure ValidateUnitCost(ItemNo: Code[20]; Expected: Decimal)
     var
         TestItem: Record Item;
     begin
-        with TestItem do begin
-            Get(ItemNo);
-            Assert.AreEqual(Expected, "Unit Cost",
-              StrSubstNo('Item %1 Unitcost is %2 expected %3', "No.", "Unit Cost", Expected));
-        end;
+        TestItem.Get(ItemNo);
+        Assert.AreEqual(Expected, TestItem."Unit Cost",
+          StrSubstNo('Item %1 Unitcost is %2 expected %3', TestItem."No.", TestItem."Unit Cost", Expected));
     end;
 
     local procedure VerifyOutputCostAmount(ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; ExpectedCostLCY: Decimal; ExpectedCostACY: Decimal)
@@ -567,14 +562,12 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         GeneralLedgerSetup.Get();
         Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
 
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            FindFirst();
-            CalcFields("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-            TestField("Cost Amount (Actual)", ExpectedCostLCY);
-            TestField("Cost Amount (Actual) (ACY)", Round(ExpectedCostACY, Currency."Amount Rounding Precision"));
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", ExpectedCostLCY);
+        ItemLedgerEntry.TestField("Cost Amount (Actual) (ACY)", Round(ExpectedCostACY, Currency."Amount Rounding Precision"));
     end;
 }
 

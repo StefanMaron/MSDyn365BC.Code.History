@@ -12,7 +12,9 @@ codeunit 14934 "TORG-12 Report Helper"
         LastTotalAmount: array[6] of Decimal;
         TotalAmount: array[6] of Decimal;
         PrevDocPageNo: Integer;
+#pragma warning disable AA0470
         PageNoTxt: Label 'Waybill %1 Page %2';
+#pragma warning restore AA0470
         DocumentNo: Text;
         PageHeaderCurrencyText: Text;
 

@@ -303,7 +303,9 @@ report 12447 "Bank Account G/L Turnover"
     end;
 
     var
+#pragma warning disable AA0074
         Text003: Label 'Zero values are replaced by spacebar';
+#pragma warning restore AA0074
         LocMgt: Codeunit "Localisation Management";
         BalanceDebitBegining: Decimal;
         BalanceCreditBegining: Decimal;
@@ -338,8 +340,12 @@ report 12447 "Bank Account G/L Turnover"
         AmountUnit: Text[30];
         ReportParameters: array[4] of Text[80];
         CycleIndex: Integer;
+#pragma warning disable AA0074
         Text005: Label 'for period from ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label ' to ';
+#pragma warning restore AA0074
         Bank_AccountCaptionLbl: Label 'Bank Account';
         G_L_Turnover_SheetCaptionLbl: Label 'G/L Turnover Sheet';
         PageCaptionLbl: Label 'Page';

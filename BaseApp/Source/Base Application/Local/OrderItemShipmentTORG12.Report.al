@@ -96,7 +96,7 @@ report 12407 "Order Item Shipment TORG-12"
 
                 trigger OnPostDataItem()
                 begin
-                    if not Preview then
+                    if not PreviewReport then
                         CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
                 end;
 
@@ -110,25 +110,25 @@ report 12407 "Order Item Shipment TORG-12"
                     if Header."Shipping No." = '' then
                         if (Header."Shipping No. Series" = '') or (Header."Shipping No. Series" = Header."Posting No. Series") then
                             if Header."Posting No." = '' then begin
-                                if Preview then
+                                if PreviewReport then
                                     Header."Posting No." := NoSeriesBatch.GetNextNo(Header."Posting No. Series", Header."Posting Date")
                                 else
                                     Header."Posting No." := NoSeries.GetNextNo(Header."Posting No. Series", Header."Posting Date");
                                 Header."Shipping No." := Header."Posting No.";
-                                if not Preview then
+                                if not PreviewReport then
                                     Header.Modify();
                             end else begin
                                 Header."Shipping No." := Header."Posting No.";
-                                if not Preview then
+                                if not PreviewReport then
                                     Header.Modify();
                             end
                         else begin
                             Clear(NoSeriesBatch);
-                            if Preview then
+                            if PreviewReport then
                                 Header."Shipping No." := NoSeriesBatch.GetNextNo(Header."Shipping No. Series", Header."Posting Date")
                             else
                                 Header."Shipping No." := NoSeries.GetNextNo(Header."Shipping No. Series", Header."Posting Date");
-                            if not Preview then
+                            if not PreviewReport then
                                 Header.Modify();
                         end;
                     DocumentNo := Header."Shipping No.";
@@ -199,7 +199,7 @@ report 12407 "Order Item Shipment TORG-12"
                             1, MaxStrLen(AddCondition));
                 end;
 
-                if not Preview then begin
+                if not PreviewReport then begin
                     if ArchiveDocument then
                         ArchiveManagement.StoreSalesDocument(Header, LogInteraction);
 
@@ -274,7 +274,7 @@ report 12407 "Order Item Shipment TORG-12"
                         Caption = 'Print Weight Information';
                         ToolTip = 'Specifies if you want to print shipping weight information.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -354,7 +354,7 @@ report 12407 "Order Item Shipment TORG-12"
         ObjectCode: Code[20];
         SerialNumbersText: Text;
         AtLeastOneLineExists: Boolean;
-        Preview: Boolean;
+        PreviewReport: Boolean;
         ReportFileName: Text;
 
     local procedure ShipmentDocNo(): Code[20]
@@ -466,7 +466,7 @@ report 12407 "Order Item Shipment TORG-12"
     procedure InitializeRequest(FileName: Text; NewPreview: Boolean)
     begin
         ReportFileName := FileName;
-        Preview := NewPreview;
+        PreviewReport := NewPreview;
     end;
 }
 

@@ -49,7 +49,7 @@ table 12428 "Default Signature Setup"
         }
         field(8; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -83,7 +83,15 @@ table 12428 "Default Signature Setup"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Table %1 is not supported.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

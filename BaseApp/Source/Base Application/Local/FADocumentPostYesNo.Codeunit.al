@@ -13,8 +13,16 @@ codeunit 12470 "FA Document-Post (Yes/No)"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Do you want to post the %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Document %1 posted successfully.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PreviewMode: Boolean;
 
     local procedure "Code"(FADocumentHeader: Record "FA Document Header")

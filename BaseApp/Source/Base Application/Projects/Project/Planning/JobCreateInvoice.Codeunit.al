@@ -36,18 +36,28 @@ codeunit 1002 "Job Create-Invoice"
         UpdateExchangeRates: Boolean;
         NoOfSalesLinesCreated: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'The lines were successfully transferred to an invoice.';
         Text001: Label 'The lines were not transferred to an invoice.';
+#pragma warning disable AA0470
         Text002: Label 'There was no %1 with a %2 larger than 0. No lines were transferred.';
         Text003: Label '%1 may not be lower than %2 and may not exceed %3.';
+#pragma warning restore AA0470
         Text004: Label 'You must specify Invoice No. or New Invoice.';
         Text005: Label 'You must specify Credit Memo No. or New Invoice.';
+#pragma warning disable AA0470
         Text007: Label 'You must specify %1.';
+#pragma warning restore AA0470
         Text008: Label 'The lines were successfully transferred to a credit memo.';
+#pragma warning disable AA0470
         Text009: Label 'The selected planning lines must have the same %1.';
+#pragma warning restore AA0470
         Text010: Label 'The currency dates on all planning lines will be updated based on the invoice posting date because there is a difference in currency exchange rates. Recalculations will be based on the Exch. Calculation setup for the Cost and Price values for the project. Do you want to continue?';
         Text011: Label 'The currency exchange rate on all planning lines will be updated based on the exchange rate on the sales invoice. Do you want to continue?';
+#pragma warning disable AA0470
         Text012: Label 'The %1 %2 does not exist anymore. A printed copy of the document was created before the document was deleted.', Comment = 'The Sales Invoice Header 103001 does not exist in the system anymore. A printed copy of the document was created before deletion.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CreateSalesInvoice(var JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean)
     var
@@ -194,7 +204,7 @@ codeunit 1002 "Job Create-Invoice"
               JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
 
         if NewInvoice then
-            CreateSalesHeader(Job, PostingDate, DocumentDate, JobPlanningLine)
+            CreateSalesHeader(Job, JobPlanningLine, PostingDate, DocumentDate)
         else
             TestSalesHeader(SalesHeader, Job, JobPlanningLine);
         if JobPlanningLine.Find('-') then
@@ -324,7 +334,7 @@ codeunit 1002 "Job Create-Invoice"
             Cust.Get(ReturnBillToCustomerNoDependingOnTaskBillingMethod(Job, JobTask2));
             SalesHeader2."Document Type" := SalesHeader2."Document Type"::Invoice;
             if not SalesInvoiceExistForMultipleCustomerBillingMethod(Job) then begin
-                CreateSalesHeader(Job, PostingDate, DocumentDate, TempJobPlanningLine);
+                CreateSalesHeader(Job, TempJobPlanningLine, PostingDate, DocumentDate);
                 NoOfInvoices := NoOfInvoices + 1;
             end;
             OnCreateSalesInvoiceJobTaskOnBeforeTempJobPlanningLineFind(JobTask, SalesHeader, InvoicePerTask, TempJobPlanningLine);
@@ -392,7 +402,7 @@ codeunit 1002 "Job Create-Invoice"
             until JobPlanningLine.Next() = 0;
     end;
 
-    local procedure CreateNewInvoice(var JobTask: Record "Job Task"; InvoicePerTask: Boolean; var OldJobNo: Code[20]; var OldJobTaskNo: Code[20]; LastJobTask: Boolean): Boolean
+    procedure CreateNewInvoice(var JobTask: Record "Job Task"; InvoicePerTask: Boolean; var OldJobNo: Code[20]; var OldJobTaskNo: Code[20]; LastJobTask: Boolean): Boolean
     var
         NewInvoice: Boolean;
         IsHandled: Boolean;
@@ -421,21 +431,22 @@ codeunit 1002 "Job Create-Invoice"
         exit(NewInvoice);
     end;
 
-    local procedure CreateSalesHeader(Job: Record Job; PostingDate: Date; DocumentDate: Date; JobPlanningLine: Record "Job Planning Line")
+    procedure CreateSalesHeader(Job: Record Job; JobPlanningLine: Record "Job Planning Line"; PostingDate: Date; DocumentDate: Date)
     var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         JobTask: Record "Job Task";
-        SalesSetup: Record "Sales & Receivables Setup";
         IsHandled: Boolean;
     begin
         OnBeforeCreateSalesHeader(Job, PostingDate, SalesHeader2, JobPlanningLine);
 
-        SalesSetup.Get();
+        SalesReceivablesSetup.SetLoadFields("Invoice Nos.", "Credit Memo Nos.");
+        SalesReceivablesSetup.Get();
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader2."Document Type";
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
-            SalesSetup.TestField("Invoice Nos.");
+            SalesReceivablesSetup.TestField("Invoice Nos.");
         if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
-            SalesSetup.TestField("Credit Memo Nos.");
+            SalesReceivablesSetup.TestField("Credit Memo Nos.");
         SalesHeader."Posting Date" := PostingDate;
         SalesHeader."Document Date" := DocumentDate;
         OnBeforeInsertSalesHeader(SalesHeader, Job, JobPlanningLine);
@@ -458,6 +469,7 @@ codeunit 1002 "Job Create-Invoice"
             if Job."External Document No." <> '' then
                 SalesHeader.Validate("External Document No.", Job."External Document No.");
         end else begin
+            JobTask.SetLoadFields("Payment Method Code", "Payment Terms Code", "External Document No.");
             JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
             if JobTask."Payment Method Code" <> '' then
                 SalesHeader.Validate("Payment Method Code", JobTask."Payment Method Code");
@@ -553,7 +565,7 @@ codeunit 1002 "Job Create-Invoice"
             exit(JobTask."Bill-to Customer No.");
     end;
 
-    local procedure CreateSalesLine(var JobPlanningLine: Record "Job Planning Line")
+    procedure CreateSalesLine(var JobPlanningLine: Record "Job Planning Line")
     var
         Job: Record Job;
         Factor: Integer;
@@ -695,10 +707,10 @@ codeunit 1002 "Job Create-Invoice"
            (TotalSalesHeader."Customer Posting Group" <> '') and
            TotalSalesHeader."Recalculate Invoice Disc."
         then
-            CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
+            Codeunit.Run(Codeunit::"Sales-Calc. Discount", SalesLine);
     end;
 
-    local procedure TransferLine(var JobPlanningLine: Record "Job Planning Line"): Boolean
+    procedure TransferLine(var JobPlanningLine: Record "Job Planning Line"): Boolean
     var
         IsHandled, Result : Boolean;
     begin
@@ -887,7 +899,7 @@ codeunit 1002 "Job Create-Invoice"
             JobPlanningLineInvoice.FindFirst();
             OpenSalesInvoice(JobPlanningLineInvoice);
         end else
-            PAGE.RunModal(PAGE::"Job Invoices", JobPlanningLineInvoice);
+            Page.RunModal(Page::"Job Invoices", JobPlanningLineInvoice);
     end;
 
     procedure OpenSalesInvoice(JobPlanningLineInvoice: Record "Job Planning Line Invoice")
@@ -969,6 +981,7 @@ codeunit 1002 "Job Create-Invoice"
                     SalesHeader."Ship-to City" := Job."Ship-to City";
                     SalesHeader."Ship-to Post Code" := Job."Ship-to Post Code";
                     SalesHeader."Ship-to Country/Region Code" := Job."Ship-to Country/Region Code";
+                    SalesHeader."Ship-to Phone No." := Job."Ship-to Phone No.";
                     if FormatAddress.UseCounty(SalesHeader."Ship-to Country/Region Code") then
                         SalesHeader."Ship-to County" := Job."Ship-to County";
                 end;
@@ -1058,7 +1071,7 @@ codeunit 1002 "Job Create-Invoice"
         OnAfterTestSalesHeader(SalesHeader, Job, JobPlanningLine);
     end;
 
-    local procedure TestExchangeRate(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date)
+    procedure TestExchangeRate(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin

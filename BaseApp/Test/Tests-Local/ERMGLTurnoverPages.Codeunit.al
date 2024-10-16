@@ -617,13 +617,11 @@
 
     local procedure UpdateFAPostingType(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            if "Account Type" <> "Account Type"::"Fixed Asset" then
-                exit;
+        if GenJnlLine."Account Type" <> GenJnlLine."Account Type"::"Fixed Asset" then
+            exit;
 
-            Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            Modify(true);
-        end;
+        GenJnlLine.Validate("FA Posting Type", GenJnlLine."FA Posting Type"::"Acquisition Cost");
+        GenJnlLine.Modify(true);
     end;
 
     local procedure OpenGLAccountTurnoverPage(var GLAccountTurnover: TestPage "G/L Account Turnover"; GLAccountNo: Code[20]; SourceType: Option; SourceNo: Code[20])

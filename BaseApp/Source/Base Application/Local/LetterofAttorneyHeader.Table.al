@@ -238,9 +238,19 @@ table 14905 "Letter of Attorney Header"
         CompanyInformation: Record "Company Information";
         PurchSetup: Record "Purchases & Payables Setup";
         Employee: Record Employee;
+#pragma warning disable AA0074
         Text001: Label 'Existing Letter of Attorney Lines will be deleted. Continue?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 No. %2 from %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'You cannot rename %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure Release()

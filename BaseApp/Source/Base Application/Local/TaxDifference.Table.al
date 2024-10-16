@@ -56,7 +56,7 @@ table 17300 "Tax Difference"
         field(12; "Tax Amount"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Tax Diff. Ledger Entry"."Tax Amount" where("Tax Diff. Code" = field(Code),
+            CalcFormula = sum("Tax Diff. Ledger Entry"."Tax Amount" where("Tax Diff. Code" = field(Code),
                                                                            "Posting Date" = field("Date Filter")));
             Caption = 'Tax Amount';
             Editable = false;
@@ -126,8 +126,14 @@ table 17300 "Tax Difference"
 
     var
         TaxDiff: Record "Tax Difference";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'Norm %1 %2 already used in tax difference %3.', Comment = '%1 = Jurisdiction Code, %2 = Norm Code';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxDiffLedgerEntry: Record "Tax Diff. Ledger Entry";
+#pragma warning disable AA0074
         Text1002: Label 'You cannot change Depreciation Bonus because there is at least one ledger entry for this tax difference.';
+#pragma warning restore AA0074
 }
 

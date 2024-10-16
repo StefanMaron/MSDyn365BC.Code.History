@@ -26,7 +26,7 @@ table 94 "Inventory Posting Group"
         field(3; "Used in Items"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count(Item where("Inventory Posting Group" = field(Code)));
+            CalcFormula = count(Item where("Inventory Posting Group" = field(Code)));
             Caption = 'Used in Items';
             Editable = false;
             FieldClass = FlowField;
@@ -34,7 +34,7 @@ table 94 "Inventory Posting Group"
         field(4; "Used in Value Entries"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count("Value Entry" where("Inventory Posting Group" = field(Code)));
+            CalcFormula = count("Value Entry" where("Inventory Posting Group" = field(Code)));
             Caption = 'Used in Value Entries';
             Editable = false;
             FieldClass = FlowField;

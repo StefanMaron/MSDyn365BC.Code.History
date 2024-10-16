@@ -307,11 +307,10 @@ codeunit 12416 "Excel Management"
     var
         i: Integer;
     begin
-        for i := 1 to StrLen(Str) do begin
+        for i := 1 to StrLen(Str) do
             if Str[i] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
                 if Evaluate(Number, CopyStr(Str, i)) then
                     exit;
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -319,10 +318,9 @@ codeunit 12416 "Excel Management"
     var
         i: Integer;
     begin
-        for i := 1 to StrLen(Str) do begin
+        for i := 1 to StrLen(Str) do
             if Str[i] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
                 exit(CopyStr(Str, 1, i - 1));
-        end;
     end;
 
     [Scope('OnPrem')]

@@ -25,7 +25,7 @@ table 17241 "Tax Reg. Norm Term Formula"
         }
         field(4; "Expression Type"; Option)
         {
-            CalcFormula = Lookup("Tax Reg. Norm Term"."Expression Type" where("Term Code" = field("Term Code")));
+            CalcFormula = lookup("Tax Reg. Norm Term"."Expression Type" where("Term Code" = field("Term Code")));
             Caption = 'Expression Type';
             FieldClass = FlowField;
             OptionCaption = 'Plus/Minus,Multiply/Divide,Compare';
@@ -211,10 +211,20 @@ table 17241 "Tax Reg. Norm Term Formula"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Operation must be + or -.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Operation must be * or /.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Operation must be Compare.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'cannot be %1 if Account Type is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ValidateChangeDeclaration(Incident: Boolean)

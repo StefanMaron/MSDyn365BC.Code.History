@@ -188,10 +188,18 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
         TemplateName: Code[10];
         BatchName: Code[10];
         LineNo: Integer;
+#pragma warning disable AA0074
         Text001: Label 'Please enter a journal template name.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Please enter a journal batch name.';
+#pragma warning restore AA0074
         SourceType: Option " ","Future Expense","Fixed Asset","Intangible Asset";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Depreciation Bonus for %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CreateJnlLine(Description: Text[80]; PostingDate: Date; TaxDiffCode: Code[10]; AmountBase: Decimal; AmountTax: Decimal; SourceType: Option; SourceNo: Code[20])

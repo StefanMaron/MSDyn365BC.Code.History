@@ -38,7 +38,9 @@ table 14949 "VAT Entry Type"
     }
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Length of VAT Entry Type Code cannot be greater than 2.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure LookupSetOfVATEntryCodes(var SetOfVATEntryTypes: Code[20]): Boolean

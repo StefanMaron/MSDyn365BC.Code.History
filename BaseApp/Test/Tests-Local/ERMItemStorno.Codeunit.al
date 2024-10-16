@@ -23,9 +23,7 @@ codeunit 144006 "ERM Item Storno"
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         isInitialized: Boolean;
         ValuesAreNotEqualErr: Label 'Values are not equal in table %1, field %2';
-        ApplyEntryNoExpectedErr: Label '%1 must have a value in Item Journal Line: Journal Template Name=, Journal Batch Name=, Line No.=0. It cannot be zero or empty.';
         ApplyEntryNoShortExpectedErr: Label '%1 must have a value in Item Journal Line:';
-        FieldErrorShortExpectedErr: Label '%1 must be equal to ''No''  in Item Journal Line:';
         IncorrectExpectedMessageErr: Label 'Incorrect Expected message.';
 
     [Test]
@@ -153,7 +151,7 @@ codeunit 144006 "ERM Item Storno"
             InvtDocHeader."Document Type"::Shipment, InvtDocHeader."Document Type"::Shipment, Item."No.", WorkDate(),
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2), 0, true);
 
-        Assert.ExpectedError(StrSubstNo(ApplyEntryNoExpectedErr, ItemJournalLine.FieldCaption("Applies-from Entry")));
+        Assert.ExpectedTestFieldError(ItemJournalLine.FieldCaption("Applies-from Entry"), '');
     end;
 
     [Test]
@@ -190,7 +188,7 @@ codeunit 144006 "ERM Item Storno"
 
         asserterror CreateAndPostCorrSalesCrMemo(InvoiceNo, WorkDate(), 0, true);
 
-        Assert.ExpectedError(StrSubstNo(ApplyEntryNoExpectedErr, ItemJournalLine.FieldCaption("Applies-from Entry")));
+        Assert.ExpectedTestFieldError(ItemJournalLine.FieldCaption("Applies-from Entry"), '');
     end;
 
     [Test]
@@ -227,7 +225,7 @@ codeunit 144006 "ERM Item Storno"
 
         asserterror CreateAndPostCorrPurchCrMemo(InvoiceNo, WorkDate(), 0, true);
 
-        Assert.ExpectedError(StrSubstNo(ApplyEntryNoExpectedErr, ItemJournalLine.FieldCaption("Applies-to Entry")));
+        Assert.ExpectedTestFieldError(ItemJournalLine.FieldCaption("Applies-to Entry"), '');
     end;
 
     [Test]
@@ -255,7 +253,7 @@ codeunit 144006 "ERM Item Storno"
         // Verify error for Red Storno when Unit Cost (Revalued) > Unit Cost (Calculated).
         asserterror CorrectionForRevaluation(1, true);
 
-        Assert.ExpectedError(StrSubstNo(FieldErrorShortExpectedErr, ItemJournalLine.FieldCaption("Red Storno")));
+        Assert.ExpectedTestFieldError(ItemJournalLine.FieldCaption("Red Storno"), Format(false));
     end;
 
     [Test]
@@ -513,12 +511,10 @@ codeunit 144006 "ERM Item Storno"
     begin
         if InventoryPostingSetup.Get('', InvPostingGroupCode) then
             exit;
-        with InventoryPostingSetup do begin
-            LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, '', InvPostingGroupCode);
-            LibraryERM.FindGLAccount(GLAccount);
-            Validate("Inventory Account", GLAccount."No.");
-            Modify(true);
-        end;
+        LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, '', InvPostingGroupCode);
+        LibraryERM.FindGLAccount(GLAccount);
+        InventoryPostingSetup.Validate("Inventory Account", GLAccount."No.");
+        InventoryPostingSetup.Modify(true);
     end;
 
     local procedure CreateItemWithStartingData(var Quantity: Decimal; var Amount: Decimal): Code[20]
@@ -548,19 +544,17 @@ codeunit 144006 "ERM Item Storno"
         LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name", EntryType, ItemNo, Quantity);
 
-        with ItemJnlLine do begin
-            Validate("Posting Date", PostingDate);
-            Validate(Amount, CostAmt);
-            Validate("Red Storno", RedStorno);
-            if ApplyEntryNo <> 0 then
-                case CorrectedEntryType of
-                    "Entry Type"::"Positive Adjmt.":
-                        Validate("Applies-to Entry", ApplyEntryNo);
-                    "Entry Type"::"Negative Adjmt.":
-                        Validate("Applies-from Entry", ApplyEntryNo);
-                end;
-            Modify(true);
-        end;
+        ItemJnlLine.Validate("Posting Date", PostingDate);
+        ItemJnlLine.Validate(Amount, CostAmt);
+        ItemJnlLine.Validate("Red Storno", RedStorno);
+        if ApplyEntryNo <> 0 then
+            case CorrectedEntryType of
+                ItemJnlLine."Entry Type"::"Positive Adjmt.":
+                    ItemJnlLine.Validate("Applies-to Entry", ApplyEntryNo);
+                ItemJnlLine."Entry Type"::"Negative Adjmt.":
+                    ItemJnlLine.Validate("Applies-from Entry", ApplyEntryNo);
+            end;
+        ItemJnlLine.Modify(true);
 
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
     end;
@@ -666,36 +660,32 @@ codeunit 144006 "ERM Item Storno"
 
     local procedure CreateInvtDocumentHeader(var InvtDocumentHeader: Record "Invt. Document Header"; DocumentType: Enum "Invt. Doc. Document Type"; PostingDate: Date; NewCorrection: Boolean)
     begin
-        with InvtDocumentHeader do begin
-            Init();
-            "Document Type" := DocumentType;
-            Insert(true);
-            Validate("Posting Date", PostingDate);
-            Validate(Correction, NewCorrection);
-            Modify(true);
-        end;
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := DocumentType;
+        InvtDocumentHeader.Insert(true);
+        InvtDocumentHeader.Validate("Posting Date", PostingDate);
+        InvtDocumentHeader.Validate(Correction, NewCorrection);
+        InvtDocumentHeader.Modify(true);
     end;
 
     local procedure CreateInvtDocumentLine(InvtDocumentHeader: Record "Invt. Document Header"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; CorrectedDocType: Enum "Invt. Doc. Document Type"; ApplyEntryNo: Integer)
     var
         InvtDocumentLine: Record "Invt. Document Line";
     begin
-        with InvtDocumentLine do begin
-            Init();
-            Validate("Document Type", InvtDocumentHeader."Document Type");
-            Validate("Document No.", InvtDocumentHeader."No.");
-            Validate("Item No.", ItemNo);
-            Validate(Quantity, Qty);
-            Validate("Unit Cost", UnitCost);
-            if ApplyEntryNo <> 0 then
-                case CorrectedDocType of
-                    "Document Type"::Receipt:
-                        Validate("Applies-to Entry", ApplyEntryNo);
-                    "Document Type"::Shipment:
-                        Validate("Applies-from Entry", ApplyEntryNo);
-                end;
-            Insert(true);
-        end;
+        InvtDocumentLine.Init();
+        InvtDocumentLine.Validate("Document Type", InvtDocumentHeader."Document Type");
+        InvtDocumentLine.Validate("Document No.", InvtDocumentHeader."No.");
+        InvtDocumentLine.Validate("Item No.", ItemNo);
+        InvtDocumentLine.Validate(Quantity, Qty);
+        InvtDocumentLine.Validate("Unit Cost", UnitCost);
+        if ApplyEntryNo <> 0 then
+            case CorrectedDocType of
+                InvtDocumentLine."Document Type"::Receipt:
+                    InvtDocumentLine.Validate("Applies-to Entry", ApplyEntryNo);
+                InvtDocumentLine."Document Type"::Shipment:
+                    InvtDocumentLine.Validate("Applies-from Entry", ApplyEntryNo);
+            end;
+        InvtDocumentLine.Insert(true);
     end;
 
     local procedure CreateRevSalesCrMemoAfterInvoice(var SalesHeader: Record "Sales Header"; CorrectedDocNo: Code[20])
@@ -713,25 +703,21 @@ codeunit 144006 "ERM Item Storno"
     local procedure CreateRevSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CorrectedDocType: Option; CorrectedDocNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        with SalesHeader do begin
-            Validate(Correction, true);
-            Validate("Corrective Document", true);
-            Validate("Corrective Doc. Type", "Corrective Doc. Type"::Revision);
-            Validate("Revision No.", LibraryUtility.GenerateGUID());
-            Validate("Corrected Doc. Type", CorrectedDocType);
-            Validate("Corrected Doc. No.", CorrectedDocNo);
-            Modify(true);
-        end;
+        SalesHeader.Validate(Correction, true);
+        SalesHeader.Validate("Corrective Document", true);
+        SalesHeader.Validate("Corrective Doc. Type", SalesHeader."Corrective Doc. Type"::Revision);
+        SalesHeader.Validate("Revision No.", LibraryUtility.GenerateGUID());
+        SalesHeader.Validate("Corrected Doc. Type", CorrectedDocType);
+        SalesHeader.Validate("Corrected Doc. No.", CorrectedDocNo);
+        SalesHeader.Modify(true);
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PostingDate: Date; NewCorrection: Boolean)
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-            Validate("Posting Date", PostingDate);
-            Validate(Correction, NewCorrection);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate(Correction, NewCorrection);
+        SalesHeader.Modify(true);
     end;
 
     local procedure CreateAndPostCorrSalesCrMemo(InvoiceNo: Code[20]; PostingDate: Date; ApplyEntryNo: Integer; Correction: Boolean): Code[20]
@@ -760,13 +746,11 @@ codeunit 144006 "ERM Item Storno"
 
     local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PostingDate: Date; VendorNo: Code[20]; NewCorrection: Boolean)
     begin
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-            Validate("Posting Date", PostingDate);
-            Validate("Vendor Cr. Memo No.", "No.");
-            Validate(Correction, NewCorrection);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate(Correction, NewCorrection);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure CreatePurchLine(PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Qty: Decimal)
@@ -797,14 +781,12 @@ codeunit 144006 "ERM Item Storno"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::Item);
-            FindFirst();
-            Validate("Appl.-to Item Entry", ApplyEntryNo);
-            Modify(true);
-        end;
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Appl.-to Item Entry", ApplyEntryNo);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateAndPostFAAcquisition(DeprBookCode: Code[10]; CostAmt: Decimal) FANo: Code[20]
@@ -817,14 +799,12 @@ codeunit 144006 "ERM Item Storno"
 
         FANo := LibraryFixedAsset.CreateFixedAssetNo();
         LibraryERM.FindGLAccount(GLAccount);
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
-              "Document Type"::" ", "Account Type"::"Fixed Asset", FANo,
-              "Bal. Account Type"::"G/L Account", GLAccount."No.", CostAmt);
-            Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
+            GenJnlLine."Document Type"::" ", GenJnlLine."Account Type"::"Fixed Asset", FANo,
+            GenJnlLine."Bal. Account Type"::"G/L Account", GLAccount."No.", CostAmt);
+        GenJnlLine.Validate("FA Posting Type", GenJnlLine."FA Posting Type"::"Acquisition Cost");
+        GenJnlLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
@@ -849,18 +829,16 @@ codeunit 144006 "ERM Item Storno"
         GLAccount: Record "G/L Account";
     begin
         FindFAGenJournalBatch(GenJnlBatch, DeprBookCode, false);
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJnlBatch.Name);
-            SetRange("Account No.", FANo);
-            FindFirst();
+        GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJnlLine.SetRange("Account No.", FANo);
+        GenJnlLine.FindFirst();
 
-            "Document No." := LibraryUtility.GenerateGUID();
-            LibraryERM.FindGLAccount(GLAccount);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", GLAccount."No.");
-            Modify(true);
-        end;
+        GenJnlLine."Document No." := LibraryUtility.GenerateGUID();
+        LibraryERM.FindGLAccount(GLAccount);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", GLAccount."No.");
+        GenJnlLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         exit(GenJnlLine."Document No.");
@@ -880,12 +858,10 @@ codeunit 144006 "ERM Item Storno"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        with InventorySetup do begin
-            Get();
-            "Automatic Cost Posting" := true;
-            "Enable Red Storno" := true;
-            Modify();
-        end;
+        InventorySetup.Get();
+        InventorySetup."Automatic Cost Posting" := true;
+        InventorySetup."Enable Red Storno" := true;
+        InventorySetup.Modify();
     end;
 
     local procedure UpdateGLSetup()
@@ -902,11 +878,10 @@ codeunit 144006 "ERM Item Storno"
         SalesLine: Record "Sales Line";
     begin
         FindSalesLine(SalesLine, SalesHeader);
-        with SalesLine do
-            repeat
-                Validate("Quantity (After)", "Quantity (Before)" / LibraryRandom.RandIntInRange(3, 5));
-                Modify(true);
-            until Next() = 0;
+        repeat
+            SalesLine.Validate("Quantity (After)", SalesLine."Quantity (Before)" / LibraryRandom.RandIntInRange(3, 5));
+            SalesLine.Modify(true);
+        until SalesLine.Next() = 0;
     end;
 
     local procedure SetStornoOnDefaultDeprBook(Correction: Boolean): Code[10]
@@ -925,12 +900,10 @@ codeunit 144006 "ERM Item Storno"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Posting Date", PostingDate);
-            FindLast();
-            exit("Entry No.");
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Posting Date", PostingDate);
+        ItemLedgerEntry.FindLast();
+        exit(ItemLedgerEntry."Entry No.");
     end;
 
     local procedure FindLocationCode(): Code[10]
@@ -943,12 +916,10 @@ codeunit 144006 "ERM Item Storno"
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindFirst();
     end;
 
     local procedure GetCostAmountActual(EntryNo: Integer): Decimal
@@ -984,12 +955,10 @@ codeunit 144006 "ERM Item Storno"
         InvPostingSetup: Record "Inventory Posting Setup";
     begin
         Item.Get(ItemNo);
-        with InvPostingSetup do begin
-            Get('', Item."Inventory Posting Group");
-            InvAccountNoFilter := "Inventory Account";
-            Get(FindLocationCode(), Item."Inventory Posting Group");
-            InvAccountNoFilter += '|' + "Inventory Account";
-        end;
+        InvPostingSetup.Get('', Item."Inventory Posting Group");
+        InvAccountNoFilter := InvPostingSetup."Inventory Account";
+        InvPostingSetup.Get(FindLocationCode(), Item."Inventory Posting Group");
+        InvAccountNoFilter += '|' + InvPostingSetup."Inventory Account";
     end;
 
     local procedure GetInvoiceCorrDocLines(SalesHeader: Record "Sales Header"; SalesInvoiceNo: Code[20])
@@ -1008,69 +977,59 @@ codeunit 144006 "ERM Item Storno"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Posting Date", PostingDate);
-            FindLast();
-            Assert.AreNearlyEqual(ExpectedAmount, "Cost Amount (Actual)", 0.01,
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Cost Amount (Actual)")));
-            Assert.AreEqual(RedStorno, "Red Storno",
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Red Storno")));
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Posting Date", PostingDate);
+        ValueEntry.FindLast();
+        Assert.AreNearlyEqual(ExpectedAmount, ValueEntry."Cost Amount (Actual)", 0.01,
+          StrSubstNo(ValuesAreNotEqualErr, ValueEntry.TableCaption(), ValueEntry.FieldCaption("Cost Amount (Actual)")));
+        Assert.AreEqual(RedStorno, ValueEntry."Red Storno",
+          StrSubstNo(ValuesAreNotEqualErr, ValueEntry.TableCaption(), ValueEntry.FieldCaption("Red Storno")));
     end;
 
     local procedure VerifyValueEntryRedStorno(ItemNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; RedStorno: Boolean)
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(RedStorno, "Red Storno", FieldCaption("Red Storno"));
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Document Type", DocumentType);
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.FindFirst();
+        Assert.AreEqual(RedStorno, ValueEntry."Red Storno", ValueEntry.FieldCaption("Red Storno"));
     end;
 
     local procedure VerifyItemLedgerEntries(ItemNo: Code[20]; PostingDate: Date; ExpectedEntryType: Option; ExpectedQty: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Posting Date", PostingDate);
-            FindLast();
-            Assert.AreEqual(ExpectedEntryType, "Entry Type",
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Entry Type")));
-            Assert.AreEqual(ExpectedQty, Quantity,
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption(Quantity)));
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Posting Date", PostingDate);
+        ItemLedgerEntry.FindLast();
+        Assert.AreEqual(ExpectedEntryType, ItemLedgerEntry."Entry Type",
+          StrSubstNo(ValuesAreNotEqualErr, ItemLedgerEntry.TableCaption(), ItemLedgerEntry.FieldCaption("Entry Type")));
+        Assert.AreEqual(ExpectedQty, ItemLedgerEntry.Quantity,
+          StrSubstNo(ValuesAreNotEqualErr, ItemLedgerEntry.TableCaption(), ItemLedgerEntry.FieldCaption(Quantity)));
     end;
 
     local procedure VerifyGLEntries(AccountNoFilter: Text; DocumentNo: Code[20]; ExpectedAmount: Decimal; Sorting: Boolean)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            Ascending(Sorting);
-            SetFilter("G/L Account No.", AccountNoFilter);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", "Document Type"::" ");
-            FindSet();
-            VerifyGLDebitCredit(GLEntry, 0, ExpectedAmount);
-            Next();
-            VerifyGLDebitCredit(GLEntry, ExpectedAmount, 0);
-        end;
+        GLEntry.Ascending(Sorting);
+        GLEntry.SetFilter("G/L Account No.", AccountNoFilter);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
+        GLEntry.FindSet();
+        VerifyGLDebitCredit(GLEntry, 0, ExpectedAmount);
+        GLEntry.Next();
+        VerifyGLDebitCredit(GLEntry, ExpectedAmount, 0);
     end;
 
     local procedure VerifyGLDebitCredit(var GLEntry: Record "G/L Entry"; ExpectedDebit: Decimal; ExpectedCredit: Decimal)
     begin
-        with GLEntry do begin
-            Assert.AreNearlyEqual(ExpectedDebit, "Debit Amount", 0.01,
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Debit Amount")));
-            Assert.AreNearlyEqual(ExpectedCredit, "Credit Amount", 0.01,
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Credit Amount")));
-        end;
+        Assert.AreNearlyEqual(ExpectedDebit, GLEntry."Debit Amount", 0.01,
+          StrSubstNo(ValuesAreNotEqualErr, GLEntry.TableCaption(), GLEntry.FieldCaption("Debit Amount")));
+        Assert.AreNearlyEqual(ExpectedCredit, GLEntry."Credit Amount", 0.01,
+          StrSubstNo(ValuesAreNotEqualErr, GLEntry.TableCaption(), GLEntry.FieldCaption("Credit Amount")));
     end;
 
     local procedure CalcSign(var CorrSign: Integer; var ExpectedSign: Integer; EntryType: Enum "Item Ledger Entry Type"; RedStorno: Boolean)

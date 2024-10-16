@@ -341,13 +341,29 @@ table 14925 "VAT Allocation Line"
 
     var
         GLAcc: Record "G/L Account";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 must be positive.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 must be negative.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VATEntry: Record "VAT Entry";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Sum of Amount must not be greater than %1 in VAT Allocation line field VAT Amount.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DimMgt: Codeunit DimensionManagement;
         SkipChecking: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Sum of Amount must not be greater than Remaining Unrealized Amount in VAT Entry No. %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure UpdateAllocations(var GenJnlLine: Record "Gen. Journal Line"; ManualAmount: Boolean)

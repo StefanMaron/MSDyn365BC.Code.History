@@ -365,13 +365,11 @@ codeunit 144016 "ERM G/L Correspodence"
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(20));
-        with VATPostingSetup do begin
-            Validate("VAT %", LibraryRandom.RandIntInRange(10, 30));
-            Validate("Trans. VAT Type", TransVATType);
-            if "Trans. VAT Type" <> "Trans. VAT Type"::" " then
-                Validate("Trans. VAT Account", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(10, 30));
+        VATPostingSetup.Validate("Trans. VAT Type", TransVATType);
+        if VATPostingSetup."Trans. VAT Type" <> VATPostingSetup."Trans. VAT Type"::" " then
+            VATPostingSetup.Validate("Trans. VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -423,17 +421,15 @@ codeunit 144016 "ERM G/L Correspodence"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "G/L Account No." := GLAccountNo;
-            "Debit Amount" := DebitAmount;
-            "Credit Amount" := CreditAmount;
-            Amount := DebitAmount - CreditAmount;
-            "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
-            "Transaction No." := TransactionNo;
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."G/L Account No." := GLAccountNo;
+        GLEntry."Debit Amount" := DebitAmount;
+        GLEntry."Credit Amount" := CreditAmount;
+        GLEntry.Amount := DebitAmount - CreditAmount;
+        GLEntry."Bal. Account Type" := GLEntry."Bal. Account Type"::"G/L Account";
+        GLEntry."Transaction No." := TransactionNo;
+        GLEntry.Insert();
     end;
 
     local procedure PurchaseInvoiceGLCorrespondence(TransVATType: Option)
@@ -450,14 +446,12 @@ codeunit 144016 "ERM G/L Correspodence"
 
     local procedure PostPrepaymentGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Code[20]
     begin
-        with GenJnlLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJnlLine, "Document Type"::Payment, AccountType, AccountNo, LibraryRandom.RandDec(100, 2));
-            Validate(Prepayment, true);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            exit("Document No.");
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJnlLine, GenJnlLine."Document Type"::Payment, AccountType, AccountNo, LibraryRandom.RandDec(100, 2));
+        GenJnlLine.Validate(Prepayment, true);
+        GenJnlLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure SalesInvoiceGLCorrespondence(TransVATType: Option)
@@ -474,13 +468,11 @@ codeunit 144016 "ERM G/L Correspodence"
 
     local procedure SetGLCorrEntryFiltersAndVerify(var GLCorrEntry: Record "G/L Correspondence Entry"; DebitAccNo: Code[20]; CreditAccNo: Code[20]; EntryAmount: Decimal)
     begin
-        with GLCorrEntry do begin
-            SetRange("Debit Account No.", DebitAccNo);
-            SetRange("Credit Account No.", CreditAccNo);
-            SetRange(Amount, EntryAmount);
-            Assert.IsTrue(
-              not IsEmpty, StrSubstNo(GLCorrEntryErr, DebitAccNo, CreditAccNo, EntryAmount));
-        end;
+        GLCorrEntry.SetRange("Debit Account No.", DebitAccNo);
+        GLCorrEntry.SetRange("Credit Account No.", CreditAccNo);
+        GLCorrEntry.SetRange(Amount, EntryAmount);
+        Assert.IsTrue(
+          not GLCorrEntry.IsEmpty, StrSubstNo(GLCorrEntryErr, DebitAccNo, CreditAccNo, EntryAmount));
     end;
 
     local procedure SetAutomaticGLCorrespondence(NewValue: Boolean)
@@ -584,13 +576,12 @@ codeunit 144016 "ERM G/L Correspodence"
 
         InitialGLCorrespondenceEntry.FindSet();
         ReversedGLCorrespondenceEntry.FindSet();
-        with InitialGLCorrespondenceEntry do
-            repeat
-                Assert.AreEqual("Debit Account No.", ReversedGLCorrespondenceEntry."Debit Account No.", FieldCaption("Debit Account No."));
-                Assert.AreEqual("Credit Account No.", ReversedGLCorrespondenceEntry."Credit Account No.", FieldCaption("Credit Account No."));
-                Assert.AreEqual(-Amount, ReversedGLCorrespondenceEntry.Amount, FieldCaption(Amount));
-                ReversedGLCorrespondenceEntry.Next();
-            until Next() = 0;
+        repeat
+            Assert.AreEqual(InitialGLCorrespondenceEntry."Debit Account No.", ReversedGLCorrespondenceEntry."Debit Account No.", InitialGLCorrespondenceEntry.FieldCaption("Debit Account No."));
+            Assert.AreEqual(InitialGLCorrespondenceEntry."Credit Account No.", ReversedGLCorrespondenceEntry."Credit Account No.", InitialGLCorrespondenceEntry.FieldCaption("Credit Account No."));
+            Assert.AreEqual(-InitialGLCorrespondenceEntry.Amount, ReversedGLCorrespondenceEntry.Amount, InitialGLCorrespondenceEntry.FieldCaption(Amount));
+            ReversedGLCorrespondenceEntry.Next();
+        until InitialGLCorrespondenceEntry.Next() = 0;
     end;
 
     local procedure VerifyGLCorrespondenceAccount(DocumentNo: Code[20]; DebitAccountNo: Code[20]; CreditAccountNo: Code[20])

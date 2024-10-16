@@ -42,10 +42,10 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         CannotDeleteAnAttachmentThatDoesntExistErr: Label 'You cannot delete an attachment that does not exist.';
         EmptyGuid: Guid;
         AttachmentLinkedToAnotherDocumentErr: Label 'The attachment is linked to another document than you specified.';
-        CannotFindRelatedDocumentErr: Label 'Cannot find a document which the attachment is linked to.';
         DocumentTypeInvalidErr: Label 'Document type is not valid.';
         UnsopportedDocumentTypeErr: Label 'The selected Document type %1 is not supported.', Comment = '%1 name of document type, e.g. Journal, Cusotmer, Item, Sales Invoice...';
         CannotFindParentKeyErr: Label 'Cannot find the No. field on the parent record. Double check if the proper type is provided.';
+        AttachmentLoadLimitExceededErr: Label 'Loading more than %1 attachments is not supported. Set a filter to reduce the response size.', Comment = '%1 - an integer';
 
     [Scope('Cloud')]
     procedure LoadDocumentAttachments(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; DocumentFilter: Text)
@@ -473,6 +473,25 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     end;
 
     [Scope('Cloud')]
+    procedure LoadAttachmentsWithoutDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; AttachmentIdFilter: Text)
+    var
+        DocumentRecordRef: RecordRef;
+        DocumentId: Guid;
+    begin
+        TempAttachmentEntityBuffer.Reset();
+        TempAttachmentEntityBuffer.DeleteAll();
+
+        LoadAttachmentsToBuffer(TempAttachmentEntityBuffer, AttachmentIdFilter);
+        if TempAttachmentEntityBuffer.FindSet() then
+            repeat
+                TempAttachmentEntityBuffer."Document Id" := DocumentId;
+                if IsGLEntry(DocumentRecordRef) then
+                    TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::Journal;
+                TempAttachmentEntityBuffer.Modify(true);
+            until TempAttachmentEntityBuffer.Next() = 0;
+    end;
+
+    [Scope('Cloud')]
     procedure PropagateInsertAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
     var
         ErrorMsg: Text;
@@ -504,6 +523,15 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         if PropagateInsertLinkedAttachmentWithDocumentType(TempAttachmentEntityBuffer, TempFieldBuffer, ErrorMsg) then
             exit;
         PropagateInsertUnlinkedAttachment(TempAttachmentEntityBuffer, TempFieldBuffer);
+    end;
+
+    [Scope('Cloud')]
+    procedure PropagateInsertAttachmentSafeWithoutDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
+    var
+        ErrorMsg: Text;
+    begin
+        if PropagateInsertAttachmentWithoutDocumentType(TempAttachmentEntityBuffer, TempFieldBuffer, ErrorMsg) then
+            exit;
     end;
 
 
@@ -541,9 +569,9 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
         LastUsedIncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         if not LastUsedIncomingDocumentAttachment.FindLast() then
-            LineNo := 10000
+            LineNo := GetIncrement()
         else
-            LineNo := LastUsedIncomingDocumentAttachment."Line No." + 10000;
+            LineNo := LastUsedIncomingDocumentAttachment."Line No." + GetIncrement();
 
         if not IsNullGuid(TempAttachmentEntityBuffer.Id) then begin
             IncomingDocumentAttachment.SetRange(SystemId, TempAttachmentEntityBuffer.Id);
@@ -576,6 +604,60 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             AttachmentId := UnlinkedAttachment.SystemId;
             UnlinkedAttachment.Delete(true);
             AttachmentRecordRef.GetTable(IncomingDocumentAttachment);
+        end;
+
+        TempAttachmentEntityBuffer.Id := IncomingDocumentAttachment.SystemId;
+
+        exit(true);
+    end;
+
+    local procedure GetIncrement(): Integer
+    begin
+        exit(10000);
+    end;
+
+    local procedure PropagateInsertAttachmentWithoutDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary; var ErrorMsg: Text): Boolean
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        LastUsedIncomingDocumentAttachment: Record "Incoming Document Attachment";
+        LineNo: Integer;
+        Name: Text[250];
+        Extension: Text[30];
+    begin
+        FileNameToNameAndExtension(TempAttachmentEntityBuffer."File Name", Name, Extension);
+        IncomingDocument.Description := CopyStr(Name, 1, MaxStrLen(IncomingDocument.Description));
+        IncomingDocument.Insert(true);
+
+        LastUsedIncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        if not LastUsedIncomingDocumentAttachment.FindLast() then
+            LineNo := GetIncrement()
+        else
+            LineNo := LastUsedIncomingDocumentAttachment."Line No." + GetIncrement();
+
+        if not IsNullGuid(TempAttachmentEntityBuffer.Id) then begin
+            IncomingDocumentAttachment.SetRange(SystemId, TempAttachmentEntityBuffer.Id);
+            if IncomingDocumentAttachment.FindFirst() then begin
+                ErrorMsg := CannotInsertAnAttachmentThatAlreadyExistsErr;
+                exit(false);
+            end;
+        end;
+
+        TransferToIncomingDocumentAttachment(TempAttachmentEntityBuffer, IncomingDocumentAttachment, TempFieldBuffer, true);
+        IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        IncomingDocumentAttachment."Line No." := LineNo;
+        IncomingDocumentAttachment.Name := Name;
+        IncomingDocumentAttachment."File Extension" := Extension;
+        if IncomingDocument.Posted then begin
+            IncomingDocumentAttachment."Document No." := IncomingDocument."Document No.";
+            IncomingDocumentAttachment."Posting Date" := IncomingDocument."Posting Date";
+        end;
+
+        if IsNullGuid(TempAttachmentEntityBuffer.Id) then
+            IncomingDocumentAttachment.Insert(true)
+        else begin
+            IncomingDocumentAttachment.SystemId := TempAttachmentEntityBuffer.Id;
+            IncomingDocumentAttachment.Insert(true, true);
         end;
 
         TempAttachmentEntityBuffer.Id := IncomingDocumentAttachment.SystemId;
@@ -655,9 +737,9 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
         LastUsedIncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         if not LastUsedIncomingDocumentAttachment.FindLast() then
-            LineNo := 10000
+            LineNo := GetIncrement()
         else
-            LineNo := LastUsedIncomingDocumentAttachment."Line No." + 10000;
+            LineNo := LastUsedIncomingDocumentAttachment."Line No." + GetIncrement();
 
         if not IsNullGuid(TempAttachmentEntityBuffer.Id) then
             if IncomingDocumentAttachment.GetBySystemId(TempAttachmentEntityBuffer.Id) then begin
@@ -810,6 +892,20 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         Error(CannotModifyAnAttachmentThatDoesntExistErr);
     end;
 
+    [Scope('Cloud')]
+    procedure PropagateModifyAttachmentWithoutDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+    begin
+        IncomingDocumentAttachment.SetAutoCalcFields(Content);
+        if not IncomingDocumentAttachment.GetBySystemId(TempAttachmentEntityBuffer.Id) then
+            Error(CannotModifyAnAttachmentThatDoesntExistErr);
+        IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
+        TransferToIncomingDocumentAttachment(TempAttachmentEntityBuffer, IncomingDocumentAttachment, TempFieldBuffer, false);
+        IncomingDocumentAttachment.Modify(true);
+    end;
+
     procedure PropagateDeleteAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary)
     var
         DocumentAttachment: Record "Document Attachment";
@@ -836,14 +932,16 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
         DocumentIdFilter := GetDocumentIdFilter(TempAttachmentEntityBuffer);
         GLEntryNoFilter := GetGLEntryNoFilter(TempAttachmentEntityBuffer);
-        if GLEntryNoFilter <> '' then
-            FindParentDocument(GLEntryNoFilter, DocumentRecordRef)
-        else
-            FindParentDocument(DocumentIdFilter, DocumentRecordRef);
-        if not FindIncomingDocument(DocumentRecordRef, IncomingDocument) then
-            Error(AttachmentLinkedToAnotherDocumentErr);
+        if DocumentIdFilter <> '' then begin
+            if GLEntryNoFilter <> '' then
+                FindParentDocument(GLEntryNoFilter, DocumentRecordRef)
+            else
+                FindParentDocument(DocumentIdFilter, DocumentRecordRef);
+            if not FindIncomingDocument(DocumentRecordRef, IncomingDocument) then
+                Error(AttachmentLinkedToAnotherDocumentErr);
+            VerifyCRUDIsPossible(DocumentRecordRef);
+        end;
 
-        VerifyCRUDIsPossible(DocumentRecordRef);
         DeleteLinkedAttachment(IncomingDocumentAttachment, IncomingDocument);
     end;
 
@@ -883,6 +981,33 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             Error(AttachmentLinkedToAnotherDocumentErr);
 
         VerifyCRUDIsPossible(DocumentRecordRef);
+        DeleteLinkedAttachment(IncomingDocumentAttachment, IncomingDocument);
+    end;
+
+    procedure PropagateDeleteAttachmentWithoutDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary)
+    var
+        DocumentAttachment: Record "Document Attachment";
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        UnlinkedAttachment: Record "Unlinked Attachment";
+    begin
+        if TempAttachmentEntityBuffer."Attachment Type" = TempAttachmentEntityBuffer."Attachment Type"::"Document Attachment" then begin
+            DocumentAttachment.GetBySystemId(TempAttachmentEntityBuffer.Id);
+            DocumentAttachment.Delete(true);
+            exit;
+        end;
+
+        if FindUnlinkedAttachment(TempAttachmentEntityBuffer.Id, UnlinkedAttachment) then begin
+            UnlinkedAttachment.Delete(true);
+            exit;
+        end;
+
+        if not IncomingDocumentAttachment.GetBySystemId(TempAttachmentEntityBuffer.Id) then
+            Error(CannotDeleteAnAttachmentThatDoesntExistErr);
+
+        if not IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.") then
+            Error(AttachmentLinkedToAnotherDocumentErr);
+
         DeleteLinkedAttachment(IncomingDocumentAttachment, IncomingDocument);
     end;
 
@@ -1467,7 +1592,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
 
         if not IncomingDocument.GetRecord(DocumentVariant) then
-            Error(CannotFindRelatedDocumentErr);
+            exit(EmptyGuid);
 
         DocumentRecordRef.GetTable(DocumentVariant);
 
@@ -1998,6 +2123,42 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             TempAttachmentEntityBuffer."Byte Size" := GetContentLength(TempBlob);
             TempAttachmentEntityBuffer.Modify(true);
         until IncomingDocumentAttachment.Next() = 0;
+    end;
+
+    local procedure LoadAttachmentsToBuffer(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; AttachmentIdFilter: Text)
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+        LoadContent: Boolean;
+        LoadedAttachmentCounter: Integer;
+    begin
+        LoadedAttachmentCounter := 0;
+        LoadContent := AttachmentIdFilter <> '';
+        if LoadContent then
+            IncomingDocumentAttachment.SetFilter(SystemId, AttachmentIdFilter);
+
+        if not IncomingDocumentAttachment.FindSet() then
+            exit;
+
+        repeat
+            if LoadedAttachmentCounter > AttachmentLoadUpperLimit() then
+                Error(AttachmentLoadLimitExceededErr, Format(AttachmentLoadUpperLimit()));
+
+            if LoadContent then
+                IncomingDocumentAttachment.CalcFields(Content); // Needed for transferring
+            TransferFromIncomingDocumentAttachment(TempAttachmentEntityBuffer, IncomingDocumentAttachment);
+            LoadedAttachmentCounter += 1;
+            if not LoadContent then
+                IncomingDocumentAttachment.CalcFields(Content); // Needed for getting content length
+            TempBlob.FromRecord(IncomingDocumentAttachment, IncomingDocumentAttachment.FieldNo(Content));
+            TempAttachmentEntityBuffer."Byte Size" := GetContentLength(TempBlob);
+            TempAttachmentEntityBuffer.Modify(true);
+        until IncomingDocumentAttachment.Next() = 0;
+    end;
+
+    local procedure AttachmentLoadUpperLimit(): Integer
+    begin
+        exit(100000);
     end;
 
     local procedure LoadUnlinkedAttachmentsToBuffer(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; AttachmentIdFilter: Text)

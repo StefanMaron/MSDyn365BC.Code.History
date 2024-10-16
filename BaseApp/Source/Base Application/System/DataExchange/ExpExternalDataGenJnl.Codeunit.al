@@ -20,7 +20,9 @@ codeunit 1277 "Exp. External Data Gen. Jnl."
     end;
 
     var
+#pragma warning disable AA0470
         ExternalContentErr: Label '%1 is empty.';
+#pragma warning restore AA0470
         DownloadFromStreamErr: Label 'The file has not been saved.';
         TxtExtTok: Label '.txt', Locked = true;
 

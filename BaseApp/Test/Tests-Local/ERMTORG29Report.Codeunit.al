@@ -341,11 +341,9 @@ codeunit 144712 "ERM TORG-29 Report"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            Init();
-            Insert(true);
-            exit("No.");
-        end;
+        Item.Init();
+        Item.Insert(true);
+        exit(Item."No.");
     end;
 
     local procedure MockSalesPriceListLine(ItemNo: Code[20]; PostingDate: Date): Decimal
@@ -367,17 +365,15 @@ codeunit 144712 "ERM TORG-29 Report"
     var
         SalesPrice: Record "Sales Price";
     begin
-        with SalesPrice do begin
-            Init();
-            "Item No." := ItemNo;
-            "Sales Type" := "Sales Type"::"All Customers";
-            "Sales Code" := '';
-            "Starting Date" := PostingDate;
-            "Ending Date" := PostingDate;
-            "Unit Price" := LibraryRandom.RandDec(100, 2);
-            Insert();
-            exit("Unit Price");
-        end;
+        SalesPrice.Init();
+        SalesPrice."Item No." := ItemNo;
+        SalesPrice."Sales Type" := SalesPrice."Sales Type"::"All Customers";
+        SalesPrice."Sales Code" := '';
+        SalesPrice."Starting Date" := PostingDate;
+        SalesPrice."Ending Date" := PostingDate;
+        SalesPrice."Unit Price" := LibraryRandom.RandDec(100, 2);
+        SalesPrice.Insert();
+        exit(SalesPrice."Unit Price");
     end;
 #endif
 
@@ -385,24 +381,20 @@ codeunit 144712 "ERM TORG-29 Report"
     var
         Employee: Record Employee;
     begin
-        with Employee do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-            exit("No.");
-        end;
+        Employee.Init();
+        Employee."No." := LibraryUtility.GenerateGUID();
+        Employee.Insert();
+        exit(Employee."No.");
     end;
 
     local procedure MockSimpleLocation(): Code[10]
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Insert();
-            exit(Code);
-        end;
+        Location.Init();
+        Location.Code := LibraryUtility.GenerateGUID();
+        Location.Insert();
+        exit(Location.Code);
     end;
 
     local procedure MockCostAmountValueEntries(var TempValueEntry: Record "Value Entry"; ItemNo: Code[20]; LocationCode: Code[10]; PostingDate: Date; Sign: Integer)
@@ -427,21 +419,19 @@ codeunit 144712 "ERM TORG-29 Report"
     local procedure MockValueEntry(var ValueEntry: Record "Value Entry"; var ItemEntryNo: Integer; var ValueEntryNo: Integer; ItemNo: Code[20]; PostingDate: Date; LocationCode: Code[10]; Sign: Integer)
     begin
         ValueEntryNo += 1;
-        with ValueEntry do begin
-            Init();
-            "Entry No." := ValueEntryNo;
-            "Document Type" := "Document Type"::"Sales Invoice";
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Item No." := ItemNo;
-            "Posting Date" := PostingDate;
-            "Location Code" := LocationCode;
-            "Item Ledger Entry Quantity" := Sign * LibraryRandom.RandInt(100);
-            "Cost Amount (Actual)" := Sign * LibraryRandom.RandDec(100, 2);
-            "Sales Amount (Actual)" := Round("Cost Amount (Actual)" * LibraryRandom.RandInt(10));
-            "Item Ledger Entry No." := MockItemLedgEntry(ItemEntryNo);
-            Positive := Sign > 0;
-            Insert();
-        end;
+        ValueEntry.Init();
+        ValueEntry."Entry No." := ValueEntryNo;
+        ValueEntry."Document Type" := ValueEntry."Document Type"::"Sales Invoice";
+        ValueEntry."Document No." := LibraryUtility.GenerateGUID();
+        ValueEntry."Item No." := ItemNo;
+        ValueEntry."Posting Date" := PostingDate;
+        ValueEntry."Location Code" := LocationCode;
+        ValueEntry."Item Ledger Entry Quantity" := Sign * LibraryRandom.RandInt(100);
+        ValueEntry."Cost Amount (Actual)" := Sign * LibraryRandom.RandDec(100, 2);
+        ValueEntry."Sales Amount (Actual)" := Round(ValueEntry."Cost Amount (Actual)" * LibraryRandom.RandInt(10));
+        ValueEntry."Item Ledger Entry No." := MockItemLedgEntry(ItemEntryNo);
+        ValueEntry.Positive := Sign > 0;
+        ValueEntry.Insert();
     end;
 
     local procedure MockItemLedgEntry(var EntryNo: Integer): Integer
@@ -449,12 +439,10 @@ codeunit 144712 "ERM TORG-29 Report"
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         EntryNo += 1;
-        with ItemLedgEntry do begin
-            Init();
-            "Entry No." := EntryNo;
-            Insert();
-            exit("Entry No.");
-        end;
+        ItemLedgEntry.Init();
+        ItemLedgEntry."Entry No." := EntryNo;
+        ItemLedgEntry.Insert();
+        exit(ItemLedgEntry."Entry No.");
     end;
 
     local procedure EnableNewPricing()
@@ -487,11 +475,9 @@ codeunit 144712 "ERM TORG-29 Report"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetCurrentKey("Posting Date", "Item No.");
-            FindLast();
-            exit("Posting Date");
-        end;
+        ValueEntry.SetCurrentKey("Posting Date", "Item No.");
+        ValueEntry.FindLast();
+        exit(ValueEntry."Posting Date");
     end;
 
     local procedure VerifyReportLineValuesFromBuffer(var TempValueEntryResid: Record "Value Entry" temporary; var TempValueEntryRcpt: Record "Value Entry" temporary; var TempValueEntryShpt: Record "Value Entry" temporary)
@@ -505,31 +491,27 @@ codeunit 144712 "ERM TORG-29 Report"
         LibraryReportValidation.VerifyCellValue(25, 13, Format(TempValueEntryResid."Cost Amount (Actual)"));
         RowShift := 0;
 
-        with TempValueEntryRcpt do begin
-            FindSet();
-            repeat
-                VerifyLineValue(
-                  RowShift, Format("Posting Date"), "Document No.", Format("Cost Amount (Actual)"), Format(-"Cost Amount (Actual)"));
-            until Next() = 0;
-            LineRowId := 28 + RowShift;
-            CalcSums("Cost Amount (Actual)");
-            LibraryReportValidation.VerifyCellValue(LineRowId, 13, Format("Cost Amount (Actual)"));
-            LibraryReportValidation.VerifyCellValue(LineRowId + 1, 13, Format(-"Cost Amount (Actual)"));
-            LibraryReportValidation.VerifyCellValue(LineRowId + 2, 13, Format(ResidOnStart));
-        end;
+        TempValueEntryRcpt.FindSet();
+        repeat
+            VerifyLineValue(
+              RowShift, Format(TempValueEntryRcpt."Posting Date"), TempValueEntryRcpt."Document No.", Format(TempValueEntryRcpt."Cost Amount (Actual)"), Format(-TempValueEntryRcpt."Cost Amount (Actual)"));
+        until TempValueEntryRcpt.Next() = 0;
+        LineRowId := 28 + RowShift;
+        TempValueEntryRcpt.CalcSums("Cost Amount (Actual)");
+        LibraryReportValidation.VerifyCellValue(LineRowId, 13, Format(TempValueEntryRcpt."Cost Amount (Actual)"));
+        LibraryReportValidation.VerifyCellValue(LineRowId + 1, 13, Format(-TempValueEntryRcpt."Cost Amount (Actual)"));
+        LibraryReportValidation.VerifyCellValue(LineRowId + 2, 13, Format(ResidOnStart));
 
         RowShift += 9;
-        with TempValueEntryShpt do begin
-            FindSet();
-            repeat
-                VerifyLineValue(
-                  RowShift, Format("Posting Date"), "Document No.", Format(-"Cost Amount (Actual)"), Format(-"Cost Amount (Actual)"));
-            until Next() = 0;
-            LineRowId := 28 + RowShift;
-            CalcSums("Cost Amount (Actual)");
-            LibraryReportValidation.VerifyCellValue(LineRowId, 13, Format(-"Cost Amount (Actual)"));
-            LibraryReportValidation.VerifyCellValue(LineRowId + 1, 13, Format(ResidOnStart));
-        end;
+        TempValueEntryShpt.FindSet();
+        repeat
+            VerifyLineValue(
+              RowShift, Format(TempValueEntryShpt."Posting Date"), TempValueEntryShpt."Document No.", Format(-TempValueEntryShpt."Cost Amount (Actual)"), Format(-TempValueEntryShpt."Cost Amount (Actual)"));
+        until TempValueEntryShpt.Next() = 0;
+        LineRowId := 28 + RowShift;
+        TempValueEntryShpt.CalcSums("Cost Amount (Actual)");
+        LibraryReportValidation.VerifyCellValue(LineRowId, 13, Format(-TempValueEntryShpt."Cost Amount (Actual)"));
+        LibraryReportValidation.VerifyCellValue(LineRowId + 1, 13, Format(ResidOnStart));
     end;
 
     local procedure VerifyLineValue(var RowShift: Integer; PostingDate: Text; DocNo: Text; LineAmount: Text; LineAmountWithCosts: Text)
@@ -550,16 +532,14 @@ codeunit 144712 "ERM TORG-29 Report"
     begin
         Assert.AreEqual(2, ErrorsCount, WrongErrorsCountErr);
         i := 0;
-        with ValueEntry do begin
-            FindSet();
-            repeat
-                i += 1;
-                ErrorBuffer.Get(i);
-                ErrorBuffer.TestField("Item No.", "Item No.");
-                ErrorBuffer.TestField("Posting Date", "Posting Date");
-                ErrorBuffer.TestField(Description, NoPriceFoundTxt);
-            until Next() = 0;
-        end;
+        ValueEntry.FindSet();
+        repeat
+            i += 1;
+            ErrorBuffer.Get(i);
+            ErrorBuffer.TestField("Item No.", ValueEntry."Item No.");
+            ErrorBuffer.TestField("Posting Date", ValueEntry."Posting Date");
+            ErrorBuffer.TestField(Description, NoPriceFoundTxt);
+        until ValueEntry.Next() = 0;
     end;
 }
 

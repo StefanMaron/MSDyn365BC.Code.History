@@ -44,9 +44,7 @@ report 12458 "Posted Cash Ingoing Order"
                             SettlAccNo := BankGLAccPostingGr."G/L Account No.";
                         end;
                     "Bal. Account Type"::"G/L Account":
-                        begin
-                            SettlAccNo := "Bal. Account No."
-                        end;
+                        SettlAccNo := "Bal. Account No."
                 end;
 
                 DocAmount := "Debit Amount";
@@ -124,7 +122,9 @@ report 12458 "Posted Cash Ingoing Order"
         PaymentCheckNo: Text[20];
         CashierFullName: Text[100];
         WrittenAmountNumber: Text[250];
+#pragma warning disable AA0470
         AmountCurrencyTxt: Label '%1 rub. %2 kop.';
+#pragma warning restore AA0470
         CurrencyText: Text[30];
         MinusTxt: Label '(minus) ';
         FileName: Text;

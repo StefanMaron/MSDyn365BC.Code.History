@@ -83,8 +83,16 @@ report 12453 "Return Prepayment"
         PostingDate: Date;
         DocumentNo: Code[20];
         PostDescription: Text[30];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12401: Label 'Payment %1 on %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12402: Label 'Payment %1 on %2 was successfully posted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VATPrepmtPost: Codeunit "VAT Prepayment-Post";
         EntryType: Option Sale,Purchase;
         Correction: Boolean;

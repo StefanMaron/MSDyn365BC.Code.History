@@ -593,7 +593,7 @@ page 5091 Segment
                     begin
                         SegLineLocal.SetRange("Segment No.", Rec."No.");
                         if EnvironmentInfo.IsSaaS() then begin
-                            EditinExcelFilters.AddField(ODataUtility.ExternalizeName(SegLineLocal.FieldName(SegLineLocal."Segment No.")), Enum::"Edit in Excel Filter Type"::Equal, Rec."No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                            EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(SegLineLocal.FieldName(SegLineLocal."Segment No.")), Enum::"Edit in Excel Filter Type"::Equal, Rec."No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
                             EditinExcel.EditPageInExcel(Text.CopyStr(CurrPage.Caption, 1, 240), Page::"Segment Subform", EditinExcelFilters)
                         end
                         else

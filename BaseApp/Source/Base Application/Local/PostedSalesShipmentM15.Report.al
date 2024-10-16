@@ -104,7 +104,7 @@ report 12473 "Posted Sales Shipment M-15"
                 CheckSignature(ReceivedBy, ReceivedBy."Employee Type"::ReceivedBy);
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -113,7 +113,6 @@ report 12473 "Posted Sales Shipment M-15"
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
             end;
         }
     }

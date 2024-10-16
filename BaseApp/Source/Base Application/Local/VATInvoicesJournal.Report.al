@@ -137,8 +137,12 @@ report 14927 "VAT Invoices Journal"
         ShowCorrection: Boolean;
         StartDate: Date;
         EndDate: Date;
+#pragma warning disable AA0074
         Text001: Label 'Issued VAT Invoices \@1@@@@@@@@@@@@@@@';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Received VAT Invoices \@1@@@@@@@@@@@@@@@';
+#pragma warning restore AA0074
         FileNameSilent: Text;
 
     [Scope('OnPrem')]

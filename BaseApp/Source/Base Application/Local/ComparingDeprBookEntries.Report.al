@@ -294,11 +294,10 @@ report 14970 "Comparing Depr. Book Entries"
                         PrevGroup := FixedAsset."Depreciation Group"
                 end;
 
-                if RollUpByDeprGroup then begin
+                if RollUpByDeprGroup then
                     if GetFilters <> '' then
                         if not Confirm(Text004) then
                             Error('');
-                end;
 
                 FADeprGroup := '';
                 FALink.Open(DATABASE::"Fixed Asset");
@@ -429,9 +428,15 @@ report 14970 "Comparing Depr. Book Entries"
         DeprBookCode1: Code[10];
         DeprBookCode2: Code[10];
         ReportDate: Date;
+#pragma warning disable AA0074
         Text001: Label 'Please define two depreciation books to compare.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Date of the end of the period should not be more dates of its beginning.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text000: Label 'Comparing of depreciation books operations for the period: ';
+#pragma warning restore AA0074
         Heading: Text[150];
         StartDate: Date;
         Totals: array[2, 5] of Decimal;
@@ -446,8 +451,14 @@ report 14970 "Comparing Depr. Book Entries"
         RollUpByDeprGroup: Boolean;
         ClearGroupTotal: Boolean;
         PrevGroup: Code[10];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Depr. Group %1 %2 Total';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'There are some FA which do not included to the report. Continue?';
+#pragma warning restore AA0074
         CurrentDate: Text[30];
         FADeprGroup: Code[10];
         RollUpGrCheckBoxEnable: Boolean;

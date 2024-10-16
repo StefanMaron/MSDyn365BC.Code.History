@@ -17,9 +17,6 @@ codeunit 134155 "ERM Table Fields UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         BalAccountNoConfirmTxt: Label 'The %1 %2 has a %3 %4.\\Do you still want to use %1 %2 in this journal line';
         LibraryERM: Codeunit "Library - ERM";
-#if not CLEAN22
-        LibraryInventory: Codeunit "Library - Inventory";
-#endif
         LibraryTablesUT: Codeunit "Library - Tables UT";
 
     [Test]
@@ -474,32 +471,6 @@ codeunit 134155 "ERM Table Fields UT"
         Item.Find();
         Item.TestField("Cost is Adjusted", true);
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure ChangingTariffNoForIntrastatJnlLineWithItemNo()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TariffNumber: Record "Tariff Number";
-    begin
-        // [FEATURE] [Intrastat]
-        // [SCENARIO 304876] It is possible to change "Tariff No." for Intrastat Journal Line with not empty "Item No."
-
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.Validate("Item No.", LibraryInventory.CreateItemNo());
-        TariffNumber.Init();
-        TariffNumber."No." := LibraryUtility.GenerateRandomCode20(TariffNumber.FieldNo("No."), DATABASE::"Tariff Number");
-        TariffNumber.Insert();
-
-        IntrastatJnlLine.Validate("Tariff No.", TariffNumber."No.");
-
-        IntrastatJnlLine.TestField("Tariff No.", TariffNumber."No.");
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1024,40 +995,35 @@ codeunit 134155 "ERM Table Fields UT"
         CommentLine: Record "Comment Line";
         i: Integer;
     begin
-        with CommentLine do
-            for i := 1 to 2 do begin
-                Init();
-                "Table Name" := CommentLineTableName;
-                "No." := No;
-                "Line No." := LibraryUtility.GetNewRecNo(CommentLine, FieldNo("Line No."));
-                Insert();
-            end;
+        for i := 1 to 2 do begin
+            CommentLine.Init();
+            CommentLine."Table Name" := CommentLineTableName;
+            CommentLine."No." := No;
+            CommentLine."Line No." := LibraryUtility.GetNewRecNo(CommentLine, CommentLine.FieldNo("Line No."));
+            CommentLine.Insert();
+        end;
     end;
 
     local procedure MockDtldCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustNo: Code[20]; PostingDate: Date; InitialEntryDueDate: Date)
     begin
-        with DetailedCustLedgEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Customer No." := CustNo;
-            "Posting Date" := PostingDate;
-            "Initial Entry Due Date" := InitialEntryDueDate;
-            Amount := LibraryRandom.RandDec(100, 2);
-            "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Customer No." := CustNo;
+        DetailedCustLedgEntry."Posting Date" := PostingDate;
+        DetailedCustLedgEntry."Initial Entry Due Date" := InitialEntryDueDate;
+        DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(100, 2);
+        DetailedCustLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure MockDtldVendLedgEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendNo: Code[20]; PostingDate: Date; InitialEntryDueDate: Date)
     begin
-        with DetailedVendLedgEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendLedgEntry, FieldNo("Entry No."));
-            "Vendor No." := VendNo;
-            "Posting Date" := PostingDate;
-            "Initial Entry Due Date" := InitialEntryDueDate;
-            Amount := LibraryRandom.RandDec(100, 2);
-            "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        DetailedVendLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendLedgEntry, DetailedVendLedgEntry.FieldNo("Entry No."));
+        DetailedVendLedgEntry."Vendor No." := VendNo;
+        DetailedVendLedgEntry."Posting Date" := PostingDate;
+        DetailedVendLedgEntry."Initial Entry Due Date" := InitialEntryDueDate;
+        DetailedVendLedgEntry.Amount := LibraryRandom.RandDec(100, 2);
+        DetailedVendLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
+        DetailedVendLedgEntry.Insert();
     end;
 
     local procedure MockItem(var Item: Record Item)
@@ -1085,12 +1051,10 @@ codeunit 134155 "ERM Table Fields UT"
     var
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
     begin
-        with AvgCostAdjmtEntryPoint do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Valuation Date", ValuationDate);
-            FindFirst();
-            TestField("Cost Is Adjusted", false);
-        end;
+        AvgCostAdjmtEntryPoint.SetRange("Item No.", ItemNo);
+        AvgCostAdjmtEntryPoint.SetRange("Valuation Date", ValuationDate);
+        AvgCostAdjmtEntryPoint.FindFirst();
+        AvgCostAdjmtEntryPoint.TestField("Cost Is Adjusted", false);
     end;
 
     [ConfirmHandler]

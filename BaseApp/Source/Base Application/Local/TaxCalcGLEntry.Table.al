@@ -117,7 +117,7 @@ table 17315 "Tax Calc. G/L Entry"
         }
         field(51; "Tax Factor"; Decimal)
         {
-            CalcFormula = Lookup ("Tax Calc. Buffer Entry"."Tax Factor" where("Entry No." = field("Entry No."),
+            CalcFormula = lookup("Tax Calc. Buffer Entry"."Tax Factor" where("Entry No." = field("Entry No."),
                                                                               Code = field("Code Filter")));
             Caption = 'Tax Factor';
             DecimalPlaces = 5 : 5;
@@ -125,7 +125,7 @@ table 17315 "Tax Calc. G/L Entry"
         }
         field(52; "Tax Amount"; Decimal)
         {
-            CalcFormula = Lookup ("Tax Calc. Buffer Entry"."Tax Amount" where("Entry No." = field("Entry No."),
+            CalcFormula = lookup("Tax Calc. Buffer Entry"."Tax Amount" where("Entry No." = field("Entry No."),
                                                                               Code = field("Code Filter")));
             Caption = 'Tax Amount';
             DecimalPlaces = 2 :;

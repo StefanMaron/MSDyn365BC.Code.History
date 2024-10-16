@@ -165,9 +165,17 @@ report 12423 "Calc. FA Inventory"
         FAJournalLine: Record "FA Journal Line";
         FALocation: Record "FA Location";
         FATemp: Code[20];
+#pragma warning disable AA0074
         Text002: Label 'Please, enter posting date';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Enter FA Journal Template.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'FA Processing #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         LineNo: Integer;
         PostingDate: Date;
         DocumentDate: Date;
@@ -175,9 +183,15 @@ report 12423 "Calc. FA Inventory"
         Window: Dialog;
         FactAcquisitionCost: Decimal;
         CalcAcquisitionCost: Decimal;
+#pragma warning disable AA0074
         Text006: Label 'Phys. Inventory Journal ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label 'DEFAULT';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label 'Phys. Inventory Journal DEFAULT';
+#pragma warning restore AA0074
         FADepreciationBook: Record "FA Depreciation Book";
         FADeprCode: Code[20];
         FactQuantity: Integer;

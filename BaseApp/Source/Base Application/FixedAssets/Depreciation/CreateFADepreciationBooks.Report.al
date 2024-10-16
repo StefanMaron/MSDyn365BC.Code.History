@@ -110,8 +110,12 @@ report 5689 "Create FA Depreciation Books"
         DeprBookCode: Code[10];
         FANo: Code[20];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Creating fixed asset book     #1##########\';
         Text001: Label 'Not creating fixed asset book #2##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CheckFADeprBook()
     var

@@ -10,7 +10,7 @@ report 12431 "G/L Corresp. General Ledger"
     {
         dataitem(GLAcc; "G/L Account")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             RequestFilterFields = "No.";
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
@@ -62,7 +62,7 @@ report 12431 "G/L Corresp. General Ledger"
             }
             dataitem("Missing Lines"; "Integer")
             {
-                DataItemTableView = sorting(Number) order(Ascending);
+                DataItemTableView = sorting(Number) order(ascending);
 
                 trigger OnPreDataItem()
                 begin
@@ -74,7 +74,7 @@ report 12431 "G/L Corresp. General Ledger"
             }
             dataitem("Invoice Heading"; "Integer")
             {
-                DataItemTableView = sorting(Number) order(Ascending);
+                DataItemTableView = sorting(Number) order(ascending);
                 MaxIteration = 1;
                 column(PADSTR_____Enclosure_Level____2______GLAcc__No__; PadStr('', "Enclosure Level" * 2, ' ') + GLAcc."No.")
                 {
@@ -106,7 +106,7 @@ report 12431 "G/L Corresp. General Ledger"
             }
             dataitem("Period Month"; "Integer")
             {
-                DataItemTableView = sorting(Number) order(Ascending);
+                DataItemTableView = sorting(Number) order(ascending);
                 column(MonthFromPeriod; MonthFromPeriod)
                 {
                 }
@@ -359,7 +359,7 @@ report 12431 "G/L Corresp. General Ledger"
             }
             dataitem(EndingLine; "Integer")
             {
-                DataItemTableView = sorting(Number) order(Ascending);
+                DataItemTableView = sorting(Number) order(ascending);
                 column(EndingLine_Number; Number)
                 {
                 }
@@ -505,8 +505,12 @@ report 12431 "G/L Corresp. General Ledger"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Credit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Debit';
+#pragma warning restore AA0074
         CalendarPeriodBegining: Record Date;
         CalendarPeriodEnding: Record Date;
         LocMgt: Codeunit "Localisation Management";
@@ -538,9 +542,15 @@ report 12431 "G/L Corresp. General Ledger"
         InterimTotal: Boolean;
         ManualInputBeginingDate: Boolean;
         ManualInputEndingDate: Boolean;
+#pragma warning disable AA0074
         Text005: Label 'Period Start Date cannot be later than Period End Date.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'for period from ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label ' to ';
+#pragma warning restore AA0074
         RowNo: Integer;
         General_LedgerCaptionLbl: Label 'General Ledger';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

@@ -99,10 +99,26 @@ codeunit 5802 "Inventory Posting To G/L"
         GlobalJnlTemplName: Code[10];
         GlobalJnlBatchName: Code[10];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 on %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 - %2, %3,%4,%5,%6';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'The following combination %1 = %2, %3 = %4, and %5 = %6 is not allowed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Initialize(PostPerPostGroup: Boolean)
     begin
@@ -1268,9 +1284,12 @@ codeunit 5802 "Inventory Posting To G/L"
     local procedure GetInvPostingGroupCode(ValueEntry: Record "Value Entry"; WIPInventory: Boolean; InvPostingGroupCode: Code[20]): Code[20]
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
         if WIPInventory then begin
-            OnBeforeGetInvPostingGroupCode(ValueEntry, InvPostingGroupCode);
+            OnBeforeGetInvPostingGroupCode(ValueEntry, InvPostingGroupCode, IsHandled);
+            if IsHandled then
+                exit(InvPostingGroupCode);
             if (ValueEntry."Source Type" = ValueEntry."Source Type"::Item) and (ValueEntry."Source No." <> ValueEntry."Item No.") then begin
                 Item.SetLoadFields("Inventory Posting Group");
                 if Item.Get(ValueEntry."Source No.") then
@@ -1550,7 +1569,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetInvPostingGroupCode(var ValueEntry: Record "Value Entry"; var InvPostingGroupCode: Code[20])
+    local procedure OnBeforeGetInvPostingGroupCode(var ValueEntry: Record "Value Entry"; var InvPostingGroupCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

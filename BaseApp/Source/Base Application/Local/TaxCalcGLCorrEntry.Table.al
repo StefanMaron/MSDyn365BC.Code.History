@@ -53,14 +53,14 @@ table 17319 "Tax Calc. G/L Corr. Entry"
         }
         field(21; "Debit Account Name"; Text[50])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("Debit Account No.")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("Debit Account No.")));
             Caption = 'Debit Account Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(22; "Credit Account Name"; Text[50])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("Credit Account No.")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("Credit Account No.")));
             Caption = 'Credit Account Name';
             Editable = false;
             FieldClass = FlowField;

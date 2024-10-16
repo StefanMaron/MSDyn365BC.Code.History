@@ -414,11 +414,19 @@ report 12466 "FA Turnover"
         FALedgerEntry: Record "FA Ledger Entry";
         FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
+#pragma warning disable AA0074
         Text005: Label 'for period from ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label ' to ';
+#pragma warning restore AA0074
         DepreciationBook: Code[20];
+#pragma warning disable AA0074
         Text007: Label 'As of';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text000: Label 'Enter Depreciation Book Code';
+#pragma warning restore AA0074
         StartingDate: Date;
         EndingDate: Date;
         CurrentDate: Date;
@@ -433,12 +441,24 @@ report 12466 "FA Turnover"
         FAkind: Option All,Depreciable,Undepreciable;
         FAClass: Code[10];
         FASubClass: Code[10];
+#pragma warning disable AA0074
         Text010: Label 'Depreciation Book Code:';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text011: Label 'FA Location Code:';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text012: Label 'Responsible Employee: ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text013: Label 'Global Dimension 1:';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text014: Label 'Global Dimension 2:';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text015: Label 'Maintenance Code:';
+#pragma warning restore AA0074
         NotShowZero: Boolean;
         Number: Integer;
         Period: Text[250];

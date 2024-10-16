@@ -98,7 +98,7 @@ table 17212 "Tax Register Item Entry"
         {
             BlankZero = true;
             CalcFormula = sum("Item Application Entry".Quantity where("Batch Item Ledger Entry No." = field("Appl. Entry No."),
-                                                                       "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                                       "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Outstand. Quantity';
             Editable = false;
             FieldClass = FlowField;
@@ -169,7 +169,7 @@ table 17212 "Tax Register Item Entry"
         }
         field(105; "Ledger Entry Type"; Enum "Item Ledger Entry Type")
         {
-            CalcFormula = Lookup("Item Ledger Entry"."Entry Type" where("Entry No." = field("Ledger Entry No.")));
+            CalcFormula = lookup("Item Ledger Entry"."Entry Type" where("Entry No." = field("Ledger Entry No.")));
             Caption = 'Ledger Entry Type';
             Editable = false;
             FieldClass = FlowField;
@@ -204,7 +204,7 @@ table 17212 "Tax Register Item Entry"
         }
         field(131; "Item Ledger Source Type"; Enum "Analysis Source Type")
         {
-            CalcFormula = Lookup("Item Ledger Entry"."Source Type" where("Entry No." = field("Ledger Entry No.")));
+            CalcFormula = lookup("Item Ledger Entry"."Source Type" where("Entry No." = field("Ledger Entry No.")));
             Caption = 'Item Ledger Source Type';
             Editable = false;
             FieldClass = FlowField;

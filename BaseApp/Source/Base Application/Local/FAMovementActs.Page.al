@@ -7,7 +7,7 @@ page 35605 "FA Movement Acts"
     PageType = List;
     SourceTable = "FA Document Header";
     SourceTableView = sorting("Document Type", "No.")
-                      WHERE("Document Type" = const(Movement));
+                      where("Document Type" = const(Movement));
     UsageCategory = Lists;
 
     layout

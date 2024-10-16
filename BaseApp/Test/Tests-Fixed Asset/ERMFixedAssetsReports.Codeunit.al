@@ -50,7 +50,6 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetsErr: Label 'Fixed Assets does not exist.';
         FixedAssetsColumnvalueErr: Label 'Column value does not exist.';
         UnknownErr: Label 'Unknown Error.';
-        DepreciationBookErr: Label '%1 does not exist.', Comment = '%1 = Depreciation Book Code';
         GroupTotalsTxt: Label 'Group Totals: %1', Comment = '%1 = Field Caption';
         AdditionInPeriodTxt: Label 'Addition in Period';
         DisposalInPeriodTxt: Label 'Disposal in Period';
@@ -775,7 +774,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify "Depreciation Book Code does not exist" error occurs.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]
@@ -1375,7 +1374,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify "Depreciation Book Code does not exist" error occurs.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]

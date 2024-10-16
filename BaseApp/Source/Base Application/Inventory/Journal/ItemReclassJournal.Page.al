@@ -528,7 +528,7 @@ page 393 "Item Reclass. Journal"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -586,7 +586,7 @@ page 393 "Item Reclass. Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::"Event")
                         end;
                     }
                     action(Period)
@@ -598,7 +598,7 @@ page 393 "Item Reclass. Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::Period)
                         end;
                     }
                     action(Variant)
@@ -610,7 +610,7 @@ page 393 "Item Reclass. Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::Variant)
                         end;
                     }
                     action(Location)
@@ -623,7 +623,7 @@ page 393 "Item Reclass. Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::Location)
                         end;
                     }
                     action(Lot)
@@ -647,7 +647,7 @@ page 393 "Item Reclass. Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::BOM)
                         end;
                     }
                 }
@@ -951,12 +951,24 @@ page 393 "Item Reclass. Journal"
         ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label '1,2,3,New ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label '1,2,4,New ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label '1,2,5,New ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label '1,2,6,New ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label '1,2,7,New ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label '1,2,8,New ';
+#pragma warning restore AA0074
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

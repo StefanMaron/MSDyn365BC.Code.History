@@ -181,8 +181,12 @@ table 9 "Country/Region"
         ISOCodeLengthErr: Label 'The length of the string is %1, but it must be equal to %2 characters. Value: %3.', Comment = '%1, %2 - numbers, %3 - actual value';
         ASCIILetterErr: Label 'must contain ASCII letters only';
         NumericErr: Label 'must contain numbers only';
+#pragma warning disable AA0074
         Text002: Label 'Unknown';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Russia';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure GetLocalName(CountryCode: Code[10]): Text[50]
@@ -319,6 +323,8 @@ table 9 "Country/Region"
                     CreateAddressFormatLine(Code, 3, CompanyInformation.FieldNo("Post Code"), LineNo);
                 end;
         end;
+        CreateAddressFormat(Rec.Code, 7, CompanyInformation.FieldNo("Country/Region Code"));
+
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
             CustomAddressFormat.BuildAddressFormat();

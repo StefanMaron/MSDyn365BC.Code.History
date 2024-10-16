@@ -70,7 +70,7 @@ table 17218 "Tax Register Dim. Filter"
         }
         field(9; "Dimension Name"; Text[50])
         {
-            CalcFormula = Lookup(Dimension.Name where(Code = field("Dimension Code")));
+            CalcFormula = lookup(Dimension.Name where(Code = field("Dimension Code")));
             Caption = 'Dimension Name';
             Editable = false;
             FieldClass = FlowField;
@@ -127,7 +127,11 @@ table 17218 "Tax Register Dim. Filter"
     var
         Dimension: Record Dimension;
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'You can''t rename an %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxRegSection: Record "Tax Register Section";
 
     [Scope('OnPrem')]

@@ -126,10 +126,16 @@ report 6699 "Move Negative Sales Lines"
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         ToDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
         FromDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 %2 has been created. Do you want to view the created document?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DropDownForRetOrderAndCrMemoEd: Boolean;
         DropDownForOrderAndInvoiceEdit: Boolean;
+#pragma warning disable AA0074
         Text19037468: Label 'When you move a negative sales line to your selected document type, the quantity of the line on the selected document becomes positive.';
+#pragma warning restore AA0074
 
     protected var
         FromSalesHeader: Record "Sales Header";

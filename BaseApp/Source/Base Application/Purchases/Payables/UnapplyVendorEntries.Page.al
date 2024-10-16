@@ -244,9 +244,15 @@ page 624 "Unapply Vendor Entries"
     end;
 
     var
+#pragma warning disable AA0074
         Text009: Label 'The entries were successfully unapplied.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text010: Label 'There is nothing to unapply.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text011: Label 'To unapply these entries, correcting entries will be posted.\Do you want to unapply the entries?';
+#pragma warning restore AA0074
 
     protected var
         DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry";

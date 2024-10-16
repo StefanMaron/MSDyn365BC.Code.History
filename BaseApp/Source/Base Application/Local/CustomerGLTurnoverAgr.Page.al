@@ -184,12 +184,11 @@ page 14914 "Customer G/L Turnover Agr."
     trigger OnOpenPage()
     begin
         DateFilter := Rec.GetFilter("Date Filter");
-        if DateFilter = '' then begin
+        if DateFilter = '' then
             if PeriodType = PeriodType::"Accounting Period" then
                 FindPeriodUser('')
             else
                 FindPeriod('');
-        end;
     end;
 
     var

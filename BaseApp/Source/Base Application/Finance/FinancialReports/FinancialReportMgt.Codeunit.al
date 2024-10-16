@@ -349,9 +349,6 @@ codeunit 18 "Financial Report Mgt."
         FinancialReport.Name := AccScheduleName.Name;
         FinancialReport.Description := AccScheduleName.Description;
         FinancialReport."Financial Report Row Group" := AccScheduleName.Name;
-#if not CLEAN22
-        FinancialReport."Financial Report Column Group" := AccScheduleName."Default Column Layout";
-#endif
         FinancialReport.Insert();
     end;
 

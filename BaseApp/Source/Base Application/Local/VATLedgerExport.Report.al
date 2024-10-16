@@ -303,8 +303,14 @@ report 12460 "VAT Ledger Export"
         LineNo: Integer;
         AddSheetCounter: Integer;
         AddSheet: Boolean;
+#pragma warning disable AA0074
         Text12405: Label 'Quarter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12406: Label 'From %1 to %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Totals: array[9, 2] of Decimal;
         FileNameSilent: Text;
 
@@ -524,12 +530,11 @@ report 12460 "VAT Ledger Export"
         if Currency.Get(CurrencyCode) then begin
             CurrencyDescription :=
               LowerCase(CopyStr(Currency.Description, 1, 1)) + CopyStr(Currency.Description, 2);
-            if Currency."RU Bank Digital Code" <> '' then begin
+            if Currency."RU Bank Digital Code" <> '' then
                 if CurrencyDescription <> '' then
                     CurrencyDescription := CurrencyDescription + '; ' + Currency."RU Bank Digital Code"
                 else
                     CurrencyDescription := Currency."RU Bank Digital Code";
-            end;
         end;
     end;
 
@@ -614,7 +619,7 @@ report 12460 "VAT Ledger Export"
                         if AdjustingVATEntry.FindFirst() then begin
                             VATLedgerConnection.SetRange("Purch. Ledger Line No.");
                             VATLedgerConnection.SetRange("VAT Entry No.", AdjustingVATEntry."Entry No.");
-                            if VATLedgerConnection.FindFirst() then begin
+                            if VATLedgerConnection.FindFirst() then
                                 if AdjustingVATLedgerLine.Get(
                                   VATLedger.Type, VATLedger.Code, VATLedgerConnection."Purch. Ledger Line No.")
                                 then begin
@@ -631,7 +636,6 @@ report 12460 "VAT Ledger Export"
                                     AdjustingVATEntryBuffer.TransferFields(AdjustingVATEntry);
                                     AdjustingVATEntryBuffer.Insert();
                                 end;
-                            end;
                         end;
 
                     end;

@@ -682,29 +682,25 @@ codeunit 144015 "ERM RU Void Check"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Invoice, AccountType, AccountNo, "Bal. Account Type"::"Bank Account",
-              LibraryERM.CreateBankAccountNo(), "Gen. Journal Document Type"::" ", '', "Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            TotalInvAmount += Abs(Amount);
-            exit("Document No.");
-        end;
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, GenJournalLine."Bal. Account Type"::"Bank Account",
+            LibraryERM.CreateBankAccountNo(), "Gen. Journal Document Type"::" ", '', GenJournalLine."Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        TotalInvAmount += Abs(GenJournalLine.Amount);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreatePostPayment(var DocumentNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AmountSign: Integer): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, AccountType, AccountNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), "Gen. Journal Account Type"::"G/L Account", '',
-              "Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            DocumentNo := "Document No.";
-            exit(Amount);
-        end;
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), "Gen. Journal Account Type"::"G/L Account", '',
+            GenJournalLine."Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        DocumentNo := GenJournalLine."Document No.";
+        exit(GenJournalLine.Amount);
     end;
 
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; Amount: Decimal)
@@ -725,30 +721,26 @@ codeunit 144015 "ERM RU Void Check"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, AccountType, AccountNo, "Bal. Account Type"::"Bank Account",
-              BankAccountNo, "Applies-to Doc. Type"::Invoice, InvNo, BankPaymentTypeLoc, AmountToApply);
-            if BankPaymentTypeLoc = "Bank Payment Type"::"Computer Check" then
-                PrintCashOrder(GenJournalLine);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit("Document No.");
-        end;
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, GenJournalLine."Bal. Account Type"::"Bank Account",
+            BankAccountNo, GenJournalLine."Applies-to Doc. Type"::Invoice, InvNo, BankPaymentTypeLoc, AmountToApply);
+        if BankPaymentTypeLoc = GenJournalLine."Bank Payment Type"::"Computer Check" then
+            PrintCashOrder(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreatePostRefundAppliedToPayment(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccountNo: Code[20]; BankPaymentTypeLoc: Enum "Bank Payment Type"; InvNo: Code[20]; AmountToApply: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Refund, AccountType, AccountNo, "Bal. Account Type"::"Bank Account",
-              BankAccountNo, "Applies-to Doc. Type"::Payment, InvNo, BankPaymentTypeLoc, AmountToApply);
-            if BankPaymentTypeLoc = "Bank Payment Type"::"Computer Check" then
-                PrintCashOrder(GenJournalLine);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit("Document No.");
-        end;
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Document Type"::Refund, AccountType, AccountNo, GenJournalLine."Bal. Account Type"::"Bank Account",
+            BankAccountNo, GenJournalLine."Applies-to Doc. Type"::Payment, InvNo, BankPaymentTypeLoc, AmountToApply);
+        if BankPaymentTypeLoc = GenJournalLine."Bank Payment Type"::"Computer Check" then
+            PrintCashOrder(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreateCashAccount(): Code[20]
@@ -756,13 +748,11 @@ codeunit 144015 "ERM RU Void Check"
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate("Account Type", "Account Type"::"Cash Account");
-            Validate("Debit Cash Order No. Series", LibraryERM.CreateNoSeriesCode());
-            Validate("Credit Cash Order No. Series", "Debit Cash Order No. Series");
-            Modify(true);
-            exit("No.");
-        end;
+        BankAccount.Validate("Account Type", BankAccount."Account Type"::"Cash Account");
+        BankAccount.Validate("Debit Cash Order No. Series", LibraryERM.CreateNoSeriesCode());
+        BankAccount.Validate("Credit Cash Order No. Series", BankAccount."Debit Cash Order No. Series");
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
     end;
 
     local procedure ApplyVendorPaymentToInvoice(VendorNo: Code[20]; PmtNo: Code[20]; InvNo: Code[20])
@@ -838,12 +828,10 @@ codeunit 144015 "ERM RU Void Check"
 
     local procedure FindCheckLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
-        with CheckLedgerEntry do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-        end;
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        CheckLedgerEntry.SetRange("Document Type", DocType);
+        CheckLedgerEntry.SetRange("Document No.", DocNo);
+        CheckLedgerEntry.FindFirst();
     end;
 
     local procedure VoidCheckLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; VoidType: Option)
@@ -857,10 +845,9 @@ codeunit 144015 "ERM RU Void Check"
 
     local procedure IsGenJnlLineCashIngoing(GenJournalLine: Record "Gen. Journal Line"): Boolean
     begin
-        with GenJournalLine do
-            exit(
-              ("Account Type" = "Account Type"::Vendor) and ("Document Type" = "Document Type"::Refund) or
-              ("Account Type" = "Account Type"::Customer) and ("Document Type" = "Document Type"::Payment));
+        exit(
+              (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor) and (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Refund) or
+              (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer) and (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Payment));
     end;
 
     local procedure PrintCashOrder(var GenJournalLine: Record "Gen. Journal Line")
@@ -900,24 +887,20 @@ codeunit 144015 "ERM RU Void Check"
     var
         DummyVendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with DummyVendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document Type", DocumentType);
-            SetRange(Open, IsOpen);
-            Assert.RecordCount(DummyVendorLedgerEntry, ExpectedCount);
-        end;
+        DummyVendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        DummyVendorLedgerEntry.SetRange("Document Type", DocumentType);
+        DummyVendorLedgerEntry.SetRange(Open, IsOpen);
+        Assert.RecordCount(DummyVendorLedgerEntry, ExpectedCount);
     end;
 
     local procedure VerifyCustomerLedgerEntries(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedCount: Integer; IsOpen: Boolean)
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with DummyCustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document Type", DocumentType);
-            SetRange(Open, IsOpen);
-            Assert.RecordCount(DummyCustLedgerEntry, ExpectedCount);
-        end;
+        DummyCustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        DummyCustLedgerEntry.SetRange("Document Type", DocumentType);
+        DummyCustLedgerEntry.SetRange(Open, IsOpen);
+        Assert.RecordCount(DummyCustLedgerEntry, ExpectedCount);
     end;
 
     local procedure VerifyLastRegisterIsCorrectionEntry()
@@ -948,11 +931,9 @@ codeunit 144015 "ERM RU Void Check"
 
     local procedure VerifyCheckLedgerEntry(CheckLedgerEntry: Record "Check Ledger Entry"; ExpectedEntryStatus: Option; ExpectedOriginalEntryStatus: Option; ExpectedStatementStatus: Option)
     begin
-        with CheckLedgerEntry do begin
-            Assert.AreEqual(ExpectedEntryStatus, "Entry Status", FieldCaption("Entry Status"));
-            Assert.AreEqual(ExpectedOriginalEntryStatus, "Original Entry Status", FieldCaption("Original Entry Status"));
-            Assert.AreEqual(ExpectedStatementStatus, "Statement Status", FieldCaption("Statement Status"));
-        end;
+        Assert.AreEqual(ExpectedEntryStatus, CheckLedgerEntry."Entry Status", CheckLedgerEntry.FieldCaption("Entry Status"));
+        Assert.AreEqual(ExpectedOriginalEntryStatus, CheckLedgerEntry."Original Entry Status", CheckLedgerEntry.FieldCaption("Original Entry Status"));
+        Assert.AreEqual(ExpectedStatementStatus, CheckLedgerEntry."Statement Status", CheckLedgerEntry.FieldCaption("Statement Status"));
     end;
 
     [ModalPageHandler]

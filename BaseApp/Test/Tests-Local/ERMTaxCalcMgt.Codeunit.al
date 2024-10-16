@@ -273,14 +273,12 @@ codeunit 144519 "ERM Tax Calc Mgt."
         LibraryTaxAcc.CreateTaxCalcHeader(
           TaxCalcHeader, CreateTaxCalcSection(StartingDate, EndingDate), TableID);
 
-        with TaxCalcAccum do begin
-            Init();
-            RecRef.GetTable(TaxCalcAccum);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Section Code" := TaxCalcHeader."Section Code";
-            "Starting Date" := StartingDate;
-            Insert();
-        end;
+        TaxCalcAccum.Init();
+        RecRef.GetTable(TaxCalcAccum);
+        TaxCalcAccum."Entry No." := LibraryUtility.GetNewLineNo(RecRef, TaxCalcAccum.FieldNo("Entry No."));
+        TaxCalcAccum."Section Code" := TaxCalcHeader."Section Code";
+        TaxCalcAccum."Starting Date" := StartingDate;
+        TaxCalcAccum.Insert();
 
         exit(TaxCalcHeader."Section Code");
     end;
@@ -305,11 +303,9 @@ codeunit 144519 "ERM Tax Calc Mgt."
     var
         TaxCalcAccumulation: Record "Tax Calc. Accumulation";
     begin
-        with TaxCalcAccumulation do begin
-            FilterTaxCalcAccumulation(TaxCalcAccumulation, TaxCalcLine);
-            CalcSums(Amount);
-            exit(Amount)
-        end;
+        FilterTaxCalcAccumulation(TaxCalcAccumulation, TaxCalcLine);
+        TaxCalcAccumulation.CalcSums(Amount);
+        exit(TaxCalcAccumulation.Amount)
     end;
 
     local procedure VerifyStartEndDates(ExpectedCalendarPeriod: Record Date; ActualCalendarPeriod: Record Date)

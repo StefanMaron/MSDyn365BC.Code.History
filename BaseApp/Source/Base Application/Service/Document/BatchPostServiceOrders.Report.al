@@ -164,10 +164,14 @@ report 6001 "Batch Post Service Orders"
         CalcInvDisc: Boolean;
         PostInvoiceEditable: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
+#pragma warning disable AA0470
         Text001: Label 'Posting orders  #1########## @2@@@@@@@@@@@@@';
         Text002: Label '%1 orders out of a total of %2 have now been posted.';
+#pragma warning restore AA0470
         Text003: Label 'The exchange rate associated with the new posting date on the service header will not apply to the service lines.';
+#pragma warning restore AA0074
 
     local procedure CalculateInvoiceDiscount()
     begin

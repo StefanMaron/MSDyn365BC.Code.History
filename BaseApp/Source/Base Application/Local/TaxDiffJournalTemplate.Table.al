@@ -63,7 +63,7 @@ table 17303 "Tax Diff. Journal Template"
         }
         field(16; "Page Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Page Name';
             Editable = false;

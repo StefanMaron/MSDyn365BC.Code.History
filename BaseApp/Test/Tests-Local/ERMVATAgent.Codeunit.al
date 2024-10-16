@@ -601,16 +601,14 @@ codeunit 144009 "ERM VAT Agent"
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            LibraryERM.CreateCurrency(Currency);
-            "Realized Gains Acc." := LibraryERM.CreateGLAccountNo();
-            "Realized Losses Acc." := LibraryERM.CreateGLAccountNo();
-            "PD Bal. Gain/Loss Acc. (TA)" := LibraryERM.CreateGLAccountNo();
-            "Purch. PD Gains Acc. (TA)" := LibraryERM.CreateGLAccountNo();
-            "Purch. PD Losses Acc. (TA)" := LibraryERM.CreateGLAccountNo();
-            Modify();
-            exit(Code);
-        end;
+        LibraryERM.CreateCurrency(Currency);
+        Currency."Realized Gains Acc." := LibraryERM.CreateGLAccountNo();
+        Currency."Realized Losses Acc." := LibraryERM.CreateGLAccountNo();
+        Currency."PD Bal. Gain/Loss Acc. (TA)" := LibraryERM.CreateGLAccountNo();
+        Currency."Purch. PD Gains Acc. (TA)" := LibraryERM.CreateGLAccountNo();
+        Currency."Purch. PD Losses Acc. (TA)" := LibraryERM.CreateGLAccountNo();
+        Currency.Modify();
+        exit(Currency.Code);
     end;
 
     local procedure CreateTaxAuthority(): Code[20]
@@ -645,11 +643,9 @@ codeunit 144009 "ERM VAT Agent"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJnlTemplate.Name);
-            SetRange("Journal Batch Name", GenJnlBatch.Name);
-            FindFirst();
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJnlLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
     end;
 
@@ -658,13 +654,11 @@ codeunit 144009 "ERM VAT Agent"
         GenJnlLine: Record "Gen. Journal Line";
         PmtNo: Code[20];
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJnlTemplate.Name);
-            SetRange("Journal Batch Name", GenJnlBatch.Name);
-            SetRange("Account No.", VendorNo);
-            FindFirst();
-            PmtNo := "Document No.";
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJnlLine.SetRange("Account No.", VendorNo);
+        GenJnlLine.FindFirst();
+        PmtNo := GenJnlLine."Document No.";
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
         exit(PmtNo);
     end;
@@ -674,19 +668,17 @@ codeunit 144009 "ERM VAT Agent"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryERM.ClearGenJournalLines(GenJnlBatch);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJnlTemplate.Name,
-              GenJnlBatch.Name, "Document Type"::Payment, "Account Type"::Vendor, VendNo, 0);
-            Validate(Prepayment, true);
-            Validate("Prepayment Document No.", ApplyDocNo);
-            Validate("External Document No.", ApplyDocNo);
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", CreateBankAccount());
-            Validate(Amount, PayAmount);
-            Modify(true);
-            DocNo := "Document No.";
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJnlTemplate.Name,
+            GenJnlBatch.Name, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendNo, 0);
+        GenJournalLine.Validate(Prepayment, true);
+        GenJournalLine.Validate("Prepayment Document No.", ApplyDocNo);
+        GenJournalLine.Validate("External Document No.", ApplyDocNo);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount());
+        GenJournalLine.Validate(Amount, PayAmount);
+        GenJournalLine.Modify(true);
+        DocNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -696,18 +688,16 @@ codeunit 144009 "ERM VAT Agent"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name",
-              GenJournalBatch.Name, "Document Type"::Payment, "Account Type"::Vendor, VendNo, 0);
-            Validate("External Document No.", ExternalDocNo);
-            Validate("Initial Document No.", InitialDocNo);
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", CreateBankAccount());
-            Validate(Amount, PayAmount);
-            Modify(true);
-            PayAmount := "Amount (LCY)";
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendNo, 0);
+        GenJournalLine.Validate("External Document No.", ExternalDocNo);
+        GenJournalLine.Validate("Initial Document No.", InitialDocNo);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount());
+        GenJournalLine.Validate(Amount, PayAmount);
+        GenJournalLine.Modify(true);
+        PayAmount := GenJournalLine."Amount (LCY)";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -746,16 +736,14 @@ codeunit 144009 "ERM VAT Agent"
     var
         CurrencyExchRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchRate do begin
-            Init();
-            "Currency Code" := CurrencyCode;
-            "Starting Date" := StartingDate;
-            "Exchange Rate Amount" := 1;
-            "Adjustment Exch. Rate Amount" := 1;
-            "Relational Exch. Rate Amount" := Rate;
-            "Relational Adjmt Exch Rate Amt" := Rate;
-            Insert();
-        end;
+        CurrencyExchRate.Init();
+        CurrencyExchRate."Currency Code" := CurrencyCode;
+        CurrencyExchRate."Starting Date" := StartingDate;
+        CurrencyExchRate."Exchange Rate Amount" := 1;
+        CurrencyExchRate."Adjustment Exch. Rate Amount" := 1;
+        CurrencyExchRate."Relational Exch. Rate Amount" := Rate;
+        CurrencyExchRate."Relational Adjmt Exch Rate Amt" := Rate;
+        CurrencyExchRate.Insert();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -855,16 +843,14 @@ codeunit 144009 "ERM VAT Agent"
     local procedure CreateVendorVATAgent(var Vendor: Record Vendor; VATBusPostGroupCode: Code[20]; VATAgentProdPostingGroupCode: Code[20])
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Currency Code", CreateCurrencyWithExchangeRate());
-            Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
-            Validate("VAT Agent", true);
-            Validate("VAT Agent Type", "VAT Agent Type"::"Non-resident");
-            Validate("VAT Payment Source Type", "VAT Payment Source Type"::"Internal Funds");
-            Validate("VAT Agent Prod. Posting Group", VATAgentProdPostingGroupCode);
-            Validate("Tax Authority No.", CreateTaxAuthority());
-            Modify(true);
-        end;
+        Vendor.Validate("Currency Code", CreateCurrencyWithExchangeRate());
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
+        Vendor.Validate("VAT Agent", true);
+        Vendor.Validate("VAT Agent Type", Vendor."VAT Agent Type"::"Non-resident");
+        Vendor.Validate("VAT Payment Source Type", Vendor."VAT Payment Source Type"::"Internal Funds");
+        Vendor.Validate("VAT Agent Prod. Posting Group", VATAgentProdPostingGroupCode);
+        Vendor.Validate("Tax Authority No.", CreateTaxAuthority());
+        Vendor.Modify(true);
     end;
 
     local procedure CreateCurrencyWithExchangeRate() CurrencyCode: Code[10]
@@ -877,14 +863,12 @@ codeunit 144009 "ERM VAT Agent"
     local procedure CreateUnrealizedVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostGroupCode: Code[20]; VATProdPostGroupCode: Code[20]; VATPercent: Decimal)
     begin
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGroupCode, VATProdPostGroupCode);
-        with VATPostingSetup do begin
-            Validate("VAT Identifier", VATProdPostGroupCode);
-            Validate("VAT %", VATPercent);
-            Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
-            Modify();
-        end;
+        VATPostingSetup.Validate("VAT Identifier", VATProdPostGroupCode);
+        VATPostingSetup.Validate("VAT %", VATPercent);
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify();
     end;
 
     local procedure ApplyPostVendPaymentToInvoice(PaymentDocNo: Code[20]; InvoiceDocNo: Code[20]; AmountToApply: Decimal)
@@ -906,11 +890,9 @@ codeunit 144009 "ERM VAT Agent"
         LibraryERM.SetApplyVendorEntry(VendorLedgerEntryFrom, VendorLedgerEntryFrom."Remaining Amount");
 
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntryTo, DocTypeTo, DocNoTo);
-        with VendorLedgerEntryTo do begin
-            FindFirst();
-            Validate("Amount to Apply", AmountToApply);
-            Modify(true);
-        end;
+        VendorLedgerEntryTo.FindFirst();
+        VendorLedgerEntryTo.Validate("Amount to Apply", AmountToApply);
+        VendorLedgerEntryTo.Modify(true);
 
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryTo);
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntryFrom);
@@ -924,23 +906,19 @@ codeunit 144009 "ERM VAT Agent"
     begin
         Vendor.Get(VendorNo);
         GLAccount.Get(GLAccountNo);
-        with VATPostingSetup do begin
-            Get(Vendor."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
-            "VAT %" := 0;
-            "Unrealized VAT Type" := "Unrealized VAT Type"::" ";
-            Modify();
-        end;
+        VATPostingSetup.Get(Vendor."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
+        VATPostingSetup."VAT %" := 0;
+        VATPostingSetup."Unrealized VAT Type" := VATPostingSetup."Unrealized VAT Type"::" ";
+        VATPostingSetup.Modify();
     end;
 
     local procedure ClearGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJnlTemplate.Name);
-            SetRange("Journal Batch Name", GenJnlBatch.Name);
-            DeleteAll();
-            "Journal Template Name" := GenJnlTemplate.Name;
-            "Journal Batch Name" := GenJnlBatch.Name;
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJnlLine.DeleteAll();
+        GenJnlLine."Journal Template Name" := GenJnlTemplate.Name;
+        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
     end;
 
     local procedure GetNextDocNo() UseDocNo: Code[20]
@@ -954,12 +932,10 @@ codeunit 144009 "ERM VAT Agent"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            Reset();
-            SetRange("Buy-from Vendor No.", VendorNo);
-            FindLast();
-            exit("No.");
-        end;
+        PurchInvHeader.Reset();
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchInvHeader.FindLast();
+        exit(PurchInvHeader."No.");
     end;
 
     local procedure GetPurchVATAccountNoAndUnrealAccNo(var VATAccNo: Code[20]; var VATUnrealAccNo: Code[20]; VendNo: Code[20])
@@ -968,11 +944,9 @@ codeunit 144009 "ERM VAT Agent"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         Vendor.Get(VendNo);
-        with VATPostingSetup do begin
-            Get(Vendor."VAT Bus. Posting Group", Vendor."VAT Agent Prod. Posting Group");
-            VATAccNo := "Purchase VAT Account";
-            VATUnrealAccNo := "Purch. VAT Unreal. Account";
-        end;
+        VATPostingSetup.Get(Vendor."VAT Bus. Posting Group", Vendor."VAT Agent Prod. Posting Group");
+        VATAccNo := VATPostingSetup."Purchase VAT Account";
+        VATUnrealAccNo := VATPostingSetup."Purch. VAT Unreal. Account";
     end;
 
     local procedure GetVATAgentInvoiceNo(VendorNo: Code[20]): Code[20]
@@ -990,12 +964,10 @@ codeunit 144009 "ERM VAT Agent"
 
     local procedure FindVATAgentInvoiceVATEntry(var VATEntry: Record "VAT Entry"; VendorNo: Code[20])
     begin
-        with VATEntry do begin
-            SetFilter("Bill-to/Pay-to No.", VendorNo);
-            SetRange("VAT Agent", true);
-            SetFilter("Unrealized Base", '<>0');
-            FindFirst();
-        end;
+        VATEntry.SetFilter("Bill-to/Pay-to No.", VendorNo);
+        VATEntry.SetRange("VAT Agent", true);
+        VATEntry.SetFilter("Unrealized Base", '<>0');
+        VATEntry.FindFirst();
     end;
 
     local procedure SuggestVATAgentPayments(VendNo: Code[20]; DocNo: Code[20])
@@ -1007,28 +979,24 @@ codeunit 144009 "ERM VAT Agent"
         ClearGenJnlLine(GenJnlLine);
         Vendor.SetRange("No.", VendNo);
         Clear(SuggestVendPmt);
-        with SuggestVendPmt do begin
-            UseRequestPage(false);
-            SetTableView(Vendor);
-            SetGenJnlLine(GenJnlLine);
-            InitializeRequest(
-              CalcDate('<CM>', WorkDate()), false, 0, false, WorkDate(), DocNo, false,
-              GenJnlLine."Bal. Account Type"::"Bank Account", CreateBankAccount(), GenJnlLine."Bank Payment Type"::" ");
-            InitVATAgentPayment(true);
-            SetHideMessage(true);
-            Run();
-        end;
+        SuggestVendPmt.UseRequestPage(false);
+        SuggestVendPmt.SetTableView(Vendor);
+        SuggestVendPmt.SetGenJnlLine(GenJnlLine);
+        SuggestVendPmt.InitializeRequest(
+          CalcDate('<CM>', WorkDate()), false, 0, false, WorkDate(), DocNo, false,
+          GenJnlLine."Bal. Account Type"::"Bank Account", CreateBankAccount(), GenJnlLine."Bank Payment Type"::" ");
+        SuggestVendPmt.InitVATAgentPayment(true);
+        SuggestVendPmt.SetHideMessage(true);
+        SuggestVendPmt.Run();
     end;
 
     local procedure SetVendInternalFundsSetup(VendorNo: Code[20])
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(VendorNo);
-            "VAT Payment Source Type" := "VAT Payment Source Type"::"Internal Funds";
-            Modify();
-        end;
+        Vendor.Get(VendorNo);
+        Vendor."VAT Payment Source Type" := Vendor."VAT Payment Source Type"::"Internal Funds";
+        Vendor.Modify();
     end;
 
     local procedure SetupEnvironment(var VendorNo: Code[20]; var GLAccountNo: Code[20])
@@ -1066,18 +1034,16 @@ codeunit 144009 "ERM VAT Agent"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            LibraryERM.ApplyVendorLedgerEntry(
-              "Document Type"::Invoice, InvNo,
-              "Document Type"::Payment, PmtNo);
+        LibraryERM.ApplyVendorLedgerEntry(
+            VendLedgEntry."Document Type"::Invoice, InvNo,
+            VendLedgEntry."Document Type"::Payment, PmtNo);
 
-            Reset();
-            SetRange("Vendor No.", VendNo);
-            if FindSet() then
-                repeat
-                    Assert.IsFalse(Open, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Open)));
-                until Next() = 0;
-        end;
+        VendLedgEntry.Reset();
+        VendLedgEntry.SetRange("Vendor No.", VendNo);
+        if VendLedgEntry.FindSet() then
+            repeat
+                Assert.IsFalse(VendLedgEntry.Open, StrSubstNo(WrongValueErr, VendLedgEntry.TableCaption(), VendLedgEntry.FieldCaption(Open)));
+            until VendLedgEntry.Next() = 0;
     end;
 
     local procedure PostInvoiceAndApplyToPrepayment(var InvoiceNo: Code[20]; PaymentNo: Code[20])
@@ -1135,13 +1101,11 @@ codeunit 144009 "ERM VAT Agent"
     var
         GLCorrEntry: Record "G/L Correspondence Entry";
     begin
-        with GLCorrEntry do begin
-            SetRange("Posting Date", PostingDate);
-            SetRange("Debit Account No.", DebitAccNo);
-            SetRange("Credit Account No.", CreditAccNo);
-            FindLast();
-            Assert.AreEqual(ExpAmount, Amount, '');
-        end;
+        GLCorrEntry.SetRange("Posting Date", PostingDate);
+        GLCorrEntry.SetRange("Debit Account No.", DebitAccNo);
+        GLCorrEntry.SetRange("Credit Account No.", CreditAccNo);
+        GLCorrEntry.FindLast();
+        Assert.AreEqual(ExpAmount, GLCorrEntry.Amount, '');
     end;
 
     local procedure VerifyZeroVendorBalance(VendorNo: Code[20])
@@ -1157,11 +1121,9 @@ codeunit 144009 "ERM VAT Agent"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJnlTemplate.Name);
-            SetRange("Journal Batch Name", GenJnlBatch.Name);
-            Assert.AreEqual(ExpectedCount, Count, WrongGenJnlLineCountErr);
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        Assert.AreEqual(ExpectedCount, GenJnlLine.Count, WrongGenJnlLineCountErr);
     end;
 
     local procedure VerifyPaymentAndInvoiceAmounts(VendorNo: Code[20])
@@ -1169,67 +1131,57 @@ codeunit 144009 "ERM VAT Agent"
         PurchInvHeader: Record "Purch. Inv. Header";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJnlTemplate.Name);
-            SetRange("Journal Batch Name", GenJnlBatch.Name);
-            SetRange("Account No.", VendorNo);
-            FindFirst();
-            PurchInvHeader.Get("Initial Document No.");
-            PurchInvHeader.CalcFields(Amount, "Amount Including VAT");
-            Assert.AreEqual(Amount, PurchInvHeader.Amount, PmtAmtNotEqualInvAmtErr);
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJnlLine.SetRange("Account No.", VendorNo);
+        GenJnlLine.FindFirst();
+        PurchInvHeader.Get(GenJnlLine."Initial Document No.");
+        PurchInvHeader.CalcFields(Amount, "Amount Including VAT");
+        Assert.AreEqual(GenJnlLine.Amount, PurchInvHeader.Amount, PmtAmtNotEqualInvAmtErr);
     end;
 
     local procedure VerifyMoreThanFourGLEntry(VendorNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetCurrentKey("Source Type", "Source No.");
-            SetRange("Source Type", "Source Type"::Vendor);
-            SetRange("Source No.", VendorNo);
-            Assert.IsTrue(Count >= 4, WrongGenJnlLineCountErr);
-        end;
+        GLEntry.SetCurrentKey("Source Type", "Source No.");
+        GLEntry.SetRange("Source Type", GLEntry."Source Type"::Vendor);
+        GLEntry.SetRange("Source No.", VendorNo);
+        Assert.IsTrue(GLEntry.Count >= 4, WrongGenJnlLineCountErr);
     end;
 
     local procedure VerifyZeroRealizedVATEntry(VendorNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetCurrentKey(Type, "Bill-to/Pay-to No.");
-            SetRange(Type, Type::Purchase);
-            SetRange("Bill-to/Pay-to No.", VendorNo);
-            FindFirst();
-            Assert.AreEqual(0, "Remaining Unrealized Amount", VATEntryNoCompletelyRealizedErr);
-            Assert.AreEqual(0, "Remaining Unrealized Base", VATEntryNoCompletelyRealizedErr);
-        end;
+        VATEntry.SetCurrentKey(Type, "Bill-to/Pay-to No.");
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        VATEntry.FindFirst();
+        Assert.AreEqual(0, VATEntry."Remaining Unrealized Amount", VATEntryNoCompletelyRealizedErr);
+        Assert.AreEqual(0, VATEntry."Remaining Unrealized Base", VATEntryNoCompletelyRealizedErr);
     end;
 
     local procedure VerifyUnrealizedVATEntry(VendorNo: Code[20]; UnrealizedBase: Decimal; UnrealizedAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", GetLastInvNo(VendorNo));
-            FindFirst();
-            Assert.AreEqual(UnrealizedBase, "Unrealized Base", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Unrealized Base")));
-            Assert.AreEqual(UnrealizedAmount, "Unrealized Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Unrealized Amount")));
-        end;
+        VATEntry.SetRange("Document No.", GetLastInvNo(VendorNo));
+        VATEntry.FindFirst();
+        Assert.AreEqual(UnrealizedBase, VATEntry."Unrealized Base", StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption("Unrealized Base")));
+        Assert.AreEqual(UnrealizedAmount, VATEntry."Unrealized Amount", StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption("Unrealized Amount")));
     end;
 
     local procedure VerifyVATLedgerLine(VendorNo: Code[20]; VATLedgerCode: Code[20]; PaymentAmount: Decimal; PaymentExternalDocNo: Code[20])
     var
         VATLedgerLine: Record "VAT Ledger Line";
     begin
-        with VATLedgerLine do begin
-            SetRange(Code, VATLedgerCode);
-            SetRange("C/V No.", VendorNo);
-            FindFirst();
-            TestField(Base18, PaymentAmount);
-            TestField("Document No.", GetVATAgentInvoiceNo(VendorNo));
-            TestField("External Document No.", PaymentExternalDocNo);
-        end;
+        VATLedgerLine.SetRange(Code, VATLedgerCode);
+        VATLedgerLine.SetRange("C/V No.", VendorNo);
+        VATLedgerLine.FindFirst();
+        VATLedgerLine.TestField(Base18, PaymentAmount);
+        VATLedgerLine.TestField("Document No.", GetVATAgentInvoiceNo(VendorNo));
+        VATLedgerLine.TestField("External Document No.", PaymentExternalDocNo);
     end;
 
     local procedure VerifyPrepaymentVATLedgerLine(VendorNo: Code[20]; VATLedgerCode: Code[20]; PaymentAmount: Decimal; VATPercent: Decimal)
@@ -1238,24 +1190,22 @@ codeunit 144009 "ERM VAT Agent"
         VATEntry: Record "VAT Entry";
     begin
         FindVATAgentInvoiceVATEntry(VATEntry, VendorNo);
-        with VATLedgerLine do begin
-            SetRange(Code, VATLedgerCode);
-            SetRange("C/V No.", VendorNo);
-            FindFirst();
-            TestField(Amount, GetExpectedPrepaymentPurchVATLedgerAmountFCY(PaymentAmount, VATPercent));
-            TestField("Document No.", VATEntry."Document No.");
-            case VATPercent of
-                10:
-                    begin
-                        Assert.IsTrue(Amount10 > 0, IncorrectAmountSignErr);
-                        TestField(Base10, VATEntry."Unrealized Amount" + VATEntry."Unrealized Base");
-                    end;
-                18:
-                    begin
-                        Assert.IsTrue(Amount18 > 0, IncorrectAmountSignErr);
-                        TestField(Base18, VATEntry."Unrealized Amount" + VATEntry."Unrealized Base");
-                    end;
-            end;
+        VATLedgerLine.SetRange(Code, VATLedgerCode);
+        VATLedgerLine.SetRange("C/V No.", VendorNo);
+        VATLedgerLine.FindFirst();
+        VATLedgerLine.TestField(Amount, GetExpectedPrepaymentPurchVATLedgerAmountFCY(PaymentAmount, VATPercent));
+        VATLedgerLine.TestField("Document No.", VATEntry."Document No.");
+        case VATPercent of
+            10:
+                begin
+                    Assert.IsTrue(VATLedgerLine.Amount10 > 0, IncorrectAmountSignErr);
+                    VATLedgerLine.TestField(Base10, VATEntry."Unrealized Amount" + VATEntry."Unrealized Base");
+                end;
+            18:
+                begin
+                    Assert.IsTrue(VATLedgerLine.Amount18 > 0, IncorrectAmountSignErr);
+                    VATLedgerLine.TestField(Base18, VATEntry."Unrealized Amount" + VATEntry."Unrealized Base");
+                end;
         end;
     end;
 
@@ -1263,12 +1213,10 @@ codeunit 144009 "ERM VAT Agent"
     var
         VATLedgerLine: Record "VAT Ledger Line";
     begin
-        with VATLedgerLine do begin
-            SetRange(Type, Type::Purchase);
-            SetRange(Code, VATLedgerCode);
-            SetRange("C/V No.", VendorNo);
-            Assert.RecordIsEmpty(VATLedgerLine);
-        end;
+        VATLedgerLine.SetRange(Type, VATLedgerLine.Type::Purchase);
+        VATLedgerLine.SetRange(Code, VATLedgerCode);
+        VATLedgerLine.SetRange("C/V No.", VendorNo);
+        Assert.RecordIsEmpty(VATLedgerLine);
     end;
 }
 

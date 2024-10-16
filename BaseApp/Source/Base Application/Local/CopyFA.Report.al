@@ -103,7 +103,15 @@ report 12487 "Copy FA"
         FABook2: Record "FA Depreciation Book";
         CountCopy: Integer;
         i: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Do you want to create %1 copies of fixed asset %2?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'The operation finished successfully, created %1 copies.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

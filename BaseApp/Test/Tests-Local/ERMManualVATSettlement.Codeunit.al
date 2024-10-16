@@ -1,4 +1,4 @@
-codeunit 147126 "ERM Manual VAT Settlement"
+﻿codeunit 147126 "ERM Manual VAT Settlement"
 {
     // // [FEATURE] [VAT] [VAT Settlement]
     // 
@@ -823,12 +823,10 @@ codeunit 147126 "ERM Manual VAT Settlement"
         CreateDtldVendLedgerEntry(
           GenJnlLine, VendLedgEntry, DtldVendLedgEntry."Entry Type"::Application,
           GenJnlLine."VAT Transaction No.", DtldVendLedgEntry);
-        with DtldVendLedgEntry do begin
-            SetRange("Vendor No.", GenJnlLine."Account No.");
-            FindFirst();
-            "Document Type" := "Document Type"::"Credit Memo";
-            Modify();
-        end;
+        DtldVendLedgEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
+        DtldVendLedgEntry.FindFirst();
+        DtldVendLedgEntry."Document Type" := DtldVendLedgEntry."Document Type"::"Credit Memo";
+        DtldVendLedgEntry.Modify();
         Assert.IsTrue(
           VATSettlementMgt.AppliedToCrMemo(GenJnlLine), WrongValueReturnedErr);
         VendLedgEntry.Delete();
@@ -851,13 +849,11 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // CopyDimensions function - Purchase Part
         CreateGenJnlLineVendLedgEntry(GenJnlLine, VendLedgEntry);
         CreateDimensionValuesAndDimSetID(DimVal1, DimVal2, Dimension, DimensionValue);
-        with VendLedgEntry do begin
-            "Global Dimension 1 Code" := DimVal1.Code;
-            "Global Dimension 2 Code" := DimVal2.Code;
-            "Dimension Set ID" :=
-              LibraryDimension.CreateDimSet("Dimension Set ID", Dimension.Code, DimensionValue.Code);
-            Modify();
-        end;
+        VendLedgEntry."Global Dimension 1 Code" := DimVal1.Code;
+        VendLedgEntry."Global Dimension 2 Code" := DimVal2.Code;
+        VendLedgEntry."Dimension Set ID" :=
+          LibraryDimension.CreateDimSet(VendLedgEntry."Dimension Set ID", Dimension.Code, DimensionValue.Code);
+        VendLedgEntry.Modify();
         VATSettlementMgt.CopyDimensions(GenJnlLine, CVType::Vendor, GenJnlLine."VAT Transaction No.");
         VerifyGenJnlLineDimensions(GenJnlLine, DimVal1.Code, DimVal2.Code, VendLedgEntry."Dimension Set ID");
         VendLedgEntry.Delete();
@@ -882,13 +878,11 @@ codeunit 147126 "ERM Manual VAT Settlement"
         CreateDimensionValuesAndDimSetID(DimVal1, DimVal2, Dimension, DimensionValue);
         CreateCustLedgerEntry(
           CustLedgEntry, GenJnlLine."Document Type", GenJnlLine."Document No.", GenJnlLine."VAT Transaction No.");
-        with CustLedgEntry do begin
-            "Global Dimension 1 Code" := DimVal1.Code;
-            "Global Dimension 2 Code" := DimVal2.Code;
-            "Dimension Set ID" :=
-              LibraryDimension.CreateDimSet("Dimension Set ID", Dimension.Code, DimensionValue.Code);
-            Modify();
-        end;
+        CustLedgEntry."Global Dimension 1 Code" := DimVal1.Code;
+        CustLedgEntry."Global Dimension 2 Code" := DimVal2.Code;
+        CustLedgEntry."Dimension Set ID" :=
+          LibraryDimension.CreateDimSet(CustLedgEntry."Dimension Set ID", Dimension.Code, DimensionValue.Code);
+        CustLedgEntry.Modify();
         VATSettlementMgt.CopyDimensions(GenJnlLine, CVType::Customer, GenJnlLine."VAT Transaction No.");
         VerifyGenJnlLineDimensions(GenJnlLine, DimVal1.Code, DimVal2.Code, CustLedgEntry."Dimension Set ID");
         CustLedgEntry.Delete();
@@ -953,15 +947,13 @@ codeunit 147126 "ERM Manual VAT Settlement"
         VendorVATInvoiceNo := LibraryUtility.GenerateGUID();
         EnqueueVendorVATInvoceParam(VendorVATInvoiceNo, 0, 0);
         RunChangeVendorVATInvoice(VendLedgEntry, '');
-        with VendLedgEntry do begin
-            Get("Entry No.");
-            Assert.AreEqual(
-              VendorVATInvoiceNo, "Vendor VAT Invoice No.", FieldCaption("Vendor VAT Invoice No."));
-            Assert.AreEqual(
-              WorkDate(), "Vendor VAT Invoice Date", FieldCaption("Vendor VAT Invoice Date"));
-            Assert.AreEqual(
-              WorkDate(), "Vendor VAT Invoice Rcvd Date", FieldCaption("Vendor VAT Invoice Rcvd Date"));
-        end;
+        VendLedgEntry.Get(VendLedgEntry."Entry No.");
+        Assert.AreEqual(
+          VendorVATInvoiceNo, VendLedgEntry."Vendor VAT Invoice No.", VendLedgEntry.FieldCaption("Vendor VAT Invoice No."));
+        Assert.AreEqual(
+          WorkDate(), VendLedgEntry."Vendor VAT Invoice Date", VendLedgEntry.FieldCaption("Vendor VAT Invoice Date"));
+        Assert.AreEqual(
+          WorkDate(), VendLedgEntry."Vendor VAT Invoice Rcvd Date", VendLedgEntry.FieldCaption("Vendor VAT Invoice Rcvd Date"));
     end;
 
     [Test]
@@ -978,19 +970,15 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Check Purch. Prepayment Invoice created if Create Prepmt. Invoice = TRUE for
         // Change Vendor VAT Invoice report
         CreateVendLedgEntryForChangeVATInvoice(VendLedgEntry, VATPostingSetup);
-        with VendLedgEntry do begin
-            CalcFields("Remaining Amt. (LCY)");
-            VATBase := LibraryRandom.RandDecInDecimalRange(1, "Remaining Amt. (LCY)", 2);
-            VATAmount := LibraryRandom.RandDecInDecimalRange(1, VATBase, 2);
-        end;
+        VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
+        VATBase := LibraryRandom.RandDecInDecimalRange(1, VendLedgEntry."Remaining Amt. (LCY)", 2);
+        VATAmount := LibraryRandom.RandDecInDecimalRange(1, VATBase, 2);
 
         EnqueueVendorVATInvoceParam(LibraryUtility.GenerateGUID(), VATBase, VATAmount);
         RunChangeVendorVATInvoice(VendLedgEntry, VATPostingSetup."VAT Prod. Posting Group");
-        with PurchInvHeader do begin
-            SetRange("Buy-from Vendor No.", VendLedgEntry."Vendor No.");
-            FindFirst();
-            Assert.IsTrue("Prepayment Invoice", FieldCaption("Prepayment Invoice"));
-        end;
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VendLedgEntry."Vendor No.");
+        PurchInvHeader.FindFirst();
+        Assert.IsTrue(PurchInvHeader."Prepayment Invoice", PurchInvHeader.FieldCaption("Prepayment Invoice"));
     end;
 
     [Test]
@@ -1278,14 +1266,12 @@ codeunit 147126 "ERM Manual VAT Settlement"
 
     local procedure CreateItemCharge(var ItemCharge: Record "Item Charge"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
     begin
-        with ItemCharge do begin
-            Init();
-            Validate(
-              "No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Item Charge"));
-            Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-            Insert(true);
-        end;
+        ItemCharge.Init();
+        ItemCharge.Validate(
+          "No.", LibraryUtility.GenerateRandomCode(ItemCharge.FieldNo("No."), DATABASE::"Item Charge"));
+        ItemCharge.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
+        ItemCharge.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        ItemCharge.Insert(true);
     end;
 
     local procedure CreatePostVATAllocLine(DocumentNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; VATSettlementType: Option; DateFilter: Date) ChargeAmount: Decimal
@@ -1373,38 +1359,32 @@ codeunit 147126 "ERM Manual VAT Settlement"
         LibraryERM.FindVATBusinessPostingGroup(VATBusPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
 
-        with VATPostingSetup do begin
-            "VAT Identifier" := "VAT Prod. Posting Group";
-            "Unrealized VAT Type" := "Unrealized VAT Type"::Percentage;
-            "Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
-            "Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
-            "Sales VAT Account" := LibraryERM.CreateGLAccountNo();
-            "Sales VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
-            "Write-Off VAT Account" := LibraryERM.CreateGLAccountNo();
-            Modify(true);
-        end;
+        VATPostingSetup."VAT Identifier" := VATPostingSetup."VAT Prod. Posting Group";
+        VATPostingSetup."Unrealized VAT Type" := VATPostingSetup."Unrealized VAT Type"::Percentage;
+        VATPostingSetup."Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Sales VAT Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Sales VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Write-Off VAT Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure GetItemChargePurchLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
-        with PurchaseLine do begin
-            Reset();
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            SetRange(Type, Type::"Charge (Item)");
-            FindFirst();
-        end;
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        PurchaseLine.FindFirst();
     end;
 
     local procedure GetItemChargeSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        with SalesLine do begin
-            Reset();
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::"Charge (Item)");
-            FindFirst();
-        end;
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
+        SalesLine.FindFirst();
     end;
 
     local procedure AddPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
@@ -1492,10 +1472,9 @@ codeunit 147126 "ERM Manual VAT Settlement"
         NewCounter: Integer;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        for Counter := 1 to NoOfLines do begin
+        for Counter := 1 to NoOfLines do
             for NewCounter := 1 to NoOfItems do
                 AddPurchaseLine(PurchaseHeader, PurchaseLine, Type, Items[NewCounter], LibraryRandom.RandInt(50));
-        end;
     end;
 
     local procedure CreatePurchCrM(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; PurchaseInvoiceNo: Code[20])
@@ -1513,10 +1492,9 @@ codeunit 147126 "ERM Manual VAT Settlement"
         NewCounter: Integer;
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        for Counter := 1 to NoOfLines do begin
+        for Counter := 1 to NoOfLines do
             for NewCounter := 1 to NoOfItems do
                 AddSalesLine(SalesHeader, SalesLine, Type, Items[NewCounter], LibraryRandom.RandInt(50));
-        end;
     end;
 
     local procedure CreateSalesCrM(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; SalesInvoiceNo: Code[20])
@@ -1701,15 +1679,13 @@ codeunit 147126 "ERM Manual VAT Settlement"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        with CustomerPostingGroup do begin
-            Reset();
-            SetFilter("Invoice Rounding Account", '<>''''');
-            if not FindFirst() then begin
-                Reset();
-                FindFirst();
-                "Invoice Rounding Account" := LibraryERM.CreateGLAccountNo();
-                Modify();
-            end;
+        CustomerPostingGroup.Reset();
+        CustomerPostingGroup.SetFilter("Invoice Rounding Account", '<>''''');
+        if not CustomerPostingGroup.FindFirst() then begin
+            CustomerPostingGroup.Reset();
+            CustomerPostingGroup.FindFirst();
+            CustomerPostingGroup."Invoice Rounding Account" := LibraryERM.CreateGLAccountNo();
+            CustomerPostingGroup.Modify();
         end;
         exit(CustomerPostingGroup.Code);
     end;
@@ -1736,25 +1712,21 @@ codeunit 147126 "ERM Manual VAT Settlement"
 
     local procedure FindLastItemChargePurchLine(var PurchLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
-        with PurchLine do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange(Type, Type::"Charge (Item)");
-            FindLast();
-        end;
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Invoice);
+        PurchLine.SetRange("Document No.", DocumentNo);
+        PurchLine.SetRange("Document Type", DocumentType);
+        PurchLine.SetRange(Type, PurchLine.Type::"Charge (Item)");
+        PurchLine.FindLast();
     end;
 
     local procedure CreatePurchDocLine(PurchHeader: Record "Purchase Header"; ItemType: Enum "Purchase Line Type"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; LineAmt: Decimal)
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, ItemType, ItemNo, Qty);
-            Validate("Direct Unit Cost", UnitCost);
-            Validate("Line Amount", LineAmt);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, ItemType, ItemNo, Qty);
+        PurchLine.Validate("Direct Unit Cost", UnitCost);
+        PurchLine.Validate("Line Amount", LineAmt);
+        PurchLine.Modify(true);
     end;
 
     local procedure CreateSalesDocItemChargeLine(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Qty: Decimal; UnitPrice: Decimal; LineAmt: Decimal)
@@ -1768,23 +1740,19 @@ codeunit 147126 "ERM Manual VAT Settlement"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, ItemType, ItemNo, Qty);
-            Validate("Unit Price", UnitPrice);
-            Validate("Line Amount", LineAmt);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, ItemType, ItemNo, Qty);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("Line Amount", LineAmt);
+        SalesLine.Modify(true);
     end;
 
     local procedure GetLastItemChargeSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange(Type, Type::"Charge (Item)");
-            FindLast();
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
+        SalesLine.FindLast();
     end;
 
     local procedure SuggestItemChargeAssgntSales(SalesLine: Record "Sales Line"; ItemCharge: Record "Item Charge"; ChargeItemQty: Decimal; ChargeItemAmt: Decimal)
@@ -2014,15 +1982,13 @@ codeunit 147126 "ERM Manual VAT Settlement"
     var
         RecRef: RecordRef;
     begin
-        with VendLedgEntry do begin
-            Init();
-            RecRef.GetTable(VendLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Document Type" := DocumentType;
-            "Document No." := DocumentNo;
-            "Transaction No." := TransactionNo;
-            Insert();
-        end;
+        VendLedgEntry.Init();
+        RecRef.GetTable(VendLedgEntry);
+        VendLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, VendLedgEntry.FieldNo("Entry No."));
+        VendLedgEntry."Document Type" := DocumentType;
+        VendLedgEntry."Document No." := DocumentNo;
+        VendLedgEntry."Transaction No." := TransactionNo;
+        VendLedgEntry.Insert();
     end;
 
     local procedure CreateCustLedgerEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; TransactionNo: Integer)
@@ -2065,14 +2031,12 @@ codeunit 147126 "ERM Manual VAT Settlement"
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            Get(GLAccNo);
-            Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-            Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Get(GLAccNo);
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
     end;
 
     local procedure CheckCVLedgEntry(CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; PostingDate: Date; EntryNo: Integer; CVNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CVLEDescription: Text[100])
@@ -2229,11 +2193,9 @@ codeunit 147126 "ERM Manual VAT Settlement"
 
     local procedure VerifyGenJnlLineDimensions(GenJnlLine: Record "Gen. Journal Line"; DimValCode1: Code[20]; DimValCode2: Code[20]; DimSetId: Integer)
     begin
-        with GenJnlLine do begin
-            Assert.AreEqual(DimValCode1, "Shortcut Dimension 1 Code", FieldCaption("Shortcut Dimension 1 Code"));
-            Assert.AreEqual(DimValCode2, "Shortcut Dimension 2 Code", FieldCaption("Shortcut Dimension 2 Code"));
-            Assert.AreEqual(DimSetId, "Dimension Set ID", FieldCaption("Dimension Set ID"));
-        end;
+        Assert.AreEqual(DimValCode1, GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine.FieldCaption("Shortcut Dimension 1 Code"));
+        Assert.AreEqual(DimValCode2, GenJnlLine."Shortcut Dimension 2 Code", GenJnlLine.FieldCaption("Shortcut Dimension 2 Code"));
+        Assert.AreEqual(DimSetId, GenJnlLine."Dimension Set ID", GenJnlLine.FieldCaption("Dimension Set ID"));
     end;
 
     local procedure VerifyVATEntryManualVATSettlement(VATEntry: Record "VAT Entry")
@@ -2301,13 +2263,11 @@ codeunit 147126 "ERM Manual VAT Settlement"
         VATPostingSetup.Modify();
         CreateVendor(Vendor, VATPostingSetup);
         LibraryERM.FindVATProductPostingGroup(VATProdPostingGroup);
-        with VendLedgEntry do begin
-            "Vendor No." := Vendor."No.";
-            "Vendor Posting Group" := Vendor."Vendor Posting Group";
-            Prepayment := true;
-            Modify();
-            SetRecFilter();
-        end;
+        VendLedgEntry."Vendor No." := Vendor."No.";
+        VendLedgEntry."Vendor Posting Group" := Vendor."Vendor Posting Group";
+        VendLedgEntry.Prepayment := true;
+        VendLedgEntry.Modify();
+        VendLedgEntry.SetRecFilter();
     end;
 
     local procedure RunChangeVendorVATInvoice(VendLedgEntry: Record "Vendor Ledger Entry"; VATProdPostingGroup: Code[20])

@@ -103,7 +103,7 @@ report 17306 "Calculate Tax Diff. for FA"
                                                   TaxDiffFAPostingBuffer.Type::Depreciation,
                                                   FALedgerEntry."Tax Difference Code",
                                                   FALedgerEntry.Amount);
-                                        end else begin
+                                        end else
                                             if (AccCurrPeriodAcquisitionCost <> TaxCurrPeriodAcquisitionCost) and
                                                (TaxDiff.Type = TaxDiff.Type::"Temporary")
                                             then
@@ -111,7 +111,6 @@ report 17306 "Calculate Tax Diff. for FA"
                                                   TaxDiffFAPostingBuffer.Type::"Acquisition Cost",
                                                   FALedgerEntry."Tax Difference Code",
                                                   FALedgerEntry.Amount);
-                                        end;
                                     until FALedgerEntry.Next() = 0;
                             end;
                         until DepreciationBook.Next() = 0;
@@ -131,28 +130,26 @@ report 17306 "Calculate Tax Diff. for FA"
                 end;
 
                 TaxDiffFAPostingBuffer.Reset();
-                if TaxDiffFAPostingBuffer.FindSet() then begin
+                if TaxDiffFAPostingBuffer.FindSet() then
                     repeat
                         TaxDiff.Get(TaxDiffFAPostingBuffer."Tax Diff. Code");
 
                         case TaxDiffFAPostingBuffer.Type of
                             TaxDiffFAPostingBuffer.Type::"Acquisition Cost":
-                                begin
-                                    if not TaxDiffAlreadyPosted(
-                                         TaxDiffFAPostingBuffer."Tax Diff. Code",
-                                         SourceType,
-                                         "No.",
-                                         "Initial Release Date")
-                                    then
-                                        CreateJnlLine(
-                                          StrSubstNo('%1 %2', TaxDiff.Description, "No."),
-                                          "Initial Release Date",
-                                          TaxDiffFAPostingBuffer."Tax Diff. Code",
-                                          0,
-                                          TaxDiffFAPostingBuffer."Initial Amount",
-                                          TaxDiffJnlLine."Source Type"::"Fixed Asset",
-                                          "No.");
-                                end;
+                                if not TaxDiffAlreadyPosted(
+                                        TaxDiffFAPostingBuffer."Tax Diff. Code",
+                                        SourceType,
+                                        "No.",
+                                        "Initial Release Date")
+                                then
+                                    CreateJnlLine(
+                                        StrSubstNo('%1 %2', TaxDiff.Description, "No."),
+                                        "Initial Release Date",
+                                        TaxDiffFAPostingBuffer."Tax Diff. Code",
+                                        0,
+                                        TaxDiffFAPostingBuffer."Initial Amount",
+                                        TaxDiffJnlLine."Source Type"::"Fixed Asset",
+                                        "No.");
                             TaxDiffFAPostingBuffer.Type::Depreciation:
                                 if not TaxDiffAlreadyPosted(
                                      TaxDiffFAPostingBuffer."Tax Diff. Code",
@@ -194,7 +191,6 @@ report 17306 "Calculate Tax Diff. for FA"
                                 end;
                         end;
                     until TaxDiffFAPostingBuffer.Next() = 0;
-                end;
 
                 TaxDiffPeriodDeprAmount := AccDeprAmount - BufferedAccDeprAmount - DiffAccDeprBonusAmountToPost;
                 if ((TaxDiffPeriodDeprAmount <> 0) or (TaxDeprAmount - TaxDeprBonusAmount <> 0)) and
@@ -369,10 +365,18 @@ report 17306 "Calculate Tax Diff. for FA"
         TemplateName: Code[10];
         BatchName: Code[10];
         LineNo: Integer;
+#pragma warning disable AA0074
         Text001: Label 'Please enter a journal template name.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Please enter a journal batch name.';
+#pragma warning restore AA0074
         SourceType: Option " ","Future Expense","Fixed Asset","Intangible Asset";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 %2 is skipped. Please calculate tax difference manually if it is necessary.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CreateJnlLine(Description: Text[80]; PostingDate: Date; TaxDiffCode: Code[10]; AmountBase: Decimal; AmountTax: Decimal; SourceType: Option; SourceNo: Code[20])

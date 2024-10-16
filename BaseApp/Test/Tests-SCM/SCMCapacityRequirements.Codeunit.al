@@ -23,12 +23,6 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         CalendarMgt: Codeunit "Shop Calendar Management";
         IsInitialized: Boolean;
-        WorkCenterEfficiencyError: Label 'Efficiency must have a value in Work Center: No.=%1. It cannot be zero or empty.';
-        MachineCenterEfficiencyError: Label 'Efficiency must have a value in Machine Center: No.=%1. It cannot be zero or empty.';
-        MachineCenterCapacityError: Label 'Capacity must have a value in Machine Center: No.=%1. It cannot be zero or empty.';
-        WorkCenterCapacityError: Label 'Capacity must have a value in Work Center: No.=%1. It cannot be zero or empty.';
-        MachineCenterBlockedError: Label 'Blocked must be equal to ''No''  in Machine Center: No.=%1. Current value is ''Yes''.';
-        WorkCenterCenterBlockedError: Label 'Blocked must be equal to ''No''  in Work Center: No.=%1. Current value is ''Yes''.';
         GreaterEqualZeroError: Label 'The value must be greater than or equal to 0.';
         FirmPlannedProductionOrderCreated: Label 'Firm Planned Prod. Order';
         ProdOrderLineQuantityError: Label 'Quantity must have a value in Prod. Order Line';
@@ -128,7 +122,7 @@ codeunit 137074 "SCM Capacity Requirements"
         asserterror LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // Verify: Verify Error message for Machine Center Capacity zero.
-        Assert.ExpectedError(StrSubstNo(MachineCenterCapacityError, MachineCenter."No."));
+        Assert.ExpectedTestFieldError(MachineCenter.FieldCaption(Capacity), '');
     end;
 
     [Test]
@@ -148,7 +142,7 @@ codeunit 137074 "SCM Capacity Requirements"
         asserterror LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // Verify: Verify Error message for Machine Center Efficiency zero.
-        Assert.ExpectedError(StrSubstNo(MachineCenterEfficiencyError, MachineCenter."No."));
+        Assert.ExpectedTestFieldError(MachineCenter.FieldCaption(Efficiency), '');
     end;
 
     [Test]
@@ -166,7 +160,7 @@ codeunit 137074 "SCM Capacity Requirements"
         asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // Verify: Verify Error message for Work Center Capacity zero.
-        Assert.ExpectedError(StrSubstNo(WorkCenterCapacityError, WorkCenter."No."));
+        Assert.ExpectedTestFieldError(WorkCenter.FieldCaption(Capacity), '');
     end;
 
     [Test]
@@ -184,7 +178,7 @@ codeunit 137074 "SCM Capacity Requirements"
         asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // Verify: Verify Error message for Work Center Efficiency zero.
-        Assert.ExpectedError(StrSubstNo(WorkCenterEfficiencyError, WorkCenter."No."));
+        Assert.ExpectedTestFieldError(WorkCenter.FieldCaption(Efficiency), '');
     end;
 
     [Test]
@@ -244,7 +238,7 @@ codeunit 137074 "SCM Capacity Requirements"
         asserterror CreateRoutingLine(RoutingLine, RoutingHeader, RoutingLine.Type::"Machine Center", MachineCenter."No.", false);
 
         // Verify: Verify Error message for Blocked Machine Center.
-        Assert.ExpectedError(StrSubstNo(MachineCenterBlockedError, MachineCenter."No."));
+        Assert.ExpectedTestFieldError(MachineCenter.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -265,7 +259,7 @@ codeunit 137074 "SCM Capacity Requirements"
         asserterror CreateRoutingLine(RoutingLine, RoutingHeader, RoutingLine.Type::"Work Center", WorkCenter."No.", false);
 
         // Verify: Verify Error message for Blocked Work Center.
-        Assert.ExpectedError(StrSubstNo(WorkCenterCenterBlockedError, WorkCenter."No."));
+        Assert.ExpectedTestFieldError(WorkCenter.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -5081,11 +5075,9 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         OperationNo := FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, RoutingLine.Type::"Work Center", WorkCenterNo);
-        with RoutingLine do begin
-            Validate("Run Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
-            Validate("Run Time", RunTime);
-            Modify(true);
-        end;
+        RoutingLine.Validate("Run Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Modify(true);
         UpdateStatusOnRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
 
         exit(RoutingHeader."No.");
@@ -5100,11 +5092,9 @@ codeunit 137074 "SCM Capacity Requirements"
         CapacityUnitOfMeasure.FindFirst();
 
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
-        with WorkCenter do begin
-            Validate("Unit of Measure Code", CapacityUnitOfMeasure.Code);
-            Validate("Direct Unit Cost", DirectCost);
-            Modify(true);
-        end;
+        WorkCenter.Validate("Unit of Measure Code", CapacityUnitOfMeasure.Code);
+        WorkCenter.Validate("Direct Unit Cost", DirectCost);
+        WorkCenter.Modify(true);
 
         exit(WorkCenter."No.");
     end;
@@ -5112,13 +5102,12 @@ codeunit 137074 "SCM Capacity Requirements"
     local procedure CreateMachineCenter(var MachineCenter: Record "Machine Center"; WorkCenterNo: Code[20])
     begin
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenterNo, LibraryRandom.RandDec(100, 2));
-        with MachineCenter do begin
-            Validate("Setup Time", LibraryRandom.RandDec(10, 2));
-            Validate("Wait Time", LibraryRandom.RandDec(10, 2));
-            Validate("Move Time", LibraryRandom.RandDec(10, 2));
-            Validate(Capacity, LibraryRandom.RandIntInRange(3, 5)); // Any value except 1.
-            Modify(true);
-        end;
+        MachineCenter.Validate("Setup Time", LibraryRandom.RandDec(10, 2));
+        MachineCenter.Validate("Wait Time", LibraryRandom.RandDec(10, 2));
+        MachineCenter.Validate("Move Time", LibraryRandom.RandDec(10, 2));
+        MachineCenter.Validate(Capacity, LibraryRandom.RandIntInRange(3, 5));
+        // Any value except 1.
+        MachineCenter.Modify(true);
         LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
     end;
 
@@ -5131,39 +5120,35 @@ codeunit 137074 "SCM Capacity Requirements"
         OperationNo := FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
 
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, Type, No);
-        with RoutingLine do begin
-            Validate("Setup Time", LibraryRandom.RandDec(10, 2));
-            Validate("Run Time", LibraryRandom.RandDec(10, 2));
-            Validate("Wait Time", LibraryRandom.RandDec(10, 2));
-            Validate("Move Time", LibraryRandom.RandDec(10, 2));
-            if IsMultipleUOM then begin
-                LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::"100/Hour");
-                Validate("Setup Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
-                LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Minutes);
-                Validate("Run Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
-                LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Hours);
-                Validate("Wait Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
-                LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Days);
-                Validate("Move Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
-            end;
-            Modify(true)
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandDec(10, 2));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandDec(10, 2));
+        RoutingLine.Validate("Wait Time", LibraryRandom.RandDec(10, 2));
+        RoutingLine.Validate("Move Time", LibraryRandom.RandDec(10, 2));
+        if IsMultipleUOM then begin
+            LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::"100/Hour");
+            RoutingLine.Validate("Setup Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
+            LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Minutes);
+            RoutingLine.Validate("Run Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
+            LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Hours);
+            RoutingLine.Validate("Wait Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
+            LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Days);
+            RoutingLine.Validate("Move Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
         end;
+        RoutingLine.Modify(true)
     end;
 
     local procedure CreateRoutingLineWithSendAhead(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; Type: Enum "Capacity Type Routing"; No: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal; SendAhead: Integer; ConcurrentCapacities: Decimal; OperationNo: Code[10]; PrevOperationNo: Code[10]; NextOperationNo: Code[10])
     begin
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, Type, No);
-        with RoutingLine do begin
-            Validate("Setup Time", SetupTime);
-            Validate("Run Time", RunTime);
-            Validate("Wait Time", WaitTime);
-            Validate("Move Time", MoveTime);
-            Validate("Send-Ahead Quantity", SendAhead);
-            Validate("Concurrent Capacities", ConcurrentCapacities);
-            Validate("Previous Operation No.", PrevOperationNo);
-            Validate("Next Operation No.", NextOperationNo);
-            Modify(true)
-        end;
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Wait Time", WaitTime);
+        RoutingLine.Validate("Move Time", MoveTime);
+        RoutingLine.Validate("Send-Ahead Quantity", SendAhead);
+        RoutingLine.Validate("Concurrent Capacities", ConcurrentCapacities);
+        RoutingLine.Validate("Previous Operation No.", PrevOperationNo);
+        RoutingLine.Validate("Next Operation No.", NextOperationNo);
+        RoutingLine.Modify(true)
     end;
 
     local procedure CreateWorkCenter(var WorkCenter: Record "Work Center")
@@ -5441,12 +5426,11 @@ codeunit 137074 "SCM Capacity Requirements"
 
     local procedure CalcRoutingLineQtyBase(RoutingLine: Record "Routing Line"): Decimal
     begin
-        with RoutingLine do
-            exit(
-              "Setup Time" * CalendarMgt.TimeFactor("Setup Time Unit of Meas. Code") +
-              "Run Time" * CalendarMgt.TimeFactor("Run Time Unit of Meas. Code") +
-              "Wait Time" * CalendarMgt.TimeFactor("Wait Time Unit of Meas. Code") +
-              "Move Time" * CalendarMgt.TimeFactor("Move Time Unit of Meas. Code"));
+        exit(
+              RoutingLine."Setup Time" * CalendarMgt.TimeFactor(RoutingLine."Setup Time Unit of Meas. Code") +
+              RoutingLine."Run Time" * CalendarMgt.TimeFactor(RoutingLine."Run Time Unit of Meas. Code") +
+              RoutingLine."Wait Time" * CalendarMgt.TimeFactor(RoutingLine."Wait Time Unit of Meas. Code") +
+              RoutingLine."Move Time" * CalendarMgt.TimeFactor(RoutingLine."Move Time Unit of Meas. Code"));
     end;
 
     local procedure FindWorkCenter(var WorkCenter: Record "Work Center"; RoutingNo: Code[20])
@@ -5604,15 +5588,13 @@ codeunit 137074 "SCM Capacity Requirements"
 
     local procedure FindFirstProdOrderCapacityNeedWithTimeType(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type")
     begin
-        with ProdOrderCapacityNeed do begin
-            SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
-            SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
-            SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
-            SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
-            SetRange(Status, ProdOrderRoutingLine.Status);
-            SetRange("Time Type", TimeType);
-            FindFirst();
-        end;
+        ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        ProdOrderCapacityNeed.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+        ProdOrderCapacityNeed.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+        ProdOrderCapacityNeed.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+        ProdOrderCapacityNeed.SetRange(Status, ProdOrderRoutingLine.Status);
+        ProdOrderCapacityNeed.SetRange("Time Type", TimeType);
+        ProdOrderCapacityNeed.FindFirst();
     end;
 
     local procedure GetNextProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; NextOperationNo: Code[30])
@@ -5643,13 +5625,12 @@ codeunit 137074 "SCM Capacity Requirements"
     local procedure UpdateProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Enum "Capacity Type Routing"; RoutingLineNo: Code[20]; SendAheadQuantity: Decimal; ConcurrentCapacities: Decimal)
     begin
         FindProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderNo, Type, RoutingLineNo);
-        with ProdOrderRoutingLine do begin
-            Validate("Send-Ahead Quantity", SendAheadQuantity);
-            Validate("Concurrent Capacities", ConcurrentCapacities);
-            Validate("Starting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
-            Validate("Starting Time", 080000T); // To make sure the Starting Time of the next Operation won't exceed the ending time of current working day.
-            Modify(true);
-        end;
+        ProdOrderRoutingLine.Validate("Send-Ahead Quantity", SendAheadQuantity);
+        ProdOrderRoutingLine.Validate("Concurrent Capacities", ConcurrentCapacities);
+        ProdOrderRoutingLine.Validate("Starting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
+        ProdOrderRoutingLine.Validate("Starting Time", 080000T);
+        // To make sure the Starting Time of the next Operation won't exceed the ending time of current working day.
+        ProdOrderRoutingLine.Modify(true);
     end;
 
     local procedure CreateFirmPlannedProductionOrderFromSalesOrder(SalesHeader: Record "Sales Header")

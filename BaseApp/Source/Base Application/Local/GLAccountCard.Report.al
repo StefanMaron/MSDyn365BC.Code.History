@@ -376,9 +376,15 @@ report 12437 "G/L Account Card"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Debit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Credit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'Balance at';
+#pragma warning restore AA0074
         GLEntry1: Record "G/L Entry";
         LocMgt: Codeunit "Localisation Management";
         CurrentDate: Text[30];
@@ -401,7 +407,11 @@ report 12437 "G/L Account Card"
         LineAmount: array[10] of Decimal;
         PageNo: Integer;
         GLAccURL: RecordRef;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'For Period from %1 to %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         GL_Account_CardCaptionLbl: Label 'GL Account Card';
         DescriptionCaptionLbl: Label 'Description';

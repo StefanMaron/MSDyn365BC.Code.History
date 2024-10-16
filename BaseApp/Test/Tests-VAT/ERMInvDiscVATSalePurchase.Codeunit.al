@@ -24,7 +24,6 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         IsInitialized: Boolean;
         AmountError: Label '%1 must be %2 in %3.';
         InvDiscErr: Label 'The maximum %1 that you can apply is %2.';
-        InvBaseDiscError: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12', Comment = '%1: FieldCaption1;%2:TableCaption;%3:FieldCaption2;%4:FieldValue;%5:FieldCaption3;%6:FieldValue2;%7:FieldCaption4;%8:FieldValue3;%9:FieldCaption5;%10:FieldValue4;%11:FieldCaption6;%12:FieldValue5';
         ValidationError: Label 'Error must match.';
         ErrorAmount: Label 'Amount must be %1 in %2.';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
@@ -502,12 +501,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         asserterror VATAmountLine.Validate("Invoice Discount Amount", LibraryRandom.RandDec(10, 2));
 
         // Verify: Verity Error on Validate of Invoice Discount Amount when Inv. Disc. Base Amount is Zero.
-        Assert.ExpectedError(
-          StrSubstNo(InvBaseDiscError, VATAmountLine.FieldCaption("Inv. Disc. Base Amount"), VATAmountLine.TableCaption(),
-            VATAmountLine.FieldCaption("VAT Identifier"), VATAmountLine."VAT Identifier",
-            VATAmountLine.FieldCaption("VAT Calculation Type"), VATAmountLine."VAT Calculation Type",
-            VATAmountLine.FieldCaption("Tax Group Code"), VATAmountLine."Tax Group Code", VATAmountLine.FieldCaption("Use Tax"),
-            VATAmountLine."Use Tax", VATAmountLine.FieldCaption(Positive), VATAmountLine.Positive));
+        Assert.ExpectedTestFieldError(VATAmountLine.FieldCaption("Inv. Disc. Base Amount"), '');
     end;
 
     [Test]

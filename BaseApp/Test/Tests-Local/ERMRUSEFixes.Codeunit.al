@@ -18,9 +18,6 @@ codeunit 144004 "ERM RU SE Fixes"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
-#if not CLEAN22
-        LibraryDimension: Codeunit "Library - Dimension";
-#endif
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
@@ -382,44 +379,6 @@ codeunit 144004 "ERM RU SE Fixes"
         // VERIFY
         VerifyGenJnlLineArchive(GenJnlLine);
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure RunAccountScheduleOverviewWithComparisionFormula()
-    var
-        GLCorrespondenceEntry: Record "G/L Correspondence Entry";
-        AccountScheduleNames: TestPage "Account Schedule Names";
-        AccScheduleOverview: TestPage "Acc. Schedule Overview";
-        GLAccountNo: Code[20];
-        ColumnLayoutName: Code[10];
-        AccScheduleName: Code[10];
-        ComparisionDateFormula: DateFormula;
-    begin
-        // [FEATURE] [Account Schedule Overview]
-        // [SCENARIO 122555] Account Schedule Overview shows G/L Corr. Entry Amount when Comparision Formula defined
-        // [GIVEN] Column Layout = 'C' with Comparision Formula = '-1Y'
-        Evaluate(ComparisionDateFormula, '<-1Y>');
-        ColumnLayoutName := CreateColumnLayoutWithComparisionDateFormula(ComparisionDateFormula);
-
-        // [GIVEN] Account Schedule with Default Column Layout = 'C' and Totaling for G/L Account = 'A'
-        GLAccountNo := LibraryUtility.GenerateGUID();
-        AccScheduleName := CreateAccScheduleWithDefaultColumnName(ColumnLayoutName, GLAccountNo);
-
-        // [GIVEN] G/L Corr. Entry for G/L Account = 'A' within period for Comparision Formula = '-1Y'
-        CreateGLCorrEntry(GLCorrespondenceEntry, CalcDate(ComparisionDateFormula, WorkDate()), GLAccountNo);
-
-        // [WHEN] Open Acc. Schedule Overview Page
-        AccountScheduleNames.OpenView();
-        AccountScheduleNames.FILTER.SetFilter(Name, AccScheduleName);
-        AccScheduleOverview.Trap();
-        AccountScheduleNames.Overview.Invoke();
-
-        // [THEN] Amount = 'X' is shown for ColumnLayout = 'C'
-        AccScheduleOverview.CurrentColumnName.AssertEquals(ColumnLayoutName);
-        AccScheduleOverview.ColumnValues1.AssertEquals(GLCorrespondenceEntry.Amount);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('AccSchedFormulaDrillDownPageHandler')]
@@ -795,168 +754,6 @@ codeunit 144004 "ERM RU SE Fixes"
         VerifyPaymentAndInvoiceFullyApplied(PaymentNo, InvoiceNo);
     end;
 
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure CorrDimFilterOnColumnLayoutAppliedToAccountSchedule()
-    var
-        DimensionValue: Record "Dimension Value";
-        ColumnLayout: Record "Column Layout";
-        GLCorrespondenceEntry: array[2] of Record "G/L Correspondence Entry";
-        AccScheduleLine: Record "Acc. Schedule Line";
-        AccSchedManagement: Codeunit AccSchedManagement;
-        GLAccountNo: Code[20];
-        AccScheduleName: Code[10];
-        Amt: Decimal;
-    begin
-        // [FEATURE] [Account Schedule] [Column Layout] [G/L Correspondence] [Dimension]
-        // [SCENARIO 311073] "Dimension 1/2 Corr. Totaling" filter set on column layout with "G/L Correspondence" entry type is applied to account schedule.
-        Initialize();
-
-        // [GIVEN] G/L Account "X".
-        GLAccountNo := LibraryUtility.GenerateGUID();
-
-        // [GIVEN] Global dimension 2 value "DIM2".
-        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(2));
-
-        // [GIVEN] Column layout, set "Dimension 2 Corr. Totaling" = "DIM2".
-        CreateColumnLayoutWithCorrEntriesLedgEntryType(ColumnLayout);
-        ColumnLayout.Validate("Dimension 2 Corr. Totaling", DimensionValue.Code);
-        ColumnLayout.Modify(true);
-
-        // [GIVEN] Account schedule with one line for g/l account "X" and just created column layout.
-        AccScheduleName := CreateAccScheduleWithDefaultColumnName(ColumnLayout."Column Layout Name", GLAccountNo);
-
-        // [GIVEN] Generate two g/l correspondence entries with g/l account "X" -
-        // [GIVEN] The first entry has blank "Credit Global Dimension 2 Code", Amount = "A1";
-        // [GIVEN] The second entry has "Credit Global Dimension 2 Code" = "DIM2", Amount = "A2".
-        CreateGLCorrEntry(GLCorrespondenceEntry[1], WorkDate(), GLAccountNo);
-        CreateGLCorrEntry(GLCorrespondenceEntry[2], WorkDate(), GLAccountNo);
-        GLCorrespondenceEntry[2].Validate("Credit Global Dimension 2 Code", DimensionValue.Code);
-        GLCorrespondenceEntry[2].Modify(true);
-
-        // [WHEN] Calculate the account schedule.
-        AccScheduleLine.SetRange("Schedule Name", AccScheduleName);
-        AccScheduleLine.SetRange("Date Filter", WorkDate());
-        AccScheduleLine.FindFirst();
-        Amt := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);
-
-        // [THEN] The value in the only cell in the account schedule = "A2".
-        Assert.AreEqual(GLCorrespondenceEntry[2].Amount, Amt, '');
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure DrillDownAccountScheduleCellConsidersCorrDimFilterOnColumnLayout()
-    var
-        DimensionValue: Record "Dimension Value";
-        ColumnLayout: Record "Column Layout";
-        GLCorrespondenceEntry: array[2] of Record "G/L Correspondence Entry";
-        AccScheduleLine: Record "Acc. Schedule Line";
-        AccSchedManagement: Codeunit AccSchedManagement;
-        GLCorrespondenceEntries: TestPage "G/L Correspondence Entries";
-        GLAccountNo: Code[20];
-        AccScheduleName: Code[10];
-    begin
-        // [FEATURE] [Account Schedule] [Column Layout] [G/L Correspondence] [Dimension]
-        // [SCENARIO 311073] Drilling down the cell in the account schedule shows only records that meet "Dimension 1/2 Corr. Totaling" filter set on column layout with "G/L Correspondence" entry type.
-        Initialize();
-
-        // [GIVEN] G/L Account "X".
-        GLAccountNo := LibraryUtility.GenerateGUID();
-
-        // [GIVEN] Global dimension 2 value "DIM2".
-        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(2));
-
-        // [GIVEN] Column layout, set "Dimension 2 Corr. Totaling" = "DIM2".
-        CreateColumnLayoutWithCorrEntriesLedgEntryType(ColumnLayout);
-        ColumnLayout.Validate("Dimension 2 Corr. Totaling", DimensionValue.Code);
-        ColumnLayout.Modify(true);
-
-        // [GIVEN] Account schedule with one line for g/l account "X" and just created column layout.
-        AccScheduleName := CreateAccScheduleWithDefaultColumnName(ColumnLayout."Column Layout Name", GLAccountNo);
-
-        // [GIVEN] Generate two g/l correspondence entries with g/l account "X" -
-        // [GIVEN] The first entry has blank "Credit Global Dimension 2 Code".
-        // [GIVEN] The second entry has "Credit Global Dimension 2 Code" = "DIM2".
-        CreateGLCorrEntry(GLCorrespondenceEntry[1], WorkDate(), GLAccountNo);
-        CreateGLCorrEntry(GLCorrespondenceEntry[2], WorkDate(), GLAccountNo);
-        GLCorrespondenceEntry[2].Validate("Credit Global Dimension 2 Code", DimensionValue.Code);
-        GLCorrespondenceEntry[2].Modify(true);
-
-        // [WHEN] Drill down the only cell in the account schedule.
-        GLCorrespondenceEntries.Trap();
-        AccScheduleLine.SetRange("Schedule Name", AccScheduleName);
-        AccScheduleLine.SetRange("Date Filter", WorkDate());
-        AccScheduleLine.FindFirst();
-        AccSchedManagement.SetDateParameters(WorkDate(), WorkDate());
-        AccSchedManagement.DrillDown(ColumnLayout, AccScheduleLine, PeriodType::Day);
-
-        // [THEN] Only the g/l correspondence entry with "Credit Global Dimension 2 Code" = "DIM2" is shown.
-        Assert.IsFalse(GLCorrespondenceEntries.GotoKey(GLCorrespondenceEntry[1]."Entry No."), '');
-        Assert.IsTrue(GLCorrespondenceEntries.GotoKey(GLCorrespondenceEntry[2]."Entry No."), '');
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TotalingDimValueCanBeUsedOnCorrDimFilterOnColumnLayout()
-    var
-        DimensionValue: Record "Dimension Value";
-        TotalingDimensionValue: Record "Dimension Value";
-        ColumnLayout: Record "Column Layout";
-        GLCorrespondenceEntry: array[2] of Record "G/L Correspondence Entry";
-        AccScheduleLine: Record "Acc. Schedule Line";
-        AccSchedManagement: Codeunit AccSchedManagement;
-        GLAccountNo: Code[20];
-        AccScheduleName: Code[10];
-        Amt: Decimal;
-    begin
-        // [FEATURE] [Account Schedule] [Column Layout] [G/L Correspondence] [Dimension]
-        // [SCENARIO 311073] Dimension value of totaling type can be used in "Dimension 2 Corr. Totaling" filter on column layout in account schedule.
-        Initialize();
-
-        // [GIVEN] G/L Account "X".
-        GLAccountNo := LibraryUtility.GenerateGUID();
-
-        // [GIVEN] Global dimension 2 value "DIM2".
-        // [GIVEN] Totaling global dimension 2 value "DIM2_TOTAL" that includes "DIM2".
-        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(2));
-        LibraryDimension.CreateDimensionValue(TotalingDimensionValue, LibraryERM.GetGlobalDimensionCode(2));
-        TotalingDimensionValue.Validate("Dimension Value Type", TotalingDimensionValue."Dimension Value Type"::"End-Total");
-        TotalingDimensionValue.Validate(Totaling, DimensionValue.Code);
-        TotalingDimensionValue.Modify(true);
-
-        // [GIVEN] Column layout, set "Dimension 2 Corr. Totaling" = "DIM2_TOTAL".
-        CreateColumnLayoutWithCorrEntriesLedgEntryType(ColumnLayout);
-        ColumnLayout.Validate("Dimension 2 Corr. Totaling", TotalingDimensionValue.Code);
-        ColumnLayout.Modify(true);
-
-        // [GIVEN] Account schedule with one line for g/l account "X" and just created column layout.
-        AccScheduleName := CreateAccScheduleWithDefaultColumnName(ColumnLayout."Column Layout Name", GLAccountNo);
-
-        // [GIVEN] Generate two g/l correspondence entries with g/l account "X" -
-        // [GIVEN] The first entry has blank "Credit Global Dimension 2 Code", Amount = "A1";
-        // [GIVEN] The second entry has "Credit Global Dimension 2 Code" = "DIM2", Amount = "A2".
-        CreateGLCorrEntry(GLCorrespondenceEntry[1], WorkDate(), GLAccountNo);
-        CreateGLCorrEntry(GLCorrespondenceEntry[2], WorkDate(), GLAccountNo);
-        GLCorrespondenceEntry[2].Validate("Credit Global Dimension 2 Code", DimensionValue.Code);
-        GLCorrespondenceEntry[2].Modify(true);
-
-        // [WHEN] Calculate the account schedule.
-        AccScheduleLine.SetRange("Schedule Name", AccScheduleName);
-        AccScheduleLine.SetRange("Date Filter", WorkDate());
-        AccScheduleLine.FindFirst();
-        Amt := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);
-
-        // [THEN] The value in the only cell in the account schedule = "A2".
-        Assert.AreEqual(GLCorrespondenceEntry[2].Amount, Amt, '');
-    end;
-#endif
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -982,14 +779,12 @@ codeunit 144004 "ERM RU SE Fixes"
     var
         RecRef: RecordRef;
     begin
-        with GLEntry do begin
-            Init();
-            "G/L Account No." := GLAccountNo;
-            "Posting Date" := PostingDate;
-            RecRef.GetTable(GLEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."G/L Account No." := GLAccountNo;
+        GLEntry."Posting Date" := PostingDate;
+        RecRef.GetTable(GLEntry);
+        GLEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, GLEntry.FieldNo("Entry No."));
+        GLEntry.Insert();
 
         exit(GLEntry."Entry No.");
     end;
@@ -998,12 +793,10 @@ codeunit 144004 "ERM RU SE Fixes"
     var
         SourceCode: Record "Source Code";
     begin
-        with SourceCode do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Source Code");
-            Insert();
-            exit(Code);
-        end;
+        SourceCode.Init();
+        SourceCode.Code := LibraryUtility.GenerateRandomCode(SourceCode.FieldNo(Code), DATABASE::"Source Code");
+        SourceCode.Insert();
+        exit(SourceCode.Code);
     end;
 
     local procedure CreateCurrencyAndExchangeRate(): Code[10]
@@ -1011,16 +804,14 @@ codeunit 144004 "ERM RU SE Fixes"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        with Currency do begin
-            Validate("Residual Gains Account", FindGLAccountNo());
-            Validate("Residual Losses Account", "Residual Gains Account");
-            Validate("Realized G/L Gains Account", FindGLAccountNo());
-            Validate("Realized G/L Losses Account", "Realized G/L Gains Account");
-            Modify(true);
+        Currency.Validate("Residual Gains Account", FindGLAccountNo());
+        Currency.Validate("Residual Losses Account", Currency."Residual Gains Account");
+        Currency.Validate("Realized G/L Gains Account", FindGLAccountNo());
+        Currency.Validate("Realized G/L Losses Account", Currency."Realized G/L Gains Account");
+        Currency.Modify(true);
 
-            LibraryERM.CreateRandomExchangeRate(Code);
-            exit(Code);
-        end;
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        exit(Currency.Code);
     end;
 
     local procedure CreateCurrencyWithSpecificExchangeRate(PaymentDate: Date; InvoiceDate: Date): Code[10]
@@ -1028,36 +819,32 @@ codeunit 144004 "ERM RU SE Fixes"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        with Currency do begin
-            Validate("Residual Gains Account", FindGLAccountNo());
-            Validate("Residual Losses Account", "Residual Gains Account");
-            Validate("Realized G/L Gains Account", FindGLAccountNo());
-            Validate("Realized G/L Losses Account", "Realized G/L Gains Account");
-            Validate("Realized Gains Acc.", FindGLAccountNo());
-            Modify(true);
+        Currency.Validate("Residual Gains Account", FindGLAccountNo());
+        Currency.Validate("Residual Losses Account", Currency."Residual Gains Account");
+        Currency.Validate("Realized G/L Gains Account", FindGLAccountNo());
+        Currency.Validate("Realized G/L Losses Account", Currency."Realized G/L Gains Account");
+        Currency.Validate("Realized Gains Acc.", FindGLAccountNo());
+        Currency.Modify(true);
 
-            CreateExchangeRate(Code, PaymentDate, 2435.35, 2435.35);
-            CreateExchangeRate(Code, InvoiceDate, 2500, 2500);
-            exit(Code);
-        end;
+        CreateExchangeRate(Currency.Code, PaymentDate, 2435.35, 2435.35);
+        CreateExchangeRate(Currency.Code, InvoiceDate, 2500, 2500);
+        exit(Currency.Code);
     end;
 
     local procedure CreateExchangeRate(CurrencyCode: Code[10]; StartingDate: Date; RelationalExchRateAmount: Decimal; RelationalAdjmtExchRateAmt: Decimal)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            Init();
-            Validate("Currency Code", CurrencyCode);
-            Validate("Starting Date", StartingDate);
-            Insert(true);
+        CurrencyExchangeRate.Init();
+        CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.Validate("Starting Date", StartingDate);
+        CurrencyExchangeRate.Insert(true);
 
-            Validate("Exchange Rate Amount", 1);
-            Validate("Relational Exch. Rate Amount", RelationalExchRateAmount);
-            Validate("Adjustment Exch. Rate Amount", 1);
-            Validate("Relational Adjmt Exch Rate Amt", RelationalAdjmtExchRateAmt);
-            Modify(true);
-        end;
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchRateAmount);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalAdjmtExchRateAmt);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateTwoCurrenciesAndUpdateAddRepCurrency(var CurrencyCode: Code[10]; var AddRepCurrencyCode: Code[10]): Code[10]
@@ -1167,50 +954,27 @@ codeunit 144004 "ERM RU SE Fixes"
         ColumnLayout.Modify(true);
     end;
 
-#if not CLEAN22
-    local procedure CreateAccScheduleWithDefaultColumnName(ColumnName: Code[10]; GLAccountNo: Code[20]): Code[10]
-    var
-        AccScheduleName: Record "Acc. Schedule Name";
-        AccScheduleLine: Record "Acc. Schedule Line";
-    begin
-        LibraryERM.CreateAccScheduleName(AccScheduleName);
-        AccScheduleName.Validate("Default Column Layout", ColumnName);
-        AccScheduleName.Modify(true);
-
-        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
-        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
-        AccScheduleLine.Validate(Totaling, GLAccountNo);
-        AccScheduleLine.Modify(true);
-
-        exit(AccScheduleName.Name);
-    end;
-#endif
-
     local procedure CreateAccScheduleWithTotalingTypeForDrillDown(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; PassedTotaling: Text[250])
     begin
-        with AccScheduleLine do begin
-            LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName);
-            Validate("Row No.", LibraryUtility.GenerateGUID());
-            Validate("Totaling Type", TotalingType);
-            Validate(Totaling, PassedTotaling);
-            SetFilter("Date Filter", Format(WorkDate()));
-            Modify(true);
-        end;
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate("Totaling Type", TotalingType);
+        AccScheduleLine.Validate(Totaling, PassedTotaling);
+        AccScheduleLine.SetFilter("Date Filter", Format(WorkDate()));
+        AccScheduleLine.Modify(true);
     end;
 
     local procedure CreateGLCorrEntry(var GLCorrespondenceEntry: Record "G/L Correspondence Entry"; PostingDate: Date; DebitGlAccountNo: Code[20])
     var
         RecRef: RecordRef;
     begin
-        with GLCorrespondenceEntry do begin
-            Init();
-            RecRef.GetTable(GLCorrespondenceEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Debit Account No." := DebitGlAccountNo;
-            "Posting Date" := PostingDate;
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        GLCorrespondenceEntry.Init();
+        RecRef.GetTable(GLCorrespondenceEntry);
+        GLCorrespondenceEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, GLCorrespondenceEntry.FieldNo("Entry No."));
+        GLCorrespondenceEntry."Debit Account No." := DebitGlAccountNo;
+        GLCorrespondenceEntry."Posting Date" := PostingDate;
+        GLCorrespondenceEntry.Amount := LibraryRandom.RandDec(100, 2);
+        GLCorrespondenceEntry.Insert();
     end;
 
     local procedure CreateGLCorrespondenceAndGLCorrEntry(DebitAccountNo: Code[20]; PostingDate: Date)
@@ -1230,14 +994,12 @@ codeunit 144004 "ERM RU SE Fixes"
         VendorPostingGroup: Record "Vendor Posting Group";
         RecRef: RecordRef;
     begin
-        with VendLedgEntry do begin
-            Init();
-            RecRef.GetTable(VendLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
-            "Vendor Posting Group" := VendorPostingGroup.Code;
-            Insert();
-        end;
+        VendLedgEntry.Init();
+        RecRef.GetTable(VendLedgEntry);
+        VendLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, VendLedgEntry.FieldNo("Entry No."));
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        VendLedgEntry."Vendor Posting Group" := VendorPostingGroup.Code;
+        VendLedgEntry.Insert();
         CreateDtldVendLedgEntry(VendLedgEntry."Entry No.", VendLedgEntry."Vendor Posting Group");
         VendLedgEntry.CalcFields(Amount);
     end;
@@ -1247,33 +1009,29 @@ codeunit 144004 "ERM RU SE Fixes"
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         RecRef: RecordRef;
     begin
-        with DtldVendLedgEntry do begin
-            Init();
-            RecRef.GetTable(DtldVendLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            "Vendor Ledger Entry No." := VendLedgEntryNo;
-            "Posting Date" := WorkDate();
-            "Vendor Posting Group" := VendorPostingGroupCode;
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        DtldVendLedgEntry.Init();
+        RecRef.GetTable(DtldVendLedgEntry);
+        DtldVendLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, DtldVendLedgEntry.FieldNo("Entry No."));
+        DtldVendLedgEntry."Entry Type" := DtldVendLedgEntry."Entry Type"::"Initial Entry";
+        DtldVendLedgEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
+        DtldVendLedgEntry."Posting Date" := WorkDate();
+        DtldVendLedgEntry."Vendor Posting Group" := VendorPostingGroupCode;
+        DtldVendLedgEntry.Amount := LibraryRandom.RandDec(100, 2);
+        DtldVendLedgEntry.Insert();
     end;
 
     local procedure CopyVendorPostingGroup(SourceVendorPostingGroupCode: Code[20]; SkipPosting: Boolean): Code[20]
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        with VendorPostingGroup do begin
-            Get(SourceVendorPostingGroupCode);
-            Validate(
-              Code,
-              CopyStr(LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Vendor Posting Group"),
-                1, LibraryUtility.GetFieldLength(DATABASE::"Vendor Posting Group", FieldNo(Code))));
-            Validate("Skip Posting", SkipPosting);
-            Insert(true);
-            exit(Code);
-        end;
+        VendorPostingGroup.Get(SourceVendorPostingGroupCode);
+        VendorPostingGroup.Validate(
+          Code,
+          CopyStr(LibraryUtility.GenerateRandomCode(VendorPostingGroup.FieldNo(Code), DATABASE::"Vendor Posting Group"),
+            1, LibraryUtility.GetFieldLength(DATABASE::"Vendor Posting Group", VendorPostingGroup.FieldNo(Code))));
+        VendorPostingGroup.Validate("Skip Posting", SkipPosting);
+        VendorPostingGroup.Insert(true);
+        exit(VendorPostingGroup.Code);
     end;
 
     local procedure CreateAccSchedExtensionWithVendLedgEntry(VendPostingGroupCode: Code[20]): Code[20]
@@ -1368,29 +1126,25 @@ codeunit 144004 "ERM RU SE Fixes"
     var
         FALocation: Record "FA Location";
     begin
-        with FALocation do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Name := Code;
-            Insert();
-            exit(Code);
-        end;
+        FALocation.Init();
+        FALocation.Code := LibraryUtility.GenerateGUID();
+        FALocation.Name := FALocation.Code;
+        FALocation.Insert();
+        exit(FALocation.Code);
     end;
 
     local procedure MockFALedgerEntry(FANo: Code[20]; DeprBookCode: Code[10]; FAPostingDate: Date; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; ReclassificationEntry: Boolean)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FieldNo("Entry No."));
-            "FA No." := FANo;
-            "Depreciation Book Code" := DeprBookCode;
-            "FA Posting Date" := FAPostingDate;
-            "FA Posting Type" := FAPostingType;
-            "Reclassification Entry" := ReclassificationEntry;
-            Insert();
-        end;
+        FALedgerEntry.Init();
+        FALedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FALedgerEntry.FieldNo("Entry No."));
+        FALedgerEntry."FA No." := FANo;
+        FALedgerEntry."Depreciation Book Code" := DeprBookCode;
+        FALedgerEntry."FA Posting Date" := FAPostingDate;
+        FALedgerEntry."FA Posting Type" := FAPostingType;
+        FALedgerEntry."Reclassification Entry" := ReclassificationEntry;
+        FALedgerEntry.Insert();
     end;
 
     local procedure CalcDeprTillDate(FANo: Code[20]; DeprDate: Date; FinishDate: Date)
@@ -1411,13 +1165,11 @@ codeunit 144004 "ERM RU SE Fixes"
 
     local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FAPostingDate: Date; FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; DeprBookCode: Code[10])
     begin
-        with FALedgerEntry do begin
-            SetRange("FA Posting Date", FAPostingDate);
-            SetRange("FA No.", FANo);
-            SetRange("FA Posting Type", FAPostingType);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            FindLast();
-        end;
+        FALedgerEntry.SetRange("FA Posting Date", FAPostingDate);
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
+        FALedgerEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        FALedgerEntry.FindLast();
     end;
 
     local procedure UpdateAddnlReportingCurrency(AdditionalReportingCurrency: Code[10]) OldAdditionalReportingCurrency: Code[10]
@@ -1518,93 +1270,79 @@ codeunit 144004 "ERM RU SE Fixes"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedAddCurrAmount, "Additional-Currency Amount", FieldCaption("Additional-Currency Amount"));
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        Assert.AreEqual(ExpectedAmount, GLEntry.Amount, GLEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedAddCurrAmount, GLEntry."Additional-Currency Amount", GLEntry.FieldCaption("Additional-Currency Amount"));
     end;
 
     local procedure VerifyClosedCustLedgEntry(CustNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountLCY: Decimal)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetRange("Customer No.", CustNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            FindFirst();
-            CalcFields(Amount, "Amount (LCY)");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedAmountLCY, "Amount (LCY)", FieldCaption("Amount (LCY)"));
-            Assert.IsFalse(Open, FieldCaption(Open));
-        end;
+        CustLedgEntry.SetRange("Customer No.", CustNo);
+        CustLedgEntry.SetRange("Document No.", DocumentNo);
+        CustLedgEntry.SetRange("Document Type", DocumentType);
+        CustLedgEntry.FindFirst();
+        CustLedgEntry.CalcFields(Amount, "Amount (LCY)");
+        Assert.AreEqual(ExpectedAmount, CustLedgEntry.Amount, CustLedgEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedAmountLCY, CustLedgEntry."Amount (LCY)", CustLedgEntry.FieldCaption("Amount (LCY)"));
+        Assert.IsFalse(CustLedgEntry.Open, CustLedgEntry.FieldCaption(Open));
     end;
 
     local procedure VerifyClosedVendLedgEntry(VendNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountLCY: Decimal)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Vendor No.", VendNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            FindFirst();
-            CalcFields(Amount, "Amount (LCY)");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedAmountLCY, "Amount (LCY)", FieldCaption("Amount (LCY)"));
-            Assert.IsFalse(Open, FieldCaption(Open));
-        end;
+        VendLedgEntry.SetRange("Vendor No.", VendNo);
+        VendLedgEntry.SetRange("Document No.", DocumentNo);
+        VendLedgEntry.SetRange("Document Type", DocumentType);
+        VendLedgEntry.FindFirst();
+        VendLedgEntry.CalcFields(Amount, "Amount (LCY)");
+        Assert.AreEqual(ExpectedAmount, VendLedgEntry.Amount, VendLedgEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedAmountLCY, VendLedgEntry."Amount (LCY)", VendLedgEntry.FieldCaption("Amount (LCY)"));
+        Assert.IsFalse(VendLedgEntry.Open, VendLedgEntry.FieldCaption(Open));
     end;
 
     local procedure VerifyPostedShipmentDocument(DocumentNo: Code[20]; CustNo: Code[20]; ExpectedQty: Decimal)
     var
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        with SalesShipmentLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Sell-to Customer No.", CustNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
-        end;
+        SalesShipmentLine.SetRange("Document No.", DocumentNo);
+        SalesShipmentLine.SetRange("Sell-to Customer No.", CustNo);
+        SalesShipmentLine.FindFirst();
+        Assert.AreEqual(ExpectedQty, SalesShipmentLine.Quantity, SalesShipmentLine.FieldCaption(Quantity));
     end;
 
     local procedure VerifyPostedSalesInvoiceDocument(DocumentNo: Code[20]; CustNo: Code[20]; ExpectedQty: Decimal)
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        with SalesInvoiceLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Sell-to Customer No.", CustNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
-        end;
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.SetRange("Sell-to Customer No.", CustNo);
+        SalesInvoiceLine.FindFirst();
+        Assert.AreEqual(ExpectedQty, SalesInvoiceLine.Quantity, SalesInvoiceLine.FieldCaption(Quantity));
     end;
 
     local procedure VerifyPostedReceiptDocument(DocumentNo: Code[20]; VendNo: Code[20]; ExpectedQty: Decimal)
     var
         PurchReceiptLine: Record "Purch. Rcpt. Line";
     begin
-        with PurchReceiptLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Buy-from Vendor No.", VendNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
-        end;
+        PurchReceiptLine.SetRange("Document No.", DocumentNo);
+        PurchReceiptLine.SetRange("Buy-from Vendor No.", VendNo);
+        PurchReceiptLine.FindFirst();
+        Assert.AreEqual(ExpectedQty, PurchReceiptLine.Quantity, PurchReceiptLine.FieldCaption(Quantity));
     end;
 
     local procedure VerifyPostedPurchInvoiceDocument(DocumentNo: Code[20]; VendNo: Code[20]; ExpectedQty: Decimal)
     var
         PurchInvoiceLine: Record "Purch. Inv. Line";
     begin
-        with PurchInvoiceLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Buy-from Vendor No.", VendNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
-        end;
+        PurchInvoiceLine.SetRange("Document No.", DocumentNo);
+        PurchInvoiceLine.SetRange("Buy-from Vendor No.", VendNo);
+        PurchInvoiceLine.FindFirst();
+        Assert.AreEqual(ExpectedQty, PurchInvoiceLine.Quantity, PurchInvoiceLine.FieldCaption(Quantity));
     end;
 
     local procedure VerifyDeprStartingDate(FANo: Code[20]; DeprBookCode: Code[10]; DeprStartingDate: Date)
@@ -1690,13 +1428,11 @@ codeunit 144004 "ERM RU SE Fixes"
     var
         GenJnlLineArchive: Record "Gen. Journal Line Archive";
     begin
-        with GenJnlLineArchive do begin
-            SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
-            SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-            SetRange("Account No.", GenJnlLine."Account No.");
-            SetRange("Bal. Account No.", GenJnlLine."Bal. Account No.");
-            Assert.IsFalse(IsEmpty, GenJnlLineArchiveErr);
-        end;
+        GenJnlLineArchive.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJnlLineArchive.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        GenJnlLineArchive.SetRange("Account No.", GenJnlLine."Account No.");
+        GenJnlLineArchive.SetRange("Bal. Account No.", GenJnlLine."Bal. Account No.");
+        Assert.IsFalse(GenJnlLineArchive.IsEmpty, GenJnlLineArchiveErr);
     end;
 
     local procedure CreateGenJournalBatchWithBalAccount(var GenJournalTemplateName: Code[10]; var GenJournalBatchName: Code[10])

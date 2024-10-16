@@ -76,10 +76,14 @@ table 5075 "Logged Segment"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 is marked %3.\Do you wish to remove the checkmark?';
         Text002: Label 'Do you wish to mark %1 %2 as %3?';
         Text005: Label 'Do you wish to remove the checkmark from the selected %1 lines?';
         Text006: Label 'Do you wish to mark the selected %1 lines as %2? ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure ToggleCanceledCheckmark()
     var

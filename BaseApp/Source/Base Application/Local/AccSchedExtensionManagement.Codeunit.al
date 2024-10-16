@@ -12,9 +12,17 @@ codeunit 26581 AccSchedExtensionManagement
         GLSetup: Record "General Ledger Setup";
         ReportPeriod: Record Date;
         AccSchedManagement: Codeunit AccSchedManagement;
+#pragma warning disable AA0074
         Text001: Label 'BD';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'ED';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Invalid value for Date Filter = %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         StartDate: Date;
         EndDate: Date;
 

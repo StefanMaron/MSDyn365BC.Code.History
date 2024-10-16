@@ -199,7 +199,9 @@ page 14926 "VAT Allocation"
         AllocationAmount: Decimal;
         TotalAllocationAmount: Decimal;
         ShortcutDimCode: array[8] of Code[20];
+#pragma warning disable AA0074
         Text001: Label 'You cannot insert new VAT Allocation lines.';
+#pragma warning restore AA0074
         AllocationAmountVisible: Boolean;
         TotalAllocationAmountVisible: Boolean;
 

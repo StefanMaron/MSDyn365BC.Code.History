@@ -123,8 +123,16 @@ table 14921 "Assessed Tax Code"
 
     var
         FixedAsset: Record "Fixed Asset";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You can''t modify Assessed Tax Code=%1 until you remove it from Fixed Asset=%2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'You can''t delete Assessed Tax Code=%1 until you remove it from Fixed Asset=%2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CheckExistenceInFA()

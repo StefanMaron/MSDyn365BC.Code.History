@@ -8,15 +8,35 @@ codeunit 17300 TaxDiffJnlManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Do you want to post the journals?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'The journals were successfully posted.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'It was not possible to post all of the journals. ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'The journals that were not successfully posted are now marked.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'Do you want to post the journal lines?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'The journal lines were successfully posted.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1000: Label '%1 journal';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1001: Label 'DEFAULT';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1002: Label 'Default Journal';
+#pragma warning restore AA0074
         LastTaxDiffJnlLine: Record "Tax Diff. Journal Line";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         OpenFromBatch: Boolean;

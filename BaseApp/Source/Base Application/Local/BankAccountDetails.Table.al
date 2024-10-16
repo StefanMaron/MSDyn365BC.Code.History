@@ -116,7 +116,11 @@ table 12436 "Bank Account Details"
 
     var
         BankAccDetails: Record "Bank Account Details";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Bank Account Details with VAT Registration No. %1, KPP Code %2, Bank Account No. %3 already exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CheckBankAccountDetails()

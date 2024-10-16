@@ -23,7 +23,7 @@ table 17221 "Tax Register Norm Group"
         }
         field(4; "Has Details"; Boolean)
         {
-            CalcFormula = Exist ("Tax Register Norm Detail" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
+            CalcFormula = exist("Tax Register Norm Detail" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
                                                                   "Norm Group Code" = field(Code)));
             Caption = 'Has Details';
             Editable = false;
@@ -118,7 +118,9 @@ table 17221 "Tax Register Norm Group"
     end;
 
     var
+#pragma warning disable AA0074
         Text1000: Label 'Template Lines and Accumulation Lines will be deleted.\\Continue?';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CalcDinamicNorm(StartDate: Date; EndDate: Date; NormJurisdictionCode: Code[10]; NormCode: Code[10]; SourceAmount: Decimal) ResultAmount: Decimal

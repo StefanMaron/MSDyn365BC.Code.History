@@ -305,8 +305,16 @@ report 17304 "Create FE from Sold FA"
         DocumentNo: Code[20];
         DocumentNo2: Code[20];
         NoSeriesCode: Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1000: Label 'FA %1 was disposed with loss';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label '%2 with %3 %4 is not defined for FE %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PostingNoSeries: Code[20];
         JnlNextLineNo: Integer;
         GainLoss: Decimal;

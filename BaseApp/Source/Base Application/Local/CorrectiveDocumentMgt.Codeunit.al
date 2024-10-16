@@ -8,11 +8,27 @@ codeunit 12422 "Corrective Document Mgt."
     var
         SalesHeader: Record "Sales Header";
         Currency: Record Currency;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Line No. %1 already exists in Corrective %2 No. %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CorrectionType: Option "Original Item","Item Charge";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Line No. %1 has already been corrected by Sales Invoice %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Line No. %1 has already been corrected by Sales Credit Memo %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'The dimensions used in %1 %2 should be equal to %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure GetSalesHeader(DocType: Option; DocNo: Code[20])
     begin

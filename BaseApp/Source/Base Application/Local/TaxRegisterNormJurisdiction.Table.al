@@ -47,7 +47,9 @@ table 17220 "Tax Register Norm Jurisdiction"
     var
         FileMgt: Codeunit "File Management";
         FileName: Text;
+#pragma warning disable AA0074
         Text001: Label 'Import File';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ImportSettings(FileName: Text)

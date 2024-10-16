@@ -48,7 +48,7 @@ table 17243 "Tax Reg. Norm Dim. Filter"
         }
         field(9; "Dimension Name"; Text[50])
         {
-            CalcFormula = Lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
+            CalcFormula = lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
                                                                Code = field("Dimension Value Filter")));
             Caption = 'Dimension Name';
             Editable = false;
@@ -90,7 +90,11 @@ table 17243 "Tax Reg. Norm Dim. Filter"
 
     var
         Dimension: Record Dimension;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'You can''t rename an %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ValidateChangeDeclaration(Incident: Boolean)

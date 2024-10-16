@@ -47,12 +47,34 @@ table 381 "VAT Registration No. Format"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The entered VAT Registration number is not in agreement with the format specified for Country/Region Code %1.\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The following formats are acceptable: %1', Comment = '1 - format list';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'This VAT registration number has already been entered for the following customers:\ %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'This VAT registration number has already been entered for the following vendors:\ %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'This VAT registration number has already been entered for the following contacts:\ %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+#pragma warning restore AA0074
         LocalVATRegNoCheckSumErr: Label 'The entered VAT registration number is incorrect (checksum error).';
         VATRegistrationNumberErr: Label 'The entered VAT Registration number for %1 %2 is not in agreement with the format specified for Country/Region Code %3.\', Comment = '%1 - Record Type, %2 - Record No., %3 - Country Region Code';
 
@@ -345,13 +367,11 @@ table 381 "VAT Registration No. Format"
         TotalAmount := 0;
         CheckAmount := 0;
         if StrLen(VATRegistrationNo) = 10 then begin
-            for I := 1 to 10 do begin
+            for I := 1 to 10 do
                 Evaluate(VATRegistNo[I], CopyStr(VATRegistrationNo, I, 1));
-            end;
 
-            for I := 1 to 9 do begin
+            for I := 1 to 9 do
                 TotalAmount := TotalAmount + VATRegistNo[I] * VATMultiplier[1, I];
-            end;
 
             CheckAmount := TotalAmount mod 11;
             CheckAmount := CheckAmount mod 10;
@@ -363,13 +383,11 @@ table 381 "VAT Registration No. Format"
         TotalAmount := 0;
         CheckAmount := 0;
         if StrLen(VATRegistrationNo) = 12 then begin
-            for I := 1 to 12 do begin
+            for I := 1 to 12 do
                 Evaluate(VATRegistNo[I], CopyStr(VATRegistrationNo, I, 1));
-            end;
 
-            for I := 1 to 10 do begin
+            for I := 1 to 10 do
                 TotalAmount := TotalAmount + VATRegistNo[I] * VATMultiplier[2, I];
-            end;
 
             CheckAmount := TotalAmount mod 11;
             CheckAmount := CheckAmount mod 10;
@@ -381,9 +399,8 @@ table 381 "VAT Registration No. Format"
         CheckAmount := 0;
         TotalAmount := 0;
         if StrLen(VATRegistrationNo) = 12 then begin
-            for I := 1 to 11 do begin
+            for I := 1 to 11 do
                 TotalAmount := TotalAmount + VATRegistNo[I] * VATMultiplier[3, I];
-            end;
 
             CheckAmount := TotalAmount mod 11;
             CheckAmount := CheckAmount mod 10;

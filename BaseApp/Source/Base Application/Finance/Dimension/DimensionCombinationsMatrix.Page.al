@@ -460,7 +460,9 @@ page 9251 "Dimension Combinations Matrix"
         MATRIX_CellData: array[32] of Text[1024];
         MATRIX_ColumnCaption: array[32] of Text[1024];
         SeeCombinationsQst: Label 'Do you want to see the list of values?';
+#pragma warning disable AA0074
         Text001: Label 'No limitations,Limited,Blocked';
+#pragma warning restore AA0074
         SelectedDimCode: Code[20];
         Field1Visible: Boolean;
         Field2Visible: Boolean;

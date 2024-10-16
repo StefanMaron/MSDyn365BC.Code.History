@@ -133,25 +133,21 @@ codeunit 147125 "ERM VAT Invoices Journal"
 
     local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; PostingDate: Date; VendorNo: Code[20])
     begin
-        with PurchHeader do begin
-            LibraryPurch.CreatePurchHeader(PurchHeader, DocType, VendorNo);
-            SetHideValidationDialog(true);
-            Validate("Posting Date", PostingDate);
-            Validate("Prices Including VAT", true);
-            Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-        end;
+        LibraryPurch.CreatePurchHeader(PurchHeader, DocType, VendorNo);
+        PurchHeader.SetHideValidationDialog(true);
+        PurchHeader.Validate("Posting Date", PostingDate);
+        PurchHeader.Validate("Prices Including VAT", true);
+        PurchHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchHeader.Modify(true);
     end;
 
     local procedure CreatePurchLine(PurchHeader: Record "Purchase Header"; GLAccountNo: Code[20]; DirectunitCost: Decimal)
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            LibraryPurch.CreatePurchaseLine(PurchLine, PurchHeader, Type::"G/L Account", GLAccountNo, 1);
-            Validate("Direct Unit Cost", DirectunitCost);
-            Modify();
-        end;
+        LibraryPurch.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchLine.Validate("Direct Unit Cost", DirectunitCost);
+        PurchLine.Modify();
     end;
 
     local procedure CreateVendorAndGLAcount(var VendorNo: Code[20]): Code[20]
@@ -167,40 +163,32 @@ codeunit 147125 "ERM VAT Invoices Journal"
 
     local procedure UpdateCorrectionInfo(var PurchHeader: Record "Purchase Header"; CorrType: Option; CorrDocType: Option; CorrDocNo: Code[20])
     begin
-        with PurchHeader do begin
-            Validate("Corrective Document", true);
-            Validate("Corrective Doc. Type", CorrType);
-            Validate("Corrected Doc. Type", CorrDocType);
-            Validate("Corrected Doc. No.", CorrDocNo);
-            Modify(true);
-        end;
+        PurchHeader.Validate("Corrective Document", true);
+        PurchHeader.Validate("Corrective Doc. Type", CorrType);
+        PurchHeader.Validate("Corrected Doc. Type", CorrDocType);
+        PurchHeader.Validate("Corrected Doc. No.", CorrDocNo);
+        PurchHeader.Modify(true);
     end;
 
     local procedure UpdateRevisionInfo(var PurchHeader: Record "Purchase Header"; CorrDocType: Option; CorrDocNo: Code[20]; RevisionNo: Code[20])
     begin
-        with PurchHeader do begin
-            UpdateCorrectionInfo(PurchHeader, "Corrective Doc. Type"::Revision, CorrDocType, CorrDocNo);
-            Validate("Revision No.", RevisionNo);
-            Modify(true);
-        end;
+        UpdateCorrectionInfo(PurchHeader, PurchHeader."Corrective Doc. Type"::Revision, CorrDocType, CorrDocNo);
+        PurchHeader.Validate("Revision No.", RevisionNo);
+        PurchHeader.Modify(true);
     end;
 
     local procedure UpdateVATInvoiceInfo(var PurchHeader: Record "Purchase Header"; VATInvNo: Code[20]; VATInvDate: Date; VATInvRcvdDate: Date)
     begin
-        with PurchHeader do begin
-            Validate("Vendor VAT Invoice No.", VATInvNo);
-            Validate("Vendor VAT Invoice Date", VATInvDate);
-            Validate("Vendor VAT Invoice Rcvd Date", VATInvRcvdDate);
-            Modify(true);
-        end;
+        PurchHeader.Validate("Vendor VAT Invoice No.", VATInvNo);
+        PurchHeader.Validate("Vendor VAT Invoice Date", VATInvDate);
+        PurchHeader.Validate("Vendor VAT Invoice Rcvd Date", VATInvRcvdDate);
+        PurchHeader.Modify(true);
     end;
 
     local procedure UpdateInclInSalesVATLedger(var PurchHeader: Record "Purchase Header"; IsIncludeInSalesVATLedger: Boolean)
     begin
-        with PurchHeader do begin
-            Validate("Include In Sales VAT Ledger", IsIncludeInSalesVATLedger);
-            Modify(true);
-        end;
+        PurchHeader.Validate("Include In Sales VAT Ledger", IsIncludeInSalesVATLedger);
+        PurchHeader.Modify(true);
     end;
 
     local procedure VerifyVendVATListEntries(VendNo: Code[20]; ReportType: Option Received,Issued; EndDate: Date; ShowCorrection: Boolean; EntriesCount: Integer; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -213,18 +201,15 @@ codeunit 147125 "ERM VAT Invoices Journal"
         Vendor.SetFilter("No.", VendNo);
         Period."Period Start" := WorkDate();
         Period."Period End" := EndDate;
-        with TempVendorLedgerEntry do begin
-            VATInvoiceJournalMgt.GetVendVATList(
-              TempVendorLedgerEntry, Vendor, ReportType, Period, ShowCorrection);
-            Assert.AreEqual(
-              EntriesCount, Count, StrSubstNo(IncorrectEntryCountErr, TableCaption));
-            if EntriesCount = 0 then
-                exit;
-            Assert.AreEqual(
-              DocType, "Document Type", StrSubstNo(WrongFieldValueErr, FieldCaption("Document Type"), TableCaption));
-            Assert.AreEqual(
-              DocNo, "Document No.", StrSubstNo(WrongFieldValueErr, FieldCaption("Document No."), TableCaption));
-        end;
+        VATInvoiceJournalMgt.GetVendVATList(TempVendorLedgerEntry, Vendor, ReportType, Period, ShowCorrection);
+        Assert.AreEqual(
+          EntriesCount, TempVendorLedgerEntry.Count, StrSubstNo(IncorrectEntryCountErr, TempVendorLedgerEntry.TableCaption));
+        if EntriesCount = 0 then
+            exit;
+        Assert.AreEqual(
+          DocType, TempVendorLedgerEntry."Document Type", StrSubstNo(WrongFieldValueErr, TempVendorLedgerEntry.FieldCaption("Document Type"), TempVendorLedgerEntry.TableCaption));
+        Assert.AreEqual(
+          DocNo, TempVendorLedgerEntry."Document No.", StrSubstNo(WrongFieldValueErr, TempVendorLedgerEntry.FieldCaption("Document No."), TempVendorLedgerEntry.TableCaption));
     end;
 }
 

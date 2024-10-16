@@ -306,11 +306,21 @@ table 26552 "Statutory Report Table"
     var
         StatutoryReport: Record "Statutory Report";
         ExcelMgt: Codeunit "Excel Management";
+#pragma warning disable AA0074
         Text008: Label 'You must specify an Acc. Schedule Name.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text009: Label 'You must specify a Column Layout Name.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text018: Label 'All related page indication elements will be deleted. Proceed?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text019: Label 'All related mapping information will be deleted. Do you want to continue?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text023: Label 'Account schedule has been created successfully.';
+#pragma warning restore AA0074
 
     procedure CreateAccSchedule()
     var
@@ -650,9 +660,6 @@ table 26552 "Statutory Report Table"
     [Scope('OnPrem')]
     procedure UpdateIntSourceLinks()
     var
-#if not CLEAN22
-        AccScheduleName: Record "Acc. Schedule Name";
-#endif
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         TaxRegisterTemplate: Record "Tax Register Template";
@@ -670,15 +677,6 @@ table 26552 "Statutory Report Table"
         case "Int. Source Type" of
             "Int. Source Type"::"Acc. Schedule":
                 begin
-#if not CLEAN22
-                    if Rec."Int. Source Col. Name" = '' then begin
-                        AccScheduleName.Get(Rec."Int. Source No.");
-                        if AccScheduleName."Default Column Layout" <> '' then begin
-                            Rec."Int. Source Col. Name" := AccScheduleName."Default Column Layout";
-                            Rec.Modify();
-                        end
-                    end;
-#endif
                     Rec.TestField("Int. Source Col. Name");
                     AccScheduleLine.SetRange("Schedule Name", "Int. Source No.");
                     StatReportTableRow.SetRange("Report Code", "Report Code");
@@ -686,9 +684,9 @@ table 26552 "Statutory Report Table"
 
                     ColumnLayout.SetRange("Column Layout Name", Rec."Int. Source Col. Name");
 
-                    if AccScheduleLine.FindSet() and StatReportTableRow.FindSet() then begin
+                    if AccScheduleLine.FindSet() and StatReportTableRow.FindSet() then
                         repeat
-                            if ColumnLayout.FindSet() and StatReportTableColumn.FindSet() then begin
+                            if ColumnLayout.FindSet() and StatReportTableColumn.FindSet() then
                                 repeat
                                     StatReportTableMapping.Init();
                                     StatReportTableMapping."Report Code" := "Report Code";
@@ -706,9 +704,7 @@ table 26552 "Statutory Report Table"
                                     StatReportTableMapping."Int. Source Column Header" := ColumnLayout."Column Header";
                                     StatReportTableMapping.Insert();
                                 until (ColumnLayout.Next() = 0) or (StatReportTableColumn.Next() = 0);
-                            end;
                         until (AccScheduleLine.Next() = 0) or (StatReportTableRow.Next() = 0);
-                    end;
                 end;
             "Int. Source Type"::"Tax Register":
                 begin
@@ -720,7 +716,7 @@ table 26552 "Statutory Report Table"
                     if TaxRegisterTemplate.FindSet() and
                        StatReportTableColumn.FindFirst() and
                        StatReportTableRow.FindSet()
-                    then begin
+                    then
                         repeat
                             StatReportTableMapping.Init();
                             StatReportTableMapping."Report Code" := "Report Code";
@@ -738,7 +734,6 @@ table 26552 "Statutory Report Table"
                             StatReportTableMapping."Int. Source Column Header" := TaxRegisterAccumulation.FieldCaption(Amount);
                             StatReportTableMapping.Insert();
                         until (TaxRegisterTemplate.Next() = 0) or (StatReportTableRow.Next() = 0);
-                    end;
                 end;
             "Int. Source Type"::"Tax Difference":
                 begin
@@ -750,7 +745,7 @@ table 26552 "Statutory Report Table"
                     if TaxCalcLine.FindSet() and
                        StatReportTableColumn.FindFirst() and
                        StatReportTableRow.FindSet()
-                    then begin
+                    then
                         repeat
                             StatReportTableMapping.Init();
                             StatReportTableMapping."Report Code" := "Report Code";
@@ -768,7 +763,6 @@ table 26552 "Statutory Report Table"
                             StatReportTableMapping."Int. Source Column Header" := TaxRegisterAccumulation.FieldCaption(Amount);
                             StatReportTableMapping.Insert();
                         until (TaxCalcLine.Next() = 0) or (StatReportTableRow.Next() = 0);
-                    end;
                 end;
         end;
     end;

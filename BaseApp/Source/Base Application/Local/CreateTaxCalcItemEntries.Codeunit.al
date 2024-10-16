@@ -8,10 +8,20 @@
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000900: Label 'Search Table    #4############################\Begin period    #1##########\End period      #2##########\@3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000901: Label '%1 %2 from %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxDimMgt: Codeunit "Tax Calc. Dim. Mgt.";
+#pragma warning disable AA0074
         Text21000902: Label 'Adjust Cost Item Entries & Post Inventory Cost to G/L needed.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure "Code"(StartDate: Date; EndDate: Date; TaxCalcSectionCode: Code[10])

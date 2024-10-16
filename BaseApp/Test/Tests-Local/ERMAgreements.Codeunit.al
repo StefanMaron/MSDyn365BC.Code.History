@@ -22,7 +22,6 @@
         AgreementPosting: Option "No Agreement",Mandatory;
         AppliesToDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         IsInitialized: Boolean;
-        AgrmtMustHaveAValueErr: Label 'Agreement No. must have a value in %1: Document Type=%2, No.=%3. It cannot be zero or empty.', Comment = '%1=Sales Header table caption';
         AgrmtNoIncorrectErr: Label 'Agreement No. is incorrect';
         AgrmtMustbeMsg: Label 'Agreement must be %1 in document no. %2', Comment = '%1=Agreement No.;%2=Document No.';
         AgrmtFieldValueErr: Label 'Document field %1 value differs from the value in Agreement Card', Comment = '%1=caption of different fileds';
@@ -33,8 +32,6 @@
         DeleteAgmtWithLEErr: Label 'You cannot delete agreement if you already have ledger entries.';
         DimValueExistsErr: Label 'Dimension Value should get deleted when %1 is deleted', Comment = '%1=table caption';
         DefaultDimNotExistErr: Label 'Default Dimension does not exist';
-        VendorDoesNotExistErr: Label 'The Vendor does not exist. Identification fields and values: No.=%1', Comment = '%1=No.';
-        CustomerDoesNotExistErr: Label 'The Customer does not exist. Identification fields and values: No.=%1', Comment = '%1=No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -70,8 +67,7 @@
         CreateCustAndSalesHeader(AgreementPosting::Mandatory, SalesHeader, true);
 
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        Assert.ExpectedError(
-          StrSubstNo(AgrmtMustHaveAValueErr, SalesHeader.TableCaption(), SalesHeader."Document Type", SalesHeader."No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("Agreement No."), '');
     end;
 
     [Test]
@@ -87,9 +83,7 @@
         CreateVendAndPurchHeader(AgreementPosting::Mandatory, PurchHeader, true);
 
         asserterror LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
-        Assert.ExpectedError(
-          StrSubstNo(AgrmtMustHaveAValueErr, PurchHeader.TableCaption(),
-            PurchHeader."Document Type", PurchHeader."No."));
+        Assert.ExpectedTestFieldError(PurchHeader.FieldCaption("Agreement No."), '');
     end;
 
     [Test]
@@ -445,14 +439,12 @@
     begin
         // Check Vendor Agreement cannot be deleted while connected VLE exists
         InitVendorAgreement(VendorAgreement, false);
-        with VendorLedgerEntry do begin
-            Init();
-            RecRef.GetTable(VendorLedgerEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Vendor No." := VendorAgreement."Vendor No.";
-            "Agreement No." := VendorAgreement."No.";
-            Insert();
-        end;
+        VendorLedgerEntry.Init();
+        RecRef.GetTable(VendorLedgerEntry);
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Vendor No." := VendorAgreement."Vendor No.";
+        VendorLedgerEntry."Agreement No." := VendorAgreement."No.";
+        VendorLedgerEntry.Insert();
 
         asserterror VendorAgreement.Delete(true);
         Assert.ExpectedError(DeleteAgmtWithLEErr);
@@ -487,14 +479,12 @@
     begin
         // Check Vendor Agreement cannot be deleted while connected VLE exists
         InitCustomerAgreement(CustomerAgreement, false);
-        with CustomerLedgerEntry do begin
-            Init();
-            RecRef.GetTable(CustomerLedgerEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Customer No." := CustomerAgreement."Customer No.";
-            "Agreement No." := CustomerAgreement."No.";
-            Insert();
-        end;
+        CustomerLedgerEntry.Init();
+        RecRef.GetTable(CustomerLedgerEntry);
+        CustomerLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, CustomerLedgerEntry.FieldNo("Entry No."));
+        CustomerLedgerEntry."Customer No." := CustomerAgreement."Customer No.";
+        CustomerLedgerEntry."Agreement No." := CustomerAgreement."No.";
+        CustomerLedgerEntry.Insert();
 
         asserterror CustomerAgreement.Delete(true);
         Assert.ExpectedError(DeleteAgmtWithLEErr);
@@ -515,12 +505,10 @@
         Initialize();
         GLSetup.Get();
         CreateGlobalDimensionValues(DimValueCode1, DimValueCode2);
-        with Vendor do begin
-            Get(CreateVendor(AgreementPosting::Mandatory));
-            Validate("Global Dimension 1 Code", DimValueCode1);
-            Validate("Global Dimension 2 Code", DimValueCode2);
-            Modify();
-        end;
+        Vendor.Get(CreateVendor(AgreementPosting::Mandatory));
+        Vendor.Validate("Global Dimension 1 Code", DimValueCode1);
+        Vendor.Validate("Global Dimension 2 Code", DimValueCode2);
+        Vendor.Modify();
         CreateSimpleVendorAgreement(VendorAgreement, Vendor."No.");
 
         CheckDefaultDimExists(
@@ -543,12 +531,10 @@
         Initialize();
         GLSetup.Get();
         CreateGlobalDimensionValues(DimValueCode1, DimValueCode2);
-        with Customer do begin
-            Get(CreateCustomer(AgreementPosting::Mandatory));
-            Validate("Global Dimension 1 Code", DimValueCode1);
-            Validate("Global Dimension 2 Code", DimValueCode2);
-            Modify();
-        end;
+        Customer.Get(CreateCustomer(AgreementPosting::Mandatory));
+        Customer.Validate("Global Dimension 1 Code", DimValueCode1);
+        Customer.Validate("Global Dimension 2 Code", DimValueCode2);
+        Customer.Modify();
         CreateSimpleCustomerAgreement(CustomerAgreement, Customer."No.");
 
         CheckDefaultDimExists(
@@ -564,16 +550,14 @@
         VendorAgreement: Record "Vendor Agreement";
     begin
         // Check Vendor Agreement "No." field OnValidate trigger
-        with VendorAgreement do begin
-            Init();
-            "Vendor No." := CreateVendor(AgreementPosting::Mandatory);
-            Insert(true);
-            Validate("No.", LibraryUtility.GenerateGUID());
-            Assert.IsTrue("No. Series" = '', StrSubstNo(FieldValueIncorrectErr, FieldCaption("No. Series")));
-            "Vendor No." := '';
-            asserterror Validate("No.", LibraryUtility.GenerateGUID());
-            Assert.ExpectedError(StrSubstNo(VendorDoesNotExistErr, "Vendor No."));
-        end;
+        VendorAgreement.Init();
+        VendorAgreement."Vendor No." := CreateVendor(AgreementPosting::Mandatory);
+        VendorAgreement.Insert(true);
+        VendorAgreement.Validate("No.", LibraryUtility.GenerateGUID());
+        Assert.IsTrue(VendorAgreement."No. Series" = '', StrSubstNo(FieldValueIncorrectErr, VendorAgreement.FieldCaption("No. Series")));
+        VendorAgreement."Vendor No." := '';
+        asserterror VendorAgreement.Validate("No.", LibraryUtility.GenerateGUID());
+        Assert.ExpectedErrorCannotFind(Database::Vendor, VendorAgreement."Vendor No.");
     end;
 
     [Test]
@@ -583,16 +567,14 @@
         CustomerAgreement: Record "Customer Agreement";
     begin
         // Check Customer Agreement "No." field OnValidate trigger
-        with CustomerAgreement do begin
-            Init();
-            "Customer No." := CreateCustomer(AgreementPosting::Mandatory);
-            Insert(true);
-            Validate("No.", LibraryUtility.GenerateGUID());
-            Assert.IsTrue("No. Series" = '', StrSubstNo(FieldValueIncorrectErr, FieldCaption("No. Series")));
-            "Customer No." := '';
-            asserterror Validate("No.", LibraryUtility.GenerateGUID());
-            Assert.ExpectedError(StrSubstNo(CustomerDoesNotExistErr, "Customer No."));
-        end;
+        CustomerAgreement.Init();
+        CustomerAgreement."Customer No." := CreateCustomer(AgreementPosting::Mandatory);
+        CustomerAgreement.Insert(true);
+        CustomerAgreement.Validate("No.", LibraryUtility.GenerateGUID());
+        Assert.IsTrue(CustomerAgreement."No. Series" = '', StrSubstNo(FieldValueIncorrectErr, CustomerAgreement.FieldCaption("No. Series")));
+        CustomerAgreement."Customer No." := '';
+        asserterror CustomerAgreement.Validate("No.", LibraryUtility.GenerateGUID());
+        Assert.ExpectedErrorCannotFind(Database::Customer, CustomerAgreement."Customer No.");
     end;
 
     [Test]
@@ -910,11 +892,9 @@
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Agreement Posting", AgreementPosting);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Agreement Posting", AgreementPosting);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustAndSalesHeader(AgreementPosting: Option; var SalesHeader: Record "Sales Header"; AddLine: Boolean)
@@ -940,11 +920,9 @@
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Agreement Posting", AgreementPosting);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Agreement Posting", AgreementPosting);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendAndPurchHeader(AgreementPosting: Option; var PurchHeader: Record "Purchase Header"; AddLine: Boolean)
@@ -969,13 +947,11 @@
     var
         CustomerAgreement: Record "Customer Agreement";
     begin
-        with CustomerAgreement do begin
-            Init();
-            "Customer No." := CustomerNo;
-            Active := IsActive;
-            "Expire Date" := CalcDate('<1M>', WorkDate());
-            Insert(true);
-        end;
+        CustomerAgreement.Init();
+        CustomerAgreement."Customer No." := CustomerNo;
+        CustomerAgreement.Active := IsActive;
+        CustomerAgreement."Expire Date" := CalcDate('<1M>', WorkDate());
+        CustomerAgreement.Insert(true);
         exit(CustomerAgreement."No.");
     end;
 
@@ -983,13 +959,11 @@
     var
         VendorAgreement: Record "Vendor Agreement";
     begin
-        with VendorAgreement do begin
-            Init();
-            "Vendor No." := VendorNo;
-            Active := IsActive;
-            "Expire Date" := CalcDate('<1M>', WorkDate());
-            Insert(true);
-        end;
+        VendorAgreement.Init();
+        VendorAgreement."Vendor No." := VendorNo;
+        VendorAgreement.Active := IsActive;
+        VendorAgreement."Expire Date" := CalcDate('<1M>', WorkDate());
+        VendorAgreement.Insert(true);
         exit(VendorAgreement."No.");
     end;
 
@@ -1015,22 +989,18 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            Get(SalesInvoiceDocNo);
-            CalcFields("Amount Including VAT");
-            exit("Amount Including VAT");
-        end;
+        SalesInvoiceHeader.Get(SalesInvoiceDocNo);
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        exit(SalesInvoiceHeader."Amount Including VAT");
     end;
 
     local procedure GetPurchInvoiceAmount(PurchInvoiceDocNo: Code[20]): Decimal
     var
         PurchInvoiceHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvoiceHeader do begin
-            Get(PurchInvoiceDocNo);
-            CalcFields("Amount Including VAT");
-            exit("Amount Including VAT");
-        end;
+        PurchInvoiceHeader.Get(PurchInvoiceDocNo);
+        PurchInvoiceHeader.CalcFields("Amount Including VAT");
+        exit(PurchInvoiceHeader."Amount Including VAT");
     end;
 
     local procedure SalesDocAssignAgrmt(var SalesHeader: Record "Sales Header") AgreementNo: Code[20]
@@ -1092,16 +1062,14 @@
         LibraryERM.FindGenJournalTemplate(GenJnlTemplate);
         LibraryERM.FindGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         LibraryERM.CreateBankAccount(BankAccount);
-        with GenJnlLine do begin
-            DeleteAll();
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment,
-              AccountType, CVNo, "Bal. Account Type"::"Bank Account", BankAccount."No.", -AmountValue);
-            Validate("Applies-to Doc. Type", AppliedDocType);
-            Validate("Applies-to Doc. No.", AppliedDocNo);
-            Validate("Agreement No.", AgreementNo);
-            Modify(true);
-        end;
+        GenJnlLine.DeleteAll();
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
+          AccountType, CVNo, GenJnlLine."Bal. Account Type"::"Bank Account", BankAccount."No.", -AmountValue);
+        GenJnlLine.Validate("Applies-to Doc. Type", AppliedDocType);
+        GenJnlLine.Validate("Applies-to Doc. No.", AppliedDocNo);
+        GenJnlLine.Validate("Agreement No.", AgreementNo);
+        GenJnlLine.Modify(true);
 
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         exit(GenJnlLine."Document No.")
@@ -1117,17 +1085,15 @@
         LibraryERM.FindGenJournalTemplate(GenJnlTemplate);
         LibraryERM.FindGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         LibraryERM.CreateBankAccount(BankAccount);
-        with GenJnlLine do begin
-            DeleteAll();
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment,
-              AccountType, CVNo, "Bal. Account Type"::"Bank Account", BankAccount."No.", -AmountValue);
-            Validate("Agreement No.", AgreementNo);
-            Validate(Prepayment, true);
-            Validate("External Document No.", LibraryUtility.GenerateGUID());
-            Validate("Prepayment Document No.", PrepaymentDocNo);
-            Modify(true);
-        end;
+        GenJnlLine.DeleteAll();
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
+          AccountType, CVNo, GenJnlLine."Bal. Account Type"::"Bank Account", BankAccount."No.", -AmountValue);
+        GenJnlLine.Validate("Agreement No.", AgreementNo);
+        GenJnlLine.Validate(Prepayment, true);
+        GenJnlLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
+        GenJnlLine.Validate("Prepayment Document No.", PrepaymentDocNo);
+        GenJnlLine.Modify(true);
 
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         exit(GenJnlLine."Document No.");
@@ -1208,44 +1174,42 @@
         ShipmentMethodCode: Record "Shipment Method";
         DateFormula: DateFormula;
     begin
-        with CustomerAgreement do begin
-            Get(SalesHeader."Sell-to Customer No.", AgreementNo);
-            Language.FindFirst();
-            Validate("Language Code", Language.Code);
-            Currency.FindFirst();
-            Validate("Currency Code", Currency.Code);
-            SalesPerson.FindFirst();
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            PaymentMethod.FindFirst();
-            Validate("Payment Method Code", PaymentMethod.Code);
-            LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
-            Validate("Customer Price Group", CustomerPriceGroup.Code);
-            CustomerPostingGroup.FindFirst();
-            Validate("Customer Posting Group", CustomerPostingGroup.Code);
-            CustomerDiscGroup.FindFirst();
-            Validate("Customer Disc. Group", CustomerDiscGroup.Code);
-            LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
-            Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
-            LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup.Code);
-            Location.FindFirst();
-            Validate("Location Code", Location.Code);
-            LibrarySales.CreateShipToAddress(ShipToAddress, SalesHeader."Sell-to Customer No.");
-            Validate("Ship-to Code", ShipToAddress.Code);
-            ResponsibilityCenter.FindFirst();
-            Validate("Responsibility Center", ResponsibilityCenter.Code);
-            ShippingAgent.FindFirst();
-            Validate("Shipping Agent Code", ShippingAgent.Code);
-            Evaluate(DateFormula, '<1D>');
-            Validate("Shipping Time", DateFormula);
-            ShippingAgentService.SetRange("Shipping Agent Code", ShippingAgent.Code);
-            ShippingAgentService.FindFirst();
-            Validate("Shipping Agent Service Code", ShippingAgentService.Code);
-            Validate("Shipping Advice", "Shipping Advice"::Complete);
-            ShipmentMethodCode.FindFirst();
-            Validate("Shipment Method Code", ShipmentMethodCode.Code);
-            Modify(true);
-        end;
+        CustomerAgreement.Get(SalesHeader."Sell-to Customer No.", AgreementNo);
+        Language.FindFirst();
+        CustomerAgreement.Validate("Language Code", Language.Code);
+        Currency.FindFirst();
+        CustomerAgreement.Validate("Currency Code", Currency.Code);
+        SalesPerson.FindFirst();
+        CustomerAgreement.Validate("Payment Terms Code", PaymentTerms.Code);
+        PaymentMethod.FindFirst();
+        CustomerAgreement.Validate("Payment Method Code", PaymentMethod.Code);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        CustomerAgreement.Validate("Customer Price Group", CustomerPriceGroup.Code);
+        CustomerPostingGroup.FindFirst();
+        CustomerAgreement.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        CustomerDiscGroup.FindFirst();
+        CustomerAgreement.Validate("Customer Disc. Group", CustomerDiscGroup.Code);
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        CustomerAgreement.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+        CustomerAgreement.Validate("VAT Bus. Posting Group", VATBusPostingGroup.Code);
+        Location.FindFirst();
+        CustomerAgreement.Validate("Location Code", Location.Code);
+        LibrarySales.CreateShipToAddress(ShipToAddress, SalesHeader."Sell-to Customer No.");
+        CustomerAgreement.Validate("Ship-to Code", ShipToAddress.Code);
+        ResponsibilityCenter.FindFirst();
+        CustomerAgreement.Validate("Responsibility Center", ResponsibilityCenter.Code);
+        ShippingAgent.FindFirst();
+        CustomerAgreement.Validate("Shipping Agent Code", ShippingAgent.Code);
+        Evaluate(DateFormula, '<1D>');
+        CustomerAgreement.Validate("Shipping Time", DateFormula);
+        ShippingAgentService.SetRange("Shipping Agent Code", ShippingAgent.Code);
+        ShippingAgentService.FindFirst();
+        CustomerAgreement.Validate("Shipping Agent Service Code", ShippingAgentService.Code);
+        CustomerAgreement.Validate("Shipping Advice", CustomerAgreement."Shipping Advice"::Complete);
+        ShipmentMethodCode.FindFirst();
+        CustomerAgreement.Validate("Shipment Method Code", ShipmentMethodCode.Code);
+        CustomerAgreement.Modify(true);
         SalesHeader.Validate("Agreement No.", AgreementNo);
         SalesHeader.Modify(true);
     end;
@@ -1264,30 +1228,28 @@
         Location: Record Location;
         ResponsibilityCenter: Record "Responsibility Center";
     begin
-        with VendorAgreement do begin
-            Get(PurchHeader."Buy-from Vendor No.", AgreementNo);
-            Language.FindFirst();
-            Validate("Language Code", Language.Code);
-            Currency.FindFirst();
-            Validate("Currency Code", Currency.Code);
-            SalesPerson.FindFirst();
-            Validate("Purchaser Code", SalesPerson.Code);
-            PaymentTerms.FindFirst();
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            PaymentMethod.FindFirst();
-            Validate("Payment Method Code", PaymentMethod.Code);
-            VendorPostingGroup.FindFirst();
-            Validate("Vendor Posting Group", VendorPostingGroup.Code);
-            LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
-            Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
-            LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup.Code);
-            Location.FindFirst();
-            Validate("Location Code", Location.Code);
-            ResponsibilityCenter.FindFirst();
-            Validate("Responsibility Center", ResponsibilityCenter.Code);
-            Modify(true);
-        end;
+        VendorAgreement.Get(PurchHeader."Buy-from Vendor No.", AgreementNo);
+        Language.FindFirst();
+        VendorAgreement.Validate("Language Code", Language.Code);
+        Currency.FindFirst();
+        VendorAgreement.Validate("Currency Code", Currency.Code);
+        SalesPerson.FindFirst();
+        VendorAgreement.Validate("Purchaser Code", SalesPerson.Code);
+        PaymentTerms.FindFirst();
+        VendorAgreement.Validate("Payment Terms Code", PaymentTerms.Code);
+        PaymentMethod.FindFirst();
+        VendorAgreement.Validate("Payment Method Code", PaymentMethod.Code);
+        VendorPostingGroup.FindFirst();
+        VendorAgreement.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        VendorAgreement.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+        VendorAgreement.Validate("VAT Bus. Posting Group", VATBusPostingGroup.Code);
+        Location.FindFirst();
+        VendorAgreement.Validate("Location Code", Location.Code);
+        ResponsibilityCenter.FindFirst();
+        VendorAgreement.Validate("Responsibility Center", ResponsibilityCenter.Code);
+        VendorAgreement.Modify(true);
         PurchHeader.Validate("Agreement No.", AgreementNo);
         PurchHeader.Modify(true);
     end;
@@ -1297,62 +1259,60 @@
         CustomerAgreement: Record "Customer Agreement";
     begin
         CustomerAgreement.Get(SalesHeader."Sell-to Customer No.", SalesHeader."Agreement No.");
-        with SalesHeader do begin
-            Assert.AreEqual(
-              "Language Code", CustomerAgreement."Language Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Language Code")));
-            Assert.AreEqual(
-              "Currency Code", CustomerAgreement."Currency Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Currency Code")));
-            Assert.AreEqual(
-              "Payment Terms Code", CustomerAgreement."Payment Terms Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Payment Terms Code")));
-            Assert.AreEqual(
-              "Payment Method Code", CustomerAgreement."Payment Method Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Payment Method Code")));
-            Assert.AreEqual(
-              "Customer Price Group", CustomerAgreement."Customer Price Group",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Customer Price Group")));
-            Assert.AreEqual(
-              "Customer Posting Group", CustomerAgreement."Customer Posting Group",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Customer Posting Group")));
-            Assert.AreEqual(
-              "Customer Disc. Group", CustomerAgreement."Customer Disc. Group",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Customer Disc. Group")));
-            Assert.AreEqual(
-              "Gen. Bus. Posting Group", CustomerAgreement."Gen. Bus. Posting Group",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Gen. Bus. Posting Group")));
-            Assert.AreEqual(
-              "VAT Bus. Posting Group", CustomerAgreement."VAT Bus. Posting Group",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("VAT Bus. Posting Group")));
-            Assert.AreEqual(
-              "Location Code", CustomerAgreement."Location Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Location Code")));
-            Assert.AreEqual(
-              "Ship-to Code", CustomerAgreement."Ship-to Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Ship-to Code")));
-            Assert.AreEqual(
-              "Responsibility Center", CustomerAgreement."Responsibility Center",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Responsibility Center")));
-            Assert.AreEqual(
-              "Shipping Agent Code", CustomerAgreement."Shipping Agent Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Shipping Agent Code")));
-            Assert.AreEqual(
-              Format("Shipping Time"), Format(CustomerAgreement."Shipping Time"),
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Shipping Time")));
-            Assert.AreEqual(
-              "Shipping Agent Code", CustomerAgreement."Shipping Agent Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Shipping Agent Code")));
-            Assert.AreEqual(
-              "Shipping Agent Service Code", CustomerAgreement."Shipping Agent Service Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Shipping Agent Service Code")));
-            Assert.AreEqual(
-              "Shipping Advice", CustomerAgreement."Shipping Advice",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Shipping Advice")));
-            Assert.AreEqual(
-              "Shipment Method Code", CustomerAgreement."Shipment Method Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Shipment Method Code")));
-        end;
+        Assert.AreEqual(
+          SalesHeader."Language Code", CustomerAgreement."Language Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Language Code")));
+        Assert.AreEqual(
+          SalesHeader."Currency Code", CustomerAgreement."Currency Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Currency Code")));
+        Assert.AreEqual(
+          SalesHeader."Payment Terms Code", CustomerAgreement."Payment Terms Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Payment Terms Code")));
+        Assert.AreEqual(
+          SalesHeader."Payment Method Code", CustomerAgreement."Payment Method Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Payment Method Code")));
+        Assert.AreEqual(
+          SalesHeader."Customer Price Group", CustomerAgreement."Customer Price Group",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Customer Price Group")));
+        Assert.AreEqual(
+          SalesHeader."Customer Posting Group", CustomerAgreement."Customer Posting Group",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Customer Posting Group")));
+        Assert.AreEqual(
+          SalesHeader."Customer Disc. Group", CustomerAgreement."Customer Disc. Group",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Customer Disc. Group")));
+        Assert.AreEqual(
+          SalesHeader."Gen. Bus. Posting Group", CustomerAgreement."Gen. Bus. Posting Group",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Gen. Bus. Posting Group")));
+        Assert.AreEqual(
+          SalesHeader."VAT Bus. Posting Group", CustomerAgreement."VAT Bus. Posting Group",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("VAT Bus. Posting Group")));
+        Assert.AreEqual(
+          SalesHeader."Location Code", CustomerAgreement."Location Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Location Code")));
+        Assert.AreEqual(
+          SalesHeader."Ship-to Code", CustomerAgreement."Ship-to Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Ship-to Code")));
+        Assert.AreEqual(
+          SalesHeader."Responsibility Center", CustomerAgreement."Responsibility Center",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Responsibility Center")));
+        Assert.AreEqual(
+          SalesHeader."Shipping Agent Code", CustomerAgreement."Shipping Agent Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Shipping Agent Code")));
+        Assert.AreEqual(
+          Format(SalesHeader."Shipping Time"), Format(CustomerAgreement."Shipping Time"),
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Shipping Time")));
+        Assert.AreEqual(
+          SalesHeader."Shipping Agent Code", CustomerAgreement."Shipping Agent Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Shipping Agent Code")));
+        Assert.AreEqual(
+          SalesHeader."Shipping Agent Service Code", CustomerAgreement."Shipping Agent Service Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Shipping Agent Service Code")));
+        Assert.AreEqual(
+          SalesHeader."Shipping Advice", CustomerAgreement."Shipping Advice",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Shipping Advice")));
+        Assert.AreEqual(
+          SalesHeader."Shipment Method Code", CustomerAgreement."Shipment Method Code",
+          StrSubstNo(AgrmtFieldValueErr, SalesHeader.FieldCaption("Shipment Method Code")));
     end;
 
     local procedure VerifyComparePurchDocAgrmt(PurchHeader: Record "Purchase Header")
@@ -1360,38 +1320,36 @@
         VendorAgreement: Record "Vendor Agreement";
     begin
         VendorAgreement.Get(PurchHeader."Buy-from Vendor No.", PurchHeader."Agreement No.");
-        with PurchHeader do begin
-            Assert.AreEqual(
-              "Language Code", VendorAgreement."Language Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Language Code")));
-            Assert.AreEqual(
-              "Currency Code", VendorAgreement."Currency Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Currency Code")));
-            Assert.AreEqual(
-              "Purchaser Code", VendorAgreement."Purchaser Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Purchaser Code")));
-            Assert.AreEqual(
-              "Payment Terms Code", VendorAgreement."Payment Terms Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Payment Terms Code")));
-            Assert.AreEqual(
-              "Payment Method Code", VendorAgreement."Payment Method Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Payment Method Code")));
-            Assert.AreEqual(
-              "Vendor Posting Group", VendorAgreement."Vendor Posting Group",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Vendor Posting Group")));
-            Assert.AreEqual(
-              "Gen. Bus. Posting Group", VendorAgreement."Gen. Bus. Posting Group",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Gen. Bus. Posting Group")));
-            Assert.AreEqual(
-              "VAT Bus. Posting Group", VendorAgreement."VAT Bus. Posting Group",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("VAT Bus. Posting Group")));
-            Assert.AreEqual(
-              "Location Code", VendorAgreement."Location Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Location Code")));
-            Assert.AreEqual(
-              "Responsibility Center", VendorAgreement."Responsibility Center",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Responsibility Center")));
-        end;
+        Assert.AreEqual(
+          PurchHeader."Language Code", VendorAgreement."Language Code",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("Language Code")));
+        Assert.AreEqual(
+          PurchHeader."Currency Code", VendorAgreement."Currency Code",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("Currency Code")));
+        Assert.AreEqual(
+          PurchHeader."Purchaser Code", VendorAgreement."Purchaser Code",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("Purchaser Code")));
+        Assert.AreEqual(
+          PurchHeader."Payment Terms Code", VendorAgreement."Payment Terms Code",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("Payment Terms Code")));
+        Assert.AreEqual(
+          PurchHeader."Payment Method Code", VendorAgreement."Payment Method Code",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("Payment Method Code")));
+        Assert.AreEqual(
+          PurchHeader."Vendor Posting Group", VendorAgreement."Vendor Posting Group",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("Vendor Posting Group")));
+        Assert.AreEqual(
+          PurchHeader."Gen. Bus. Posting Group", VendorAgreement."Gen. Bus. Posting Group",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("Gen. Bus. Posting Group")));
+        Assert.AreEqual(
+          PurchHeader."VAT Bus. Posting Group", VendorAgreement."VAT Bus. Posting Group",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("VAT Bus. Posting Group")));
+        Assert.AreEqual(
+          PurchHeader."Location Code", VendorAgreement."Location Code",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("Location Code")));
+        Assert.AreEqual(
+          PurchHeader."Responsibility Center", VendorAgreement."Responsibility Center",
+          StrSubstNo(AgrmtFieldValueErr, PurchHeader.FieldCaption("Responsibility Center")));
     end;
 
     local procedure VerifyCustLedgerEntryAgrmt(CustomerNo: Code[20]; AgreementNo: Code[20])
@@ -1432,26 +1390,22 @@
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            FindSet();
-            repeat
-                Assert.IsFalse(Open, FieldCaption(Open))
-            until Next() = 0;
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindSet();
+        repeat
+            Assert.IsFalse(CustLedgerEntry.Open, CustLedgerEntry.FieldCaption(Open))
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyClosedVendLedgerEntry(VendorNo: Code[20])
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            FindSet();
-            repeat
-                Assert.IsFalse(Open, FieldCaption(Open))
-            until Next() = 0;
-        end;
+        VendLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendLedgerEntry.FindSet();
+        repeat
+            Assert.IsFalse(VendLedgerEntry.Open, VendLedgerEntry.FieldCaption(Open))
+        until VendLedgerEntry.Next() = 0;
     end;
 
     local procedure PurchSetupInit(SynchAgmtDim: Boolean)
@@ -1460,12 +1414,10 @@
         Dimension: Record Dimension;
     begin
         Dimension.FindFirst();
-        with PurchSetup do begin
-            Get();
-            "Synch. Agreement Dimension" := SynchAgmtDim;
-            "Vendor Agreement Dim. Code" := Dimension.Code;
-            Modify();
-        end;
+        PurchSetup.Get();
+        PurchSetup."Synch. Agreement Dimension" := SynchAgmtDim;
+        PurchSetup."Vendor Agreement Dim. Code" := Dimension.Code;
+        PurchSetup.Modify();
     end;
 
     local procedure SalesSetupInit(SynchAgmtDim: Boolean)
@@ -1474,12 +1426,10 @@
         Dimension: Record Dimension;
     begin
         Dimension.FindFirst();
-        with SalesSetup do begin
-            Get();
-            "Synch. Agreement Dimension" := SynchAgmtDim;
-            "Customer Agreement Dim. Code" := Dimension.Code;
-            Modify();
-        end;
+        SalesSetup.Get();
+        SalesSetup."Synch. Agreement Dimension" := SynchAgmtDim;
+        SalesSetup."Customer Agreement Dim. Code" := Dimension.Code;
+        SalesSetup.Modify();
     end;
 
     local procedure CheckAgreementDimensions(AgreementDimCode: Code[20]; AgreementCode: Code[20]; TableID: Integer; IsDimValueBlocked: Boolean)
@@ -1552,24 +1502,20 @@
 
     local procedure BlockVendorAgreement(var VendorAgreement: Record "Vendor Agreement"; Block: Boolean)
     begin
-        with VendorAgreement do begin
-            if Block then
-                Blocked := Blocked::All
-            else
-                Blocked := Blocked::" ";
-            Modify(true);
-        end;
+        if Block then
+            VendorAgreement.Blocked := VendorAgreement.Blocked::All
+        else
+            VendorAgreement.Blocked := VendorAgreement.Blocked::" ";
+        VendorAgreement.Modify(true);
     end;
 
     local procedure BlockCustomerAgreement(var CustomerAgreement: Record "Customer Agreement"; Block: Boolean)
     begin
-        with CustomerAgreement do begin
-            if Block then
-                Blocked := Blocked::All
-            else
-                Blocked := Blocked::" ";
-            Modify(true);
-        end;
+        if Block then
+            CustomerAgreement.Blocked := CustomerAgreement.Blocked::All
+        else
+            CustomerAgreement.Blocked := CustomerAgreement.Blocked::" ";
+        CustomerAgreement.Modify(true);
     end;
 
     local procedure GetPurchSetupAgreementDimCode(): Code[20]
@@ -1592,24 +1538,20 @@
     var
         VendorAgreement: Record "Vendor Agreement";
     begin
-        with VendorAgreement do begin
-            Get(VendorNo, VendorAgreementNo);
-            Validate("Global Dimension 1 Code", DimValue1Code);
-            Validate("Global Dimension 2 Code", DimValue2Code);
-            Modify(true);
-        end;
+        VendorAgreement.Get(VendorNo, VendorAgreementNo);
+        VendorAgreement.Validate("Global Dimension 1 Code", DimValue1Code);
+        VendorAgreement.Validate("Global Dimension 2 Code", DimValue2Code);
+        VendorAgreement.Modify(true);
     end;
 
     local procedure SetCustomerAgreementGlobalDimensions(CustomerNo: Code[20]; CustomerAgreementNo: Code[20]; DimValue1Code: Code[20]; DimValue2Code: Code[20])
     var
         CustomerAgreement: Record "Customer Agreement";
     begin
-        with CustomerAgreement do begin
-            Get(CustomerNo, CustomerAgreementNo);
-            Validate("Global Dimension 1 Code", DimValue1Code);
-            Validate("Global Dimension 2 Code", DimValue2Code);
-            Modify(true);
-        end;
+        CustomerAgreement.Get(CustomerNo, CustomerAgreementNo);
+        CustomerAgreement.Validate("Global Dimension 1 Code", DimValue1Code);
+        CustomerAgreement.Validate("Global Dimension 2 Code", DimValue2Code);
+        CustomerAgreement.Modify(true);
     end;
 
     local procedure SetCustomerAgreementExpireDate(CustomerNo: Code[20]; CustomerAgreementNo: Code[20]; Date: Date)
@@ -1632,20 +1574,16 @@
 
     local procedure CreateSimpleVendorAgreement(var VendorAgreement: Record "Vendor Agreement"; VendorNo: Code[20])
     begin
-        with VendorAgreement do begin
-            Init();
-            "Vendor No." := VendorNo;
-            Insert(true);
-        end;
+        VendorAgreement.Init();
+        VendorAgreement."Vendor No." := VendorNo;
+        VendorAgreement.Insert(true);
     end;
 
     local procedure CreateSimpleCustomerAgreement(var CustomerAgreement: Record "Customer Agreement"; CustomerNo: Code[20])
     begin
-        with CustomerAgreement do begin
-            Init();
-            "Customer No." := CustomerNo;
-            Insert(true);
-        end;
+        CustomerAgreement.Init();
+        CustomerAgreement."Customer No." := CustomerNo;
+        CustomerAgreement.Insert(true);
     end;
 
     local procedure CreateGlobalDimensionValues(var DimensionValue1Code: Code[20]; var DimensionValue2Code: Code[20])

@@ -376,7 +376,11 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label 'cannot be %1 if Tax Invoice Amount Type is %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompanyInfo: Record "Company Information";
         LedgerConnBuffer: Record "VAT Ledger Connection" temporary;
         LedgerBuffer: Record "VAT Ledger Line" temporary;
@@ -551,20 +555,19 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
             exit;
 
         LedgerBuffer.SetRange("Document No.", DocumentNo);
-        if VATEntry.Prepayment then begin
-            LedgerBuffer.SetRange(Method);
-        end else begin
+        if VATEntry.Prepayment then
+            LedgerBuffer.SetRange(Method)
+        else
             if VATEntry."Unrealized VAT Entry No." = 0 then
                 LedgerBuffer.SetRange(Method, LedgerBuffer.Method::Shipment)
             else
                 LedgerBuffer.SetRange(Method, LedgerBuffer.Method::Payment);
-        end;
         LedgerBuffer.SetRange(Prepayment, VATEntry.Prepayment);
         LedgerBuffer.SetRange("Amt. Diff. VAT", false);
         LedgerBuffer.SetRange("Document Type", VATEntry."Document Type");
         LedgerBuffer.SetRange("C/V No.", CustNo);
 
-        if VATEntry."Corrective Doc. Type" <> VATEntry."Corrective Doc. Type"::" " then begin
+        if VATEntry."Corrective Doc. Type" <> VATEntry."Corrective Doc. Type"::" " then
             case VATEntry."Corrective Doc. Type" of
                 VATEntry."Corrective Doc. Type"::Correction:
                     LedgerBuffer.SetRange("Correction No.", CorrectionNo);
@@ -575,8 +578,8 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                         if RevisionOfCorrectionNo <> '' then
                             LedgerBuffer.SetRange("Revision of Corr. No.", RevisionOfCorrectionNo);
                     end;
-            end;
-        end else begin
+            end
+        else begin
             LedgerBuffer.SetRange("Correction No.");
             LedgerBuffer.SetRange("Revision No.");
             LedgerBuffer.SetRange("Revision of Corr. No.");

@@ -45,16 +45,14 @@ codeunit 144710 "ERM INV-18 Report"
 
     local procedure MockFixedAsset(var FixedAsset: Record "Fixed Asset")
     begin
-        with FixedAsset do begin
-            Init();
-            "No." := '';
-            Insert(true);
-            "Manufacturing Year" := Format(Date2DMY(WorkDate(), 3));
-            "Inventory Number" := LibraryUtility.GenerateGUID();
-            "Factory No." := LibraryUtility.GenerateGUID();
-            "Passport No." := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+        FixedAsset.Init();
+        FixedAsset."No." := '';
+        FixedAsset.Insert(true);
+        FixedAsset."Manufacturing Year" := Format(Date2DMY(WorkDate(), 3));
+        FixedAsset."Inventory Number" := LibraryUtility.GenerateGUID();
+        FixedAsset."Factory No." := LibraryUtility.GenerateGUID();
+        FixedAsset."Passport No." := LibraryUtility.GenerateGUID();
+        FixedAsset.Modify();
     end;
 
     local procedure MockFAJournalLines(var TempFAJournalLine: Record "FA Journal Line"; FANo: Code[20])
@@ -85,23 +83,21 @@ codeunit 144710 "ERM INV-18 Report"
         FAJournalLine: Record "FA Journal Line";
         RecRef: RecordRef;
     begin
-        with FAJournalLine do begin
-            Init();
-            "Journal Template Name" := '';
-            "Journal Batch Name" := '';
-            RecRef.GetTable(FAJournalLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "FA No." := FANo;
-            Description := LibraryUtility.GenerateGUID();
-            "Calc. Quantity" := CalcQty;
-            "Actual Quantity" := ActualQty;
-            "Calc. Amount" := CalcAmount;
-            "Actual Amount" := ActualAmount;
-            Insert();
-            if AddLineToBuffer then begin
-                TempFAJournalLine := FAJournalLine;
-                TempFAJournalLine.Insert();
-            end;
+        FAJournalLine.Init();
+        FAJournalLine."Journal Template Name" := '';
+        FAJournalLine."Journal Batch Name" := '';
+        RecRef.GetTable(FAJournalLine);
+        FAJournalLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, FAJournalLine.FieldNo("Line No."));
+        FAJournalLine."FA No." := FANo;
+        FAJournalLine.Description := LibraryUtility.GenerateGUID();
+        FAJournalLine."Calc. Quantity" := CalcQty;
+        FAJournalLine."Actual Quantity" := ActualQty;
+        FAJournalLine."Calc. Amount" := CalcAmount;
+        FAJournalLine."Actual Amount" := ActualAmount;
+        FAJournalLine.Insert();
+        if AddLineToBuffer then begin
+            TempFAJournalLine := FAJournalLine;
+            TempFAJournalLine.Insert();
         end;
     end;
 
@@ -132,30 +128,28 @@ codeunit 144710 "ERM INV-18 Report"
         i: Integer;
     begin
         RowShift := 0;
-        with TempFAJournalLine do begin
-            FindSet();
-            FixedAsset.Get("FA No.");
-            repeat
-                for i := 1 to ArrayLen(ValueArray, 2) do
-                    ValueArray[1, i] := 0;
-                if "Calc. Quantity" > "Actual Quantity" then begin
-                    ValueArray[1, AmountType::AmountMinus] := "Calc. Amount" - "Actual Amount";
-                    ValueArray[1, AmountType::QtyMinus] := "Calc. Quantity" - "Actual Quantity";
-                end else begin
-                    ValueArray[1, AmountType::AmountPlus] := "Actual Amount" - "Calc. Amount";
-                    ValueArray[1, AmountType::QtyPlus] := "Actual Quantity" - "Calc. Quantity";
-                end;
-                for i := 1 to ArrayLen(ValueArray, 2) do
-                    ValueArray[2, i] += ValueArray[1, i];
-                VerifyLineValue(
-                  RowShift, Description, FixedAsset."Manufacturing Year", FixedAsset."Inventory Number", FixedAsset."Factory No.",
-                  FixedAsset."Passport No.", ValueArray[1], false);
-                RowShift += 1;
-            until Next() = 0;
-            // Verify Footer
+        TempFAJournalLine.FindSet();
+        FixedAsset.Get(TempFAJournalLine."FA No.");
+        repeat
+            for i := 1 to ArrayLen(ValueArray, 2) do
+                ValueArray[1, i] := 0;
+            if TempFAJournalLine."Calc. Quantity" > TempFAJournalLine."Actual Quantity" then begin
+                ValueArray[1, AmountType::AmountMinus] := TempFAJournalLine."Calc. Amount" - TempFAJournalLine."Actual Amount";
+                ValueArray[1, AmountType::QtyMinus] := TempFAJournalLine."Calc. Quantity" - TempFAJournalLine."Actual Quantity";
+            end else begin
+                ValueArray[1, AmountType::AmountPlus] := TempFAJournalLine."Actual Amount" - TempFAJournalLine."Calc. Amount";
+                ValueArray[1, AmountType::QtyPlus] := TempFAJournalLine."Actual Quantity" - TempFAJournalLine."Calc. Quantity";
+            end;
+            for i := 1 to ArrayLen(ValueArray, 2) do
+                ValueArray[2, i] += ValueArray[1, i];
             VerifyLineValue(
-              RowShift, '', '', '', '', '', ValueArray[2], true);
-        end;
+              RowShift, TempFAJournalLine.Description, FixedAsset."Manufacturing Year", FixedAsset."Inventory Number", FixedAsset."Factory No.",
+              FixedAsset."Passport No.", ValueArray[1], false);
+            RowShift += 1;
+        until TempFAJournalLine.Next() = 0;
+        // Verify Footer
+        VerifyLineValue(
+          RowShift, '', '', '', '', '', ValueArray[2], true);
     end;
 
     local procedure VerifyLineValue(RowShift: Integer; Description: Text; ManufYear: Text; InventoryNumber: Text; FactoryNo: Text; PassportNo: Text; ValueArray: array[4] of Decimal; CheckTotalsOnly: Boolean)

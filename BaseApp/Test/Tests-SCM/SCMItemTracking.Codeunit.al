@@ -27,7 +27,6 @@ codeunit 137405 "SCM Item Tracking"
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         SalesMode: Boolean;
-        ExpirationDateMustError: Label 'Expiration Date must have a value in Tracking Specification: Entry No.=1. It cannot be zero or empty.';
         BeforeExpirationDateError: Label 'Expiration Date  is before the posting date. in Item Ledger Entry Entry No.=''%1''.';
         UnknownError: Label 'Unknown Error.';
         AssignLotNo: Boolean;
@@ -637,12 +636,10 @@ codeunit 137405 "SCM Item Tracking"
         for ActionType := "Warehouse Action Type"::Take to "Warehouse Action Type"::Place do begin
             WarehouseActivityLine.SetRange("Action Type", ActionType);
             WarehouseActivityLine.FindFirst();
-            if (ActionType = "Warehouse Action Type"::Take) then begin
+            if (ActionType = "Warehouse Action Type"::Take) then
                 WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine."Qty. Outstanding");
-            end;
-            if (ActionType = "Warehouse Action Type"::Place) then begin
+            if (ActionType = "Warehouse Action Type"::Place) then
                 WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine."Qty. Outstanding");
-            end;
         end;
 
         // [THEN] Then the warehouse activity lines are registered with no errors
@@ -737,14 +734,14 @@ codeunit 137405 "SCM Item Tracking"
         Assert.RecordCount(WarehouseReceiptLine, 2);
 
         if WarehouseReceiptLine.FindSet() then
-            REPEAT
+            repeat
                 WarehouseReceiptLine.Validate("Qty. to Receive", 725.5);
                 WarehouseReceiptLine.Modify(true);
                 LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
                 LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
                 LibraryVariableStorage.Enqueue(4353);
                 WarehouseReceiptLine.OpenItemTrackingLines();
-            Until WarehouseReceiptLine.Next() = 0;
+            until WarehouseReceiptLine.Next() = 0;
 
         // [WHEN] Warehouse Receipt is posted
         WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
@@ -763,8 +760,8 @@ codeunit 137405 "SCM Item Tracking"
         Assert.RecordCount(WarehouseActivityLine, 4);
         WarehouseActivityLine.SetRange("Action Type", 2);
 
-        if WarehouseActivityLine.FindSet() then begin
-            REPEAT
+        if WarehouseActivityLine.FindSet() then
+            repeat
                 if WarehouseActivityLine."Qty. to Handle" = 0.5 then begin
                     WarehouseActivityLine."Bin Code" := BinCode;
                     TempWhseActivLine := WarehouseActivityLine;
@@ -779,10 +776,8 @@ codeunit 137405 "SCM Item Tracking"
                     WarehouseActivityLine.Validate("Qty. to Handle", SplitQuantity);
                     WarehouseActivityLine.Modify();
                     WarehouseActivityLine.SplitLine(WarehouseActivityLine);
-
                 end;
-            Until WarehouseActivityLine.Next() = 0;
-        end;
+            until WarehouseActivityLine.Next() = 0;
 
         WarehouseActivityLine.Reset();
         WarehouseActivityLine.SetRange("Source Type", Database::"Purchase Line");
@@ -867,6 +862,7 @@ codeunit 137405 "SCM Item Tracking"
     procedure PurchaseOrderWithoutExpirationDate()
     var
         PurchaseLine: Record "Purchase Line";
+        TrackingSpec: Record "Tracking Specification";
     begin
         // Test Item Tracking functionality on Purchase Order without Expiration Date.
 
@@ -877,7 +873,7 @@ codeunit 137405 "SCM Item Tracking"
         asserterror CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, 0D);
 
         // Verify: Verify Expiration Date must have a value in Tracking Specification error message.
-        Assert.AreEqual(StrSubstNo(ExpirationDateMustError), GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(TrackingSpec.FieldCaption("Expiration Date"), '');
     end;
 
     [Test]
@@ -1057,23 +1053,23 @@ codeunit 137405 "SCM Item Tracking"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            "Quantity (Base)" := 1; // Positive Qty
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::Quote, false);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::Order, false);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::Invoice, false);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::"Blanket Order", false);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::"Return Order", true);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::"Credit Memo", true);
+        SalesLine."Quantity (Base)" := 1;
+        // Positive Qty
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::Quote, false);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::Order, false);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::Invoice, false);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::"Blanket Order", false);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::"Return Order", true);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::"Credit Memo", true);
 
-            "Quantity (Base)" := -1; // Negative Qty
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::Quote, true);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::Order, true);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::Invoice, true);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::"Blanket Order", true);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::"Return Order", false);
-            VerifySalesLineIsInbound(SalesLine, "Document Type"::"Credit Memo", false);
-        end;
+        SalesLine."Quantity (Base)" := -1;
+        // Negative Qty
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::Quote, true);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::Order, true);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::Invoice, true);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::"Blanket Order", true);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::"Return Order", false);
+        VerifySalesLineIsInbound(SalesLine, SalesLine."Document Type"::"Credit Memo", false);
     end;
 
     [Test]
@@ -1082,23 +1078,23 @@ codeunit 137405 "SCM Item Tracking"
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            "Quantity (Base)" := 1; // Positive Qty
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::Quote, true);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::Order, true);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::Invoice, true);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::"Blanket Order", true);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::"Return Order", false);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::"Credit Memo", false);
+        PurchLine."Quantity (Base)" := 1;
+        // Positive Qty
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::Quote, true);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::Order, true);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::Invoice, true);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::"Blanket Order", true);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::"Return Order", false);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::"Credit Memo", false);
 
-            "Quantity (Base)" := -1; // Negative Qty
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::Quote, false);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::Order, false);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::Invoice, false);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::"Blanket Order", false);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::"Return Order", true);
-            VerifyPurchLineIsInbound(PurchLine, "Document Type"::"Credit Memo", true);
-        end;
+        PurchLine."Quantity (Base)" := -1;
+        // Negative Qty
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::Quote, false);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::Order, false);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::Invoice, false);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::"Blanket Order", false);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::"Return Order", true);
+        VerifyPurchLineIsInbound(PurchLine, PurchLine."Document Type"::"Credit Memo", true);
     end;
 
     [Test]
@@ -1107,31 +1103,31 @@ codeunit 137405 "SCM Item Tracking"
     var
         ItemJnlLine: Record "Item Journal Line";
     begin
-        with ItemJnlLine do begin
-            "Quantity (Base)" := 1; // Positive Qty
-            Quantity := 1;
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Purchase, true);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Output, true);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::"Positive Adjmt.", true);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::"Assembly Output", true);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Sale, false);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Consumption, false);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::"Negative Adjmt.", false);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::"Assembly Consumption", false);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Transfer, false);
+        ItemJnlLine."Quantity (Base)" := 1;
+        // Positive Qty
+        ItemJnlLine.Quantity := 1;
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Purchase, true);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Output, true);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::"Positive Adjmt.", true);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::"Assembly Output", true);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Sale, false);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Consumption, false);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::"Negative Adjmt.", false);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::"Assembly Consumption", false);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Transfer, false);
 
-            "Quantity (Base)" := -1; // Negative Qty
-            Quantity := -1;
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Purchase, false);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Output, false);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::"Positive Adjmt.", false);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::"Assembly Output", false);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Sale, true);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Consumption, true);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::"Negative Adjmt.", true);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::"Assembly Consumption", true);
-            VerifyItemJnlLineIsInbound(ItemJnlLine, "Entry Type"::Transfer, true);
-        end;
+        ItemJnlLine."Quantity (Base)" := -1;
+        // Negative Qty
+        ItemJnlLine.Quantity := -1;
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Purchase, false);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Output, false);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::"Positive Adjmt.", false);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::"Assembly Output", false);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Sale, true);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Consumption, true);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::"Negative Adjmt.", true);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::"Assembly Consumption", true);
+        VerifyItemJnlLineIsInbound(ItemJnlLine, ItemJnlLine."Entry Type"::Transfer, true);
     end;
 
     [Test]
@@ -1140,13 +1136,13 @@ codeunit 137405 "SCM Item Tracking"
     var
         TransferLine: Record "Transfer Line";
     begin
-        with TransferLine do begin
-            "Quantity (Base)" := 1; // Positive Qty
-            Assert.AreEqual(false, IsInbound(), StrSubstNo('%1 %2 %3', TableName, FieldName("Quantity (Base)"), "Quantity (Base)"));
+        TransferLine."Quantity (Base)" := 1;
+        // Positive Qty
+        Assert.AreEqual(false, TransferLine.IsInbound(), StrSubstNo('%1 %2 %3', TransferLine.TableName, TransferLine.FieldName("Quantity (Base)"), TransferLine."Quantity (Base)"));
 
-            "Quantity (Base)" := -1; // Negative Qty
-            Assert.AreEqual(true, IsInbound(), StrSubstNo('%1 %2 %3', TableName, FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        TransferLine."Quantity (Base)" := -1;
+        // Negative Qty
+        Assert.AreEqual(true, TransferLine.IsInbound(), StrSubstNo('%1 %2 %3', TransferLine.TableName, TransferLine.FieldName("Quantity (Base)"), TransferLine."Quantity (Base)"));
     end;
 
     [Test]
@@ -1155,13 +1151,13 @@ codeunit 137405 "SCM Item Tracking"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            "Quantity (Base)" := 1; // Positive Qty
-            Assert.AreEqual(true, IsInbound(), StrSubstNo('%1 %2 %3', TableName, FieldName("Quantity (Base)"), "Quantity (Base)"));
+        ProdOrderLine."Quantity (Base)" := 1;
+        // Positive Qty
+        Assert.AreEqual(true, ProdOrderLine.IsInbound(), StrSubstNo('%1 %2 %3', ProdOrderLine.TableName, ProdOrderLine.FieldName("Quantity (Base)"), ProdOrderLine."Quantity (Base)"));
 
-            "Quantity (Base)" := -1; // Negative Qty
-            Assert.AreEqual(false, IsInbound(), StrSubstNo('%1 %2 %3', TableName, FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        ProdOrderLine."Quantity (Base)" := -1;
+        // Negative Qty
+        Assert.AreEqual(false, ProdOrderLine.IsInbound(), StrSubstNo('%1 %2 %3', ProdOrderLine.TableName, ProdOrderLine.FieldName("Quantity (Base)"), ProdOrderLine."Quantity (Base)"));
     end;
 
     [Test]
@@ -1170,13 +1166,13 @@ codeunit 137405 "SCM Item Tracking"
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        with ProdOrderComponent do begin
-            "Quantity (Base)" := 1; // Positive Qty
-            Assert.AreEqual(false, IsInbound(), StrSubstNo('%1 %2 %3', TableName, FieldName("Quantity (Base)"), "Quantity (Base)"));
+        ProdOrderComponent."Quantity (Base)" := 1;
+        // Positive Qty
+        Assert.AreEqual(false, ProdOrderComponent.IsInbound(), StrSubstNo('%1 %2 %3', ProdOrderComponent.TableName, ProdOrderComponent.FieldName("Quantity (Base)"), ProdOrderComponent."Quantity (Base)"));
 
-            "Quantity (Base)" := -1; // Negative Qty
-            Assert.AreEqual(true, IsInbound(), StrSubstNo('%1 %2 %3', TableName, FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        ProdOrderComponent."Quantity (Base)" := -1;
+        // Negative Qty
+        Assert.AreEqual(true, ProdOrderComponent.IsInbound(), StrSubstNo('%1 %2 %3', ProdOrderComponent.TableName, ProdOrderComponent.FieldName("Quantity (Base)"), ProdOrderComponent."Quantity (Base)"));
     end;
 
     [Test]
@@ -1185,12 +1181,11 @@ codeunit 137405 "SCM Item Tracking"
     var
         AsmHeader: Record "Assembly Header";
     begin
-        with AsmHeader do begin
-            "Quantity (Base)" := 1; // Always Positive Qty
-            VerifyAsmHeaderIsInbound(AsmHeader, "Document Type"::Quote, true);
-            VerifyAsmHeaderIsInbound(AsmHeader, "Document Type"::Order, true);
-            VerifyAsmHeaderIsInbound(AsmHeader, "Document Type"::"Blanket Order", true);
-        end;
+        AsmHeader."Quantity (Base)" := 1;
+        // Always Positive Qty
+        VerifyAsmHeaderIsInbound(AsmHeader, AsmHeader."Document Type"::Quote, true);
+        VerifyAsmHeaderIsInbound(AsmHeader, AsmHeader."Document Type"::Order, true);
+        VerifyAsmHeaderIsInbound(AsmHeader, AsmHeader."Document Type"::"Blanket Order", true);
     end;
 
     [Test]
@@ -1199,12 +1194,11 @@ codeunit 137405 "SCM Item Tracking"
     var
         AsmLine: Record "Assembly Line";
     begin
-        with AsmLine do begin
-            "Quantity (Base)" := 1; // Always Positive Qty
-            VerifyAsmLineIsInbound(AsmLine, "Document Type"::Quote, false);
-            VerifyAsmLineIsInbound(AsmLine, "Document Type"::Order, false);
-            VerifyAsmLineIsInbound(AsmLine, "Document Type"::"Blanket Order", false);
-        end;
+        AsmLine."Quantity (Base)" := 1;
+        // Always Positive Qty
+        VerifyAsmLineIsInbound(AsmLine, AsmLine."Document Type"::Quote, false);
+        VerifyAsmLineIsInbound(AsmLine, AsmLine."Document Type"::Order, false);
+        VerifyAsmLineIsInbound(AsmLine, AsmLine."Document Type"::"Blanket Order", false);
     end;
 
     [Test]
@@ -1213,19 +1207,19 @@ codeunit 137405 "SCM Item Tracking"
     var
         ServiceLine: Record "Service Line";
     begin
-        with ServiceLine do begin
-            "Quantity (Base)" := 1; // Positive Qty
-            VerifyServiceLineIsInbound(ServiceLine, "Document Type"::Quote, false);
-            VerifyServiceLineIsInbound(ServiceLine, "Document Type"::Order, false);
-            VerifyServiceLineIsInbound(ServiceLine, "Document Type"::Invoice, false);
-            VerifyServiceLineIsInbound(ServiceLine, "Document Type"::"Credit Memo", true);
+        ServiceLine."Quantity (Base)" := 1;
+        // Positive Qty
+        VerifyServiceLineIsInbound(ServiceLine, ServiceLine."Document Type"::Quote, false);
+        VerifyServiceLineIsInbound(ServiceLine, ServiceLine."Document Type"::Order, false);
+        VerifyServiceLineIsInbound(ServiceLine, ServiceLine."Document Type"::Invoice, false);
+        VerifyServiceLineIsInbound(ServiceLine, ServiceLine."Document Type"::"Credit Memo", true);
 
-            "Quantity (Base)" := -1; // Negative Qty
-            VerifyServiceLineIsInbound(ServiceLine, "Document Type"::Quote, true);
-            VerifyServiceLineIsInbound(ServiceLine, "Document Type"::Order, true);
-            VerifyServiceLineIsInbound(ServiceLine, "Document Type"::Invoice, true);
-            VerifyServiceLineIsInbound(ServiceLine, "Document Type"::"Credit Memo", false);
-        end;
+        ServiceLine."Quantity (Base)" := -1;
+        // Negative Qty
+        VerifyServiceLineIsInbound(ServiceLine, ServiceLine."Document Type"::Quote, true);
+        VerifyServiceLineIsInbound(ServiceLine, ServiceLine."Document Type"::Order, true);
+        VerifyServiceLineIsInbound(ServiceLine, ServiceLine."Document Type"::Invoice, true);
+        VerifyServiceLineIsInbound(ServiceLine, ServiceLine."Document Type"::"Credit Memo", false);
     end;
 
     [Test]
@@ -1234,15 +1228,15 @@ codeunit 137405 "SCM Item Tracking"
     var
         JobJnlLine: Record "Job Journal Line";
     begin
-        with JobJnlLine do begin
-            "Quantity (Base)" := 1; // Positive Qty
-            VerifyJobJnlLineIsInbound(JobJnlLine, "Entry Type"::Sale, false);
-            VerifyJobJnlLineIsInbound(JobJnlLine, "Entry Type"::Usage, false);
+        JobJnlLine."Quantity (Base)" := 1;
+        // Positive Qty
+        VerifyJobJnlLineIsInbound(JobJnlLine, JobJnlLine."Entry Type"::Sale, false);
+        VerifyJobJnlLineIsInbound(JobJnlLine, JobJnlLine."Entry Type"::Usage, false);
 
-            "Quantity (Base)" := -1; // Negative Qty
-            VerifyJobJnlLineIsInbound(JobJnlLine, "Entry Type"::Sale, true);
-            VerifyJobJnlLineIsInbound(JobJnlLine, "Entry Type"::Usage, true);
-        end;
+        JobJnlLine."Quantity (Base)" := -1;
+        // Negative Qty
+        VerifyJobJnlLineIsInbound(JobJnlLine, JobJnlLine."Entry Type"::Sale, true);
+        VerifyJobJnlLineIsInbound(JobJnlLine, JobJnlLine."Entry Type"::Usage, true);
     end;
 
     [Test]
@@ -1702,11 +1696,10 @@ codeunit 137405 "SCM Item Tracking"
         SalesLine.OpenItemTrackingLines();
 
         // [GIVEN] Sales Line quantity to ship is not equal to tracked quantity.
-        with SalesLine do begin
-            Find();
-            Validate("Qty. to Ship", 2); // 1(tracked quantity) + 1
-            Modify(true);
-        end;
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Ship", 2);
+        // 1(tracked quantity) + 1
+        SalesLine.Modify(true);
 
         // [WHEN] Post Sales Order.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1742,11 +1735,10 @@ codeunit 137405 "SCM Item Tracking"
         PurchaseLine.OpenItemTrackingLines();
 
         // [GIVEN] Purchase Line quantity to receive is not equal to tracked quantity.
-        with PurchaseLine do begin
-            Find();
-            Validate("Qty. to Receive", 2); // 1(tracked quantity) + 1
-            Modify(true);
-        end;
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Qty. to Receive", 2);
+        // 1(tracked quantity) + 1
+        PurchaseLine.Modify(true);
 
         // [WHEN] Post Purchase Order.
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -3056,6 +3048,7 @@ codeunit 137405 "SCM Item Tracking"
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         TempTrackingSpecification: Record "Tracking Specification" temporary;
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         SerialNos: array[2] of Code[20];
         LotNos: array[2] of Code[20];
         NewDate: Date;
@@ -3076,14 +3069,11 @@ codeunit 137405 "SCM Item Tracking"
 
         MockTrackingSpecificationForItemJnlLine(
           TempTrackingSpecification, ItemJournalLine, 0, SerialNos[1], LotNos[1], NewDate);
-
         // [WHEN] Create a second line in item tracking: serial no. = "S2", lot no. = "L1".
-        with TempTrackingSpecification do begin
-            InitFromItemJnlLine(ItemJournalLine);
-            "Entry No." := 1;
-            Validate("Serial No.", SerialNos[2]);
-            Validate("Lot No.", LotNos[1]);
-        end;
+        ItemJnlLineReserve.InitFromItemJnlLine(TempTrackingSpecification, ItemJournalLine);
+        TempTrackingSpecification."Entry No." := 1;
+        TempTrackingSpecification.Validate("Serial No.", SerialNos[2]);
+        TempTrackingSpecification.Validate("Lot No.", LotNos[1]);
 
         // [THEN] Expiration Date on the new line is copied from the first line and is now "EXP-1".
         TempTrackingSpecification.TestField("Expiration Date", NewDate);
@@ -3289,7 +3279,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
 
         // [GIVEN] Second item unit of measure created for the item with Qty per unit of measure 3 and 6
-        for Counter := 1 TO 2 DO begin
+        for Counter := 1 to 2 do begin
             QtyPerUoM := 3 * Counter;
             SumOfQty := 0;
             LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPerUoM);
@@ -3401,7 +3391,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
 
         // [GIVEN] Second item unit of measure created for the item with Qty per unit of measure 3 and 6
-        for CounterI := 1 TO 2 DO begin
+        for CounterI := 1 to 2 do begin
             SumOfQty := 0;
             LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 3 * CounterI);
 
@@ -5147,13 +5137,11 @@ codeunit 137405 "SCM Item Tracking"
         ReservEntry: Record "Reservation Entry";
         Qty: Decimal;
     begin
-        with ReservEntry do begin
-            SetRange("Lot No.", LotNo);
-            FindSet();
-            repeat
-                Qty += "Qty. to Handle (Base)";
-            until Next() = 0;
-        end;
+        ReservEntry.SetRange("Lot No.", LotNo);
+        ReservEntry.FindSet();
+        repeat
+            Qty += ReservEntry."Qty. to Handle (Base)";
+        until ReservEntry.Next() = 0;
 
         exit(Qty);
     end;
@@ -5239,11 +5227,9 @@ codeunit 137405 "SCM Item Tracking"
             ItemTrackingCode.Validate("SN Warehouse Tracking", not SNSpecificTracking);
         ItemTrackingCode.Modify(true);
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
-        with Item do begin
-            Validate(Reserve, Reserve::Always);
-            Validate("Item Tracking Code", ItemTrackingCode.Code);
-            Modify(true);
-        end;
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
     end;
 
     local procedure CreateItemWithLotWarehouseTracking(): Code[20]
@@ -5324,11 +5310,10 @@ codeunit 137405 "SCM Item Tracking"
         ReservEntry.SetRange("Item No.", SalesLine."No.");
         ReservEntry.FindLast();
 
-        with LibraryVariableStorage do begin
-            Enqueue(1); // number of Lot to create for Item Tracking Lines
-            Enqueue(ReservEntry."Lot No.");
-            Enqueue(SalesLine."Quantity (Base)");
-        end;
+        LibraryVariableStorage.Enqueue(1);
+        // number of Lot to create for Item Tracking Lines
+        LibraryVariableStorage.Enqueue(ReservEntry."Lot No.");
+        LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
         SalesLine.OpenItemTrackingLines(); // Create ItemTrackingLine for Lot3 Manually using OpenItemTrackingHandler Handler
     end;
 
@@ -5545,12 +5530,10 @@ codeunit 137405 "SCM Item Tracking"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
-        with ItemTrackingCode do begin
-            Validate("SN Sales Inbound Tracking", true);
-            Validate("SN Sales Outbound Tracking", true);
-            Modify(true);
-            exit(Code);
-        end;
+        ItemTrackingCode.Validate("SN Sales Inbound Tracking", true);
+        ItemTrackingCode.Validate("SN Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+        exit(ItemTrackingCode.Code);
     end;
 
     local procedure CreateItemTrackingCodeFreeEntry(): Code[10]
@@ -5611,13 +5594,11 @@ codeunit 137405 "SCM Item Tracking"
         JobTask: Record "Job Task";
     begin
         CreateJobWithJobTask(JobTask);
-        with JobPlanningLine do begin
-            LibraryJob.CreateJobPlanningLine("Line Type"::Budget, Type::Item, JobTask, JobPlanningLine);
-            Validate("No.", ItemNo);
-            Validate(Quantity, Qty);
-            Validate("Usage Link", true);
-            Modify(true);
-        end;
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", ItemNo);
+        JobPlanningLine.Validate(Quantity, Qty);
+        JobPlanningLine.Validate("Usage Link", true);
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure CreateReservedJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var LotNo: Code[10])
@@ -5941,12 +5922,10 @@ codeunit 137405 "SCM Item Tracking"
 
     local procedure FindWhseShipmentLine(var WhseShipmentLine: Record "Warehouse Shipment Line"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20])
     begin
-        with WhseShipmentLine do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source No.", SourceNo);
-            FindFirst();
-        end;
+        WhseShipmentLine.SetRange("Source Type", SourceType);
+        WhseShipmentLine.SetRange("Source Subtype", SourceSubtype);
+        WhseShipmentLine.SetRange("Source No.", SourceNo);
+        WhseShipmentLine.FindFirst();
     end;
 
     local procedure FindWhseShipmentLineSalesSource(var WhseShipmentLine: Record "Warehouse Shipment Line"; SalesHeader: Record "Sales Header")
@@ -5956,12 +5935,10 @@ codeunit 137405 "SCM Item Tracking"
 
     local procedure FindWhseActivityLine(var WhseActivityLine: Record "Warehouse Activity Line"; WhseShptHdrNo: Code[20])
     begin
-        with WhseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::Pick);
-            SetRange("Whse. Document Type", "Whse. Document Type"::Shipment);
-            SetRange("Whse. Document No.", WhseShptHdrNo);
-            FindFirst();
-        end;
+        WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
+        WhseActivityLine.SetRange("Whse. Document Type", WhseActivityLine."Whse. Document Type"::Shipment);
+        WhseActivityLine.SetRange("Whse. Document No.", WhseShptHdrNo);
+        WhseActivityLine.FindFirst();
     end;
 
     local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLine: Record "Purchase Line")
@@ -6033,19 +6010,17 @@ codeunit 137405 "SCM Item Tracking"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
-            "Item No." := ItemNo;
-            "Serial No." := SerialNo;
-            "Lot No." := LotNo;
-            Quantity := LibraryRandom.RandInt(10);
-            "Remaining Quantity" := Quantity;
-            Open := true;
-            Positive := true;
-            "Expiration Date" := ExpirationDate;
-            Insert();
-        end;
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Item No." := ItemNo;
+        ItemLedgerEntry."Serial No." := SerialNo;
+        ItemLedgerEntry."Lot No." := LotNo;
+        ItemLedgerEntry.Quantity := LibraryRandom.RandInt(10);
+        ItemLedgerEntry."Remaining Quantity" := ItemLedgerEntry.Quantity;
+        ItemLedgerEntry.Open := true;
+        ItemLedgerEntry.Positive := true;
+        ItemLedgerEntry."Expiration Date" := ExpirationDate;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure MockItemTracking(var SerialNos: array[2] of Code[20]; var LotNos: array[2] of Code[20])
@@ -6077,40 +6052,36 @@ codeunit 137405 "SCM Item Tracking"
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
-        with TrackingSpecification do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(TrackingSpecification, FieldNo("Entry No."));
-            SetSourceFromSalesLine(SalesLine);
-            Correction := IsCorrection;
-            Insert();
-        end;
+        TrackingSpecification.Init();
+        TrackingSpecification."Entry No." := LibraryUtility.GetNewRecNo(TrackingSpecification, TrackingSpecification.FieldNo("Entry No."));
+        TrackingSpecification.SetSourceFromSalesLine(SalesLine);
+        TrackingSpecification.Correction := IsCorrection;
+        TrackingSpecification.Insert();
     end;
 
     local procedure MockTrackingSpecificationForItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJnlLine: Record "Item Journal Line"; EntryNo: Integer; SerialNo: Code[50]; LotNo: Code[50]; ExpirationDate: Date)
+    var
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
-        with TrackingSpecification do begin
-            InitFromItemJnlLine(ItemJnlLine);
-            "Entry No." := EntryNo;
-            Validate("Serial No.", SerialNo);
-            Validate("Lot No.", LotNo);
-            Validate("Expiration Date", ExpirationDate);
-            Insert(true);
-        end;
+        ItemJnlLineReserve.InitFromItemJnlLine(TrackingSpecification, ItemJnlLine);
+        TrackingSpecification."Entry No." := EntryNo;
+        TrackingSpecification.Validate("Serial No.", SerialNo);
+        TrackingSpecification.Validate("Lot No.", LotNo);
+        TrackingSpecification.Validate("Expiration Date", ExpirationDate);
+        TrackingSpecification.Insert(true);
     end;
 
     local procedure MockReservEntryForSalesLine(SalesLine: Record "Sales Line"; LotNo: Code[50]; QtyToHandleBase: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, FieldNo("Entry No."));
-            SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", '', 0);
-            "Lot No." := LotNo;
-            UpdateItemTracking();
-            "Qty. to Handle (Base)" := QtyToHandleBase;
-            Insert();
-        end;
+        ReservationEntry.Init();
+        ReservationEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
+        ReservationEntry.SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", '', 0);
+        ReservationEntry."Lot No." := LotNo;
+        ReservationEntry.UpdateItemTracking();
+        ReservationEntry."Qty. to Handle (Base)" := QtyToHandleBase;
+        ReservationEntry.Insert();
     end;
 
     local procedure MockReservEntryForItemJournalLine(ItemJournalLine: Record "Item Journal Line"; SerialNo: Code[50]; LotNo: Code[50]; PackageNo: Code[50]; Qty: Decimal)
@@ -6143,13 +6114,11 @@ codeunit 137405 "SCM Item Tracking"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
-            "Item No." := ItemNo;
-            "Qty. (Base)" := LibraryRandom.RandInt(10);
-            Insert();
-        end;
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, WarehouseEntry.FieldNo("Entry No."));
+        WarehouseEntry."Item No." := ItemNo;
+        WarehouseEntry."Qty. (Base)" := LibraryRandom.RandInt(10);
+        WarehouseEntry.Insert();
     end;
 
     local procedure PostSalesOrderPartialShip(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -6413,15 +6382,13 @@ codeunit 137405 "SCM Item Tracking"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                Validate("Qty. to Receive", LibraryRandom.RandInt("Qty. to Receive" - 1));
-                Modify(true);
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindSet();
+        repeat
+            PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandInt(PurchaseLine."Qty. to Receive" - 1));
+            PurchaseLine.Modify(true);
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure UpdateReservationEntry(ItemNo: Code[20]; ExpirationDate: Date)
@@ -6434,12 +6401,10 @@ codeunit 137405 "SCM Item Tracking"
 
     local procedure UpdatePurchaseLineWithJobTask(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task")
     begin
-        with PurchaseLine do begin
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Job Line Type", "Job Line Type"::Budget);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Budget);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure UpdateExpirationDateOnReservEntry(ItemNo: Code[20]; ExpirationDate: Date)
@@ -6455,29 +6420,25 @@ codeunit 137405 "SCM Item Tracking"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::Pick);
-            SetRange("Whse. Document Type", "Whse. Document Type"::Shipment);
-            SetRange("Whse. Document No.", WhseDocNo);
-            SetRange("Serial No.", '');
-            SetRange("Action Type", ActionType);
-            FindFirst();
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Shipment);
+        WarehouseActivityLine.SetRange("Whse. Document No.", WhseDocNo);
+        WarehouseActivityLine.SetRange("Serial No.", '');
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
 
-            Validate("Serial No.", NewSerialNo);
-            Modify(true);
-        end;
+        WarehouseActivityLine.Validate("Serial No.", NewSerialNo);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure VerifyExpirationDateOnItemLedgerEntry(ItemNo: Code[20]; IsPositive: Boolean; ExpectedDate: Date)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange(Positive, IsPositive);
-            FindLast();
-            Assert.AreEqual(ExpectedDate, "Expiration Date", StrSubstNo(WrongExpDateErr, TableCaption(), "Entry No."));
-        end;
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.SetRange(Positive, IsPositive);
+        ItemLedgEntry.FindLast();
+        Assert.AreEqual(ExpectedDate, ItemLedgEntry."Expiration Date", StrSubstNo(WrongExpDateErr, ItemLedgEntry.TableCaption(), ItemLedgEntry."Entry No."));
     end;
 
     local procedure VerifyLotNoExistOnReservationEntry(ItemNo: Code[20])
@@ -6519,72 +6480,58 @@ codeunit 137405 "SCM Item Tracking"
 
     local procedure VerifySalesLineIsInbound(SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ExpectedResult: Boolean)
     begin
-        with SalesLine do begin
-            "Document Type" := DocumentType;
-            Assert.AreEqual(
-              ExpectedResult, IsInbound(),
-              StrSubstNo('%1 %2 %3 %4', TableName, Format("Document Type"), FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        SalesLine."Document Type" := DocumentType;
+        Assert.AreEqual(
+          ExpectedResult, SalesLine.IsInbound(),
+          StrSubstNo('%1 %2 %3 %4', SalesLine.TableName, Format(SalesLine."Document Type"), SalesLine.FieldName("Quantity (Base)"), SalesLine."Quantity (Base)"));
     end;
 
     local procedure VerifyPurchLineIsInbound(PurchLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ExpectedResult: Boolean)
     begin
-        with PurchLine do begin
-            "Document Type" := DocumentType;
-            Assert.AreEqual(
-              ExpectedResult, IsInbound(),
-              StrSubstNo('%1 %2 %3 %4', TableName, Format("Document Type"), FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        PurchLine."Document Type" := DocumentType;
+        Assert.AreEqual(
+          ExpectedResult, PurchLine.IsInbound(),
+          StrSubstNo('%1 %2 %3 %4', PurchLine.TableName, Format(PurchLine."Document Type"), PurchLine.FieldName("Quantity (Base)"), PurchLine."Quantity (Base)"));
     end;
 
     local procedure VerifyItemJnlLineIsInbound(ItemJnlLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ExpectedResult: Boolean)
     begin
-        with ItemJnlLine do begin
-            "Entry Type" := EntryType;
-            Assert.AreEqual(
-              ExpectedResult, IsInbound(),
-              StrSubstNo('%1 %2 %3 %4', TableName, Format("Entry Type"), FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        ItemJnlLine."Entry Type" := EntryType;
+        Assert.AreEqual(
+          ExpectedResult, ItemJnlLine.IsInbound(),
+          StrSubstNo('%1 %2 %3 %4', ItemJnlLine.TableName, Format(ItemJnlLine."Entry Type"), ItemJnlLine.FieldName("Quantity (Base)"), ItemJnlLine."Quantity (Base)"));
     end;
 
     local procedure VerifyAsmHeaderIsInbound(AsmHeader: Record "Assembly Header"; DocumentType: Enum "Assembly Document Type"; ExpectedResult: Boolean)
     begin
-        with AsmHeader do begin
-            "Document Type" := DocumentType;
-            Assert.AreEqual(
-              ExpectedResult, IsInbound(),
-              StrSubstNo('%1 %2 %3 %4', TableName, Format("Document Type"), FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        AsmHeader."Document Type" := DocumentType;
+        Assert.AreEqual(
+          ExpectedResult, AsmHeader.IsInbound(),
+          StrSubstNo('%1 %2 %3 %4', AsmHeader.TableName, Format(AsmHeader."Document Type"), AsmHeader.FieldName("Quantity (Base)"), AsmHeader."Quantity (Base)"));
     end;
 
     local procedure VerifyAsmLineIsInbound(AsmLine: Record "Assembly Line"; DocumentType: Enum "Assembly Document Type"; ExpectedResult: Boolean)
     begin
-        with AsmLine do begin
-            "Document Type" := DocumentType;
-            Assert.AreEqual(
-              ExpectedResult, IsInbound(),
-              StrSubstNo('%1 %2 %3 %4', TableName, Format("Document Type"), FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        AsmLine."Document Type" := DocumentType;
+        Assert.AreEqual(
+          ExpectedResult, AsmLine.IsInbound(),
+          StrSubstNo('%1 %2 %3 %4', AsmLine.TableName, Format(AsmLine."Document Type"), AsmLine.FieldName("Quantity (Base)"), AsmLine."Quantity (Base)"));
     end;
 
     local procedure VerifyServiceLineIsInbound(ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; ExpectedResult: Boolean)
     begin
-        with ServiceLine do begin
-            "Document Type" := DocumentType;
-            Assert.AreEqual(
-              ExpectedResult, IsInbound(),
-              StrSubstNo('%1 %2 %3 %4', TableName, Format("Document Type"), FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        ServiceLine."Document Type" := DocumentType;
+        Assert.AreEqual(
+          ExpectedResult, ServiceLine.IsInbound(),
+          StrSubstNo('%1 %2 %3 %4', ServiceLine.TableName, Format(ServiceLine."Document Type"), ServiceLine.FieldName("Quantity (Base)"), ServiceLine."Quantity (Base)"));
     end;
 
     local procedure VerifyJobJnlLineIsInbound(JobJnlLine: Record "Job Journal Line"; EntryType: Enum "Job Journal Line Entry Type"; ExpectedResult: Boolean)
     begin
-        with JobJnlLine do begin
-            "Entry Type" := EntryType;
-            Assert.AreEqual(
-              ExpectedResult, IsInbound(),
-              StrSubstNo('%1 %2 %3 %4', TableName, Format("Entry Type"), FieldName("Quantity (Base)"), "Quantity (Base)"));
-        end;
+        JobJnlLine."Entry Type" := EntryType;
+        Assert.AreEqual(
+          ExpectedResult, JobJnlLine.IsInbound(),
+          StrSubstNo('%1 %2 %3 %4', JobJnlLine.TableName, Format(JobJnlLine."Entry Type"), JobJnlLine.FieldName("Quantity (Base)"), JobJnlLine."Quantity (Base)"));
     end;
 
     local procedure VerifySecondTransferLineLotNo(TransferHeader: Record "Transfer Header"; LotNo: Code[50])
@@ -6632,11 +6579,9 @@ codeunit 137405 "SCM Item Tracking"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            Assert.IsFalse(IsEmpty, ItemLedgEntryWithLotErr);
-        end;
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.SetRange("Lot No.", LotNo);
+        Assert.IsFalse(ItemLedgEntry.IsEmpty, ItemLedgEntryWithLotErr);
     end;
 
     local procedure VerifyItemTrackingLinesQty(ItemTrackingLines: TestPage "Item Tracking Lines")
@@ -6655,54 +6600,46 @@ codeunit 137405 "SCM Item Tracking"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                VerifyQuantityOnItemTrackingLines(PurchaseLine);
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindSet();
+        repeat
+            VerifyQuantityOnItemTrackingLines(PurchaseLine);
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyQuantityOnPostWhseShipLine(WhseShipmentLine: Record "Warehouse Shipment Line")
     var
         PstdWhseShptLn: Record "Posted Whse. Shipment Line";
     begin
-        with PstdWhseShptLn do begin
-            SetRange("Whse. Shipment No.", WhseShipmentLine."No.");
-            SetRange("Whse Shipment Line No.", WhseShipmentLine."Line No.");
-            FindFirst();
-            Assert.AreEqual(WhseShipmentLine.Quantity, Quantity, PostedWhseQuantityErr);
-        end;
+        PstdWhseShptLn.SetRange("Whse. Shipment No.", WhseShipmentLine."No.");
+        PstdWhseShptLn.SetRange("Whse Shipment Line No.", WhseShipmentLine."Line No.");
+        PstdWhseShptLn.FindFirst();
+        Assert.AreEqual(WhseShipmentLine.Quantity, PstdWhseShptLn.Quantity, PostedWhseQuantityErr);
     end;
 
     local procedure VerifyJobJournalLineReservEntry(JobJournalLine: Record "Job Journal Line"; LotNo: Code[50])
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Source Type", DATABASE::"Job Journal Line");
-            SetRange("Source Subtype", JobJournalLine."Entry Type");
-            SetRange("Source ID", JobJournalLine."Journal Template Name");
-            SetRange("Source Batch Name", JobJournalLine."Journal Batch Name");
-            SetRange("Source Ref. No.", JobJournalLine."Line No.");
-            FindFirst();
-            TestField("Item No.", JobJournalLine."No.");
-            TestField("Lot No.", LotNo);
-        end;
+        ReservationEntry.SetRange("Source Type", DATABASE::"Job Journal Line");
+        ReservationEntry.SetRange("Source Subtype", JobJournalLine."Entry Type");
+        ReservationEntry.SetRange("Source ID", JobJournalLine."Journal Template Name");
+        ReservationEntry.SetRange("Source Batch Name", JobJournalLine."Journal Batch Name");
+        ReservationEntry.SetRange("Source Ref. No.", JobJournalLine."Line No.");
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Item No.", JobJournalLine."No.");
+        ReservationEntry.TestField("Lot No.", LotNo);
     end;
 
     local procedure VerifyItemLedgerEntryLotNo(DocumentNo: Code[20]; ItemNo: Code[20]; LotNo: Code[50])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("Item No.", ItemNo);
-            TestField("Lot No.", LotNo);
-        end;
+        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField("Item No.", ItemNo);
+        ItemLedgerEntry.TestField("Lot No.", LotNo);
     end;
 
     local procedure VerifyReservationEntrySubtypeAndQty(ReservationEntry: Record "Reservation Entry"; SourceSubtype: Integer; Quantity: Decimal; QtyToHandle: Decimal)
@@ -6753,16 +6690,14 @@ codeunit 137405 "SCM Item Tracking"
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WhseActivityLine do begin
-            SetRange(Quantity, Qty);
-            SetRange("Action Type", ActionType);
-            FindWarehouseActivityLine(WhseActivityLine, "Source Document"::"Purchase Order", SourceDocNo, "Activity Type"::"Put-away");
-            Validate("Qty. to Handle", 0);
-            Validate("Zone Code", ZoneCode);
-            Validate("Bin Code", BinCode);
-            Validate("Qty. to Handle", Qty);
-            Modify();
-        end;
+        WhseActivityLine.SetRange(Quantity, Qty);
+        WhseActivityLine.SetRange("Action Type", ActionType);
+        FindWarehouseActivityLine(WhseActivityLine, WhseActivityLine."Source Document"::"Purchase Order", SourceDocNo, WhseActivityLine."Activity Type"::"Put-away");
+        WhseActivityLine.Validate("Qty. to Handle", 0);
+        WhseActivityLine.Validate("Zone Code", ZoneCode);
+        WhseActivityLine.Validate("Bin Code", BinCode);
+        WhseActivityLine.Validate("Qty. to Handle", Qty);
+        WhseActivityLine.Modify();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")

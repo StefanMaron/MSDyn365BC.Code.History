@@ -124,8 +124,14 @@ report 12425 "Copy Pay Document"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         DocType: Option "Payment order","Ingoing order","Outgoing order";
         EntryNo: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Please enter Entry No.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Currency Code mismatch: Bank Acc %1 not equal to Check Ledger Entry %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CheckEntryNo()

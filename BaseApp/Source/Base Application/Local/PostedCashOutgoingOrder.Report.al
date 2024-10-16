@@ -49,9 +49,7 @@ report 12457 "Posted Cash Outgoing Order"
                             SettlAccNo := BankGLAccPostingGr."G/L Account No.";
                         end;
                     "Bal. Account Type"::"G/L Account":
-                        begin
-                            SettlAccNo := "Bal. Account No."
-                        end;
+                        SettlAccNo := "Bal. Account No."
                 end;
 
                 DocAmount := "Credit Amount";

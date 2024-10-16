@@ -7,7 +7,7 @@ report 12400 "Bank Payment Order"
     {
         dataitem("Gen. Journal Line"; "Gen. Journal Line")
         {
-            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.") order(Ascending);
+            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.") order(ascending);
             PrintOnlyIfDetail = false;
 
             trigger OnAfterGetRecord()
@@ -148,7 +148,7 @@ report 12400 "Bank Payment Order"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Test Print';
                     }
-                    field(SetPreview; Preview)
+                    field(SetPreview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -179,7 +179,9 @@ report 12400 "Bank Payment Order"
         Vend: Record Vendor;
         BankAcc: Record "Bank Account";
         DocumentNoTxt: Label 'XXXXXXXXXX', Locked = true;
+#pragma warning disable AA0470
         PrintQst: Label 'If %1 is not empty then it will be changed during posting %2\\Do you want to continue printing?';
+#pragma warning restore AA0470
         CanNotBeUsedErr: Label 'Cannot be used if %1 %2', Comment = '%1 - field caption, %2 - field value';
         BankMarksTxt: Label 'Bank marks', Comment = 'Must be translated: ÄÔ¼ÑÔ¬¿ íá¡¬á';
         CheckLedgEntry: Record "Check Ledger Entry";
@@ -202,7 +204,9 @@ report 12400 "Bank Payment Order"
         PayerText: array[6] of Text;
         BenefText: array[6] of Text;
         BankMark: Text;
+#pragma warning disable AA0470
         WrongDocumentNoErr: Label 'The number of the document %1 does not match the input mask %2 or greater than the last number.';
+#pragma warning restore AA0470
         LessThanZeroErr: Label 'Cannot be less than 0';
         LastNo: Code[20];
         ReceiverBankMarksTxt: Label 'Marks of the beneficiary bank', Comment = 'Must be translated: ÄÔ¼ÑÔ¬¿ íá¡¬á »«½ÒþáÔÑ½´';
@@ -212,10 +216,16 @@ report 12400 "Bank Payment Order"
         FileName: Text;
         CodeIndex: Option ,INN,BIC,CorrAccNo,BankAccNo,KPP;
         TextIndex: Option ,Name,Name2,Bank,Bank2,City,Branch;
+#pragma warning disable AA0470
         PayNoteTxt: Label 'PAYMENT ORDER # %1', Comment = 'Must be translated: Å½áÔÑª¡«Ñ »«ÓÒþÑ¡¿Ñ';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         InkPayNoteTxt: Label 'COLLECTION\PAYMENT ORDER # %1', Comment = 'Must be translated: ê¡¬áßß«ó«Ñ\»½áÔÑª¡«Ñ »«ÓÒþÑ¡¿Ñ';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         PayingRequestTxt: Label 'PAYMENT REQUEST # %1', Comment = 'Must be translated: Å½áÔÑª¡«Ñ ÔÓÑí«óá¡¿Ñ';
-        Preview: Boolean;
+#pragma warning restore AA0470
+        PreviewReport: Boolean;
 
     [Scope('OnPrem')]
     procedure FormatAmount(Amount: Decimal): Text[30]
@@ -231,7 +241,7 @@ report 12400 "Bank Payment Order"
     var
         NoSeries: Codeunit "No. Series";
     begin
-        if Preview or PrintTest then begin
+        if PreviewReport or PrintTest then begin
             if GenJournalLine."Document No." = '' then
                 GenJournalLine."Document No." := DocumentNoTxt;
 

@@ -5,9 +5,6 @@ using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Ledger;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 48 "Invt. Posting Buffer"
 {
     Caption = 'Invt. Posting Buffer';

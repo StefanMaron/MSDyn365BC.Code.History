@@ -338,7 +338,11 @@ table 26584 "Acc. Schedule Extension"
         Location: Record Location;
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendLedgerEntry: Record "Vendor Ledger Entry";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot rename an %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AccSchedExtensionManagement: Codeunit AccSchedExtensionManagement;
 
     [Scope('OnPrem')]

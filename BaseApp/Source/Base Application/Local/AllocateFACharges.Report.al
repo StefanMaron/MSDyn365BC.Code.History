@@ -161,9 +161,15 @@ report 14912 "Allocate FA Charges"
         AmountToAllocate: Decimal;
         TotalAmount: Decimal;
         FAChargeNo: Code[20];
+#pragma warning disable AA0074
         Text000: Label 'The Source Document No. must be entered.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'The Amount must be entered.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'The FA Charge No. must be entered.';
+#pragma warning restore AA0074
         LineNo: Integer;
 
     local procedure LookupDocNo()

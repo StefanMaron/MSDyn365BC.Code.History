@@ -826,15 +826,13 @@ codeunit 144723 "ERM Cash Orders"
         NoSeries: Codeunit "No. Series";
     begin
         CreateBankAccount(BalanceBankAccount, BalanceBankAccount."Account Type"::"Cash Account");
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, AccountType, AccountNo, LineAmount);
-            Validate("Document No.", NoSeries.GetNextNo(NoSeriesCode));
-            Validate("Bal. Account No.", BalanceBankAccount."No.");
-            Validate("Bank Payment Type", "Bank Payment Type"::"Computer Check");
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, AccountType, AccountNo, LineAmount);
+        GenJournalLine.Validate("Document No.", NoSeries.GetNextNo(NoSeriesCode));
+        GenJournalLine.Validate("Bal. Account No.", BalanceBankAccount."No.");
+        GenJournalLine.Validate("Bank Payment Type", "Bank Payment Type"::"Computer Check");
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateStandardTextCode(var StandardText: Record "Standard Text")
@@ -903,30 +901,26 @@ codeunit 144723 "ERM Cash Orders"
         BalanceBankAccount: Record "Bank Account";
     begin
         CreateBankAccount(BalanceBankAccount, BalanceBankAccount."Account Type"::"Cash Account");
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, AccountType, AccountNo, LineAmount);
-            Validate("Bal. Account No.", BalanceBankAccount."No.");
-            Validate("Bank Payment Type", "Bank Payment Type"::"Computer Check");
-            Validate("Document No.", '');
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, AccountType, AccountNo, LineAmount);
+        GenJournalLine.Validate("Bal. Account No.", BalanceBankAccount."No.");
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Computer Check");
+        GenJournalLine.Validate("Document No.", '');
+        GenJournalLine.Modify(true);
     end;
 
     local procedure MockBankLedgerEntry(BankAccountNo: Code[20]; NewDescription: Text[50]; NewReversed: Boolean)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        with BankAccountLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(BankAccountLedgerEntry, FieldNo("Entry No."));
-            "Bank Account No." := BankAccountNo;
-            "Posting Date" := WorkDate();
-            Description := NewDescription;
-            Reversed := NewReversed;
-            Insert();
-        end;
+        BankAccountLedgerEntry.Init();
+        BankAccountLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(BankAccountLedgerEntry, BankAccountLedgerEntry.FieldNo("Entry No."));
+        BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
+        BankAccountLedgerEntry."Posting Date" := WorkDate();
+        BankAccountLedgerEntry.Description := NewDescription;
+        BankAccountLedgerEntry.Reversed := NewReversed;
+        BankAccountLedgerEntry.Insert();
     end;
 
     local procedure CopyAndPrintCashOrderJournalLine(GenJournalLineSource: Record "Gen. Journal Line"; NoSeriesCode: Code[20]; LineAmount: Decimal)
@@ -956,12 +950,10 @@ codeunit 144723 "ERM Cash Orders"
 
     local procedure FindCheckLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
-        with CheckLedgerEntry do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-        end;
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        CheckLedgerEntry.SetRange("Document Type", DocType);
+        CheckLedgerEntry.SetRange("Document No.", DocNo);
+        CheckLedgerEntry.FindFirst();
     end;
 
     local procedure GetGenJournalLineFormattedText(GenJournalLine: Record "Gen. Journal Line"; FormatText: Text; BankBranchNo: Code[60]; PersonalAccNo: Code[20]): Text

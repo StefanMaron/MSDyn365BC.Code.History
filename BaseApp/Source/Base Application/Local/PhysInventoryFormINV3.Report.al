@@ -231,7 +231,9 @@ report 12481 "Phys. Inventory Form INV-3"
         StatusOn: Date;
         RespEmployeeNo: Code[20];
         LocationCode: Code[10];
+#pragma warning disable AA0470
         RespEmployeeDoesNotMatchErr: Label 'Journal Line exists for Location %1 Responsible Employee %2. Must be one Responsible Employee only.';
+#pragma warning restore AA0470
 
     [Scope('OnPrem')]
     procedure CheckLocation()

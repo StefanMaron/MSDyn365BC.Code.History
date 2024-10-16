@@ -224,6 +224,8 @@ report 307 "Vendor - Order Summary"
 
     requestpage
     {
+        AboutTitle = 'About Vendor - Order Summary';
+        AboutText = 'Analyse your unreceived orders to understand your expected purchase volume. See order details with the quantity not yet received for each vendor in three periods of 30 days each, starting from the specified date.';
         SaveValues = true;
 
         layout
@@ -292,7 +294,9 @@ report 307 "Vendor - Order Summary"
         PageCaptionLbl: Label 'Page';
         AllamountsareinLCYCaptionLbl: Label 'All amounts are in LCY.';
         OutstandingOrdersCaptionLbl: Label 'Outstanding Orders';
+#pragma warning disable AA0074
         CustomerNoCap: Label 'No.';
+#pragma warning restore AA0074
         BeforeCaptionLbl: Label '...Before';
         AfterCaptionLbl: Label 'After...';
         TotalCaptionLbl: Label 'Total';

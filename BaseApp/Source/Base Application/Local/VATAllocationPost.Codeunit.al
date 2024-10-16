@@ -23,15 +23,27 @@ codeunit 12417 "VAT Allocation-Post"
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
         TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary;
         GLSetup: Record "General Ledger Setup";
+#pragma warning disable AA0074
         Text000: Label 'Related item ledger entries cannot be found.';
+#pragma warning restore AA0074
         TempValueEntry: Record "Value Entry" temporary;
         SourceCodeSetup: Record "Source Code Setup";
         ItemReg: Record "Item Register";
         TotalChargeAmt: Decimal;
         TotalChargeAmtLCY: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Fixed Asset %1 should be on inventory or released.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'You cannot reverse the transaction, because it has already been reversed.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NextReverseEntryNo: Integer;
         RoundingPrecision: Decimal;
 

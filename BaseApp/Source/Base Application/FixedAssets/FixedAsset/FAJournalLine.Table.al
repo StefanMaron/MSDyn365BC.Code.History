@@ -543,8 +543,12 @@ table 5621 "FA Journal Line"
         FADeprBook: Record "FA Depreciation Book";
         GLSetup: Record "General Ledger Setup";
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
         Text12401: Label 'New ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12400: Label 'You can''t create Acquisition.\Inventory is only for Write-Off.';
+#pragma warning restore AA0074
 
     procedure ConvertToLedgEntry(var FAJnlLine: Record "FA Journal Line"): Option
     var
@@ -588,7 +592,7 @@ table 5621 "FA Journal Line"
             "Document No." := LastFAJnlLine."Document No.";
         end else begin
             "FA Posting Date" := WorkDate();
-            if FAJnlBatch."No. Series" <> '' then 
+            if FAJnlBatch."No. Series" <> '' then
                 "Document No." := NoSeries.PeekNextNo(FAJnlBatch."No. Series", "FA Posting Date");
         end;
         "Recurring Method" := LastFAJnlLine."Recurring Method";

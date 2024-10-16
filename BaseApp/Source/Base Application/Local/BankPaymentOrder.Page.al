@@ -162,7 +162,7 @@ page 12422 "Bank Payment Order"
                         Editable = false;
                         HideValue = CheckPrintedHideValue;
                         Style = Attention;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                     field("Payment Code"; Rec."Payment Code")
                     {
@@ -518,7 +518,9 @@ page 12422 "Bank Payment Order"
         PayerName: Text[100];
         BenefBank: Text[100];
         BenefName: Text[100];
+#pragma warning disable AA0074
         Text008: Label 'Printed';
+#pragma warning restore AA0074
         CheckPrintedHideValue: Boolean;
         CheckPrintedText: Text[1024];
         DocumentTypeEditable: Boolean;

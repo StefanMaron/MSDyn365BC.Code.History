@@ -76,12 +76,20 @@ report 14973 "Copy to VAT Reinst. Journal"
         VATEntry: Record "VAT Entry";
         VATReinstMgt: Codeunit "VAT Reinstatement Management";
         Factor: Decimal;
+#pragma warning disable AA0074
         Text001: Label 'Factor cannot be zero.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Factor cannot be negative.';
+#pragma warning restore AA0074
         PostingDate: Date;
         PostingDescription: Text[50];
+#pragma warning disable AA0074
         Text003: Label 'You must specify Posting Date.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'VAT Reinstatement';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure SetParameters(var NewEntryToPost: Record "VAT Document Entry Buffer"; var NewVATEntry: Record "VAT Entry"; NewPostingDate: Date)

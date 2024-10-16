@@ -318,7 +318,11 @@ table 287 "Customer Bank Account"
     var
         PostCode: Record "Post Code";
         BankDir: Record "Bank Directory";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label 'Corr. Account %1 corresponds to the bank %2 %3\Do you agree?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a Bank Account No. or an IBAN.';
         BankAccDeleteErr: Label 'You cannot delete this bank account because it is associated with one or more open ledger entries.';
 

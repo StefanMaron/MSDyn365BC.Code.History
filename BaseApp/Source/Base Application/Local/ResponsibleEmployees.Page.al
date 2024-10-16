@@ -7,7 +7,7 @@ page 35601 "Responsible Employees"
     PageType = List;
     SourceTable = Vendor;
     SourceTableView = sorting("Vendor Type", "No.")
-                      WHERE("Vendor Type" = const("Resp. Employee"));
+                      where("Vendor Type" = const("Resp. Employee"));
     UsageCategory = Lists;
 
     layout

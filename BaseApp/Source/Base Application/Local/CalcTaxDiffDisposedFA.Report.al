@@ -77,7 +77,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                     until TaxDiffLedgerEntry.Next() = 0;
 
                 TaxDiffFAPostingBuffer.Reset();
-                if TaxDiffFAPostingBuffer.FindSet() then begin
+                if TaxDiffFAPostingBuffer.FindSet() then
                     repeat
                         TaxDiffLedgerEntry.Reset();
                         TaxDiffLedgerEntry.SetCurrentKey("Tax Diff. Code", "Source Type", "Source No.", "Posting Date");
@@ -85,7 +85,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                         TaxDiffLedgerEntry.SetRange("Source Type", SourceType);
                         TaxDiffLedgerEntry.SetRange("Source No.", "No.");
                         TaxDiffLedgerEntry.CalcSums(Difference);
-                        if TaxDiffLedgerEntry.Difference <> 0 then begin
+                        if TaxDiffLedgerEntry.Difference <> 0 then
                             if not TaxDiffAlreadyPosted(TaxDiffFAPostingBuffer."Tax Diff. Code", "No.", EndDate) then
                                 CreateJnlLine(
                                   StrSubstNo(Text003, "No."),
@@ -98,11 +98,9 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                                   TaxDiffJnlLine."Disposal Mode"::"Write Down",
                                   false,
                                   1);
-                        end;
                     until TaxDiffFAPostingBuffer.Next() = 0;
-                end;
 
-                if AccBookValueOnDisposal <> TaxBookValueOnDisposal then begin
+                if AccBookValueOnDisposal <> TaxBookValueOnDisposal then
                     if not TaxDiffAlreadyPosted(TaxRegisterSetup."Disposal TD Code", "No.", EndDate) then
                         CreateJnlLine(
                           StrSubstNo(Text004, "No."),
@@ -115,12 +113,11 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                           0,
                           false,
                           0);
-                end;
 
                 if TaxDeprBonusAmount <> 0 then
                     if ("Initial Release Date" >= TaxRegisterSetup."Depr. Bonus Recovery from") and
                        (DisposalDate < CalcDate(StrSubstNo('<+%1Y>', TaxRegisterSetup."Depr. Bonus Recov. Per. (Year)"), "Initial Release Date"))
-                    then begin
+                    then
                         if FAIsSold then
                             if not TaxDiffAlreadyPosted(TaxRegisterSetup."Depr. Bonus Recovery TD Code", "No.", EndDate) then
                                 CreateJnlLine(
@@ -134,7 +131,6 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                                   0,
                                   true,
                                   0);
-                    end;
             end;
 
             trigger OnPreDataItem()
@@ -288,12 +284,28 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
         TemplateName: Code[10];
         BatchName: Code[10];
         LineNo: Integer;
+#pragma warning disable AA0074
         Text001: Label 'Please enter a journal template name.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Please enter a journal batch name.';
+#pragma warning restore AA0074
         SourceType: Option " ","Future Expense","Fixed Asset","Intangible Asset";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'TD charges due disposal of the %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'TD charges due diff. book value %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Depr. Bonus Recovery %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CreateJnlLine(Description: Text[80]; PostingDate: Date; TaxDiffCode: Code[10]; SourceNo: Code[20]; AmountBase: Decimal; AmountTax: Decimal; DisposalDate: Date; DisposalMode: Integer; DeprBonusRecover: Boolean; CalcMode: Integer)

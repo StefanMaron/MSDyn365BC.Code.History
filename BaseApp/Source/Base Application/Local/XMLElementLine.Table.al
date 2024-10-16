@@ -42,10 +42,9 @@
                         TestField("Source Type", "Source Type"::" ");
                         if "Link Type" = "Link Type"::Value then
                             FieldError("Link Type");
-                    end else begin
+                    end else
                         if "Link Type" in ["Link Type"::Table, "Link Type"::Grouping] then
                             FieldError("Link Type");
-                    end;
             end;
         }
         field(7; Description; Text[250])
@@ -344,13 +343,37 @@
         StatutoryReportSetup: Record "Statutory Report Setup";
         FormatVersion: Record "Format Version";
         ExcelMgt: Codeunit "Excel Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 cannot be deleted because %2 %3 contains report data.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 cannot be inserted because %2 %3 contains report data.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '''%1'' can not be formated to %2 for %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         EntryNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'You must specify %1 in %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label '%1 cannot be modified because %2 %3 contains report data.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label '%1 is not defined in %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ExportValue(var XMLNode: DotNet XmlNode; StatRepBuffer: Record "Statutory Report Buffer"; var ElementValueBuffer: Record "Statutory Report Buffer")
@@ -365,27 +388,27 @@
                     "Link Type"::Table:
                         ProcessTable(XMLNode, StatRepBuffer, ElementValueBuffer);
                     else begin
-                            AddElement(XMLNode, "Element Name", '', '', CreatedXMLNode);
-                            if "Element Name" = 'öá®½' then begin
-                                StatutoryReport.Get("Report Code");
-                                FormatVersion.Get(StatutoryReport."Format Version Code");
-                                FormatVersion.TestField("Version No.");
-                                if FormatVersion."Version No."[1] = '4' then begin
-                                    AddAttribute(
-                                      CreatedXMLNode,
-                                      'xmlns:xsi',
-                                      'http://www.w3.org/2001/XMLSchema-instance');
+                        AddElement(XMLNode, "Element Name", '', '', CreatedXMLNode);
+                        if "Element Name" = 'öá®½' then begin
+                            StatutoryReport.Get("Report Code");
+                            FormatVersion.Get(StatutoryReport."Format Version Code");
+                            FormatVersion.TestField("Version No.");
+                            if FormatVersion."Version No."[1] = '4' then begin
+                                AddAttribute(
+                                  CreatedXMLNode,
+                                  'xmlns:xsi',
+                                  'http://www.w3.org/2001/XMLSchema-instance');
 
-                                    AddAttribute(
-                                      CreatedXMLNode,
-                                      'xsi:noNamespaceSchemaLocation',
-                                      FormatVersion."XML Schema File Name");
-                                end;
+                                AddAttribute(
+                                  CreatedXMLNode,
+                                  'xsi:noNamespaceSchemaLocation',
+                                  FormatVersion."XML Schema File Name");
                             end;
-
-                            ProcessChildren(CreatedXMLNode, StatRepBuffer, ElementValueBuffer);
-                            CheckEmptyNode(XMLNode, CreatedXMLNode);
                         end;
+
+                        ProcessChildren(CreatedXMLNode, StatRepBuffer, ElementValueBuffer);
+                        CheckEmptyNode(XMLNode, CreatedXMLNode);
+                    end;
                 end;
             "Element Type"::Attribute:
                 AddAttribute(XMLNode, "Element Name", GetElementFormattedValue(StatRepBuffer, ElementValueBuffer));
@@ -596,11 +619,10 @@
         XMLElementExpressionLine: Record "XML Element Expression Line";
         RowNo: Integer;
     begin
-        if StatRepBuffer."Excel Sheet Name" = '' then begin
+        if StatRepBuffer."Excel Sheet Name" = '' then
             if "Table Code" <> '' then
                 if StatutoryReportTable.Get("Report Code", "Table Code") then
                     StatRepBuffer."Excel Sheet Name" := StatutoryReportTable."Excel Sheet Name";
-        end;
 
         if (StatRepBuffer."Scalable Table Row No." = 0) or ("Source Type" = "Source Type"::"Individual Element") then
             RowNo := "Row Link No."
@@ -756,10 +778,8 @@
                 end;
             "Element Type"::Attribute,
             "Element Type"::Simple:
-                begin
-                    if GetElementValue(StatRepBuffer) <> '' then
-                        exit(false);
-                end;
+                if GetElementValue(StatRepBuffer) <> '' then
+                    exit(false);
         end;
 
         exit(true);
@@ -942,13 +962,12 @@
         FractionValue: Decimal;
         DateValue: Date;
     begin
-        if FormatType = FormatType::Storage then begin
+        if FormatType = FormatType::Storage then
             if "Data Type" <> "Data Type"::Text then begin
                 if "Excel Mapping Type" <> "Excel Mapping Type"::"Single-cell" then
                     ValueToFormat := DelChr(ValueToFormat, '=', '-')
             end else
                 ValueToFormat := DelChr(ValueToFormat, '>', '-');
-        end;
 
         case "Data Type" of
             "Data Type"::" ":
@@ -1003,16 +1022,14 @@
                         FormatType::File:
                             FormattedValue := Format(DecimalValue, 0, StrSubstNo('<Precision,%1:%1><Standard Format,9>', "Fraction Digits"));
                         FormatType::Excel:
-                            begin
-                                if "Excel Mapping Type" = "Excel Mapping Type"::"Multi-cell" then begin
-                                    IntegerValue := Round(DecimalValue, 1, '<');
-                                    FractionValue := DecimalValue - IntegerValue;
+                            if "Excel Mapping Type" = "Excel Mapping Type"::"Multi-cell" then begin
+                                IntegerValue := Round(DecimalValue, 1, '<');
+                                FractionValue := DecimalValue - IntegerValue;
 
-                                    FormattedValue :=
-                                      AlignFormattedValue(Format(IntegerValue) + '.' + CopyStr(Format(FractionValue), 3));
-                                end else
-                                    FormattedValue := Format(DecimalValue);
-                            end;
+                                FormattedValue :=
+                                    AlignFormattedValue(Format(IntegerValue) + '.' + CopyStr(Format(FractionValue), 3));
+                            end else
+                                FormattedValue := Format(DecimalValue);
                         FormatType::Storage:
                             begin
                                 DecimalValue := Round(DecimalValue, Power(10, -"Fraction Digits"));
@@ -1269,25 +1286,17 @@
 
         case "Data Type" of
             "Data Type"::Date:
-                begin
-                    if ElementValue = '..' then
-                        exit(true);
-                end;
+                if ElementValue = '..' then
+                    exit(true);
             "Data Type"::Decimal:
-                begin
-                    if ElementValue = '.' then
-                        exit(true);
-                end;
+                if ElementValue = '.' then
+                    exit(true);
             "Data Type"::Text:
-                begin
-                    if ElementValue = '/' then
-                        exit(true);
-                end;
+                if ElementValue = '/' then
+                    exit(true);
             "Data Type"::Integer:
-                begin
-                    if ElementValue = '0' then
-                        exit(true);
-                end;
+                if ElementValue = '0' then
+                    exit(true);
         end;
 
         exit(false);
@@ -1409,10 +1418,9 @@
             if not FormatValue(1, ElementValue, FormattedValue, ErrorMessage) then
                 Error(ErrorMessage);
             AddElementValueBufferLine(StatRepBuffer, FormattedValue, ElementValueBuffer);
-        end else begin
+        end else
             if not FormatValue(0, ElementValue, FormattedValue, ErrorMessage) then
                 Error(ErrorMessage);
-        end;
 
         exit(FormattedValue);
     end;

@@ -347,11 +347,9 @@
 
     local procedure CreateAnalysisView(var GLCorrAnalysisView: Record "G/L Corr. Analysis View")
     begin
-        with GLCorrAnalysisView do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Insert(true);
-        end;
+        GLCorrAnalysisView.Init();
+        GLCorrAnalysisView.Code := LibraryUtility.GenerateGUID();
+        GLCorrAnalysisView.Insert(true);
     end;
 
     local procedure CreateAnalysisViewWithDimension(AccountFilter: Code[250]): Code[10]
@@ -500,12 +498,10 @@
     begin
         LibraryDimension.FindDimension(Dimension);
 
-        with GLCorrAnalysisView do begin
-            Code := LibraryUtility.GenerateGUID();
-            Insert(true);
-            Validate("Debit Dimension 1 Code", Dimension.Code);
-            Modify(true);
-        end;
+        GLCorrAnalysisView.Code := LibraryUtility.GenerateGUID();
+        GLCorrAnalysisView.Insert(true);
+        GLCorrAnalysisView.Validate("Debit Dimension 1 Code", Dimension.Code);
+        GLCorrAnalysisView.Modify(true);
     end;
 
     local procedure UpdateCorrViewGLAcc(var GLCorrAnalysisView: Record "G/L Corr. Analysis View")

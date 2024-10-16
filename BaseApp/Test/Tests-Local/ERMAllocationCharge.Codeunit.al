@@ -16,9 +16,7 @@ codeunit 144511 "ERM Allocation Charge"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-        FieldMustHaveAValueErr: Label '%1 must have a value in Item: No.=%2. It cannot be zero or empty.';
         ItemChargeAssgntDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Receipt,"Transfer Receipt","Return Shipment","Sales Shipment","Return Receipt";
-        ErrorMessageIncorrectErr: Label 'Error message must be same.';
         QtyToAssignIncorrectErr: Label 'Incorrect Qty. to Assign value';
         AmtToAssignIncorrectErr: Label 'Incorrect Amount to Assign value';
 
@@ -163,13 +161,11 @@ codeunit 144511 "ERM Allocation Charge"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Gross Weight", GrossWeight);
-            Validate("Gross Weight Mandatory", GrossWeightMandatory);
-            Validate("Unit Volume", UnitVolume);
-            Validate("Unit Volume Mandatory", UnitVolumeMandatory);
-            Modify(true);
-        end;
+        Item.Validate("Gross Weight", GrossWeight);
+        Item.Validate("Gross Weight Mandatory", GrossWeightMandatory);
+        Item.Validate("Unit Volume", UnitVolume);
+        Item.Validate("Unit Volume Mandatory", UnitVolumeMandatory);
+        Item.Modify(true);
         exit(Item."No.");
     end;
 
@@ -228,7 +224,7 @@ codeunit 144511 "ERM Allocation Charge"
         Initialize();
         ItemNo := CreateItem(GrossWeight, true, UnitVolume, true);
         asserterror CreatePostPurchDoc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ItemNo, 1, false);
-        VerifyMustHaveAValueErr(FieldCaption, ItemNo);
+        VerifyMustHaveAValueErr(FieldCaption);
     end;
 
     local procedure CheckGrossUnitVolumeEmptySalesErr(GrossWeight: Decimal; UnitVolume: Decimal; FieldCaption: Text)
@@ -239,7 +235,7 @@ codeunit 144511 "ERM Allocation Charge"
         Initialize();
         ItemNo := CreateItem(GrossWeight, true, UnitVolume, true);
         asserterror CreatePostSalesDoc(SalesHeader."Document Type"::Invoice, ItemNo, 1, false);
-        VerifyMustHaveAValueErr(FieldCaption, ItemNo);
+        VerifyMustHaveAValueErr(FieldCaption);
     end;
 
     local procedure CheckGrossUnitVolumeEmptyTransferErr(GrossWeight: Decimal; UnitVolume: Decimal; FieldCaption: Text)
@@ -251,16 +247,12 @@ codeunit 144511 "ERM Allocation Charge"
         ItemNo := CreateItem(GrossWeight, true, UnitVolume, true);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         asserterror CreatePostTransferOrder(Location.Code, ItemNo, 1, false);
-        VerifyMustHaveAValueErr(FieldCaption, ItemNo);
+        VerifyMustHaveAValueErr(FieldCaption);
     end;
 
-    local procedure VerifyMustHaveAValueErr(FieldCaption: Text; ItemNo: Code[20])
+    local procedure VerifyMustHaveAValueErr(FieldCaption: Text)
     begin
-        Assert.IsTrue(
-          StrPos(
-            GetLastErrorText,
-            StrSubstNo(FieldMustHaveAValueErr, FieldCaption, ItemNo)) >
-          0, ErrorMessageIncorrectErr);
+        Assert.ExpectedTestFieldError(FieldCaption, '');
     end;
 
     local procedure CreatePurchDocItemChargeLine(PurchHeader: Record "Purchase Header"; ChargeNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
@@ -309,13 +301,11 @@ codeunit 144511 "ERM Allocation Charge"
 
     local procedure FindChargeItemPurchLine(var PurchLine: Record "Purchase Line"; DocumentNo: Code[20]; VendorNo: Code[20]): Integer
     begin
-        with PurchLine do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange(Type, Type::"Charge (Item)");
-            FindLast();
-        end;
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Invoice);
+        PurchLine.SetRange("Document No.", DocumentNo);
+        PurchLine.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchLine.SetRange(Type, PurchLine.Type::"Charge (Item)");
+        PurchLine.FindLast();
         exit(PurchLine."Line No.");
     end;
 
@@ -323,12 +313,10 @@ codeunit 144511 "ERM Allocation Charge"
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, ItemType, ItemNo, Qty);
-            Validate(Quantity, Quantity);
-            Validate("Direct Unit Cost", UnitCost);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, ItemType, ItemNo, Qty);
+        PurchLine.Validate(Quantity, PurchLine.Quantity);
+        PurchLine.Validate("Direct Unit Cost", UnitCost);
+        PurchLine.Modify(true);
     end;
 
     local procedure VerifySuggestItemChargeAssgnt(GrossWeight: Decimal; GrossWeightMandatory: Boolean; UnitVolume: Decimal; UnitVolumeMandatory: Boolean; SuggestSelectionTxt: Text)
@@ -454,11 +442,9 @@ codeunit 144511 "ERM Allocation Charge"
     begin
         PurchRcptHeader.SetRange("Order No.", DocNo);
         PurchRcptHeader.FindFirst();
-        with PurchRcptLine do begin
-            SetRange("Document No.", PurchRcptHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-        end;
+        PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindSalesShipmentLines(var SalesShipmentLine: Record "Sales Shipment Line"; DocNo: Code[20])
@@ -467,11 +453,9 @@ codeunit 144511 "ERM Allocation Charge"
     begin
         SalesShipmentHeader.SetRange("Order No.", DocNo);
         SalesShipmentHeader.FindFirst();
-        with SalesShipmentLine do begin
-            SetRange("Document No.", SalesShipmentHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-        end;
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindPurchRetShptLine(var ReturnShptLine: Record "Return Shipment Line"; DocNo: Code[20])
@@ -480,11 +464,9 @@ codeunit 144511 "ERM Allocation Charge"
     begin
         ReturnShptHeader.SetRange("Return Order No.", DocNo);
         ReturnShptHeader.FindFirst();
-        with ReturnShptLine do begin
-            SetRange("Document No.", ReturnShptHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-        end;
+        ReturnShptLine.SetRange("Document No.", ReturnShptHeader."No.");
+        ReturnShptLine.SetRange(Type, ReturnShptLine.Type::Item);
+        ReturnShptLine.FindFirst();
     end;
 
     local procedure FindSalesRetRcptLine(var ReturnRcptLine: Record "Return Receipt Line"; DocNo: Code[20])
@@ -493,11 +475,9 @@ codeunit 144511 "ERM Allocation Charge"
     begin
         ReturnRcptHeader.SetRange("Return Order No.", DocNo);
         ReturnRcptHeader.FindFirst();
-        with ReturnRcptLine do begin
-            SetRange("Document No.", ReturnRcptHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-        end;
+        ReturnRcptLine.SetRange("Document No.", ReturnRcptHeader."No.");
+        ReturnRcptLine.SetRange(Type, ReturnRcptLine.Type::Item);
+        ReturnRcptLine.FindFirst();
     end;
 
     local procedure FindTransferRcptLine(var TransferRcptLine: Record "Transfer Receipt Line"; DocNo: Code[20])
@@ -592,15 +572,13 @@ codeunit 144511 "ERM Allocation Charge"
     var
         Counter: Integer;
     begin
-        with ItemChargeAssignmentPurch do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            for Counter := 1 to ArrayLen(QtyToAssign) do begin
-                SetRange("Applies-to Doc. Type", AppliesToDocType[Counter]);
-                FindFirst();
-                Assert.AreNearlyEqual(QtyToAssign[Counter], "Qty. to Assign", 0.01, QtyToAssignIncorrectErr);
-                Assert.AreNearlyEqual(AmtToAssign[Counter], "Amount to Assign", 0.01, AmtToAssignIncorrectErr);
-            end;
+        ItemChargeAssignmentPurch.SetRange("Document Type", DocType);
+        ItemChargeAssignmentPurch.SetRange("Document No.", DocNo);
+        for Counter := 1 to ArrayLen(QtyToAssign) do begin
+            ItemChargeAssignmentPurch.SetRange("Applies-to Doc. Type", AppliesToDocType[Counter]);
+            ItemChargeAssignmentPurch.FindFirst();
+            Assert.AreNearlyEqual(QtyToAssign[Counter], ItemChargeAssignmentPurch."Qty. to Assign", 0.01, QtyToAssignIncorrectErr);
+            Assert.AreNearlyEqual(AmtToAssign[Counter], ItemChargeAssignmentPurch."Amount to Assign", 0.01, AmtToAssignIncorrectErr);
         end;
     end;
 

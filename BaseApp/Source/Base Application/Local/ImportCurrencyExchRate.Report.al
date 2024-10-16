@@ -125,14 +125,38 @@ report 14900 "Import Currency Exch. Rate"
         DaysCounter: Integer;
         ProcessingMonthesQty: Integer;
         MonthesCounter: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Importing Currency Exchange Rates #1######\Daily Exchange Rates    @2@@@@@@@@@@@@@@@@\Monthly Exchange Rates  @3@@@@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Unexpected XML structure.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Unable to find %1 attribute.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Unexpected %1 attribute format.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'Unexpected %1 node value.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label 'Start Date cannot be greater than End Date.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label 'You must specify the Start Date.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text009: Label 'You must specify the End Date.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure LoadXML(DateReq: Date; var XMLNode: DotNet XmlNode; var DateLoaded: Date; MonthlyRates: Boolean)
@@ -259,7 +283,7 @@ report 14900 "Import Currency Exch. Rate"
                                     CurrencyExchangeRate."Relational Exch. Rate Amount" := RelationalExchRateAmount;
                                     CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" := RelationalExchRateAmount;
                                     CurrencyExchangeRate.Insert();
-                                end else begin
+                                end else
                                     if CompanyInformation.IsNeedToReplaceCurrExchRate(Currency.Code, DateLoaded, Company.Name) then begin
                                         CurrencyExchangeRate."Exchange Rate Amount" := ExchRateAmount;
                                         CurrencyExchangeRate."Adjustment Exch. Rate Amount" := ExchRateAmount;
@@ -267,7 +291,6 @@ report 14900 "Import Currency Exch. Rate"
                                         CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" := RelationalExchRateAmount;
                                         CurrencyExchangeRate.Modify();
                                     end;
-                                end;
                             end;
                         until Currency.Next() = 0;
                 end;

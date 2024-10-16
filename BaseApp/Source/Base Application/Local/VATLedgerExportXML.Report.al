@@ -195,10 +195,9 @@ report 12461 "VAT Ledger Export XML"
 
     trigger OnPostReport()
     begin
-        if not TempErrorMessage.HasErrors(false) then begin
+        if not TempErrorMessage.HasErrors(false) then
             if SaveXMLFile(XmlDoc) then
                 Message(CompletedMsg);
-        end;
 
         TempErrorMessage.ShowErrorMessages(false);
     end;
@@ -694,10 +693,9 @@ report 12461 "VAT Ledger Export XML"
 
     local procedure GetBaseValue(VATBase: Decimal; Prepayment: Boolean): Decimal
     begin
-        if VATBase <> 0 then begin
+        if VATBase <> 0 then
             if Prepayment then
                 exit(0);
-        end;
         exit(VATBase);
     end;
 

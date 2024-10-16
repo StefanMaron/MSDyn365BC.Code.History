@@ -40,13 +40,8 @@ table 5099 "Saved Segment Criteria Line"
         {
             Caption = 'View';
             ObsoleteReason = 'Replaced by field "Table View": Text[2048]';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(8; "Allow Existing Contacts"; Boolean)
         {
@@ -106,15 +101,5 @@ table 5099 "Saved Segment Criteria Line"
                 end;
         end;
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by procedure GetSegmentCriteriaFilters()', '22.0')]
-    procedure "Filter"(): Text[250]
-    var
-        SegCriteriaManagement: Codeunit SegCriteriaManagement;
-    begin
-        exit(SegCriteriaManagement.SegCriteriaFilter("Table No.", View));
-    end;
-#endif
 }
 

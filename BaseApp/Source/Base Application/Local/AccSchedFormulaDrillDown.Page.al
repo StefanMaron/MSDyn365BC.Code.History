@@ -213,9 +213,21 @@
         AccSchedCellValue: Record "Acc. Sched. Cell Value" temporary;
         AccSchedManagement: Codeunit AccSchedManagement;
         AccSchedExtensionManagement: Codeunit AccSchedExtensionManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Column formula: %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Row formula: %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Row constant: %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Formula: Text[250];
         StartDate: Date;
         EndDate: Date;

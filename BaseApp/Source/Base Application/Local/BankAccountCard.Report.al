@@ -246,11 +246,8 @@ report 12448 "Bank Account Card"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if ("Account Type" = "Account Type"::"Bank Account") and ("Account No." = "Bank Account"."No.")
-                    then begin
-                    end else
-                        if ("Bal. Account Type" = "Bal. Account Type"::"Bank Account") and ("Bal. Account No." = "Bank Account"."No.")
-               then begin
+                    if not (("Account Type" = "Account Type"::"Bank Account") and ("Account No." = "Bank Account"."No.")) then
+                        if ("Bal. Account Type" = "Bal. Account Type"::"Bank Account") and ("Bal. Account No." = "Bank Account"."No.") then begin
                             "Bal. Account Type" := "Account Type";
                             "Bal. Account No." := "Account No.";
                             Value := "Debit Amount (LCY)";
@@ -386,12 +383,24 @@ report 12448 "Bank Account Card"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Debit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Credit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'Non-posted entries for the period from';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Begining period balance';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'Ending period balance';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label 'Non-posted entries in current period total';
+#pragma warning restore AA0074
         ApplicationLocalization: Codeunit "Localisation Management";
         CurrentDate: Text[30];
         CurrentFilter: Text;

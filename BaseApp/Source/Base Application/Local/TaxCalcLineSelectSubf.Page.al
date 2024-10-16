@@ -153,11 +153,17 @@ page 17314 "Tax Calc. Line Select Subf"
     end;
 
     var
+#pragma warning disable AA0074
         Text1001: Label 'Present';
+#pragma warning restore AA0074
         TaxCalcHeader: Record "Tax Calc. Header";
         DimFilters: Text[30];
         GLCorrDimFilters: Text[30];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1002: Label '%1 should be used for this type of tax register.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DescriptionEmphasize: Boolean;
         DescriptionIndent: Integer;
 

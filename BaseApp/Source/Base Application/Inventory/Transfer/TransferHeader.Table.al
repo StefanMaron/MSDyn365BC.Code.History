@@ -728,12 +728,28 @@ table 5740 "Transfer Header"
         DocSignMgt: Codeunit "Doc. Signature Management";
         HasInventorySetup: Boolean;
         CalledFromWhse: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 and %2 cannot be the same in %3 %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Do you want to change %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SameLocationErr: Label 'Transfer order %1 cannot be posted because %2 and %3 are the same.', Comment = '%1 - order number, %2 - location from, %3 - location to';
+#pragma warning disable AA0074
         TransferOrderPostedMsg1: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = transfer order number e.g. Transfer order 1003 was successfully posted and is now deleted ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+#pragma warning restore AA0074
         CheckTransferLineMsg: Label 'Check transfer document line.';
 
     protected var

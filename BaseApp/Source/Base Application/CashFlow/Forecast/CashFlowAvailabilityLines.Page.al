@@ -57,19 +57,6 @@ page 866 "Cash Flow Availability Lines"
                         CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"Sales Orders");
                     end;
                 }
-                field(ServiceOrders; Rec."Service Orders")
-                {
-                    ApplicationArea = Service;
-                    AutoFormatExpression = FormatStr();
-                    AutoFormatType = 11;
-                    Caption = 'Service Orders';
-                    ToolTip = 'Specifies amounts related to service orders.';
-
-                    trigger OnDrillDown()
-                    begin
-                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"Service Orders");
-                    end;
-                }
                 field(SalesofFixedAssets; Rec."Fixed Assets Disposal")
                 {
                     ApplicationArea = FixedAssets;
@@ -297,7 +284,6 @@ page 866 "Cash Flow Availability Lines"
 
         Rec.Receivables := GetAmount(CashFlowForecastEntry."Source Type"::Receivables);
         Rec."Sales Orders" := GetAmount(CashFlowForecastEntry."Source Type"::"Sales Orders");
-        Rec."Service Orders" := GetAmount(CashFlowForecastEntry."Source Type"::"Service Orders");
         Rec."Fixed Assets Disposal" := GetAmount(CashFlowForecastEntry."Source Type"::"Fixed Assets Disposal");
         Rec."Cash Flow Manual Revenues" := GetAmount(CashFlowForecastEntry."Source Type"::"Cash Flow Manual Revenue");
         Rec.Payables := GetAmount(CashFlowForecastEntry."Source Type"::Payables);

@@ -127,7 +127,11 @@ table 26587 "Stat. Report Table Mapping"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 - %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxRegisterAccumulation: Record "Tax Register Accumulation";
 
     [Scope('OnPrem')]

@@ -245,9 +245,15 @@ report 12459 "Posted Bank Payment Order"
         BeneficiaryKPP: Text;
         CompStat: Text;
         ContrTaxOrgan: Text;
+#pragma warning disable AA0470
         PayNoteTxt: Label 'PAYMENT ORDER # %1', Comment = 'Must be translated: Å½áÔÑª¡«Ñ »«ÓÒþÑ¡¿Ñ';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         InkPayNoteTxt: Label 'COLLECTION\PAYMENT ORDER # %1', Comment = 'Must be translated: ê¡¬áßß«ó«Ñ\»½áÔÑª¡«Ñ »«ÓÒþÑ¡¿Ñ';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         PayingRequestTxt: Label 'PAYMENT REQUEST # %1', Comment = 'Must be translated: Å½áÔÑª¡«Ñ ÔÓÑí«óá¡¿Ñ';
+#pragma warning restore AA0470
         FileName: Text;
 
     [Scope('OnPrem')]

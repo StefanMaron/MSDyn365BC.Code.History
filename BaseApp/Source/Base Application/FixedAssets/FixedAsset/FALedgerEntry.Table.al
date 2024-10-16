@@ -633,9 +633,21 @@ table 5601 "FA Ledger Entry"
         FAJnlSetup: Record "FA Journal Setup";
         DimMgt: Codeunit DimensionManagement;
         NextLineNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text17201: Label 'There are Depreciation entries with Posting Date later than %1. Cancel these entries and try again.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text17202: Label 'There are Depreciation Bonus entries with Posting Date later than %1. Cancel these entries and try again.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label 'You have to reverse realized VAT Entry No. %1 first before you can update %2 No. %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetLastEntryNo(): Integer;
     var

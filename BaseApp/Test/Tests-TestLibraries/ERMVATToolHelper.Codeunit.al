@@ -162,6 +162,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         SalesLine: Record "Sales Line";
         ServiceLine: Record "Service Line";
         VATRateChangeConversion: Codeunit "VAT Rate Change Conversion";
+        ServVATRateChangeConv: Codeunit "Serv. VAT Rate Change Conv.";
         FieldRef: FieldRef;
         LineNo: Integer;
         NextLineNo: Integer;
@@ -206,7 +207,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     TempRecRef.SetTable(ServiceLine);
                     TempRecRef := TempRecRef.Duplicate();
                     FieldRef := TempRecRef.Field(ServiceLine.FieldNo("Line No."));
-                    VATRateChangeConversion.GetNextServiceLineNo(ServiceLine, NextLineNo);
+                    ServVATRateChangeConv.GetNextServiceLineNo(ServiceLine, NextLineNo);
                     FieldRef.Value(NextLineNo);
                     TempRecRef.Insert(false);
                     FieldRef := TempRecRef.Field(ServiceLine.FieldNo(Quantity));
@@ -630,16 +631,14 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with GLAccount do begin
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("Income/Balance", "Income/Balance"::"Balance Sheet");
-            Validate("Account Type", "Account Type"::Posting);
-            LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-            Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify(true);
-        end;
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
+        LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        GLAccount.Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
     end;
 
     [Scope('OnPrem')]

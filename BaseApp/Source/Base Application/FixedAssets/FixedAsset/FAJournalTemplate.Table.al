@@ -80,7 +80,7 @@ table 5619 "FA Journal Template"
         }
         field(13; "Test Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Test Report ID")));
             Caption = 'Test Report Caption';
             Editable = false;
@@ -88,7 +88,7 @@ table 5619 "FA Journal Template"
         }
         field(14; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -96,7 +96,7 @@ table 5619 "FA Journal Template"
         }
         field(15; "Posting Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Posting Report ID")));
             Caption = 'Posting Report Caption';
             Editable = false;
@@ -109,7 +109,7 @@ table 5619 "FA Journal Template"
         }
         field(17; "Maint. Posting Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Maint. Posting Report ID")));
             Caption = 'Maint. Posting Report Caption';
             Editable = false;
@@ -213,6 +213,14 @@ table 5619 "FA Journal Template"
         FAJnlBatch: Record "FA Journal Batch";
         SourceCodeSetup: Record "Source Code Setup";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'must not be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }

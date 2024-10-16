@@ -8,23 +8,71 @@ codeunit 12411 "VAT Settlement Management"
     end;
 
     var
+#pragma warning disable AA0074
         Text14701: Label 'VAT by Act - ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text14705: Label 'Unrealized VAT had been already realized for %1 = %2, %3 = %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text14704: Label 'Unrealized VAT had been already realized in %1 for %2 = %3, %4 = %5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text14706: Label '%1 %2 must not be more than %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text14707: Label '%1 %2: %3 must not be less than %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12403: Label 'FA No. %1 is not into operation.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12404: Label '%1 %2 cannot be less than %3 %4 for FA No. %5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12405: Label '%1 %2: %3 %4 cannot be less than %5 %6.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text14711: Label '%1 must be %2 for %3 = %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text14713: Label 'must be positive';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text14714: Label 'must be negative';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text14715: Label 'Posted VAT Settlement entries exist. You should reverse these entries before unapply operation.';
+#pragma warning restore AA0074
         VATDocEntryBuffer: Record "VAT Document Entry Buffer";
         DimMgt: Codeunit DimensionManagement;
         RecalculationDate: Date;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text14716: Label 'Dimension used in %1 %2, %3 has caused an error. %4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text14717: Label 'Dimension used in %1 %2, %3, %4 has caused an error. %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CalcAmount(var GenJnlLine: Record "Gen. Journal Line") AppliedAmount: Decimal
@@ -1070,12 +1118,11 @@ codeunit 12411 "VAT Settlement Management"
         ClearDateFormula: DateFormula;
     begin
         Clear(ClearDateFormula);
-        if DateFormula <> ClearDateFormula then begin
+        if DateFormula <> ClearDateFormula then
             if (MinDateFormula = ClearDateFormula) or
                (CalcDate(MinDateFormula, WorkDate()) > CalcDate(DateFormula, WorkDate()))
             then
                 MinDateFormula := DateFormula;
-        end;
     end;
 
     [Scope('OnPrem')]

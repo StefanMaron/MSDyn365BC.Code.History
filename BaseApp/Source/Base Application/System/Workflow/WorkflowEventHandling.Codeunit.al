@@ -45,7 +45,9 @@ codeunit 1520 "Workflow Event Handling"
         SalesDocSendForApprovalEventDescTxt: Label 'Approval of a sales document is requested.';
         SalesDocApprReqCancelledEventDescTxt: Label 'An approval request for a sales document is canceled.';
         SalesDocReleasedEventDescTxt: Label 'A sales document is released.';
+#pragma warning disable AA0470
         EventAlreadyExistErr: Label 'An event with description %1 already exists.';
+#pragma warning restore AA0470
         SendOverdueNotifTxt: Label 'The overdue approval notifications batch job will be run.';
         CustomerCreditLimitExceededTxt: Label 'A customer credit limit is exceeded.';
         CustomerCreditLimitNotExceededTxt: Label 'A customer credit limit is not exceeded.';

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Inventory.Tracking;
+namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Utilities;
@@ -153,21 +153,6 @@ table 338 "Entry Summary"
             MaxValue = 1;
             Editable = false;
         }
-        field(14900; "CD No."; Code[50])
-        {
-            Caption = 'CD No.';
-            ObsoleteReason = 'Replaced by field Package No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(14901; "Lot/CD Exists"; Boolean)
-        {
-            Caption = 'Lot/CD Exists';
-            Editable = false;
-            ObsoleteReason = 'Replaced by W1 field Non Serial Tracking.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -192,7 +177,11 @@ table 338 "Entry Summary"
 
     var
         UOMMgt: Codeunit "Unit of Measure Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot select more than %1 units.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetLastEntryNo(): Integer;
     var

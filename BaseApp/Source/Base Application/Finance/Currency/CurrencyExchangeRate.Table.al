@@ -78,11 +78,9 @@ table 330 "Currency Exchange Rate"
                 TestField("Relational Exch. Rate Amount");
             end;
         }
-        field(7; "Fix Exchange Rate Amount"; Option)
+        field(7; "Fix Exchange Rate Amount"; Enum "Fix Exch. Rate Amount Type")
         {
             Caption = 'Fix Exchange Rate Amount';
-            OptionCaption = 'Currency,Relational Currency,Both';
-            OptionMembers = Currency,"Relational Currency",Both;
         }
         field(8; "Relational Adjmt Exch Rate Amt"; Decimal)
         {
@@ -116,15 +114,19 @@ table 330 "Currency Exchange Rate"
         RelExchangeRateAmt: Decimal;
         ExchangeRateAmt: Decimal;
         RelCurrencyCode: Code[10];
-        FixExchangeRateAmt: Option;
+        FixExchangeRateAmt: Enum "Fix Exch. Rate Amount Type";
         CurrencyFactor: Decimal;
         UseAdjmtAmounts: Boolean;
         CurrencyCode2: array[2] of Code[10];
         Date2: array[2] of Date;
         Currency2: Record Currency;
-        Text12400: Label 'Both currencies %1 and %2 must not have different Relational Currency Code';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The currency code in the %1 field and the %2 field cannot be the same.';
+        Text12400: Label 'Both currencies %1 and %2 must not have different Relational Currency Code';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure ExchangeAmtLCYToFCY(Date: Date; CurrencyCode: Code[10]; Amount: Decimal; Factor: Decimal): Decimal
     begin

@@ -127,6 +127,8 @@ page 5916 "Service Hours"
         EntryMissing: Boolean;
         i: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'You have not specified service hours for all working days.\\Do you want to close the window?';
+#pragma warning restore AA0074
 }
 

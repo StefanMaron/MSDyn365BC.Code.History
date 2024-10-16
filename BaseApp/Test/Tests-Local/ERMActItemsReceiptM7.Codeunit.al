@@ -199,12 +199,10 @@ codeunit 144708 "ERM Act Items Receipt M-7"
     var
         i: Integer;
     begin
-        with InvtDocumentHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Receipt;
-            Validate("Location Code", CreateLocation());
-            Insert(true);
-        end;
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := InvtDocumentHeader."Document Type"::Receipt;
+        InvtDocumentHeader.Validate("Location Code", CreateLocation());
+        InvtDocumentHeader.Insert(true);
 
         for i := 1 to LineQty do
             CreateInvtDocumentLine(InvtDocumentHeader);
@@ -239,15 +237,13 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         PurchaseLine: Record "Purchase Line";
         i: Integer;
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                i += 1;
-                AmountArr[i] := Amount;
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindSet();
+        repeat
+            i += 1;
+            AmountArr[i] := PurchaseLine.Amount;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure GetDocumentLineAmounts(var AmountArr: array[5] of Decimal; DocumentNo: Code[20])

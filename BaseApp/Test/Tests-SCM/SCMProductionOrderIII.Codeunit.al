@@ -56,12 +56,10 @@ codeunit 137079 "SCM Production Order III"
         JournalLinesPostedMsg: Label 'The journal lines were successfully posted.';
         RecreatePurchaseLineConfirmHandlerQst: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?';
         WHHandlingIsRequiredErr: Label 'Warehouse handling is required for Entry Type = Output';
-        AppliesToEntryErr: Label 'Applies-to Entry must have a value in Item Journal Line: Journal Template Name';
         QtyPickedBaseErr: Label 'Qty. Picked (Base) must not be 0 in Prod. Order Component';
         ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,SetValue,UpdateQuantityBase;
         LeaveProductionJournalQst: Label 'Do you want to leave the Production Journal?';
         QtyToHandleBaseInTrackingErr: Label 'It must be %1.';
-        OutputJournalItemNoErr: Label '%1 must be equal to ''%2''  in %3';
         ProdOrderLineBinCodeErr: Label 'Wrong "Prod. Order Line" BinCode value';
         ItemSubstCountErr: Label 'Wrong Item Substitution''s count.';
         ItemSubstDublicationErr: Label 'Duplicated Substitution Item is found.';
@@ -72,7 +70,6 @@ codeunit 137079 "SCM Production Order III"
         ComponentsAlreadyPickedQst: Label 'Components for production order %1 have already been picked. Do you want to continue?', Comment = 'Production order no.: Components for production order 101001 have already been picked. Do you want to continue?';
         SubcItemJnlErr: Label '%1 must be zero', Comment = '%1 - "Subcontractor No."';
         RtngLineBinCodeErr: Label 'Wrong %1 in %2.', Comment = '%1: Field(To-Production Bin Code), %2: TableCaption(Prod. Order Routing Line)';
-        ActConsumptionNotZeroErr: Label 'Act. Consumption (Qty) must be equal to ''0''';
         QuantityImbalanceErr: Label 'out of balance';
         InvalidPrecisionErr: Label 'field to be incorrect';
 
@@ -1489,6 +1486,7 @@ codeunit 137079 "SCM Production Order III"
         Location: Record Location;
         Item: Record Item;
         ProductionOrder: Record "Production Order";
+        ItemJnlLine: Record "Item Journal Line";
     begin
         // Test to verify the error message pops up when posting production correction journal without setting Apply-to Entry using Location with Require Pick and Require Shipment.
 
@@ -1500,7 +1498,7 @@ codeunit 137079 "SCM Production Order III"
 
         // Exercise and Verify: Post output journal and expect the error pops up
         asserterror LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
-        Assert.ExpectedError(AppliesToEntryErr);
+        Assert.ExpectedTestFieldError(ItemJnlLine.FieldCaption("Applies-to Entry"), '');
     end;
 
     local procedure CreateOutputCorrectionWithLocation(var Item: Record Item; var ProductionOrder: Record "Production Order"; LocationCode: Code[10]; BinCode: Code[20]; SetAppliesToEntry: Boolean)
@@ -1681,7 +1679,7 @@ codeunit 137079 "SCM Production Order III"
         asserterror LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
 
         // [THEN] "Applies-to Entry must have a value" error message is raised. The program could not unambiguously define the original entry to apply.
-        Assert.ExpectedError(AppliesToEntryErr);
+        Assert.ExpectedTestFieldError(ItemJournalLine.FieldCaption("Applies-to Entry"), '');
 
         // Tear down.
         DeleteReservationEntry(Item."No.");
@@ -1720,7 +1718,7 @@ codeunit 137079 "SCM Production Order III"
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [THEN] "Applies-to Entry must have a value" error message is raised. The program could not find an output entry with lot no. "L2".
-        Assert.ExpectedError(AppliesToEntryErr);
+        Assert.ExpectedTestFieldError(ItemJournalLine.FieldCaption("Applies-to Entry"), '');
 
         // Tear down.
         DeleteReservationEntry(Item."No.");
@@ -1764,7 +1762,7 @@ codeunit 137079 "SCM Production Order III"
         asserterror LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
 
         // [THEN] "Applies-to Entry must have a value" error message is raised. The remaining quantity of the original output is now "Q" pcs, that is not enough to fully apply the reversed output for "2Q" pcs.
-        Assert.ExpectedError(AppliesToEntryErr);
+        Assert.ExpectedTestFieldError(ItemJournalLine.FieldCaption("Applies-to Entry"), '');
 
         // Tear down.
         DeleteReservationEntry(Item."No.");
@@ -1828,7 +1826,7 @@ codeunit 137079 "SCM Production Order III"
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [THEN] "Applies-to Entry must have a value" error message is raised. The program could not find an original output for prod. order line "POL2".
-        Assert.ExpectedError(AppliesToEntryErr);
+        Assert.ExpectedTestFieldError(ItemJournalLine.FieldCaption("Applies-to Entry"), '');
 
         // Tear down.
         DeleteReservationEntry(Item."No.");
@@ -2236,8 +2234,7 @@ codeunit 137079 "SCM Production Order III"
         asserterror LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
 
         // [THEN] Error occurs: 'Item No. must be equal to "X2" in Item Journal Line... '
-        Assert.ExpectedError(
-          StrSubstNo(OutputJournalItemNoErr, ItemJournalLine.FieldCaption("Item No."), Item2."No.", ItemJournalLine.TableCaption()));
+        Assert.ExpectedTestFieldError(ItemJournalLine.FieldCaption("Item No."), Item2."No.");
     end;
 
     [Test]
@@ -2944,7 +2941,7 @@ codeunit 137079 "SCM Production Order III"
         asserterror ProdOrderComponent.Validate("Item No.", LibraryInventory.CreateItemNo());
 
         // [THEN] Error is thrown, reading that there was a posted consumption on this component line.
-        Assert.ExpectedError(ActConsumptionNotZeroErr);
+        Assert.ExpectedTestFieldError(ProdOrderComponent.FieldCaption("Act. Consumption (Qty)"), Format(0));
     end;
 
     [Test]
@@ -4847,7 +4844,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderComponent.SetRange("Item No.", ItemComponent."No.");
         ProdOrderComponent.FindFirst();
 
-        // Expected quantity = (39360 PCS / (180 PCS / BOX)) * 0.00027 = 0.0590445 � 0.05904
+        // Expected quantity = (39360 PCS / (180 PCS / BOX)) * 0.00027 = 0.0590445 ≈ 0.05904
         ProdOrderComponent.TestField("Expected Quantity", 0.05904);
         ProdOrderComponent.TestField("Expected Qty. (Base)", 0.05904);
     end;
@@ -5379,21 +5376,17 @@ codeunit 137079 "SCM Production Order III"
     var
         WorkCenter: Record "Work Center";
     begin
-        with WorkCenter do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            "Subcontractor No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        WorkCenter.Init();
+        WorkCenter."No." := LibraryUtility.GenerateGUID();
+        WorkCenter."Subcontractor No." := LibraryUtility.GenerateGUID();
+        WorkCenter.Insert();
 
-        with ItemJournalLine do begin
-            Init();
-            LibraryUtility.GetNewRecNo(ItemJournalLine, FieldNo("Line No."));
-            "Entry Type" := "Entry Type"::Output;
-            Type := Type::"Work Center";
-            "Work Center No." := WorkCenter."No.";
-            Insert();
-        end;
+        ItemJournalLine.Init();
+        LibraryUtility.GetNewRecNo(ItemJournalLine, ItemJournalLine.FieldNo("Line No."));
+        ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::Output;
+        ItemJournalLine.Type := ItemJournalLine.Type::"Work Center";
+        ItemJournalLine."Work Center No." := WorkCenter."No.";
+        ItemJournalLine.Insert();
     end;
 
     local procedure CreateItemsSetup(var Item: Record Item; var Item2: Record Item; QuantityPer: Decimal)
@@ -5444,15 +5437,14 @@ codeunit 137079 "SCM Production Order III"
         ItemSubstitution: Record "Item Substitution";
         i: Integer;
     begin
-        with ItemSubstitution do begin
-            Init();
-            Type := Type::Item;
-            "No." := ItemNo[ItemIndex];
-            "Substitute Type" := "Substitute Type"::Item;
-            for i := 0 to ArrayLen(ItemNo) - 2 do begin
-                "Substitute No." := ItemNo[1 + ((ItemIndex + i) mod ArrayLen(ItemNo))]; // all ItemNo except ItemIndex
-                Insert();
-            end;
+        ItemSubstitution.Init();
+        ItemSubstitution.Type := ItemSubstitution.Type::Item;
+        ItemSubstitution."No." := ItemNo[ItemIndex];
+        ItemSubstitution."Substitute Type" := ItemSubstitution."Substitute Type"::Item;
+        for i := 0 to ArrayLen(ItemNo) - 2 do begin
+            ItemSubstitution."Substitute No." := ItemNo[1 + ((ItemIndex + i) mod ArrayLen(ItemNo))];
+            // all ItemNo except ItemIndex
+            ItemSubstitution.Insert();
         end;
     end;
 
@@ -5524,12 +5516,10 @@ codeunit 137079 "SCM Production Order III"
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateOutputJournalWithExplodeRouting(ItemJournalLine, ProductionOrderNo);
-        with ItemJournalLine do begin
-            Validate("Output Quantity", OutputQuantity);
-            Validate("Run Time", RunTime);
-            Validate("Unit Cost", UnitCost);
-            Modify(true);
-        end;
+        ItemJournalLine.Validate("Output Quantity", OutputQuantity);
+        ItemJournalLine.Validate("Run Time", RunTime);
+        ItemJournalLine.Validate("Unit Cost", UnitCost);
+        ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 
@@ -5959,11 +5949,9 @@ codeunit 137079 "SCM Production Order III"
     begin
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());  // Calculate Regenerative Plan on WORKDATE.
         FindRequisitionLine(RequisitionLine, Item."No.");
-        with RequisitionLine do begin
-            Validate("Location Code", WorkCenter."Location Code");
-            Validate("Accept Action Message", true);
-            Modify();
-        end;
+        RequisitionLine.Validate("Location Code", WorkCenter."Location Code");
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify();
     end;
 
     local procedure CreateWorkCenterWithLocationAndBin(var WorkCenter: Record "Work Center"; LocationCode: Code[10])
@@ -5977,13 +5965,11 @@ codeunit 137079 "SCM Production Order III"
         LibraryWarehouse.FindBin(BinOpenShopFloor, LocationCode, '', 3);
 
         CreateWorkCenter(WorkCenter, false);
-        with WorkCenter do begin
-            Validate("Location Code", LocationCode);
-            Validate("From-Production Bin Code", BinFrom.Code);
-            Validate("To-Production Bin Code", BinTo.Code);
-            Validate("Open Shop Floor Bin Code", BinOpenShopFloor.Code);
-            Modify();
-        end;
+        WorkCenter.Validate("Location Code", LocationCode);
+        WorkCenter.Validate("From-Production Bin Code", BinFrom.Code);
+        WorkCenter.Validate("To-Production Bin Code", BinTo.Code);
+        WorkCenter.Validate("Open Shop Floor Bin Code", BinOpenShopFloor.Code);
+        WorkCenter.Modify();
     end;
 
     local procedure CreateWorkCenterWithNewToProductionBin(var WorkCenter: Record "Work Center"; LocationCode: Code[10])
@@ -6009,11 +5995,9 @@ codeunit 137079 "SCM Production Order III"
         SalesHeader: Record "Sales Header";
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Reordering Policy", "Reordering Policy"::"Lot-for-Lot");
-            Modify();
-        end;
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify();
 
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandInt(10), false);  // Multiple Sales Lines FALSE.
     end;
@@ -6097,12 +6081,10 @@ codeunit 137079 "SCM Production Order III"
     begin
         FindItemLedgerEntry(ItemLedgerEntry, ItemJournalLine."Entry Type"::Output, ItemNo);
         CreateOutputJournal(ItemJournalLine, ItemLedgerEntry."Document No.", ItemNo);
-        with ItemJournalLine do begin
-            Validate("Output Quantity", OutputQuantity);
-            Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
-            Validate("Operation No.", OperationNo);
-            Modify(true);
-        end;
+        ItemJournalLine.Validate("Output Quantity", OutputQuantity);
+        ItemJournalLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
+        ItemJournalLine.Validate("Operation No.", OperationNo);
+        ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 
@@ -6147,14 +6129,12 @@ codeunit 137079 "SCM Production Order III"
 
     local procedure CreatePlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line")
     begin
-        with PlanningRoutingLine do begin
-            Init();
-            Validate("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-            Validate("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-            Validate("Worksheet Line No.", RequisitionLine."Line No.");
-            Validate("Operation No.", LibraryUtility.GenerateGUID());
-            Insert(true);
-        end;
+        PlanningRoutingLine.Init();
+        PlanningRoutingLine.Validate("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningRoutingLine.Validate("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        PlanningRoutingLine.Validate("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningRoutingLine.Validate("Operation No.", LibraryUtility.GenerateGUID());
+        PlanningRoutingLine.Insert(true);
     end;
 
     local procedure CreateCertifiedProductionBOMVersionWithCopyBOM(ProductionBOMNo: Code[20]; UnitOfMeasureCode: Code[10])
@@ -6224,13 +6204,11 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
-        with NewProdOrderLine do begin
-            Status := ProdOrderLine.Status;
-            "Prod. Order No." := ProdOrderLine."Prod. Order No.";
-            "Line No." := ProdOrderLine."Line No." + 10000;
-            Validate("Item No.", ItemNo);
-            Insert(true);
-        end;
+        NewProdOrderLine.Status := ProdOrderLine.Status;
+        NewProdOrderLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
+        NewProdOrderLine."Line No." := ProdOrderLine."Line No." + 10000;
+        NewProdOrderLine.Validate("Item No.", ItemNo);
+        NewProdOrderLine.Insert(true);
     end;
 
     local procedure CreateProdOrderLineWithDates(ProductionOrder: Record "Production Order"; StartingDate: Date; StartingTime: Time; DueDate: Date)
@@ -6294,16 +6272,14 @@ codeunit 137079 "SCM Production Order III"
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with LibraryManufacturing do begin
-            CreateProductionOrder(
-              ProductionOrder, ProductionOrder.Status::Released,
-              ProductionOrder."Source Type"::Item, ItemNo, Quantity);
-            RefreshProdOrder(ProductionOrder, false, true, true, true, false);
-            FindReleasedProdOrderLine(ProdOrderLine, ItemNo);
-            OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
-            ChangeStatusReleasedToFinished(ProductionOrder."No.");
-            exit(ProductionOrder."No.");
-        end;
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::Item, ItemNo, Quantity);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        FindReleasedProdOrderLine(ProdOrderLine, ItemNo);
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+        exit(ProductionOrder."No.");
     end;
 
     local procedure DeleteReservationEntry(ItemNo: Code[20])
@@ -6362,11 +6338,9 @@ codeunit 137079 "SCM Production Order III"
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
-        with ProdOrderLine do begin
-            SetRange(Status, ProdOrderStatus);
-            SetRange("Prod. Order No.", ProdOrderNo);
-            FindFirst();
-        end;
+        ProdOrderLine.SetRange(Status, ProdOrderStatus);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
@@ -6412,12 +6386,10 @@ codeunit 137079 "SCM Production Order III"
 
     local procedure FindLastProductionOrderCompLine(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line")
     begin
-        with ProdOrderComponent do begin
-            SetRange(Status, ProdOrderLine.Status);
-            SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-            SetRange("Line No.", ProdOrderLine."Line No.");
-            FindLast();
-        end;
+        ProdOrderComponent.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderComponent.SetRange("Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.FindLast();
     end;
 
     local procedure FindReleasedProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
@@ -6509,12 +6481,10 @@ codeunit 137079 "SCM Production Order III"
 
     local procedure FindProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMHeaderNo: Code[20]; ItemNo: Code[20])
     begin
-        with ProductionBOMLine do begin
-            SetRange("Production BOM No.", ProductionBOMHeaderNo);
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-        end;
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeaderNo);
+        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
+        ProductionBOMLine.SetRange("No.", ItemNo);
+        ProductionBOMLine.FindFirst();
     end;
 
     local procedure FinishProdOrderWhenBackFlushingConsumptionAndManualFlushingOutputWithScrap(Verification: Option VerifyErr,VerifyItemLedgerEntry)
@@ -6581,44 +6551,38 @@ codeunit 137079 "SCM Production Order III"
         ItemLedgerEntry: Record "Item Ledger Entry";
         RecRef: RecordRef;
     begin
-        with ItemLedgerEntry do begin
-            Init();
-            RecRef.GetTable(ItemLedgerEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Entry Type" := "Entry Type"::Consumption;
-            "Order Type" := "Order Type"::Production;
-            "Order No." := ProdOrderComponent."Prod. Order No.";
-            "Prod. Order Comp. Line No." := ProdOrderComponent."Line No.";
-            Quantity := LibraryRandom.RandInt(10);
-            Insert();
-        end;
+        ItemLedgerEntry.Init();
+        RecRef.GetTable(ItemLedgerEntry);
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Entry Type" := ItemLedgerEntry."Entry Type"::Consumption;
+        ItemLedgerEntry."Order Type" := ItemLedgerEntry."Order Type"::Production;
+        ItemLedgerEntry."Order No." := ProdOrderComponent."Prod. Order No.";
+        ItemLedgerEntry."Prod. Order Comp. Line No." := ProdOrderComponent."Line No.";
+        ItemLedgerEntry.Quantity := LibraryRandom.RandInt(10);
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure MockProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status")
     begin
-        with ProductionOrder do begin
-            Init();
-            Status := ProdOrderStatus;
-            "No." := LibraryUtility.GenerateGUID();
-            "Starting Date-Time" := CreateDateTime(WorkDate(), 120000T);
-            "Ending Date-Time" := CreateDateTime(WorkDate() + 30, 120000T);
-            Insert();
-        end;
+        ProductionOrder.Init();
+        ProductionOrder.Status := ProdOrderStatus;
+        ProductionOrder."No." := LibraryUtility.GenerateGUID();
+        ProductionOrder."Starting Date-Time" := CreateDateTime(WorkDate(), 120000T);
+        ProductionOrder."Ending Date-Time" := CreateDateTime(WorkDate() + 30, 120000T);
+        ProductionOrder.Insert();
     end;
 
     local procedure MockProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component")
     begin
-        with ProdOrderComponent do begin
-            Init();
-            Status := Status::Released;
-            "Prod. Order No." := LibraryUtility.GenerateGUID();
-            "Line No." := LibraryRandom.RandInt(10);
-            "Item No." := LibraryUtility.GenerateGUID();
-            "Qty. per Unit of Measure" := LibraryRandom.RandInt(10);
-            Insert();
+        ProdOrderComponent.Init();
+        ProdOrderComponent.Status := ProdOrderComponent.Status::Released;
+        ProdOrderComponent."Prod. Order No." := LibraryUtility.GenerateGUID();
+        ProdOrderComponent."Line No." := LibraryRandom.RandInt(10);
+        ProdOrderComponent."Item No." := LibraryUtility.GenerateGUID();
+        ProdOrderComponent."Qty. per Unit of Measure" := LibraryRandom.RandInt(10);
+        ProdOrderComponent.Insert();
 
-            BlockDynamicTracking(true); // prevents calling of VerifyQuantity function
-        end;
+        ProdOrderComponent.BlockDynamicTracking(true); // prevents calling of VerifyQuantity function
     end;
 
     local procedure OpenItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; TrackingMode: Option)
@@ -6840,24 +6804,20 @@ codeunit 137079 "SCM Production Order III"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        with Item do begin
-            Validate("Item Tracking Code", CreateItemTrackingCode());
-            Validate("Lot Nos.", LibraryERM.CreateNoSeriesCode());
-            Validate("Flushing Method", FlushingMethod);
-            Validate("Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision");
-            Modify(true);
-        end;
+        Item.Validate("Item Tracking Code", CreateItemTrackingCode());
+        Item.Validate("Lot Nos.", LibraryERM.CreateNoSeriesCode());
+        Item.Validate("Flushing Method", FlushingMethod);
+        Item.Validate("Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision");
+        Item.Modify(true);
     end;
 
     local procedure UpdateItemManufacturingProperties(var Item: Record Item; ProdBOMNo: Code[20]; RoutingNo: Code[20])
     begin
-        with Item do begin
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Reordering Policy", "Reordering Policy"::"Lot-for-Lot");
-            Validate("Production BOM No.", ProdBOMNo);
-            Validate("Routing No.", RoutingNo);
-            Modify(true);
-        end;
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Production BOM No.", ProdBOMNo);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Modify(true);
     end;
 
     local procedure UpdateSKUManufacturingProperties(var StockkeepingUnit: Record "Stockkeeping Unit"; ProdBOMNo: Code[20]; RoutingNo: Code[20])
@@ -6917,22 +6877,21 @@ codeunit 137079 "SCM Production Order III"
         Bin3: Record Bin;
     begin
         LibraryWarehouse.FindBin(Bin2, Location.Code, '', 2); // Find Bin of Index 2.
-        LibraryWarehouse.FindBin(Bin3, Location.Code, '', 3); // Find Bin of Index 3.
-        with Location do begin
-            Validate("Require Shipment", true);
-            Validate("Require Put-away", false);
-            Validate("To-Production Bin Code", Bin2.Code);
-            Validate("From-Production Bin Code", Bin3.Code);
-            if "Require Pick" then
-                if "Require Shipment" then
-                    Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
-                else
-                    Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+        LibraryWarehouse.FindBin(Bin3, Location.Code, '', 3);
+        // Find Bin of Index 3.
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Require Put-away", false);
+        Location.Validate("To-Production Bin Code", Bin2.Code);
+        Location.Validate("From-Production Bin Code", Bin3.Code);
+        if Location."Require Pick" then
+            if Location."Require Shipment" then
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
+            else
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
 
-            if "Require Put-away" then
-                Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
-            Modify(true);
-        end;
+        if Location."Require Put-away" then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
+        Location.Modify(true);
     end;
 
     local procedure UpdateBOMHeader(ProductionBOMNo: Code[20]; ItemNo: Code[20]; RoutingLinkCode: Code[10])
@@ -6940,12 +6899,10 @@ codeunit 137079 "SCM Production Order III"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         // Update Routing link Code on specified BOM component Lines.
-        with ProductionBOMHeader do begin
-            SetRange("No.", ProductionBOMNo);
-            FindFirst();
-            Validate(Status, Status::"Under Development");
-            Modify(true);
-        end;
+        ProductionBOMHeader.SetRange("No.", ProductionBOMNo);
+        ProductionBOMHeader.FindFirst();
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::"Under Development");
+        ProductionBOMHeader.Modify(true);
         UpdateBOMLineRoutingLinkCode(ProductionBOMNo, ItemNo, RoutingLinkCode);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
         ProductionBOMHeader.Modify(true);
@@ -6965,12 +6922,10 @@ codeunit 137079 "SCM Production Order III"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         // Update Unit of Measure Code on specified BOM component Line.
-        with ProductionBOMHeader do begin
-            SetRange("No.", ProductionBOMNo);
-            FindFirst();
-            Validate(Status, Status::"Under Development");
-            Modify(true);
-        end;
+        ProductionBOMHeader.SetRange("No.", ProductionBOMNo);
+        ProductionBOMHeader.FindFirst();
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::"Under Development");
+        ProductionBOMHeader.Modify(true);
         UpdateBOMLineUOM(ProductionBOMNo, ItemNo, UnitOfMeasureCode);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
         ProductionBOMHeader.Modify(true);
@@ -7052,15 +7007,13 @@ codeunit 137079 "SCM Production Order III"
 
     local procedure InitProdOrderComponent(var NewProdOrderComponent: Record "Prod. Order Component"; OldProdOrderComponent: Record "Prod. Order Component")
     begin
-        with NewProdOrderComponent do begin
-            Init();
-            Status := OldProdOrderComponent.Status;
-            "Prod. Order No." := OldProdOrderComponent."Prod. Order No.";
-            "Prod. Order Line No." := OldProdOrderComponent."Prod. Order Line No.";
-            "Line No." := OldProdOrderComponent."Line No." + 10000;
-            Validate("Item No.", OldProdOrderComponent."Item No.");
-            Validate("Location Code", OldProdOrderComponent."Location Code");
-        end;
+        NewProdOrderComponent.Init();
+        NewProdOrderComponent.Status := OldProdOrderComponent.Status;
+        NewProdOrderComponent."Prod. Order No." := OldProdOrderComponent."Prod. Order No.";
+        NewProdOrderComponent."Prod. Order Line No." := OldProdOrderComponent."Prod. Order Line No.";
+        NewProdOrderComponent."Line No." := OldProdOrderComponent."Line No." + 10000;
+        NewProdOrderComponent.Validate("Item No.", OldProdOrderComponent."Item No.");
+        NewProdOrderComponent.Validate("Location Code", OldProdOrderComponent."Location Code");
     end;
 
     local procedure VerifyValueEntryForEntryType(EntryType: Enum "Cost Entry Type"; DocumentNo: Code[20]; ItemLedgerEntryQuantity: Decimal; CostPostedToGL: Decimal; InvoicedQuantity: Decimal; CostPerUnit: Decimal; CostAmountActual: Decimal)
@@ -7106,15 +7059,13 @@ codeunit 137079 "SCM Production Order III"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            SetRange("Entry Type", EntryType);
-            SetRange("Item No.", ItemNo);
-            SetRange("Source No.", SourceNo);
-            FindFirst();
-            TestField("Location Code", LocationCode);
-            TestField("Bin Code", BinCode);
-            TestField(Quantity, Qty);
-        end;
+        WarehouseEntry.SetRange("Entry Type", EntryType);
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Source No.", SourceNo);
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Location Code", LocationCode);
+        WarehouseEntry.TestField("Bin Code", BinCode);
+        WarehouseEntry.TestField(Quantity, Qty);
     end;
 
     local procedure VerifyOrderTrackingForProductionOrder(ItemNo: Code[20]; Quantity: Decimal)
@@ -7124,7 +7075,9 @@ codeunit 137079 "SCM Production Order III"
         OrderTracking2: TestPage "Order Tracking";
     begin
         FindFirmPlannedProdOrderLine(ProdOrderLine, ItemNo);
-        OrderTracking.SetProdOrderLine(ProdOrderLine);
+        OrderTracking.SetVariantRec(
+            ProdOrderLine, ProdOrderLine."Item No.", ProdOrderLine."Remaining Qty. (Base)",
+            ProdOrderLine."Starting Date", ProdOrderLine."Ending Date");
         OrderTracking2.Trap();
         OrderTracking.Run();
         repeat
@@ -7147,11 +7100,9 @@ codeunit 137079 "SCM Production Order III"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Assert.AreEqual(WorkCenterBinCode, "Bin Code", ProdOrderLineBinCodeErr);
-        end;
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
+        Assert.AreEqual(WorkCenterBinCode, ProdOrderLine."Bin Code", ProdOrderLineBinCodeErr);
     end;
 
     local procedure VerifyPurchaseLine(No: Code[20]; Quantity: Decimal)
@@ -7169,20 +7120,19 @@ codeunit 137079 "SCM Production Order III"
     var
         RecreatedPurchaseLine: Record "Purchase Line";
     begin
-        with RecreatedPurchaseLine do begin
-            SetRange("Document Type", PurchaseLine."Document Type");
-            SetRange("Document No.", PurchaseLine."Document No.");
-            FindFirst();  // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
-            TestField(Description, PurchaseLine.Description);
-            TestField("Unit Cost (LCY)", PurchaseLine."Unit Cost (LCY)");
-            TestField("Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-            TestField("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
-            TestField("VAT Identifier", PurchaseLine."VAT Identifier");
-            TestField("Qty. per Unit of Measure", PurchaseLine."Qty. per Unit of Measure");
-            TestField("Expected Receipt Date", PurchaseLine."Expected Receipt Date");
-            TestField("Requested Receipt Date", PurchaseLine."Requested Receipt Date");
-            TestField("VAT Bus. Posting Group", VATBusPostingGroupCode);
-        end;
+        RecreatedPurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
+        RecreatedPurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
+        RecreatedPurchaseLine.FindFirst();
+        // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
+        RecreatedPurchaseLine.TestField(Description, PurchaseLine.Description);
+        RecreatedPurchaseLine.TestField("Unit Cost (LCY)", PurchaseLine."Unit Cost (LCY)");
+        RecreatedPurchaseLine.TestField("Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        RecreatedPurchaseLine.TestField("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
+        RecreatedPurchaseLine.TestField("VAT Identifier", PurchaseLine."VAT Identifier");
+        RecreatedPurchaseLine.TestField("Qty. per Unit of Measure", PurchaseLine."Qty. per Unit of Measure");
+        RecreatedPurchaseLine.TestField("Expected Receipt Date", PurchaseLine."Expected Receipt Date");
+        RecreatedPurchaseLine.TestField("Requested Receipt Date", PurchaseLine."Requested Receipt Date");
+        RecreatedPurchaseLine.TestField("VAT Bus. Posting Group", VATBusPostingGroupCode);
     end;
 
     local procedure VerifyRequisitionLine(No: Code[20]; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; DueDate: Date)
@@ -7327,14 +7277,12 @@ codeunit 137079 "SCM Production Order III"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Order No.", ProdOrderNo);
-            FindSet();
-            repeat
-                Assert.AreEqual(SourceType, "Source Type", StrSubstNo(ValueEntrySourceTypeErr, SourceType));
-                Assert.AreEqual(SourceNo, "Source No.", StrSubstNo(ValueEntrySourceNoErr, SourceNo));
-            until Next() = 0;
-        end;
+        ValueEntry.SetRange("Order No.", ProdOrderNo);
+        ValueEntry.FindSet();
+        repeat
+            Assert.AreEqual(SourceType, ValueEntry."Source Type", StrSubstNo(ValueEntrySourceTypeErr, SourceType));
+            Assert.AreEqual(SourceNo, ValueEntry."Source No.", StrSubstNo(ValueEntrySourceNoErr, SourceNo));
+        until ValueEntry.Next() = 0;
     end;
 
     local procedure VerifyProdOrderComponent(ProdOrderNo: Code[20]; Status: Enum "Production Order Status"; ItemNo: Code[20]; QtyPicked: Decimal)
@@ -7362,16 +7310,14 @@ codeunit 137079 "SCM Production Order III"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Entry Type", "Entry Type"::Output);
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            TestField(Quantity, Qty);
-            TestField("Location Code", Location);
-            Next();
-            TestField(Quantity, Qty2);
-            TestField("Location Code", Location);
-        end;
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindSet();
+        ItemLedgerEntry.TestField(Quantity, Qty);
+        ItemLedgerEntry.TestField("Location Code", Location);
+        ItemLedgerEntry.Next();
+        ItemLedgerEntry.TestField(Quantity, Qty2);
+        ItemLedgerEntry.TestField("Location Code", Location);
     end;
 
     local procedure VerifyReversedOutputItemLedgerEntry(ItemNo: Code[20])

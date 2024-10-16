@@ -91,7 +91,7 @@ table 17307 "Tax Calc. Section"
         }
         field(16; "Page Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Page Name';
             Editable = false;
@@ -262,19 +262,51 @@ table 17307 "Tax Calc. Section"
 
     var
         TaxCalcHeader: Record "Tax Calc. Header";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'You cannot use the same dimension twice in the same %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1002: Label 'If you change the section declaration, the entries will be deleted.\You will have to update again.\\Do you want to change the section declaration?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1004: Label '%1 cannot be less then %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1005: Label 'You cannot change Engind Date if Status is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1006: Label '%1 cannot be set %2 if not ending build registers.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1008: Label 'You cannot change the value if Status is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1009: Label 'You cannot delete section if Status is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxCalcTerm: Record "Tax Calc. Term";
         TaxCalcMgt: Codeunit "Tax Calc. Mgt.";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1010: Label '%1 and %2 are in different year';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FileMgt: Codeunit "File Management";
         FileName: Text[250];
+#pragma warning disable AA0074
         Text1015: Label 'Select a filename to export settings to.';
+#pragma warning restore AA0074
 
     local procedure CheckUseDimCode(FieldNumber: Integer; xRecDimCode: Code[20]; DimCode: Code[20])
     begin

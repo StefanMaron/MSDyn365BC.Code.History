@@ -416,9 +416,17 @@ page 26587 "XML Element Lines"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'All related expression lines will be deleted. Proceed?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'All related compound element lines will be deleted. Proceed?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label '%1 cannot be modified because %2 %3 contains report data.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         "Element NameEmphasize": Boolean;
         "Element NameIndent": Integer;
 

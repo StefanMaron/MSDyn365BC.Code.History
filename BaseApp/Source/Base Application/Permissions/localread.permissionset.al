@@ -12,8 +12,10 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Assessed Tax Code" = R,
                   tabledata "Bank Account Details" = R,
                   tabledata "Bank Directory" = R,
+#if not CLEAN25
                   tabledata "CD No. Header" = R,
                   tabledata "CD No. Information" = R,
+#endif                  
                   tabledata "Company Address" = R,
                   tabledata "Customer Agreement" = R,
                   tabledata "Default Signature Setup" = R,

@@ -6,7 +6,6 @@ using Microsoft.Foundation.Comment;
 using Microsoft.CRM.Duplicates;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.BusinessRelation;
-using Microsoft.Service.Contract;
 using Microsoft.Foundation.Address;
 using Microsoft.Finance.Currency;
 using Microsoft.Sales.Receivables;
@@ -20,7 +19,6 @@ using Microsoft.FixedAssets.Ledger;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -50,24 +48,21 @@ using Microsoft.Warehouse.Activity.History;
 using Microsoft.Purchases.Remittance;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.History;
-using Microsoft.CRM.Team;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Foundation.Shipping;
 using Microsoft.Finance.SalesTax;
-using Microsoft.Inventory.Intrastat;
 using Microsoft.CRM.Task;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.RateChange;
-using Microsoft.Finance.VAT.Registration;
-using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Worksheet;
 using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.CRM.Team;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Reporting;
 
 permissionset 7371 "Vendor - Edit"
 {
@@ -82,7 +77,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata Contact = RIM,
                   tabledata "Contact Business Relation" = rimd,
                   tabledata "Contact Duplicate" = R,
-                  tabledata "Contract Gain/Loss Entry" = rm,
                   tabledata "Country/Region" = R,
                   tabledata Currency = R,
                   tabledata "Cust. Ledger Entry" = r,
@@ -94,8 +88,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Employee Ledger Entry" = Rm,
                   tabledata "Employee Posting Group" = R,
                   tabledata "FA Ledger Entry" = rm,
-                  tabledata "Filed Contract Line" = rm,
-                  tabledata "Filed Service Contract Header" = rm,
                   tabledata "Finance Charge Terms" = R,
                   tabledata "Fixed Asset" = rm,
                   tabledata "G/L Account" = R,
@@ -144,7 +136,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Purchase Header" = rm,
                   tabledata "Purchase Header Archive" = r,
                   tabledata "Purchase Line" = Rm,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Purchase Line Discount" = Rid,
                   tabledata "Purchase Price" = Rid,
 #endif
@@ -159,13 +151,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Return Shipment Header" = rm,
                   tabledata "Return Shipment Line" = rm,
                   tabledata "Salesperson/Purchaser" = R,
-                  tabledata "Service Contract Header" = Rm,
-                  tabledata "Service Contract Line" = Rm,
-                  tabledata "Service Header" = Rm,
-                  tabledata "Service Invoice Line" = Rm,
-                  tabledata "Service Item" = Rm,
-                  tabledata "Service Item Line" = Rm,
-                  tabledata "Service Ledger Entry" = rm,
                   tabledata "Shipment Method" = R,
                   tabledata "Standard General Journal" = r,
                   tabledata "Standard General Journal Line" = r,
@@ -194,7 +179,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Warehouse Reason Code" = r,
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
-                  tabledata "Warranty Ledger Entry" = rm,
                   tabledata "Whse. Worksheet Line" = r,
                   tabledata "Work Center" = r;
 }

@@ -111,7 +111,9 @@ page 17324 "Tax Calc. Calc. Buffer"
     }
 
     var
+#pragma warning disable AA0074
         Text1000: Label 'Filtering by Global Dimensions only.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure BuildTmpCalcBuffer(TaxCalcAccumulation: Record "Tax Calc. Accumulation")

@@ -24,7 +24,6 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LaterEndingDateErr: Label 'The Starting Date is later than the Ending Date.';
         UnknownErr: Label 'Unknown Error.';
         GapWarningMsg: Label 'There is a gap in the number series.';
-        DepreciationBookErr: Label '%1 does not exist.', Comment = '%1 = Depreciation Book Code';
         LaterDepreciationDateErr: Label 'The First Depreciation Date is later than the Last Depreciation Date.';
         NoOfDaysErr: Label 'Number of Days must not be greater than 360 or less than 5.';
         BlankDatesErr: Label 'You must specify the Starting Date and the Ending Date.';
@@ -315,7 +314,6 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     [Scope('OnPrem')]
     procedure BlankDepreciationBookCodeError()
     var
-        DepreciationBook: Record "Depreciation Book";
         FixedAssetProjectedValue: Report "Fixed Asset - Projected Value";
     begin
         // Test error occurs on Running Fixed Asset Projected Value Report without Depreciation Book Code.
@@ -332,7 +330,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         asserterror FixedAssetProjectedValue.Run();
 
         // 3. Verify: Verify that System generates an error without Depreciation Book Code.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]
@@ -835,8 +833,6 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     [HandlerFunctions('RHFixedAssetGLAnalysis')]
     [Scope('OnPrem')]
     procedure FAGLAnalysisBookCodeError()
-    var
-        DepreciationBook: Record "Depreciation Book";
     begin
         // Test error occurs on Running Fixed Asset - G/L Analysis Report without Depreciation Book Code.
 
@@ -847,7 +843,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         asserterror RunFAGLAnalysisWithPeriod('', '', WorkDate(), WorkDate(), '', '', '', 0, 0, false);
 
         // 3. Verify: Verify that System generates an error without Depreciation Book Code.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]
@@ -1711,14 +1707,12 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
             DepreciationBook.Modify();
         end;
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
-        with FADepreciationBook do begin
-            Validate("Depreciation Starting Date", WorkDate());
-            Validate("Depreciation Ending Date", CalcDate(StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)), WorkDate()));
-            Validate("FA Posting Group", FixedAsset."FA Posting Group");
-            Validate("Projected Disposal Date", WorkDate());
-            Validate("Projected Proceeds on Disposal", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-        end;
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate(StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)), WorkDate()));
+        FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
+        FADepreciationBook.Validate("Projected Disposal Date", WorkDate());
+        FADepreciationBook.Validate("Projected Proceeds on Disposal", LibraryRandom.RandDec(100, 2));
+        FADepreciationBook.Modify(true);
     end;
 
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FixedAsset: Record "Fixed Asset")
@@ -1918,12 +1912,10 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 
     local procedure FindAccountingPeriod(var AccountingPeriod: Record "Accounting Period")
     begin
-        with AccountingPeriod do begin
-            SetRange("New Fiscal Year", false);
-            SetRange(Closed, false);
-            SetRange("Date Locked", false);
-            FindFirst();
-        end;
+        AccountingPeriod.SetRange("New Fiscal Year", false);
+        AccountingPeriod.SetRange(Closed, false);
+        AccountingPeriod.SetRange("Date Locked", false);
+        AccountingPeriod.FindFirst();
     end;
 
     local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
@@ -2070,24 +2062,22 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         FAJournalSetup.Get(DepreciationBookCode, '');
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
-            SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-            FindSet();
-            GenJournalBatch.Get("Journal Template Name", "Journal Batch Name");
-            if CountPostDepreciationNumber <= 1 then begin
-                GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
-                GenJournalBatch.Modify(true);
-            end;
-            DocumentNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series");
-            repeat
-                Validate("Document No.", DocumentNo);
-                Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");
-                Validate("FA Posting Date", "Posting Date");
-                Validate("Bal. Account No.", GLAccount."No.");
-                Modify(true);
-            until Next() = 0;
+        GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
+        GenJournalLine.FindSet();
+        GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
+        if CountPostDepreciationNumber <= 1 then begin
+            GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
+            GenJournalBatch.Modify(true);
         end;
+        DocumentNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series");
+        repeat
+            GenJournalLine.Validate("Document No.", DocumentNo);
+            GenJournalLine.Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");
+            GenJournalLine.Validate("FA Posting Date", GenJournalLine."Posting Date");
+            GenJournalLine.Validate("Bal. Account No.", GLAccount."No.");
+            GenJournalLine.Modify(true);
+        until GenJournalLine.Next() = 0;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -2153,14 +2143,12 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     var
         DefaultDimension: Record "Default Dimension";
     begin
-        with DefaultDimension do begin
-            Init();
-            Validate("Table ID", DATABASE::"Fixed Asset");
-            Validate("No.", FixedAsset."No.");
-            Validate("Dimension Code", DimensionCode);
-            Validate("Dimension Value Code", DimensionValue);
-            Insert();
-        end;
+        DefaultDimension.Init();
+        DefaultDimension.Validate("Table ID", DATABASE::"Fixed Asset");
+        DefaultDimension.Validate("No.", FixedAsset."No.");
+        DefaultDimension.Validate("Dimension Code", DimensionCode);
+        DefaultDimension.Validate("Dimension Value Code", DimensionValue);
+        DefaultDimension.Insert();
     end;
 
     local procedure UpdateMaintenanceOnFixedAsset(var FixedAsset: Record "Fixed Asset")
@@ -2183,11 +2171,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 
     local procedure UpdateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book")
     begin
-        with FADepreciationBook do begin
-            Validate("Depreciation Method", "Depreciation Method"::"Declining-Balance 1");
-            Validate("Declining-Balance %", LibraryRandom.RandDec(10, 2));
-            Modify(true);
-        end;
+        FADepreciationBook.Validate("Depreciation Method", FADepreciationBook."Depreciation Method"::"Declining-Balance 1");
+        FADepreciationBook.Validate("Declining-Balance %", LibraryRandom.RandDec(10, 2));
+        FADepreciationBook.Modify(true);
     end;
 
     local procedure UpdateFAJournalSetup(var FAJournalSetup: Record "FA Journal Setup")
@@ -2211,19 +2197,17 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         AccountingPeriod: Record "Accounting Period";
         Month: Integer;
     begin
-        with AccountingPeriod do begin
-            ModifyAll("Date Locked", false);
-            Month := LibraryRandom.RandIntInRange(3, 7);
-            if Month mod 2 = 0 then
-                Month += 1;
-            NewDate := DMY2Date(31, Month, Date2DMY(WorkDate(), 3));
-            Validate("Starting Date", NewDate);
-            if not Get("Starting Date") then
-                Insert(true);
-            Commit();
-            Next(-1);
-            NoOfDays := NewDate - "Starting Date";
-        end;
+        AccountingPeriod.ModifyAll("Date Locked", false);
+        Month := LibraryRandom.RandIntInRange(3, 7);
+        if Month mod 2 = 0 then
+            Month += 1;
+        NewDate := DMY2Date(31, Month, Date2DMY(WorkDate(), 3));
+        AccountingPeriod.Validate("Starting Date", NewDate);
+        if not AccountingPeriod.Get(AccountingPeriod."Starting Date") then
+            AccountingPeriod.Insert(true);
+        Commit();
+        AccountingPeriod.Next(-1);
+        NoOfDays := NewDate - AccountingPeriod."Starting Date";
     end;
 
     local procedure VerifyFAProjectedValueTotal(FADepreciationBook: Record "FA Depreciation Book"; FADepreciationBook2: Record "FA Depreciation Book")
@@ -2403,11 +2387,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     var
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        with GLBudgetEntry do begin
-            SetRange("Budget Name", BudgetName);
-            SetRange("Budget Dimension 1 Code", DimensionValue);
-            Assert.IsFalse(IsEmpty, GLBudgetEntryNotFoundErr);
-        end;
+        GLBudgetEntry.SetRange("Budget Name", BudgetName);
+        GLBudgetEntry.SetRange("Budget Dimension 1 Code", DimensionValue);
+        Assert.IsFalse(GLBudgetEntry.IsEmpty, GLBudgetEntryNotFoundErr);
     end;
 
     local procedure VerifyGLBudgetEntryDate(GLBudgetNameName: Code[20]; AccPeriodDate: Date)

@@ -347,8 +347,11 @@ table 5200 Employee
             TableRelation = Resource where(Type = const(Person));
 
             trigger OnValidate()
+            var
+                [SecurityFiltering(SecurityFilter::Ignored)]
+                Resource: Record Resource;
             begin
-                if ("Resource No." <> '') and Res.WritePermission then begin
+                if ("Resource No." <> '') and Resource.WritePermission then begin
                     CheckIfAnEmployeeIsLinkedToTheResource("Resource No.");
                     EmployeeResUpdate.ResUpdate(Rec);
                 end;
@@ -728,6 +731,7 @@ table 5200 Employee
 
     trigger OnModify()
     var
+        Resource: Record Resource;
         IsHandled: Boolean;
     begin
         "Last Modified Date Time" := CurrentDateTime;
@@ -736,7 +740,7 @@ table 5200 Employee
         IsHandled := false;
         OnModifyOnBeforeEmployeeResourceUpdate(Rec, xRec, IsHandled);
         if not IsHandled then
-            if Res.ReadPermission then
+            if Resource.ReadPermission() then
                 EmployeeResUpdate.HumanResToRes(xRec, Rec);
 
         IsHandled := false;
@@ -759,7 +763,6 @@ table 5200 Employee
 
     var
         HumanResSetup: Record "Human Resources Setup";
-        Res: Record Resource;
         PostCode: Record "Post Code";
         AlternativeAddr: Record "Alternative Address";
         EmployeeQualification: Record "Employee Qualification";
@@ -778,8 +781,16 @@ table 5200 Employee
         EmployeeLinkedToResourceErr: Label 'You cannot link multiple employees to the same resource. Employee %1 is already linked to that resource.', Comment = '%1 = employee no.';
         EmpVendUpdate: Codeunit "EmployeeVendor-Update";
         NameInitialsTok: Label '%1 %2', Comment = '%1 - name, %2 - initials', Locked = true;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 format must be xxx-xxx-xxx xx.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Incorrect checksum for %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
 

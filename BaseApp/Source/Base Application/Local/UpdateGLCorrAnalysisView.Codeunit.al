@@ -17,11 +17,31 @@
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Do you want to update %1 %2?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Analysis View     #1############################\\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'Updating table    #2############################\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'Speed: (Entries/s)#4########\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label 'Average Speed     #5########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLCorrAnalysisView: Record "G/L Corr. Analysis View";
         GLCorrEntry: Record "G/L Correspondence Entry";
         GLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry";
@@ -46,9 +66,17 @@
         WinTime0: Time;
         WinTime1: Time;
         WinTime2: Time;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text009: Label '#6############### @3@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text010: Label 'Summarizing';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text011: Label 'Updating Database';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure UpdateAll(DirectlyFromPosting: Boolean)
@@ -321,9 +349,9 @@
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast() then begin
+                        if AccountingPeriod.FindLast() then
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
-                        end else
+                        else
                             PrevCalculatedPostingDate := PostingDate;
                     end;
                     PostingDate := PrevCalculatedPostingDate;

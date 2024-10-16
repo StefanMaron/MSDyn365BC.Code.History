@@ -668,25 +668,21 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
 
     local procedure UpdateVATPostingSetupFullVAT(var VATPostingSetup: Record "VAT Posting Setup"; GLAccountNo: Code[20])
     begin
-        with VATPostingSetup do begin
-            "VAT %" := VATLedgerMgt.GetVATPctRate2019();
-            "Purchase VAT Account" := GLAccountNo;
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Full VAT");
-            Modify(true);
-        end;
+        VATPostingSetup."VAT %" := VATLedgerMgt.GetVATPctRate2019();
+        VATPostingSetup."Purchase VAT Account" := GLAccountNo;
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Full VAT");
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure UpdateVATPostingSetupVATAgent(var VATPostingSetup: Record "VAT Posting Setup"; GLAccountNo: Code[20]; ManualVATSettlement: Boolean)
     begin
-        with VATPostingSetup do begin
-            "VAT %" := VATLedgerMgt.GetVATPctRate2019();
-            "Purchase VAT Account" := GLAccountNo;
-            "Purch. VAT Unreal. Account" := GLAccountNo;
-            "Unrealized VAT Type" := "Unrealized VAT Type"::Percentage;
-            "Manual VAT Settlement" := ManualVATSettlement;
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            Modify(true);
-        end;
+        VATPostingSetup."VAT %" := VATLedgerMgt.GetVATPctRate2019();
+        VATPostingSetup."Purchase VAT Account" := GLAccountNo;
+        VATPostingSetup."Purch. VAT Unreal. Account" := GLAccountNo;
+        VATPostingSetup."Unrealized VAT Type" := VATPostingSetup."Unrealized VAT Type"::Percentage;
+        VATPostingSetup."Manual VAT Settlement" := ManualVATSettlement;
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure FindVATProdPostingGroup(var VATPostingSetup: Record "VAT Posting Setup"; VendorNo: Code[20])
@@ -769,23 +765,19 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
 
     local procedure UpdateCorrectionInfo(var PurchHeader: Record "Purchase Header"; CorrType: Option; CorrDocType: Option; CorrDocNo: Code[20])
     begin
-        with PurchHeader do begin
-            Validate("Corrective Document", true);
-            Validate("Corrective Doc. Type", CorrType);
-            Validate("Corrected Doc. Type", CorrDocType);
-            Validate("Corrected Doc. No.", CorrDocNo);
-            Modify(true);
-        end;
+        PurchHeader.Validate("Corrective Document", true);
+        PurchHeader.Validate("Corrective Doc. Type", CorrType);
+        PurchHeader.Validate("Corrected Doc. Type", CorrDocType);
+        PurchHeader.Validate("Corrected Doc. No.", CorrDocNo);
+        PurchHeader.Modify(true);
     end;
 
     local procedure UpdateRevisionInfo(var PurchHeader: Record "Purchase Header"; CorrDocType: Option; CorrDocNo: Code[20])
     begin
-        with PurchHeader do begin
-            UpdateCorrectionInfo(PurchHeader, "Corrective Doc. Type"::Revision, CorrDocType, CorrDocNo);
-            Validate("Revision No.", LibraryUtility.GenerateGUID());
-            Validate("Posting Date", CalcDate('<1D>', WorkDate()));
-            Modify(true);
-        end;
+        UpdateCorrectionInfo(PurchHeader, PurchHeader."Corrective Doc. Type"::Revision, CorrDocType, CorrDocNo);
+        PurchHeader.Validate("Revision No.", LibraryUtility.GenerateGUID());
+        PurchHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate()));
+        PurchHeader.Modify(true);
     end;
 
     local procedure UpdateCurrExchRateWithRelationalCurrCode(CurrCode: Code[10]; RelationalCurrCode: Code[10])
@@ -1115,26 +1107,22 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
 
     local procedure GetSalesInvHeader(CustomerNo: Code[20]; var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
-        with SalesInvoiceHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            SetRange("Prepayment Invoice", false);
-            FindFirst();
-            CalcFields("Amount Including VAT", Amount);
-        end;
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesInvoiceHeader.SetRange("Prepayment Invoice", false);
+        SalesInvoiceHeader.FindFirst();
+        SalesInvoiceHeader.CalcFields("Amount Including VAT", Amount);
     end;
 
     local procedure GetCustPrepaymentAmount(CustomerNo: Code[20]): Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange(Prepayment, true);
-            SetRange("Document Type", "Document Type"::Payment);
-            FindFirst();
-            CalcFields(Amount);
-            exit(Abs(Amount));
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange(Prepayment, true);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields(Amount);
+        exit(Abs(CustLedgerEntry.Amount));
     end;
 
     local procedure GetExpectedPrepaymentPurchVATLedgerAmountFCY(PaymentAmount: Decimal; VATPct: Decimal): Decimal
@@ -1146,12 +1134,10 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Bill-to/Pay-to No.", VendorNo);
-            SetFilter("Unrealized Amount", '<>0');
-            if FindLast() then
-                exit(Amount + "Unrealized Amount");
-        end;
+        VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        VATEntry.SetFilter("Unrealized Amount", '<>0');
+        if VATEntry.FindLast() then
+            exit(VATEntry.Amount + VATEntry."Unrealized Amount");
     end;
 
     local procedure PurchVATLedgerAddSheetTwoPeriodsScenario(var VendorNo: Code[20]; var InvNo: array[2] of Code[20])
@@ -1348,15 +1334,13 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         ExpectedValue: Text;
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document Type", "Document Type"::Payment);
-            FindSet();
-            repeat
-                ExpectedValue += "External Document No." + SemicolonTok + Format("Posting Date") + SemicolonTok;
-            until Next() = 0;
-            ExpectedValue := DelChr(ExpectedValue, '>', SemicolonTok);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.FindSet();
+        repeat
+            ExpectedValue += VendorLedgerEntry."External Document No." + SemicolonTok + Format(VendorLedgerEntry."Posting Date") + SemicolonTok;
+        until VendorLedgerEntry.Next() = 0;
+        ExpectedValue := DelChr(ExpectedValue, '>', SemicolonTok);
 
         LibraryReportValidation.VerifyCellValue(19, 50, ExpectedValue);
     end;

@@ -275,8 +275,10 @@ report 910 "Posted Assembly Order"
         DimensionSetEntry1: Record "Dimension Set Entry";
         DimensionSetEntry2: Record "Dimension Set Entry";
         CompName: Text;
+#pragma warning disable AA0074
         FalseText: Label 'No';
         TrueText: Label 'Yes';
+#pragma warning restore AA0074
         DateConstant: Text;
         PostingDateConstant: Text;
         ShowInternalInfo: Boolean;

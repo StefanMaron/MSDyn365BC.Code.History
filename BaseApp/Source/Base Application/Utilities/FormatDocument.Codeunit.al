@@ -47,7 +47,7 @@ codeunit 368 "Format Document"
         // The function generated a string containg all filters applied to a record.
         // It is used mainly in reports to demonstrate which filters were used when the generating the report.
         // </summary>
-        // <param name="RecVariant">Variant hodling the record to check</param>
+        // <param name="RecVariant">Variant holding the record to check</param>
         // <returns>Text representation of all field filter applied to a record</returns>
 
         RecRef.GetTable(RecVariant);
@@ -311,6 +311,72 @@ codeunit 368 "Format Document"
           FormattedQuantity, FormattedUnitPrice, FormattedVATPercentage, FormattedLineAmount, CommentLine);
     end;
 
+    // <summary>
+    // The function determines whether a line passed as Variant should be hidden in the printout.
+    // It is used mainly in reports in order to hide lines for which the Quantity equals to 0.
+    // </summary>
+    // <param name="HideLinesWithZeroQuantity">Variant holding the boolean value whether the lines with quantity equal to zero should be printed</param>
+    // <param name="RecordVariant">Variant holding the record to check</param>
+    // <param name="QuantityFieldId">represents the field id for Quantity from RecordVariant</param>
+    // <returns>true if Line lines should be hidden in the printout</returns>
+    procedure HideDocumentLine(HideLinesWithZeroQuantity: Boolean; RecordVariant: Variant; QuantityFieldId: Integer) HideLine: Boolean
+    begin
+        if HideLinesWithZeroQuantity then
+            HideLine := IsLineWithZeroQuantity(RecordVariant, QuantityFieldId)
+        else
+            HideLine := false;
+        OnAfterHideDocumentLine(HideLinesWithZeroQuantity, RecordVariant, QuantityFieldId, HideLine);
+    end;
+
+    // <summary>
+    // The function determines whether a line passed as Variant has Quantity equal to 0.
+    // It is used mainly in reports in order to skip the lines for which the Quantity equals to 0.
+    // The function can be used for all line tables that have the same id for following fields:
+    // "Line No." - id = 4
+    // Type - id = 5
+    // "Attached to Line No." - id = 80
+    // local variable TempSalesLine is used in order to improve readibility and clarity.
+    // </summary>
+    // <param name="RecordVariant">Variant holding the record to check</param>
+    // <param name="QuantityFieldId">represents the field id for Quantity from RecordVariant</param>
+    // <returns>true if Line has 0 in the quantity field represented by QuantityFieldId</returns>
+    procedure IsLineWithZeroQuantity(RecordVariant: Variant; QuantityFieldId: Integer): Boolean
+    var
+        TempSalesLine: Record "Sales Line" temporary;
+        RecRef: RecordRef;
+        ParentRecRef: RecordRef;
+        LineNo: Integer;
+        LineType: Enum "Sales Line Type";
+        ParentLineType: Enum "Sales Line Type";
+        Quantity: Decimal;
+        ParentQuantity: Decimal;
+        AttachedToLineNo: Integer;
+    begin
+        RecRef.GetTable(RecordVariant);
+        LineNo := RecRef.Field(TempSalesLine.FieldNo("Line No.")).Value;
+        LineType := RecRef.Field(TempSalesLine.FieldNo(Type)).Value;
+        Quantity := RecRef.Field(QuantityFieldId).Value;
+        AttachedToLineNo := RecRef.Field(TempSalesLine.FieldNo("Attached to Line No.")).Value;
+        case true of
+            (Quantity = 0) and (LineType <> LineType::" "):
+                exit(true);
+            (LineType = LineType::" ") and (AttachedToLineNo <> 0):
+                begin
+                    ParentRecRef.Open(RecRef.Number);
+                    ParentRecRef.Copy(RecRef);
+                    ParentRecRef.SetRecFilter();
+                    ParentRecRef.Field(TempSalesLine.FieldNo("Line No.")).SetFilter(Format(AttachedToLineNo));
+                    if ParentRecRef.FindFirst() then begin
+                        ParentLineType := ParentRecRef.Field(TempSalesLine.FieldNo(Type)).Value;
+                        ParentQuantity := ParentRecRef.Field(QuantityFieldId).Value;
+                        exit((ParentQuantity = 0) and (ParentLineType <> ParentLineType::" "));
+                    end;
+                end;
+            else
+                exit(false);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSalesPurchaseLine(Quantity: Decimal; UnitPrice: Decimal; VATPercentage: Decimal; LineAmount: Decimal; CurrencyCode: Code[10]; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; CommentLine: Boolean)
     begin
@@ -363,6 +429,11 @@ codeunit 368 "Format Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHideDocumentLine(HideLinesWithZeroQuantity: Boolean; RecordVariant: Variant; QuantityFieldId: Integer; var HideLine: Boolean)
     begin
     end;
 }

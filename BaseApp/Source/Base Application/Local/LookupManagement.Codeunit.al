@@ -6,11 +6,23 @@ codeunit 17209 "Lookup Management"
     end;
 
     var
+#pragma warning disable AA0074
         Text1001: Label ' - Option List';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1003: Label 'Description';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1004: Label 'Name';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1010: Label 'Illegal using of symbol `point`.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1011: Label 'Illegal Value\%1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure BuildLookupBuffer(var TempLookupBuffer: Record "Lookup Buffer" temporary; TableID: Integer; FieldID: Integer)

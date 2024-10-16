@@ -58,7 +58,7 @@ table 26560 "Requisite Expression Line"
         }
         field(28; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup(Field.FieldName where(TableNo = field("Table ID"),
+            CalcFormula = lookup(Field.FieldName where(TableNo = field("Table ID"),
                                                         "No." = field("Field ID")));
             Caption = 'Field Name';
             Editable = false;

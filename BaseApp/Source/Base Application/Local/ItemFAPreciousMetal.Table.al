@@ -24,7 +24,7 @@ table 12474 "Item/FA Precious Metal"
         }
         field(4; Name; Text[100])
         {
-            CalcFormula = Lookup ("Precious Metal".Name where(Code = field("Precious Metals Code")));
+            CalcFormula = lookup("Precious Metal".Name where(Code = field("Precious Metals Code")));
             Caption = 'Name';
             FieldClass = FlowField;
         }

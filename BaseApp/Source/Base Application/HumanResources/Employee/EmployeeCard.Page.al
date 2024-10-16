@@ -6,7 +6,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.HumanResources.Absence;
-using Microsoft.HumanResources.Analysis; 
+using Microsoft.HumanResources.Analysis;
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Payables;
 using Microsoft.Utilities;
@@ -339,10 +339,23 @@ page 5200 "Employee Card"
                 ApplicationArea = BasicHR;
                 SubPageLink = "No." = field("No.");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Employee),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Employee),
                               "No." = field("No.");
             }
@@ -498,7 +511,7 @@ page 5200 "Employee Card"
                     RunObject = Page "Employee Ledger Entries";
                     RunPageLink = "Employee No." = field("No.");
                     RunPageView = sorting("Employee No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -739,7 +752,9 @@ page 5200 "Employee Card"
         IsCountyVisible: Boolean;
         NewMode: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to create Resp. Employee?';
+#pragma warning restore AA0074
 
     local procedure SetNoFieldVisible()
     var

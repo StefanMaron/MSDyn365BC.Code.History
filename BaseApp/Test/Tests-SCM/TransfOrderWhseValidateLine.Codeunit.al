@@ -98,7 +98,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
     begin
         ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, TransferHeader.TableCaption());
 
-        TransferOrderDelLines(false, ExpectedErrorMessage);
+        TransferOrderDelLines(false);
     end;
 
     [Test]
@@ -112,7 +112,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         ExpectedErrorMessage := StrSubstNo(ErrCannotBeDeleted,
             TransferLine.TableCaption(), WhseShptLine.TableCaption());
 
-        TransferOrderDelLines(true, ExpectedErrorMessage);
+        TransferOrderDelLines(true);
     end;
 
     local procedure LocationSetup(var Location: Record Location)
@@ -204,7 +204,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         ClearLastError();
     end;
 
-    local procedure TransferOrderDelLines(Reopen: Boolean; ExpectedErrorMessage: Text[1024])
+    local procedure TransferOrderDelLines(Reopen: Boolean)
     var
         Item: Record Item;
         TransferLine: Record "Transfer Line";
@@ -222,8 +222,9 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         end;
 
         asserterror TransferLine.DeleteAll(true);
-        if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
-            Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
+
+        if not Reopen then
+            Assert.ExpectedTestFieldError(TransferHeader.FieldCaption(Status), Format(TransferHeader.Status::Open));
         ClearLastError();
     end;
 

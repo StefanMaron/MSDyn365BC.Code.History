@@ -18,9 +18,6 @@ using Microsoft.FixedAssets.Ledger;
 using Microsoft.FixedAssets.Maintenance;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.NoSeries;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
 using Microsoft.Projects.Project.Ledger;
@@ -91,9 +88,7 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Default VAT Date';
         }
-#pragma warning disable AL0842
         field(8; "VAT Reporting Date Usage"; Enum "VAT Reporting Date Usage")
-#pragma warning restore AL0842
         {
             Caption = 'VAT Date Usage';
 
@@ -356,12 +351,6 @@ table 98 "General Ledger Setup"
                     if not AdjAddReportingCurr.IsExecuted() then
                         "Additional Reporting Currency" := xRec."Additional Reporting Currency";
                 end;
-#if not CLEAN22
-                if ("Additional Reporting Currency" <> xRec."Additional Reporting Currency") and
-                   AdjAddReportingCurr.IsExecuted()
-                then
-                    DeleteIntrastatJnl();
-#endif
                 if ("Additional Reporting Currency" <> xRec."Additional Reporting Currency") and
                    ("Additional Reporting Currency" <> '') and
                    AdjAddReportingCurr.IsExecuted()
@@ -635,13 +624,9 @@ table 98 "General Ledger Setup"
             Caption = 'Account Schedule for Balance Sheet';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -652,13 +637,9 @@ table 98 "General Ledger Setup"
             Caption = 'Account Schedule for Income Stmt.';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -669,13 +650,9 @@ table 98 "General Ledger Setup"
             Caption = 'Account Schedule for Cash Flow Stmt';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -686,13 +663,9 @@ table 98 "General Ledger Setup"
             Caption = 'Account Schedule for Retained Earn.';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -916,7 +889,7 @@ table 98 "General Ledger Setup"
             TableRelation = "G/L Account Category";
             Caption = 'Account Receivables G/L Account Category';
         }
-	    field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
         {
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
@@ -1085,18 +1058,56 @@ table 98 "General Ledger Setup"
         ErrorMessage: Boolean;
         RecordHasBeenRead: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 %3 have %4 to %5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 %2 have %3 to %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 %2 %3 use %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 %2 use %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label '%1 must be rounded to the nearest %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text016: Label 'Enter one number or two numbers separated by a colon. ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text017: Label 'The online Help for this field describes how you can fill in the field.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text018: Label 'You cannot change the contents of the %1 field because there are posted ledger entries.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text021: Label 'You must close the program and start again in order to activate the amount-rounding feature.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text022: Label 'You must close the program and start again in order to activate the unit-amount rounding feature.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text023: Label '%1\You cannot use the same dimension twice in the same setup.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
+#pragma warning restore AA0470
         ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
@@ -1217,23 +1228,6 @@ table 98 "General Ledger Setup"
         if ErrorMessage then
             Error(Text018, NameOfField);
     end;
-
-#if not CLEAN22
-    local procedure DeleteIntrastatJnl()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        IntrastatJnlBatch.SetRange(Reported, false);
-        IntrastatJnlBatch.SetRange("Amounts in Add. Currency", true);
-        if IntrastatJnlBatch.Find('-') then
-            repeat
-                IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
-                IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-                IntrastatJnlLine.DeleteAll();
-            until IntrastatJnlBatch.Next() = 0;
-    end;
-#endif
 
     local procedure DeleteAnalysisView()
     begin

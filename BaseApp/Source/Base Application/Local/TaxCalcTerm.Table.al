@@ -120,7 +120,11 @@ table 17311 "Tax Calc. Term"
     var
         TaxCalcTermFormula: Record "Tax Calc. Term Formula";
         TaxCalcSection: Record "Tax Calc. Section";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000900: Label 'Delete linked line %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure GenerateProfile()

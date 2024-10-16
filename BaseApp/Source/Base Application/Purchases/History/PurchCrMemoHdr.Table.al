@@ -490,6 +490,11 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'VAT Date';
             Editable = false;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -720,7 +725,9 @@ table 124 "Purch. Cr. Memo Hdr."
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
         DocSignMgt: Codeunit "Doc. Signature Management";
+#pragma warning disable AA0074
         Text12400: Label 'Length of the Document No. filter should not exceed 1024.';
+#pragma warning restore AA0074
 
     procedure PrintRecords(ShowRequestPage: Boolean)
     var
@@ -820,13 +827,12 @@ table 124 "Purch. Cr. Memo Hdr."
                         I := I + 1;
                         if I = 1 then
                             DocNoFilter := ReturnShipmentHeader."No."
-                        else begin
+                        else
                             if StrPos('|' + DocNoFilter + '|', '|' + ReturnShipmentHeader."No." + '|') = 0 then
                                 if (StrLen(DocNoFilter) + StrLen(ReturnShipmentHeader."No.")) < MaxStrLen(DocNoFilter) then
                                     DocNoFilter := DocNoFilter + '|' + ReturnShipmentHeader."No."
                                 else
                                     Error(Text12400);
-                        end;
                     until ValueEntry.Next() = 0;
             until PurchCrMemoLine.Next() = 0;
         if DocNoFilter = '' then

@@ -319,16 +319,26 @@ report 17305 "Create Tax Diff. for Disp. FE"
         Choice: array[4] of Boolean;
         Periodicity: Option Month,Quarter,Year;
         AccountPeriod: Text[30];
+#pragma warning disable AA0074
         Text001: Label 'Please enter a journal template name.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'Please enter a journal batch name.';
+#pragma warning restore AA0074
         DocumentNo: Code[20];
         PostingDescription: Text[50];
         TemplateName: Code[10];
         BatchName: Code[10];
         BookValueOnDisposal: Decimal;
         AcquisitionCost: Decimal;
+#pragma warning disable AA0074
         Text12411: Label 'DT-';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12410: Label '%1 %2 FE Tax Deferrals';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxBookValueOnDisposal: Decimal;
         TaxAcquisitionCost: Decimal;
 

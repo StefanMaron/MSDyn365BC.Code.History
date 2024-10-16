@@ -28,7 +28,7 @@ table 12405 "VAT Ledger Line"
         {
             Caption = 'C/V No.';
             TableRelation = if ("C/V Type" = const(Vendor)) Vendor
-            ELSE
+            else
             if ("C/V Type" = const(Customer)) Customer;
         }
         field(5; "C/V Name"; Text[250])
@@ -396,7 +396,7 @@ table 12405 "VAT Ledger Line"
         DetailedVendorLedgEntry.SetRange(Unapplied, false);
         DetailedVendorLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
-        if DetailedVendorLedgEntry.FindSet() then begin
+        if DetailedVendorLedgEntry.FindSet() then
             repeat
                 if DetailedVendorLedgEntry."Vendor Ledger Entry No." =
                    DetailedVendorLedgEntry."Applied Vend. Ledger Entry No."
@@ -405,7 +405,7 @@ table 12405 "VAT Ledger Line"
                       "Applied Vend. Ledger Entry No.", DetailedVendorLedgEntry."Applied Vend. Ledger Entry No.");
                     DetailedVendorLedgEntryPayment.SetRange("Entry Type", DetailedVendorLedgEntryPayment."Entry Type"::Application);
                     DetailedVendorLedgEntryPayment.SetRange(Unapplied, false);
-                    if DetailedVendorLedgEntryPayment.FindSet() then begin
+                    if DetailedVendorLedgEntryPayment.FindSet() then
                         repeat
                             if DetailedVendorLedgEntryPayment."Vendor Ledger Entry No." <>
                                DetailedVendorLedgEntryPayment."Applied Vend. Ledger Entry No."
@@ -415,14 +415,12 @@ table 12405 "VAT Ledger Line"
                                     TempVendorLedgerEntry.Insert();
                                 end;
                         until DetailedVendorLedgEntryPayment.Next() = 0;
-                    end;
                 end else
                     if VendorLedgerEntryPayment.Get(DetailedVendorLedgEntry."Applied Vend. Ledger Entry No.") then begin
                         TempVendorLedgerEntry := VendorLedgerEntryPayment;
                         TempVendorLedgerEntry.Insert();
                     end;
             until DetailedVendorLedgEntry.Next() = 0;
-        end;
     end;
 
     [Scope('OnPrem')]

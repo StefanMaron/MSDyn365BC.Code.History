@@ -79,28 +79,106 @@ codeunit 5631 "FA Jnl.-Check Line"
         FAPostingType: Enum "FA Journal Line FA Posting Type";
         FieldErrorText: Text[250];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'is not different than %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 and %2 must not both be %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'must not be %1 when %2 or %3 are %4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'can only be a closing date for G/L entries';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'is not within your range of allowed posting dates';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'must be identical to %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'must not be a %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label '%1 must be posted in the general journal';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 must be posted in the FA journal';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text009: Label 'must not be specified when %1 = %2 in %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text010: Label 'must not be specified when %1 is specified';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text011: Label 'must not be specified together with %1 = %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text012: Label 'must not be specified when %1 is a %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text013: Label 'is a %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text014: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text015: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text016: Label '%1 + %2 must be %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text017: Label '%1 + %2 must be -%3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text018: Label 'You cannot dispose Main Asset %1 until Components are disposed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Text019Err: Label 'You cannot post depreciation, because the calculation is across different fiscal year periods, which is not supported.';
+#pragma warning disable AA0074
         Text12400: Label 'Previous periods Depreciation wasn''t calculated.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12401: Label 'Fixed Asset No. %1 has been already purchased.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CheckFAJnlLine(var FAJournalLine: Record "FA Journal Line")
     var

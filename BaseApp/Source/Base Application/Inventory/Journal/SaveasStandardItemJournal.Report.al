@@ -97,8 +97,12 @@ report 751 "Save as Standard Item Journal"
         SaveQuantity: Boolean;
         StdJournalCreated: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter a code for Standard Item Journal.';
+#pragma warning disable AA0470
         Text001: Label 'Standard Item Journal %1 already exists. Do you want to overwrite?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Initialise(var SelectedItemJnlLines: Record "Item Journal Line"; SelectedItemJnlBatch: Record "Item Journal Batch")
     begin

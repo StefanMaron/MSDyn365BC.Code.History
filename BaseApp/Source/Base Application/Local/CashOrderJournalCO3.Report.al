@@ -162,7 +162,9 @@ report 12463 "Cash Order Journal CO-3"
         I: Integer;
         K: Integer;
         Idx: array[2] of Integer;
+#pragma warning disable AA0470
         PageTxt: Label 'Page %1';
+#pragma warning restore AA0470
         Year: Integer;
 
     local procedure StartingDateOnAfterValidate()

@@ -7,9 +7,21 @@ codeunit 12418 "VAT Reinstatement Management"
 
     var
         VATDocEntryBuffer: Record "VAT Document Entry Buffer";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'The %1 must not be more than %2 in %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'The %1 must not be less than %2 in %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'VAT has been already reinstated for %1 %2=%3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
 
     [Scope('OnPrem')]

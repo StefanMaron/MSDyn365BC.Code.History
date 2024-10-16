@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -524,6 +524,11 @@ table 122 "Purch. Inv. Header"
             Caption = 'VAT Date';
             Editable = false;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -693,7 +698,7 @@ table 122 "Purch. Inv. Header"
         }
         field(12470; "Vendor Receipts No."; Code[20])
         {
-            CalcFormula = Lookup("Vendor Ledger Entry"."Vendor Receipts No." where("Vendor No." = field("Pay-to Vendor No."),
+            CalcFormula = lookup("Vendor Ledger Entry"."Vendor Receipts No." where("Vendor No." = field("Pay-to Vendor No."),
                                                                                     "Document Type" = const(Invoice),
                                                                                     "Document No." = field("No."),
                                                                                     "Posting Date" = field("Posting Date")));
@@ -708,7 +713,7 @@ table 122 "Purch. Inv. Header"
         }
         field(12471; "Vendor Receipts Date"; Date)
         {
-            CalcFormula = Lookup("Vendor Ledger Entry"."Vendor Receipts Date" where("Vendor No." = field("Pay-to Vendor No."),
+            CalcFormula = lookup("Vendor Ledger Entry"."Vendor Receipts Date" where("Vendor No." = field("Pay-to Vendor No."),
                                                                                      "Document Type" = const(Invoice),
                                                                                      "Document No." = field("No."),
                                                                                      "Posting Date" = field("Posting Date")));
@@ -723,7 +728,7 @@ table 122 "Purch. Inv. Header"
         }
         field(12472; "Vendor VAT Invoice Date"; Date)
         {
-            CalcFormula = Lookup("Vendor Ledger Entry"."Vendor VAT Invoice Date" where("Vendor No." = field("Pay-to Vendor No."),
+            CalcFormula = lookup("Vendor Ledger Entry"."Vendor VAT Invoice Date" where("Vendor No." = field("Pay-to Vendor No."),
                                                                                         "Document Type" = const(Invoice),
                                                                                         "Document No." = field("No."),
                                                                                         "Posting Date" = field("Posting Date")));
@@ -738,7 +743,7 @@ table 122 "Purch. Inv. Header"
         }
         field(12473; "Vendor VAT Invoice Rcvd Date"; Date)
         {
-            CalcFormula = Lookup("Vendor Ledger Entry"."Vendor VAT Invoice Rcvd Date" where("Vendor No." = field("Pay-to Vendor No."),
+            CalcFormula = lookup("Vendor Ledger Entry"."Vendor VAT Invoice Rcvd Date" where("Vendor No." = field("Pay-to Vendor No."),
                                                                                              "Document Type" = const(Invoice),
                                                                                              "Document No." = field("No."),
                                                                                              "Posting Date" = field("Posting Date")));
@@ -753,7 +758,7 @@ table 122 "Purch. Inv. Header"
         }
         field(12474; "Vendor VAT Invoice No."; Code[30])
         {
-            CalcFormula = Lookup("Vendor Ledger Entry"."Vendor VAT Invoice No." where("Vendor No." = field("Pay-to Vendor No."),
+            CalcFormula = lookup("Vendor Ledger Entry"."Vendor VAT Invoice No." where("Vendor No." = field("Pay-to Vendor No."),
                                                                                        "Document Type" = const(Invoice),
                                                                                        "Document No." = field("No."),
                                                                                        "Posting Date" = field("Posting Date")));
@@ -859,7 +864,9 @@ table 122 "Purch. Inv. Header"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
         DocSignMgt: Codeunit "Doc. Signature Management";
+#pragma warning disable AA0074
         Text12400: Label 'Length of the Document No. filter should not exceed 1024.';
+#pragma warning restore AA0074
 
     procedure IsFullyOpen(): Boolean
     var
@@ -976,13 +983,12 @@ table 122 "Purch. Inv. Header"
                         I := I + 1;
                         if I = 1 then
                             DocNoFilter := PurchRcptHeader."No."
-                        else begin
+                        else
                             if StrPos('|' + DocNoFilter + '|', '|' + PurchRcptHeader."No." + '|') = 0 then
                                 if (StrLen(DocNoFilter) + StrLen(PurchRcptHeader."No.")) < MaxStrLen(DocNoFilter) then
                                     DocNoFilter := DocNoFilter + '|' + PurchRcptHeader."No."
                                 else
                                     Error(Text12400);
-                        end;
                     until ValueEntry.Next() = 0;
             until PurchInvLine.Next() = 0;
         if DocNoFilter = '' then

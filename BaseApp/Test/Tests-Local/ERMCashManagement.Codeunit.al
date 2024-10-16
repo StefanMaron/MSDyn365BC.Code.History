@@ -18,8 +18,6 @@ codeunit 144700 "ERM Cash Management"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         CopyPayDocDocumentType: Option "Payment order","Ingoing order","Outgoing order";
-        CheckPrintedNotCorrectErr: Label 'Check Printed must be equal to ''Yes''  in Gen. Journal Line:';
-        IncorrectExpectedErr: Label 'Incorrect Expected Error';
         IncorrectFieldValueErr: Label 'Field %1 value is incorrect';
         PaymentCodeErr: Label 'Incorrect Payment Code in table %1.';
 
@@ -44,10 +42,7 @@ codeunit 144700 "ERM Cash Management"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         asserterror CreatePostCashOrder(GenJnlLine."Account Type"::Vendor, CreateVendor(), 1);
-
-        Assert.IsTrue(
-          StrPos(GetLastErrorText, CheckPrintedNotCorrectErr) > 0,
-          IncorrectExpectedErr);
+        Assert.ExpectedTestFieldError(GenJnlLine.FieldCaption("Check Printed"), Format(true));
     end;
 
     [Test]
@@ -140,17 +135,15 @@ codeunit 144700 "ERM Cash Management"
         // Check report Copy Pay Document creates Gen. Jnl. Line. with correct Amount
         Initialize();
         FindGenJournalLine(GenJnlLine);
-        with CheckLedgerEntry do begin
-            Init();
-            RecRef.GetTable(CheckLedgerEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Bank Payment Type" := "Bank Payment Type"::"Computer Check";
-            "Bank Account Type" := "Bank Account Type"::"Bank Account";
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            Amount := LibraryRandom.RandDec(1000, 2);
-            Insert();
-            Commit();
-        end;
+        CheckLedgerEntry.Init();
+        RecRef.GetTable(CheckLedgerEntry);
+        CheckLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, CheckLedgerEntry.FieldNo("Entry No."));
+        CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Computer Check";
+        CheckLedgerEntry."Bank Account Type" := CheckLedgerEntry."Bank Account Type"::"Bank Account";
+        CheckLedgerEntry."Bal. Account Type" := CheckLedgerEntry."Bal. Account Type"::"Bank Account";
+        CheckLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        CheckLedgerEntry.Insert();
+        Commit();
 
         LibraryVariableStorage.Enqueue(CopyPayDocDocumentType::"Payment order");
         LibraryVariableStorage.Enqueue(CheckLedgerEntry."Entry No.");
@@ -328,17 +321,15 @@ codeunit 144700 "ERM Cash Management"
     var
         CashAccount: Record "Bank Account";
     begin
-        with CashAccount do begin
-            Validate("Account Type", "Account Type"::"Cash Account");
-            Validate("Bank Acc. Posting Group", FindBankAccPostGr());
-            Validate("Currency Code", CurrencyCode);
-            Validate("Debit Cash Order No. Series", LibraryERM.CreateNoSeriesCode());
-            Validate("Credit Cash Order No. Series", "Debit Cash Order No. Series");
-            Insert(true);
-            Validate(Name, "No.");
-            Modify(true);
-            exit("No.");
-        end;
+        CashAccount.Validate("Account Type", CashAccount."Account Type"::"Cash Account");
+        CashAccount.Validate("Bank Acc. Posting Group", FindBankAccPostGr());
+        CashAccount.Validate("Currency Code", CurrencyCode);
+        CashAccount.Validate("Debit Cash Order No. Series", LibraryERM.CreateNoSeriesCode());
+        CashAccount.Validate("Credit Cash Order No. Series", CashAccount."Debit Cash Order No. Series");
+        CashAccount.Insert(true);
+        CashAccount.Validate(Name, CashAccount."No.");
+        CashAccount.Modify(true);
+        exit(CashAccount."No.");
     end;
 
     local procedure CreateManualCashOrder(var GenJnlLine: Record "Gen. Journal Line"; AmountSign: Integer)
@@ -401,15 +392,13 @@ codeunit 144700 "ERM Cash Management"
     var
         NoSeries: Codeunit "No. Series";
     begin
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLine(GenJnlLine, TemplateName, BatchName,
-              "Document Type"::Payment, AccountType, AccountNo, AmountSign * LibraryRandom.RandDecInRange(100, 1000, 2));
-            Validate("Bal. Account Type", BalAccType);
-            Validate("Bal. Account No.", BalAccNo);
-            Validate("Document No.", NoSeries.GetNextNo(SeriesNo));
-            Validate("Bank Payment Type", BankPaymType);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine, TemplateName, BatchName,
+            GenJnlLine."Document Type"::Payment, AccountType, AccountNo, AmountSign * LibraryRandom.RandDecInRange(100, 1000, 2));
+        GenJnlLine.Validate("Bal. Account Type", BalAccType);
+        GenJnlLine.Validate("Bal. Account No.", BalAccNo);
+        GenJnlLine.Validate("Document No.", NoSeries.GetNextNo(SeriesNo));
+        GenJnlLine.Validate("Bank Payment Type", BankPaymType);
+        GenJnlLine.Modify(true);
     end;
 
     local procedure FindBankAccPostGr(): Code[20]
@@ -498,11 +487,9 @@ codeunit 144700 "ERM Cash Management"
 
     local procedure FindGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            SetFilter("Journal Batch Name", '<>''''');
-            SetFilter("Journal Template Name", '<>''''');
-            FindLast();
-        end;
+        GenJnlLine.SetFilter("Journal Batch Name", '<>''''');
+        GenJnlLine.SetFilter("Journal Template Name", '<>''''');
+        GenJnlLine.FindLast();
     end;
 
     local procedure CreateBankAccountReconciliation(var BankAccRecon: Record "Bank Acc. Reconciliation"; var PaymentCode: Text)
@@ -514,14 +501,12 @@ codeunit 144700 "ERM Cash Management"
         LibraryERM.CreateBankAccReconciliation(BankAccRecon, BankAccount."No.", "Bank Acc. Rec. Stmt. Type"::"Bank Reconciliation");
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconLine, BankAccRecon);
 
-        with BankAccReconLine do begin
-            Validate("Payment Code", LibraryUtility.GenerateRandomText(MaxStrLen("Payment Code")));
-            Validate("Line Status", "Line Status"::"Contractor Confirmed");
-            Validate("Statement Amount", LibraryRandom.RandInt(100));
-            "Transaction Date" := WorkDate();
-            Modify(true);
-            PaymentCode := "Payment Code";
-        end;
+        BankAccReconLine.Validate("Payment Code", LibraryUtility.GenerateRandomText(MaxStrLen(BankAccReconLine."Payment Code")));
+        BankAccReconLine.Validate("Line Status", BankAccReconLine."Line Status"::"Contractor Confirmed");
+        BankAccReconLine.Validate("Statement Amount", LibraryRandom.RandInt(100));
+        BankAccReconLine."Transaction Date" := WorkDate();
+        BankAccReconLine.Modify(true);
+        PaymentCode := BankAccReconLine."Payment Code";
     end;
 
     local procedure RunTransBankRecToGenJnlReport(var GenJnlTemplateName: Code[10]; var GenJnlBatchName: Code[10]; var BankAccRecon: Record "Bank Acc. Reconciliation")
@@ -559,17 +544,15 @@ codeunit 144700 "ERM Cash Management"
         BankAccount.Validate("Account Type", BankAccount."Account Type"::"Cash Account");
         BankAccount.Modify(true);
 
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, "Document Type"::" ",
-              "Account Type"::"G/L Account", GLAccount."No.",
-              "Bal. Account Type"::"Bank Account", BankAccount."No.",
-              LibraryRandom.RandInt(1000));
-            Validate("Payment Code", LibraryUtility.GenerateRandomText(MaxStrLen("Payment Code")));
-            Validate("Bank Payment Type", "Bank Payment Type"::"Manual Check");
-            Modify(true);
-            PaymentCode := "Payment Code";
-        end;
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Document Type"::" ",
+            GenJnlLine."Account Type"::"G/L Account", GLAccount."No.",
+            GenJnlLine."Bal. Account Type"::"Bank Account", BankAccount."No.",
+            LibraryRandom.RandInt(1000));
+        GenJnlLine.Validate("Payment Code", LibraryUtility.GenerateRandomText(MaxStrLen(GenJnlLine."Payment Code")));
+        GenJnlLine.Validate("Bank Payment Type", GenJnlLine."Bank Payment Type"::"Manual Check");
+        GenJnlLine.Modify(true);
+        PaymentCode := GenJnlLine."Payment Code";
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         exit(GenJnlLine."Document No.");
     end;
@@ -588,12 +571,10 @@ codeunit 144700 "ERM Cash Management"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJnlTemplateName);
-            SetRange("Journal Batch Name", GenJnlBatchName);
-            FindFirst();
-            Assert.AreEqual(PaymentCode, "Payment Code", StrSubstNo(PaymentCodeErr, TableCaption));
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlTemplateName);
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatchName);
+        GenJnlLine.FindFirst();
+        Assert.AreEqual(PaymentCode, GenJnlLine."Payment Code", StrSubstNo(PaymentCodeErr, GenJnlLine.TableCaption));
     end;
 
     local procedure VerifyPostedPaymentCode(DocNo: Code[20]; PaymentCode: Text)

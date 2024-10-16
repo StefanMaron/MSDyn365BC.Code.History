@@ -128,7 +128,7 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
 
                 trigger OnPostDataItem()
                 begin
-                    if not Preview then
+                    if not PreviewReport then
                         CODEUNIT.Run(CODEUNIT::"Sales Cr. Memo-Printed", Header);
                 end;
 
@@ -178,7 +178,7 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
                     KPPCode := Customer."KPP Code";
 
                 if LogInteraction then
-                    if not Preview then begin
+                    if not PreviewReport then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               SalesHeaderType::"Posted Credit Memo", "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -187,7 +187,6 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
                             SegManagement.LogDocument(
                               SalesHeaderType::"Posted Credit Memo", "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
             end;
 
             trigger OnPreDataItem()
@@ -234,7 +233,7 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
                         Caption = 'Log Interaction';
                         ToolTip = 'Specifies that interactions with the related contact are logged.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -304,7 +303,7 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
         CurrencyDigitalCode: Code[3];
         ReportNos: array[4] of Text;
         ReportDates: array[4] of Text;
-        Preview: Boolean;
+        PreviewReport: Boolean;
 
     [Scope('OnPrem')]
     procedure IncrAmount(var TotalAmount: array[3] of Decimal; Amount: Decimal; AmountIncludingVAT: Decimal)
@@ -581,10 +580,9 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
     var
         i: Integer;
     begin
-        for i := 1 to 3 do begin
+        for i := 1 to 3 do
             if LineValues[i] = '' then
                 LineValues[i] := '-';
-        end;
     end;
 }
 

@@ -1119,32 +1119,28 @@ codeunit 144101 "ERM G/L Reports"
 
     local procedure CreateVendorAgreement(var VendorAgreement: Record "Vendor Agreement"; Vendor: Record Vendor)
     begin
-        with VendorAgreement do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Validate("Vendor No.", Vendor."No.");
-            Validate("Expire Date", CalcDate('<1M>', WorkDate()));
-            Validate("Vendor Posting Group", Vendor."Vendor Posting Group");
-            Validate("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
-            Validate("Gen. Bus. Posting Group", Vendor."Gen. Bus. Posting Group");
-            Validate(Active, true);
-            Insert(true);
-        end;
+        VendorAgreement.Init();
+        VendorAgreement."No." := LibraryUtility.GenerateGUID();
+        VendorAgreement.Validate("Vendor No.", Vendor."No.");
+        VendorAgreement.Validate("Expire Date", CalcDate('<1M>', WorkDate()));
+        VendorAgreement.Validate("Vendor Posting Group", Vendor."Vendor Posting Group");
+        VendorAgreement.Validate("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
+        VendorAgreement.Validate("Gen. Bus. Posting Group", Vendor."Gen. Bus. Posting Group");
+        VendorAgreement.Validate(Active, true);
+        VendorAgreement.Insert(true);
     end;
 
     local procedure CreateCustomerAgreement(var CustomerAgreement: Record "Customer Agreement"; Customer: Record Customer)
     begin
-        with CustomerAgreement do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Validate("Customer No.", Customer."No.");
-            Validate("Expire Date", CalcDate('<1M>', WorkDate()));
-            Validate("Customer Posting Group", Customer."Customer Posting Group");
-            Validate("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
-            Validate("Gen. Bus. Posting Group", Customer."Gen. Bus. Posting Group");
-            Validate(Active, true);
-            Insert(true);
-        end;
+        CustomerAgreement.Init();
+        CustomerAgreement."No." := LibraryUtility.GenerateGUID();
+        CustomerAgreement.Validate("Customer No.", Customer."No.");
+        CustomerAgreement.Validate("Expire Date", CalcDate('<1M>', WorkDate()));
+        CustomerAgreement.Validate("Customer Posting Group", Customer."Customer Posting Group");
+        CustomerAgreement.Validate("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
+        CustomerAgreement.Validate("Gen. Bus. Posting Group", Customer."Gen. Bus. Posting Group");
+        CustomerAgreement.Validate(Active, true);
+        CustomerAgreement.Insert(true);
     end;
 
     local procedure CreateGLEntryWithSourceTypeAndSourceNo(var GLEntry: Record "G/L Entry"; GLAccNo: Code[20]; DebitAmount: Decimal; SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20])
@@ -1177,17 +1173,15 @@ codeunit 144101 "ERM G/L Reports"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            SetRange("Date Filter", 0D, StartingDate);
-            SetRange("G/L Account Filter", GLAccountNo);
-            SetAutoCalcFields("G/L Debit Amount", "G/L Credit Amount", "G/L Balance to Date");
-            FindSet();
-            repeat
-                StartingDebitAmount += "G/L Debit Amount";
-                StartingCreditAmount += "G/L Credit Amount";
-                StartingTotalAmount += "G/L Balance to Date";
-            until Next() = 0;
-        end;
+        Vendor.SetRange("Date Filter", 0D, StartingDate);
+        Vendor.SetRange("G/L Account Filter", GLAccountNo);
+        Vendor.SetAutoCalcFields("G/L Debit Amount", "G/L Credit Amount", "G/L Balance to Date");
+        Vendor.FindSet();
+        repeat
+            StartingDebitAmount += Vendor."G/L Debit Amount";
+            StartingCreditAmount += Vendor."G/L Credit Amount";
+            StartingTotalAmount += Vendor."G/L Balance to Date";
+        until Vendor.Next() = 0;
     end;
 
     local procedure SetGLAccountFilters(var GLAccount: Record "G/L Account"; GLAccNo: Code[20])
@@ -1208,13 +1202,11 @@ codeunit 144101 "ERM G/L Reports"
 
     local procedure UpdateFAPostingType(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            if "Account Type" <> "Account Type"::"Fixed Asset" then
-                exit;
+        if GenJnlLine."Account Type" <> GenJnlLine."Account Type"::"Fixed Asset" then
+            exit;
 
-            Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            Modify(true);
-        end;
+        GenJnlLine.Validate("FA Posting Type", GenJnlLine."FA Posting Type"::"Acquisition Cost");
+        GenJnlLine.Modify(true);
     end;
 
     local procedure UpdateAgreementCode(var GenJournalLine: Record "Gen. Journal Line"; AgreementCode: Code[20])

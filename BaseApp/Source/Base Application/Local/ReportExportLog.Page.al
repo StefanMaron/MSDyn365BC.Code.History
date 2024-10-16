@@ -92,7 +92,9 @@ page 26571 "Report Export Log"
     }
 
     var
+#pragma warning disable AA0074
         Text001: Label 'There is nothing to export.';
+#pragma warning restore AA0074
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
 }

@@ -102,7 +102,9 @@ page 17313 "Tax Calc. Line Subform"
     end;
 
     var
+#pragma warning disable AA0074
         Text1001: Label 'Present';
+#pragma warning restore AA0074
         DimFilters: Text[30];
         DescriptionEmphasize: Boolean;
         DescriptionIndent: Integer;

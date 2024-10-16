@@ -78,7 +78,11 @@ xmlport 26551 "Format Versions"
 
     var
         FormatVersion: Record "Format Version";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 cannot be imported because there are linked reports.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure SetData(var TempFormatVersion: Record "Format Version")

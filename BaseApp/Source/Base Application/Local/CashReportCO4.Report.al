@@ -66,7 +66,7 @@ report 14902 "Cash Report CO-4"
                         end;
                     end;
 
-                    if not Preview then begin
+                    if not PreviewReport then begin
                         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", "Entry No.");
                         if CheckLedgEntry.FindFirst() then begin
                             CheckLedgEntry."Cashier Report No." := PageNo;
@@ -90,7 +90,7 @@ report 14902 "Cash Report CO-4"
                     FillRestTotal();
                     FillFooter();
 
-                    if not Preview then
+                    if not PreviewReport then
                         if ReportType = ReportType::"Cash Report CO-4" then begin
                             "Bank Account"."Last Cash Report Page No." := PageNo;
                             "Bank Account".Modify();
@@ -142,7 +142,7 @@ report 14902 "Cash Report CO-4"
                             PageNo := CheckLedgEntry."Cashier Report No."
                     until (CheckLedgEntry."Cashier Report No." <> '') or (CheckLedgEntry.Next() = 0)
                 else
-                    if Preview then
+                    if PreviewReport then
                         PageNo := 'XXXXX';
 
                 CashBookYear := Format(Date2DMY(CreateDate, 3));
@@ -209,7 +209,7 @@ report 14902 "Cash Report CO-4"
                         Enabled = PrintLastSheetEnable;
                         ToolTip = 'Specifies that the last page will be printed, for validation.';
                     }
-                    field(PreviewMode; Preview)
+                    field(PreviewMode; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview Without Page Numbering';
@@ -236,7 +236,7 @@ report 14902 "Cash Report CO-4"
 
     trigger OnInitReport()
     begin
-        Preview := false;
+        PreviewReport := false;
     end;
 
     trigger OnPostReport()
@@ -295,16 +295,20 @@ report 14902 "Cash Report CO-4"
         CashierEnable: Boolean;
         PrintTitleSheetEnable: Boolean;
         PrintLastSheetEnable: Boolean;
+#pragma warning disable AA0470
         CashAccountForDateTxt: Label '%1 at %2';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         PageTxt: Label 'Page %1';
-        Preview: Boolean;
+#pragma warning restore AA0470
+        PreviewReport: Boolean;
         CashReportCO4Txt: Label 'Loose-leaf cashbook';
         CashAdditionalSheetTxt: Label 'Cashier report';
 
     local procedure AddPageBreak()
     begin
         ExcelReportBuilderManager.AddPagebreak();
-        if not Preview then
+        if not PreviewReport then
             PageNo := IncStr(PageNo);
         FillTop();
     end;

@@ -299,13 +299,12 @@ report 12452 "Advance Statement"
     var
         k: Integer;
     begin
-        for k := 1 to 8 do begin
+        for k := 1 to 8 do
             if DtAccount[k] = '' then begin
                 DtAccount[k] := Account;
                 DtSum[k] := Sum;
                 exit;
             end
-        end;
     end;
 
     [Scope('OnPrem')]

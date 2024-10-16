@@ -218,10 +218,22 @@ report 17310 "Copy Tax Calc. Section"
         TaxCalcDimFilter: Record "Tax Calc. Dim. Filter";
         TaxCalcDimCorFilter: Record "Tax Calc. Dim. Corr. Filter";
         TaxCalcSectionCode: Code[10];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1000: Label 'Unknown value %1 %2 of source copy.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'Value %1 %2 of target copy set multiply.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1002: Label 'Self-Copy not allowed.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1005: Label 'One moment, please . . ';
+#pragma warning restore AA0074
         Wnd: Dialog;
 }
 

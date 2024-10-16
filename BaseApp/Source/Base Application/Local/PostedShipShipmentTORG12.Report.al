@@ -88,7 +88,7 @@ report 12414 "Posted Ship. Shipment TORG-12"
 
                 trigger OnPostDataItem()
                 begin
-                    if not Preview then
+                    if not PreviewReport then
                         CODEUNIT.Run(CODEUNIT::"Sales Shpt.-Printed", Header);
                 end;
 
@@ -156,7 +156,7 @@ report 12414 "Posted Ship. Shipment TORG-12"
                 if BillCust.Get("Bill-to Customer No.") then;
 
                 if LogInteraction then
-                    if not Preview then
+                    if not PreviewReport then
                         SegManagement.LogDocument(
                           5, "No.", 0, 0, DATABASE::Customer, "Sell-to Customer No.", "Salesperson Code",
                           "Campaign No.", "Posting Description", '');
@@ -212,7 +212,7 @@ report 12414 "Posted Ship. Shipment TORG-12"
                         Caption = 'Print Weight Information';
                         ToolTip = 'Specifies if you want to print shipping weight information.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -292,7 +292,7 @@ report 12414 "Posted Ship. Shipment TORG-12"
         CurrencyTxt: Label 'rub. kop.';
         ForeignCurrencyTxt: Label 'u.e.';
         AtLeastOneLineExists: Boolean;
-        Preview: Boolean;
+        PreviewReport: Boolean;
         ReportFileName: Text;
 
     local procedure ShipmentDocNo(): Code[20]
@@ -397,7 +397,7 @@ report 12414 "Posted Ship. Shipment TORG-12"
     procedure InitializeRequest(FileName: Text; NewPreview: Boolean)
     begin
         ReportFileName := FileName;
-        Preview := NewPreview;
+        PreviewReport := NewPreview;
     end;
 }
 

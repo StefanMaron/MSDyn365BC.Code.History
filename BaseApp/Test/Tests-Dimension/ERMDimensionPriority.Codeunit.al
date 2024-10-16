@@ -863,16 +863,14 @@ codeunit 134381 "ERM Dimension Priority"
         Item: Record Item;
         DefaultDimension: Record "Default Dimension";
     begin
-        with Item do begin
-            LibraryInventory.CreateItem(Item);
-            Validate("Replenishment System", "Replenishment System"::Purchase);
-            Validate("Reordering Policy", "Reordering Policy"::"Fixed Reorder Qty.");
-            Validate("Reorder Quantity", 1);
-            Validate("Vendor No.", VendNo);
-            Modify(true);
-            LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Item, "No.", DimensionCode, DimensionValueCode);
-            exit("No.");
-        end;
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate("Reorder Quantity", 1);
+        Item.Validate("Vendor No.", VendNo);
+        Item.Modify(true);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Item, Item."No.", DimensionCode, DimensionValueCode);
+        exit(Item."No.");
     end;
 
     local procedure CreateItemWithDefaultDimension(var Item: Record Item; var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
@@ -976,16 +974,13 @@ codeunit 134381 "ERM Dimension Priority"
     var
         DefaultDimensionPriority: Record "Default Dimension Priority";
     begin
-        with DefaultDimensionPriority do begin
-            // Clear priorities setup
-            SetRange("Source Code", SourceCode);
-            DeleteAll();
-
-            // Setup new priorities
-            Validate("Source Code", SourceCode);
-            CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::Customer, CustomerPriority);
-            CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::"G/L Account", GLAccountPriority);
-        end;
+        // Clear priorities setup
+        DefaultDimensionPriority.SetRange("Source Code", SourceCode);
+        DefaultDimensionPriority.DeleteAll();
+        // Setup new priorities
+        DefaultDimensionPriority.Validate("Source Code", SourceCode);
+        CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::Customer, CustomerPriority);
+        CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::"G/L Account", GLAccountPriority);
     end;
 
     local procedure SetupDimensionPriorityForPurchSrcCode()
@@ -994,15 +989,13 @@ codeunit 134381 "ERM Dimension Priority"
         DefaultDimensionPriority: Record "Default Dimension Priority";
     begin
         SourceCodeSetup.Get();
-        with DefaultDimensionPriority do begin
-            SetRange("Source Code", SourceCodeSetup.Purchases);
-            DeleteAll();
+        DefaultDimensionPriority.SetRange("Source Code", SourceCodeSetup.Purchases);
+        DefaultDimensionPriority.DeleteAll();
 
-            Validate("Source Code", SourceCodeSetup.Purchases);
-            CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::"Salesperson/Purchaser", 1);
-            CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::Vendor, 2);
-            CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::Item, 3);
-        end;
+        DefaultDimensionPriority.Validate("Source Code", SourceCodeSetup.Purchases);
+        CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::"Salesperson/Purchaser", 1);
+        CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::Vendor, 2);
+        CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::Item, 3);
     end;
 
     local procedure SetupDimensionPriorityForJobJnlSrcCode(TableIDs: array[2] of Integer; Priorities: array[2] of Integer)
@@ -1012,14 +1005,12 @@ codeunit 134381 "ERM Dimension Priority"
         i: Integer;
     begin
         SourceCodeSetup.Get();
-        with DefaultDimensionPriority do begin
-            SetRange("Source Code", SourceCodeSetup."Job Journal");
-            DeleteAll();
+        DefaultDimensionPriority.SetRange("Source Code", SourceCodeSetup."Job Journal");
+        DefaultDimensionPriority.DeleteAll();
 
-            Validate("Source Code", SourceCodeSetup."Job Journal");
-            for i := 1 to ArrayLen(TableIDs) do
-                CreateDefaultDimPriority(DefaultDimensionPriority, TableIDs[i], Priorities[i]);
-        end;
+        DefaultDimensionPriority.Validate("Source Code", SourceCodeSetup."Job Journal");
+        for i := 1 to ArrayLen(TableIDs) do
+            CreateDefaultDimPriority(DefaultDimensionPriority, TableIDs[i], Priorities[i]);
     end;
 
     local procedure CreateDefaultDimPriority(var DefaultDimPriority: Record "Default Dimension Priority"; TableID: Integer; Priority: Integer)
@@ -1143,24 +1134,20 @@ codeunit 134381 "ERM Dimension Priority"
         JobJournalLine: Record "Job Journal Line";
     begin
         SourceCodeSetup.Get();
-        with JobJournalLine do begin
-            LibraryJob.CreateJobJournalLine("Line Type"::Budget, JobTask, JobJournalLine);
-            Validate("Source Code", SourceCodeSetup."Job Journal");
-            Validate(Type, Type::Resource);
-            Validate("No.", ResourceNo);
-            Modify(true);
-        end;
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::Budget, JobTask, JobJournalLine);
+        JobJournalLine.Validate("Source Code", SourceCodeSetup."Job Journal");
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Resource);
+        JobJournalLine.Validate("No.", ResourceNo);
+        JobJournalLine.Modify(true);
     end;
 
     local procedure UpdateJobTaskDimension(JobTask: Record "Job Task"; DimensionCode: Code[20]; DimensionValue: Code[20])
     var
         JobTaskDimension: Record "Job Task Dimension";
     begin
-        with JobTaskDimension do begin
-            Get(JobTask."Job No.", JobTask."Job Task No.", DimensionCode);
-            Validate("Dimension Value Code", DimensionValue);
-            Modify(true);
-        end
+        JobTaskDimension.Get(JobTask."Job No.", JobTask."Job Task No.", DimensionCode);
+        JobTaskDimension.Validate("Dimension Value Code", DimensionValue);
+        JobTaskDimension.Modify(true);
     end;
 
     local procedure CreateReqLineAndCarryOutAction(ItemNo: Code[20])
@@ -1254,37 +1241,31 @@ codeunit 134381 "ERM Dimension Priority"
         PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
         PurchHeader.SetRange("Buy-from Vendor No.", VendNo);
         PurchHeader.FindLast();
-        with PurchLine do begin
-            SetRange("Document Type", PurchHeader."Document Type");
-            SetRange("Document No.", PurchHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-        end;
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.SetRange(Type, PurchLine.Type::Item);
+        PurchLine.FindFirst();
     end;
 
     local procedure FindJobJnlLine(var JobJournalLine: Record "Job Journal Line"; JobNo: Code[20]; JobTaskNo: Code[20])
     begin
-        with JobJournalLine do begin
-            SetRange("Job No.", JobNo);
-            SetRange("Job Task No.", JobTaskNo);
-            FindSet();
-        end;
+        JobJournalLine.SetRange("Job No.", JobNo);
+        JobJournalLine.SetRange("Job Task No.", JobTaskNo);
+        JobJournalLine.FindSet();
     end;
 
     local procedure FindSalesLineFromJobPlanningLine(var SalesLine: Record "Sales Line"; JobPlanningLine: Record "Job Planning Line")
     var
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
     begin
-        with JobPlanningLineInvoice do begin
-            SetRange("Job No.", JobPlanningLine."Job No.");
-            SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-            SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst();
-            SalesLine.SetRange("Document No.", "Document No.");
-            SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-            SalesLine.FindFirst();
-        end
+        JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLineInvoice.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        JobPlanningLineInvoice.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::Invoice);
+        JobPlanningLineInvoice.FindFirst();
+        SalesLine.SetRange("Document No.", JobPlanningLineInvoice."Document No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.FindFirst();
     end;
 
     local procedure SetTablePriority(var TableIDs: array[2] of Integer; var Priorities: array[2] of Integer; TableID: Integer; Priority: Integer; Index: Integer)
@@ -1526,12 +1507,10 @@ codeunit 134381 "ERM Dimension Priority"
         DefaultDimensionPriority: Record "Default Dimension Priority";
     begin
         SourceCodeSetup.Get();
-        with DefaultDimensionPriority do begin
-            SetRange("Source Code", SourceCodeSetup."Production Order");
-            DeleteAll();
-            Validate("Source Code", SourceCodeSetup."Production Order");
-            CreateDefaultDimPriority(DefaultDimensionPriority, Database::Item, 1);
-        end;
+        DefaultDimensionPriority.SetRange("Source Code", SourceCodeSetup."Production Order");
+        DefaultDimensionPriority.DeleteAll();
+        DefaultDimensionPriority.Validate("Source Code", SourceCodeSetup."Production Order");
+        CreateDefaultDimPriority(DefaultDimensionPriority, Database::Item, 1);
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order"; ItemNo: Code[20])

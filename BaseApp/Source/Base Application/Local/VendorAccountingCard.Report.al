@@ -198,13 +198,12 @@ report 12445 "Vendor Accounting Card"
 
                         trigger OnAfterGetRecord()
                         begin
-                            if "Entry Type" = "Entry Type"::Application then begin
+                            if "Entry Type" = "Entry Type"::Application then
                                 if "Prepmt. Diff." then begin
                                     if HasRelatedRealizedEntry("Transaction No.") or (not IsCurrencyAdjEntry()) then
                                         CurrReport.Skip();
                                 end else
                                     CurrReport.Skip();
-                            end;
                             case "Entry Type" of
                                 "Entry Type"::"Unrealized Loss":
                                     begin
@@ -213,12 +212,11 @@ report 12445 "Vendor Accounting Card"
                                         DtldVendLedgEntry2.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
                                         DtldVendLedgEntry2.SetRange("Entry Type", "Entry Type"::"Realized Loss");
                                         DtldVendLedgEntry2.SetRange("Posting Date", "Posting Date");
-                                        if DtldVendLedgEntry2.FindFirst() then begin
+                                        if DtldVendLedgEntry2.FindFirst() then
                                             if Abs("Amount (LCY)") >= Abs(DtldVendLedgEntry2."Amount (LCY)") then
                                                 "Debit Amount (LCY)" := "Debit Amount (LCY)" - DtldVendLedgEntry2."Credit Amount (LCY)"
                                             else
                                                 CurrReport.Skip();
-                                        end;
                                     end;
                                 "Entry Type"::"Realized Loss":
                                     begin
@@ -227,12 +225,11 @@ report 12445 "Vendor Accounting Card"
                                         DtldVendLedgEntry2.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
                                         DtldVendLedgEntry2.SetRange("Entry Type", "Entry Type"::"Unrealized Loss");
                                         DtldVendLedgEntry2.SetRange("Posting Date", "Posting Date");
-                                        if DtldVendLedgEntry2.FindFirst() then begin
+                                        if DtldVendLedgEntry2.FindFirst() then
                                             if Abs("Amount (LCY)") >= Abs(DtldVendLedgEntry2."Amount (LCY)") then // print Realized Gain Debit
                                                 "Credit Amount (LCY)" := "Credit Amount (LCY)" - DtldVendLedgEntry2."Debit Amount (LCY)"
                                             else
                                                 CurrReport.Skip();
-                                        end;
                                     end;
                             end;
                         end;
@@ -331,9 +328,15 @@ report 12445 "Vendor Accounting Card"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Debit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Credit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'Balance at';
+#pragma warning restore AA0074
         DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry";
         LocMgt: Codeunit "Localisation Management";
         CurrentDate: Text[30];
@@ -348,7 +351,11 @@ report 12445 "Vendor Accounting Card"
         NewPageForVendor: Boolean;
         RowNumber: Integer;
         VendorNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'For Period from %1 to %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Vendor_Accounting_CardCaptionLbl: Label 'Vendor Accounting Card';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Posting_DateCaptionLbl: Label 'Posting Date';

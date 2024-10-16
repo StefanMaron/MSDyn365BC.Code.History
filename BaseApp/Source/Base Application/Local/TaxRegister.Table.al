@@ -54,7 +54,7 @@ table 17200 "Tax Register"
         }
         field(4; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -72,7 +72,7 @@ table 17200 "Tax Register"
         }
         field(6; "Page Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Page Name';
             FieldClass = FlowField;
@@ -223,9 +223,19 @@ table 17200 "Tax Register"
         TaxRegLineSetup: Record "Tax Register Line Setup";
         TaxRegTemplate: Record "Tax Register Template";
         NotAllowedChar: Text[10];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1000: Label 'You cannot rename an %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'The value %1 has illegal symbol.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1002: Label 'All related dimension filters will be deleted. Continue?';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ShowDetails(TemplateLineNo: Integer)

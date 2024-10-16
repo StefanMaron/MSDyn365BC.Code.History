@@ -124,20 +124,19 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                     GetPurchPaymentDateDocNo("Transaction No.", PaymentDate, PaymentDocNo);
 
                     if PaymentDate = 0D then begin
-                        if VATEntry1.Get("Unrealized VAT Entry No.") then begin
+                        if VATEntry1.Get("Unrealized VAT Entry No.") then
                             VendLedgEntry.Reset();
-                            VendLedgEntry.SetCurrentKey("Transaction No.");
-                            VendLedgEntry.SetRange("Transaction No.", VATEntry1."Transaction No.");
-                            if VendLedgEntry.FindFirst() then begin
-                                DtldVendLedgEntry.Reset();
-                                DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
-                                DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
-                                DtldVendLedgEntry.SetFilter("Entry Type", '%1', DtldVendLedgEntry."Entry Type"::Application);
-                                if DtldVendLedgEntry.FindSet() then
-                                    repeat
-                                        GetPurchPaymentDateDocNo(DtldVendLedgEntry."Transaction No.", PaymentDate, PaymentDocNo);
-                                    until DtldVendLedgEntry.Next() = 0;
-                            end;
+                        VendLedgEntry.SetCurrentKey("Transaction No.");
+                        VendLedgEntry.SetRange("Transaction No.", VATEntry1."Transaction No.");
+                        if VendLedgEntry.FindFirst() then begin
+                            DtldVendLedgEntry.Reset();
+                            DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
+                            DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
+                            DtldVendLedgEntry.SetFilter("Entry Type", '%1', DtldVendLedgEntry."Entry Type"::Application);
+                            if DtldVendLedgEntry.FindSet() then
+                                repeat
+                                    GetPurchPaymentDateDocNo(DtldVendLedgEntry."Transaction No.", PaymentDate, PaymentDocNo);
+                                until DtldVendLedgEntry.Next() = 0;
                         end;
                     end;
 
@@ -342,9 +341,8 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                             VendLedgEntry.SetCurrentKey("Transaction No.");
                             if VATEntry1.Get(VATEntry."Unrealized VAT Entry No.") then
                                 TransactionNo := VATEntry1."Transaction No."
-                            else begin
+                            else
                                 TransactionNo := VATEntry."Transaction No.";
-                            end;
                             VendLedgEntry.SetRange("Transaction No.", TransactionNo);
                             if VendLedgEntry.FindFirst() then begin
                                 DtldVendLedgEntry.Reset();
@@ -457,15 +455,11 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                         if ValueEntry.FindSet() then
                             repeat
                                 ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.");
-                                if CDNo = '' then begin
-                                    CDNo := ItemLedgerEntry."Package No.";
-                                    // CountryCode := ItemLedgerEntry."Country/Region of Origin Code";
-                                end else begin
+                                if CDNo = '' then
+                                    CDNo := ItemLedgerEntry."Package No."
+                                else
                                     if ItemLedgerEntry."Package No." <> CDNo then
                                         CDNo := Text12403;
-                                    //IF ItemLedgerEntry."Country/Region of Origin Code" <> CountryCode THEN
-                                    //  CountryCode := Text12403;
-                                end;
                             until ValueEntry.Next() = 0;
 
                         ChangeNoBuf.Get(VATLedgerLineBuffer."Line No.");
@@ -742,9 +736,17 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
         CDNo: Code[50];
         CountryCode: Code[10];
         OrigDocNo: Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label 'cannot be %1 if Tax Invoice Amount Type is %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12401: Label 'Creation is not possible!';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12403: Label 'DIFFERENT';
+#pragma warning restore AA0074
         ClearOperation: Boolean;
         RealVATEntryDate: Date;
         PaymentDate: Date;
@@ -841,14 +843,12 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
             VATEntry."Tax Invoice Amount Type"::"Sales Tax":
                 case VATEntry."VAT Calculation Type" of
                     VATEntry."VAT Calculation Type"::"Full VAT":
-                        begin
-                            if VATEntry."VAT Correction" = true then begin
-                                AmountBuffer."VAT Correction" := true;
-                                AmountBuffer."Sales Tax Amount" := VATEntry.Amount;
-                                AmountBuffer."Sales Tax Base" := VATEntry.Base;
-                            end else
-                                AmountBuffer."Full Sales Tax Amount" := VATEntry.Amount;
-                        end;
+                        if VATEntry."VAT Correction" = true then begin
+                            AmountBuffer."VAT Correction" := true;
+                            AmountBuffer."Sales Tax Amount" := VATEntry.Amount;
+                            AmountBuffer."Sales Tax Base" := VATEntry.Base;
+                        end else
+                            AmountBuffer."Full Sales Tax Amount" := VATEntry.Amount;
                     VATEntry."VAT Calculation Type"::"Sales Tax":
                         begin
                             AmountBuffer."Sales Tax Amount" := VATEntry.Amount;
@@ -927,7 +927,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
         end;
         LedgerBuffer.SetRange("VAT Percent", AmountBuffer."VAT Percent");
 
-        if CorrDocMgt.IsCorrVATEntry(VATEntry) then begin
+        if CorrDocMgt.IsCorrVATEntry(VATEntry) then
             case VATEntry."Corrective Doc. Type" of
                 VATEntry."Corrective Doc. Type"::Correction:
                     begin
@@ -948,8 +948,8 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                             LedgerBuffer.SetRange("Revision No.");
                         end;
                     end;
-            end;
-        end else begin
+            end
+        else begin
             LedgerBuffer.SetRange("Correction No.", '');
             LedgerBuffer.SetRange("Revision No.", '');
             LedgerBuffer.SetRange("Revision of Corr. No.", '');

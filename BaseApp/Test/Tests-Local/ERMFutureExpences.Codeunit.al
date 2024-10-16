@@ -194,25 +194,21 @@ codeunit 144010 "ERM Future Expences"
         FAPostingGroup: Record "FA Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with FA do begin
-            Init();
-            Validate("FA Type", "FA Type"::"Future Expense");
-            Insert(true);
-        end;
+        FA.Init();
+        FA.Validate("FA Type", FA."FA Type"::"Future Expense");
+        FA.Insert(true);
 
-        with FADeprBook do begin
-            SetRange("FA No.", FA."No.");
-            FindFirst();
-            Validate("Depreciation Starting Date", StartDeprDate);
-            Validate("Depreciation Ending Date", EndDeprDate);
-            LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
-            LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-            LibraryFixedAsset.UpdateFAPostingGroupGLAccounts(FAPostingGroup, VATPostingSetup);
-            Validate("FA Posting Group", FAPostingGroup.Code);
-            Validate("Depreciation Method", "Depreciation Method"::"Straight-Line");
-            Modify(true);
-            UpdateRoundingForDeprBook("Depreciation Book Code");
-        end;
+        FADeprBook.SetRange("FA No.", FA."No.");
+        FADeprBook.FindFirst();
+        FADeprBook.Validate("Depreciation Starting Date", StartDeprDate);
+        FADeprBook.Validate("Depreciation Ending Date", EndDeprDate);
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        LibraryFixedAsset.UpdateFAPostingGroupGLAccounts(FAPostingGroup, VATPostingSetup);
+        FADeprBook.Validate("FA Posting Group", FAPostingGroup.Code);
+        FADeprBook.Validate("Depreciation Method", FADeprBook."Depreciation Method"::"Straight-Line");
+        FADeprBook.Modify(true);
+        UpdateRoundingForDeprBook(FADeprBook."Depreciation Book Code");
     end;
 
     local procedure UpdateRoundingForDeprBook(DeprBookCode: Code[10])
@@ -267,28 +263,24 @@ codeunit 144010 "ERM Future Expences"
           GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
           GenJnlLine."Document Type"::" ", GenJnlLine."Account Type"::"Fixed Asset", FANo,
           AcqAmount);
-        with GenJnlLine do begin
-            Validate("Posting Date", PostingDate);
-            Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            Validate("Depreciation Book Code", DeprBookCode);
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Purchase);
-            Validate("Gen. Bus. Posting Group", Vendor."Gen. Bus. Posting Group");
-            Validate("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");
-            Validate("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
-            Modify(true);
-            DocumentNo := "Document No.";
-        end;
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        GenJnlLine.Validate("FA Posting Type", GenJnlLine."FA Posting Type"::"Acquisition Cost");
+        GenJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+        GenJnlLine.Validate("Gen. Posting Type", GenJnlLine."Gen. Posting Type"::Purchase);
+        GenJnlLine.Validate("Gen. Bus. Posting Group", Vendor."Gen. Bus. Posting Group");
+        GenJnlLine.Validate("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");
+        GenJnlLine.Validate("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
+        GenJnlLine.Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+        GenJnlLine.Modify(true);
+        DocumentNo := GenJnlLine."Document No.";
         // create g/l bal. line
         LibraryERM.CreateGeneralJnlLine(
           GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
           GenJnlLine."Document Type"::" ", GenJnlLine."Account Type"::Vendor, BalAccountNo,
           -AcqAmount);
-        with GenJnlLine do begin
-            Validate("Posting Date", PostingDate);
-            Validate("Document No.", DocumentNo);
-            Modify(true);
-        end;
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        GenJnlLine.Validate("Document No.", DocumentNo);
+        GenJnlLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
@@ -429,14 +421,12 @@ codeunit 144010 "ERM Future Expences"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Object Type", "Object Type"::"Fixed Asset");
-            SetRange("Object No.", FANo);
-            FindSet();
-            repeat
-                Assert.AreEqual("VAT Settlement Type"::"Future Expenses", "VAT Settlement Type", FieldCaption("VAT Settlement Type"));
-            until Next() = 0;
-        end;
+        VATEntry.SetRange("Object Type", VATEntry."Object Type"::"Fixed Asset");
+        VATEntry.SetRange("Object No.", FANo);
+        VATEntry.FindSet();
+        repeat
+            Assert.AreEqual(VATEntry."VAT Settlement Type"::"Future Expenses", VATEntry."VAT Settlement Type", VATEntry.FieldCaption("VAT Settlement Type"));
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyFALedgerEntry(FANo: Code[20]; DeprAmounts: array[10] of Decimal; DeprDates: array[10] of Date)
@@ -445,14 +435,12 @@ codeunit 144010 "ERM Future Expences"
         i: Integer;
     begin
         FilterFALedgerEntries(FALedgerEntry, FANo);
-        with FALedgerEntry do begin
-            FindSet();
-            repeat
-                i += 1;
-                Assert.AreEqual(DeprAmounts[i], Amount, FieldCaption(Amount));
-                Assert.AreEqual(DeprDates[i], "Posting Date", FieldCaption("Posting Date"));
-            until Next() = 0;
-        end;
+        FALedgerEntry.FindSet();
+        repeat
+            i += 1;
+            Assert.AreEqual(DeprAmounts[i], FALedgerEntry.Amount, FALedgerEntry.FieldCaption(Amount));
+            Assert.AreEqual(DeprDates[i], FALedgerEntry."Posting Date", FALedgerEntry.FieldCaption("Posting Date"));
+        until FALedgerEntry.Next() = 0;
     end;
 
     [RequestPageHandler]
@@ -493,13 +481,11 @@ codeunit 144010 "ERM Future Expences"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        with FixedAsset do begin
-            SetRange("FA Type", "FA Type"::"Future Expense");
-            SetRange(Blocked, true);
-            SetRange(Inactive, true);
-            FindFirst();
-            exit("No.");
-        end;
+        FixedAsset.SetRange("FA Type", FixedAsset."FA Type"::"Future Expense");
+        FixedAsset.SetRange(Blocked, true);
+        FixedAsset.SetRange(Inactive, true);
+        FixedAsset.FindFirst();
+        exit(FixedAsset."No.");
     end;
 
     local procedure CreateFEFromSoldFA(IsGLIntegration: Boolean)
@@ -543,12 +529,10 @@ codeunit 144010 "ERM Future Expences"
         CreateFEfromSoldFARep.UseRequestPage(true);
         CreateFEfromSoldFARep.Run();
 
-        with FixedAsset do begin
-            Reset();
-            SetRange("Created by FA No.", FixedAssetNo);
-            SetRange("FA Type", "FA Type"::"Future Expense");
-            Assert.IsFalse(IsEmpty, FutureExpenseNotFoundErr);
-        end;
+        FixedAsset.Reset();
+        FixedAsset.SetRange("Created by FA No.", FixedAssetNo);
+        FixedAsset.SetRange("FA Type", FixedAsset."FA Type"::"Future Expense");
+        Assert.IsFalse(FixedAsset.IsEmpty, FutureExpenseNotFoundErr);
     end;
 
     local procedure TaxDeprBookGLIntegration(IsGLIntegration: Boolean)
@@ -569,23 +553,20 @@ codeunit 144010 "ERM Future Expences"
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        with DeprBook do begin
-            Get(DeprBookCode);
-            "G/L Integration - Acq. Cost" := IsGLIntegration;
-            "G/L Integration - Depreciation" := IsGLIntegration;
-            "G/L Integration - Disposal" := IsGLIntegration;
-            Modify();
+        DeprBook.Get(DeprBookCode);
+        DeprBook."G/L Integration - Acq. Cost" := IsGLIntegration;
+        DeprBook."G/L Integration - Depreciation" := IsGLIntegration;
+        DeprBook."G/L Integration - Disposal" := IsGLIntegration;
+        DeprBook.Modify();
+        if IsGLIntegration then begin
+            if not FAJnlSetup.Get(DeprBook.Code, UserId) then
+                FAJnlSetup.Get(DeprBook.Code, '');
+            LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
+            LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+            FAJnlSetup."Gen. Jnl. Template Name" := GenJnlTemplate.Name;
+            FAJnlSetup."Gen. Jnl. Batch Name" := GenJnlBatch.Name;
+            FAJnlSetup.Modify();
         end;
-        if IsGLIntegration then
-            with FAJnlSetup do begin
-                if not Get(DeprBook.Code, UserId) then
-                    Get(DeprBook.Code, '');
-                LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
-                LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-                "Gen. Jnl. Template Name" := GenJnlTemplate.Name;
-                "Gen. Jnl. Batch Name" := GenJnlBatch.Name;
-                Modify();
-            end;
     end;
 
     [RequestPageHandler]

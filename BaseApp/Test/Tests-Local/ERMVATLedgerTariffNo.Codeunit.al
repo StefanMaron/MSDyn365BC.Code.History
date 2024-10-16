@@ -1046,11 +1046,9 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
 
     local procedure FilterVATLedgerLineTariffNo(var VATLedgerLineTariffNo: Record "VAT Ledger Line Tariff No."; VATLedgerLine: Record "VAT Ledger Line")
     begin
-        with VATLedgerLineTariffNo do begin
-            SetRange(Type, VATLedgerLine.Type);
-            SetRange(Code, VATLedgerLine.Code);
-            SetRange("Line No.", VATLedgerLine."Line No.");
-        end;
+        VATLedgerLineTariffNo.SetRange(Type, VATLedgerLine.Type);
+        VATLedgerLineTariffNo.SetRange(Code, VATLedgerLine.Code);
+        VATLedgerLineTariffNo.SetRange("Line No.", VATLedgerLine."Line No.");
     end;
 
     local procedure LookupPurchaseVATLedgerLineTariffNoField(var VATLedgerLineTariffNo: TestPage "VAT Ledger Line Tariff No."; VATLedgerLine: Record "VAT Ledger Line")
@@ -1075,12 +1073,10 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
 
     local procedure VerifyVATLedgerLine(VATLedgerLine: Record "VAT Ledger Line"; ExpectedDocumentNo: Code[20]; ExpectedTariffNo: Code[20]; ExpectedAddSheet: Boolean)
     begin
-        with VATLedgerLine do begin
-            Assert.AreEqual(ExpectedDocumentNo, "Origin. Document No.", FieldCaption("Origin. Document No."));
-            Assert.AreEqual(ExpectedDocumentNo, "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(ExpectedTariffNo, "Tariff No.", FieldCaption("Tariff No."));
-            Assert.AreEqual(ExpectedAddSheet, "Additional Sheet", FieldCaption("Additional Sheet"));
-        end;
+        Assert.AreEqual(ExpectedDocumentNo, VATLedgerLine."Origin. Document No.", VATLedgerLine.FieldCaption("Origin. Document No."));
+        Assert.AreEqual(ExpectedDocumentNo, VATLedgerLine."Document No.", VATLedgerLine.FieldCaption("Document No."));
+        Assert.AreEqual(ExpectedTariffNo, VATLedgerLine."Tariff No.", VATLedgerLine.FieldCaption("Tariff No."));
+        Assert.AreEqual(ExpectedAddSheet, VATLedgerLine."Additional Sheet", VATLedgerLine.FieldCaption("Additional Sheet"));
     end;
 
     local procedure VerifyVATLedgerLineTariffNo(VATLedgerLine: Record "VAT Ledger Line"; TariffNo: Code[20])

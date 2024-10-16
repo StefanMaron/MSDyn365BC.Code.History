@@ -428,25 +428,23 @@ codeunit 144102 "SCM Inventory reports"
         InvtDocumentLine: Record "Invt. Document Line";
         RecRef: RecordRef;
     begin
-        with InvtDocumentLine do begin
-            Init();
-            "Document No." := DocumentNo;
-            "Document Type" := DocumentType;
-            RecRef.GetTable(InvtDocumentLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
+        InvtDocumentLine.Init();
+        InvtDocumentLine."Document No." := DocumentNo;
+        InvtDocumentLine."Document Type" := DocumentType;
+        RecRef.GetTable(InvtDocumentLine);
+        InvtDocumentLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, InvtDocumentLine.FieldNo("Line No.")));
+        InvtDocumentLine.Insert(true);
 
-            Validate("Item No.", LibraryInventory.CreateItemNo());
-            Validate(Quantity, LibraryRandom.RandInt(100));
-            Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-            Validate("Unit Amount", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-            TotalAmtQtys[3] += Quantity;
-            if PostItemDocument then
-                TotalAmtQtys[2] += Amount
-            else
-                TotalAmtQtys[2] += Quantity * "Unit Cost";
-        end;
+        InvtDocumentLine.Validate("Item No.", LibraryInventory.CreateItemNo());
+        InvtDocumentLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        InvtDocumentLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        InvtDocumentLine.Validate("Unit Amount", LibraryRandom.RandDec(100, 2));
+        InvtDocumentLine.Modify(true);
+        TotalAmtQtys[3] += InvtDocumentLine.Quantity;
+        if PostItemDocument then
+            TotalAmtQtys[2] += InvtDocumentLine.Amount
+        else
+            TotalAmtQtys[2] += InvtDocumentLine.Quantity * InvtDocumentLine."Unit Cost";
     end;
 
     local procedure CreatePurchDocLines(var PurchaseHeader: Record "Purchase Header"; var TotalAmountsQty: array[3] of Decimal)
@@ -461,15 +459,13 @@ codeunit 144102 "SCM Inventory reports"
             Qty := LibraryRandom.RandIntInRange(5, 100);
             QtyToReceive := LibraryRandom.RandIntInRange(1, Qty);
             QtyToInvoice := LibraryRandom.RandIntInRange(1, QtyToReceive);
-            with PurchaseLine do begin
-                LibraryPurchase.CreatePurchaseLine(
-                  PurchaseLine, PurchaseHeader, Type::Item, LibraryInventory.CreateItemNo(), Qty);
-                Validate("Qty. to Receive", QtyToReceive);
-                Validate("Qty. to Invoice", QtyToInvoice);
-                Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
-                Modify(true);
-                TotalAmountsQty[2] += Amount;
-            end;
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), Qty);
+            PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+            PurchaseLine.Validate("Qty. to Invoice", QtyToInvoice);
+            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+            PurchaseLine.Modify(true);
+            TotalAmountsQty[2] += PurchaseLine.Amount;
             TotalAmountsQty[3] += Qty;
             TotalAmountsQty[4] += Qty - QtyToReceive;
             TotalAmountsQty[5] += QtyToReceive;
@@ -495,55 +491,45 @@ codeunit 144102 "SCM Inventory reports"
 
     local procedure MockInvtDocHeader(var InvtDocumentHeader: Record "Invt. Document Header"; DocType: Enum "Invt. Doc. Document Type")
     begin
-        with InvtDocumentHeader do begin
-            Init();
-            "Document Type" := DocType;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), Database::"Invt. Document Header");
-            Insert();
-        end;
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := DocType;
+        InvtDocumentHeader."No." := LibraryUtility.GenerateRandomCode(InvtDocumentHeader.FieldNo("No."), Database::"Invt. Document Header");
+        InvtDocumentHeader.Insert();
     end;
 
     local procedure MockInvtShipHeader(var InvtShipmentHeader: Record "Invt. Shipment Header")
     begin
-        with InvtShipmentHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), Database::"Invt. Shipment Header");
-            Insert();
-        end;
+        InvtShipmentHeader.Init();
+        InvtShipmentHeader."No." := LibraryUtility.GenerateRandomCode(InvtShipmentHeader.FieldNo("No."), Database::"Invt. Shipment Header");
+        InvtShipmentHeader.Insert();
     end;
 
     local procedure MockItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; PostingDate: Date; DocumentNo: Code[20]; AppliesToEntry: Integer; LotNo: Code[50])
     begin
-        with ItemLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
-            "Posting Date" := PostingDate;
-            "Document No." := DocumentNo;
-            "Applies-to Entry" := AppliesToEntry;
-            "Lot No." := LotNo;
-            Insert();
-        end;
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Posting Date" := PostingDate;
+        ItemLedgerEntry."Document No." := DocumentNo;
+        ItemLedgerEntry."Applies-to Entry" := AppliesToEntry;
+        ItemLedgerEntry."Lot No." := LotNo;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure MockInvtDocLine(var InvtDocumentLine: Record "Invt. Document Line"; InvtDocumentHeader: Record "Invt. Document Header")
     begin
-        with InvtDocumentLine do begin
-            Init();
-            "Document Type" := InvtDocumentHeader."Document Type";
-            "Document No." := InvtDocumentHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(InvtDocumentLine, FieldNo("Line No."));
-            Insert();
-        end;
+        InvtDocumentLine.Init();
+        InvtDocumentLine."Document Type" := InvtDocumentHeader."Document Type";
+        InvtDocumentLine."Document No." := InvtDocumentHeader."No.";
+        InvtDocumentLine."Line No." := LibraryUtility.GetNewRecNo(InvtDocumentLine, InvtDocumentLine.FieldNo("Line No."));
+        InvtDocumentLine.Insert();
     end;
 
     local procedure MockInvtShipLine(var InvtShipmentLine: Record "Invt. Shipment Line"; InvtShipmentHeader: Record "Invt. Shipment Header")
     begin
-        with InvtShipmentLine do begin
-            Init();
-            "Document No." := InvtShipmentHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(InvtShipmentLine, FieldNo("Line No."));
-            Insert();
-        end;
+        InvtShipmentLine.Init();
+        InvtShipmentLine."Document No." := InvtShipmentHeader."No.";
+        InvtShipmentLine."Line No." := LibraryUtility.GetNewRecNo(InvtShipmentLine, InvtShipmentLine.FieldNo("Line No."));
+        InvtShipmentLine.Insert();
     end;
 
     local procedure MockValueEntryWithRelation(InvtShipmentLine: Record "Invt. Shipment Line"; ItemEntryNo: Integer)
@@ -551,62 +537,52 @@ codeunit 144102 "SCM Inventory reports"
         ValueEntry: Record "Value Entry";
         ValueEntryRelation: Record "Value Entry Relation";
     begin
-        with ValueEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
-            "Item Ledger Entry Type" := "Item Ledger Entry Type"::"Negative Adjmt.";
-            "Item Ledger Entry No." := ItemEntryNo;
-            "Invoiced Quantity" := LibraryRandom.RandDec(10, 2);
-            Insert();
-        end;
+        ValueEntry.Init();
+        ValueEntry."Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, ValueEntry.FieldNo("Entry No."));
+        ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.";
+        ValueEntry."Item Ledger Entry No." := ItemEntryNo;
+        ValueEntry."Invoiced Quantity" := LibraryRandom.RandDec(10, 2);
+        ValueEntry.Insert();
 
-        with ValueEntryRelation do begin
-            Init();
-            "Value Entry No." := ValueEntry."Entry No.";
-            "Source RowId" := InvtShipmentLine.RowID1();
-            Insert();
-        end;
+        ValueEntryRelation.Init();
+        ValueEntryRelation."Value Entry No." := ValueEntry."Entry No.";
+        ValueEntryRelation."Source RowId" := InvtShipmentLine.RowID1();
+        ValueEntryRelation.Insert();
     end;
 
     local procedure MockReservationEntry(ReservationEntry: Record "Reservation Entry"; InvtDocumentLine: Record "Invt. Document Line"; AppliesToEntry: Integer)
     begin
-        with ReservationEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, FieldNo("Entry No."));
-            Positive := (InvtDocumentLine."Document Type" = InvtDocumentLine."Document Type"::Receipt);
-            SetSource(
-              Database::"Invt. Document Line",
-              InvtDocumentLine."Document Type".AsInteger(), InvtDocumentLine."Document No.", InvtDocumentLine."Line No.", '', 0);
-            "Appl.-to Item Entry" := AppliesToEntry;
-            Insert();
-        end;
+        ReservationEntry.Init();
+        ReservationEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
+        ReservationEntry.Positive := (InvtDocumentLine."Document Type" = InvtDocumentLine."Document Type"::Receipt);
+        ReservationEntry.SetSource(
+          Database::"Invt. Document Line",
+          InvtDocumentLine."Document Type".AsInteger(), InvtDocumentLine."Document No.", InvtDocumentLine."Line No.", '', 0);
+        ReservationEntry."Appl.-to Item Entry" := AppliesToEntry;
+        ReservationEntry.Insert();
     end;
 
     local procedure MockPostedSalesInvHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; IsCorrDoc: Boolean; CorrDocType: Option)
     begin
-        with SalesInvoiceHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), Database::"Sales Invoice Header");
-            "Corrective Document" := IsCorrDoc;
-            "Corrective Doc. Type" := CorrDocType;
-            Insert();
-        end;
+        SalesInvoiceHeader.Init();
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateRandomCode(SalesInvoiceHeader.FieldNo("No."), Database::"Sales Invoice Header");
+        SalesInvoiceHeader."Corrective Document" := IsCorrDoc;
+        SalesInvoiceHeader."Corrective Doc. Type" := CorrDocType;
+        SalesInvoiceHeader.Insert();
     end;
 
     local procedure InsertDocPrintBuffer(TableID: Integer; DocType: Option; DocNo: Code[20])
     var
         DocumentPrintBuffer: Record "Document Print Buffer";
     begin
-        with DocumentPrintBuffer do begin
-            DeleteAll();
+        DocumentPrintBuffer.DeleteAll();
 
-            Init();
-            "User ID" := UserId;
-            "Table ID" := TableID;
-            "Document Type" := DocType;
-            "Document No." := DocNo;
-            Insert();
-        end;
+        DocumentPrintBuffer.Init();
+        DocumentPrintBuffer."User ID" := UserId;
+        DocumentPrintBuffer."Table ID" := TableID;
+        DocumentPrintBuffer."Document Type" := DocType;
+        DocumentPrintBuffer."Document No." := DocNo;
+        DocumentPrintBuffer.Insert();
     end;
 
     local procedure RunUnpostedTorg16Report(ItemDocumentNo: Code[20]; OperationType: Text; OrderNo: Text; OrderDate: Date; WriteOffSource: Text)
@@ -712,32 +688,28 @@ codeunit 144102 "SCM Inventory reports"
         Employee: Record Employee;
     begin
         CreateEmployee(Employee);
-        with DocSignature do begin
-            Init();
-            "Table ID" := Database::"Invt. Document Header";
-            "Document Type" := 1;
-            "Document No." := DocumentNo;
-            "Employee Type" := EmployeeType;
-            "Employee Job Title" := Employee.GetJobTitleName();
-            "Employee Name" := Employee.GetFullName();
-            Insert(true);
-            Members[MemberId, 1] := "Employee Job Title";
-            Members[MemberId, 2] := "Employee Name";
-        end;
+        DocSignature.Init();
+        DocSignature."Table ID" := Database::"Invt. Document Header";
+        DocSignature."Document Type" := 1;
+        DocSignature."Document No." := DocumentNo;
+        DocSignature."Employee Type" := EmployeeType;
+        DocSignature."Employee Job Title" := Employee.GetJobTitleName();
+        DocSignature."Employee Name" := Employee.GetFullName();
+        DocSignature.Insert(true);
+        Members[MemberId, 1] := DocSignature."Employee Job Title";
+        Members[MemberId, 2] := DocSignature."Employee Name";
     end;
 
     local procedure EnqueueReportsNos(DocUsage: Enum "Report Selection Usage")
     var
         ReportSelections: Record "Report Selections";
     begin
-        with ReportSelections do begin
-            Ascending(false);
-            SetRange(Usage, DocUsage);
-            FindSet();
-            repeat
-                LibraryVariableStorage.Enqueue("Report ID");
-            until Next() = 0;
-        end;
+        ReportSelections.Ascending(false);
+        ReportSelections.SetRange(Usage, DocUsage);
+        ReportSelections.FindSet();
+        repeat
+            LibraryVariableStorage.Enqueue(ReportSelections."Report ID");
+        until ReportSelections.Next() = 0;
     end;
 
     local procedure VerifyTorg16EmployeeSignatures(Members: array[5, 2] of Text; Shift: Integer)
@@ -804,14 +776,12 @@ codeunit 144102 "SCM Inventory reports"
     var
         Counter: Integer;
     begin
-        with InvtDocumentHeader do begin
-            Init();
-            "Document Type" := DocumentType;
-            "Document Date" := WorkDate();
-            "Posting Date" := WorkDate();
-            "Location Code" := CreateLocation();
-            Insert(true);
-        end;
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := DocumentType;
+        InvtDocumentHeader."Document Date" := WorkDate();
+        InvtDocumentHeader."Posting Date" := WorkDate();
+        InvtDocumentHeader."Location Code" := CreateLocation();
+        InvtDocumentHeader.Insert(true);
         for Counter := 1 to TotalAmtQtys[1] do
             CreateInvtDocumentLine(InvtDocumentHeader."No.", DocumentType, PostItemDocument, TotalAmtQtys);
         CODEUNIT.Run(CODEUNIT::"Release Invt. Document", InvtDocumentHeader);

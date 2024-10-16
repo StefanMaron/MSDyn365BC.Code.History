@@ -43,7 +43,11 @@ table 14919 "Excel Template"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You should import template file for template code %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FileMgt: Codeunit "File Management";
 
     [Scope('OnPrem')]

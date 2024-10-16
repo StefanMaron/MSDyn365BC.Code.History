@@ -17,6 +17,8 @@ page 5662 "FA Posting Types Overview"
     PageType = Card;
     SaveValues = true;
     SourceTable = "Fixed Asset";
+    AboutTitle = 'About FA Posting Types Overview';
+    AboutText = 'With the **FA Posting Types Overview**, you can specify different time intervals in the View by field. In the View as field, you can select **Net Change** to display the net change in the amount for each period, or you can select **Balance at Date** to display the amount as of the last day in each period.';
 
     layout
     {
@@ -36,6 +38,8 @@ page 5662 "FA Posting Types Overview"
             group("Matrix Options")
             {
                 Caption = 'Matrix Options';
+                AboutTitle = 'Manage Matrix Options';
+                AboutText = 'Specify the view by and view as details to configure/review the asset-wise book value, acquisition cost, and depreciation.';
                 field(PeriodType; PeriodType)
                 {
                     ApplicationArea = FixedAssets;

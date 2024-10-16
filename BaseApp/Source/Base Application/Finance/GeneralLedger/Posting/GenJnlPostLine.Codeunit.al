@@ -91,6 +91,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempVATEntry: Record "VAT Entry" temporary;
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        SourceCodeSetup: Record "Source Code Setup";
         InitialCVLedgEntryBuf: Record "CV Ledger Entry Buffer";
         VATEntryToRealize: Record "VAT Entry";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
@@ -139,18 +140,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PreviewMode: Boolean;
         GLEntryInconsistent: Boolean;
         MultiplePostingGroups: Boolean;
+        SourceCodeSetupRead: Boolean;
+        IsGLRegInserted: Boolean;
         TransVATAccNo: Code[20];
-        MustNotBeAfterErr: Label 'Posting date must not be after %1 in %2 entry no. %3.';
-        MultipleEntriesApplnErr: Label 'Only application of one entry to several entries is allowed in Russian version.';
-        CheckApplnDateCustErr: Label 'Check Application Date is not possible for Customer %1 if Application Method = Apply to Oldest.';
-        CheckApplnDateVendErr: Label 'Check Application Date is not possible for Vendor %1 if Application Method = Apply to Oldest.';
-        PrepmtCorrectionErr: Label 'Correction must be No in prepayment.';
         ThisIsSpecialRun: Boolean;
         FirstGLEntryNo: Integer;
-        ApplnPrepmtOnlyErr: Label 'Application is valid with Document Type Prepayment only.';
-        PostedTaxDiffReverseErr: Label 'Posted Tax Difference already exists for transaction no. %1. You should reverse these entries before unapply operation.';
-        PostedTaxDiffAlreadyExistErr: Label 'Posted Tax Difference already exists for transaction no. %1.';
-        AgreementMustBeErr: Label 'Agreement must be %1 in document no. %2.';
         FinVoidedCheck: Boolean;
         VATAgentVATPayment: Boolean;
         VATAgentVATPmtAmount: Decimal;
@@ -167,7 +161,28 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DescriptionMustNotBeBlankErr: Label 'When %1 is selected for %2, %3 must have a value.', Comment = '%1: Field Omit Default Descr. in Jnl., %2 G/L Account No, %3 Description';
         NoDeferralScheduleErr: Label 'You must create a deferral schedule if a deferral template is selected. Line: %1, Deferral Template: %2.', Comment = '%1=The line number of the general ledger transaction, %2=The Deferral Template Code';
         ZeroDeferralAmtErr: Label 'Deferral amounts cannot be 0. Line: %1, Deferral Template: %2.', Comment = '%1=The line number of the general ledger transaction, %2=The Deferral Template Code';
-        IsGLRegInserted: Boolean;
+#pragma warning disable AA0470
+        MustNotBeAfterErr: Label 'Posting date must not be after %1 in %2 entry no. %3.';
+#pragma warning restore AA0470
+        MultipleEntriesApplnErr: Label 'Only application of one entry to several entries is allowed in Russian version.';
+#pragma warning disable AA0470
+        CheckApplnDateCustErr: Label 'Check Application Date is not possible for Customer %1 if Application Method = Apply to Oldest.';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
+        CheckApplnDateVendErr: Label 'Check Application Date is not possible for Vendor %1 if Application Method = Apply to Oldest.';
+#pragma warning restore AA0470
+        PrepmtCorrectionErr: Label 'Correction must be No in prepayment.';
+        ApplnPrepmtOnlyErr: Label 'Application is valid with Document Type Prepayment only.';
+#pragma warning disable AA0470
+        PostedTaxDiffReverseErr: Label 'Posted Tax Difference already exists for transaction no. %1. You should reverse these entries before unapply operation.';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
+        PostedTaxDiffAlreadyExistErr: Label 'Posted Tax Difference already exists for transaction no. %1.';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
+        AgreementMustBeErr: Label 'Agreement must be %1 in document no. %2.';
+#pragma warning restore AA0470
+
 
     procedure GetGLReg(var NewGLReg: Record "G/L Register")
     begin
@@ -1447,7 +1462,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
 #if not CLEAN25
             OnAfterCustLedgEntryInsertInclPreviewMode(CustLedgEntry, GenJournalLine, DtldLedgEntryInserted, PreviewMode);
 #endif
-
             // Post Reminder Terms - Note About Line Fee on Report
             LineFeeNoteOnReportHist.Save(CustLedgEntry);
 
@@ -2184,8 +2198,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if TempGLEntryBuf.FindSet() then begin
             SourceCodeSetup.Get();
             repeat
-                if TempGLEntryBuf."Source Currency Code" <> '' then
-                    UpdateSourceCurrencyAmounts(TempGLEntryBuf, LastSourceCurrencyVATAmount);
+                UpdateSourceCurrencyAmounts(TempGLEntryBuf, LastSourceCurrencyVATAmount);
                 TempGLEntryPreview := TempGLEntryBuf;
                 TempGLEntryPreview.Insert();
                 GlobalGLEntry := TempGLEntryBuf;
@@ -2293,6 +2306,25 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure UpdateGLEntrySourceCurrencyFields(var GLEntry: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line")
     begin
         if GenJnlLine."Source Currency Code" = '' then
+            exit;
+
+        GetGLSetup();
+        GetSourceCodeSetup();
+        if (GenJnlLine."Source Code" = SourceCodeSetup."Inventory Post Cost") and (AddCurrencyCode <> '') then
+            exit;
+
+        if (GenJnlLine."Source Code" = SourceCodeSetup."Exchange Rate Adjmt.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."General Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Purchase Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Sales Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Exchange Rate Adjmt.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Sales Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Purchase Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Employee Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Sales Entry Appln.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Purch. Entry Appln.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Empl. Entry Appln.")
+        then
             exit;
 
         GLEntry."Source Currency Code" := GenJnlLine."Source Currency Code";
@@ -3871,7 +3903,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 then
                     Error(MustNotBeAfterErr,
                       NewCVLedgEntryBuf."Posting Date", TempOldCustLedgEntry.TableCaption(), TempOldCustLedgEntry."Entry No.");
-                if SalesSetup."Check Application Period" then begin
+                if SalesSetup."Check Application Period" then
                     if CalcDate('<CM>', TempOldCustLedgEntry."Posting Date") <> CalcDate('<CM>', NewCVLedgEntryBuf."Posting Date") then
                         if (TempOldCustLedgEntry."Document Type" in
                             [TempOldCustLedgEntry."Document Type"::" ", TempOldCustLedgEntry."Document Type"::Payment,
@@ -3879,7 +3911,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                            not TempOldCustLedgEntry.Prepayment
                         then
                             Error(ApplnPrepmtOnlyErr);
-                end;
                 CheckCustPrepmtApplPostingDate(GenJnlLine, NewCVLedgEntryBuf, TempOldCustLedgEntry);
             end;
 
@@ -4610,12 +4641,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
                           Round(
                             VATEntry2."Add.-Curr. Rem. Unreal. Base" * VATPart,
                             AddCurrency."Amount Rounding Precision");
-                        if GLSetup."Enable Russian Accounting" then begin
+                        if GLSetup."Enable Russian Accounting" then
                             if VATAllocationLineNo <> 0 then
                                 VATBase := Round(VATAmount * GenJnlLine."VAT Base Amount" / GenJnlLine."VAT Amount")
                             else
                                 AdjustVATAmount(VATEntry2, VATPart, VATBase, VATAmount, VATBaseAddCurr, VATAmountAddCurr, true);
-                        end;
                     end;
 
                     if GLSetup."Enable Russian Accounting" then begin
@@ -5988,10 +6018,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         VendLedgEntry2."Amount (LCY)",
                         TotalUnrealVATAmountFirst,
                         TotalUnrealVATAmountLast)
-                else begin
+                else
                     if not (VATSettlementMgt.VATIsPostponed(VATEntry2, GenJnlLine."VAT Settlement Part", GenJnlLine."Posting Date") or
                             VATSettlementMgt.PartiallyRealized(VATEntry2."Entry No.", GenJnlLine."VAT Settlement Part"))
-                    then begin
+                    then
                         if UnrealVATPart <> 0 then
                             VATPart := UnrealVATPart
                         else
@@ -6011,8 +6041,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                     VendLedgEntry2."Original Amt. (LCY)",
                                     TotalUnrealVATAmountFirst,
                                     TotalUnrealVATAmountLast);
-                    end;
-                end;
 
                 OnVendUnrealizedVATOnAfterVATPartCalculation(
                   GenJnlLine, VendLedgEntry2, PaidAmount, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, SettledAmount, VATEntry2);
@@ -7576,12 +7604,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
             GenJnlLine."VAT Settlement Part"::" ":
                 ;
             GenJnlLine."VAT Settlement Part"::Custom:
-                begin
-                    if GenJnlLine2."Paid Amount" = 0 then
-                        VATPart := 0
-                    else
-                        VATPart := GenJnlLine.Amount / GenJnlLine2."Paid Amount";
-                end;
+                if GenJnlLine2."Paid Amount" = 0 then
+                    VATPart := 0
+                else
+                    VATPart := GenJnlLine.Amount / GenJnlLine2."Paid Amount";
             else
                 VATPart := VATSettlementMgt.CalcUnrealVATPart(GenJnlLine);
         end;
@@ -7673,12 +7699,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
             GenJnlLine."VAT Settlement Part"::" ":
                 ;
             GenJnlLine."VAT Settlement Part"::Custom:
-                begin
-                    if GenJnlLine2."Paid Amount" = 0 then
-                        VATPart := 0
-                    else
-                        VATPart := GenJnlLine.Amount / GenJnlLine2."Paid Amount";
-                end;
+                if GenJnlLine2."Paid Amount" = 0 then
+                    VATPart := 0
+                else
+                    VATPart := GenJnlLine.Amount / GenJnlLine2."Paid Amount";
             else
                 VATPart := VATSettlementMgt.CalcUnrealVATPart(GenJnlLine);
         end;
@@ -8068,12 +8092,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         if Date3 > LastDate then
             ReturnDate := Date3
-        else begin
+        else
             if Date2 > Date1 then
                 ReturnDate := Date2
             else
                 ReturnDate := Date1;
-        end;
     end;
 
     local procedure GetPayablesAccountNo(GenJnlLine: Record "Gen. Journal Line"): Code[20]
@@ -8209,6 +8232,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure ReadGLSetup(var NewGLSetup: Record "General Ledger Setup")
     begin
         NewGLSetup := GLSetup;
+    end;
+
+    procedure GetSourceCodeSetup()
+    begin
+        if SourceCodeSetupRead then
+            exit;
+
+        SourceCodeSetup.Get();
+        SourceCodeSetupRead := true;
     end;
 
     local procedure CheckSalesExtDocNo(GenJnlLine: Record "Gen. Journal Line")
@@ -8872,7 +8904,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         CurrencyCode := '';
         if DtldCVLedgEntryBuf.Find('+') then
             repeat
-                if not DtldCVLedgEntryBuf."Prepmt. Diff." then begin
+                if not DtldCVLedgEntryBuf."Prepmt. Diff." then
                     if EntryNo <> DtldCVLedgEntryBuf."CV Ledger Entry No." then begin
                         if CurrencyCode <> DtldCVLedgEntryBuf."Currency Code" then begin
                             CurrencyCode := DtldCVLedgEntryBuf."Currency Code";
@@ -8898,7 +8930,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                             end;
                         end;
                     end;
-                end;
             until DtldCVLedgEntryBuf.Next(-1) = 0;
 
         CorrDtldCVLedgEntryBuf.SetCurrentKey("CV Ledger Entry No.", "Entry Type");
@@ -9610,8 +9641,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             DeferralPostingBuffer.SetRange("Document No.", GenJournalLine."Document No.");
             DeferralPostingBuffer.SetRange("Deferral Line No.", GenJournalLine."Deferral Line No.");
             OnPostDeferralPostBufferOnAfterSetFilters(DeferralPostingBuffer, GenJournalLine, GLReg."No.", NextTransactionNo);
-            VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group");
-            NonDeductibleVATPct := NonDeductibleVAT.GetNonDeductibleVATPct(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group", DeferralDocType);
+            if VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group") then
+                NonDeductibleVATPct := NonDeductibleVAT.GetNonDeductibleVATPct(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group", DeferralDocType);
             if DeferralPostingBuffer.FindSet() then begin
                 DeferralTemplate.Get(DeferralPostingBuffer."Deferral Code");
                 repeat
@@ -9725,10 +9756,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure GetJournalsSourceCode()
-    var
-        SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get();
+        GetSourceCodeSetup();
         JournalsSourceCodesList.Add(SourceCodeSetup."General Journal");
         JournalsSourceCodesList.Add(SourceCodeSetup."Purchase Journal");
         JournalsSourceCodesList.Add(SourceCodeSetup."Sales Journal");
@@ -9737,30 +9766,24 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure GetGeneralDeferralSourceCode(): Code[10]
-    var
-        SourceCodeSetupLoc: Record "Source Code Setup";
     begin
-        SourceCodeSetupLoc.Get();
-        SourceCodeSetupLoc.TestField("General Deferral");
-        exit(SourceCodeSetupLoc."General Deferral");
+        GetSourceCodeSetup();
+        SourceCodeSetup.TestField("General Deferral");
+        exit(SourceCodeSetup."General Deferral");
     end;
 
     local procedure GetSalesDeferralSourceCode(): Code[10]
-    var
-        SourceCodeSetupLoc: Record "Source Code Setup";
     begin
-        SourceCodeSetupLoc.Get();
-        SourceCodeSetupLoc.TestField("Sales Deferral");
-        exit(SourceCodeSetupLoc."Sales Deferral");
+        GetSourceCodeSetup();
+        SourceCodeSetup.TestField("Sales Deferral");
+        exit(SourceCodeSetup."Sales Deferral");
     end;
 
     local procedure GetPurchaseDeferralSourceCode(): Code[10]
-    var
-        SourceCodeSetupLoc: Record "Source Code Setup";
     begin
-        SourceCodeSetupLoc.Get();
-        SourceCodeSetupLoc.TestField("Purchase Deferral");
-        exit(SourceCodeSetupLoc."Purchase Deferral");
+        GetSourceCodeSetup();
+        SourceCodeSetup.TestField("Purchase Deferral");
+        exit(SourceCodeSetup."Purchase Deferral");
     end;
 
     procedure DeferralPosting(DeferralCode: Code[10]; SourceCode: Code[10]; AccountNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean)
@@ -10074,6 +10097,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 #endif
+
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertVATOnAfterCalcVATDifferenceLCY(GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; var VATDifferenceLCY: Decimal; var CurrExchRate: Record "Currency Exchange Rate")

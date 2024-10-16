@@ -56,17 +56,57 @@ codeunit 5600 "FA Insert Ledger Entry"
         GLRegisterNo: Integer;
         DeprBonus: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%2 = %3 does not exist for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%2 = %3 does not match the journal line for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 is a %2. %3 must be %4 in %5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 must not be %2 in %3 %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Reversal found a %1 without a matching %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'You cannot reverse the transaction, because it has already been reversed.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label '%1 = %2 already exists for %5 (%3 = %4).';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label 'Status must not be Sold for FA No.: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12401: Label 'FA No. %1 has already written off';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12402: Label 'Amount of the First Disposal operation must be zero';
+#pragma warning restore AA0074
 
     procedure InsertFA(var FALedgEntry3: Record "FA Ledger Entry")
     var
@@ -166,7 +206,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 FALedgEntry.Quantity := 0;
                 FALedgEntry."Initial Acquisition" := false;
             end;
-            if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then begin
+            if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
                 if not FA."Undepreciable FA" then
                     case FADeprBook.GetStatus(FA."No.", DeprBookCode) of
                         FA.Status::Disposed:
@@ -179,7 +219,6 @@ codeunit 5600 "FA Insert Ledger Entry"
                             if (FALedgEntry.Amount <> 0) and (not DeprBook."Allow Correction of Disposal") then
                                 Error(Text12402);
                     end;
-            end;
 
             TaxRegisterSetup.Get();
             FADeprBook.Get(FALedgEntry."FA No.", FALedgEntry."Depreciation Book Code");
@@ -364,7 +403,7 @@ codeunit 5600 "FA Insert Ledger Entry"
 
         if FALedgEntry."G/L Entry No." = 0 then
             exit(false);
-        if not (FA."Undepreciable FA") then begin
+        if not (FA."Undepreciable FA") then
             case DeprBook."Disposal Calculation Method" of
                 DeprBook."Disposal Calculation Method"::Net:
                     if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
@@ -372,11 +411,10 @@ codeunit 5600 "FA Insert Ledger Entry"
                 DeprBook."Disposal Calculation Method"::Gross:
                     if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Gain/Loss" then
                         exit(false);
-            end;
-        end else begin
+            end
+        else
             if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
                 exit(false);
-        end;
         if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Salvage Value" then
             exit(false);
 

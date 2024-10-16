@@ -65,7 +65,7 @@ page 12435 "Posted Sales Cr. Memo - Update"
     begin
         if CloseAction = ACTION::LookupOK then
             if RecordChanged() then
-                CODEUNIT.Run(CODEUNIT::"Sales Cr.Memo Header - Edit", Rec);
+                CODEUNIT.Run(CODEUNIT::"Sales Credit Memo Hdr. - Edit", Rec);
     end;
 
     var

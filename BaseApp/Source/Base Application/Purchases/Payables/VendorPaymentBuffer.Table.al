@@ -168,14 +168,6 @@ table 475 "Vendor Payment Buffer"
         OnAfterCopyFieldsToGenJournalLine(Rec, GenJournalLine);
     end;
 
-#if not CLEAN22
-    [Obsolete('Table Payment Buffer will be replaced by table Vendor Payment Buffer.', '22.0')]
-    procedure CopyFieldsFromPaymentBuffer(TempPaymentBuffer: Record "Payment Buffer")
-    begin
-        Rec.TransferFields(TempPaymentBuffer, true, true);
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var PaymentBufferTarget: Record "Vendor Payment Buffer")
     begin

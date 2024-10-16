@@ -12,8 +12,10 @@ permissionset 1001 "LOCAL"
                   tabledata "Assessed Tax Code" = RIMD,
                   tabledata "Bank Account Details" = RIMD,
                   tabledata "Bank Directory" = RIMD,
+#if not CLEAN25
                   tabledata "CD No. Header" = RIMD,
                   tabledata "CD No. Information" = RIMD,
+#endif                  
                   tabledata "Company Address" = RIMD,
                   tabledata "Customer Agreement" = RIMD,
                   tabledata "Default Signature Setup" = Rimd,

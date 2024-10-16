@@ -22,15 +22,12 @@ codeunit 134151 "ERM Intercompany"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         IsInitialized: Boolean;
         BlockedErr: Label 'You cannot create this type of document when %1 %2 is blocked with type %3', Locked = true;
-        ICAccountErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Locked = true;
         BlockedICPartnerErr: Label '%1 %2 is linked to a blocked IC Partner.', Locked = true;
         ValidationErr: Label '%1 must be %2 in %3.', Locked = true;
         AccountNo: Code[20];
         GLAccountNo: Code[20];
         AccountType: Text[30];
         Amount2: Decimal;
-        ICPartnerBlockedErr: Label '%1 must be equal to ''%2''  in %3: %4=%5. Current value is ''%6''.', Locked = true;
-        ValueMustExistErr: Label '%1 must have a value in %2: %3=%4. It cannot be zero or empty.', Locked = true;
         AccountValidationErr: Label 'You cannot enter G/L Account or Bank Account in both %1 and %2.', Locked = true;
         EntryMustExistErr: Label '%1 must exist.', Locked = true;
         SameICPartnerErr: Label 'The %1 %2 has been assigned to %3 %4.', Locked = true;
@@ -39,9 +36,7 @@ codeunit 134151 "ERM Intercompany"
         CustomerDeleteErr: Label 'You cannot delete IC Partner %1 because it is used for Customer %2', Locked = true;
         VendorDeleteErr: Label 'You cannot delete IC Partner %1 because it is used for Vendor %2', Locked = true;
         RemoveICPartnerErr: Label 'You cannot change the contents of the IC Partner Code field because this %1 has one or more open ledger entries.', Locked = true;
-        AccountErr: Label '%1 must have a value in IC Partner: Code=%2. It cannot be zero or empty.', Locked = true;
         EntryMustNotExistErr: Label '%1 must not exist.', Locked = true;
-        ICPartnerGLAccountNoErr: Label '%1 must be equal to ''%2''  in %3: %4=%5, %6=%7, %8=%9. Current value is ''%10''.', Locked = true;
         BlockedDimValueErr: Label '%1 %2 - %3 is blocked.', Locked = true;
         BlockedDimensionErr: Label '%1 %2 is blocked.', Locked = true;
         OutOfBalanceErr: Label '%1 %2 is out of balance by %3. Please check that %4, %5, %6 and %7 are correct for each line.', Locked = true;
@@ -236,9 +231,6 @@ codeunit 134151 "ERM Intercompany"
           GenJournalLine."Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", -Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("IC Partner Code", CreateICPartner());
-#if not CLEAN22
-        GenJournalLine.Validate("IC Partner G/L Acc. No.", ICGLAccount."No.");
-#endif
         GenJournalLine.Validate("IC Account Type", "IC Journal Account Type"::"G/L Account");
         GenJournalLine.Validate("IC Account No.", ICGLAccount."No.");
         GenJournalLine.Modify(true);
@@ -285,12 +277,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ICAccountErr, GenJournalLine.FieldCaption("IC Account No."), GenJournalLine.TableCaption(),
-            GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
-            GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
-            GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("IC Account No."), '');
     end;
 
     [Test]
@@ -324,12 +311,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ICAccountErr, GenJournalLine.FieldCaption("IC Account No."), GenJournalLine.TableCaption(),
-            GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
-            GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
-            GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("IC Account No."), '');
     end;
 
     [Test]
@@ -434,12 +416,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ICAccountErr, GenJournalLine.FieldCaption("IC Account No."), GenJournalLine.TableCaption(),
-            GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
-            GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
-            GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("IC Account No."), '');
     end;
 
     [Test]
@@ -469,11 +446,7 @@ codeunit 134151 "ERM Intercompany"
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Document No.", GenJournalLine.Amount);
 
-#if not CLEAN22
-        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
-#else
         ICAccountNo := GenJournalLine."IC Account No.";
-#endif
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", ICAccountNo,
           GenJournalLine."Document No.", -GenJournalLine.Amount);
@@ -600,10 +573,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ICPartnerBlockedErr, ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), ICPartner.FieldCaption(Code),
-            ICPartnerCode, true));
+        Assert.ExpectedTestFieldError(ICPartner.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -627,10 +597,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"IC Partner", ICPartnerCode, 1);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ICPartnerBlockedErr, ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), ICPartner.FieldCaption(Code),
-            ICPartnerCode, true));
+        Assert.ExpectedTestFieldError(ICPartner.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -791,11 +758,7 @@ codeunit 134151 "ERM Intercompany"
         // Setup: Create Customer with unblocked IC Partner, Create and update IC Journal Line, taking 1 for sign factor.
         CreateAndUpdateICJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, JournalLineAccountType, AccountNumber, 1);
         AccountNo := AccountNumber;  // Assigning Value to Global Variable.
-#if not CLEAN22
-        GLAccountNo := GenJournalLine."IC Partner G/L Acc. No.";  // Assigning Value to Global Variable.
-#else
         GLAccountNo := GenJournalLine."IC Account No.";  // Assigning Value to Global Variable.
-#endif
         AccountType := Format(JournalLineAccountType);  // Assigning Value to Global Variable.
         Amount2 := GenJournalLine.Amount;  // Assigning Value to Global Variable.
 
@@ -857,10 +820,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine."Account No.", GenJournalLine."Document Type", GenJournalLine."Document No.");
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ValueMustExistErr, ICPartner.FieldCaption("Inbox Details"), ICPartner.TableCaption(), ICPartner.FieldCaption(Code),
-            GenJournalLine."Account No."));
+        Assert.ExpectedTestFieldError(ICPartner.FieldCaption("Inbox Details"), '');
 
         // Tear Down: Rollback Partner Code updated in Company Information.
         LibraryLowerPermissions.SetO365Setup();
@@ -888,10 +848,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine."Account No.", GenJournalLine."Document Type", GenJournalLine."Document No.");
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ValueMustExistErr, ICSetup.FieldCaption("IC Partner Code"), ICSetup.TableCaption(),
-            ICSetup.FieldCaption("Primary Key"), ICSetup."Primary Key"));
+        Assert.ExpectedTestFieldError(ICSetup.FieldCaption("IC Partner Code"), '');
 
         // Tear Down: Rollback IC Partner Code updated in Company Information.
         LibraryLowerPermissions.SetO365Setup();
@@ -975,7 +932,7 @@ codeunit 134151 "ERM Intercompany"
         Assert.ExpectedError(
           StrSubstNo(SameICPartnerErr, Vendor.FieldCaption("IC Partner Code"), ICPartnerCode, Vendor.TableCaption(), VendorNo));
     end;
-    
+
     [Test]
     [Scope('OnPrem')]
     procedure CreationOfICPartnerWithBlankCode()
@@ -1164,7 +1121,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(StrSubstNo(AccountErr, FieldCaption, ICPartner.Code));
+        Assert.ExpectedTestFieldError(FieldCaption, ICPartner.Code);
     end;
 
     [Test]
@@ -1254,10 +1211,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"IC Partner", ICPartner.Code, 1);
 
         // Verify: Verify error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ICPartnerBlockedErr, ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), ICPartner.FieldCaption(Code),
-            ICPartner.Code, true));
+        Assert.ExpectedTestFieldError(ICPartner.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1306,12 +1260,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ICPartnerGLAccountNoErr, GenJournalLine.FieldCaption("IC Account No."), '', GenJournalLine.TableCaption(),
-            GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
-            GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
-            GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No.", GenJournalLine."IC Account No."));
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("IC Account No."), '');
     end;
 
     [Test]
@@ -1344,11 +1293,7 @@ codeunit 134151 "ERM Intercompany"
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"IC Partner", GenJournalLine."IC Partner Code",
           GenJournalLine."Document No.", GenJournalLine.Amount);
-#if not CLEAN22
-        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
-#else
         ICAccountNo := GenJournalLine."IC Account No.";
-#endif
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", ICAccountNo,
           GenJournalLine."Document No.", -GenJournalLine.Amount);
@@ -2494,52 +2439,43 @@ codeunit 134151 "ERM Intercompany"
 
     local procedure MockICOutboxTrans(var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
-        with ICOutboxTransaction do begin
-            Init();
-            "Transaction No." := LibraryUtility.GetNewRecNo(ICOutboxTransaction, FieldNo("Transaction No."));
-            "IC Partner Code" := CreateICPartner();
-            "Transaction Source" := "Transaction Source"::"Created by Current Company";
-            "Document Type" := "Document Type"::Invoice;
-            "Source Type" := "Source Type"::"Journal Line";
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Posting Date" := LibraryRandom.RandDate(10);
-            "Document Date" := LibraryRandom.RandDate(10);
-            "IC Account Type" := "IC Journal Account Type"::"G/L Account";
-            "IC Account No." := LibraryUtility.GenerateGUID();
-#if not CLEAN22
-            "IC Partner G/L Acc. No." := "IC Account No.";
-#endif
-            "Source Line No." := LibraryRandom.RandInt(100);
-            Insert();
-        end;
+        ICOutboxTransaction.Init();
+        ICOutboxTransaction."Transaction No." := LibraryUtility.GetNewRecNo(ICOutboxTransaction, ICOutboxTransaction.FieldNo("Transaction No."));
+        ICOutboxTransaction."IC Partner Code" := CreateICPartner();
+        ICOutboxTransaction."Transaction Source" := ICOutboxTransaction."Transaction Source"::"Created by Current Company";
+        ICOutboxTransaction."Document Type" := ICOutboxTransaction."Document Type"::Invoice;
+        ICOutboxTransaction."Source Type" := ICOutboxTransaction."Source Type"::"Journal Line";
+        ICOutboxTransaction."Document No." := LibraryUtility.GenerateGUID();
+        ICOutboxTransaction."Posting Date" := LibraryRandom.RandDate(10);
+        ICOutboxTransaction."Document Date" := LibraryRandom.RandDate(10);
+        ICOutboxTransaction."IC Account Type" := "IC Journal Account Type"::"G/L Account";
+        ICOutboxTransaction."IC Account No." := LibraryUtility.GenerateGUID();
+        ICOutboxTransaction."Source Line No." := LibraryRandom.RandInt(100);
+        ICOutboxTransaction.Insert();
     end;
 
     local procedure MockICInboxTrans(ICOutboxTransaction: Record "IC Outbox Transaction")
     var
         ICInboxTransaction: Record "IC Inbox Transaction";
     begin
-        with ICInboxTransaction do begin
-            Init();
-            "Transaction No." := ICOutboxTransaction."Transaction No.";
-            "IC Partner Code" := ICOutboxTransaction."IC Partner Code";
-            "Transaction Source" := ICOutboxTransaction."Transaction Source";
-            "Document Type" := ICOutboxTransaction."Document Type";
-            Insert();
-        end;
+        ICInboxTransaction.Init();
+        ICInboxTransaction."Transaction No." := ICOutboxTransaction."Transaction No.";
+        ICInboxTransaction."IC Partner Code" := ICOutboxTransaction."IC Partner Code";
+        ICInboxTransaction."Transaction Source" := ICOutboxTransaction."Transaction Source";
+        ICInboxTransaction."Document Type" := ICOutboxTransaction."Document Type";
+        ICInboxTransaction.Insert();
     end;
 
     local procedure MockHandledICInboxTrans(ICOutboxTransaction: Record "IC Outbox Transaction")
     var
         HandledICInboxTrans: Record "Handled IC Inbox Trans.";
     begin
-        with HandledICInboxTrans do begin
-            Init();
-            "Transaction No." := ICOutboxTransaction."Transaction No.";
-            "IC Partner Code" := ICOutboxTransaction."IC Partner Code";
-            "Transaction Source" := ICOutboxTransaction."Transaction Source";
-            "Document Type" := ICOutboxTransaction."Document Type";
-            Insert();
-        end;
+        HandledICInboxTrans.Init();
+        HandledICInboxTrans."Transaction No." := ICOutboxTransaction."Transaction No.";
+        HandledICInboxTrans."IC Partner Code" := ICOutboxTransaction."IC Partner Code";
+        HandledICInboxTrans."Transaction Source" := ICOutboxTransaction."Transaction Source";
+        HandledICInboxTrans."Document Type" := ICOutboxTransaction."Document Type";
+        HandledICInboxTrans.Insert();
     end;
 
     local procedure DeleteGeneralJournalBatch(JournalTemplateName: Code[10]; Description: Text[50])
@@ -2661,9 +2597,6 @@ codeunit 134151 "ERM Intercompany"
     begin
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
-#if not CLEAN22
-        GenJournalLine.Validate("IC Partner G/L Acc. No.", ICPartnerGLAccNo);
-#endif
         GenJournalLine.Validate("IC Account No.", ICPartnerGLAccNo);
         GenJournalLine.Modify(true);
     end;
@@ -2758,24 +2691,19 @@ codeunit 134151 "ERM Intercompany"
 
     local procedure VerifyICInboxTrans(ICInboxTransaction: Record "IC Inbox Transaction"; ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
-        with ICInboxTransaction do begin
-            Assert.AreEqual(ICOutboxTransaction."Transaction No.", "Transaction No.", FieldCaption("Transaction No."));
-            Assert.AreEqual("IC Partner Code", "IC Partner Code", FieldCaption("IC Partner Code"));
-            Assert.AreEqual(ICOutboxTransaction."Transaction Source", "Transaction Source", FieldCaption("Transaction Source"));
-            Assert.AreEqual(ICOutboxTransaction."Document Type", "Document Type", FieldCaption("Document Type"));
-            Assert.AreEqual("Source Type"::Journal, "Source Type", FieldCaption("Source Type"));
-            Assert.AreEqual(ICOutboxTransaction."Document No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(ICOutboxTransaction."Document No.", "Original Document No.", FieldCaption("Original Document No."));
-            Assert.AreEqual(ICOutboxTransaction."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            Assert.AreEqual(ICOutboxTransaction."Document Date", "Document Date", FieldCaption("Document Date"));
-            Assert.AreEqual("Line Action"::"No Action", "Line Action", FieldCaption("Line Action"));
-#if not CLEAN22
-            Assert.AreEqual(ICOutboxTransaction."IC Partner G/L Acc. No.", "IC Partner G/L Acc. No.", FieldCaption("IC Partner G/L Acc. No."));
-#endif
-            Assert.AreEqual(ICOutboxTransaction."IC Account Type", "IC Account Type", FieldCaption("IC Account Type"));
-            Assert.AreEqual(ICOutboxTransaction."IC Account No.", "IC Account No.", FieldCaption("IC Account No."));
-            Assert.AreEqual(ICOutboxTransaction."Source Line No.", "Source Line No.", FieldCaption("Source Line No."));
-        end;
+        Assert.AreEqual(ICOutboxTransaction."Transaction No.", ICInboxTransaction."Transaction No.", ICInboxTransaction.FieldCaption("Transaction No."));
+        Assert.AreEqual(ICInboxTransaction."IC Partner Code", ICInboxTransaction."IC Partner Code", ICInboxTransaction.FieldCaption("IC Partner Code"));
+        Assert.AreEqual(ICOutboxTransaction."Transaction Source", ICInboxTransaction."Transaction Source", ICInboxTransaction.FieldCaption("Transaction Source"));
+        Assert.AreEqual(ICOutboxTransaction."Document Type", ICInboxTransaction."Document Type", ICInboxTransaction.FieldCaption("Document Type"));
+        Assert.AreEqual(ICInboxTransaction."Source Type"::Journal, ICInboxTransaction."Source Type", ICInboxTransaction.FieldCaption("Source Type"));
+        Assert.AreEqual(ICOutboxTransaction."Document No.", ICInboxTransaction."Document No.", ICInboxTransaction.FieldCaption("Document No."));
+        Assert.AreEqual(ICOutboxTransaction."Document No.", ICInboxTransaction."Original Document No.", ICInboxTransaction.FieldCaption("Original Document No."));
+        Assert.AreEqual(ICOutboxTransaction."Posting Date", ICInboxTransaction."Posting Date", ICInboxTransaction.FieldCaption("Posting Date"));
+        Assert.AreEqual(ICOutboxTransaction."Document Date", ICInboxTransaction."Document Date", ICInboxTransaction.FieldCaption("Document Date"));
+        Assert.AreEqual(ICInboxTransaction."Line Action"::"No Action", ICInboxTransaction."Line Action", ICInboxTransaction.FieldCaption("Line Action"));
+        Assert.AreEqual(ICOutboxTransaction."IC Account Type", ICInboxTransaction."IC Account Type", ICInboxTransaction.FieldCaption("IC Account Type"));
+        Assert.AreEqual(ICOutboxTransaction."IC Account No.", ICInboxTransaction."IC Account No.", ICInboxTransaction.FieldCaption("IC Account No."));
+        Assert.AreEqual(ICOutboxTransaction."Source Line No.", ICInboxTransaction."Source Line No.", ICInboxTransaction.FieldCaption("Source Line No."));
     end;
 
     local procedure CreateMultipleGLAccounts()

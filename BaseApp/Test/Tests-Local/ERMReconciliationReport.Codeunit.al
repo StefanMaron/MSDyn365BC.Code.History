@@ -723,11 +723,9 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            Validate("Mark Cr. Memos as Corrections", NewValue);
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("Mark Cr. Memos as Corrections", NewValue);
+        GLSetup.Modify(true);
     end;
 
     local procedure CreatePostPurchInvoice(VendorNo: Code[20]; var InvoiceAmount: Decimal; PostingDate: Date): Code[20]
@@ -759,10 +757,9 @@
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            CreateApplyPostGenJnlLine(
-              PostingDate, "Document Type"::Payment, "Account Type"::Customer, CustomerNo,
-              "Applies-to Doc. Type"::Invoice, InvoiceNo, AgreementNo, LineAmount);
+        CreateApplyPostGenJnlLine(
+              PostingDate, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
+              GenJournalLine."Applies-to Doc. Type"::Invoice, InvoiceNo, AgreementNo, LineAmount);
     end;
 
     local procedure CreateApplyPostVendorPayment(VendorNo: Code[20]; InvoiceNo: Code[20]; LineAmount: Decimal)
@@ -774,43 +771,38 @@
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            CreateApplyPostGenJnlLine(
-              PostingDate, "Document Type"::Payment, "Account Type"::Vendor, VendorNo,
-              "Applies-to Doc. Type"::Invoice, InvoiceNo, '', LineAmount);
+        CreateApplyPostGenJnlLine(
+              PostingDate, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo,
+              GenJournalLine."Applies-to Doc. Type"::Invoice, InvoiceNo, '', LineAmount);
     end;
 
     local procedure CreateApplyPostCustomerRefund(CustomerNo: Code[20]; CrMemoNo: Code[20]; LineAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            CreateApplyPostGenJnlLine(
-              WorkDate(), "Document Type"::Refund, "Account Type"::Customer, CustomerNo,
-              "Applies-to Doc. Type"::"Credit Memo", CrMemoNo, '', LineAmount);
+        CreateApplyPostGenJnlLine(
+              WorkDate(), GenJournalLine."Document Type"::Refund, GenJournalLine."Account Type"::Customer, CustomerNo,
+              GenJournalLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, '', LineAmount);
     end;
 
     local procedure CreateApplyPostGenJnlLine(PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; AgreementNo: Code[20]; LineAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, DocumentType, AccountType, AccountNo, LineAmount);
-            Validate("Posting Date", PostingDate);
-            Validate("Applies-to Doc. Type", AppliesToDocType);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Validate("Agreement No.", AgreementNo);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, DocumentType, AccountType, AccountNo, LineAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        GenJournalLine.Validate("Agreement No.", AgreementNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreatePostGenJnlLine(LineAmount: Decimal; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AgreementNo: Code[20]; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            CreateApplyPostGenJnlLine(PostingDate, "Document Type"::Payment, AccType, AccNo, "Gen. Journal Document Type"::" ", '', AgreementNo, LineAmount);
+        CreateApplyPostGenJnlLine(PostingDate, GenJournalLine."Document Type"::Payment, AccType, AccNo, "Gen. Journal Document Type"::" ", '', AgreementNo, LineAmount);
     end;
 
     local procedure CreateApplyPost2GenJnlLines(Amount: Decimal; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AgreementNo1: Code[20]; AgreementNo2: Code[20]; AppliesToDocNo: Code[20]): Decimal
@@ -841,12 +833,10 @@
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document Type", "Document Type"::Payment);
-            FindFirst();
-            exit("Document No.");
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.FindFirst();
+        exit(CustLedgerEntry."Document No.");
     end;
 
     local procedure GetRandomDateWithMonthShift(MonthShift: Integer): Date
@@ -1051,12 +1041,10 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
-            Validate("Unit Price", LibraryRandom.RandIntInRange(1000, 2000));
-            Modify(true);
-            exit("Amount Including VAT");
-        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(1000, 2000));
+        SalesLine.Modify(true);
+        exit(SalesLine."Amount Including VAT");
     end;
 
     local procedure CreateCorrectionSalesCreditMemo(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; InvoiceNo: Code[20]; AgreementNo: Code[20])
@@ -1105,13 +1093,11 @@
     var
         CustomerAgreement: Record "Customer Agreement";
     begin
-        with CustomerAgreement do begin
-            Init();
-            "Customer No." := CustomerNo;
-            Active := IsActive;
-            "Expire Date" := CalcDate('<1M>', WorkDate());
-            Insert(true);
-        end;
+        CustomerAgreement.Init();
+        CustomerAgreement."Customer No." := CustomerNo;
+        CustomerAgreement.Active := IsActive;
+        CustomerAgreement."Expire Date" := CalcDate('<1M>', WorkDate());
+        CustomerAgreement.Insert(true);
         exit(CustomerAgreement."No.");
     end;
 
@@ -1119,12 +1105,10 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindLast();
-            Delete(true);
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindLast();
+        SalesLine.Delete(true);
     end;
 
     local procedure AmountAsText(value: Decimal): Text[250]

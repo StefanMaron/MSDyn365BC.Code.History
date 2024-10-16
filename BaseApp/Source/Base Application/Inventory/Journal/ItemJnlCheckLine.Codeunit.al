@@ -39,17 +39,51 @@ codeunit 21 "Item Jnl.-Check Line"
         CalledFromInvtPutawayPick: Boolean;
         CalledFromAdjustment: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'cannot be a closing date';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'must not be negative when %1 is %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'must have the same value as %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'must be %1 or %2 when %3 is %4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'must equal %1 - %2 when %3 is %4 and %5 is %6';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label 'You cannot post these lines because you have not entered a quantity on one or more of the lines. ';
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         DimCombBlockedErr: Label 'The combination of dimensions used in item journal line %1, %2, %3 is blocked. %4.', Comment = '%1 = Journal Template Name; %2 = Journal Batch Name; %3 = Line No.';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         DimCausedErr: Label 'A dimension used in item journal line %1, %2, %3 has caused an error. %4.', Comment = '%1 = Journal Template Name; %2 = Journal Batch Name; %3 = Line No.';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text011: Label '%1 must not be equal to %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text012: Label 'Warehouse handling is required for %1 = %2, %3 = %4, %5 = %6.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.';
+#pragma warning restore AA0470
 
     procedure RunCheck(var ItemJournalLine: Record "Item Journal Line")
     var
@@ -717,10 +751,26 @@ codeunit 21 "Item Jnl.-Check Line"
         LineNo: Integer;
         LocLatestItemLedgerEntry: Record "Item Ledger Entry";
         FADeprBook: Record "FA Depreciation Book";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label '%1 in line %2 is different from the %3 in %4 %5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12401: Label '%1 must be %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12402: Label 'There are posted entries with later date for %1 %2 %3 %4. Cancel these entries first.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12403: Label 'The %1 %2 of %3 %4 %5 %6 is less than %7 %8 in %9 %10';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
     begin
 
         LocItemLedgerEntry.Get(ItemLedgerEntryNo);

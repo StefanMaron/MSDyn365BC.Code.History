@@ -158,11 +158,9 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            "Stockout Warning" := false;
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Stockout Warning" := false;
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure VerifyAddress(ShipToAddress1: Text[50]; ShipToAddress2: Text[50])

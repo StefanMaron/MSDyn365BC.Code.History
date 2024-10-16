@@ -1107,13 +1107,11 @@ codeunit 134775 "Word & RDLC Report Selections"
     var
         ReportSelections: Record "Report Selections";
     begin
-        with ReportSelections do begin
-            Init();
-            Usage := ReportSelectionsUsage;
-            Sequence := SequenceCode;
-            "Report ID" := ReportId;
-            Insert();
-        end;
+        ReportSelections.Init();
+        ReportSelections.Usage := ReportSelectionsUsage;
+        ReportSelections.Sequence := SequenceCode;
+        ReportSelections."Report ID" := ReportId;
+        ReportSelections.Insert();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer): Code[20]
@@ -1133,36 +1131,32 @@ codeunit 134775 "Word & RDLC Report Selections"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Document Type" := "Document Type"::Invoice;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Posting Date" := WorkDate();
-            Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
-            Open := true;
-            Insert();
-            MockDetailedCustLedgerEntry("Entry No.", "Customer No.", "Document No.", Amount, "Posting Date");
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        CustLedgerEntry."Posting Date" := WorkDate();
+        CustLedgerEntry.Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Insert();
+        MockDetailedCustLedgerEntry(CustLedgerEntry."Entry No.", CustLedgerEntry."Customer No.", CustLedgerEntry."Document No.", CustLedgerEntry.Amount, CustLedgerEntry."Posting Date");
     end;
 
     local procedure MockDetailedCustLedgerEntry(CustLedgerEntryNo: Integer; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryAmount: Decimal; PostingDate: Date)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Document Type" := "Document Type"::Invoice;
-            "Document No." := DocumentNo;
-            "Cust. Ledger Entry No." := CustLedgerEntryNo;
-            Amount := EntryAmount;
-            "Amount (LCY)" := EntryAmount;
-            "Posting Date" := PostingDate;
-            Insert();
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Customer No." := CustomerNo;
+        DetailedCustLedgEntry."Document Type" := DetailedCustLedgEntry."Document Type"::Invoice;
+        DetailedCustLedgEntry."Document No." := DocumentNo;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
+        DetailedCustLedgEntry.Amount := EntryAmount;
+        DetailedCustLedgEntry."Amount (LCY)" := EntryAmount;
+        DetailedCustLedgEntry."Posting Date" := PostingDate;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure GetReportOutputFullFileName(CustomerName: Text; ReportName: Text): Text

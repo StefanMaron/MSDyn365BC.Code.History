@@ -8,7 +8,6 @@ using Microsoft.CRM.Setup;
 using Microsoft.CRM.Task;
 using Microsoft.CRM.Team;
 using Microsoft.Sales.Customer;
-using System.Environment;
 using System.Globalization;
 using System.Integration;
 using System.Integration.Word;
@@ -17,7 +16,6 @@ using System.Security.AccessControl;
 using System.Security.User;
 using System.Telemetry;
 using System.Utilities;
-using System.Email;
 
 table 5077 "Segment Line"
 {
@@ -595,14 +593,16 @@ table 5077 "Segment Line"
         GlobalAttachment: Record Attachment;
         InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
         AttachmentManagement: Codeunit AttachmentManagement;
-        ClientTypeManagement: Codeunit "Client Type Management";
         CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
-        Mail: Codeunit Mail;
         ResumedAttachmentNo: Integer;
         InteractionLogEntryNo: Integer;
 
 #if not CLEAN23
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 = %2 can not be specified for %3 %4.\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 #endif
         InheritedTxt: Label 'Inherited';
         UniqueTxt: Label 'Unique';
@@ -615,9 +615,12 @@ table 5077 "Segment Line"
         SelectContactErr: Label 'You must select a contact to interact with.';
         PhoneNumberErr: Label 'You must fill in the phone number.';
 #if not CLEAN23
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text024: Label '%1 = %2 cannot be specified.', Comment = '%1=Correspondence Type';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 #endif
-        EmailCouldNotbeSentErr: Label 'The email could not be sent because of the following error: %1.\Note: if you run %2 as administrator, you must run Outlook as administrator as well.', Comment = '%1 - error, %2 - product name';
         WordTemplateUsedErr: Label 'You cannot change the attachment when a Word template has been specified.';
         OneDriveNotEnabledMsg: Label 'Onedrive is not enabled. Please enable it in the OneDrive Setup page.';
         ModifyExistingAttachmentMsg: Label 'Modify existing attachment?';
@@ -1287,7 +1290,7 @@ table 5077 "Segment Line"
                 if not IsHandled then
                     SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, send, not IsFinish);
                 InteractionLogEntry.FindLast();
-                if Send and (InteractionLogEntry."Delivery Status" = InteractionLogEntry."Delivery Status"::Error) then begin
+                if Send and (InteractionLogEntry."Delivery Status" = InteractionLogEntry."Delivery Status"::Error) then
                     if HTMLAttachment then begin
                         Clear(TempAttachment);
                         LoadTempAttachment(false);
@@ -1297,10 +1300,6 @@ table 5077 "Segment Line"
                             TempAttachment.WriteHTMLCustomLayoutAttachment(HTMLContentBodyText, ReportLayoutName);
                         Commit();
                     end;
-                    if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone]) then
-                        if Mail.GetErrorDesc() <> '' then
-                            Error(EmailCouldNotbeSentErr, Mail.GetErrorDesc(), PRODUCTNAME.Full());
-                end;
                 InteractionLogEntryNo := InteractionLogEntry."Entry No.";
             end;
         end;

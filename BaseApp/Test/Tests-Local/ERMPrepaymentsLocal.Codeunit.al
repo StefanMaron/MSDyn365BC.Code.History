@@ -174,13 +174,11 @@ codeunit 144014 "ERM Prepayments Local"
     begin
         // Check Customer Ledger Entries after running Return Prepayment report
         PostSalesInvWithPrepayment(PrepmtDocNo, InvNo, PostingDate, Amount);
-        with CustLedgEntry do begin
-            SetRange("Document No.", PrepmtDocNo);
-            FindFirst();
-            RunReturnPrepaymentReport("Entry No.", EntryType::Sale);
-            VerifyCustLedgEntry(PrepmtDocNo, "Document Type"::" ", true, -Amount);
-            VerifyCustLedgEntry(PrepmtDocNo, "Document Type"::Payment, false, Amount);
-        end;
+        CustLedgEntry.SetRange("Document No.", PrepmtDocNo);
+        CustLedgEntry.FindFirst();
+        RunReturnPrepaymentReport(CustLedgEntry."Entry No.", EntryType::Sale);
+        VerifyCustLedgEntry(PrepmtDocNo, CustLedgEntry."Document Type"::" ", true, -CustLedgEntry.Amount);
+        VerifyCustLedgEntry(PrepmtDocNo, CustLedgEntry."Document Type"::Payment, false, CustLedgEntry.Amount);
     end;
 
     [Test]
@@ -195,13 +193,11 @@ codeunit 144014 "ERM Prepayments Local"
     begin
         // Check Vendor Ledger Entries after running Return Prepayment report
         PostPurchInvWithPrepayment(PrepmtDocNo, InvNo, PostingDate, Amount);
-        with VendLedgEntry do begin
-            SetRange("Document No.", PrepmtDocNo);
-            FindFirst();
-            RunReturnPrepaymentReport("Entry No.", EntryType::Purchase);
-            VerifyVendLedgEntry(PrepmtDocNo, "Document Type"::" ", true, Amount);
-            VerifyVendLedgEntry(PrepmtDocNo, "Document Type"::Payment, false, -Amount);
-        end;
+        VendLedgEntry.SetRange("Document No.", PrepmtDocNo);
+        VendLedgEntry.FindFirst();
+        RunReturnPrepaymentReport(VendLedgEntry."Entry No.", EntryType::Purchase);
+        VerifyVendLedgEntry(PrepmtDocNo, VendLedgEntry."Document Type"::" ", true, VendLedgEntry.Amount);
+        VerifyVendLedgEntry(PrepmtDocNo, VendLedgEntry."Document Type"::Payment, false, -VendLedgEntry.Amount);
     end;
 
     [Test]
@@ -403,18 +399,16 @@ codeunit 144014 "ERM Prepayments Local"
 
     local procedure CreatePrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; EntryAmount: Decimal; PrepmtDocNo: Code[20]): Code[20]
     begin
-        with GenJnlLine do begin
-            InitGenJnlLine(GenJnlLine);
-            LibraryJournals.CreateGenJournalLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name", DocType, AccountType, AccountNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), EntryAmount);
-            Validate(Prepayment, true);
-            Validate("Posting Date", PostingDate);
-            if PrepmtDocNo <> '' then
-                Validate("Prepayment Document No.", PrepmtDocNo);
-            Modify(true);
-            exit("Document No.");
-        end;
+        InitGenJnlLine(GenJnlLine);
+        LibraryJournals.CreateGenJournalLine(
+          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", DocType, AccountType, AccountNo,
+          GenJnlLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), EntryAmount);
+        GenJnlLine.Validate(Prepayment, true);
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        if PrepmtDocNo <> '' then
+            GenJnlLine.Validate("Prepayment Document No.", PrepmtDocNo);
+        GenJnlLine.Modify(true);
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure CreateDimSet(DimSetID: Integer): Integer
@@ -464,11 +458,9 @@ codeunit 144014 "ERM Prepayments Local"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, DocType, DocNo);
-        with VendLedgEntry do begin
-            CalcFields("Remaining Amount");
-            Assert.AreEqual(
-              0, "Remaining Amount", StrSubstNo(EntryNotAppliedErr, TableCaption(), "Entry No.", "Remaining Amount"));
-        end;
+        VendLedgEntry.CalcFields("Remaining Amount");
+        Assert.AreEqual(
+          0, VendLedgEntry."Remaining Amount", StrSubstNo(EntryNotAppliedErr, VendLedgEntry.TableCaption(), VendLedgEntry."Entry No.", VendLedgEntry."Remaining Amount"));
     end;
 
     local procedure VerifyZeroRemainingAmountInCustLedgEntries(PrepmtDocNo: Code[20]; RefundDocNo: Code[20])
@@ -484,11 +476,9 @@ codeunit 144014 "ERM Prepayments Local"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgEntry, DocType, DocNo);
-        with CustLedgEntry do begin
-            CalcFields("Remaining Amount");
-            Assert.AreEqual(
-              0, "Remaining Amount", StrSubstNo(EntryNotAppliedErr, TableCaption(), "Entry No.", "Remaining Amount"));
-        end;
+        CustLedgEntry.CalcFields("Remaining Amount");
+        Assert.AreEqual(
+          0, CustLedgEntry."Remaining Amount", StrSubstNo(EntryNotAppliedErr, CustLedgEntry.TableCaption(), CustLedgEntry."Entry No.", CustLedgEntry."Remaining Amount"));
     end;
 
     local procedure RunReturnPrepaymentReport(EntryNo: Integer; EntryType: Option)
@@ -504,56 +494,48 @@ codeunit 144014 "ERM Prepayments Local"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange(Prepayment, IsPrepayment);
-            FindFirst();
-            Assert.AreEqual(VerifyAmount, Amount,
-              StrSubstNo(FieldValueIncorrectErr, FieldCaption(Amount)));
-        end;
+        CustLedgEntry.SetRange("Document No.", DocumentNo);
+        CustLedgEntry.SetRange("Document Type", DocumentType);
+        CustLedgEntry.SetRange(Prepayment, IsPrepayment);
+        CustLedgEntry.FindFirst();
+        Assert.AreEqual(VerifyAmount, CustLedgEntry.Amount,
+          StrSubstNo(FieldValueIncorrectErr, CustLedgEntry.FieldCaption(Amount)));
     end;
 
     local procedure VerifyVendLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; IsPrepayment: Boolean; VerifyAmount: Decimal)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange(Prepayment, IsPrepayment);
-            FindFirst();
-            Assert.AreEqual(VerifyAmount, Amount,
-              StrSubstNo(FieldValueIncorrectErr, FieldCaption(Amount)));
-        end;
+        VendLedgEntry.SetRange("Document No.", DocumentNo);
+        VendLedgEntry.SetRange("Document Type", DocumentType);
+        VendLedgEntry.SetRange(Prepayment, IsPrepayment);
+        VendLedgEntry.FindFirst();
+        Assert.AreEqual(VerifyAmount, VendLedgEntry.Amount,
+          StrSubstNo(FieldValueIncorrectErr, VendLedgEntry.FieldCaption(Amount)));
     end;
 
     local procedure VerifyCustLedgEntryDimSetID(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; IsPrepayment: Boolean; VerifyDimSetID: Integer)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange(Prepayment, IsPrepayment);
-            FindFirst();
-            Assert.AreEqual(VerifyDimSetID, "Dimension Set ID",
-              StrSubstNo(FieldValueIncorrectErr, FieldCaption("Dimension Set ID")));
-        end;
+        CustLedgEntry.SetRange("Document No.", DocumentNo);
+        CustLedgEntry.SetRange("Document Type", DocumentType);
+        CustLedgEntry.SetRange(Prepayment, IsPrepayment);
+        CustLedgEntry.FindFirst();
+        Assert.AreEqual(VerifyDimSetID, CustLedgEntry."Dimension Set ID",
+          StrSubstNo(FieldValueIncorrectErr, CustLedgEntry.FieldCaption("Dimension Set ID")));
     end;
 
     local procedure VerifyVendLedgEntryDimSetID(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; IsPrepayment: Boolean; VerifyDimSetID: Integer)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange(Prepayment, IsPrepayment);
-            FindFirst();
-            Assert.AreEqual(VerifyDimSetID, "Dimension Set ID",
-              StrSubstNo(FieldValueIncorrectErr, FieldCaption("Dimension Set ID")));
-        end;
+        VendLedgEntry.SetRange("Document No.", DocumentNo);
+        VendLedgEntry.SetRange("Document Type", DocumentType);
+        VendLedgEntry.SetRange(Prepayment, IsPrepayment);
+        VendLedgEntry.FindFirst();
+        Assert.AreEqual(VerifyDimSetID, VendLedgEntry."Dimension Set ID",
+          StrSubstNo(FieldValueIncorrectErr, VendLedgEntry.FieldCaption("Dimension Set ID")));
     end;
 }
 

@@ -413,13 +413,29 @@ report 12444 "Vendor Turnover"
     [Scope('OnPrem')]
     procedure FillReportParameters()
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'for period from %1 to %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Replace zero values by blanks';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'Skip accounts without net change  ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Skip accounts without ending balance';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'Skip lines with zero values';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label '(in currency units)';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label '(in thousands)';
+#pragma warning restore AA0074
     begin
         case RoundingPrecision of
             RoundingPrecision::"0.01":

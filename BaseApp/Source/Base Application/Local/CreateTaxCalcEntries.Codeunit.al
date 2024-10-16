@@ -8,10 +8,20 @@
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000900: Label 'Search Table    #4############################\Begin period    #1##########\End period      #2##########\@3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxCalcDimMgt: Codeunit "Tax Calc. Dim. Mgt.";
+#pragma warning disable AA0074
         Text21000901: Label 'Illegal filter setting.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000902: Label 'Entry %1 %2 Line %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
 
     [Scope('OnPrem')]

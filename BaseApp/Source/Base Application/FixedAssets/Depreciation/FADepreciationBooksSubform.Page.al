@@ -1,4 +1,4 @@
-namespace Microsoft.FixedAssets.Depreciation;
+﻿namespace Microsoft.FixedAssets.Depreciation;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;

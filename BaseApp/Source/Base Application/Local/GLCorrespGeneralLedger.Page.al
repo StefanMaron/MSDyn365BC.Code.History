@@ -552,10 +552,18 @@ page 12403 "G/L Corresp. General Ledger"
         SwitchAccounts: Boolean;
         Emphasize: Boolean;
         IsTotaling: Boolean;
+#pragma warning disable AA0074
         DebitAccountNoCap: Label 'Debit Account No.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         CreditAccountNoCap: Label 'Credit Account No.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         DebitAmountCap: Label 'Debit Amount';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         CreditAmountCap: Label 'Credit Amount';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CreateView()

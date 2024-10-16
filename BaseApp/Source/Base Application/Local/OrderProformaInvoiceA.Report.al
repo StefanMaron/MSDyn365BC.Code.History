@@ -49,7 +49,7 @@ report 12409 "Order Proforma-Invoice (A)"
                         Caption = 'Log Interaction';
                         ToolTip = 'Specifies that interactions with the related contact are logged.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -79,7 +79,7 @@ report 12409 "Order Proforma-Invoice (A)"
         OrderFacturaInvoice: Report "Order Factura-Invoice (A)";
     begin
         OrderFacturaInvoice.InitializeRequest(
-          CopiesNumber, AmountInvoiceDone, LogInteraction, Preview, true);
+          CopiesNumber, AmountInvoiceDone, LogInteraction, PreviewReport, true);
         OrderFacturaInvoice.SetTableView(Header);
         OrderFacturaInvoice.UseRequestPage(false);
         OrderFacturaInvoice.Run();
@@ -95,6 +95,6 @@ report 12409 "Order Proforma-Invoice (A)"
         CopiesNumber: Integer;
         AmountInvoiceDone: Option "Invoice Currency",LCY;
         LogInteraction: Boolean;
-        Preview: Boolean;
+        PreviewReport: Boolean;
 }
 

@@ -128,14 +128,20 @@ report 14913 "Create Invent. Act Lines"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendLedgerEntry: Record "Vendor Ledger Entry";
         InventActLine: Record "Invent. Act Line";
+#pragma warning disable AA0074
         Text001: Label 'Incorrect using of report.';
+#pragma warning restore AA0074
         CustPostGroup: Record "Customer Posting Group";
         CustPostGroupBuffer: Record "Customer Posting Group" temporary;
         VendPostGroup: Record "Vendor Posting Group";
         VendPostGroupBuffer: Record "Vendor Posting Group" temporary;
         DebtsAmount: Decimal;
         LiabilitiesAmount: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Line %1 already exists. Do you want to overwrite?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure AddLine(ContractorType: Option Customer,Vendor; ContractorNo: Code[20]; Category: Option Debts,Liabilities; PostingGroup: Code[20]; GLAccount: Code[20]; Amount: Decimal)

@@ -7,7 +7,7 @@ report 14986 "FA Movement FA-2"
     {
         dataitem("FA Document Header"; "FA Document Header")
         {
-            DataItemTableView = sorting("Document Type", "No.") WHERE("Document Type" = const(Movement));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Movement));
             dataitem("FA Document Line"; "FA Document Line")
             {
                 DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");

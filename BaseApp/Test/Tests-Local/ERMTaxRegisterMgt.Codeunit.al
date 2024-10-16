@@ -360,14 +360,12 @@ codeunit 144517 "ERM Tax Register Mgt."
         LibraryTaxAcc.CreateTaxReg(
           TaxRegister, CreateTaxRegSection(AccumDate), TableID, TaxRegister."Storing Method"::Calculation);
 
-        with TaxRegAccum do begin
-            Init();
-            RecRef.GetTable(TaxRegAccum);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Section Code" := TaxRegister."Section Code";
-            "Starting Date" := AccumDate;
-            Insert();
-        end;
+        TaxRegAccum.Init();
+        RecRef.GetTable(TaxRegAccum);
+        TaxRegAccum."Entry No." := LibraryUtility.GetNewLineNo(RecRef, TaxRegAccum.FieldNo("Entry No."));
+        TaxRegAccum."Section Code" := TaxRegister."Section Code";
+        TaxRegAccum."Starting Date" := AccumDate;
+        TaxRegAccum.Insert();
 
         exit(TaxRegister."Section Code");
     end;
@@ -376,13 +374,11 @@ codeunit 144517 "ERM Tax Register Mgt."
     var
         TaxRegSection: Record "Tax Register Section";
     begin
-        with TaxRegSection do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            "Starting Date" := CalcDate('<-1M>', StartingDate);
-            Insert();
-            exit(Code);
-        end;
+        TaxRegSection.Init();
+        TaxRegSection.Code := LibraryUtility.GenerateGUID();
+        TaxRegSection."Starting Date" := CalcDate('<-1M>', StartingDate);
+        TaxRegSection.Insert();
+        exit(TaxRegSection.Code);
     end;
 
     local procedure VerifyStartEndDates(ExpectedCalendarPeriod: Record Date; ActualCalendarPeriod: Record Date)

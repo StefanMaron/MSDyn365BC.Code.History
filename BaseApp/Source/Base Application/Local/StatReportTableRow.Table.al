@@ -80,7 +80,11 @@ table 26553 "Stat. Report Table Row"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Report %1 contains data referred to the %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         StatReportTableMapping: Record "Stat. Report Table Mapping";
 
     [Scope('OnPrem')]

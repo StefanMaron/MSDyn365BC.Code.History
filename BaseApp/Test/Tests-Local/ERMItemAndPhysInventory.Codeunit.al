@@ -344,62 +344,54 @@ codeunit 144709 "ERM Item And Phys. Inventory"
 
     local procedure FindItemJnlLines(var ItemJnlLine: Record "Item Journal Line")
     begin
-        with ItemJnlLine do begin
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            FindSet();
-        end;
+        ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
+        ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
+        ItemJnlLine.FindSet();
     end;
 
     local procedure CreateAndPostPositiveItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
-        with ItemJnlLine do begin
-            InitItemJournalLine(ItemJnlLine, ItemJournalBatch."Template Type"::Item);
-            LibraryInventory.CreateItemJournalLine(ItemJnlLine, "Journal Template Name", "Journal Batch Name",
-              "Entry Type"::"Positive Adjmt.", ItemNo, Qty);
-            Validate("Posting Date", CalcDate('<-1M>', WorkDate()));
-            Validate("Unit Cost", UnitCost);
-            Modify(true);
-            LibraryInventory.PostItemJournalLine("Journal Template Name", "Journal Batch Name");
-        end;
+        InitItemJournalLine(ItemJnlLine, ItemJournalBatch."Template Type"::Item);
+        LibraryInventory.CreateItemJournalLine(ItemJnlLine, ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name",
+          ItemJnlLine."Entry Type"::"Positive Adjmt.", ItemNo, Qty);
+        ItemJnlLine.Validate("Posting Date", CalcDate('<-1M>', WorkDate()));
+        ItemJnlLine.Validate("Unit Cost", UnitCost);
+        ItemJnlLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
     end;
 
     local procedure CalculateInventoryAndSetNewQuantity(var ItemJnlLine: Record "Item Journal Line"; ItemNo: Code[20]; InventoryQty: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
-        with ItemJnlLine do begin
-            InitItemJournalLine(ItemJnlLine, ItemJournalBatch."Template Type"::"Phys. Inventory");
-            CalcInventory(ItemJnlLine, ItemNo);
+        InitItemJournalLine(ItemJnlLine, ItemJournalBatch."Template Type"::"Phys. Inventory");
+        CalcInventory(ItemJnlLine, ItemNo);
 
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            FindSet(true);
-            repeat
-                Validate("Qty. (Phys. Inventory)", InventoryQty);
-                Modify(true);
-            until Next() = 0;
-        end;
+        ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
+        ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
+        ItemJnlLine.FindSet(true);
+        repeat
+            ItemJnlLine.Validate("Qty. (Phys. Inventory)", InventoryQty);
+            ItemJnlLine.Modify(true);
+        until ItemJnlLine.Next() = 0;
     end;
 
     local procedure GetItemJnlLineQtyCalc(ItemJnlLine: Record "Item Journal Line") QtyCalc: Decimal
     begin
         FindItemJnlLines(ItemJnlLine);
-        with ItemJnlLine do
-            repeat
-                QtyCalc += "Qty. (Calculated)";
-            until Next() = 0;
+        repeat
+            QtyCalc += ItemJnlLine."Qty. (Calculated)";
+        until ItemJnlLine.Next() = 0;
     end;
 
     local procedure GetItemJnlLineQtyFact(ItemJnlLine: Record "Item Journal Line") QtyFact: Decimal
     begin
         FindItemJnlLines(ItemJnlLine);
-        with ItemJnlLine do
-            repeat
-                QtyFact += "Qty. (Phys. Inventory)";
-            until Next() = 0;
+        repeat
+            QtyFact += ItemJnlLine."Qty. (Phys. Inventory)";
+        until ItemJnlLine.Next() = 0;
     end;
 
     local procedure GetItemJnlLineNewAmount(ItemJnlLine: Record "Item Journal Line") RemAmt: Decimal
@@ -410,25 +402,24 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         RemAmt := 0;
 
         FindItemJnlLines(ItemJnlLine);
-        with ValueEntry do
-            repeat
-                Reset();
-                SetCurrentKey("Item No.", "Location Code", "Expected Cost", Inventoriable, "Posting Date");
-                SetRange("Item No.", ItemJnlLine."Item No.");
-                SetRange("Location Code", ItemJnlLine."Location Code");
-                SetRange(Inventoriable, true);
-                SetRange("Expected Cost", false);
-                SetFilter("Posting Date", '<%1', ItemJnlLine."Posting Date");
-                CalcSums("Cost Amount (Actual)");
+        repeat
+            ValueEntry.Reset();
+            ValueEntry.SetCurrentKey("Item No.", "Location Code", "Expected Cost", Inventoriable, "Posting Date");
+            ValueEntry.SetRange("Item No.", ItemJnlLine."Item No.");
+            ValueEntry.SetRange("Location Code", ItemJnlLine."Location Code");
+            ValueEntry.SetRange(Inventoriable, true);
+            ValueEntry.SetRange("Expected Cost", false);
+            ValueEntry.SetFilter("Posting Date", '<%1', ItemJnlLine."Posting Date");
+            ValueEntry.CalcSums("Cost Amount (Actual)");
 
-                if ItemJnlLine."Qty. (Phys. Inventory)" >= ItemJnlLine."Qty. (Calculated)" then
-                    RemAmt += "Cost Amount (Actual)" + ItemJnlLine.Amount
-                else
-                    RemAmt += "Cost Amount (Actual)" -
-                      ItemJnlLine."Quantity (Base)" *
-                      ItemCostManagement.CalcAvgUnitActualCost(
-                        ItemJnlLine."Item No.", ItemJnlLine."Location Code", ItemJnlLine."Posting Date");
-            until ItemJnlLine.Next() = 0;
+            if ItemJnlLine."Qty. (Phys. Inventory)" >= ItemJnlLine."Qty. (Calculated)" then
+                RemAmt += ValueEntry."Cost Amount (Actual)" + ItemJnlLine.Amount
+            else
+                RemAmt += ValueEntry."Cost Amount (Actual)" -
+                  ItemJnlLine."Quantity (Base)" *
+                  ItemCostManagement.CalcAvgUnitActualCost(
+                    ItemJnlLine."Item No.", ItemJnlLine."Location Code", ItemJnlLine."Posting Date");
+        until ItemJnlLine.Next() = 0;
     end;
 
     local procedure GetItemJnlLineQtySurplus(ItemJnlLine: Record "Item Journal Line"; Surplus: Boolean) Qty: Decimal
@@ -436,12 +427,11 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         QtyDiff: Decimal;
     begin
         FindItemJnlLines(ItemJnlLine);
-        with ItemJnlLine do
-            repeat
-                QtyDiff := "Qty. (Phys. Inventory)" - "Qty. (Calculated)";
-                if Surplus xor (QtyDiff < 0) then
-                    Qty += QtyDiff;
-            until Next() = 0;
+        repeat
+            QtyDiff := ItemJnlLine."Qty. (Phys. Inventory)" - ItemJnlLine."Qty. (Calculated)";
+            if Surplus xor (QtyDiff < 0) then
+                Qty += QtyDiff;
+        until ItemJnlLine.Next() = 0;
     end;
 
     local procedure GetRandomType(FromInt: Integer; ToInt: Integer): Integer
@@ -460,11 +450,10 @@ codeunit 144709 "ERM Item And Phys. Inventory"
     local procedure UpdateInvFactQuantity(ItemJnlLine: Record "Item Journal Line"; Sign: Integer)
     begin
         FindItemJnlLines(ItemJnlLine);
-        with ItemJnlLine do
-            repeat
-                Validate("Qty. (Phys. Inventory)", Sign * LibraryRandom.RandDec(100, 2));
-                Modify(true);
-            until Next() = 0;
+        repeat
+            ItemJnlLine.Validate("Qty. (Phys. Inventory)", Sign * LibraryRandom.RandDec(100, 2));
+            ItemJnlLine.Modify(true);
+        until ItemJnlLine.Next() = 0;
     end;
 
     local procedure VerifyRemainingQuantity(ItemNo: Code[20])
@@ -473,16 +462,14 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         RemQty: Decimal;
         i: Integer;
     begin
-        with ItemLedgEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            repeat
-                RemQty += Quantity;
-                LibraryReportValidation.VerifyCellValue(25 + i, 22, Format("Entry No."));
-                LibraryReportValidation.VerifyCellValue(25 + i, 127, Format(RemQty));
-                i += 1;
-            until Next() = 0;
-        end;
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.FindSet();
+        repeat
+            RemQty += ItemLedgEntry.Quantity;
+            LibraryReportValidation.VerifyCellValue(25 + i, 22, Format(ItemLedgEntry."Entry No."));
+            LibraryReportValidation.VerifyCellValue(25 + i, 127, Format(RemQty));
+            i += 1;
+        until ItemLedgEntry.Next() = 0;
     end;
 }
 

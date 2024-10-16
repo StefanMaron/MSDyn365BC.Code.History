@@ -28,6 +28,7 @@ table 84 "Acc. Schedule Name"
             Caption = 'Default Column Layout';
             TableRelation = "Column Layout Name";
             ObsoleteReason = 'Use now the Column Group property in the table Financial Report';
+            // temporarily keep this field as pending to run RU demo tool
 #if not CLEAN22
             ObsoleteTag = '22.0';
             ObsoleteState = Pending;

@@ -960,33 +960,29 @@ codeunit 134008 "ERM VAT Settlement with Apply"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", "Document Type"::" ");
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccount."No.");
-            SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type");
-            SetRange("Gen. Bus. Posting Group", GLAccount."Gen. Bus. Posting Group");
-            SetRange("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");
-            SetRange("VAT Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
-            Assert.IsFalse(IsEmpty, PostingGroupsErr);
-        end;
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccount."No.");
+        GLEntry.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type");
+        GLEntry.SetRange("Gen. Bus. Posting Group", GLAccount."Gen. Bus. Posting Group");
+        GLEntry.SetRange("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");
+        GLEntry.SetRange("VAT Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
+        GLEntry.SetRange("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+        Assert.IsFalse(GLEntry.IsEmpty, PostingGroupsErr);
     end;
 
     local procedure VerifySingleCorrectiveVATEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; UnrealVATEntryNo: Integer; VATBase: Decimal; VATAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
-            FindLast();
-            Assert.AreEqual(VATBase, Base, FieldCaption(Base));
-            Assert.AreEqual(VATAmount, Amount, FieldCaption(Amount));
-            SetRange("Transaction No.", "Transaction No.");
-            Assert.AreEqual(1, Count, IncorrectVATEntryCountErr);
-        end;
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
+        VATEntry.FindLast();
+        Assert.AreEqual(VATBase, VATEntry.Base, VATEntry.FieldCaption(Base));
+        Assert.AreEqual(VATAmount, VATEntry.Amount, VATEntry.FieldCaption(Amount));
+        VATEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
+        Assert.AreEqual(1, VATEntry.Count, IncorrectVATEntryCountErr);
     end;
 
     [RequestPageHandler]

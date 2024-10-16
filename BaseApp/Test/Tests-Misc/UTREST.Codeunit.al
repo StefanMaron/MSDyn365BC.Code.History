@@ -119,13 +119,14 @@ codeunit 139148 "UT REST"
     procedure TestJwtToken()
     var
         SOAPWebServiceRequestMgt: Codeunit "SOAP Web Service Request Mgt.";
-        WebTokenAsJson: Text;
+        ExampleJwtToken, WebTokenAsJson : Text;
     begin
         // [SCENARIO] You can retrieve token details
 
         // [GIVEN] A sample token
         // [WHEN] The token details are retrieved
-        if SOAPWebServiceRequestMgt.GetTokenDetailsAsJson(ExampleJwtTokenTxt, WebTokenAsJson) then begin
+        ExampleJwtToken := ExampleJwtTokenTxt;
+        if SOAPWebServiceRequestMgt.GetTokenDetailsAsJson(ExampleJwtToken, WebTokenAsJson) then begin
             // [THEN] The correct values are retrieved
             Assert.AreEqual('http://www.example.com', SOAPWebServiceRequestMgt.GetTokenValue(WebTokenAsJson, 'aud'), '');
             Assert.AreEqual('self', SOAPWebServiceRequestMgt.GetTokenValue(WebTokenAsJson, 'iss'), '');
@@ -135,7 +136,7 @@ codeunit 139148 "UT REST"
                 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'), '');
             Assert.AreEqual('Author', SOAPWebServiceRequestMgt.GetTokenValue(WebTokenAsJson,
                 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'), '');
-            Assert.IsTrue(SOAPWebServiceRequestMgt.HasJWTExpired(ExampleJwtTokenTxt), HasJWTExpiredErr);
+            Assert.IsTrue(SOAPWebServiceRequestMgt.HasJWTExpired(ExampleJwtToken), HasJWTExpiredErr);
         end else
             Error(UnableToParseJwtObjectErr);
     end;

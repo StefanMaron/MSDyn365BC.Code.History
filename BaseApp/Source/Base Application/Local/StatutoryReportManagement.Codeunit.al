@@ -6,7 +6,9 @@ codeunit 26550 "Statutory Report Management"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Sent data cannot be opened.';
+#pragma warning restore AA0074
         FileMgt: Codeunit "File Management";
         DataCompression: Codeunit "Data Compression";
         ServerFileName: Text;

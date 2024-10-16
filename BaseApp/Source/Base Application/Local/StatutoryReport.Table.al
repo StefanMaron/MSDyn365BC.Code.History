@@ -307,21 +307,55 @@ table 26550 "Statutory Report"
         XlWrkShtWriter: DotNet WorksheetWriter;
         XlWrkShtReader: DotNet WorksheetReader;
         RootNode: DotNet XmlNode;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Tables for %1 already exist and will be deleted. Do you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text010: Label 'Import data from Excel...';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text011: Label 'You must specify Statutury Report Code.';
+#pragma warning restore AA0074
         i: Integer;
         EndOfLoop: Integer;
         SequenceNo: Integer;
         LineNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text023: Label 'File %1 is not a XML schema.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text026: Label 'The existent XML schema will be deleted. Do you want to continue?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text027: Label '%1 does not contain XML schema.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text028: Label 'The existent Excel template settings will be deleted. Do you want to continue?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text029: Label 'XML Element Lines for Report %1 already exist and will be deleted. Do you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text030: Label '%1 cannot be changed because %2 %3 contains report data.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text031: Label '%1 cannot be %2 because %3 is not empty.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text032: Label 'This function is allowed for classic client only.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CreateReportData(ReportDataNo: Code[20]; StartDate: Date; EndDate: Date; DataSource: Option Database,Excel)
@@ -400,9 +434,6 @@ table 26550 "Statutory Report"
     [Scope('OnPrem')]
     procedure CreateCellFromIntSource(DataHeaderNo: Code[20]; ReportCode: Code[20]; TableCode: Code[20]; RowNo: Integer; ColumnNo: Integer; StartDate: Date; EndDate: Date; SheetName: Text[30])
     var
-#if not CLEAN22
-        AccScheduleName: Record "Acc. Schedule Name";
-#endif
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         TaxRegisterAccumulation: Record "Tax Register Accumulation";
@@ -422,15 +453,6 @@ table 26550 "Statutory Report"
                 case StatReportTableMapping."Int. Source Type" of
                     StatReportTableMapping."Int. Source Type"::"Acc. Schedule":
                         begin
-#if not CLEAN22
-                            if StatReportTableMapping."Int. Source Col. Lay. Name" = '' then begin
-                                AccScheduleName.Get(StatReportTableMapping."Int. Source No.");
-                                if AccScheduleName."Default Column Layout" <> '' then begin
-                                    StatReportTableMapping."Int. Source Col. Lay. Name" := AccScheduleName."Default Column Layout";
-                                    StatReportTableMapping.Modify();
-                                end;
-                            end;
-#endif
                             StatReportTableMapping.TestField("Int. Source Col. Lay. Name");
                             AccScheduleLine.Get(
                               StatReportTableMapping."Int. Source No.",
@@ -935,14 +957,14 @@ table 26550 "Statutory Report"
         XMLElementLine."Sequence No." := SequenceNo;
         XMLElementLine.Description := GetNodeDescription(Node);
         XMLElementLine.Choice := Choice;
-        if GetAttribute(Node, 'use', Use) then begin
+        if GetAttribute(Node, 'use', Use) then
             case Use of
                 'required':
                     XMLElementLine."Export Type" := XMLElementLine."Export Type"::Required;
                 'optional':
                     XMLElementLine."Export Type" := XMLElementLine."Export Type"::Optional;
-            end;
-        end else
+            end
+        else
             XMLElementLine."Export Type" := XMLElementLine."Export Type"::Optional;
 
         if ElementType in [ElementType::Simple, ElementType::Attribute] then
@@ -950,11 +972,10 @@ table 26550 "Statutory Report"
             if GetNodeType(Node, DataType, FractionDigits) then
                 XMLElementLine."Data Type" := DataType
             else
-                if GetAttribute(Node, 'type', TypeName) then begin
+                if GetAttribute(Node, 'type', TypeName) then
                     // look through the list of simple types
                     if GetNodeType2(TypeName, DataType, FractionDigits) then
                         XMLElementLine."Data Type" := DataType;
-                end;
         XMLElementLine."Fraction Digits" := FractionDigits;
         XMLElementLine.Insert();
 
@@ -1075,10 +1096,9 @@ table 26550 "Statutory Report"
         for i := 0 to NodeList.Count - 1 do begin
             ChildNode := NodeList.Item(i);
             if ExtractPrefix(ChildNode.Name) = 'fractionDigits' then
-                if GetAttribute(ChildNode, 'value', Value) then begin
+                if GetAttribute(ChildNode, 'value', Value) then
                     if Evaluate(FractionDigits, Value) then
                         exit(true);
-                end;
         end;
 
         exit(false);

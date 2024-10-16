@@ -184,10 +184,16 @@ report 129 "Customer - Trial Balance"
         PeriodEndDate: Date;
         FiscalYearStartDate: Date;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'It was not possible to find a %1 in %2.';
         Text003: Label 'Period: %1';
+#pragma warning restore AA0470
         Text004: Label 'Total for';
+#pragma warning disable AA0470
         Text005: Label 'Group Totals: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CustTrialBalanceCaptionLbl: Label 'Customer - Trial Balance';
         CurrReportPageNoCaptionLbl: Label 'Page';
         AmtsinLCYCaptionLbl: Label 'Amounts in LCY';

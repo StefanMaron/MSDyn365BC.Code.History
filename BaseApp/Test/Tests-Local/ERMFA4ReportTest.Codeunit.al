@@ -123,41 +123,39 @@ codeunit 144717 "ERM FA-4 Report Test"
         FADeprBook: Record "FA Depreciation Book";
         i: Integer;
     begin
-        with FixedAsset do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-            Description := LibraryUtility.GenerateGUID();
-            "Description 2" := LibraryUtility.GenerateGUID();
-            "Initial Release Date" := WorkDate();
-            "FA Location Code" := LibraryRUReports.MockFALocation();
-            "Depreciation Code" := LibraryRUReports.MockDepreciationCode();
-            "Depreciation Group" := LibraryRUReports.MockDepreciationGroup();
-            "Inventory Number" := LibraryUtility.GenerateGUID();
-            "Factory No." := LibraryUtility.GenerateGUID();
-            "Manufacturing Year" := Format(Date2DMY(WorkDate(), 3));
-            "Vehicle Model" := LibraryUtility.GenerateGUID();
-            "Vehicle Reg. No." := LibraryUtility.GenerateGUID();
-            "Vehicle Engine No." := LibraryUtility.GenerateGUID();
-            "Vehicle Chassis No." := LibraryUtility.GenerateGUID();
-            "Is Vehicle" := true;
-            "Vehicle Writeoff Date" := GetRandomDate();
-            "Run after Release Date" := LibraryRandom.RandInt(100);
-            "Run after Renovation Date" := LibraryRandom.RandInt(100);
-            Modify();
+        FixedAsset.Init();
+        FixedAsset."No." := LibraryUtility.GenerateGUID();
+        FixedAsset.Insert();
+        FixedAsset.Description := LibraryUtility.GenerateGUID();
+        FixedAsset."Description 2" := LibraryUtility.GenerateGUID();
+        FixedAsset."Initial Release Date" := WorkDate();
+        FixedAsset."FA Location Code" := LibraryRUReports.MockFALocation();
+        FixedAsset."Depreciation Code" := LibraryRUReports.MockDepreciationCode();
+        FixedAsset."Depreciation Group" := LibraryRUReports.MockDepreciationGroup();
+        FixedAsset."Inventory Number" := LibraryUtility.GenerateGUID();
+        FixedAsset."Factory No." := LibraryUtility.GenerateGUID();
+        FixedAsset."Manufacturing Year" := Format(Date2DMY(WorkDate(), 3));
+        FixedAsset."Vehicle Model" := LibraryUtility.GenerateGUID();
+        FixedAsset."Vehicle Reg. No." := LibraryUtility.GenerateGUID();
+        FixedAsset."Vehicle Engine No." := LibraryUtility.GenerateGUID();
+        FixedAsset."Vehicle Chassis No." := LibraryUtility.GenerateGUID();
+        FixedAsset."Is Vehicle" := true;
+        FixedAsset."Vehicle Writeoff Date" := GetRandomDate();
+        FixedAsset."Run after Release Date" := LibraryRandom.RandInt(100);
+        FixedAsset."Run after Renovation Date" := LibraryRandom.RandInt(100);
+        FixedAsset.Modify();
 
-            InitFADeprBooks("No.");
-            FADeprBook.SetRange("FA No.", "No.");
-            FADeprBook.FindFirst();
-            LibraryRUReports.MockFADepreciationBook(FADeprBook);
+        FixedAsset.InitFADeprBooks(FixedAsset."No.");
+        FADeprBook.SetRange("FA No.", FixedAsset."No.");
+        FADeprBook.FindFirst();
+        LibraryRUReports.MockFADepreciationBook(FADeprBook);
 
-            for i := 1 to LibraryRandom.RandIntInRange(3, 5) do begin
-                LibraryRUReports.MockMainAssetComponent("No.");
-                LibraryRUReports.MockItemFAPreciousMetal("No.");
-            end;
-
-            exit("No.");
+        for i := 1 to LibraryRandom.RandIntInRange(3, 5) do begin
+            LibraryRUReports.MockMainAssetComponent(FixedAsset."No.");
+            LibraryRUReports.MockItemFAPreciousMetal(FixedAsset."No.");
         end;
+
+        exit(FixedAsset."No.");
     end;
 
     local procedure MockItem(): Code[20]

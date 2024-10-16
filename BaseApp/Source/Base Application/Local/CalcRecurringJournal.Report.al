@@ -82,7 +82,9 @@ report 12429 "Calc. Recurring Journal"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Your must define Template Name and Batch Name for calculation.';
+#pragma warning restore AA0074
         GenJournalLine: Record "Gen. Journal Line";
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -91,8 +93,12 @@ report 12429 "Calc. Recurring Journal"
         AccSchedManagement: Codeunit AccSchedManagement;
         StartingDate: Date;
         EndingDate: Date;
+#pragma warning disable AA0074
         Text001: Label 'You must define Starting Date.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text002: Label 'You must define Ending Date.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure SetParameters(var NewGenJournalLine: Record "Gen. Journal Line")

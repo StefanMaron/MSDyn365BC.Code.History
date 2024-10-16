@@ -219,6 +219,8 @@ report 107 "Customer - Order Summary"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Customer - Order Summary';
+        AboutText = 'Analyse your nonshipped orders in order to understand your expected sales volume. See order details with the quantity not yet shipped for each customer in three periods of 30 days each, starting from the specified date.';
 
         layout
         {
@@ -292,7 +294,9 @@ report 107 "Customer - Order Summary"
         AllamountsareinLCYCaptionLbl: Label 'All amounts are in LCY';
         OutstandingOrdersCaptionLbl: Label 'Outstanding Orders';
         CustomerNoCaptionLbl: Label 'Customer No.';
+#pragma warning disable AA0074
         CustomerNameCap: Label 'Name';
+#pragma warning restore AA0074
         BeforeCaptionLbl: Label '...before';
         AfterCaptionLbl: Label 'after...';
         TotalCaptionLbl: Label 'Total';

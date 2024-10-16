@@ -254,6 +254,8 @@ report 17204 "Create Tax Registers"
         Periodicity: Option Month,Quarter,Year;
         AccountPeriod: Text[30];
         CycleLevel: Integer;
+#pragma warning disable AA0074
         Text1000: Label 'There is no filter for Section Code. Continue?';
+#pragma warning restore AA0074
 }
 

@@ -1,6 +1,9 @@
 ﻿namespace System.Security.AccessControl;
 
-using Microsoft.Foundation.Period;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Purchases.Payables;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.Analysis;
 using Microsoft.Bank.Ledger;
 using Microsoft.Bank.BankAccount;
@@ -18,16 +21,10 @@ using Microsoft.FixedAssets.Ledger;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
 using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Intercompany.BankAccount;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Partner;
-using Microsoft.Inventory.Item;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Projects.Project.Ledger;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Projects.Project.Job;
 using Microsoft.FixedAssets.Maintenance;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Document;
@@ -35,15 +32,16 @@ using Microsoft.Purchases.Archive;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Archive;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Pricing;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Foundation.Period;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
-using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Purchases.Payables;
-using Microsoft.Purchases.Vendor;
 
 permissionset 9111 "General Ledger Accounts - Edit"
 {
@@ -116,8 +114,6 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Sales Line" = r,
                   tabledata "Sales Shipment Header" = r,
                   tabledata "Sales Shipment Line" = r,
-                  tabledata "Service Contract Account Group" = r,
-                  tabledata "Service Cost" = r,
                   tabledata "Standard General Journal" = r,
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Standard Purchase Line" = r,

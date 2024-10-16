@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -530,6 +530,11 @@ table 110 "Sales Shipment Header"
             Caption = 'Work Description';
             DataClassification = CustomerContent;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -877,7 +882,9 @@ table 110 "Sales Shipment Header"
         SalesInvHeader: Record "Sales Invoice Header";
         DocNoFilter: Text[1024];
         I: Integer;
+#pragma warning disable AA0074
         Text12400: Label 'Length of the Document No. filter should not exceed 1024.';
+#pragma warning restore AA0074
     begin
         DocNoFilter := '';
         I := 0;
@@ -902,13 +909,12 @@ table 110 "Sales Shipment Header"
                                 I := I + 1;
                                 if I = 1 then
                                     DocNoFilter := ValueEntry."Document No."
-                                else begin
+                                else
                                     if StrPos('|' + DocNoFilter + '|', '|' + ValueEntry."Document No." + '|') = 0 then
                                         if (StrLen(DocNoFilter) + StrLen(ValueEntry."Document No.")) < MaxStrLen(DocNoFilter) then
                                             DocNoFilter := DocNoFilter + '|' + ValueEntry."Document No."
                                         else
                                             Error(Text12400);
-                                end;
                             until ValueEntry.Next() = 0;
                     until ItemLedgEntry.Next() = 0;
             until SalesShptLine.Next() = 0;

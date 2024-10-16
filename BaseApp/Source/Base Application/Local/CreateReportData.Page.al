@@ -200,10 +200,22 @@ page 26574 "Create Report Data"
         Periodicity: Option " ",Month,Quarter,Year;
         DataSource: Option "NAV Reporting","Excel File";
         CorrNumber: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'Periodiocity can''t be empty for %1 = %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PeriodType: Code[2];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'Periodiocity can''t be Month for %1 = %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text009: Label 'The combination Periodicity=%1, Progressive Total=%2 is not defined. Please enter the value for Period Type manually.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         StartDateTextBoxEditable: Boolean;
         EndDateTextBoxEditable: Boolean;
         CorrNumberTextBoxEnable: Boolean;
@@ -277,7 +289,7 @@ page 26574 "Create Report Data"
                 else
                     PeriodType := '35';
             Periodicity::Quarter:
-                if ProgressiveTotal then begin
+                if ProgressiveTotal then
                     case CalendarPeriod."Period No." of
                         1:
                             PeriodType := '21';
@@ -287,8 +299,8 @@ page 26574 "Create Report Data"
                             PeriodType := '33';
                         4:
                             PeriodType := '34';
-                    end;
-                end else
+                    end
+                else
                     case CalendarPeriod."Period No." of
                         1:
                             PeriodType := '21';

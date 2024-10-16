@@ -10,18 +10,17 @@ using Microsoft.HumanResources.Employee;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Inventory.Item;
 using Microsoft.Projects.Project.Job;
-using Microsoft.Service.Contract;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Purchases.Vendor;
 
 permissionset 4123 "General Ledger Accounts - View"
 {
@@ -55,7 +54,6 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata "General Posting Setup" = R,
                   tabledata "Inventory Posting Setup" = R,
                   tabledata "Job Posting Group" = R,
-                  tabledata "Service Contract Account Group" = R,
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Entry" = R,

@@ -490,9 +490,21 @@ table 17202 "Tax Register Template"
         TaxRegFAEntry: Record "Tax Register FA Entry";
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
         TaxRegNormGroup: Record "Tax Register Norm Group";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text2001: Label 'Period must be empty if Expression Type is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text2003: Label '%1 must be %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text2004: Label '%1 must be %2 or %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure MakeFieldFilter(TaxRegTableNo: Integer) FilterText: Text[1024]

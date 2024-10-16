@@ -348,7 +348,9 @@ page 26550 "Statutory Reports"
     var
         FileMgt: Codeunit "File Management";
         StartEndDateErr: Label 'You must specify Start Date or\and End Date.';
+#pragma warning disable AA0074
         Text007: Label 'Import';
+#pragma warning restore AA0074
         CodeEmphasize: Boolean;
         DescriptionEmphasize: Boolean;
         DescriptionIndent: Integer;

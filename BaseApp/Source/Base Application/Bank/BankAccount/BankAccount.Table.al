@@ -722,7 +722,7 @@ table 270 "Bank Account"
             Caption = 'Positive Pay Export Code';
             TableRelation = "Bank Export/Import Setup".Code where(Direction = const("Export-Positive Pay"));
         }
-        field(1280; "Check Transmitted"; boolean)
+        field(1280; "Check Transmitted"; Boolean)
         {
             Caption = 'Check Transmitted';
             ToolTip = 'Specifies to check transmitted before posting the Payment Journal';
@@ -976,12 +976,34 @@ table 270 "Bank Account"
         DimMgt: Codeunit DimensionManagement;
         InsertFromContact: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot change %1 because there are one or more open ledger entries for this bank account.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Do you wish to create a contact for %1 %2?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12400: Label 'Corr. Account %1 corresponds to the bank %2 %3\Do you agree?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12402: Label 'You cannot clear the %1 check box because there are bank payment orders with %2 set to New, Exported or Bank Statement Found.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12403: Label 'You cannot select the %1 check box because there are bank payment orders with %2 set to Bank Account.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a %1 or an %2.';
+#pragma warning restore AA0470
         InvalidPercentageValueErr: Label 'If %1 is %2, then the value must be between 0 and 99.', Comment = '%1 is "field caption and %2 is "Percentage"';
         InvalidValueErr: Label 'The value must be positive.';
         DataExchNotSetErr: Label 'The Data Exchange Code field must be filled.';

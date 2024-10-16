@@ -122,11 +122,9 @@ codeunit 147110 "SCM Item Charge Assignment"
     var
         UserSetup: Record "User Setup";
     begin
-        with UserSetup do begin
-            Init();
-            "User ID" := UserId;
-            Insert(true);
-        end;
+        UserSetup.Init();
+        UserSetup."User ID" := UserId;
+        UserSetup.Insert(true);
     end;
 
     local procedure ReproPurchScenario1(var PurchHeader: Record "Purchase Header")
@@ -280,12 +278,10 @@ codeunit 147110 "SCM Item Charge Assignment"
 
     local procedure CreatePurchDocHeader(var PurchHeader: Record "Purchase Header"; VendorNo: Code[20])
     begin
-        with PurchHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchHeader, "Document Type"::Invoice, VendorNo);
-            SetHideValidationDialog(true);
-            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, VendorNo);
+        PurchHeader.SetHideValidationDialog(true);
+        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchHeader.Modify(true);
     end;
 
     local procedure CreatePurchDocItemLine(PurchHeader: Record "Purchase Header"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; LineAmt: Decimal)
@@ -306,12 +302,10 @@ codeunit 147110 "SCM Item Charge Assignment"
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, ItemType, ItemNo, Qty);
-            Validate("Direct Unit Cost", UnitCost);
-            Validate("Line Amount", LineAmt);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, ItemType, ItemNo, Qty);
+        PurchLine.Validate("Direct Unit Cost", UnitCost);
+        PurchLine.Validate("Line Amount", LineAmt);
+        PurchLine.Modify(true);
     end;
 
     local procedure CreateSalesDocHeader(var SalesHeader: Record "Sales Header"; CustNo: Code[20])
@@ -337,36 +331,30 @@ codeunit 147110 "SCM Item Charge Assignment"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, ItemType, ItemNo, Qty);
-            Validate("Unit Price", UnitCost);
-            Validate("Line Amount", LineAmt);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, ItemType, ItemNo, Qty);
+        SalesLine.Validate("Unit Price", UnitCost);
+        SalesLine.Validate("Line Amount", LineAmt);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateVendor(VATBusPostingGroupCode: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            LibraryPurchase.CreateVendor(Vendor);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateCust(VATBusPostingGroupCode: Code[20]): Code[20]
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            LibrarySales.CreateCustomer(Customer);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateSeveralItems(var Items: array[8] of Code[20]; Qty: Integer)
@@ -379,25 +367,21 @@ codeunit 147110 "SCM Item Charge Assignment"
 
     local procedure FindChargeItemPurchLine(var PurchLine: Record "Purchase Line"; DocumentNo: Code[20]; VendorNo: Code[20]): Integer
     begin
-        with PurchLine do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange(Type, Type::"Charge (Item)");
-            FindLast();
-        end;
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Invoice);
+        PurchLine.SetRange("Document No.", DocumentNo);
+        PurchLine.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchLine.SetRange(Type, PurchLine.Type::"Charge (Item)");
+        PurchLine.FindLast();
         exit(PurchLine."Line No.");
     end;
 
     local procedure FindChargeItemSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; CustNo: Code[20]): Integer
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Sell-to Customer No.", CustNo);
-            SetRange(Type, Type::"Charge (Item)");
-            FindLast();
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange("Sell-to Customer No.", CustNo);
+        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
+        SalesLine.FindLast();
         exit(SalesLine."Line No.");
     end;
 
@@ -408,25 +392,21 @@ codeunit 147110 "SCM Item Charge Assignment"
         AmtToAssign: array[3] of Decimal;
     begin
         PurchSaleCheckData2(QtyToAssign, AmtToAssign);
-        with ItemChargeAssPurch do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            if FindSet() then begin
-                FindFirst();
-                ModifyItemChargeAssPurchLine(ItemChargeAssPurch, QtyToAssign[1], AmtToAssign[1]);
-                Next();
-                ModifyItemChargeAssPurchLine(ItemChargeAssPurch, QtyToAssign[2], AmtToAssign[2]);
-            end;
+        ItemChargeAssPurch.SetRange("Document Type", ItemChargeAssPurch."Document Type"::Invoice);
+        ItemChargeAssPurch.SetRange("Document No.", DocumentNo);
+        if ItemChargeAssPurch.FindSet() then begin
+            ItemChargeAssPurch.FindFirst();
+            ModifyItemChargeAssPurchLine(ItemChargeAssPurch, QtyToAssign[1], AmtToAssign[1]);
+            ItemChargeAssPurch.Next();
+            ModifyItemChargeAssPurchLine(ItemChargeAssPurch, QtyToAssign[2], AmtToAssign[2]);
         end;
     end;
 
     local procedure ModifyItemChargeAssPurchLine(var ItemChargeAssPurch: Record "Item Charge Assignment (Purch)"; QtyToAssign: Decimal; AmtToAssign: Decimal)
     begin
-        with ItemChargeAssPurch do begin
-            Validate("Qty. to Assign", QtyToAssign);
-            Validate("Amount to Assign", AmtToAssign);
-            Modify(true);
-        end;
+        ItemChargeAssPurch.Validate("Qty. to Assign", QtyToAssign);
+        ItemChargeAssPurch.Validate("Amount to Assign", AmtToAssign);
+        ItemChargeAssPurch.Modify(true);
     end;
 
     local procedure ModifyItemChargeAssSales(DocumentNo: Code[20])
@@ -436,25 +416,21 @@ codeunit 147110 "SCM Item Charge Assignment"
         AmtToAssign: array[3] of Decimal;
     begin
         PurchSaleCheckData2(QtyToAssign, AmtToAssign);
-        with ItemChargeAssSales do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            if FindSet() then begin
-                FindFirst();
-                ModifyItemChargeAssSalesLine(ItemChargeAssSales, QtyToAssign[1], AmtToAssign[1]);
-                Next();
-                ModifyItemChargeAssSalesLine(ItemChargeAssSales, QtyToAssign[2], AmtToAssign[2]);
-            end;
+        ItemChargeAssSales.SetRange("Document Type", ItemChargeAssSales."Document Type"::Invoice);
+        ItemChargeAssSales.SetRange("Document No.", DocumentNo);
+        if ItemChargeAssSales.FindSet() then begin
+            ItemChargeAssSales.FindFirst();
+            ModifyItemChargeAssSalesLine(ItemChargeAssSales, QtyToAssign[1], AmtToAssign[1]);
+            ItemChargeAssSales.Next();
+            ModifyItemChargeAssSalesLine(ItemChargeAssSales, QtyToAssign[2], AmtToAssign[2]);
         end;
     end;
 
     local procedure ModifyItemChargeAssSalesLine(var ItemChargeAssSales: Record "Item Charge Assignment (Sales)"; QtyToAssign: Decimal; AmtToAssign: Decimal)
     begin
-        with ItemChargeAssSales do begin
-            Validate("Qty. to Assign", QtyToAssign);
-            Validate("Amount to Assign", AmtToAssign);
-            Modify(true);
-        end;
+        ItemChargeAssSales.Validate("Qty. to Assign", QtyToAssign);
+        ItemChargeAssSales.Validate("Amount to Assign", AmtToAssign);
+        ItemChargeAssSales.Modify(true);
     end;
 
     local procedure PurchSaleDocLinesData1(var ItemQty: array[8] of Decimal; var ItemAmt: array[8] of Decimal; var LineAmt: array[8] of Decimal; var ChargeItemQty: Decimal; var ChargeItemAmt: Decimal; var ChargeLineAmt: Decimal)
@@ -524,18 +500,16 @@ codeunit 147110 "SCM Item Charge Assignment"
         ItemChargeAssPurch: Record "Item Charge Assignment (Purch)";
         i: Integer;
     begin
-        with ItemChargeAssPurch do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Line No.", ItemChargeLineNo);
-            FindSet();
-            i := 1;
-            repeat
-                Assert.AreNearlyEqual(QtyToAssign[i], "Qty. to Assign", 0.01, '');
-                Assert.AreNearlyEqual(AmtToAssign[i], "Amount to Assign", 0.01, '');
-                i += 1;
-            until Next() = 0;
-        end;
+        ItemChargeAssPurch.SetRange("Document Type", ItemChargeAssPurch."Document Type"::Invoice);
+        ItemChargeAssPurch.SetRange("Document No.", DocumentNo);
+        ItemChargeAssPurch.SetRange("Document Line No.", ItemChargeLineNo);
+        ItemChargeAssPurch.FindSet();
+        i := 1;
+        repeat
+            Assert.AreNearlyEqual(QtyToAssign[i], ItemChargeAssPurch."Qty. to Assign", 0.01, '');
+            Assert.AreNearlyEqual(AmtToAssign[i], ItemChargeAssPurch."Amount to Assign", 0.01, '');
+            i += 1;
+        until ItemChargeAssPurch.Next() = 0;
     end;
 
     local procedure VerifyItemChargeAssSalesScenario1(DocumentNo: Code[20]; ItemChargeLineNo: Integer)
@@ -561,18 +535,16 @@ codeunit 147110 "SCM Item Charge Assignment"
         ItemChargeAssSales: Record "Item Charge Assignment (Sales)";
         i: Integer;
     begin
-        with ItemChargeAssSales do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Line No.", ItemChargeLineNo);
-            FindSet();
-            i := 1;
-            repeat
-                Assert.AreEqual(QtyToAssign[i], "Qty. to Assign", '');
-                Assert.AreEqual(AmtToAssign[i], "Amount to Assign", '');
-                i += 1;
-            until Next() = 0;
-        end;
+        ItemChargeAssSales.SetRange("Document Type", ItemChargeAssSales."Document Type"::Invoice);
+        ItemChargeAssSales.SetRange("Document No.", DocumentNo);
+        ItemChargeAssSales.SetRange("Document Line No.", ItemChargeLineNo);
+        ItemChargeAssSales.FindSet();
+        i := 1;
+        repeat
+            Assert.AreEqual(QtyToAssign[i], ItemChargeAssSales."Qty. to Assign", '');
+            Assert.AreEqual(AmtToAssign[i], ItemChargeAssSales."Amount to Assign", '');
+            i += 1;
+        until ItemChargeAssSales.Next() = 0;
     end;
 
     local procedure SuggestItemChargeAssgntPurch(PurchLine: Record "Purchase Line"; ItemCharge: Record "Item Charge"; ChargeItemQty: Decimal; ChargeItemAmt: Decimal)

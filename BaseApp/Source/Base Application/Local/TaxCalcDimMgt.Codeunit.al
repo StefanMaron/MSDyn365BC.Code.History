@@ -8,12 +8,34 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
     var
         TaxCalcSection: Record "Tax Calc. Section";
         TempDimBuf1: Record "Dimension Buffer" temporary;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1004: Label 'Entry %1 %2\Debit %3 Credit %4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1005: Label '\\Skip?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1006: Label 'Entry %1 %2 Debit %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1007: Label 'Entry %1 %2 Credit %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1008: Label 'Entry %1 %2 Line %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1009: Label '\Dimension %1 not found.\Filter %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure SetDimFilters2TaxGLLine(TaxCalcLine: Record "Tax Calc. Line"; var TaxCalcEntry: Record "Tax Calc. G/L Entry")

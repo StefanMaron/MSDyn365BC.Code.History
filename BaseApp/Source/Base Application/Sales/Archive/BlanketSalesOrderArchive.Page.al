@@ -310,6 +310,12 @@ page 6620 "Blanket Sales Order Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the city of the address that the items are shipped to.';
                 }
+                field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Phone No.';
+                    ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                }
                 field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Suite;
@@ -553,15 +559,6 @@ page 6620 "Blanket Sales Order Archive"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-#if not CLEAN22
-                actionref("Co&mments_Promoted"; "Co&mments")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
         }
     }

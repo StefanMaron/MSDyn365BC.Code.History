@@ -193,7 +193,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ConfirmHandlerYes,MsgHandler')]
     [Scope('OnPrem')]
     procedure SendAttachmentToIncomingDocument()
     var
@@ -238,7 +238,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ConfirmHandlerYes,MsgHandler')]
     [Scope('OnPrem')]
     procedure SendToIncomingDocumentWithPurchaseInvoiceLink()
     var
@@ -440,6 +440,7 @@ codeunit 139058 "Office OCR Test"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('MsgHandler')]
     procedure CreateFromAttachmentOnPurchaseInvoiceWithLinesInOutlookApp()
     var
         OfficeAddinContext: Record "Office Add-in Context";
@@ -499,9 +500,9 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
-    [HandlerFunctions('DocumentAttachmentDetailsPageHandler,InstructionsMenuHandler,OfficeAttachmentsPageHandler,MsgHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,DocumentAttachmentDetailsPageHandler,InstructionsMenuHandler')]
     [Scope('OnPrem')]
-    procedure SendDocumentsToAttachment()
+    procedure SendDocumentsToAttachmentFromAttachmentDetailPage()
     var
         OfficeAddinContext: Record "Office Add-in Context";
         Vendor: Record Vendor;
@@ -533,8 +534,50 @@ codeunit 139058 "Office OCR Test"
         DocumentAttachment.SetRange("Table ID", Database::Vendor);
         DocumentAttachment.SetRange("No.", VendorNo);
         InitialDocumentCount := DocumentAttachment.Count();
-        // [WHEN] Attached Document count is clicked and several handlers are invoked
-        VendorCard."Attached Documents".Documents.Drilldown();
+        // [WHEN] OpenInDetail Action in Factbox is clicked and several handlers are invoked
+        VendorCard."Attached Documents List".OpenInDetail.Invoke();
+
+        // [THEN] The attachment is sent to Attachments
+        Assert.AreEqual(InitialDocumentCount + 1, DocumentAttachment.Count, SendDocumentToAttachmentsMsg);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure SendDocumentsToAttachmentFromDocAttachmentListFactbox()
+    var
+        OfficeAddinContext: Record "Office Add-in Context";
+        Vendor: Record Vendor;
+        ExchangeObject: Record "Exchange Object";
+        DocumentAttachment: Record "Document Attachment";
+        VendorCard: TestPage "Vendor Card";
+        ContactNo: Code[20];
+        NewBusRelCode: Code[10];
+        VendorNo: Code[20];
+        TestEmail: Text[80];
+        InitialDocumentCount: Integer;
+    begin
+        // [SCENARIO] Stan is able to attach a document in an outlook email to Attachments from DocAttachmetnList Factbox
+        Initialize(OfficeHostType.OutlookItemRead);
+
+        // [GIVEN] A Vendor in a system exists
+        TestEmail := RandomEmail();
+        VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
+        Vendor.SetRange("No.", VendorNo);
+        Vendor.Get(VendorNo);
+        OfficeAddinContext.SetRange(Email, TestEmail);
+
+        // [WHEN] The vendor card is opened up in Office Addin.
+        VendorCard.Trap();
+        LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
+          ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNo));
+        RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
+
+        DocumentAttachment.SetRange("Table ID", Database::Vendor);
+        DocumentAttachment.SetRange("No.", VendorNo);
+        InitialDocumentCount := DocumentAttachment.Count();
+        // [WHEN] OpenInDetail Action in Factbox is clicked and several handlers are invoked
+        VendorCard."Attached Documents List".AttachFromEmail.Invoke();
 
         // [THEN] The attachment is sent to Attachments
         Assert.AreEqual(InitialDocumentCount + 1, DocumentAttachment.Count, SendDocumentToAttachmentsMsg);
@@ -693,22 +736,23 @@ codeunit 139058 "Office OCR Test"
     local procedure ResetOCRSetup()
     var
         OCRServiceSetup: Record "OCR Service Setup";
+        DummySecretValue: Text;
     begin
-        with OCRServiceSetup do begin
-            DeleteAll();
-            Init();
-            Insert(true);
+        OCRServiceSetup.DeleteAll();
+        OCRServiceSetup.Init();
+        OCRServiceSetup.Insert(true);
 
-            "User Name" := 'cronus.admin';
-            SavePassword("Password Key", '#Ey^VDI$B$53.8');
+        OCRServiceSetup."User Name" := 'cronus.admin';
+        DummySecretValue := '#Ey^VDI$B$53.8';
+        OCRServiceSetup.SavePassword(OCRServiceSetup."Password Key", DummySecretValue);
 
-            SavePassword("Authorization Key", '2e9dfdaf60ee4569a2444a1fc3d16685');
-            Enabled := true;
+        DummySecretValue := '2e9dfdaf60ee4569a2444a1fc3d16685';
+        OCRServiceSetup.SavePassword(OCRServiceSetup."Authorization Key", DummySecretValue);
+        OCRServiceSetup.Enabled := true;
 
-            "Service URL" := 'https://localhost:8080/OCR';
-            "Default OCR Doc. Template" := 'BLANK';
-            Modify();
-        end;
+        OCRServiceSetup."Service URL" := 'https://localhost:8080/OCR';
+        OCRServiceSetup."Default OCR Doc. Template" := 'BLANK';
+        OCRServiceSetup.Modify();
 
         Commit();
     end;
@@ -717,11 +761,9 @@ codeunit 139058 "Office OCR Test"
     var
         OCRServiceSetup: Record "OCR Service Setup";
     begin
-        with OCRServiceSetup do begin
-            Init();
-            Enabled := false;
-            Modify();
-        end;
+        OCRServiceSetup.Init();
+        OCRServiceSetup.Enabled := false;
+        OCRServiceSetup.Modify();
 
         Commit();
     end;
@@ -806,4 +848,3 @@ codeunit 139058 "Office OCR Test"
         exit(RecRef);
     end;
 }
-

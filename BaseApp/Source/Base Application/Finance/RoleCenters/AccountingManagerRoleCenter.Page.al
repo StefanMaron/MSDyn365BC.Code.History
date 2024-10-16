@@ -35,9 +35,6 @@ using Microsoft.FixedAssets.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Costing;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.History;
 using Microsoft.Purchases.Document;
@@ -79,6 +76,10 @@ page 9001 "Accounting Manager Role Center"
                     ApplicationArea = Basic, Suite;
                 }
                 part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
+                part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
                 {
                     ApplicationArea = Suite;
                 }
@@ -609,19 +610,6 @@ page 9001 "Accounting Manager Role Center"
                                         Recurring = const(false));
                     ToolTip = 'Post financial transactions directly to general ledger accounts and other accounts, such as bank, customer, vendor, and employee accounts. Posting with a general journal always creates entries on general ledger accounts. This is true even when, for example, you post a journal line to a customer account, because an entry is posted to a general ledger receivables account through a posting group.';
                 }
-#if not CLEAN22
-                action("Intrastat Journals")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'Intrastat Journals';
-                    Image = "Report";
-                    RunObject = Page "Intrastat Jnl. Batches";
-                    ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
                 action("Invent. Act List")
                 {
                     Caption = 'Invent. Act List';
@@ -1208,18 +1196,6 @@ page 9001 "Accounting Manager Role Center"
                     Image = AnalysisView;
                     RunObject = Page "Analysis View List";
                     ToolTip = 'Analyze amounts in your general ledger by their dimensions using analysis views that you have set up.';
-                }
-                action("Analysis by &Dimensions")
-                {
-                    ApplicationArea = Dimensions;
-                    Caption = 'Analysis by &Dimensions';
-                    Image = AnalysisViewDimension;
-                    RunObject = Page "Analysis by Dimensions";
-                    ToolTip = 'Analyze activities using dimensions information.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality runs correctly from the Analysis View List page';
-                    ObsoleteTag = '18.0';
                 }
             }
             group(Action1210042)

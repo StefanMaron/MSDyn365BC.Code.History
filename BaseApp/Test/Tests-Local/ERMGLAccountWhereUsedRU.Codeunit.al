@@ -75,12 +75,10 @@ codeunit 144544 "ERM G/L Account Where-Used RU"
 
     local procedure CreateFACharge(var FACharge: Record "FA Charge")
     begin
-        with FACharge do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"FA Charge");
-            "G/L Acc. for Released FA" := LibraryERM.CreateGLAccountNo();
-            Insert();
-        end;
+        FACharge.Init();
+        FACharge."No." := LibraryUtility.GenerateRandomCode(FACharge.FieldNo("No."), DATABASE::"FA Charge");
+        FACharge."G/L Acc. for Released FA" := LibraryERM.CreateGLAccountNo();
+        FACharge.Insert();
     end;
 
     local procedure ValidateWhereUsedRecord(ExpectedTableCaption: Text; ExpectedFieldCaption: Text; ExpectedLineValue: Text)

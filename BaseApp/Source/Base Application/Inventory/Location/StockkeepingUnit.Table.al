@@ -23,7 +23,6 @@ using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
@@ -40,6 +39,7 @@ table 5700 "Stockkeeping Unit"
         field(1; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            OptimizeForTextSearch = true;
             NotBlank = true;
             TableRelation = Item where(Type = const(Inventory));
 
@@ -65,7 +65,7 @@ table 5700 "Stockkeeping Unit"
             begin
                 CalcFields(
                   Inventory, "Qty. on Purch. Order", "Qty. on Prod. Order", "Qty. in Transit",
-                  "Qty. on Component Lines", "Qty. on Sales Order", "Qty. on Service Order", "Qty. on Job Order",
+                  "Qty. on Component Lines", "Qty. on Sales Order", "Qty. on Job Order",
                   "Qty. on Assembly Order", "Qty. on Asm. Component");
             end;
         }
@@ -81,7 +81,7 @@ table 5700 "Stockkeeping Unit"
                 CheckTransferRoute();
                 CalcFields(
                   Inventory, "Qty. on Purch. Order", "Qty. on Prod. Order", "Qty. in Transit",
-                  "Qty. on Component Lines", "Qty. on Sales Order", "Qty. on Service Order", "Qty. on Job Order",
+                  "Qty. on Component Lines", "Qty. on Sales Order", "Qty. on Job Order",
                   "Qty. on Assembly Order", "Qty. on Asm. Component");
             end;
         }
@@ -89,6 +89,7 @@ table 5700 "Stockkeeping Unit"
         {
             CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Description';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -96,6 +97,7 @@ table 5700 "Stockkeeping Unit"
         {
             CalcFormula = lookup(Item."Description 2" where("No." = field("Item No.")));
             Caption = 'Description 2';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -183,6 +185,7 @@ table 5700 "Stockkeeping Unit"
         field(32; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
+            OptimizeForTextSearch = true;
         }
         field(33; "Lead Time Calculation"; DateFormula)
         {
@@ -457,9 +460,14 @@ table 5700 "Stockkeeping Unit"
         }
         field(5421; "Scheduled Need (Qty.)"; Decimal)
         {
-            ObsoleteState = Pending;
             ObsoleteReason = 'Use the field ''Qty. on Component Lines'' instead';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '18.0';
+#endif
             CalcFormula = sum("Prod. Order Component"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
                                                                                      "Item No." = field("Item No."),
                                                                                      "Location Code" = field("Location Code"),
@@ -614,21 +622,6 @@ table 5700 "Stockkeeping Unit"
                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
                                                                                "Shipment Date" = field("Date Filter")));
             Caption = 'Trans. Ord. Shipment (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(5901; "Qty. on Service Order"; Decimal)
-        {
-            CalcFormula = sum("Service Line"."Outstanding Qty. (Base)" where("Document Type" = const(Order),
-                                                                              Type = const(Item),
-                                                                              "No." = field("Item No."),
-                                                                              "Location Code" = field("Location Code"),
-                                                                              "Variant Code" = field("Variant Code"),
-                                                                              "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                              "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                              "Needed by Date" = field("Date Filter")));
-            Caption = 'Qty. on Service Order';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -913,8 +906,12 @@ table 5700 "Stockkeeping Unit"
         FromLocation: Code[10];
         ErrorString: Text[80];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify a %1 or a %2 for each %3.';
+#pragma warning restore AA0470
         Text001: Label 'There may be orders and open ledger entries for the item. ';
+#pragma warning disable AA0470
         Text002: Label 'If you change %1 it may affect new orders and entries.\\';
         Text003: Label 'Do you want to change %1?';
         Text004: Label 'You must specify a %1 for this %2 to use %3 as %4.';
@@ -922,7 +919,9 @@ table 5700 "Stockkeeping Unit"
         Text006: Label 'A circular reference in %1 has been detected:\%2 ->%3 ->%4';
         Text008: Label 'You cannot change %1 because there are one or more ledger entries for this SKU.';
         Text7380: Label 'If you change the %1, the %2 and %3 are calculated.\Do you still want to change the %1?', Comment = 'If you change the Phys Invt Counting Period Code, the Next Counting Start Date and Next Counting End Date are calculated.\Do you still want to change the Phys Invt Counting Period Code?';
+#pragma warning restore AA0470
         Text7381: Label 'Cancelled.';
+#pragma warning restore AA0074
 
     protected var
         HideValidationDialog: Boolean;

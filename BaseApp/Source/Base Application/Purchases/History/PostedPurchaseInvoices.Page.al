@@ -14,12 +14,12 @@ page 146 "Posted Purchase Invoices"
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Purchase Invoices';
     CardPageID = "Posted Purchase Invoice";
-    Editable = false; 
+    Editable = false;
     PageType = List;
     QueryCategory = 'Posted Purchase Invoices';
     SourceTable = "Purch. Inv. Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending)
+                      order(descending)
                       where("Empl. Purchase" = const(false));
     UsageCategory = History;
 
@@ -281,10 +281,23 @@ page 146 "Posted Purchase Invoices"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Purch. Inv. Header"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Purch. Inv. Header"),
                               "No." = field("No.");
             }
@@ -292,7 +305,7 @@ page 146 "Posted Purchase Invoices"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             part(GLEntriesPart; "G/L Entries Part")
             {
@@ -381,7 +394,7 @@ page 146 "Posted Purchase Invoices"
                 Ellipsis = true;
                 Image = Print;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 var
@@ -416,7 +429,7 @@ page 146 "Posted Purchase Invoices"
                 Scope = Repeater;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin

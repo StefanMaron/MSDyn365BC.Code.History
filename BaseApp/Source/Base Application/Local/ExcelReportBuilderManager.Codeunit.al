@@ -5,7 +5,9 @@ codeunit 14930 "Excel Report Builder Manager"
         FileMgt: Codeunit "File Management";
         ReportBuilder: DotNet ReportBuilder;
         TemplateCode: Code[10];
+#pragma warning disable AA0470
         SheetNameExceedsMaxLengthErr: Label 'Sheet Name exceeds max length = %1.';
+#pragma warning restore AA0470
         SaveFileTitleMsg: Label 'Save excel report';
 
     [Scope('OnPrem')]

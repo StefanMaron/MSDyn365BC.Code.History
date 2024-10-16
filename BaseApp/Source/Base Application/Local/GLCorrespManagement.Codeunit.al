@@ -24,7 +24,11 @@ codeunit 12404 "G/L Corresp. Management"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Transaction No. #1#######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TempGLEntry: Record "G/L Entry" temporary;
 
     [Scope('OnPrem')]

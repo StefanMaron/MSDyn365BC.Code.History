@@ -7,7 +7,7 @@ page 35609 "Posted FA Writeoff Acts"
     PageType = List;
     SourceTable = "Posted FA Doc. Header";
     SourceTableView = sorting("Document Type", "No.")
-                      where("Document Type" = CONST(Writeoff));
+                      where("Document Type" = const(Writeoff));
     UsageCategory = History;
 
     layout
@@ -82,9 +82,9 @@ page 35609 "Posted FA Writeoff Acts"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Posted FA Comments";
-                    RunPageLink = "Document Type" = CONST(Writeoff),
+                    RunPageLink = "Document Type" = const(Writeoff),
                                   "Document No." = field("No."),
-                                  "Document Line No." = CONST(0);
+                                  "Document Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("D&imensions")
@@ -107,7 +107,7 @@ page 35609 "Posted FA Writeoff Acts"
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
                     RunObject = Page "Posted Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12471),
+                    RunPageLink = "Table ID" = const(12471),
                                   "Document Type" = field("Document Type"),
                                   "Document No." = field("No.");
                 }

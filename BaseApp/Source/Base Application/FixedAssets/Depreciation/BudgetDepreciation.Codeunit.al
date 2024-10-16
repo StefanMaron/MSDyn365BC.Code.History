@@ -14,8 +14,16 @@ codeunit 5615 "Budget Depreciation"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'In a budget report, %1 must be %2 in %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Budget calculation has not been done on fixed assets with %1 %2, %3 or %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NoOfErrors: Integer;
         CallNo: Integer;
 

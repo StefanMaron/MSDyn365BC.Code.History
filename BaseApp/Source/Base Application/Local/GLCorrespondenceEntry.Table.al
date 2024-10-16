@@ -28,13 +28,13 @@ table 12401 "G/L Correspondence Entry"
         field(5; "Debit Source No."; Code[20])
         {
             Caption = 'Debit Source No.';
-            TableRelation = if ("Debit Source Type" = CONST(Customer)) Customer
+            TableRelation = if ("Debit Source Type" = const(Customer)) Customer
             else
-            if ("Debit Source Type" = CONST(Vendor)) Vendor
+            if ("Debit Source Type" = const(Vendor)) Vendor
             else
-            if ("Debit Source Type" = CONST("Bank Account")) "Bank Account"
+            if ("Debit Source Type" = const("Bank Account")) "Bank Account"
             else
-            if ("Debit Source Type" = CONST("Fixed Asset")) "Fixed Asset";
+            if ("Debit Source Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(6; "Credit Account No."; Code[20])
         {
@@ -44,13 +44,13 @@ table 12401 "G/L Correspondence Entry"
         field(7; "Credit Source No."; Code[20])
         {
             Caption = 'Credit Source No.';
-            TableRelation = if ("Credit Source Type" = CONST(Customer)) Customer
+            TableRelation = if ("Credit Source Type" = const(Customer)) Customer
             else
-            if ("Credit Source Type" = CONST(Vendor)) Vendor
+            if ("Credit Source Type" = const(Vendor)) Vendor
             else
-            if ("Credit Source Type" = CONST("Bank Account")) "Bank Account"
+            if ("Credit Source Type" = const("Bank Account")) "Bank Account"
             else
-            if ("Credit Source Type" = CONST("Fixed Asset")) "Fixed Asset";
+            if ("Credit Source Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(8; Amount; Decimal)
         {
@@ -77,13 +77,13 @@ table 12401 "G/L Correspondence Entry"
         {
             CaptionClass = '1,1,1,Debit ';
             Caption = 'Debit Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(13; "Debit Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2,Debit ';
             Caption = 'Debit Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(14; Positive; Boolean)
         {
@@ -115,13 +115,13 @@ table 12401 "G/L Correspondence Entry"
         {
             CaptionClass = '1,1,1,Credit ';
             Caption = 'Credit Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(49; "Credit Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2,Credit ';
             Caption = 'Credit Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(50; "Debit Entry No."; Integer)
         {

@@ -579,15 +579,9 @@ table 12403 "Gen. Journal Line Archive"
         {
             Caption = 'IC Partner G/L Acc. No.';
             TableRelation = "IC G/L Account";
-#if not CLEAN22
-            ObsoleteReason = 'This field will be replaced by IC Account No.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteReason = 'Replaced by IC Account No.';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(117; "IC Partner Transaction No."; Integer)
         {

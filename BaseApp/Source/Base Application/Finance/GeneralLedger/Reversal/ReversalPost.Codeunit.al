@@ -126,13 +126,27 @@ codeunit 179 "Reversal-Post"
         PrintRegister: Boolean;
         HideDialog: Boolean;
 
+#pragma warning disable AA0074
         Text002: Label 'Do you want to reverse the entries?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'The entries were successfully reversed.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'To reverse these entries, correcting entries will be posted.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Do you want to reverse the entries and print the report?';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'There is nothing to reverse.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label '\There are one or more FA Ledger Entries. You should consider using the fixed asset function Cancel Entries.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label 'Changes have been made to posted entries after the window was opened.\Close and reopen the window to continue.';
+#pragma warning restore AA0074
 
     procedure SetPrint(NewPrintRegister: Boolean)
     begin

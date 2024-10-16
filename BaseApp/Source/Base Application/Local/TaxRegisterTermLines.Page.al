@@ -224,7 +224,9 @@ page 17208 "Tax Register Term Lines"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Delete all lines?';
+#pragma warning restore AA0074
         GLAcc: Record "G/L Account";
         ExternReportFormula1: Record "Tax Register Term Formula";
         TaxRegTermName: Record "Tax Register Term";

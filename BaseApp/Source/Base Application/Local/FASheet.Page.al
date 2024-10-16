@@ -271,12 +271,11 @@ page 12497 "FA Sheet"
     trigger OnOpenPage()
     begin
         DateFilter := Rec.GetFilter("FA Posting Date Filter");
-        if DateFilter = '' then begin
+        if DateFilter = '' then
             if PeriodType = PeriodType::"Accounting Period" then
                 FindPeriodUser('')
             else
                 FindPeriod('');
-        end;
 
         if DeprBookFilter = '' then begin
             FASetup.Get();

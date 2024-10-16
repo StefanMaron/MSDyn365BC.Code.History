@@ -7,7 +7,6 @@ namespace Microsoft.Projects.TimeSheet;
 using Microsoft.Assembly.Document;
 using Microsoft.HumanResources.Absence;
 using Microsoft.Projects.Project.Job;
-using Microsoft.Service.Document;
 
 page 971 "Activity Details FactBox"
 {
@@ -84,11 +83,9 @@ page 971 "Activity Details FactBox"
     var
         Job: Record Job;
         CauseOfAbsence: Record "Cause of Absence";
-        ServiceHeader: Record "Service Header";
         AssemblyHeader: Record "Assembly Header";
         JobList: Page "Job List";
         CausesOfAbsence: Page "Causes of Absence";
-        ServiceOrders: Page "Service Orders";
         AssemblyOrders: Page "Assembly Orders";
     begin
         case Rec.Type of
@@ -110,14 +107,6 @@ page 971 "Activity Details FactBox"
                     end;
                     CausesOfAbsence.RunModal();
                 end;
-            Rec.Type::Service:
-                begin
-                    Clear(ServiceOrders);
-                    if Rec."Service Order No." <> '' then
-                        if ServiceHeader.Get(ServiceHeader."Document Type"::Order, Rec."Service Order No.") then
-                            ServiceOrders.SetRecord(ServiceHeader);
-                    ServiceOrders.RunModal();
-                end;
             Rec.Type::"Assembly Order":
                 begin
                     Clear(AssemblyOrders);
@@ -126,6 +115,8 @@ page 971 "Activity Details FactBox"
                             AssemblyOrders.SetRecord(AssemblyHeader);
                     AssemblyOrders.RunModal();
                 end;
+            else
+                OnLookupActivity(Rec);
         end;
     end;
 
@@ -151,6 +142,11 @@ page 971 "Activity Details FactBox"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupSubActivity(TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupActivity(var TimeSheetLine: Record "Time Sheet Line")
     begin
     end;
 }

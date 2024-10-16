@@ -2,11 +2,11 @@ namespace Microsoft.Sales.Customer;
 
 using Microsoft.EServices.OnlineMap;
 using Microsoft.CRM.Team;
+using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Location;
-using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 
@@ -126,6 +126,7 @@ table 222 "Ship-to Address"
             trigger OnValidate()
             begin
                 PostCode.CheckClearPostCodeCityCounty(City, "Post Code", County, "Country/Region Code", xRec."Country/Region Code");
+                AltCustVATRegFacade.HandleCountryChangeInShipToAddress(Rec);
             end;
         }
         field(54; "Last Date Modified"; Date)
@@ -233,11 +234,6 @@ table 222 "Ship-to Address"
             Caption = 'Shipping Agent Service Code';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
         }
-        field(5900; "Service Zone Code"; Code[10])
-        {
-            Caption = 'Service Zone Code';
-            TableRelation = "Service Zone";
-        }
         field(12409; "Full Name"; Text[250])
         {
             Caption = 'Full Name';
@@ -283,8 +279,11 @@ table 222 "Ship-to Address"
     var
         Cust: Record Customer;
         PostCode: Record "Post Code";
+        AltCustVATRegFacade: Codeunit "Alt. Cust. VAT. Reg. Facade";
 
+#pragma warning disable AA0074
         Text000: Label 'untitled';
+#pragma warning restore AA0074
 
     procedure Caption(): Text
     begin
@@ -327,13 +326,13 @@ table 222 "Ship-to Address"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
         if "Salesperson Code" = '' then
-          exit;
+            exit;
 
         if not SalespersonPurchaser.Get("Salesperson Code") then
-          exit;
-          
+            exit;
+
         if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
-          Error(SalespersonPurchaser.GetPrivacyBlockedGenericText(SalespersonPurchaser, true))
+            Error(SalespersonPurchaser.GetPrivacyBlockedGenericText(SalespersonPurchaser, true))
     end;
 
     [IntegrationEvent(false, false)]

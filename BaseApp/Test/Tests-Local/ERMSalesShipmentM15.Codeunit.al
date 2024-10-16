@@ -185,11 +185,9 @@ codeunit 144706 "ERM Sales Shipment M-15"
 
     local procedure FindLastSalesLine(var SalesLine: Record "Sales Line"; OrderNo: Code[20])
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", OrderNo);
-            FindLast();
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", OrderNo);
+        SalesLine.FindLast();
     end;
 
     local procedure FindLastSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; OrderNo: Code[20])

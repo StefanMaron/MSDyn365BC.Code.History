@@ -225,7 +225,9 @@ page 17283 "Tax Reg. Norm Term Formula"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Delete all lines?';
+#pragma warning restore AA0074
         GLAcc: Record "G/L Account";
         ExternReportFormula1: Record "Tax Reg. Norm Term Formula";
         NormTermName: Record "Tax Reg. Norm Term";

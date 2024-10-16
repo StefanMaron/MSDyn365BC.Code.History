@@ -170,7 +170,7 @@ table 17310 "Tax Calc. Line"
         }
         field(14; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Calc. Dim. Filter" where("Section Code" = field("Section Code"),
+            CalcFormula = exist("Tax Calc. Dim. Filter" where("Section Code" = field("Section Code"),
                                                                "Register No." = field(Code),
                                                                Define = const(Template),
                                                                "Line No." = field("Line No.")));
@@ -291,7 +291,7 @@ table 17310 "Tax Calc. Line"
         }
         field(20; "G/L Corr. Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Diff. Corr. Dim. Filter" where("Section Code" = field("Section Code"),
+            CalcFormula = exist("Tax Diff. Corr. Dim. Filter" where("Section Code" = field("Section Code"),
                                                                      "Tax Calc. No." = field(Code),
                                                                      "Line No." = field("Line No."),
                                                                      Define = const(Template)));
@@ -453,7 +453,11 @@ table 17310 "Tax Calc. Line"
         TaxCalcFAEntry: Record "Tax Calc. FA Entry";
         TaxCalcDimFilter: Record "Tax Calc. Dim. Filter";
         TaxRegNormGroup: Record "Tax Register Norm Group";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1000: Label 'Period must be empty if Expression Type is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure MakeFieldFilter(TaxCalcTableNo: Integer): Text[1024]

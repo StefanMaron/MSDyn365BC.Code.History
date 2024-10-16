@@ -25,25 +25,21 @@ codeunit 143015 "Library - Tax Accounting"
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
-        with TaxDiffJnlTemplate do begin
-            Init();
-            Validate(Name, GenJnlTemplate.Name);
-            Validate(Description, Name);
-            Insert(true);
-        end;
+        TaxDiffJnlTemplate.Init();
+        TaxDiffJnlTemplate.Validate(Name, GenJnlTemplate.Name);
+        TaxDiffJnlTemplate.Validate(Description, TaxDiffJnlTemplate.Name);
+        TaxDiffJnlTemplate.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxDiffJnlBatch(var TaxDiffJnlBatch: Record "Tax Diff. Journal Batch"; TaxDiffJnlTemplateName: Code[10])
     begin
-        with TaxDiffJnlBatch do begin
-            Init();
-            Validate("Journal Template Name", TaxDiffJnlTemplateName);
-            Validate(Name, GenerateRandomCode(DATABASE::"Tax Diff. Journal Batch", FieldNo(Name)));
-            Validate(Description, Name);
-            Validate("No. Series", LibraryERM.CreateNoSeriesCode());
-            Insert(true);
-        end;
+        TaxDiffJnlBatch.Init();
+        TaxDiffJnlBatch.Validate("Journal Template Name", TaxDiffJnlTemplateName);
+        TaxDiffJnlBatch.Validate(Name, GenerateRandomCode(DATABASE::"Tax Diff. Journal Batch", TaxDiffJnlBatch.FieldNo(Name)));
+        TaxDiffJnlBatch.Validate(Description, TaxDiffJnlBatch.Name);
+        TaxDiffJnlBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
+        TaxDiffJnlBatch.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -62,66 +58,56 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateAccDeprBook(var DepreciationBook: Record "Depreciation Book")
     begin
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        with DepreciationBook do begin
-            Validate("Posting Book Type", "Posting Book Type"::Accounting);
-            Modify(true);
-        end;
+        DepreciationBook.Validate("Posting Book Type", DepreciationBook."Posting Book Type"::Accounting);
+        DepreciationBook.Modify(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxAccDeprBook(var DepreciationBook: Record "Depreciation Book")
     begin
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        with DepreciationBook do begin
-            Validate("Posting Book Type", "Posting Book Type"::"Tax Accounting");
-            Modify(true);
-        end;
+        DepreciationBook.Validate("Posting Book Type", DepreciationBook."Posting Book Type"::"Tax Accounting");
+        DepreciationBook.Modify(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxDifference(var TaxDifference: Record "Tax Difference")
     begin
-        with TaxDifference do begin
-            Init();
-            Validate(Code, GenerateRandomCode(DATABASE::"Tax Difference", FieldNo(Code)));
-            Validate("Source Code Mandatory", true);
-            Insert(true);
-        end;
+        TaxDifference.Init();
+        TaxDifference.Validate(Code, GenerateRandomCode(DATABASE::"Tax Difference", TaxDifference.FieldNo(Code)));
+        TaxDifference.Validate("Source Code Mandatory", true);
+        TaxDifference.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxDiffPostingGroup(var TaxDiffPostingGroup: Record "Tax Diff. Posting Group")
     begin
-        with TaxDiffPostingGroup do begin
-            Init();
-            Validate(Code, GenerateRandomCode(DATABASE::"Tax Diff. Posting Group", FieldNo(Code)));
-            Validate("CTA Tax Account", LibraryERM.CreateGLAccountNo());
-            Validate("CTL Tax Account", LibraryERM.CreateGLAccountNo());
-            Validate("DTA Tax Account", LibraryERM.CreateGLAccountNo());
-            Validate("DTL Tax Account", LibraryERM.CreateGLAccountNo());
-            Validate("CTA Account", LibraryERM.CreateGLAccountNo());
-            Validate("CTL Account", LibraryERM.CreateGLAccountNo());
-            Validate("DTA Account", LibraryERM.CreateGLAccountNo());
-            Validate("DTL Account", LibraryERM.CreateGLAccountNo());
-            Validate("DTA Disposal Account", LibraryERM.CreateGLAccountNo());
-            Validate("DTL Disposal Account", LibraryERM.CreateGLAccountNo());
-            Validate("DTA Transfer Bal. Account", LibraryERM.CreateGLAccountNo());
-            Validate("DTL Transfer Bal. Account", LibraryERM.CreateGLAccountNo());
-            Validate("CTA Transfer Tax Account", LibraryERM.CreateGLAccountNo());
-            Validate("CTL Transfer Tax Account", LibraryERM.CreateGLAccountNo());
-            Insert(true);
-        end;
+        TaxDiffPostingGroup.Init();
+        TaxDiffPostingGroup.Validate(Code, GenerateRandomCode(DATABASE::"Tax Diff. Posting Group", TaxDiffPostingGroup.FieldNo(Code)));
+        TaxDiffPostingGroup.Validate("CTA Tax Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("CTL Tax Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("DTA Tax Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("DTL Tax Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("CTA Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("CTL Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("DTA Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("DTL Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("DTA Disposal Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("DTL Disposal Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("DTA Transfer Bal. Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("DTL Transfer Bal. Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("CTA Transfer Tax Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Validate("CTL Transfer Tax Account", LibraryERM.CreateGLAccountNo());
+        TaxDiffPostingGroup.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateDeprBonusTaxDifference(var TaxDifference: Record "Tax Difference")
     begin
         CreateTaxDifference(TaxDifference);
-        with TaxDifference do begin
-            Validate(Type, Type::"Temporary");
-            Validate("Depreciation Bonus", true);
-            Modify(true);
-        end;
+        TaxDifference.Validate(Type, TaxDifference.Type::"Temporary");
+        TaxDifference.Validate("Depreciation Bonus", true);
+        TaxDifference.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -247,29 +233,25 @@ codeunit 143015 "Library - Tax Accounting"
     [Scope('OnPrem')]
     procedure CreateTaxCalcSection(var TaxCalcSection: Record "Tax Calc. Section"; StartingDate: Date; EndingDate: Date)
     begin
-        with TaxCalcSection do begin
-            Init();
-            Validate(Code, GenerateRandomCode(DATABASE::"Tax Calc. Section", FieldNo(Code)));
-            Validate(Description, Code);
-            Validate(Status, Status::Blocked);
-            Validate("Starting Date", StartingDate);
-            Validate("Ending Date", EndingDate);
-            Validate(Status, Status::Open);
-            Insert(true);
-        end;
+        TaxCalcSection.Init();
+        TaxCalcSection.Validate(Code, GenerateRandomCode(DATABASE::"Tax Calc. Section", TaxCalcSection.FieldNo(Code)));
+        TaxCalcSection.Validate(Description, TaxCalcSection.Code);
+        TaxCalcSection.Validate(Status, TaxCalcSection.Status::Blocked);
+        TaxCalcSection.Validate("Starting Date", StartingDate);
+        TaxCalcSection.Validate("Ending Date", EndingDate);
+        TaxCalcSection.Validate(Status, TaxCalcSection.Status::Open);
+        TaxCalcSection.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxCalcHeader(var TaxCalcHeader: Record "Tax Calc. Header"; TaxCalcSectionCode: Code[10]; TableID: Integer)
     begin
-        with TaxCalcHeader do begin
-            Init();
-            Validate("Section Code", TaxCalcSectionCode);
-            Validate("No.", GenerateRandomCode(DATABASE::"Tax Calc. Header", FieldNo("No.")));
-            Validate(Description, "No.");
-            Validate("Table ID", TableID);
-            Insert(true);
-        end;
+        TaxCalcHeader.Init();
+        TaxCalcHeader.Validate("Section Code", TaxCalcSectionCode);
+        TaxCalcHeader.Validate("No.", GenerateRandomCode(DATABASE::"Tax Calc. Header", TaxCalcHeader.FieldNo("No.")));
+        TaxCalcHeader.Validate(Description, TaxCalcHeader."No.");
+        TaxCalcHeader.Validate("Table ID", TableID);
+        TaxCalcHeader.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -277,27 +259,23 @@ codeunit 143015 "Library - Tax Accounting"
     var
         TaxCalcLine: Record "Tax Calc. Line";
     begin
-        with TaxCalcLine do begin
-            SetRange("Section Code", TaxCalcSectionCode);
-            SetRange(Code, TaxCalcHeaderNo);
-            if FindLast() then
-                exit("Line No.");
-            exit(0);
-        end;
+        TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
+        TaxCalcLine.SetRange(Code, TaxCalcHeaderNo);
+        if TaxCalcLine.FindLast() then
+            exit(TaxCalcLine."Line No.");
+        exit(0);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxCalcLine(var TaxCalcLine: Record "Tax Calc. Line"; ExpressionType: Option; TaxCalcSectionCode: Code[10]; TaxCalcHeaderNo: Code[10])
     begin
-        with TaxCalcLine do begin
-            Init();
-            Validate("Section Code", TaxCalcSectionCode);
-            Validate(Code, TaxCalcHeaderNo);
-            Validate("Line No.", GetLastTaxCalcLineNo(TaxCalcSectionCode, TaxCalcHeaderNo) + 10000);
-            Validate("Line Code", GenerateRandomCode(DATABASE::"Tax Calc. Line", FieldNo("Line Code")));
-            Validate("Expression Type", ExpressionType);
-            Insert(true);
-        end;
+        TaxCalcLine.Init();
+        TaxCalcLine.Validate("Section Code", TaxCalcSectionCode);
+        TaxCalcLine.Validate(Code, TaxCalcHeaderNo);
+        TaxCalcLine.Validate("Line No.", GetLastTaxCalcLineNo(TaxCalcSectionCode, TaxCalcHeaderNo) + 10000);
+        TaxCalcLine.Validate("Line Code", GenerateRandomCode(DATABASE::"Tax Calc. Line", TaxCalcLine.FieldNo("Line Code")));
+        TaxCalcLine.Validate("Expression Type", ExpressionType);
+        TaxCalcLine.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -305,56 +283,48 @@ codeunit 143015 "Library - Tax Accounting"
     var
         TaxCalcSelectionSetup: Record "Tax Calc. Selection Setup";
     begin
-        with TaxCalcSelectionSetup do begin
-            SetRange("Section Code", TaxCalcSectionCode);
-            SetRange("Register No.", TaxCalcHeaderNo);
-            if FindLast() then
-                exit("Line No.");
-            exit(0);
-        end;
+        TaxCalcSelectionSetup.SetRange("Section Code", TaxCalcSectionCode);
+        TaxCalcSelectionSetup.SetRange("Register No.", TaxCalcHeaderNo);
+        if TaxCalcSelectionSetup.FindLast() then
+            exit(TaxCalcSelectionSetup."Line No.");
+        exit(0);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxCalcSelectionSetup(var TaxCalcSelectionSetup: Record "Tax Calc. Selection Setup"; TaxCalcSectionCode: Code[10]; TaxCalcHeaderNo: Code[10])
     begin
-        with TaxCalcSelectionSetup do begin
-            Init();
-            Validate("Section Code", TaxCalcSectionCode);
-            Validate("Register No.", TaxCalcHeaderNo);
-            Validate("Line No.", GetLastTaxCalcSelectionSetupLineNo(TaxCalcSectionCode, TaxCalcHeaderNo) + 10000);
-            Validate("Line Code", GenerateRandomCode(DATABASE::"Tax Calc. Selection Setup", FieldNo("Line Code")));
-            Insert(true);
-        end;
+        TaxCalcSelectionSetup.Init();
+        TaxCalcSelectionSetup.Validate("Section Code", TaxCalcSectionCode);
+        TaxCalcSelectionSetup.Validate("Register No.", TaxCalcHeaderNo);
+        TaxCalcSelectionSetup.Validate("Line No.", GetLastTaxCalcSelectionSetupLineNo(TaxCalcSectionCode, TaxCalcHeaderNo) + 10000);
+        TaxCalcSelectionSetup.Validate("Line Code", GenerateRandomCode(DATABASE::"Tax Calc. Selection Setup", TaxCalcSelectionSetup.FieldNo("Line Code")));
+        TaxCalcSelectionSetup.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxRegSection(var TaxRegSection: Record "Tax Register Section")
     begin
-        with TaxRegSection do begin
-            Init();
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Tax Register Section"));
-            Validate(Description, Code);
-            Insert(true);
-            Validate("Starting Date", CalcDate('<-CM>', WorkDate()));
-            Validate("Ending Date", CalcDate('<CM>', WorkDate()));
-            Validate(Status, Status::Open);
-            Modify(true);
-        end;
+        TaxRegSection.Init();
+        TaxRegSection.Validate(Code, LibraryUtility.GenerateRandomCode(TaxRegSection.FieldNo(Code), DATABASE::"Tax Register Section"));
+        TaxRegSection.Validate(Description, TaxRegSection.Code);
+        TaxRegSection.Insert(true);
+        TaxRegSection.Validate("Starting Date", CalcDate('<-CM>', WorkDate()));
+        TaxRegSection.Validate("Ending Date", CalcDate('<CM>', WorkDate()));
+        TaxRegSection.Validate(Status, TaxRegSection.Status::Open);
+        TaxRegSection.Modify(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxReg(var TaxReg: Record "Tax Register"; TaxRegSectionCode: Code[10]; TableId: Integer; StoringMethod: Option)
     begin
-        with TaxReg do begin
-            Init();
-            Validate("Section Code", TaxRegSectionCode);
-            Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Tax Register"));
-            Validate(Description, "No.");
-            Validate("Table ID", TableId);
-            Validate("Storing Method", StoringMethod);
-            Validate("Register ID", LibraryUtility.GenerateGUID());
-            Insert(true);
-        end;
+        TaxReg.Init();
+        TaxReg.Validate("Section Code", TaxRegSectionCode);
+        TaxReg.Validate("No.", LibraryUtility.GenerateRandomCode(TaxReg.FieldNo("No."), DATABASE::"Tax Register"));
+        TaxReg.Validate(Description, TaxReg."No.");
+        TaxReg.Validate("Table ID", TableId);
+        TaxReg.Validate("Storing Method", StoringMethod);
+        TaxReg.Validate("Register ID", LibraryUtility.GenerateGUID());
+        TaxReg.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -362,30 +332,26 @@ codeunit 143015 "Library - Tax Accounting"
     var
         RecRef: RecordRef;
     begin
-        with TaxRegTemplate do begin
-            Init();
-            Validate("Section Code", TaxRegSectionCode);
-            Validate(Code, TaxRegNo);
-            RecRef.GetTable(TaxRegTemplate);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Validate(
-              "Line Code",
-              LibraryUtility.GenerateRandomCode(FieldNo("Line Code"), DATABASE::"Tax Register Template"));
-            Insert(true);
-        end;
+        TaxRegTemplate.Init();
+        TaxRegTemplate.Validate("Section Code", TaxRegSectionCode);
+        TaxRegTemplate.Validate(Code, TaxRegNo);
+        RecRef.GetTable(TaxRegTemplate);
+        TaxRegTemplate.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, TaxRegTemplate.FieldNo("Line No.")));
+        TaxRegTemplate.Validate(
+          "Line Code",
+          LibraryUtility.GenerateRandomCode(TaxRegTemplate.FieldNo("Line Code"), DATABASE::"Tax Register Template"));
+        TaxRegTemplate.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxRegTerm(var TaxRegTerm: Record "Tax Register Term"; SectionCode: Code[10]; ExpressionType: Option)
     begin
-        with TaxRegTerm do begin
-            Init();
-            Validate("Section Code", SectionCode);
-            Validate("Term Code",
-              LibraryUtility.GenerateRandomCode(FieldNo("Term Code"), DATABASE::"Tax Register Term"));
-            Validate("Expression Type", ExpressionType);
-            Insert(true);
-        end;
+        TaxRegTerm.Init();
+        TaxRegTerm.Validate("Section Code", SectionCode);
+        TaxRegTerm.Validate("Term Code",
+          LibraryUtility.GenerateRandomCode(TaxRegTerm.FieldNo("Term Code"), DATABASE::"Tax Register Term"));
+        TaxRegTerm.Validate("Expression Type", ExpressionType);
+        TaxRegTerm.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -393,19 +359,17 @@ codeunit 143015 "Library - Tax Accounting"
     var
         RecRef: RecordRef;
     begin
-        with TaxRegTermFormula do begin
-            Init();
-            Validate("Section Code", SectionCode);
-            Validate("Term Code", TermCode);
-            RecRef.GetTable(TaxRegTermFormula);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Validate(Operation, OperationType);
-            Validate("Account Type", AccountType);
-            Validate("Account No.", AccountNo);
-            if BalAccountNo <> '' then
-                Validate("Bal. Account No.", BalAccountNo);
-            Insert(true);
-        end;
+        TaxRegTermFormula.Init();
+        TaxRegTermFormula.Validate("Section Code", SectionCode);
+        TaxRegTermFormula.Validate("Term Code", TermCode);
+        RecRef.GetTable(TaxRegTermFormula);
+        TaxRegTermFormula.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, TaxRegTermFormula.FieldNo("Line No.")));
+        TaxRegTermFormula.Validate(Operation, OperationType);
+        TaxRegTermFormula.Validate("Account Type", AccountType);
+        TaxRegTermFormula.Validate("Account No.", AccountNo);
+        if BalAccountNo <> '' then
+            TaxRegTermFormula.Validate("Bal. Account No.", BalAccountNo);
+        TaxRegTermFormula.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -413,16 +377,14 @@ codeunit 143015 "Library - Tax Accounting"
     var
         RecRef: RecordRef;
     begin
-        with FALedgerEntry do begin
-            Init();
-            RecRef.GetTable(FALedgerEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "FA No." := FANo;
-            "Depreciation Book Code" := DeprBookCode;
-            "Posting Date" := PostingDate;
-            "FA Posting Date" := PostingDate;
-            Insert();
-        end;
+        FALedgerEntry.Init();
+        RecRef.GetTable(FALedgerEntry);
+        FALedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, FALedgerEntry.FieldNo("Entry No."));
+        FALedgerEntry."FA No." := FANo;
+        FALedgerEntry."Depreciation Book Code" := DeprBookCode;
+        FALedgerEntry."Posting Date" := PostingDate;
+        FALedgerEntry."FA Posting Date" := PostingDate;
+        FALedgerEntry.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -435,12 +397,10 @@ codeunit 143015 "Library - Tax Accounting"
         TaxRegSetup.Get();
 
         CreateSimpleFA(FixedAsset);
-        with FADeprBook do begin
-            Init();
-            "FA No." := FixedAsset."No.";
-            "Depreciation Book Code" := TaxRegSetup."Tax Depreciation Book";
-            Insert();
-        end;
+        FADeprBook.Init();
+        FADeprBook."FA No." := FixedAsset."No.";
+        FADeprBook."Depreciation Book Code" := TaxRegSetup."Tax Depreciation Book";
+        FADeprBook.Insert();
         exit(FixedAsset."No.");
     end;
 
@@ -454,12 +414,10 @@ codeunit 143015 "Library - Tax Accounting"
         TaxRegSetup.Get();
 
         CreateSimpleFA(FixedAsset);
-        with FADeprBook do begin
-            Init();
-            "FA No." := FixedAsset."No.";
-            "Depreciation Book Code" := TaxRegSetup."Future Exp. Depreciation Book";
-            Insert();
-        end;
+        FADeprBook.Init();
+        FADeprBook."FA No." := FixedAsset."No.";
+        FADeprBook."Depreciation Book Code" := TaxRegSetup."Future Exp. Depreciation Book";
+        FADeprBook.Insert();
         exit(FixedAsset."No.");
     end;
 
@@ -474,23 +432,19 @@ codeunit 143015 "Library - Tax Accounting"
     [Scope('OnPrem')]
     procedure FindCalendarPeriod(var CalendarPeriod: Record Date; StartDate: Date)
     begin
-        with CalendarPeriod do begin
-            Reset();
-            SetRange("Period Type", "Period Type"::Month);
-            SetFilter("Period Start", '..%1', StartDate);
-            SetFilter("Period End", '%1..', StartDate);
-            FindFirst();
-        end;
+        CalendarPeriod.Reset();
+        CalendarPeriod.SetRange("Period Type", CalendarPeriod."Period Type"::Month);
+        CalendarPeriod.SetFilter("Period Start", '..%1', StartDate);
+        CalendarPeriod.SetFilter("Period End", '%1..', StartDate);
+        CalendarPeriod.FindFirst();
     end;
 
     [Scope('OnPrem')]
     procedure CreateEntryNoAmountBuffer(var EntryNoAmountBuffer: Record "Entry No. Amount Buffer"; LineNo: Integer)
     begin
-        with EntryNoAmountBuffer do begin
-            "Entry No." := LineNo;
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        EntryNoAmountBuffer."Entry No." := LineNo;
+        EntryNoAmountBuffer.Amount := LibraryRandom.RandDec(100, 2);
+        EntryNoAmountBuffer.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -498,15 +452,13 @@ codeunit 143015 "Library - Tax Accounting"
     var
         RecordRef: RecordRef;
     begin
-        with TaxDiffJnlLine do begin
-            Init();
-            "Journal Template Name" := JnlTemplateName;
-            "Journal Batch Name" := JnlBatchName;
-            RecordRef.GetTable(TaxDiffJnlLine);
-            "Line No." :=
-              LibraryUtility.GetNewLineNo(RecordRef, FieldNo("Line No."));
-            Insert();
-        end;
+        TaxDiffJnlLine.Init();
+        TaxDiffJnlLine."Journal Template Name" := JnlTemplateName;
+        TaxDiffJnlLine."Journal Batch Name" := JnlBatchName;
+        RecordRef.GetTable(TaxDiffJnlLine);
+        TaxDiffJnlLine."Line No." :=
+          LibraryUtility.GetNewLineNo(RecordRef, TaxDiffJnlLine.FieldNo("Line No."));
+        TaxDiffJnlLine.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -515,18 +467,16 @@ codeunit 143015 "Library - Tax Accounting"
         TaxDifference: Record "Tax Difference";
         TaxDiffPostingGroup: Record "Tax Diff. Posting Group";
     begin
-        with TaxDiffJnlLine do begin
-            Init();
-            "Posting Date" := WorkDate();
-            "Document No." := LibraryUtility.GenerateGUID();
-            CreateTaxDifference(TaxDifference);
-            "Tax Diff. Code" := TaxDifference.Code;
-            CreateTaxDiffPostingGroup(TaxDiffPostingGroup);
-            "Tax Diff. Posting Group" := TaxDiffPostingGroup.Code;
-            "Tax Factor" := LibraryRandom.RandDec(50, 2);
-            "Source Type" := SourceType;
-            "Source No." := SourceNo;
-        end;
+        TaxDiffJnlLine.Init();
+        TaxDiffJnlLine."Posting Date" := WorkDate();
+        TaxDiffJnlLine."Document No." := LibraryUtility.GenerateGUID();
+        CreateTaxDifference(TaxDifference);
+        TaxDiffJnlLine."Tax Diff. Code" := TaxDifference.Code;
+        CreateTaxDiffPostingGroup(TaxDiffPostingGroup);
+        TaxDiffJnlLine."Tax Diff. Posting Group" := TaxDiffPostingGroup.Code;
+        TaxDiffJnlLine."Tax Factor" := LibraryRandom.RandDec(50, 2);
+        TaxDiffJnlLine."Source Type" := SourceType;
+        TaxDiffJnlLine."Source No." := SourceNo;
     end;
 
     [Scope('OnPrem')]
@@ -534,18 +484,16 @@ codeunit 143015 "Library - Tax Accounting"
     var
         RecRef: RecordRef;
     begin
-        with TaxRegDimFilter do begin
-            Init();
-            "Section Code" := SectionCode;
-            "Tax Register No." := TaxRegisterNo;
-            Define := DefineType;
-            RecRef.GetTable(TaxRegDimFilter);
-            "Line No." :=
-              LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "Dimension Code" := DimensionCode;
-            "Dimension Value Filter" := DimValueCode;
-            Insert();
-        end;
+        TaxRegDimFilter.Init();
+        TaxRegDimFilter."Section Code" := SectionCode;
+        TaxRegDimFilter."Tax Register No." := TaxRegisterNo;
+        TaxRegDimFilter.Define := DefineType;
+        RecRef.GetTable(TaxRegDimFilter);
+        TaxRegDimFilter."Line No." :=
+          LibraryUtility.GetNewLineNo(RecRef, TaxRegDimFilter.FieldNo("Line No."));
+        TaxRegDimFilter."Dimension Code" := DimensionCode;
+        TaxRegDimFilter."Dimension Value Filter" := DimValueCode;
+        TaxRegDimFilter.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -553,77 +501,65 @@ codeunit 143015 "Library - Tax Accounting"
     var
         TaxCalcDimFilter: Record "Tax Calc. Dim. Filter";
     begin
-        with TaxCalcDimFilter do begin
-            Init();
-            "Section Code" := SectionCode;
-            "Register No." := TaxRegisterNo;
-            Define := Define::Template;
-            "Line No." := LineNo;
-            "Dimension Code" := DimValue."Dimension Code";
-            "Dimension Value Filter" := DimValue.Code;
-            "Entry No." := 1;
-            Insert();
-        end;
+        TaxCalcDimFilter.Init();
+        TaxCalcDimFilter."Section Code" := SectionCode;
+        TaxCalcDimFilter."Register No." := TaxRegisterNo;
+        TaxCalcDimFilter.Define := TaxCalcDimFilter.Define::Template;
+        TaxCalcDimFilter."Line No." := LineNo;
+        TaxCalcDimFilter."Dimension Code" := DimValue."Dimension Code";
+        TaxCalcDimFilter."Dimension Value Filter" := DimValue.Code;
+        TaxCalcDimFilter."Entry No." := 1;
+        TaxCalcDimFilter.Insert();
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxCalcCorrespEntry(var TaxCalcCorrespEntry: Record "Tax Calc. G/L Corr. Entry"; SectionCode: Code[10])
     begin
-        with TaxCalcCorrespEntry do begin
-            "Section Code" := SectionCode;
-            "Debit Account No." := LibraryERM.CreateGLAccountNo();
-            "Credit Account No." := LibraryERM.CreateGLAccountNo();
-            "Register Type" := "Register Type"::Item;
-            "Entry No." := 1;
-        end;
+        TaxCalcCorrespEntry."Section Code" := SectionCode;
+        TaxCalcCorrespEntry."Debit Account No." := LibraryERM.CreateGLAccountNo();
+        TaxCalcCorrespEntry."Credit Account No." := LibraryERM.CreateGLAccountNo();
+        TaxCalcCorrespEntry."Register Type" := TaxCalcCorrespEntry."Register Type"::Item;
+        TaxCalcCorrespEntry."Entry No." := 1;
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxCalcDimCorrFilter(var TaxCalcDimCorrFilter: Record "Tax Calc. Dim. Corr. Filter"; SectionCode: Code[10])
     begin
-        with TaxCalcDimCorrFilter do begin
-            Init();
-            "Section Code" := SectionCode;
-            "Corresp. Entry No." := 1;
-            "Connection Entry No." := 1;
-            Insert();
-        end;
+        TaxCalcDimCorrFilter.Init();
+        TaxCalcDimCorrFilter."Section Code" := SectionCode;
+        TaxCalcDimCorrFilter."Corresp. Entry No." := 1;
+        TaxCalcDimCorrFilter."Connection Entry No." := 1;
+        TaxCalcDimCorrFilter.Insert();
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxRegNormJurisdiction(var TaxRegNormJurisdiction: Record "Tax Register Norm Jurisdiction")
     begin
-        with TaxRegNormJurisdiction do begin
-            Init();
-            Validate(Code,
-              GenerateRandomCode(DATABASE::"Tax Register Norm Jurisdiction", FieldNo(Code)));
-            Insert(true);
-        end;
+        TaxRegNormJurisdiction.Init();
+        TaxRegNormJurisdiction.Validate(Code,
+          GenerateRandomCode(DATABASE::"Tax Register Norm Jurisdiction", TaxRegNormJurisdiction.FieldNo(Code)));
+        TaxRegNormJurisdiction.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxRegNormGroup(var TaxRegNormGroup: Record "Tax Register Norm Group"; TaxNormJurisdictionCode: Code[10])
     begin
-        with TaxRegNormGroup do begin
-            Init();
-            Validate("Norm Jurisdiction Code", TaxNormJurisdictionCode);
-            Validate(Code,
-              GenerateRandomCode(DATABASE::"Tax Register Norm Group", FieldNo(Code)));
-            Insert(true);
-        end;
+        TaxRegNormGroup.Init();
+        TaxRegNormGroup.Validate("Norm Jurisdiction Code", TaxNormJurisdictionCode);
+        TaxRegNormGroup.Validate(Code,
+          GenerateRandomCode(DATABASE::"Tax Register Norm Group", TaxRegNormGroup.FieldNo(Code)));
+        TaxRegNormGroup.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxRegNormDetail(var TaxRegNormDetail: Record "Tax Register Norm Detail"; TaxNormJurisdictionCode: Code[10]; TaxNormGroupCode: Code[10]; NormType: Option; EffectiveDate: Date)
     begin
-        with TaxRegNormDetail do begin
-            Init();
-            Validate("Norm Jurisdiction Code", TaxNormJurisdictionCode);
-            Validate("Norm Group Code", TaxNormGroupCode);
-            Validate("Norm Type", NormType);
-            Validate("Effective Date", EffectiveDate);
-            Insert(true);
-        end;
+        TaxRegNormDetail.Init();
+        TaxRegNormDetail.Validate("Norm Jurisdiction Code", TaxNormJurisdictionCode);
+        TaxRegNormDetail.Validate("Norm Group Code", TaxNormGroupCode);
+        TaxRegNormDetail.Validate("Norm Type", NormType);
+        TaxRegNormDetail.Validate("Effective Date", EffectiveDate);
+        TaxRegNormDetail.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -631,14 +567,12 @@ codeunit 143015 "Library - Tax Accounting"
     var
         RecRef: RecordRef;
     begin
-        with TaxCalcAccum do begin
-            Init();
-            RecRef.GetTable(TaxCalcAccum);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Section Code" := SectionCode;
-            "Starting Date" := StartingDate;
-            Insert();
-        end;
+        TaxCalcAccum.Init();
+        RecRef.GetTable(TaxCalcAccum);
+        TaxCalcAccum."Entry No." := LibraryUtility.GetNewLineNo(RecRef, TaxCalcAccum.FieldNo("Entry No."));
+        TaxCalcAccum."Section Code" := SectionCode;
+        TaxCalcAccum."Starting Date" := StartingDate;
+        TaxCalcAccum.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -651,12 +585,10 @@ codeunit 143015 "Library - Tax Accounting"
         FASetup.Get();
 
         CreateSimpleFA(FixedAsset);
-        with FADeprBook do begin
-            Init();
-            "FA No." := FixedAsset."No.";
-            "Depreciation Book Code" := FASetup."Release Depr. Book";
-            Insert();
-        end;
+        FADeprBook.Init();
+        FADeprBook."FA No." := FixedAsset."No.";
+        FADeprBook."Depreciation Book Code" := FASetup."Release Depr. Book";
+        FADeprBook.Insert();
         exit(FixedAsset."No.");
     end;
 }

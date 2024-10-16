@@ -48,16 +48,24 @@ codeunit 5820 "Close Inventory Period"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'The Inventory Period cannot be closed because there is at least one item with unadjusted entries in the current period.\\Run the Close Inventory Period - Test report to identify item ledger entries for the affected items.';
         Text001: Label 'The Inventory Period cannot be closed because there is negative inventory for one or more items.\\Run the Close Inventory Period - Test report to identify item ledger entries for the affected items.';
+#pragma warning disable AA0470
         Text002: Label 'This function closes the inventory up to %1. Once it is closed, you cannot post in the period until it is re-opened.\\Make sure that all your inventory is posted to G/L.\\Do you want to close the inventory period?';
         Text005: Label 'The %1 has been closed on %2.';
         Text006: Label 'Do you want to reopen the %1 that ends %2?';
         Text007: Label 'All inventory periods from %1 have been reopened.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ReOpen: Boolean;
         HideDialog: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label 'The accounting period is already closed. Are you sure you want to reopen the %1 that ends %2?';
         Text010: Label 'The Inventory Period cannot be closed because there is at least one %1 Order in the current period that has not been adjusted.\\Run the Close Inventory Period - Test report to identify the affected orders.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CheckCostIsAdjusted(EndingDate: Date)
     var

@@ -126,7 +126,9 @@ page 17281 "Tax Reg. Norm Template Setup"
     end;
 
     var
+#pragma warning disable AA0074
         Text1001: Label 'Present';
+#pragma warning restore AA0074
         GeneralTermMgt: Codeunit "Tax Register Term Mgt.";
         DescriptionEmphasize: Boolean;
         DescriptionIndent: Integer;

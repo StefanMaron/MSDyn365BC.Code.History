@@ -39,10 +39,12 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger Connection");
+#if not CLEAN25        
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CD No. Format");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CD No. Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CD No. Information");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CD Tracking Setup");
+#endif        
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Directory");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger Line CD No.");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger Line Tariff No.");
@@ -60,6 +62,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invt. Document Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invt. Shipment Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invt. Shipment Line");
+#if not CLEAN25
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Document Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Receipt Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Receipt Line");
@@ -68,6 +71,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Shipment Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Direct Transfer Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Direct Transfer Line");
+#endif        
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FA Document Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted FA Doc. Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted FA Doc. Line");
@@ -177,7 +181,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Report Table Column");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Scalable Table Row");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Table Individual Requisite");
+#if not CLEAN25
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Requisite Condition Line");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Report Excel Sheet");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statutory Report Data Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statutory Report Data Value");

@@ -217,7 +217,11 @@ table 17236 "Tax Register Setup"
     var
         TaxRegTemplate: Record "Tax Register Template";
         TaxRegTermName: Record "Tax Register Term";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Only 1 of January can be specified in the %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DepreciationBook: Record "Depreciation Book";
 
     [Scope('OnPrem')]

@@ -121,16 +121,14 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
-        with DtldVendLedgEntry do begin
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
-            SetRange("Document No.", VendorLedgerEntry."Document No.");
-            FindFirst();
-            ApplyUnapplyParameters."Document No." := "Document No.";
-            ApplyUnapplyParameters."Posting Date" := PostingDateFrom;
-            VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry, ApplyUnapplyParameters);
-            exit(-Amount);
-        end;
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
+        DtldVendLedgEntry.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
+        DtldVendLedgEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
+        DtldVendLedgEntry.FindFirst();
+        ApplyUnapplyParameters."Document No." := DtldVendLedgEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := PostingDateFrom;
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry, ApplyUnapplyParameters);
+        exit(-DtldVendLedgEntry.Amount);
     end;
 
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -156,22 +154,18 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
     var
         GenLedgSetup: Record "General Ledger Setup";
     begin
-        with GenLedgSetup do begin
-            Get();
-            OldAllowPostingFrom := "Allow Posting From";
-            "Allow Posting From" := AllowPostingFrom;
-            Modify(true);
-        end
+        GenLedgSetup.Get();
+        OldAllowPostingFrom := GenLedgSetup."Allow Posting From";
+        GenLedgSetup."Allow Posting From" := AllowPostingFrom;
+        GenLedgSetup.Modify(true);
     end;
 
     local procedure FindDetailedVendLedgerEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type")
     begin
-        with DetailedVendLedgEntry do begin
-            SetRange("Entry Type", EntryType);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            FindSet();
-        end;
+        DetailedVendLedgEntry.SetRange("Entry Type", EntryType);
+        DetailedVendLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedVendLedgEntry.SetRange("Document Type", DocumentType);
+        DetailedVendLedgEntry.FindSet();
     end;
 
     local procedure FindPrepaymentAcc(VendorNo: Code[20]): Code[20]
@@ -201,13 +195,11 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         SourceCodeSetup: Record "Source Code Setup";
     begin
         SourceCodeSetup.Get();
-        with GLEntry do begin
-            SetRange("G/L Account No.", FindPrepaymentAcc(SourceNo));
-            SetRange("Source No.", SourceNo);
-            SetRange("Source Code", SourceCodeSetup."Unapplied Purch. Entry Appln.");
-            FindFirst();
-            Assert.AreEqual(Amount, GLAmount, WrongVendBackPrepaymentErr);
-        end;
+        GLEntry.SetRange("G/L Account No.", FindPrepaymentAcc(SourceNo));
+        GLEntry.SetRange("Source No.", SourceNo);
+        GLEntry.SetRange("Source Code", SourceCodeSetup."Unapplied Purch. Entry Appln.");
+        GLEntry.FindFirst();
+        Assert.AreEqual(GLEntry.Amount, GLAmount, WrongVendBackPrepaymentErr);
     end;
 }
 

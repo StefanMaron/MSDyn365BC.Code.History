@@ -145,8 +145,16 @@ table 26573 "Format Version"
 
     var
         StatutoryReport: Record "Statutory Report";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'You cannot modify %1 because there are linked reports.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'You cannot delete %1 because there are linked reports.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         StatutoryReportSetup: Record "Statutory Report Setup";
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";

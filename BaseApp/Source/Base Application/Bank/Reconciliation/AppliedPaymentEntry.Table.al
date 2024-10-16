@@ -241,8 +241,10 @@ table 1294 "Applied Payment Entry"
 
     var
         CurrencyExchRate: Record "Currency Exchange Rate";
+#pragma warning disable AA0470
         CurrencyMismatchErr: Label 'Currency codes on bank account %1 and ledger entry %2 do not match.';
         AmtCannotExceedErr: Label 'The Amount to Apply cannot exceed %1. This is because the Remaining Amount on the entry is %2 and the amount assigned to other statement lines is %3.';
+#pragma warning restore AA0470
         CannotApplyStmtLineErr: Label 'You cannot apply to %1 %2 because the statement line already contains an application to %3 %4.', Comment = '%1 = Account Type, %2 = Account No., %3 = Account Type, %4 = Account No.';
 
     local procedure CheckApplnIsSameAcc()

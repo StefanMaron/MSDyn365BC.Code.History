@@ -79,6 +79,8 @@ report 12430 "Create G/L Correspondence"
         CorrespEntry: Record "G/L Correspondence Entry";
         CorrespManagement: Codeunit "G/L Corresp. Management";
         TransactionFilter: Text[260];
+#pragma warning disable AA0074
         Text001: Label 'G/L Correspondence created.';
+#pragma warning restore AA0074
 }
 

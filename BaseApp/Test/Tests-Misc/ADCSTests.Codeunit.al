@@ -37,7 +37,7 @@ codeunit 139010 "ADCS Tests"
         WideIn := '<?xml version=''1.0'' encoding="utf-8" ?><ADCS><Header InvalidNode="HELLO" /></ADCS>';
 
         asserterror ADCSWS.ProcessDocument(WideIn);
-        Assert.IsTrue(StrPos(GetLastErrorText, 'The Miniform Header does not exist') > 0, 'Unexpected error message: ' + GetLastErrorText);
+        Assert.ExpectedErrorCannotFind(Database::"Miniform Header");
     end;
 
     [Test]

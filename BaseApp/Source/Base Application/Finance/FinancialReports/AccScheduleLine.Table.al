@@ -380,25 +380,71 @@ table 85 "Acc. Schedule Line"
         HasGLSetup: Boolean;
 
         ForceUnderLineMsg: Label '%1 will be set to false.', Comment = '%1= Field underline ';
+#pragma warning disable AA0074
         Text000: Label 'Default Schedule';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The parenthesis at position %1 is misplaced.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'You cannot have two consecutive operators. The error occurred at position %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'There is an operand missing after position %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'There are more left parentheses than right parentheses.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'There are more right parentheses than left parentheses.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label '1,6,,Dimension 1 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label '1,6,,Dimension 2 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label '1,6,,Dimension 3 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text009: Label '1,6,,Dimension 4 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text010: Label ',, Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text011: Label '1,5,,Dimension 1 Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text012: Label '1,5,,Dimension 2 Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text013: Label '1,5,,Dimension 3 Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text014: Label '1,5,,Dimension 4 Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text015: Label 'The %1 refers to %2 %3, which does not exist. The field %4 on table %5 has now been deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12400: Label ',, Corr. Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12401: Label '1,5,,Dimension 1 Corr. Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12402: Label '1,5,,Dimension 2 Corr. Totaling';
+#pragma warning restore AA0074
 
     procedure LookUpDimFilter(DimNo: Integer; var Text: Text) Result: Boolean
     var
@@ -547,16 +593,16 @@ table 85 "Acc. Schedule Line"
             12401:
                 begin
                     if GLSetup."Global Dimension 1 Code" <> '' then
-                        exit('1,5,' + GLSetup."Global Dimension 1 Code" + Text12400)
-                    else
-                        exit(Text12401);
+                        exit('1,5,' + GLSetup."Global Dimension 1 Code" + Text12400);
+
+                    exit(Text12401);
                 end;
             12402:
                 begin
                     if GLSetup."Global Dimension 2 Code" <> '' then
-                        exit('1,5,' + GLSetup."Global Dimension 2 Code" + Text12400)
-                    else
-                        exit(Text12402);
+                        exit('1,5,' + GLSetup."Global Dimension 2 Code" + Text12400);
+
+                    exit(Text12402);
                 end;
         end;
     end;

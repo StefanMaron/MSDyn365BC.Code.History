@@ -1,20 +1,9 @@
 namespace Microsoft.Inventory.Availability;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Inventory.Planning;
-using Microsoft.Inventory.Requisition;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
-using Microsoft.Warehouse.Activity;
-using Microsoft.Warehouse.Document;
 
 codeunit 353 "Item Availability Forms Mgt"
 {
@@ -26,44 +15,25 @@ codeunit 353 "Item Availability Forms Mgt"
     var
         ItemAvailByBOMLevel: Page "Item Availability by BOM Level";
         ForecastName: Code[10];
-        AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM;
         QtyByUnitOfMeasure: Decimal;
 
+#pragma warning disable AA0074
         Text012: Label 'Do you want to change %1 from %2 to %3?', Comment = '%1=FieldCaption, %2=OldDate, %3=NewDate';
+#pragma warning restore AA0074
 
     procedure CalcItemPlanningFields(var Item: Record Item; CalculateTransferQuantities: Boolean)
-    var
-        JobPlanningLine: Record "Job Planning Line";
     begin
         Item.Init();
         Item.CalcFields(
-          "Qty. on Purch. Order",
-          "Qty. on Sales Order",
-          "Qty. on Service Order",
           Inventory,
           "Net Change",
-          "Scheduled Receipt (Qty.)",
-          "Qty. on Component Lines",
-          "Planned Order Receipt (Qty.)",
-          "FP Order Receipt (Qty.)",
-          "Rel. Order Receipt (Qty.)",
-          "Planned Order Release (Qty.)",
           "Purch. Req. Receipt (Qty.)",
           "Planning Issues (Qty.)",
           "Purch. Req. Release (Qty.)");
 
-        if JobPlanningLine.ReadPermission then
-            Item.CalcFields("Qty. on Job Order");
-        Item.CalcFields(
-            "Qty. on Assembly Order",
-            "Qty. on Asm. Component",
-            "Qty. on Purch. Return",
-            "Qty. on Sales Return");
         if CalculateTransferQuantities then
             Item.CalcFields(
-                "Trans. Ord. Shipment (Qty.)",
-                "Qty. in Transit",
-                "Trans. Ord. Receipt (Qty.)");
+                "Trans. Ord. Shipment (Qty.)", "Qty. in Transit", "Trans. Ord. Receipt (Qty.)");
 
         OnAfterCalcItemPlanningFields(Item);
     end;
@@ -86,8 +56,9 @@ codeunit 353 "Item Availability Forms Mgt"
             TransOrdReceiptQty := Item."Trans. Ord. Receipt (Qty.)";
         end;
         GrossRequirement :=
-            Item."Qty. on Sales Order" + Item."Qty. on Service Order" + Item."Qty. on Job Order" + Item."Qty. on Component Lines" +
+            Item."Qty. on Sales Order" + Item."Qty. on Job Order" + Item."Qty. on Component Lines" +
             TransOrdShipmentQty + Item."Planning Issues (Qty.)" + Item."Qty. on Asm. Component" + Item."Qty. on Purch. Return";
+        OnCalculateNeedOnAfterCalcGrossRequirement(Item, GrossRequirement);
         PlannedOrderReceipt :=
             Item."Planned Order Receipt (Qty.)" + Item."Purch. Req. Receipt (Qty.)";
         ScheduledReceipt :=
@@ -152,83 +123,95 @@ codeunit 353 "Item Availability Forms Mgt"
         PAGE.Run(0, ItemLedgEntry);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Sales Availability Mgt.', '25.0')]
     procedure ShowSalesLines(var Item: Record Item)
     var
-        SalesLine: Record "Sales Line";
+        SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
     begin
-        SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::Order);
-        PAGE.Run(0, SalesLine);
+        SalesAvailabilityMgt.ShowSalesLines(Item);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Serv. Availability Mgt.', '25.0')]
     procedure ShowServLines(var Item: Record Item)
     var
-        ServLine: Record "Service Line";
+        ServAvailabilityMgt: Codeunit Microsoft.Service.Document."Serv. Availability Mgt.";
     begin
-        ServLine.FindLinesWithItemToPlan(Item);
-        PAGE.Run(0, ServLine);
+        ServAvailabilityMgt.ShowServiceLines(Item);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Job Planning Availability Mgt.', '25.0')]
     procedure ShowJobPlanningLines(var Item: Record Item)
     var
-        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningAvailabilityMgt: Codeunit Microsoft.Projects.Project.Planning."Job Planning Availability Mgt.";
     begin
-        JobPlanningLine.FindLinesWithItemToPlan(Item);
-        PAGE.Run(0, JobPlanningLine);
+        JobPlanningAvailabilityMgt.ShowJobPlanningLines(Item);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Purch. Availability Mgt.', '25.0')]
     procedure ShowPurchLines(var Item: Record Item)
     var
-        PurchLine: Record "Purchase Line";
+        PurchAvailabilityMgt: Codeunit Microsoft.Purchases.Document."Purch. Availability Mgt.";
     begin
-        PurchLine.FindLinesWithItemToPlan(Item, PurchLine."Document Type"::Order);
-        PAGE.Run(0, PurchLine);
+        PurchAvailabilityMgt.ShowPurchLines(Item);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Prod. Order Availability Mgt.', '25.0')]
     procedure ShowSchedReceipt(var Item: Record Item)
     var
-        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
     begin
-        ProdOrderLine.FindLinesWithItemToPlan(Item, true);
-        PAGE.Run(0, ProdOrderLine);
+        ProdOrderAvailabilityMgt.ShowSchedReceipt(Item);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Prod. Order Availability Mgt.', '25.0')]
     procedure ShowSchedNeed(var Item: Record Item)
     var
-        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
     begin
-        ProdOrderComp.FindLinesWithItemToPlan(Item, true);
-        PAGE.Run(0, ProdOrderComp);
+        ProdOrderAvailabilityMgt.ShowSchedNeed(Item);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Transfer Availability Mgt.', '25.0')]
     procedure ShowTransLines(var Item: Record Item; What: Integer)
     var
-        TransLine: Record "Transfer Line";
+        TransferAvailabilityMgt: Codeunit Microsoft.Inventory.Transfer."Transfer Availability Mgt.";
     begin
-        case What of
-            Item.FieldNo("Trans. Ord. Shipment (Qty.)"):
-                TransLine.FindLinesWithItemToPlan(Item, false, false);
-            Item.FieldNo("Qty. in Transit"),
-          Item.FieldNo("Trans. Ord. Receipt (Qty.)"):
-                TransLine.FindLinesWithItemToPlan(Item, true, false);
-        end;
-        PAGE.Run(0, TransLine);
+        TransferAvailabilityMgt.ShowTransLines(Item, What);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Assembly Availability Mgt.', '25.0')]
     procedure ShowAsmOrders(var Item: Record Item)
     var
-        AssemblyHeader: Record "Assembly Header";
+        AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
     begin
-        AssemblyHeader.FindItemToPlanLines(Item, AssemblyHeader."Document Type"::Order);
-        PAGE.Run(0, AssemblyHeader);
+        AssemblyAvailabilityMgt.ShowAsmOrders(Item);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Assembly Availability Mgt.', '25.0')]
     procedure ShowAsmCompLines(var Item: Record Item)
     var
-        AssemblyLine: Record "Assembly Line";
+        AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
     begin
-        AssemblyLine.FindItemToPlanLines(Item, AssemblyLine."Document Type"::Order);
-        PAGE.Run(0, AssemblyLine);
+        AssemblyAvailabilityMgt.ShowAsmCompLines(Item);
     end;
+#endif
 
     procedure ShowItemAvailLineList(var Item: Record Item; What: Integer)
     var
@@ -243,7 +226,15 @@ codeunit 353 "Item Availability Forms Mgt"
         ItemAvailLineList.RunModal();
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ShowItemAvailabiltyFromItem with enum', '25.0')]
     procedure ShowItemAvailFromItem(var Item: Record Item; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+    begin
+        ShowItemAvailabilityFromItem(Item, "Item Availability Type".FromInteger(AvailabilityType));
+    end;
+#endif
+
+    procedure ShowItemAvailabilityFromItem(var Item: Record Item; AvailabilityType: Enum "Item Availability Type")
     var
         NewDate: Date;
         NewVariantCode: Code[10];
@@ -258,363 +249,120 @@ codeunit 353 "Item Availability Forms Mgt"
 
         OnBeforeShowItemAvailFromItem(Item);
         case AvailabilityType of
-            AvailabilityType::Date:
-                ShowItemAvailByDate(Item, '', NewDate, NewDate);
+            AvailabilityType::Period:
+                ShowItemAvailabilityByPeriod(Item, '', NewDate, NewDate);
             AvailabilityType::Variant:
-                ShowItemAvailVariant(Item, '', NewVariantCode, NewVariantCode);
+                ShowItemAvailabilityByVariant(Item, '', NewVariantCode, NewVariantCode);
             AvailabilityType::Location:
-                ShowItemAvailByLoc(Item, '', NewLocationCode, NewLocationCode);
+                ShowItemAvailabilityByLocation(Item, '', NewLocationCode, NewLocationCode);
             AvailabilityType::"Event":
-                ShowItemAvailByEvent(Item, '', NewDate, NewDate, false);
+                ShowItemAvailabilityByEvent(Item, '', NewDate, NewDate, false);
             AvailabilityType::BOM:
-                ShowItemAvailByBOMLevel(Item, '', NewDate, NewDate);
+                ShowItemAvailabilityByBOMLevel(Item, '', NewDate, NewDate);
             AvailabilityType::UOM:
-                ShowItemAvailByUOM(Item, '', NewUnitOfMeasureCode, NewUnitOfMeasureCode);
+                ShowItemAvailabilityByUOM(Item, '', NewUnitOfMeasureCode, NewUnitOfMeasureCode);
         end;
     end;
 
-    procedure ShowItemAvailFromSalesLine(var SalesLine: Record "Sales Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Serv. Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromSalesLine(var SalesLine: Record Microsoft.Sales.Document."Sales Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        AsmHeader: Record "Assembly Header";
-        ItemCheckAvail: Codeunit "Item-Check Avail.";
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
-        IsHandled: Boolean;
+        SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
     begin
-        SalesLine.TestField(Type, SalesLine.Type::Item);
-        SalesLine.TestField("No.");
-        Item.Reset();
-        Item.Get(SalesLine."No.");
-        FilterItem(Item, SalesLine."Location Code", SalesLine."Variant Code", SalesLine."Shipment Date");
-
-        IsHandled := false;
-        OnBeforeShowItemAvailFromSalesLine(Item, SalesLine, IsHandled, AvailabilityType);
-        if IsHandled then
-            exit;
-
-        case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, SalesLine.FieldCaption(SalesLine."Shipment Date"), SalesLine."Shipment Date", NewDate) then
-                    SalesLine.Validate(SalesLine."Shipment Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, SalesLine.FieldCaption(SalesLine."Variant Code"), SalesLine."Variant Code", NewVariantCode) then begin
-                    SalesLine.Validate(SalesLine."Variant Code", NewVariantCode);
-                    ItemCheckAvail.SalesLineCheck(SalesLine);
-                end;
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, SalesLine.FieldCaption(SalesLine."Location Code"), SalesLine."Location Code", NewLocationCode) then begin
-                    SalesLine.Validate(SalesLine."Location Code", NewLocationCode);
-                    ItemCheckAvail.SalesLineCheck(SalesLine);
-                end;
-            AvailabilityType::"Event":
-                if ShowItemAvailByEvent(Item, SalesLine.FieldCaption(SalesLine."Shipment Date"), SalesLine."Shipment Date", NewDate, false) then
-                    SalesLine.Validate(SalesLine."Shipment Date", NewDate);
-            AvailabilityType::BOM:
-                if SalesLine.AsmToOrderExists(AsmHeader) then
-                    ShowItemAvailFromAsmHeader(AsmHeader, AvailabilityType)
-                else
-                    if ShowItemAvailByBOMLevel(Item, SalesLine.FieldCaption(SalesLine."Shipment Date"), SalesLine."Shipment Date", NewDate) then
-                        SalesLine.Validate(SalesLine."Shipment Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, SalesLine.FieldCaption(SalesLine."Unit of Measure Code"), SalesLine."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    SalesLine.Validate(SalesLine."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(SalesLine, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
-    procedure ShowItemAvailFromPurchLine(var PurchLine: Record "Purchase Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Purch. Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromPurchLine(var PurchLine: Record Microsoft.Purchases.Document."Purchase Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
-        IsHandled: Boolean;
+        PurchAvailabilityMgt: Codeunit Microsoft.Purchases.Document."Purch. Availability Mgt.";
     begin
-        PurchLine.TestField(Type, PurchLine.Type::Item);
-        PurchLine.TestField("No.");
-        Item.Reset();
-        Item.Get(PurchLine."No.");
-        FilterItem(Item, PurchLine."Location Code", PurchLine."Variant Code", PurchLine."Expected Receipt Date");
-
-        IsHandled := false;
-        OnBeforeShowItemAvailFromPurchLine(Item, PurchLine, IsHandled, AvailabilityType);
-        if IsHandled then
-            exit;
-
-        case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, PurchLine.FieldCaption(PurchLine."Expected Receipt Date"), PurchLine."Expected Receipt Date", NewDate) then
-                    PurchLine.Validate(PurchLine."Expected Receipt Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, PurchLine.FieldCaption(PurchLine."Variant Code"), PurchLine."Variant Code", NewVariantCode) then
-                    PurchLine.Validate(PurchLine."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, PurchLine.FieldCaption(PurchLine."Location Code"), PurchLine."Location Code", NewLocationCode) then
-                    PurchLine.Validate(PurchLine."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                if ShowItemAvailByEvent(Item, PurchLine.FieldCaption(PurchLine."Expected Receipt Date"), PurchLine."Expected Receipt Date", NewDate, false) then
-                    PurchLine.Validate(PurchLine."Expected Receipt Date", NewDate);
-            AvailabilityType::BOM:
-                if ShowItemAvailByBOMLevel(Item, PurchLine.FieldCaption(PurchLine."Expected Receipt Date"), PurchLine."Expected Receipt Date", NewDate) then
-                    PurchLine.Validate(PurchLine."Expected Receipt Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, PurchLine.FieldCaption(PurchLine."Unit of Measure Code"), PurchLine."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    PurchLine.Validate(PurchLine."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(PurchLine, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
-    procedure ShowItemAvailFromReqLine(var ReqLine: Record "Requisition Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Req. Line Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromReqLine(var ReqLine: Record Microsoft.Inventory.Requisition."Requisition Line"; AvailabilityType: Enum "Item Availability Type")
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        ReqLineAvailabilityMgt: Codeunit Microsoft.Inventory.Requisition."Req. Line Availability Mgt.";
     begin
-        ReqLine.TestField(Type, ReqLine.Type::Item);
-        ReqLine.TestField("No.");
-        Item.Reset();
-        Item.Get(ReqLine."No.");
-        FilterItem(Item, ReqLine."Location Code", ReqLine."Variant Code", ReqLine."Due Date");
-
-        OnBeforeShowItemAvailFromReqLine(Item, ReqLine, AvailabilityType);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, ReqLine.FieldCaption(ReqLine."Due Date"), ReqLine."Due Date", NewDate) then
-                    ReqLine.Validate(ReqLine."Due Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, ReqLine.FieldCaption(ReqLine."Variant Code"), ReqLine."Variant Code", NewVariantCode) then
-                    ReqLine.Validate(ReqLine."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, ReqLine.FieldCaption(ReqLine."Location Code"), ReqLine."Location Code", NewLocationCode) then
-                    ReqLine.Validate(ReqLine."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                begin
-                    Item.SetRange("Date Filter");
-
-                    ForecastName := '';
-                    ReqLine.FindCurrForecastName(ForecastName);
-
-                    if ShowItemAvailByEvent(Item, ReqLine.FieldCaption(ReqLine."Due Date"), ReqLine."Due Date", NewDate, true) then
-                        ReqLine.Validate(ReqLine."Due Date", NewDate);
-                end;
-            AvailabilityType::BOM:
-                if ShowItemAvailByBOMLevel(Item, ReqLine.FieldCaption(ReqLine."Due Date"), ReqLine."Due Date", NewDate) then
-                    ReqLine.Validate(ReqLine."Due Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, ReqLine.FieldCaption(ReqLine."Unit of Measure Code"), ReqLine."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    ReqLine.Validate(ReqLine."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(ReqLine, AvailabilityType);
     end;
+#endif
 
-    procedure ShowItemAvailFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Prod. Order Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
     begin
-        ProdOrderLine.TestField("Item No.");
-        Item.Reset();
-        Item.Get(ProdOrderLine."Item No.");
-        FilterItem(Item, ProdOrderLine."Location Code", ProdOrderLine."Variant Code", ProdOrderLine."Due Date");
-
-        OnBeforeShowItemAvailFromProdOrderLine(Item, ProdOrderLine);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, ProdOrderLine.FieldCaption(ProdOrderLine."Due Date"), ProdOrderLine."Due Date", NewDate) then
-                    ProdOrderLine.Validate(ProdOrderLine."Due Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, ProdOrderLine.FieldCaption(ProdOrderLine."Variant Code"), ProdOrderLine."Variant Code", NewVariantCode) then
-                    ProdOrderLine.Validate(ProdOrderLine."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, ProdOrderLine.FieldCaption(ProdOrderLine."Location Code"), ProdOrderLine."Location Code", NewLocationCode) then
-                    ProdOrderLine.Validate(ProdOrderLine."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                if ShowItemAvailByEvent(Item, ProdOrderLine.FieldCaption(ProdOrderLine."Due Date"), ProdOrderLine."Due Date", NewDate, false) then
-                    ProdOrderLine.Validate(ProdOrderLine."Due Date", NewDate);
-            AvailabilityType::BOM:
-                if ShowCustomProdItemAvailByBOMLevel(ProdOrderLine, ProdOrderLine.FieldCaption(ProdOrderLine."Due Date"), ProdOrderLine."Due Date", NewDate) then
-                    ProdOrderLine.Validate(ProdOrderLine."Due Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, ProdOrderLine.FieldCaption(ProdOrderLine."Unit of Measure Code"), ProdOrderLine."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    ProdOrderLine.Validate(ProdOrderLine."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(ProdOrderLine, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
-    procedure ShowItemAvailFromProdOrderComp(var ProdOrderComp: Record "Prod. Order Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Prod. Order Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromProdOrderComp(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
     begin
-        ProdOrderComp.TestField("Item No.");
-        Item.Reset();
-        Item.Get(ProdOrderComp."Item No.");
-        FilterItem(Item, ProdOrderComp."Location Code", ProdOrderComp."Variant Code", ProdOrderComp."Due Date");
-
-        OnBeforeShowItemAvailFromProdOrderComp(Item, ProdOrderComp);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, ProdOrderComp.FieldCaption(ProdOrderComp."Due Date"), ProdOrderComp."Due Date", NewDate) then
-                    ProdOrderComp.Validate(ProdOrderComp."Due Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, ProdOrderComp.FieldCaption(ProdOrderComp."Variant Code"), ProdOrderComp."Variant Code", NewVariantCode) then
-                    ProdOrderComp.Validate(ProdOrderComp."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, ProdOrderComp.FieldCaption(ProdOrderComp."Location Code"), ProdOrderComp."Location Code", NewLocationCode) then
-                    ProdOrderComp.Validate(ProdOrderComp."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                if ShowItemAvailByEvent(Item, ProdOrderComp.FieldCaption(ProdOrderComp."Due Date"), ProdOrderComp."Due Date", NewDate, false) then
-                    ProdOrderComp.Validate(ProdOrderComp."Due Date", NewDate);
-            AvailabilityType::BOM:
-                if ShowItemAvailByBOMLevel(Item, ProdOrderComp.FieldCaption(ProdOrderComp."Due Date"), ProdOrderComp."Due Date", NewDate) then
-                    ProdOrderComp.Validate(ProdOrderComp."Due Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, ProdOrderComp.FieldCaption(ProdOrderComp."Unit of Measure Code"), ProdOrderComp."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    ProdOrderComp.Validate(ProdOrderComp."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderComp(ProdOrderComp, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
-    procedure ShowItemAvailFromTransLine(var TransLine: Record "Transfer Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Prod. Order Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromTransLine(var TransLine: Record Microsoft.Inventory.Transfer."Transfer Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        TransferAvailabilityMgt: Codeunit Microsoft.Inventory.Transfer."Transfer Availability Mgt.";
     begin
-        TransLine.TestField("Item No.");
-        Item.Reset();
-        Item.Get(TransLine."Item No.");
-        FilterItem(Item, TransLine."Transfer-from Code", TransLine."Variant Code", TransLine."Shipment Date");
-
-        OnBeforeShowItemAvailFromTransLine(Item, TransLine, AvailabilityType);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, TransLine.FieldCaption(TransLine."Shipment Date"), TransLine."Shipment Date", NewDate) then
-                    TransLine.Validate(TransLine."Shipment Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, TransLine.FieldCaption(TransLine."Variant Code"), TransLine."Variant Code", NewVariantCode) then
-                    TransLine.Validate(TransLine."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, TransLine.FieldCaption(TransLine."Transfer-from Code"), TransLine."Transfer-from Code", NewLocationCode) then
-                    TransLine.Validate(TransLine."Transfer-from Code", NewLocationCode);
-            AvailabilityType::"Event":
-                if ShowItemAvailByEvent(Item, TransLine.FieldCaption(TransLine."Shipment Date"), TransLine."Shipment Date", NewDate, false) then
-                    TransLine.Validate(TransLine."Shipment Date", NewDate);
-            AvailabilityType::BOM:
-                if ShowItemAvailByBOMLevel(Item, TransLine.FieldCaption(TransLine."Shipment Date"), TransLine."Shipment Date", NewDate) then
-                    TransLine.Validate(TransLine."Shipment Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, TransLine.FieldCaption(TransLine."Unit of Measure Code"), TransLine."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    TransLine.Validate(TransLine."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        TransferAvailabilityMgt.ShowItemAvailabilityFromTransLine(TransLine, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
-    procedure ShowItemAvailFromWhseActivLine(var WhseActivLine: Record "Warehouse Activity Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Warehouse Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromWhseActivLine(var WhseActivLine: Record Microsoft.Warehouse.Activity."Warehouse Activity Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        WarehouseAvailabilityMgt: Codeunit Microsoft.Warehouse.Availability."Warehouse Availability Mgt.";
     begin
-        WhseActivLine.TestField("Item No.");
-        Item.Reset();
-        Item.Get(WhseActivLine."Item No.");
-        FilterItem(Item, WhseActivLine."Location Code", WhseActivLine."Variant Code", WhseActivLine."Due Date");
-
-        OnBeforeShowItemAvailFromWhseActivLine(Item, WhseActivLine, AvailabilityType);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                ShowItemAvailByDate(Item, WhseActivLine.FieldCaption(WhseActivLine."Due Date"), WhseActivLine."Due Date", NewDate);
-            AvailabilityType::Variant:
-                ShowItemAvailVariant(Item, WhseActivLine.FieldCaption(WhseActivLine."Variant Code"), WhseActivLine."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                ShowItemAvailByLoc(Item, WhseActivLine.FieldCaption(WhseActivLine."Location Code"), WhseActivLine."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                ShowItemAvailByEvent(Item, WhseActivLine.FieldCaption(WhseActivLine."Due Date"), WhseActivLine."Due Date", NewDate, false);
-            AvailabilityType::BOM:
-                ShowItemAvailByBOMLevel(Item, WhseActivLine.FieldCaption(WhseActivLine."Due Date"), WhseActivLine."Due Date", NewDate);
-            AvailabilityType::UOM:
-                ShowItemAvailByUOM(Item, WhseActivLine.FieldCaption(WhseActivLine."Unit of Measure Code"), WhseActivLine."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        WarehouseAvailabilityMgt.ShowItemAvailabilityFromWhseActivLine(WhseActivLine, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
-    procedure ShowItemAvailFromServLine(var ServLine: Record "Service Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Serv. Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromServLine(var ServLine: Record Microsoft.Service.Document."Service Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        ServHeader: Record "Service Header";
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        ServAvailabilityMgt: Codeunit Microsoft.Service.Document."Serv. Availability Mgt.";
     begin
-        ServHeader.Get(ServLine."Document Type", ServLine."Document No.");
-        ServLine.TestField(Type, ServLine.Type::Item);
-        ServLine.TestField("No.");
-        Item.Reset();
-        Item.Get(ServLine."No.");
-        FilterItem(Item, ServLine."Location Code", ServLine."Variant Code", ServHeader."Response Date");
-
-        OnBeforeShowItemAvailFromServLine(Item, ServLine);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                ShowItemAvailByDate(Item, ServHeader.FieldCaption("Response Date"), ServHeader."Response Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, ServLine.FieldCaption(ServLine."Variant Code"), ServLine."Variant Code", NewVariantCode) then
-                    ServLine.Validate(ServLine."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, ServLine.FieldCaption(ServLine."Location Code"), ServLine."Location Code", NewLocationCode) then
-                    ServLine.Validate(ServLine."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                ShowItemAvailByEvent(Item, ServHeader.FieldCaption("Response Date"), ServHeader."Response Date", NewDate, false);
-            AvailabilityType::BOM:
-                ShowItemAvailByBOMLevel(Item, ServHeader.FieldCaption("Response Date"), ServHeader."Response Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, ServLine.FieldCaption(ServLine."Unit of Measure Code"), ServLine."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    ServLine.Validate(ServLine."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        ServAvailabilityMgt.ShowItemAvailabilityFromServLine(ServLine, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
-    procedure ShowItemAvailFromWhseRcptLine(var WhseRcptLine: Record "Warehouse Receipt Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Serv. Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromWhseRcptLine(var WhseRcptLine: Record Microsoft.Warehouse.Document."Warehouse Receipt Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        WarehouseAvailabilityMgt: Codeunit Microsoft.Warehouse.Availability."Warehouse Availability Mgt.";
     begin
-        WhseRcptLine.TestField("Item No.");
-        Item.Reset();
-        Item.Get(WhseRcptLine."Item No.");
-        FilterItem(Item, WhseRcptLine."Location Code", WhseRcptLine."Variant Code", WhseRcptLine."Due Date");
-
-        OnBeforeShowItemAvailFromWhseRcptLine(Item, WhseRcptLine, AvailabilityType);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                ShowItemAvailByDate(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Due Date"), WhseRcptLine."Due Date", NewDate);
-            AvailabilityType::Variant:
-                ShowItemAvailVariant(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Variant Code"), WhseRcptLine."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                ShowItemAvailByLoc(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Location Code"), WhseRcptLine."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                ShowItemAvailByEvent(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Due Date"), WhseRcptLine."Due Date", NewDate, false);
-            AvailabilityType::BOM:
-                ShowItemAvailByBOMLevel(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Due Date"), WhseRcptLine."Due Date", NewDate);
-            AvailabilityType::UOM:
-                ShowItemAvailByUOM(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Unit of Measure Code"), WhseRcptLine."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        WarehouseAvailabilityMgt.ShowItemAvailFromWhseRcptLine(WhseRcptLine, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ShowItemAvailabilityFromItemJnlLine()', '25.0')]
     procedure ShowItemAvailFromItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+    begin
+        ShowItemAvailFromItemJnlLine(ItemJnlLine, AvailabilityType);
+    end;
+#endif
+
+    procedure ShowItemAvailabilityFromItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; AvailabilityType: Enum "Item Availability Type")
     var
         Item: Record Item;
         NewDate: Date;
@@ -627,144 +375,71 @@ codeunit 353 "Item Availability Forms Mgt"
         Item.Get(ItemJnlLine."Item No.");
         FilterItem(Item, ItemJnlLine."Location Code", ItemJnlLine."Variant Code", ItemJnlLine."Posting Date");
 
-        OnBeforeShowItemAvailFromItemJnlLine(Item, ItemJnlLine, AvailabilityType);
+        OnBeforeShowItemAvailabilityFromItemJnlLine(Item, ItemJnlLine, AvailabilityType);
+#if not CLEAN25
+        OnBeforeShowItemAvailFromItemJnlLine(Item, ItemJnlLine, AvailabilityType.AsInteger());
+#endif
         case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Posting Date"), ItemJnlLine."Posting Date", NewDate) then
+            AvailabilityType::Period:
+                if ShowItemAvailabilityByPeriod(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Posting Date"), ItemJnlLine."Posting Date", NewDate) then
                     ItemJnlLine.Validate(ItemJnlLine."Posting Date", NewDate);
             AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Variant Code"), ItemJnlLine."Variant Code", NewVariantCode) then
+                if ShowItemAvailabilityByVariant(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Variant Code"), ItemJnlLine."Variant Code", NewVariantCode) then
                     ItemJnlLine.Validate(ItemJnlLine."Variant Code", NewVariantCode);
             AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Location Code"), ItemJnlLine."Location Code", NewLocationCode) then
+                if ShowItemAvailabilityByLocation(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Location Code"), ItemJnlLine."Location Code", NewLocationCode) then
                     ItemJnlLine.Validate(ItemJnlLine."Location Code", NewLocationCode);
             AvailabilityType::"Event":
-                if ShowItemAvailByEvent(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Posting Date"), ItemJnlLine."Posting Date", NewDate, false) then
+                if ShowItemAvailabilityByEvent(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Posting Date"), ItemJnlLine."Posting Date", NewDate, false) then
                     ItemJnlLine.Validate(ItemJnlLine."Posting Date", NewDate);
             AvailabilityType::BOM:
-                if ShowItemAvailByBOMLevel(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Posting Date"), ItemJnlLine."Posting Date", NewDate) then
+                if ShowItemAvailabilityByBOMLevel(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Posting Date"), ItemJnlLine."Posting Date", NewDate) then
                     ItemJnlLine.Validate(ItemJnlLine."Posting Date", NewDate);
             AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Unit of Measure Code"), ItemJnlLine."Unit of Measure Code", NewUnitOfMeasureCode) then
+                if ShowItemAvailabilityByUOM(Item, ItemJnlLine.FieldCaption(ItemJnlLine."Unit of Measure Code"), ItemJnlLine."Unit of Measure Code", NewUnitOfMeasureCode) then
                     ItemJnlLine.Validate(ItemJnlLine."Unit of Measure Code", NewUnitOfMeasureCode);
         end;
     end;
 
-    procedure ShowItemAvailFromAsmHeader(var AsmHeader: Record "Assembly Header"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Assembly Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromAsmHeader(var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
     begin
-        AsmHeader.TestField("Item No.");
-        Item.Reset();
-        Item.Get(AsmHeader."Item No.");
-        FilterItem(Item, AsmHeader."Location Code", AsmHeader."Variant Code", AsmHeader."Due Date");
-
-        OnBeforeShowItemAvailFromAsmHeader(Item, AsmHeader);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, AsmHeader.FieldCaption(AsmHeader."Due Date"), AsmHeader."Due Date", NewDate) then
-                    AsmHeader.Validate(AsmHeader."Due Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, AsmHeader.FieldCaption(AsmHeader."Variant Code"), AsmHeader."Variant Code", NewVariantCode) then
-                    AsmHeader.Validate(AsmHeader."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, AsmHeader.FieldCaption(AsmHeader."Location Code"), AsmHeader."Location Code", NewLocationCode) then
-                    AsmHeader.Validate(AsmHeader."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                if ShowItemAvailByEvent(Item, AsmHeader.FieldCaption(AsmHeader."Due Date"), AsmHeader."Due Date", NewDate, false) then
-                    AsmHeader.Validate(AsmHeader."Due Date", NewDate);
-            AvailabilityType::BOM:
-                if ShowCustomAsmItemAvailByBOMLevel(AsmHeader, AsmHeader.FieldCaption(AsmHeader."Due Date"), AsmHeader."Due Date", NewDate) then
-                    AsmHeader.Validate(AsmHeader."Due Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, AsmHeader.FieldCaption(AsmHeader."Unit of Measure Code"), AsmHeader."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    AsmHeader.Validate(AsmHeader."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(AsmHeader, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
-    procedure ShowItemAvailFromAsmLine(var AsmLine: Record "Assembly Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Assembly Availability Mgt.', '25.0')]
+    procedure ShowItemAvailFromAsmLine(var AsmLine: Record Microsoft.Assembly.Document."Assembly Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
     begin
-        AsmLine.TestField(Type, AsmLine.Type::Item);
-        AsmLine.TestField("No.");
-        Item.Reset();
-        Item.Get(AsmLine."No.");
-        FilterItem(Item, AsmLine."Location Code", AsmLine."Variant Code", AsmLine."Due Date");
-
-        OnBeforeShowItemAvailFromAsmLine(Item, AsmLine);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, AsmLine.FieldCaption(AsmLine."Due Date"), AsmLine."Due Date", NewDate) then
-                    AsmLine.Validate(AsmLine."Due Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, AsmLine.FieldCaption(AsmLine."Variant Code"), AsmLine."Variant Code", NewVariantCode) then
-                    AsmLine.Validate(AsmLine."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, AsmLine.FieldCaption(AsmLine."Location Code"), AsmLine."Location Code", NewLocationCode) then
-                    AsmLine.Validate(AsmLine."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                if ShowItemAvailByEvent(Item, AsmLine.FieldCaption(AsmLine."Due Date"), AsmLine."Due Date", NewDate, false) then
-                    AsmLine.Validate(AsmLine."Due Date", NewDate);
-            AvailabilityType::BOM:
-                if ShowItemAvailByBOMLevel(Item, AsmLine.FieldCaption(AsmLine."Due Date"), AsmLine."Due Date", NewDate) then
-                    AsmLine.Validate(AsmLine."Due Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, AsmLine.FieldCaption(AsmLine."Unit of Measure Code"), AsmLine."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    AsmLine.Validate(AsmLine."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmLine(AsmLine, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
-    procedure ShowItemAvailFromPlanningComp(var PlanningComp: Record "Planning Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    [Obsolete('Replaced by procedure in Planning Comp. Avail. Mgt.', '25.0')]
+    procedure ShowItemAvailFromPlanningComp(var PlanningComp: Record Microsoft.Inventory.Planning."Planning Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
-        Item: Record Item;
-        NewDate: Date;
-        NewVariantCode: Code[10];
-        NewLocationCode: Code[10];
-        NewUnitOfMeasureCode: Code[10];
+        PlanningCompAvailMgt: Codeunit Microsoft.Inventory.Planning."Planning Comp. Avail. Mgt.";
     begin
-        PlanningComp.TestField("Item No.");
-        Item.Reset();
-        Item.Get(PlanningComp."Item No.");
-        FilterItem(Item, PlanningComp."Location Code", PlanningComp."Variant Code", PlanningComp."Due Date");
-
-        OnBeforeShowItemAvailFromPlanningComp(Item, PlanningComp);
-        case AvailabilityType of
-            AvailabilityType::Date:
-                if ShowItemAvailByDate(Item, PlanningComp.FieldCaption(PlanningComp."Due Date"), PlanningComp."Due Date", NewDate) then
-                    PlanningComp.Validate(PlanningComp."Due Date", NewDate);
-            AvailabilityType::Variant:
-                if ShowItemAvailVariant(Item, PlanningComp.FieldCaption(PlanningComp."Variant Code"), PlanningComp."Variant Code", NewVariantCode) then
-                    PlanningComp.Validate(PlanningComp."Variant Code", NewVariantCode);
-            AvailabilityType::Location:
-                if ShowItemAvailByLoc(Item, PlanningComp.FieldCaption(PlanningComp."Location Code"), PlanningComp."Location Code", NewLocationCode) then
-                    PlanningComp.Validate(PlanningComp."Location Code", NewLocationCode);
-            AvailabilityType::"Event":
-                begin
-                    ForecastName := '';
-                    PlanningComp.FindCurrForecastName(ForecastName);
-
-                    if ShowItemAvailByEvent(Item, PlanningComp.FieldCaption(PlanningComp."Due Date"), PlanningComp."Due Date", NewDate, true) then
-                        PlanningComp.Validate(PlanningComp."Due Date", NewDate);
-                end;
-            AvailabilityType::BOM:
-                if ShowItemAvailByBOMLevel(Item, PlanningComp.FieldCaption(PlanningComp."Due Date"), PlanningComp."Due Date", NewDate) then
-                    PlanningComp.Validate(PlanningComp."Due Date", NewDate);
-            AvailabilityType::UOM:
-                if ShowItemAvailByUOM(Item, PlanningComp.FieldCaption(PlanningComp."Unit of Measure Code"), PlanningComp."Unit of Measure Code", NewUnitOfMeasureCode) then
-                    PlanningComp.Validate(PlanningComp."Unit of Measure Code", NewUnitOfMeasureCode);
-        end;
+        PlanningCompAvailMgt.ShowItemAvailabilityFromPlanningComp(PlanningComp, "Item Availability Type".FromInteger(AvailabilityType));
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ShowItemAvailabilityFromInvtDocLine()', '25.0')]
     procedure ShowItemAvailFromInvtDocLine(var InvtDocLine: Record "Invt. Document Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    begin
+        ShowItemAvailabilityFromInvtDocLine(InvtDocLine, "Item Availability Type".FromInteger(AvailabilityType));
+    end;
+#endif
+
+    procedure ShowItemAvailabilityFromInvtDocLine(var InvtDocLine: Record "Invt. Document Line"; AvailabilityType: Enum "Item Availability Type")
     var
         Item: Record Item;
         NewDate: Date;
@@ -778,44 +453,48 @@ codeunit 353 "Item Availability Forms Mgt"
         FilterItem(Item, InvtDocLine."Location Code", InvtDocLine."Variant Code", InvtDocLine."Posting Date");
 
         case AvailabilityType of
-            AvailabilityType::Date:
+            AvailabilityType::Period:
                 begin
                     CaptionText := CopyStr(InvtDocLine.FieldCaption("Posting Date"), 1, 80);
-                    if ShowItemAvailByDate(Item, CaptionText, InvtDocLine."Posting Date", NewDate) then
+                    if ShowItemAvailabilityByPeriod(Item, CaptionText, InvtDocLine."Posting Date", NewDate) then
                         InvtDocLine.Validate("Posting Date", NewDate);
                 end;
             AvailabilityType::Variant:
                 begin
                     CaptionText := CopyStr(InvtDocLine.FieldCaption("Variant Code"), 1, 80);
-#pragma warning disable AA0139 // required fix
-                    if ShowItemAvailVariant(Item, CaptionText, InvtDocLine."Variant Code", NewVariantCode) then
+                    if ShowItemAvailabilityByVariant(Item, CaptionText, InvtDocLine."Variant Code", NewVariantCode) then
                         InvtDocLine.Validate("Variant Code", NewVariantCode);
-#pragma warning restore AA0139
                 end;
             AvailabilityType::Location:
                 begin
                     CaptionText := CopyStr(InvtDocLine.FieldCaption("Location Code"), 1, 80);
-#pragma warning disable AA0139 // required fix
-                    if ShowItemAvailByLoc(Item, CaptionText, InvtDocLine."Location Code", NewLocationCode) then
+                    if ShowItemAvailabilityByLocation(Item, CaptionText, InvtDocLine."Location Code", NewLocationCode) then
                         InvtDocLine.Validate("Location Code", NewLocationCode);
-#pragma warning restore AA0139
                 end;
             AvailabilityType::"Event":
                 begin
                     CaptionText := CopyStr(InvtDocLine.FieldCaption("Posting Date"), 1, 80);
-                    if ShowItemAvailByEvent(Item, CaptionText, InvtDocLine."Posting Date", NewDate, false) then
+                    if ShowItemAvailabilityByEvent(Item, CaptionText, InvtDocLine."Posting Date", NewDate, false) then
                         InvtDocLine.Validate("Posting Date", NewDate);
                 end;
             AvailabilityType::BOM:
                 begin
                     CaptionText := CopyStr(InvtDocLine.FieldCaption("Posting Date"), 1, 80);
-                    if ShowItemAvailByBOMLevel(Item, CaptionText, InvtDocLine."Posting Date", NewDate) then
+                    if ShowItemAvailabilityByBOMLevel(Item, CaptionText, InvtDocLine."Posting Date", NewDate) then
                         InvtDocLine.Validate("Posting Date", NewDate);
                 end;
         end;
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ShowItemAvailabilityByEvent()', '25.0')]
     procedure ShowItemAvailByEvent(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date; IncludeForecast: Boolean): Boolean
+    begin
+        exit(ShowItemAvailByEvent(Item, FieldCaption, OldDate, NewDate, IncludeForecast));
+    end;
+#endif
+
+    procedure ShowItemAvailabilityByEvent(var Item: Record Item; FieldCaption: Text; OldDate: Date; var NewDate: Date; IncludeForecast: Boolean): Boolean
     var
         ItemAvailByEvent: Page "Item Availability by Event";
         IsHandled: Boolean;
@@ -824,7 +503,10 @@ codeunit 353 "Item Availability Forms Mgt"
         // Do not make global
         // Request to make function global has been rejected as it is a skeleton function of the codeunit
         IsHandled := false;
+        OnBeforeShowItemAvailabilityByEvent(Item, FieldCaption, OldDate, NewDate, IncludeForecast, Result, IsHandled);
+#if not CLEAN25
         OnBeforeShowItemAvailByEvent(Item, FieldCaption, OldDate, NewDate, IncludeForecast, Result, IsHandled);
+#endif
         if IsHandled then
             exit(Result);
 
@@ -844,7 +526,15 @@ codeunit 353 "Item Availability Forms Mgt"
         end;
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ShowItemAvailabilityByLocation()', '25.0')]
     procedure ShowItemAvailByLoc(var Item: Record Item; FieldCaption: Text[80]; OldLocationCode: Code[20]; var NewLocationCode: Code[20]): Boolean
+    begin
+        exit(ShowItemAvailabilityByLocation(Item, FieldCaption, OldLocationCode, NewLocationCode));
+    end;
+#endif
+
+    procedure ShowItemAvailabilityByLocation(var Item: Record Item; FieldCaption: Text; OldLocationCode: Code[10]; var NewLocationCode: Code[10]): Boolean
     var
         ItemAvailByLoc: Page "Item Availability by Location";
         IsHandled: Boolean;
@@ -853,7 +543,10 @@ codeunit 353 "Item Availability Forms Mgt"
         // Do not make global
         // Request to make function global has been rejected as it is a skeleton function of the codeunit
         IsHandled := false;
+        OnBeforeShowItemAvailabilityByLocation(Item, FieldCaption, OldLocationCode, NewLocationCode, Result, IsHandled);
+#if not CLEAN25
         OnBeforeShowItemAvailByLoc(Item, FieldCaption, OldLocationCode, NewLocationCode, Result, IsHandled);
+#endif
         if IsHandled then
             exit(Result);
 
@@ -870,7 +563,15 @@ codeunit 353 "Item Availability Forms Mgt"
         end;
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ShowItemAvailabilityByPeriod()', '25.0')]
     procedure ShowItemAvailByDate(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date): Boolean
+    begin
+        exit(ShowItemAvailabilityByPeriod(Item, FieldCaption, OldDate, NewDate));
+    end;
+#endif
+
+    procedure ShowItemAvailabilityByPeriod(var Item: Record Item; FieldCaption: Text; OldDate: Date; var NewDate: Date): Boolean
     var
         ItemAvailByPeriods: Page "Item Availability by Periods";
         IsHandled: Boolean;
@@ -879,7 +580,10 @@ codeunit 353 "Item Availability Forms Mgt"
         // Do not make global
         // Request to make function global has been rejected as it is a skeleton function of the codeunit
         IsHandled := false;
+        OnBeforeShowItemAvailabilityByPeriod(Item, FieldCaption, OldDate, NewDate, Result, IsHandled);
+#if not CLEAN25
         OnBeforeShowItemAvailByDate(Item, FieldCaption, OldDate, NewDate, Result, IsHandled);
+#endif
         if IsHandled then
             exit(Result);
 
@@ -896,7 +600,15 @@ codeunit 353 "Item Availability Forms Mgt"
         end;
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ShowItemAvailabilityByVariant()', '25.0')]
     procedure ShowItemAvailVariant(var Item: Record Item; FieldCaption: Text[80]; OldVariant: Code[20]; var NewVariant: Code[20]): Boolean
+    begin
+        exit(ShowItemAvailabilityByVariant(Item, FieldCaption, OldVariant, NewVariant));
+    end;
+#endif
+
+    procedure ShowItemAvailabilityByVariant(var Item: Record Item; FieldCaption: Text; OldVariantCode: Code[10]; var NewVariantCode: Code[10]): Boolean
     var
         ItemAvailByVariant: Page "Item Availability by Variant";
         IsHandled: Boolean;
@@ -905,7 +617,10 @@ codeunit 353 "Item Availability Forms Mgt"
         // Do not make global
         // Request to make function global has been rejected as it is a skeleton function of the codeunit
         IsHandled := false;
-        OnBeforeShowItemAvailVariant(Item, FieldCaption, OldVariant, NewVariant, Result, IsHandled);
+        OnBeforeShowItemAvailabilityByVariant(Item, FieldCaption, OldVariantCode, NewVariantCode, Result, IsHandled);
+#if not CLEAN25
+        OnBeforeShowItemAvailVariant(Item, FieldCaption, OldVariantCode, NewVariantCode, Result, IsHandled);
+#endif
         if IsHandled then
             exit(Result);
 
@@ -915,14 +630,22 @@ codeunit 353 "Item Availability Forms Mgt"
         ItemAvailByVariant.SetRecord(Item);
         ItemAvailByVariant.SetTableView(Item);
         if ItemAvailByVariant.RunModal() = ACTION::LookupOK then begin
-            NewVariant := ItemAvailByVariant.GetLastVariant();
-            if OldVariant <> NewVariant then
-                if Confirm(Text012, true, FieldCaption, OldVariant, NewVariant) then
+            NewVariantCode := ItemAvailByVariant.GetLastVariant();
+            if OldVariantCode <> NewVariantCode then
+                if Confirm(Text012, true, FieldCaption, OldVariantCode, NewVariantCode) then
                     exit(true);
         end;
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ShowItemAvailabilityByBOMLevel()', '25.0')]
     procedure ShowItemAvailByBOMLevel(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date): Boolean
+    begin
+        exit(ShowItemAvailabilityByBOMLevel(Item, FieldCaption, OldDate, NewDate));
+    end;
+#endif
+
+    procedure ShowItemAvailabilityByBOMLevel(var Item: Record Item; FieldCaption: Text; OldDate: Date; var NewDate: Date): Boolean
     var
         IsHandled: Boolean;
         Result: Boolean;
@@ -930,7 +653,10 @@ codeunit 353 "Item Availability Forms Mgt"
         // Do not make global
         // Request to make function global has been rejected as it is a skeleton function of the codeunit
         IsHandled := false;
+        OnBeforeShowItemAvailabilityByBOMLevel(Item, FieldCaption, OldDate, NewDate, Result, IsHandled);
+#if not CLEAN25
         OnBeforeShowItemAvailByBOMLevel(Item, FieldCaption, OldDate, NewDate, Result, IsHandled);
+#endif
         if IsHandled then
             exit(Result);
 
@@ -941,7 +667,15 @@ codeunit 353 "Item Availability Forms Mgt"
         exit(ShowBOMLevelAbleToMake(FieldCaption, OldDate, NewDate));
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure ShowItemAvailabilityByUOM()', '25.0')]
     procedure ShowItemAvailByUOM(var Item: Record Item; FieldCaption: Text[80]; OldUoMCode: Code[10]; var NewUoMCode: Code[10]): Boolean
+    begin
+        exit(ShowItemAvailabilityByUOM(Item, FieldCaption, OldUoMCode, NewUoMCode));
+    end;
+#endif
+
+    procedure ShowItemAvailabilityByUOM(var Item: Record Item; FieldCaption: Text; OldUoMCode: Code[10]; var NewUoMCode: Code[10]): Boolean
     var
         ItemAvailByUOM: Page "Item Availability by UOM";
         IsHandled: Boolean;
@@ -950,7 +684,10 @@ codeunit 353 "Item Availability Forms Mgt"
         // Do not make global
         // Request to make function global has been rejected as it is a skeleton function of the codeunit
         IsHandled := false;
+        OnBeforeShowItemAvailabilityByUOM(Item, FieldCaption, OldUoMCode, NewUoMCode, Result, IsHandled);
+#if not CLEAN25
         OnBeforeShowItemAvailByUOM(Item, FieldCaption, OldUoMCode, NewUoMCode, Result, IsHandled);
+#endif
         if IsHandled then
             exit(Result);
 
@@ -967,23 +704,7 @@ codeunit 353 "Item Availability Forms Mgt"
         end;
     end;
 
-    local procedure ShowCustomAsmItemAvailByBOMLevel(var AsmHeader: Record "Assembly Header"; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date): Boolean
-    begin
-        Clear(ItemAvailByBOMLevel);
-        ItemAvailByBOMLevel.InitAsmOrder(AsmHeader);
-        ItemAvailByBOMLevel.InitDate(OldDate);
-        exit(ShowBOMLevelAbleToMake(FieldCaption, OldDate, NewDate));
-    end;
-
-    local procedure ShowCustomProdItemAvailByBOMLevel(var ProdOrderLine: Record "Prod. Order Line"; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date): Boolean
-    begin
-        Clear(ItemAvailByBOMLevel);
-        ItemAvailByBOMLevel.InitProdOrder(ProdOrderLine);
-        ItemAvailByBOMLevel.InitDate(OldDate);
-        exit(ShowBOMLevelAbleToMake(FieldCaption, OldDate, NewDate));
-    end;
-
-    local procedure ShowBOMLevelAbleToMake(FieldCaption: Text[80]; OldDate: Date; var NewDate: Date): Boolean
+    local procedure ShowBOMLevelAbleToMake(FieldCaption: Text; OldDate: Date; var NewDate: Date): Boolean
     begin
         if FieldCaption <> '' then
             ItemAvailByBOMLevel.LookupMode(true);
@@ -1000,6 +721,11 @@ codeunit 353 "Item Availability Forms Mgt"
         QtyByUnitOfMeasure := NewQtyByUnitOfMeasure;
     end;
 
+    procedure SetForecastName(NewForecastName: Code[10])
+    begin
+        ForecastName := NewForecastName;
+    end;
+
     procedure FilterItem(var Item: Record Item; LocationCode: Code[20]; VariantCode: Code[20]; Date: Date)
     begin
         // Do not make global
@@ -1012,35 +738,53 @@ codeunit 353 "Item Availability Forms Mgt"
         OnAfterFilterItem(Item, LocationCode, VariantCode, Date);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by enum "Item Availability Type"', '25.0')]
     procedure ByEvent(): Integer
     begin
-        exit(AvailabilityType::"Event");
+        exit("Item Availability Type"::"Event".AsInteger());
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by enum "Item Availability Type"', '25.0')]
     procedure ByLocation(): Integer
     begin
-        exit(AvailabilityType::Location);
+        exit("Item Availability Type"::Location.AsInteger());
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by enum "Item Availability Type"', '25.0')]
     procedure ByVariant(): Integer
     begin
-        exit(AvailabilityType::Variant);
+        exit("Item Availability Type"::Variant.AsInteger());
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by enum "Item Availability Type"', '25.0')]
     procedure ByPeriod(): Integer
     begin
-        exit(AvailabilityType::Date);
+        exit("Item Availability Type"::Period.AsInteger());
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by enum "Item Availability Type"', '25.0')]
     procedure ByBOM(): Integer
     begin
-        exit(AvailabilityType::BOM);
+        exit("Item Availability Type"::BOM.AsInteger());
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by enum "Item Availability Type"', '25.0')]
     procedure ByUOM(): Integer
     begin
-        exit(AvailabilityType::UOM);
+        exit("Item Availability Type"::UOM.AsInteger());
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcItemPlanningFields(var Item: Record Item)
@@ -1057,28 +801,68 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByBOMLeve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailByBOMLevel(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailabilityByBOMLevel(var Item: Record Item; FieldCaption: Text; OldDate: Date; var NewDate: Date; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByPeriod', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailByDate(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailabilityByPeriod(var Item: Record Item; FieldCaption: Text; OldDate: Date; var NewDate: Date; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByLocation', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailByEvent(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date; var IncludeForecast: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailabilityByEvent(var Item: Record Item; FieldCaption: Text; OldDate: Date; var NewDate: Date; var IncludeForecast: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByLocation', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailByLoc(var Item: Record Item; FieldCaption: Text[80]; OldLocationCode: Code[20]; var NewLocationCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailabilityByLocation(var Item: Record Item; FieldCaption: Text; OldLocationCode: Code[10]; var NewLocationCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByLocation', '25.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailByUOM(var Item: Record Item; FieldCaption: Text[80]; OldUoMCode: Code[20]; var NewUoMCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailabilityByUOM(var Item: Record Item; FieldCaption: Text; OldUoMCode: Code[10]; var NewUoMCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1087,73 +871,192 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityFromItemJnlLine', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailFromItemJnlLine(var Item: Record Item; var ItemJnlLine: Record "Item Journal Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromSalesLine(var Item: Record Item; var SalesLine: Record "Sales Line"; var IsHandled: Boolean; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+    local procedure OnBeforeShowItemAvailabilityFromItemJnlLine(var Item: Record Item; var ItemJnlLine: Record "Item Journal Line"; AvailabilityType: Enum "Item Availability Type")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromPurchLine(var Item: Record Item; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromSalesLine(var Item: Record Item; var SalesLine: Record Microsoft.Sales.Document."Sales Line"; var IsHandled: Boolean; AvailabilityType: Enum "Item Availability Type")
     begin
+        OnBeforeShowItemAvailFromSalesLine(Item, SalesLine, IsHandled, AvailabilityType.AsInteger());
     end;
 
+    [Obsolete('Replaced by same event in codeunit Sales Availability Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromServLine(var Item: Record Item; var ServLine: Record "Service Line")
+    local procedure OnBeforeShowItemAvailFromSalesLine(var Item: Record Item; var SalesLine: Record Microsoft.Sales.Document."Sales Line"; var IsHandled: Boolean; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromReqLine(var Item: Record Item; var ReqLine: Record "Requisition Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromPurchLine(var Item: Record Item; var PurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var IsHandled: Boolean; AvailabilityType: Enum "Item Availability Type")
     begin
+        OnBeforeShowItemAvailFromPurchLine(Item, PurchLine, IsHandled, AvailabilityType.AsInteger());
     end;
 
+    [Obsolete('Replaced by same event in codeunit Purch. Availability Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromProdOrderLine(var Item: Record Item; var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnBeforeShowItemAvailFromPurchLine(var Item: Record Item; var PurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var IsHandled: Boolean; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromProdOrderComp(var Item: Record Item; var ProdOrderComp: Record "Prod. Order Component")
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromServLine(var Item: Record Item; var ServLine: Record Microsoft.Service.Document."Service Line")
     begin
+        OnBeforeShowItemAvailFromServLine(Item, ServLine);
     end;
 
+    [Obsolete('Replaced by same event in codeunit Serv. Availability Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromTransLine(var Item: Record Item; var TransLine: Record "Transfer Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+    local procedure OnBeforeShowItemAvailFromServLine(var Item: Record Item; var ServLine: Record Microsoft.Service.Document."Service Line")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromWhseActivLine(var Item: Record Item; var WhseActivLine: Record "Warehouse Activity Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromReqLine(var Item: Record Item; var ReqLine: Record Microsoft.Inventory.Requisition."Requisition Line"; AvailabilityType: Enum "Item Availability Type")
     begin
+        OnBeforeShowItemAvailFromReqLine(Item, ReqLine, AvailabilityType.AsInteger());
     end;
 
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityFromReqLine', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromWhseRcptLine(var Item: Record Item; var WhseRcptLine: Record "Warehouse Receipt Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+    local procedure OnBeforeShowItemAvailFromReqLine(var Item: Record Item; var ReqLine: Record Microsoft.Inventory.Requisition."Requisition Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromAsmHeader(var Item: Record Item; var AssemblyHeader: Record "Assembly Header")
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromProdOrderLine(var Item: Record Item; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
+        OnBeforeShowItemAvailFromProdOrderLine(Item, ProdOrderLine);
     end;
 
+    [Obsolete('Replaced by same event in codeunit Prod. Order Availability Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromAsmLine(var Item: Record Item; var AssemblyLine: Record "Assembly Line")
+    local procedure OnBeforeShowItemAvailFromProdOrderLine(var Item: Record Item; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromPlanningComp(var Item: Record Item; var PlanningComp: Record "Planning Component")
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromProdOrderComp(var Item: Record Item; var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
+        OnBeforeShowItemAvailFromProdOrderComp(Item, ProdOrderComp);
     end;
 
+    [Obsolete('Replaced by same event in codeunit Prod. Order Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailFromProdOrderComp(var Item: Record Item; var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromTransLine(var Item: Record Item; var TransLine: Record Microsoft.Inventory.Transfer."Transfer Line"; AvailabilityType: Enum "Item Availability Type")
+    begin
+        OnBeforeShowItemAvailFromTransLine(Item, TransLine, AvailabilityType.AsInteger());
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Transfer Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailFromTransLine(var Item: Record Item; var TransLine: Record Microsoft.Inventory.Transfer."Transfer Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromWhseActivLine(var Item: Record Item; var WhseActivLine: Record Microsoft.Warehouse.Activity."Warehouse Activity Line"; AvailabilityType: Enum "Item Availability Type")
+    begin
+        OnBeforeShowItemAvailFromWhseActivLine(Item, WhseActivLine, AvailabilityType.AsInteger());
+
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Warehouse Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailFromWhseActivLine(var Item: Record Item; var WhseActivLine: Record Microsoft.Warehouse.Activity."Warehouse Activity Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromWhseRcptLine(var Item: Record Item; var WhseRcptLine: Record Microsoft.Warehouse.Document."Warehouse Receipt Line"; AvailabilityType: Enum "Item Availability Type")
+    begin
+        OnBeforeShowItemAvailFromWhseRcptLine(Item, WhseRcptLine, AvailabilityType.AsInteger());
+
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Warehouse Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailFromWhseRcptLine(var Item: Record Item; var WhseRcptLine: Record Microsoft.Warehouse.Document."Warehouse Receipt Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromAsmHeader(var Item: Record Item; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+        OnBeforeShowItemAvailFromAsmHeader(Item, AssemblyHeader);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Assembly Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailFromAsmHeader(var Item: Record Item; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromAsmLine(var Item: Record Item; var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+        OnBeforeShowItemAvailFromAsmLine(Item, AssemblyLine);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Assembly Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailFromAsmLine(var Item: Record Item; var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeShowItemAvailFromPlanningComp(var Item: Record Item; var PlanningComp: Record Microsoft.Inventory.Planning."Planning Component")
+    begin
+        OnBeforeShowItemAvailFromPlanningComp(Item, PlanningComp);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Assembly Availability Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailFromPlanningComp(var Item: Record Item; var PlanningComp: Record Microsoft.Inventory.Planning."Planning Component")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeShowItemAvailabilityByVariant', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailVariant(var Item: Record Item; FieldCaption: Text[80]; OldVariant: Code[20]; var NewVariant: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailabilityByVariant(var Item: Record Item; FieldCaption: Text; OldVariant: Code[10]; var NewVariant: Code[10]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateNeedOnAfterCalcGrossRequirement(var Item: Record Item; var GrossRequirement: Decimal)
     begin
     end;
 

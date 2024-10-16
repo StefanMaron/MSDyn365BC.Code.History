@@ -223,7 +223,9 @@ page 17317 "Tax Calc. Term Lines"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Delete all lines?';
+#pragma warning restore AA0074
         GLAcc: Record "G/L Account";
         TaxCalcTermLine: Record "Tax Calc. Term Formula";
         TaxCalcTermName: Record "Tax Calc. Term";

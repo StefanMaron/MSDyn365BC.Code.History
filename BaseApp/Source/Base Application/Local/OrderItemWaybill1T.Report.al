@@ -119,7 +119,7 @@ report 12412 "Order Item Waybill 1-T"
                     if not SalesLine1.Find('-') then
                         CurrReport.Break();
 
-                    if Header."Shipping No." = '' then begin
+                    if Header."Shipping No." = '' then
                         if (Header."Shipping No. Series" = '') or (Header."Shipping No. Series" = Header."Posting No. Series") then
                             if Header."Posting No." = '' then begin
                                 if CurrReport.Preview then
@@ -143,7 +143,6 @@ report 12412 "Order Item Waybill 1-T"
                             if not CurrReport.Preview then
                                 Header.Modify();
                         end;
-                    end;
                     DocNo := Header."Shipping No.";
 
                     SetRange(Number, 1, CopiesNumber);

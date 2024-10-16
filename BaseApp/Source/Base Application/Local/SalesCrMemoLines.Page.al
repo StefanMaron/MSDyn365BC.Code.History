@@ -75,7 +75,9 @@ page 14976 "Sales Cr. Memo Lines"
     var
         SalesHeader: Record "Sales Header";
         CloseActionOk: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'Quantity,Unit Price';
+#pragma warning restore AA0074
         Selection: Integer;
 
     [Scope('OnPrem')]

@@ -320,7 +320,7 @@ report 14920 "Calculate Assessed Tax"
                         FixedAsset.SetFilter("Property Type", '<>%1', FixedAsset."Property Type"::" ");
                         FixedAsset.SetFilter("Assessed Tax Code", '<>%1', '');
                         FixedAsset.SetFilter("Main Asset/Component", '<>%1', FixedAsset."Main Asset/Component"::"Main Asset");
-                        if FixedAsset.FindFirst() then begin
+                        if FixedAsset.FindFirst() then
                             repeat
                                 InsertTempFA := false;
                                 ReportingDate := StartingDate;
@@ -338,7 +338,6 @@ report 14920 "Calculate Assessed Tax"
                                     TempFixedAsset.Insert();
                                 end;
                             until FixedAsset.Next() = 0;
-                        end;
                     end;
 
                     if TempFixedAsset.Count = 0 then
@@ -378,10 +377,9 @@ report 14920 "Calculate Assessed Tax"
                 begin
                     FillSpecialInfo(3);
 
-                    for I := 1 to 3 do begin
+                    for I := 1 to 3 do
                         if DeleteSheet[I] = true then
                             ExcelMgt.DeleteSheet('0000' + Format(I));
-                    end;
 
                     SheetName := 'Title';
                     ExcelMgt.OpenSheet(SheetName);
@@ -681,10 +679,24 @@ report 14920 "Calculate Assessed Tax"
         DetailedInfo: Boolean;
         FillTitle: array[2] of Boolean;
         InsertTempFA: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'OKATO Code #1####\Chapter #2####\FA No. #3####';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label 'Select Tax Authority No.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text010: Label 'There are duplicate Assessed Tax Codes: Assessed Tax Code=%1 and Assessed Tax Code=%2. Remove one of them.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text011: Label 'Base Assessed Tax Code should exist for Assessed Tax Code=%1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Representative: Boolean;
         Exemption: Boolean;
         TaxAmountAbroad: Decimal;
@@ -957,12 +969,11 @@ report 14920 "Calculate Assessed Tax"
                 LineAmount[5] := Round(AssessedTaxCode2."Decreasing Amount" / 4, 1, '=');
             ExcelMgt.FillCellsGroup2('BF68', 15, 1, Format(LineAmount[5], 0, 1), '-', 1);
         end;
-        if not Exemption then begin
+        if not Exemption then
             if PropertyType = 1 then
                 TotalAmount[1] := TotalAmount[1] + LineAmount[4] - LineAmount[5]
             else
                 TotalAmount[2] := TotalAmount[2] + LineAmount[4] - LineAmount[5];
-        end;
 
         Exemption := false;
         ExcelMgt.WriteAllToCurrentSheet();

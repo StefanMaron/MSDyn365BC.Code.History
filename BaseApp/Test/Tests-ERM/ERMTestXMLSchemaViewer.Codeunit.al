@@ -32,14 +32,10 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CreateSchemaFile(OutStr);
         LoadSchemaFile(XMLSchema);
         XMLSchema.TestField("Target Namespace");
-        with XMLSchemaElement do begin
-            SetRange("XML Schema Code", XMLSchema.Code);
-            Assert.AreEqual(Count, 8, 'Schema was not parsed correctly. Wrong number of elements.');
-        end;
-        with XMLSchemaRestriction do begin
-            SetRange("XML Schema Code", XMLSchema.Code);
-            Assert.AreEqual(16, Count, 'Schema was not parsed correctly. Wrong number of enumerations.');
-        end;
+        XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
+        Assert.AreEqual(XMLSchemaElement.Count, 8, 'Schema was not parsed correctly. Wrong number of elements.');
+        XMLSchemaRestriction.SetRange("XML Schema Code", XMLSchema.Code);
+        Assert.AreEqual(16, XMLSchemaRestriction.Count, 'Schema was not parsed correctly. Wrong number of enumerations.');
         ExportFileName := XMLSchema.ExportSchema(false);
         Assert.AreNotEqual('', ExportFileName, 'No filename was retrieved from export schema.');
     end;
@@ -57,19 +53,17 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
         LoadSchemaFile(XMLSchema);
-        with XMLSchemaElement do begin
-            SetRange("XML Schema Code", XMLSchema.Code);
-            SetRange("Node Name", 'Test2');
-            FindFirst();
-            Assert.IsFalse(Selected, 'Test2 was expected to have Selected=No.');
-            Assert.AreEqual(MinOccurs, 0, 'Test2 was expected to have MinOccures=0.');
-            SetRange("Node Name");
-            ModifyAll(Selected, false);
-            Validate(Selected, true);
-            TestField("Simple Data Type", 'string');
-            FindFirst();
-            Assert.IsTrue(Selected, 'Parent was expected to have Selected=Yes.');
-        end;
+        XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
+        XMLSchemaElement.SetRange("Node Name", 'Test2');
+        XMLSchemaElement.FindFirst();
+        Assert.IsFalse(XMLSchemaElement.Selected, 'Test2 was expected to have Selected=No.');
+        Assert.AreEqual(XMLSchemaElement.MinOccurs, 0, 'Test2 was expected to have MinOccures=0.');
+        XMLSchemaElement.SetRange("Node Name");
+        XMLSchemaElement.ModifyAll(Selected, false);
+        XMLSchemaElement.Validate(Selected, true);
+        XMLSchemaElement.TestField("Simple Data Type", 'string');
+        XMLSchemaElement.FindFirst();
+        Assert.IsTrue(XMLSchemaElement.Selected, 'Parent was expected to have Selected=Yes.');
     end;
 
     [Test]
@@ -87,18 +81,16 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
         LoadSchemaFile(XMLSchema);
-        with XMLSchemaElement do begin
-            SetRange("XML Schema Code", XMLSchema.Code);
-            SetRange(Selected, true);
-            DefaultSelectedCount := Count;
-            XSDParser.DeselectAll(XMLSchemaElement);
-            Assert.AreEqual(Count, 0, 'Unexpected Selected elements.');
-            SetRange(Selected);
-            FindLast();
-            XSDParser.SelectMandatory(XMLSchemaElement);
-            SetRange(Selected, true);
-            Assert.AreEqual(DefaultSelectedCount, Count, 'Wrong number of selected elements.');
-        end;
+        XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
+        XMLSchemaElement.SetRange(Selected, true);
+        DefaultSelectedCount := XMLSchemaElement.Count;
+        XSDParser.DeselectAll(XMLSchemaElement);
+        Assert.AreEqual(XMLSchemaElement.Count, 0, 'Unexpected Selected elements.');
+        XMLSchemaElement.SetRange(Selected);
+        XMLSchemaElement.FindLast();
+        XSDParser.SelectMandatory(XMLSchemaElement);
+        XMLSchemaElement.SetRange(Selected, true);
+        Assert.AreEqual(DefaultSelectedCount, XMLSchemaElement.Count, 'Wrong number of selected elements.');
     end;
 
     [Test]
@@ -114,17 +106,15 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
         LoadSchemaFile(XMLSchema);
-        with XMLSchemaElement do begin
-            SetRange("XML Schema Code", XMLSchema.Code);
-            ModifyAll(Selected, false);
-            SetRange("Node Name", 'GrpHdr');
-            FindFirst();
-            Validate(Selected, true);
-            Modify();
-            SetRange("Node Name", 'MsgId');
-            FindFirst();
-            Assert.IsTrue(Selected, 'Child was expected to have Selected=Yes.');
-        end;
+        XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
+        XMLSchemaElement.ModifyAll(Selected, false);
+        XMLSchemaElement.SetRange("Node Name", 'GrpHdr');
+        XMLSchemaElement.FindFirst();
+        XMLSchemaElement.Validate(Selected, true);
+        XMLSchemaElement.Modify();
+        XMLSchemaElement.SetRange("Node Name", 'MsgId');
+        XMLSchemaElement.FindFirst();
+        Assert.IsTrue(XMLSchemaElement.Selected, 'Child was expected to have Selected=Yes.');
     end;
 
     [Test]
@@ -142,14 +132,12 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
         LoadSchemaFile(XMLSchema);
-        with XMLSchemaElement do begin
-            SetRange("XML Schema Code", XMLSchema.Code);
-            ModifyAll(Selected, true);
-            SetRange("Node Name", 'GrpHdr');
-            FindFirst();
-            Validate(Selected, false);
-            Modify();
-        end;
+        XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
+        XMLSchemaElement.ModifyAll(Selected, true);
+        XMLSchemaElement.SetRange("Node Name", 'GrpHdr');
+        XMLSchemaElement.FindFirst();
+        XMLSchemaElement.Validate(Selected, false);
+        XMLSchemaElement.Modify();
 
         // Exercise.
         XSDParser.SelectMandatory(XMLSchemaElement);
@@ -189,15 +177,13 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
         LoadSchemaFile(XMLSchema);
-        with XMLSchemaElement do begin
-            SetRange("XML Schema Code", XMLSchema.Code);
-            XSDParser.HideNotMandatory(XMLSchemaElement);
-            Assert.AreEqual(Count, 7, 'Wrong number of mandatory elements.');
-            XSDParser.ShowAll(XMLSchemaElement);
-            Assert.AreEqual(Count, 8, 'Wrong number of elements.');
-            XSDParser.HideNotSelected(XMLSchemaElement);
-            Assert.AreEqual(Count, 7, 'Wrong number of selected elements.');
-        end;
+        XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
+        XSDParser.HideNotMandatory(XMLSchemaElement);
+        Assert.AreEqual(XMLSchemaElement.Count, 7, 'Wrong number of mandatory elements.');
+        XSDParser.ShowAll(XMLSchemaElement);
+        Assert.AreEqual(XMLSchemaElement.Count, 8, 'Wrong number of elements.');
+        XSDParser.HideNotSelected(XMLSchemaElement);
+        Assert.AreEqual(XMLSchemaElement.Count, 7, 'Wrong number of selected elements.');
     end;
 
     [Test]

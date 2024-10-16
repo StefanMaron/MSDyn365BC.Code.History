@@ -386,7 +386,9 @@ report 12451 "Vendor G/L Turnover"
     end;
 
     var
+#pragma warning disable AA0074
         Text003: Label 'Zero values are replaced by spacebar';
+#pragma warning restore AA0074
         VendPostingGr: Record "Vendor Posting Group";
         LocMgt: Codeunit "Localisation Management";
         GLAccFilter: Text;
@@ -442,10 +444,20 @@ report 12451 "Vendor G/L Turnover"
     [Scope('OnPrem')]
     procedure FillReportParameters()
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'for period from %1 to %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'Skip lines with zero values';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label '(in currency units)';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label '(in thousands)';
+#pragma warning restore AA0074
     begin
         case RoundingPrecision of
             RoundingPrecision::"0.01":

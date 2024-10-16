@@ -229,6 +229,15 @@ table 6619 "FS Work Order Product"
             Caption = 'Additional Cost (Base)';
             DataClassification = SystemMetadata;
         }
+        field(40; WarehouseId; GUID)
+        {
+            ExternalName = 'msdyn_warehouse';
+            ExternalType = 'Lookup';
+            Description = 'Unique identifier of the warehouse associated with the entity.';
+            Caption = 'Warehouse';
+            TableRelation = "FS Warehouse".WarehouseId;
+            DataClassification = SystemMetadata;
+        }
         field(41; Allocated; Boolean)
         {
             ExternalName = 'msdyn_allocated';

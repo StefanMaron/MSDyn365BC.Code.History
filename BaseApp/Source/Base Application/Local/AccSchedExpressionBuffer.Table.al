@@ -32,7 +32,7 @@ table 26585 "Acc. Sched. Expression Buffer"
         }
         field(6; Description; Text[250])
         {
-            CalcFormula = Lookup ("Acc. Schedule Line".Description where("Schedule Name" = field("Schedule Name"),
+            CalcFormula = lookup("Acc. Schedule Line".Description where("Schedule Name" = field("Schedule Name"),
                                                                          "Line No." = field("Acc. Schedule Line No.")));
             Caption = 'Description';
             FieldClass = FlowField;

@@ -325,10 +325,16 @@ report 17201 "Create Closing Gen. Jnl. Line"
         DateEnd: Date;
         DocumentNo: Code[20];
         SectionCode: Code[10];
+#pragma warning disable AA0074
         Text1001: Label 'Date Period must be set.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1002: Label 'Section Code must be set.';
+#pragma warning restore AA0074
         FilterDueDate3Years: Text[30];
+#pragma warning disable AA0074
         Text1003: Label 'Debit,Credit';
+#pragma warning restore AA0074
         BalanceText: Text[30];
         BalanceTextText: Text[1024];
 

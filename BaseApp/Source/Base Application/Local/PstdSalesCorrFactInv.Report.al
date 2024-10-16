@@ -128,7 +128,7 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
 
                 trigger OnPostDataItem()
                 begin
-                    if not Preview then
+                    if not PreviewReport then
                         CODEUNIT.Run(CODEUNIT::"Sales Inv.-Printed", Header);
                 end;
 
@@ -176,7 +176,7 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
                     KPPCode := Customer."KPP Code";
 
                 if LogInteraction then
-                    if not Preview then begin
+                    if not PreviewReport then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -185,7 +185,6 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
             end;
 
             trigger OnPreDataItem()
@@ -232,7 +231,7 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
                         Caption = 'Log Interaction';
                         ToolTip = 'Specifies that interactions with the related contact are logged.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -302,7 +301,7 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
         CurrencyDigitalCode: Code[3];
         ReportNos: array[4] of Text;
         ReportDates: array[4] of Text;
-        Preview: Boolean;
+        PreviewReport: Boolean;
 
     [Scope('OnPrem')]
     procedure IncrAmount(var TotalAmount: array[3] of Decimal; Amount: Decimal; AmountIncludingVAT: Decimal)
@@ -580,10 +579,9 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
     var
         i: Integer;
     begin
-        for i := 1 to 3 do begin
+        for i := 1 to 3 do
             if LineValues[i] = '' then
                 LineValues[i] := '-';
-        end;
     end;
 }
 

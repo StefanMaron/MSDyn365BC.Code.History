@@ -7,7 +7,11 @@ codeunit 12415 "EmployeeVendor-Update"
 
     var
         Vend: Record Vendor;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 No %2 already exists.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure OnInsert(var Employee: Record Employee)

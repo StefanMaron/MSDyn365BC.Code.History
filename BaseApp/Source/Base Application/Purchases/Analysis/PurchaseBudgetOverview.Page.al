@@ -662,10 +662,12 @@ page 7138 "Purchase Budget Overview"
         DateFilter: Text;
         InternalDateFilter: Text;
         PeriodInitialized: Boolean;
+#pragma warning disable AA0074
         Text003: Label '1,6,,Budget Dimension 1 Filter';
         Text004: Label '1,6,,Budget Dimension 2 Filter';
         Text005: Label '1,6,,Budget Dimension 3 Filter';
         Text100: Label 'Period';
+#pragma warning restore AA0074
         NewBudgetName: Code[10];
         BudgetDim1FilterEnable: Boolean;
         BudgetDim2FilterEnable: Boolean;

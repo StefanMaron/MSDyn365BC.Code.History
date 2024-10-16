@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -528,6 +528,21 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
         }
+        field(166; "Alt. VAT Registration No."; Boolean)
+        {
+            Caption = 'Alternative VAT Registration No.';
+            Editable = false;
+        }
+        field(167; "Alt. Gen. Bus Posting Group"; Boolean)
+        {
+            Caption = 'Alternative Gen. Bus. Posting Group';
+            Editable = false;
+        }
+        field(168; "Alt. VAT Bus Posting Group"; Boolean)
+        {
+            Caption = 'Alternative VAT Bus. Posting Group';
+            Editable = false;
+        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
@@ -560,6 +575,11 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Work Description';
             DataClassification = CustomerContent;
+        }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -894,7 +914,7 @@ table 114 "Sales Cr.Memo Header"
             else
                 ReportSelection.PrintWithDialogForCust(
                   ReportSelection.Usage::CSCM, SalesCrMemoHeader, ShowRequestForm, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
-        end else begin
+        end else
             if SendAsEmail then
                 ReportSelection.SendEmailToCust(
                   ReportSelection.Usage::"S.Cr.Memo".AsInteger(), SalesCrMemoHeader, SalesCrMemoHeader."No.",
@@ -902,7 +922,6 @@ table 114 "Sales Cr.Memo Header"
             else
                 ReportSelection.PrintWithDialogForCust(
                   ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, ShowRequestForm, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
-        end;
     end;
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
@@ -1027,15 +1046,19 @@ table 114 "Sales Cr.Memo Header"
         exit(FieldCaption("VAT Registration No."));
     end;
 
+#if not CLEAN25
+    [Obsolete('The procedure is not used and will be obsoleted.', '25.0')]
     procedure GetCustomerGlobalLocationNumber(): Text
     begin
         exit('');
     end;
 
+    [Obsolete('The procedure is not used and will be obsoleted.', '25.0')]
     procedure GetCustomerGlobalLocationNumberLbl(): Text
     begin
         exit('');
     end;
+#endif
 
     procedure GetLegalStatement(): Text
     var
@@ -1075,7 +1098,9 @@ table 114 "Sales Cr.Memo Header"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         DocNoFilter: Text[250];
         I: Integer;
+#pragma warning disable AA0074
         Text12400: Label 'Length of the Document No. filter should not exceed 1024.';
+#pragma warning restore AA0074
     begin
         DocNoFilter := '';
         I := 0;
@@ -1098,13 +1123,12 @@ table 114 "Sales Cr.Memo Header"
                         I := I + 1;
                         if I = 1 then
                             DocNoFilter := ReturnReceiptHeader."No."
-                        else begin
+                        else
                             if StrPos('|' + DocNoFilter + '|', '|' + ReturnReceiptHeader."No." + '|') = 0 then
                                 if (StrLen(DocNoFilter) + StrLen(ReturnReceiptHeader."No.")) < MaxStrLen(DocNoFilter) then
                                     DocNoFilter := DocNoFilter + '|' + ReturnReceiptHeader."No."
                                 else
                                     Error(Text12400);
-                        end;
                     until ValueEntry.Next() = 0;
             until SalesCrMemoLine.Next() = 0;
         if DocNoFilter = '' then

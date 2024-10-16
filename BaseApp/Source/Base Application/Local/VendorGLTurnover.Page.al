@@ -123,11 +123,11 @@ page 12407 "Vendor G/L Turnover"
                     Image = Agreement;
                     RunObject = Page "Vendor G/L Turnover Agr.";
                     RunPageLink = "Vendor No." = field("No."),
-                                  "Global Dimension 1 Filter" = field(FILTER("Global Dimension 1 Filter")),
-                                  "Global Dimension 2 Filter" = field(FILTER("Global Dimension 2 Filter")),
-                                  "Date Filter" = field(FILTER("Date Filter")),
-                                  "G/L Account Filter" = field(FILTER("G/L Account Filter")),
-                                  "G/L Starting Date Filter" = field(FILTER("G/L Starting Date Filter"));
+                                  "Global Dimension 1 Filter" = field(filter("Global Dimension 1 Filter")),
+                                  "Global Dimension 2 Filter" = field(filter("Global Dimension 2 Filter")),
+                                  "Date Filter" = field(filter("Date Filter")),
+                                  "G/L Account Filter" = field(filter("G/L Account Filter")),
+                                  "G/L Starting Date Filter" = field(filter("G/L Starting Date Filter"));
                     ShortCutKey = 'Shift+F11';
                 }
             }

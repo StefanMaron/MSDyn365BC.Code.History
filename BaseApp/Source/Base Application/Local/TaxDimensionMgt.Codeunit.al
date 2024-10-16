@@ -6,19 +6,57 @@ codeunit 17202 "Tax Dimension Mgt."
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label 'Change cannot be completed because %1 has records with %2=%3, %4=%5, %6=%7, %8=%9.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1002: Label 'Deletion cannot be completed because %1 has records with %2=%3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1003: Label 'Deletion cannot be completed because %1 has records with %2=%3, %4=%5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxRegSection: Record "Tax Register Section";
         TempDimBuf1: Record "Dimension Buffer" temporary;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1004: Label 'Entry %1 %2\Debit %3 Credit %4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text1005: Label '\\Skip?';
+#pragma warning restore AA0074
         TempDimBuf2: Record "Dimension Buffer" temporary;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1006: Label 'Entry %1 %2 Debit %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1007: Label 'Entry %1 %2 Credit %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1008: Label 'Entry %1 %2 Line %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1009: Label '\Dimension %1 not found.\Filter %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1010: Label 'LineNo = %1 TaxRegDimComb."Line No." = %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure SetDimFilters2TaxGLLine(TaxRegTemplate: Record "Tax Register Template"; var TaxRegGLEntry: Record "Tax Register G/L Entry")
@@ -301,7 +339,7 @@ codeunit 17202 "Tax Dimension Mgt."
         TaxRegDimComb.SetRange("Section Code", TaxRegSectionCode);
         TaxRegDimComb.SetRange("Dimension 1 Code", DimComb."Dimension 1 Code");
         TaxRegDimComb.SetRange("Dimension 2 Code", DimComb."Dimension 2 Code");
-        if TaxRegDimComb.FindSet() then begin
+        if TaxRegDimComb.FindSet() then
             repeat
                 if TaxRegDimComb."Combination Restriction" = TaxRegDimComb."Combination Restriction"::Limited then begin
                     TaxRegDimValueComb.SetRange("Section Code", TaxRegDimComb."Section Code");
@@ -331,7 +369,6 @@ codeunit 17202 "Tax Dimension Mgt."
                         until TaxRegDimValueComb.Next(1) = 0;
                 end;
             until TaxRegDimComb.Next(1) = 0;
-        end;
     end;
 
     [Scope('OnPrem')]

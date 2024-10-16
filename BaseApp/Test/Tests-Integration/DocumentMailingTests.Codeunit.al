@@ -424,18 +424,16 @@ codeunit 135060 "Document Mailing Tests"
 
     local procedure SetupDefaultEmailSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     begin
-        with DocumentSendingProfile do begin
-            DeleteAll();
+        DocumentSendingProfile.DeleteAll();
 
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            "E-Mail" := "E-Mail"::"Yes (Use Default Settings)";
-            Printer := Printer::No;
-            Disk := Disk::No;
-            "Electronic Document" := "Electronic Document"::No;
-            Default := true;
-            Insert();
-        end;
+        DocumentSendingProfile.Init();
+        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
+        DocumentSendingProfile."E-Mail" := DocumentSendingProfile."E-Mail"::"Yes (Use Default Settings)";
+        DocumentSendingProfile.Printer := DocumentSendingProfile.Printer::No;
+        DocumentSendingProfile.Disk := DocumentSendingProfile.Disk::No;
+        DocumentSendingProfile."Electronic Document" := DocumentSendingProfile."Electronic Document"::No;
+        DocumentSendingProfile.Default := true;
+        DocumentSendingProfile.Insert();
     end;
 
     local procedure UpdateEmailOnCustomer(var Customer: Record Customer; EmailAddress: Text[80])

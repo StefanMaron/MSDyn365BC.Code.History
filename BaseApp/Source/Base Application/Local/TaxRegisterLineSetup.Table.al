@@ -209,13 +209,23 @@ table 17201 "Tax Register Line Setup"
 
     var
         TaxRegSection: Record "Tax Register Section";
+#pragma warning disable AA0074
         Text21000900: Label 'Exchange Account No. and Bal. Account No.?';
+#pragma warning restore AA0074
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
         ItemlLedgEntry: Record "Item Ledger Entry";
         TaxReg: Record "Tax Register";
         TaxRegDimComb: Record "Tax Register Dim. Comb.";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000901: Label 'cannot be %1 if register is not linked to %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000903: Label 'cannot be %1 if Check Exist Entry =%2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure GetGLCorrDimFilter(DimCode: Code[20]; FilterGroup: Option Debit,Credit) DimFilter: Text[250]

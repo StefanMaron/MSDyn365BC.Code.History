@@ -12,7 +12,7 @@ table 12400 "G/L Correspondence"
         }
         field(2; "Debit Account Name"; Text[100])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("Debit Account No.")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("Debit Account No.")));
             Caption = 'Debit Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -30,7 +30,7 @@ table 12400 "G/L Correspondence"
         }
         field(6; "Credit Account Name"; Text[100])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("Credit Account No.")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("Credit Account No.")));
             Caption = 'Credit Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -45,9 +45,9 @@ table 12400 "G/L Correspondence"
         {
             AutoFormatType = 1;
             CalcFormula = sum("G/L Correspondence Entry".Amount where("Debit Account No." = field("Debit Account No."),
-                                                                       "Debit Account No." = field(FILTER("Debit Totaling")),
+                                                                       "Debit Account No." = field(filter("Debit Totaling")),
                                                                        "Credit Account No." = field("Credit Account No."),
-                                                                       "Credit Account No." = field(FILTER("Credit Totaling")),
+                                                                       "Credit Account No." = field(filter("Credit Totaling")),
                                                                        "Debit Global Dimension 1 Code" = field("Debit Global Dim. 1 Filter"),
                                                                        "Debit Global Dimension 2 Code" = field("Debit Global Dim. 2 Filter"),
                                                                        "Credit Global Dimension 1 Code" = field("Credit Global Dim. 1 Filter"),
@@ -92,9 +92,9 @@ table 12400 "G/L Correspondence"
         field(20; "Amount (ACY)"; Decimal)
         {
             CalcFormula = sum("G/L Correspondence Entry"."Amount (ACY)" where("Debit Account No." = field("Debit Account No."),
-                                                                               "Debit Account No." = field(FILTER("Debit Totaling")),
+                                                                               "Debit Account No." = field(filter("Debit Totaling")),
                                                                                "Credit Account No." = field("Credit Account No."),
-                                                                               "Credit Account No." = field(FILTER("Credit Totaling")),
+                                                                               "Credit Account No." = field(filter("Credit Totaling")),
                                                                                "Debit Global Dimension 1 Code" = field("Debit Global Dim. 1 Filter"),
                                                                                "Debit Global Dimension 2 Code" = field("Debit Global Dim. 2 Filter"),
                                                                                "Credit Global Dimension 1 Code" = field("Credit Global Dim. 1 Filter"),

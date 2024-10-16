@@ -1290,29 +1290,25 @@ codeunit 134201 "Document Approval - Comments"
     var
         PostedApprovalCommentLine: Record "Posted Approval Comment Line";
     begin
-        with PostedApprovalCommentLine do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(PostedApprovalCommentLine, FieldNo("Entry No."));
-            "Table ID" := PostedRecordID.TableNo;
-            "Posted Record ID" := PostedRecordID;
-            Insert();
-        end;
+        PostedApprovalCommentLine.Init();
+        PostedApprovalCommentLine."Entry No." := LibraryUtility.GetNewRecNo(PostedApprovalCommentLine, PostedApprovalCommentLine.FieldNo("Entry No."));
+        PostedApprovalCommentLine."Table ID" := PostedRecordID.TableNo;
+        PostedApprovalCommentLine."Posted Record ID" := PostedRecordID;
+        PostedApprovalCommentLine.Insert();
     end;
 
     local procedure MockApprovalEntry(RecordIDToApprove: RecordID)
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        with ApprovalEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ApprovalEntry, FieldNo("Entry No."));
-            "Sender ID" := LibraryUtility.GenerateGUID();
-            "Approver ID" := UserId;
-            "Table ID" := RecordIDToApprove.TableNo;
-            "Record ID to Approve" := RecordIDToApprove;
-            Status := Status::Open;
-            Insert();
-        end;
+        ApprovalEntry.Init();
+        ApprovalEntry."Entry No." := LibraryUtility.GetNewRecNo(ApprovalEntry, ApprovalEntry.FieldNo("Entry No."));
+        ApprovalEntry."Sender ID" := LibraryUtility.GenerateGUID();
+        ApprovalEntry."Approver ID" := UserId;
+        ApprovalEntry."Table ID" := RecordIDToApprove.TableNo;
+        ApprovalEntry."Record ID to Approve" := RecordIDToApprove;
+        ApprovalEntry.Status := ApprovalEntry.Status::Open;
+        ApprovalEntry.Insert();
     end;
 
     local procedure MockApprovalEntryWithComment(RecordIDToApprove: RecordID): Text
@@ -1327,15 +1323,13 @@ codeunit 134201 "Document Approval - Comments"
     var
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
-        with ApprovalCommentLine do begin
-            Init();
-            SetRange("Table ID", RecordIDToApprove.TableNo);
-            SetRange("Record ID to Approve", RecordIDToApprove);
-            "Workflow Step Instance ID" := WorkflowStepInstanceID;
-            Comment := LibraryUtility.GenerateGUID();
-            Insert(true);
-            exit(Comment);
-        end;
+        ApprovalCommentLine.Init();
+        ApprovalCommentLine.SetRange("Table ID", RecordIDToApprove.TableNo);
+        ApprovalCommentLine.SetRange("Record ID to Approve", RecordIDToApprove);
+        ApprovalCommentLine."Workflow Step Instance ID" := WorkflowStepInstanceID;
+        ApprovalCommentLine.Comment := LibraryUtility.GenerateGUID();
+        ApprovalCommentLine.Insert(true);
+        exit(ApprovalCommentLine.Comment);
     end;
 
     local procedure DeleteApprovalEntryAndComments()

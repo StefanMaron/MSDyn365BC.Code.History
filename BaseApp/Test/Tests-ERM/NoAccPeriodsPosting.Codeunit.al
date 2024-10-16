@@ -557,12 +557,10 @@ codeunit 134361 "No Acc. Periods: Posting"
     var
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
     begin
-        with AvgCostAdjmtEntryPoint do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Valuation Date", ValuationDate);
-            FindFirst();
-            TestField("Cost Is Adjusted", true);
-        end;
+        AvgCostAdjmtEntryPoint.SetRange("Item No.", ItemNo);
+        AvgCostAdjmtEntryPoint.SetRange("Valuation Date", ValuationDate);
+        AvgCostAdjmtEntryPoint.FindFirst();
+        AvgCostAdjmtEntryPoint.TestField("Cost Is Adjusted", true);
     end;
 
     local procedure VerifyDeferralPosting(DeferralTemplateCode: Code[10]; FirstEntryPostingDate: Date; AmountToDefer: Decimal; AdditionalRecord: Integer)
@@ -599,13 +597,11 @@ codeunit 134361 "No Acc. Periods: Posting"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", "Entry Type"::"Negative Adjmt.");
-            FindFirst();
-            CalcFields("Cost Amount (Actual)");
-            TestField("Cost Amount (Actual)", CostAmount);
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", CostAmount);
     end;
 
     local procedure CreateGenJournalLineForDeferralEntry(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; GLAccountNo: Code[20])

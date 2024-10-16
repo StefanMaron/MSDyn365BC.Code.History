@@ -130,13 +130,21 @@ report 1130 "Delete Cost Entries"
         CostAccSetup: Record "Cost Accounting Setup";
         Window: Dialog;
 
+#pragma warning disable AA0074
         Text000: Label 'From Register No. must not be higher than To Register No..';
+#pragma warning disable AA0470
         Text001: Label 'All corresponding cost entries and register entries will be deleted. Do you want to delete cost register %1 to %2?';
+#pragma warning restore AA0470
         Text004: Label 'Are you sure?';
         Text005: Label 'Delete cost register\';
+#pragma warning disable AA0470
         Text006: Label 'Register  no.      #1######';
         Text007: Label 'Register %1 can no longer be deleted because it is marked as closed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         CostRegisterHasBeenModifiedErr: Label 'Another user has modified the cost register. The To Register No. field must be equal to %1.\Run the Delete Cost Entries batch job again.';
+#pragma warning restore AA0470
 
     procedure InitializeRequest(NewFromRegisterNo: Integer; NewToRegisterNo: Integer)
     begin

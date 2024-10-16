@@ -371,21 +371,19 @@ codeunit 147131 "ERM Purchase VAT Ledger"
 
     local procedure InsertVATEntryWithVATAmount(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; CVNo: Code[20]; PostingDate: Date; DocumentDate: Date; VATType: Enum "General Posting Type"; BaseAmount: Decimal; VATAmount: Decimal): Integer
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-            "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            "Bill-to/Pay-to No." := CVNo;
-            "Posting Date" := PostingDate;
-            "Document Date" := DocumentDate;
-            Base := BaseAmount;
-            Amount := VATAmount;
-            Type := VATType;
-            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"VAT Entry");
-            Insert();
-            exit("Entry No.");
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        VATEntry."Bill-to/Pay-to No." := CVNo;
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."Document Date" := DocumentDate;
+        VATEntry.Base := BaseAmount;
+        VATEntry.Amount := VATAmount;
+        VATEntry.Type := VATType;
+        VATEntry."Document No." := LibraryUtility.GenerateRandomCode(VATEntry.FieldNo("Document No."), DATABASE::"VAT Entry");
+        VATEntry.Insert();
+        exit(VATEntry."Entry No.");
     end;
 
     local procedure CreateVATAgentVendorNo(): Code[20]
@@ -393,14 +391,12 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("VAT Agent", true);
-            Validate("VAT Agent Type", "VAT Agent Type"::"Non-resident");
-            "VAT Registration No." := '-';
-            "KPP Code" := '-';
-            Modify();
-            exit("No.");
-        end;
+        Vendor.Validate("VAT Agent", true);
+        Vendor.Validate("VAT Agent Type", Vendor."VAT Agent Type"::"Non-resident");
+        Vendor."VAT Registration No." := '-';
+        Vendor."KPP Code" := '-';
+        Vendor.Modify();
+        exit(Vendor."No.");
     end;
 
     local procedure CreatePurchPrepmtVATEntry(VATPostingSetup: Record "VAT Posting Setup"; CVNo: Code[20]; PostingDate: Date; DocumentDate: Date)

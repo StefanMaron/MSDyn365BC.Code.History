@@ -19,7 +19,6 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        DepreciationBookError: Label 'The %1 does not exist.';
         LinesMustNotBeCreated: Label 'Lines must not be created for Fixed Asset %1. ';
         DimensionValueError: Label 'A dimension used in %1 %2, %3, %4 has caused an error. Select a %5 for the %6 %7 for %8 %9.', Comment = '%1: Table Caption1,%2: Field Value1,%3: Field Value2,%4: Field Value3,%5:Field Caption1,%6:Field Caption2,%7:Field Value4,%8: Table Caption2,%9: Field Value5.';
         DimensionValueError2: Label 'Select a %1 for the %2 %3 for %4 %5.', Comment = '%1: Table Caption1,%2: Field Value1,%3: Field Value2,%4: Field Value3,%5:Field Caption1,%6:Field Caption2,%7:Field Value4,%8: Table Caption2,%9: Field Value5.';
@@ -592,8 +591,6 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     [Test]
     [Scope('OnPrem')]
     procedure CancelFALedgerEntryDepreciationBookError()
-    var
-        DepreciationBook: Record "Depreciation Book";
     begin
         // Test error occurs on Running Cancel FA Ledger Entry Report without Depreciation Book Code.
 
@@ -604,7 +601,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         asserterror RunCancelFALedgerEntry('', '', false);
 
         // 3. Verify: Verify error occurs on Running Cancel FA Ledger Entry Report without Depreciation Book Code.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookError, DepreciationBook.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]
@@ -1804,11 +1801,9 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
     local procedure FindGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; AccountNo: Code[20])
     begin
-        with GenJnlLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Account No.", AccountNo);
-            FindFirst();
-        end;
+        GenJnlLine.SetRange("Document No.", DocumentNo);
+        GenJnlLine.SetRange("Account No.", AccountNo);
+        GenJnlLine.FindFirst();
     end;
 
     local procedure GetFAGLJournalSourceCode(): Code[10]
@@ -2255,28 +2250,24 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         FAJournalSetup: Record "FA Journal Setup";
     begin
         FAJournalSetup.FindLast();
-        with GenJournalLine do begin
-            FindGenJnlLine(GenJournalLine, DocumentNo, AccountNo);
-            LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, "Dimension Set ID");
-            Assert.AreEqual(
-              DimensionValue."Dimension Code", DimensionSetEntry."Dimension Code",
-              StrSubstNo(CheckDimValueInGenJournalErr, DimensionSetEntry.FieldCaption("Dimension Code"),
-                "Document No.", "Account No.", FAJournalSetup."Gen. Jnl. Batch Name"));
-            Assert.AreEqual(
-              DimensionValue.Code, DimensionSetEntry."Dimension Value Code",
-              StrSubstNo(CheckDimValueInGenJournalErr, DimensionSetEntry.FieldCaption("Dimension Value Code"),
-                "Document No.", "Account No.", FAJournalSetup."Gen. Jnl. Batch Name"));
-        end;
+        FindGenJnlLine(GenJournalLine, DocumentNo, AccountNo);
+        LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, GenJournalLine."Dimension Set ID");
+        Assert.AreEqual(
+          DimensionValue."Dimension Code", DimensionSetEntry."Dimension Code",
+          StrSubstNo(CheckDimValueInGenJournalErr, DimensionSetEntry.FieldCaption("Dimension Code"),
+            GenJournalLine."Document No.", GenJournalLine."Account No.", FAJournalSetup."Gen. Jnl. Batch Name"));
+        Assert.AreEqual(
+          DimensionValue.Code, DimensionSetEntry."Dimension Value Code",
+          StrSubstNo(CheckDimValueInGenJournalErr, DimensionSetEntry.FieldCaption("Dimension Value Code"),
+            GenJournalLine."Document No.", GenJournalLine."Account No.", FAJournalSetup."Gen. Jnl. Batch Name"));
     end;
 
     local procedure VerifyDimSetEntryOnGenJnlLine(DocumentNo: Code[20]; AccountNo: Code[20]; ExpectedDimSetEntry: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            FindGenJnlLine(GenJournalLine, DocumentNo, AccountNo);
-            Assert.AreEqual(ExpectedDimSetEntry, "Dimension Set ID", FieldCaption("Dimension Set ID"));
-        end;
+        FindGenJnlLine(GenJournalLine, DocumentNo, AccountNo);
+        Assert.AreEqual(ExpectedDimSetEntry, GenJournalLine."Dimension Set ID", GenJournalLine.FieldCaption("Dimension Set ID"));
     end;
 
     local procedure VerifyDimensionOnLedgerEntry(DimensionValue: Record "Dimension Value"; FANo: Code[20])

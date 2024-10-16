@@ -67,12 +67,6 @@ page 26577 "Create Acc. Schedule"
         if StatutoryReportTable."Int. Source Type" = StatutoryReportTable."Int. Source Type"::"Acc. Schedule" then begin
             StatutoryReportTable.TestField("Int. Source No.");
             AccScheduleName.Get(StatutoryReportTable."Int. Source No.");
-#if not CLEAN22
-            if (StatutoryReportTable."Int. Source Col. Name" = '') and (AccScheduleName."Default Column Layout" <> '') then begin
-                StatutoryReportTable."Int. Source Col. Name" := AccScheduleName."Default Column Layout";
-                StatutoryReportTable.Modify();
-            end;
-#endif
             AccSchedName := AccScheduleName.Name;
             ColumnLayoutName := StatutoryReportTable."Int. Source Col. Name";
         end;

@@ -20,7 +20,6 @@ codeunit 9998 "Upgrade Tag Definitions"
     local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
         // RU
-        PerCompanyUpgradeTags.Add(GetGenJnlLineArchiveUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemDocumentsUpgradeTag());
 
         // W1
@@ -89,9 +88,6 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetCheckLedgerEntriesMoveFromRecordIDToSystemIdUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDeleteSalesOrdersOrphanedRecords());
         PerCompanyUpgradeTags.Add(GetDeletePurchaseOrdersOrphanedRecords());
-#if not CLEAN22
-        PerCompanyUpgradeTags.Add(GetIntrastatJnlLinePartnerIDUpgradeTag());
-#endif
         PerCompanyUpgradeTags.Add(GetDimensionSetEntryUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewPurchRcptLineUpgradeTag());
         PerCompanyUpgradeTags.Add(GetRemoveOldWorkflowTableRelationshipRecordsTag());
@@ -102,14 +98,12 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetPowerBIWorkspacesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPowerBIDisplayedElementUpgradeTag());
         PerCompanyUpgradeTags.Add(GetClearTemporaryTablesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetClearVATAmountLineTableUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDimSetEntryGlobalDimNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPriceSourceGroupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPriceSourceGroupFixedUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSyncPriceListLineStatusUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUpdateEditInExcelPermissionSetUpgradeTag());
-#if not CLEAN22
-        PerCompanyUpgradeTags.Add(GetAdvancedIntrastatBaseDemoDataUpgradeTag());
-#endif
         PerCompanyUpgradeTags.Add(GetSalesInvoiceShortcutDimensionsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPurchInvoiceShortcutDimensionsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPurchaseOrderShortcutDimensionsUpgradeTag());
@@ -172,7 +166,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetCopyItemSalesBlockedToServiceBlockedUpgradeTag());
         PerCompanyUpgradeTags.Add(GetJobTaskReportSelectionUpgradeTag());
         PerCompanyUpgradeTags.Add(GetEmployeeLedgerEntryCurrencyFactorUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetInitShipToPhoneNoUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetMultilineReminderTextUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCountryVATSchemeDKTag());
+        PerCompanyUpgradeTags.Add(GetUpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocationUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetIntegrationTableMappingTemplatesUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -187,7 +185,6 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetUpdateProfileReferencesForDatabaseTag());
         PerDatabaseUpgradeTags.Add(GetRemoveExtensionManagementFromPlanUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetRemoveExtensionManagementFromUsersUpgradeTag());
-        PerDatabaseUpgradeTags.Add(GetHideBlankProfileUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetSharePointConnectionUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetCreateDefaultAADApplicationTag());
         PerDatabaseUpgradeTags.Add(GetCreateDefaultPowerPagesAADApplicationsTag());
@@ -199,7 +196,6 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetDataOutOfGeoAppUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetUpgradePowerBIOptinImageUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetUserGroupsSetAppIdUpgradeTag());
-        PerDatabaseUpgradeTags.Add(GetRemoveLocalPermissionSetUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetAutomateActionPermissionSetUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetAutomateActionAccessControlUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetEmployeeProfileUpgradeTag());
@@ -240,22 +236,10 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-370112-InvtDocuments-20200920');
     end;
 
-    [Obsolete('Function will be removed', '17.0')]
-    procedure GetGenJnlLineArchiveUpgradeTag(): Code[250];
-    begin
-        exit('MS-277244-PostedGenJnlLine-20200716');
-    end;
-
     // W1
     internal procedure GetUserGroupsSetAppIdUpgradeTag(): Code[250]
     begin
         exit('MS-392765-UserGroupsSetAppId-20210309')
-    end;
-
-    [Obsolete('Function will be removed or moved to internal', '20.0')]
-    procedure GetRemoveLocalPermissionSetUpgradeTag(): Code[250]
-    begin
-        exit('MS-398253-RemoveLocalPermissionSet-20210503')
     end;
 
     internal procedure GetUserGroupsMigrationUpgradeTag(): Code[250]
@@ -266,11 +250,6 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag(): Code[250]
     begin
         exit('291121-JobQueueEntryMergingErrorMessageFields-20190307')
-    end;
-
-    internal procedure GetHideBlankProfileUpgradeTag(): Code[250]
-    begin
-        exit('322930-HideBlankProfile-20191023')
     end;
 
     internal procedure GetNotificationEntryMergeErrorMessageFieldsUpgradeTag(): Code[250]
@@ -688,15 +667,6 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-369092-PostCodeServiceKey-20200915')
     end;
 
-#if not CLEAN22
-    [Scope('OnPrem')]
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure GetIntrastatJnlLinePartnerIDUpgradeTag(): Code[250]
-    begin
-        exit('MS-373278-IntrastatJnlLinePartnerID-20201001');
-    end;
-#endif
-
     internal procedure GetDimensionSetEntryUpgradeTag(): Code[250]
     begin
         exit('MS-352854-ShortcutDimensionsInGLEntry-20201204');
@@ -794,6 +764,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-396184-CleanTemporaryTables-20210427');
     end;
 
+    internal procedure GetClearVATAmountLineTableUpgradeTag(): Code[250]
+    begin
+        exit('MS-396184-CleanVATAmountLineTable-20240819');
+    end;
+
     internal procedure GetBankExportImportSetupSEPACT09UpgradeTag(): Code[250]
     begin
         exit('MS-533446-BankExportImportSetupSEPACT09-20240528');
@@ -808,16 +783,6 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-385783-UseEditInExcelExecPermissionSet-20210526');
     end;
-
-#if not CLEAN22
-#pragma warning disable AS0074
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure GetAdvancedIntrastatBaseDemoDataUpgradeTag(): Code[250]
-    begin
-        exit('MS-395476-AdvancedIntrastatChecklistSetup-20210525');
-    end;
-#pragma warning restore
-#endif
 
     internal procedure GetItemCrossReferenceUpgradeTag(): Code[250]
     begin
@@ -1063,9 +1028,19 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-447067-GetVATDateFieldSalesPurchUpgrade-20220830');
     end;
 
+    procedure GetVATDateFieldServiceUpgrade(): Code[250]
+    begin
+        exit('MS-447067-GetVATDateFieldServiceUpgrade-20220830');
+    end;
+
     internal procedure GetVATDateFieldSalesPurchBlankUpgrade(): Code[250]
     begin
         exit('MS-465444-GetVATDateFieldSalesPurchBlankUpgrade-20230301');
+    end;
+
+    internal procedure GetVATDateFieldServiceBlankUpgrade(): Code[250]
+    begin
+        exit('MS-465444-GetVATDateFieldServiceBlankUpgrade-20230301');
     end;
 
     procedure GetVATDateFieldIssuedDocsUpgrade(): Code[250]
@@ -1188,13 +1163,6 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-478432-VATSetupUpgrade-20230717');
     end;
 
-#if not CLEAN22
-    internal procedure GetNewTimeSheetExperienceUpgradeTag(): Code[250]
-    begin
-        exit('MS-471211-NewTimeSheetExperienceUpgradeTag-20230720');
-    end;
-#endif
-
     internal procedure GetVATSetupAllowVATDateTag(): Code[250]
     begin
         exit('MS-474992-VATSetupAllowVATDateUpgrade-20230905');
@@ -1209,7 +1177,7 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-487893-SalesShipmentCustomerIdUpgradeTag-20231023');
     end;
-    
+
     internal procedure GetCustomReportLayoutUpgradeTag(): Code[250]
     begin
         exit('MS-491178-CustomReportLayoutUpgradeTag-20231110');
@@ -1235,8 +1203,28 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-GIT-768_CopyItemSalesBlockedToServiceBlockedUpgradeTag-20240516');
     end;
 
+    internal procedure GetInitShipToPhoneNoUpgradeTag(): Code[250]
+    begin
+        exit('MS-GIT-517-InitShipToPhoneNoUpgradeTag-20240120');
+    end;
+
+    internal procedure GetMultilineReminderTextUpgradeTag(): Code[250]
+    begin
+        exit('MS-535852-MultilineReminderText-20240531');
+    end;
+
     internal procedure GetCountryVATSchemeDKTag(): Code[250]
     begin
         exit('MS-GetCountryVATSchemeDKTag-20240624');
+    end;
+
+    internal procedure GetUpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocationUpgradeTag(): Code[250]
+    begin
+        exit('MS-485770-UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocationUpgradeTag-20241001');
+    end;
+
+    internal procedure GetIntegrationTableMappingTemplatesUpgradeTag(): Code[250]
+    begin
+        exit('MS-527500-IntegrationTableMappingTemplatesUpgradeTag-20240710');
     end;
 }

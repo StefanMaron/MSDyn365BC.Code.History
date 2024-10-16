@@ -1,0 +1,16 @@
+namespace Microsoft.Inventory.Tracking;
+
+tableextension 14954 "Inventory Profile RU" extends "Inventory Profile"
+{
+    fields
+    {
+        field(14900; "CD No."; Code[50])
+        {
+            Caption = 'CD No.';
+            DataClassification = SystemMetadata;
+            ObsoleteReason = 'Replaced by field Package No.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+        }
+    }
+}

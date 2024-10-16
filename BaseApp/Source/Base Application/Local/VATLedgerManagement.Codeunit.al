@@ -76,7 +76,7 @@ codeunit 12423 "VAT Ledger Management"
         ReversedByCorrection: Boolean;
         UnappliedEntryDate: Date;
     begin
-        if CheckReversed then begin
+        if CheckReversed then
             if VATEntry.Reversed then begin
                 ReversedByCorrection := false;
                 if VATEntry."Additional VAT Ledger Sheet" then
@@ -88,7 +88,6 @@ codeunit 12423 "VAT Ledger Management"
                 if not ReversedByCorrection then
                     exit(true);
             end;
-        end;
 
         if CheckUnapplied then
             if VATEntry.IsUnapplied(UnappliedEntryDate) then
@@ -110,12 +109,11 @@ codeunit 12423 "VAT Ledger Management"
                 exit(true);
 
         if CheckUnrealizedVAT then begin
-            if VATEntry.Prepayment then begin
+            if VATEntry.Prepayment then
                 if (VATEntry."Unrealized VAT Entry No." <> 0) and
                    not VATEntry.Reversed
                 then
                     exit(true);
-            end;
             if not VATEntry.Prepayment then
                 if VATEntry."Unrealized VAT Entry No." <> 0 then begin
                     if not ShowUnrealVAT then
@@ -168,7 +166,7 @@ codeunit 12423 "VAT Ledger Management"
                             then begin
                                 CorrectionNo := SalesInvHeader."No.";
                                 CorrectionDate := SalesInvHeader."Posting Date";
-                            end else begin
+                            end else
                                 case SalesInvHeader."Corrected Doc. Type" of
                                     SalesInvHeader."Corrected Doc. Type"::Invoice:
                                         begin
@@ -203,7 +201,6 @@ codeunit 12423 "VAT Ledger Management"
                                             end;
                                         end;
                                 end;
-                            end;
                         end;
                     CorrVATEntry."Document Type"::"Credit Memo":
                         begin
@@ -216,7 +213,7 @@ codeunit 12423 "VAT Ledger Management"
                             then begin
                                 CorrectionNo := SalesCrMemoHeader."No.";
                                 CorrectionDate := SalesCrMemoHeader."Posting Date";
-                            end else begin
+                            end else
                                 case SalesCrMemoHeader."Corrected Doc. Type" of
                                     SalesCrMemoHeader."Corrected Doc. Type"::Invoice:
                                         begin
@@ -251,7 +248,6 @@ codeunit 12423 "VAT Ledger Management"
                                             end;
                                         end;
                                 end;
-                            end;
                         end;
                 end;
             CorrVATEntry.Type::Purchase:
@@ -266,7 +262,7 @@ codeunit 12423 "VAT Ledger Management"
                                PurchInvHeader."Corrective Doc. Type"::Correction
                             then
                                 CorrDocMgt.GetPurchDocData(CorrectionNo, CorrectionDate, true, CorrVATEntry."Document No.")
-                            else begin
+                            else
                                 case PurchInvHeader."Corrected Doc. Type" of
                                     PurchInvHeader."Corrected Doc. Type"::Invoice:
                                         begin
@@ -301,7 +297,6 @@ codeunit 12423 "VAT Ledger Management"
                                             end;
                                         end;
                                 end;
-                            end;
                         end;
                     CorrVATEntry."Document Type"::"Credit Memo":
                         begin
@@ -313,7 +308,7 @@ codeunit 12423 "VAT Ledger Management"
                                PurchCrMemoHeader."Corrective Doc. Type"::Correction
                             then
                                 CorrDocMgt.GetPurchDocData(CorrectionNo, CorrectionDate, false, CorrVATEntry."Document No.")
-                            else begin
+                            else
                                 case PurchCrMemoHeader."Corrected Doc. Type" of
                                     PurchCrMemoHeader."Corrected Doc. Type"::Invoice:
                                         begin
@@ -348,7 +343,6 @@ codeunit 12423 "VAT Ledger Management"
                                             end;
                                         end;
                                 end;
-                            end;
                         end;
                 end;
         end;

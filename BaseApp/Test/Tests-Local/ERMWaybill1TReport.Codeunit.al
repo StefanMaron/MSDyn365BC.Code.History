@@ -209,29 +209,25 @@ codeunit 144701 "ERM Waybill 1-T Report"
     var
         DocSignature: Record "Document Signature";
     begin
-        with DocSignature do begin
-            SetRange("Table ID", DATABASE::"Sales Header");
-            SetRange("Document Type", 1);
-            SetRange("Document No.", DocumentNo);
-            DeleteAll();
-        end;
+        DocSignature.SetRange("Table ID", DATABASE::"Sales Header");
+        DocSignature.SetRange("Document Type", 1);
+        DocSignature.SetRange("Document No.", DocumentNo);
+        DocSignature.DeleteAll();
     end;
 
     local procedure CreateSimpleEmployee(var Employee: Record Employee)
     var
         Option: Option Capitalized,Literal;
     begin
-        with Employee do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Employee);
-            "First Name" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("First Name"), Option::Literal), 1, MaxStrLen("First Name"));
-            "Last Name" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Last Name"), Option::Literal), 1, MaxStrLen("Last Name"));
-            "Middle Name" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Middle Name"), Option::Literal), 1, MaxStrLen("Middle Name"));
-            Insert();
-        end;
+        Employee.Init();
+        Employee."No." := LibraryUtility.GenerateRandomCode(Employee.FieldNo("No."), DATABASE::Employee);
+        Employee."First Name" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Employee."First Name"), Option::Literal), 1, MaxStrLen(Employee."First Name"));
+        Employee."Last Name" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Employee."Last Name"), Option::Literal), 1, MaxStrLen(Employee."Last Name"));
+        Employee."Middle Name" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Employee."Middle Name"), Option::Literal), 1, MaxStrLen(Employee."Middle Name"));
+        Employee.Insert();
     end;
 
     local procedure AddDocSignatureEmployee(DocumentNo: Code[20]; EmployeeType: Option) EmployeeFullName: Text[100]
@@ -241,17 +237,15 @@ codeunit 144701 "ERM Waybill 1-T Report"
     begin
         CreateSimpleEmployee(Employee);
         EmployeeFullName := Employee.GetFullName();
-        with DocSignature do begin
-            Init();
-            "Table ID" := DATABASE::"Sales Header";
-            "Document Type" := 1;
-            "Document No." := DocumentNo;
-            "Employee No." := Employee."No.";
-            "Employee Type" := EmployeeType;
-            "Employee Job Title" := Employee.GetJobTitleName();
-            "Employee Name" := EmployeeFullName;
-            Insert();
-        end;
+        DocSignature.Init();
+        DocSignature."Table ID" := DATABASE::"Sales Header";
+        DocSignature."Document Type" := 1;
+        DocSignature."Document No." := DocumentNo;
+        DocSignature."Employee No." := Employee."No.";
+        DocSignature."Employee Type" := EmployeeType;
+        DocSignature."Employee Job Title" := Employee.GetJobTitleName();
+        DocSignature."Employee Name" := EmployeeFullName;
+        DocSignature.Insert();
     end;
 
     local procedure PrintOrderItemWaybill1TToExcel(SalesHeader: Record "Sales Header")

@@ -3,8 +3,6 @@
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
 
@@ -115,7 +113,9 @@ codeunit 312 "Cust-Check Cr. Limit"
         end;
     end;
 
-    procedure ServiceHeaderCheck(ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Check Credit Limit', '25.0')]
+    procedure ServiceHeaderCheck(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     var
         AdditionalContextId: Guid;
         IsHandled: Boolean;
@@ -134,12 +134,21 @@ codeunit 312 "Cust-Check Cr. Limit"
         if CustCheckCreditLimit.ServiceHeaderShowWarningAndGetCause(ServiceHeader, AdditionalContextId) then
             CreateAndSendNotification(ServiceHeader.RecordId, AdditionalContextId, '');
     end;
+#endif
 
-    procedure ServiceLineCheck(ServiceLine: Record "Service Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Check Credit Limit', '25.0')]
+    procedure ServiceLineCheck(ServiceLine: Record Microsoft.Service.Document."Service Line")
     var
-        ServiceHeader: Record "Service Header";
+        ServiceHeader: Record Microsoft.Service.Document."Service Header";
         AdditionalContextId: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceLineCheck(ServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not GuiAllowed then
             exit;
 
@@ -151,18 +160,21 @@ codeunit 312 "Cust-Check Cr. Limit"
         if CustCheckCreditLimit.ServiceLineShowWarningAndGetCause(ServiceLine, AdditionalContextId) then
             CreateAndSendNotification(ServiceHeader.RecordId, AdditionalContextId, '');
     end;
+#endif
 
-    procedure ServiceContractHeaderCheck(ServiceContractHeader: Record "Service Contract Header")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Check Credit Limit', '25.0')]
+    procedure ServiceContractHeaderCheck(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header")
     var
         AdditionalContextId: Guid;
         IsHandled: Boolean;
     begin
-        if not GuiAllowed then
-            exit;
-
         IsHandled := false;
         OnBeforeServiceContractHeaderCheck(ServiceContractHeader, IsHandled);
         if IsHandled then
+            exit;
+
+        if not GuiAllowed then
             exit;
 
         OnNewCheckRemoveCustomerNotifications(ServiceContractHeader.RecordId, true);
@@ -171,6 +183,7 @@ codeunit 312 "Cust-Check Cr. Limit"
         if CustCheckCreditLimit.ServiceContractHeaderShowWarningAndGetCause(ServiceContractHeader, AdditionalContextId) then
             CreateAndSendNotification(ServiceContractHeader.RecordId, AdditionalContextId, '');
     end;
+#endif
 
     procedure GetInstructionType(DocumentType: Code[30]; DocumentNumber: Code[20]): Code[50]
     begin
@@ -310,10 +323,31 @@ codeunit 312 "Cust-Check Cr. Limit"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceHeaderCheck(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean);
+    begin
+        OnBeforeServiceHeaderCheck(ServiceHeader, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Check Credit Limit', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceHeaderCheck(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean);
+    local procedure OnBeforeServiceHeaderCheck(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean);
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceLineCheck(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean);
+    begin
+        OnBeforeServiceLineCheck(ServiceLine, IsHandled)
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Check Credit Limit', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceLineCheck(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean);
+    begin
+    end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCreateAndSendNotification(RecordId: RecordID; AdditionalContextId: Guid; Heading: Text[250]; NotificationToSend: Notification; var IsHandled: Boolean; var CustCheckCreditLimit: Page "Check Credit Limit");
@@ -360,9 +394,17 @@ codeunit 312 "Cust-Check Cr. Limit"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceContractHeaderCheck(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceContractHeaderCheck(ServiceContractHeader, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Check Credit Limit', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceContractHeaderCheck(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceContractHeaderCheck(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

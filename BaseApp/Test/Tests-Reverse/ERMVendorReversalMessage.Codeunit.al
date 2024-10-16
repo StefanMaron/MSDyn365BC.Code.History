@@ -19,7 +19,9 @@
         ReversalFromLedgerErr: Label 'You cannot create this type of document when Vendor %1 is blocked with type %2';
         ReversalFromRegisterErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries';
         ReversalFromGLEntryErr: Label 'The transaction cannot be reversed, because the Vendor Ledger Entry has been compressed.';
+#if not CLEAN23
         NothingToAdjustTxt: Label 'There is nothing to adjust.';
+#endif
         ReversalFromLedgerPrivacyBlockedErr: Label 'You cannot create this type of document when Vendor %1 is blocked for privacy.';
 
     [Test]
@@ -319,7 +321,11 @@
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('ConfirmHandler,NothingAdjustedMessageHandler')]
+#else
+    [HandlerFunctions('ConfirmHandler')]
+#endif
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -590,6 +596,7 @@
         // Handler for confirmation messages, always send positive reply.
         Reply := true;
     end;
+#if not CLEAN23
 
     [MessageHandler]
     [Scope('OnPrem')]
@@ -597,5 +604,6 @@
     begin
         Assert.ExpectedMessage(NothingToAdjustTxt, Message);
     end;
+#endif
 }
 

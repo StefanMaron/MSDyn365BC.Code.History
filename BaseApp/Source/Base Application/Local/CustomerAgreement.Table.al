@@ -405,7 +405,7 @@ table 14902 "Customer Agreement"
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
                                                         "Agreement No." = field("No."),
-                                                        "Posting Date" = field(UPPERLIMIT("G/L Starting Date Filter"))));
+                                                        "Posting Date" = field(upperlimit("G/L Starting Date Filter"))));
             Caption = 'G/L Starting Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -461,7 +461,7 @@ table 14902 "Customer Agreement"
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
                                                         "Agreement No." = field("No."),
-                                                        "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                        "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'G/L Balance to Date';
             Editable = false;
             FieldClass = FlowField;
@@ -577,7 +577,9 @@ table 14902 "Customer Agreement"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'You cannot delete agreement if you already have ledger entries.';
+#pragma warning restore AA0074
         SalesSetup: Record "Sales & Receivables Setup";
         Cust: Record Customer;
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -588,15 +590,43 @@ table 14902 "Customer Agreement"
         CustAgrmt: Record "Customer Agreement";
         ShippingAgentService: Record "Shipping Agent Services";
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'You cannot rename %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'post';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'create';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'You cannot %1 this type of document when Customer %2 is blocked with type %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label 'Agreement credit limit should not exceed Customer credit limit.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12400: Label 'Agreement';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12401: Label 'You cannot change %1 until you check %2 in %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12402: Label '%1 should be later than %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12403: Label 'This %1 already used for customer %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrivacyBlockedActionErr: Label 'You cannot %1 this type of document when Customer %2 is blocked for privacy.', Comment = '%1 = action (create or post), %2 = customer code.';
 
     [Scope('OnPrem')]

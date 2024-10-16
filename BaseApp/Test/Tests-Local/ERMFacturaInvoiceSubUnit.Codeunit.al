@@ -177,14 +177,12 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
     local procedure CreateCustomerWithSubUnit(var Customer: Record Customer; var ShipToAddress1: Record "Ship-to Address")
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Address := LibraryUtility.GenerateGUID();
-            "Address 2" := LibraryUtility.GenerateGUID();
-            "KPP Code" := GenerateKPPCode();
-            County := LibraryUtility.GenerateGUID();
-            Modify(true);
-            AddShipToAddress("No.", ShipToAddress1);
-        end;
+        Customer.Address := LibraryUtility.GenerateGUID();
+        Customer."Address 2" := LibraryUtility.GenerateGUID();
+        Customer."KPP Code" := GenerateKPPCode();
+        Customer.County := LibraryUtility.GenerateGUID();
+        Customer.Modify(true);
+        AddShipToAddress(Customer."No.", ShipToAddress1);
     end;
 
     local procedure GenerateKPPCode(): Code[10]
@@ -233,26 +231,22 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate(Description, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Description), 0), 1, MaxStrLen(Description)));
-            Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
-            Validate("Tariff No.", CreateTariffNo());
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate(Description, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Item.Description), 0), 1, MaxStrLen(Item.Description)));
+        Item.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        Item.Validate("Tariff No.", CreateTariffNo());
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreateTariffNo(): Code[20]
     var
         TariffNumber: Record "Tariff Number";
     begin
-        with TariffNumber do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Tariff Number");
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-            exit("No.");
-        end;
+        TariffNumber.Init();
+        TariffNumber."No." := LibraryUtility.GenerateRandomCode(TariffNumber.FieldNo("No."), DATABASE::"Tariff Number");
+        TariffNumber.Description := LibraryUtility.GenerateGUID();
+        TariffNumber.Insert();
+        exit(TariffNumber."No.");
     end;
 
     local procedure FacturaInvoiceExcelExport(SalesHeader: Record "Sales Header"; IsProforma: Boolean) FileName: Text
@@ -310,11 +304,9 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            "Stockout Warning" := false;
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Stockout Warning" := false;
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure UpdateSalesHeaderAddSheet(var SalesHeader: Record "Sales Header"; PostingDate: Date; CorrectedDocDate: Date; AddVATLedger: Boolean)
@@ -329,20 +321,18 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            "Bank Name" := LibraryUtility.GenerateGUID();
-            "Bank City" := LibraryUtility.GenerateGUID();
-            "VAT Registration No." := LibraryUtility.GenerateGUID();
-            "KPP Code" := LibraryUtility.GenerateGUID();
-            "Full Name" := LibraryUtility.GenerateGUID();
-            "Bank Branch No." := LibraryUtility.GenerateGUID();
-            "Bank BIC" := LibraryUtility.GenerateGUID();
-            "Bank Corresp. Account No." := LibraryUtility.GenerateGUID();
-            "Bank Account No." := LibraryUtility.GenerateGUID();
-            "Country/Region Code" := LibraryVATLedger.MockCountryEAEU();
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation."Bank Name" := LibraryUtility.GenerateGUID();
+        CompanyInformation."Bank City" := LibraryUtility.GenerateGUID();
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
+        CompanyInformation."KPP Code" := LibraryUtility.GenerateGUID();
+        CompanyInformation."Full Name" := LibraryUtility.GenerateGUID();
+        CompanyInformation."Bank Branch No." := LibraryUtility.GenerateGUID();
+        CompanyInformation."Bank BIC" := LibraryUtility.GenerateGUID();
+        CompanyInformation."Bank Corresp. Account No." := LibraryUtility.GenerateGUID();
+        CompanyInformation."Bank Account No." := LibraryUtility.GenerateGUID();
+        CompanyInformation."Country/Region Code" := LibraryVATLedger.MockCountryEAEU();
+        CompanyInformation.Modify();
         LibraryRUReports.UpdateCompanyAddress();
     end;
 
@@ -357,11 +347,10 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         FileName: Text;
     begin
         FileName := LibraryReportValidation.GetFileName();
-        with ShipToAddress do
-            LibraryRUReports.VerifyFactura_ConsigneeAndAddress(
+        LibraryRUReports.VerifyFactura_ConsigneeAndAddress(
               FileName,
-              LocalReportMgt.GetShipToAddrName(Customer."No.", Code, Name, "Name 2") + '  ' +
-              LocalReportMgt.GetFullAddr("Post Code", City, Address, "Address 2", '', County));
+              LocalReportMgt.GetShipToAddrName(Customer."No.", ShipToAddress.Code, ShipToAddress.Name, ShipToAddress."Name 2") + '  ' +
+              LocalReportMgt.GetFullAddr(ShipToAddress."Post Code", ShipToAddress.City, ShipToAddress.Address, ShipToAddress."Address 2", '', ShipToAddress.County));
         LibraryRUReports.VerifyFactura_BuyerINN(FileName, Customer."VAT Registration No." + ' / ' + ShipToKPPCode);
     end;
 
@@ -369,13 +358,11 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
     var
         VATLedgerLine: Record "VAT Ledger Line";
     begin
-        with VATLedgerLine do begin
-            SetRange(Code, VATLedgerCode);
-            FindSet();
-            repeat
-                Assert.AreEqual(KPPCode, "Reg. Reason Code", SalesVATLedgerKPPErr);
-            until Next() = 0;
-        end;
+        VATLedgerLine.SetRange(Code, VATLedgerCode);
+        VATLedgerLine.FindSet();
+        repeat
+            Assert.AreEqual(KPPCode, VATLedgerLine."Reg. Reason Code", SalesVATLedgerKPPErr);
+        until VATLedgerLine.Next() = 0;
     end;
 
     local procedure VerifyKPPCodeBlanketQuoteOrder(DocType: Enum "Sales Document Type")
@@ -399,18 +386,24 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         CompanyInformation: Record "Company Information";
         LocalReportManagement: Codeunit "Local Report Management";
     begin
-        with CompanyInformation do begin
-            Get();
-            LibraryReportValidation.VerifyCellValueByRef('Y', 30, 1, "Bank Name"); // BankName
-            LibraryReportValidation.VerifyCellValueByRef('Y', 31, 1, "Bank City"); // BankCity
-            LibraryReportValidation.VerifyCellValueByRef('AE', 32, 1, "VAT Registration No."); // ComapnyINN
-            LibraryReportValidation.VerifyCellValueByRef('BH', 32, 1, "KPP Code"); // ComapnyKPP
-            LibraryReportValidation.VerifyCellValueByRef('Y', 33, 1, LocalReportManagement.GetCompanyName()); // ComapnyName
-            LibraryReportValidation.VerifyCellValueByRef('Y', 34, 1, "Bank Branch No."); // BankBranchNo
-            LibraryReportValidation.VerifyCellValueByRef('CR', 30, 1, "Bank BIC"); // BankBIC
-            LibraryReportValidation.VerifyCellValueByRef('CR', 31, 1, "Bank Corresp. Account No."); // BankCorespAccNo
-            LibraryReportValidation.VerifyCellValueByRef('CR', 33, 1, "Bank Account No."); // BankAccountNo
-        end;
+        CompanyInformation.Get();
+        LibraryReportValidation.VerifyCellValueByRef('Y', 30, 1, CompanyInformation."Bank Name");
+        // BankName
+        LibraryReportValidation.VerifyCellValueByRef('Y', 31, 1, CompanyInformation."Bank City");
+        // BankCity
+        LibraryReportValidation.VerifyCellValueByRef('AE', 32, 1, CompanyInformation."VAT Registration No.");
+        // ComapnyINN
+        LibraryReportValidation.VerifyCellValueByRef('BH', 32, 1, CompanyInformation."KPP Code");
+        // ComapnyKPP
+        LibraryReportValidation.VerifyCellValueByRef('Y', 33, 1, LocalReportManagement.GetCompanyName());
+        // ComapnyName
+        LibraryReportValidation.VerifyCellValueByRef('Y', 34, 1, CompanyInformation."Bank Branch No.");
+        // BankBranchNo
+        LibraryReportValidation.VerifyCellValueByRef('CR', 30, 1, CompanyInformation."Bank BIC");
+        // BankBIC
+        LibraryReportValidation.VerifyCellValueByRef('CR', 31, 1, CompanyInformation."Bank Corresp. Account No.");
+        // BankCorespAccNo
+        LibraryReportValidation.VerifyCellValueByRef('CR', 33, 1, CompanyInformation."Bank Account No."); // BankAccountNo
     end;
 
     local procedure VerifySalesLineColumns(LineNo: Integer; ItemNo: Code[20]; Qty: Text; UnitPrice: Text; Amount: Text; VATPct: Text; VATAmt: Text; AmtInclVAT: Text; CountryCode: Code[10]; CDNo: Code[30])

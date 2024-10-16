@@ -408,28 +408,24 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         LibraryRUReports.InitItemJournalLine(ItemJnlLine, ItemJournalTemplate.Type::Transfer, ClearJnl);
 
-        with ItemJnlLine do begin
-            LibraryInventory.CreateItemJournalLine(
-              ItemJnlLine, "Journal Template Name", "Journal Batch Name", "Entry Type"::Transfer, ItemNo, 0);
-            Validate("Document No.", DocumentNo);
-            Validate("Location Code", LibraryRUReports.CreateLocation(false));
-            Validate("New Location Code", LibraryRUReports.CreateLocation(false));
-            Validate(Quantity, Qty);
-            Item.Get(ItemNo);
-            Validate("Unit Cost", Item."Unit Cost");
-            Modify(true);
-        end;
+        LibraryInventory.CreateItemJournalLine(
+          ItemJnlLine, ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name", ItemJnlLine."Entry Type"::Transfer, ItemNo, 0);
+        ItemJnlLine.Validate("Document No.", DocumentNo);
+        ItemJnlLine.Validate("Location Code", LibraryRUReports.CreateLocation(false));
+        ItemJnlLine.Validate("New Location Code", LibraryRUReports.CreateLocation(false));
+        ItemJnlLine.Validate(Quantity, Qty);
+        Item.Get(ItemNo);
+        ItemJnlLine.Validate("Unit Cost", Item."Unit Cost");
+        ItemJnlLine.Modify(true);
     end;
 
     local procedure GetTransferOrderQuantity(DocumentNo: Code[20]): Text
     var
         TransferLine: Record "Transfer Line";
     begin
-        with TransferLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            exit(Format(Quantity));
-        end;
+        TransferLine.SetRange("Document No.", DocumentNo);
+        TransferLine.FindLast();
+        exit(Format(TransferLine.Quantity));
     end;
 
     local procedure GetTransferOrderAmount(DocumentNo: Code[20]): Text
@@ -437,23 +433,19 @@ codeunit 144705 "ERM Shipment Request M-11"
         TransferLine: Record "Transfer Line";
         Item: Record Item;
     begin
-        with TransferLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            Item.Get("Item No.");
-            exit(Format(Round(Quantity * Item."Unit Cost")));
-        end;
+        TransferLine.SetRange("Document No.", DocumentNo);
+        TransferLine.FindLast();
+        Item.Get(TransferLine."Item No.");
+        exit(Format(Round(TransferLine.Quantity * Item."Unit Cost")));
     end;
 
     local procedure GetTransferShipmentQuantity(DocumentNo: Code[20]): Text
     var
         TransferShipmentLine: Record "Transfer Shipment Line";
     begin
-        with TransferShipmentLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            exit(Format(Quantity));
-        end;
+        TransferShipmentLine.SetRange("Document No.", DocumentNo);
+        TransferShipmentLine.FindLast();
+        exit(Format(TransferShipmentLine.Quantity));
     end;
 
     local procedure GetTransferShipmentAmount(DocumentNo: Code[20]): Text
@@ -461,23 +453,19 @@ codeunit 144705 "ERM Shipment Request M-11"
         TransferShipmentLine: Record "Transfer Shipment Line";
         Item: Record Item;
     begin
-        with TransferShipmentLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            Item.Get("Item No.");
-            exit(Format(Round(Quantity * Item."Unit Cost")));
-        end;
+        TransferShipmentLine.SetRange("Document No.", DocumentNo);
+        TransferShipmentLine.FindLast();
+        Item.Get(TransferShipmentLine."Item No.");
+        exit(Format(Round(TransferShipmentLine.Quantity * Item."Unit Cost")));
     end;
 
     local procedure GetTransferReceiptQuantity(DocumentNo: Code[20]): Text
     var
         TransferReceiptLine: Record "Transfer Receipt Line";
     begin
-        with TransferReceiptLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            exit(Format(Quantity));
-        end;
+        TransferReceiptLine.SetRange("Document No.", DocumentNo);
+        TransferReceiptLine.FindLast();
+        exit(Format(TransferReceiptLine.Quantity));
     end;
 
     local procedure GetTransferReceiptAmount(DocumentNo: Code[20]): Text
@@ -485,23 +473,19 @@ codeunit 144705 "ERM Shipment Request M-11"
         TransferReceiptLine: Record "Transfer Receipt Line";
         Item: Record Item;
     begin
-        with TransferReceiptLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            Item.Get("Item No.");
-            exit(Format(Round(Quantity * Item."Unit Cost")));
-        end;
+        TransferReceiptLine.SetRange("Document No.", DocumentNo);
+        TransferReceiptLine.FindLast();
+        Item.Get(TransferReceiptLine."Item No.");
+        exit(Format(Round(TransferReceiptLine.Quantity * Item."Unit Cost")));
     end;
 
     local procedure GetItemReclassJnlQuantity(DocumentNo: Code[20]): Text
     var
         ItemJnlLine: Record "Item Journal Line";
     begin
-        with ItemJnlLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            exit(Format(Quantity));
-        end;
+        ItemJnlLine.SetRange("Document No.", DocumentNo);
+        ItemJnlLine.FindLast();
+        exit(Format(ItemJnlLine.Quantity));
     end;
 
     local procedure GetItemReclassJnlAmount(DocumentNo: Code[20]): Text
@@ -509,12 +493,10 @@ codeunit 144705 "ERM Shipment Request M-11"
         ItemJnlLine: Record "Item Journal Line";
         Item: Record Item;
     begin
-        with ItemJnlLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            Item.Get("Item No.");
-            exit(Format(Round(Quantity * Item."Unit Cost")));
-        end;
+        ItemJnlLine.SetRange("Document No.", DocumentNo);
+        ItemJnlLine.FindLast();
+        Item.Get(ItemJnlLine."Item No.");
+        exit(Format(Round(ItemJnlLine.Quantity * Item."Unit Cost")));
     end;
 
     local procedure CheckDimensionInTransferOrder(AnotherDimValue: Boolean)
@@ -607,12 +589,10 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         CreateDimValue(DimensionValue);
 
-        with TransferLine do begin
-            "Document No." := TransferHeader."No.";
-            "Item No." := LibraryRUReports.CreateItemWithCost();
-            "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
-            Insert();
-        end;
+        TransferLine."Document No." := TransferHeader."No.";
+        TransferLine."Item No." := LibraryRUReports.CreateItemWithCost();
+        TransferLine."Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
+        TransferLine.Insert();
     end;
 
     local procedure CreateTransferShipmentWithDimension(var TransferShipmentHeader: Record "Transfer Shipment Header"; var DimensionValue: Record "Dimension Value")
@@ -625,12 +605,10 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         CreateDimValue(DimensionValue);
 
-        with TransferShipmentLine do begin
-            "Document No." := TransferShipmentHeader."No.";
-            "Item No." := LibraryRUReports.CreateItemWithCost();
-            "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
-            Insert();
-        end;
+        TransferShipmentLine."Document No." := TransferShipmentHeader."No.";
+        TransferShipmentLine."Item No." := LibraryRUReports.CreateItemWithCost();
+        TransferShipmentLine."Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
+        TransferShipmentLine.Insert();
     end;
 
     local procedure CreateTransferReceiptWithDimension(var TransferReceiptHeader: Record "Transfer Receipt Header"; var DimensionValue: Record "Dimension Value")
@@ -643,26 +621,22 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         CreateDimValue(DimensionValue);
 
-        with TransferReceiptLine do begin
-            "Document No." := TransferReceiptHeader."No.";
-            "Item No." := LibraryRUReports.CreateItemWithCost();
-            "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
-            Insert();
-        end;
+        TransferReceiptLine."Document No." := TransferReceiptHeader."No.";
+        TransferReceiptLine."Item No." := LibraryRUReports.CreateItemWithCost();
+        TransferReceiptLine."Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
+        TransferReceiptLine.Insert();
     end;
 
     local procedure CreateItemJnlLineWithDimension(var ItemJnlLine: Record "Item Journal Line"; var DimensionValue: Record "Dimension Value")
     begin
         CreateDimValue(DimensionValue);
 
-        with ItemJnlLine do begin
-            "Journal Template Name" := LibraryUtility.GenerateGUID();
-            "Item No." := LibraryRUReports.CreateItemWithCost();
-            "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
-            Insert();
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", '');
-        end;
+        ItemJnlLine."Journal Template Name" := LibraryUtility.GenerateGUID();
+        ItemJnlLine."Item No." := LibraryRUReports.CreateItemWithCost();
+        ItemJnlLine."Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
+        ItemJnlLine.Insert();
+        ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
+        ItemJnlLine.SetRange("Journal Batch Name", '');
     end;
 
     local procedure CreateDimValue(var DimensionValue: Record "Dimension Value")

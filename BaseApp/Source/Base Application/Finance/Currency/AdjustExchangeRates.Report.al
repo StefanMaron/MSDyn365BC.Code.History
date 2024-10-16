@@ -924,14 +924,18 @@ report 595 "Adjust Exchange Rates"
         Text007Txt: Label 'Bank Account    @1@@@@@@@@@@@@@\\';
         Text008Txt: Label 'Customer        @2@@@@@@@@@@@@@\';
         Text009Txt: Label 'Vendor          @3@@@@@@@@@@@@@\';
+#pragma warning disable AA0470
         Text010Txt: Label 'Adjustment      #4#############';
+#pragma warning restore AA0470
         Text011Err: Label 'No currencies have been found.';
         Text012Txt: Label 'Adjusting VAT Entries...\\';
         Text013Txt: Label 'VAT Entry    @1@@@@@@@@@@@@@';
         Text014Txt: Label 'Adjusting general ledger...\\';
         Text015Txt: Label 'G/L Account    @1@@@@@@@@@@@@@';
         Text016Txt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Comment = '%1 = Currency Code, %2= Adjust Amount';
+#pragma warning disable AA0470
         Text017Err: Label '%1 on %2 %3 must be %4. When this %2 is used in %5, the exchange rate adjustment is defined in the %6 field in the %7. %2 %3 is used in the %8 field in the %5. ';
+#pragma warning restore AA0470
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 
     local procedure PostAdjmt(GLAccNo: Code[20]; PostingAmount: Decimal; AdjBase2: Decimal; CurrencyCode2: Code[10]; var DimSetEntry: Record "Dimension Set Entry"; PostingDate2: Date; ICCode: Code[20]; CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; Gains: Boolean) TransactionNo: Integer
@@ -2695,30 +2699,26 @@ report 595 "Adjust Exchange Rates"
     begin
         if not TestMode then
             case AdjustAccType of
-                1:
-                    begin // Customer
-                        if TempDtldCustLedgEntry.Find('-') then
-                            repeat
-                                GLEntry.SetRange("Document Type", TempDtldCustLedgEntry."Document Type");
-                                GLEntry.SetRange("Document No.", TempDtldCustLedgEntry."Document No.");
-                                GLEntry.FindLast();
-                                TempDtldCustLedgEntry."Transaction No." := GLEntry."Transaction No.";
-                                DtldCustLedgEntry := TempDtldCustLedgEntry;
-                                DtldCustLedgEntry.Insert(true);
-                            until TempDtldCustLedgEntry.Next() = 0;
-                    end;
-                2:
-                    begin // Vendor
-                        if TempDtldVendLedgEntry.Find('-') then
-                            repeat
-                                GLEntry.SetRange("Document Type", TempDtldVendLedgEntry."Document Type");
-                                GLEntry.SetRange("Document No.", TempDtldVendLedgEntry."Document No.");
-                                GLEntry.FindLast();
-                                TempDtldVendLedgEntry."Transaction No." := GLEntry."Transaction No.";
-                                DtldVendLedgEntry := TempDtldVendLedgEntry;
-                                DtldVendLedgEntry.Insert(true);
-                            until TempDtldVendLedgEntry.Next() = 0;
-                    end;
+                1: // Customer
+                    if TempDtldCustLedgEntry.Find('-') then
+                        repeat
+                            GLEntry.SetRange("Document Type", TempDtldCustLedgEntry."Document Type");
+                            GLEntry.SetRange("Document No.", TempDtldCustLedgEntry."Document No.");
+                            GLEntry.FindLast();
+                            TempDtldCustLedgEntry."Transaction No." := GLEntry."Transaction No.";
+                            DtldCustLedgEntry := TempDtldCustLedgEntry;
+                            DtldCustLedgEntry.Insert(true);
+                        until TempDtldCustLedgEntry.Next() = 0;
+                2: // Vendor
+                    if TempDtldVendLedgEntry.Find('-') then
+                        repeat
+                            GLEntry.SetRange("Document Type", TempDtldVendLedgEntry."Document Type");
+                            GLEntry.SetRange("Document No.", TempDtldVendLedgEntry."Document No.");
+                            GLEntry.FindLast();
+                            TempDtldVendLedgEntry."Transaction No." := GLEntry."Transaction No.";
+                            DtldVendLedgEntry := TempDtldVendLedgEntry;
+                            DtldVendLedgEntry.Insert(true);
+                        until TempDtldVendLedgEntry.Next() = 0;
             end;
     end;
 
@@ -2789,7 +2789,7 @@ report 595 "Adjust Exchange Rates"
         exit(RemainingAmount + TaxAccUnRealizedGainLossAmt - RealizedGainLossAmount);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeOnInitReport(var IsHandled: Boolean)
     begin
     end;

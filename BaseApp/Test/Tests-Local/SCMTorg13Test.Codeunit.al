@@ -326,12 +326,10 @@ codeunit 144720 "SCM Torg-13 Test"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            LibraryInventory.CreateItem(Item);
-            Validate("Unit Cost", NewUnitCost);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", NewUnitCost);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure GetReclassJnlLineAmount(ReclassificationItemJournalBatch: Record "Item Journal Batch") TotalAmount: Decimal

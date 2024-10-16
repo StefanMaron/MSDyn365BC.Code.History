@@ -7,7 +7,11 @@ codeunit 17207 "Create Tax Register FE Entry"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000900: Label 'Search Table    #4############################\Begin period    #1##########\End period      #2##########\@3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Window: Dialog;
 
     [Scope('OnPrem')]

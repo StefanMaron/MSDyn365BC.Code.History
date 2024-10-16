@@ -300,10 +300,22 @@ table 14940 "G/L Corr. Analysis View"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'You cannot use the same dimension twice in the same dimension group.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text011: Label 'If you change the contents of the %1 field, the analysis view entries will be deleted.\You will have to update again.\\Do you want to enter a new value in the %1 field?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text013: Label 'The update has been interrupted in response to the warning.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text014: Label 'If you change the contents of the %1 field, the analysis view entries will be changed as well.\\Do you want to enter a new value in the %1 field?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry";
         NewGLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry";
 
@@ -408,7 +420,7 @@ table 14940 "G/L Corr. Analysis View"
             exit;
 
         GLCorrAnalysisView.SetRange(Code, Code);
-        if GLCorrAnalysisView.FindSet() then begin
+        if GLCorrAnalysisView.FindSet() then
             repeat
                 case GroupChecked of
                     GroupChecked::Debit:
@@ -443,7 +455,6 @@ table 14940 "G/L Corr. Analysis View"
                         end;
                 end;
             until GLCorrAnalysisView.Next() = 0;
-        end;
 
         exit(false);
     end;

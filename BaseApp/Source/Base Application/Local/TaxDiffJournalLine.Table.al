@@ -440,8 +440,14 @@ table 17305 "Tax Diff. Journal Line"
         TaxDiff: Record "Tax Difference";
         FA: Record "Fixed Asset";
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
         Text1000: Label ' cannot be negative';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1001: Label '%1 can be defined than %2=0 and %3=0 only.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure UpdateAmount()
     begin

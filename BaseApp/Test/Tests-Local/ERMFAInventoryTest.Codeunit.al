@@ -120,39 +120,35 @@ codeunit 144716 "ERM FA Inventory Test"
     var
         FA: Record "Fixed Asset";
     begin
-        with FA do begin
-            "No." := LibraryUtility.GenerateGUID();
-            "FA Type" := "FA Type"::"Intangible Asset";
-            Insert();
-            exit("No.");
-        end;
+        FA."No." := LibraryUtility.GenerateGUID();
+        FA."FA Type" := FA."FA Type"::"Intangible Asset";
+        FA.Insert();
+        exit(FA."No.");
     end;
 
     local procedure CreateFAJournal(var TotalArr: array[4] of Decimal; FAJournalBatch: Record "FA Journal Batch"; DocumentNo: Code[20]; EmployeeNo: Code[20]; FALocationCode: Code[10])
     var
         FAJournalLine: Record "FA Journal Line";
     begin
-        with FAJournalLine do begin
-            Init();
-            "Journal Template Name" := FAJournalBatch."Journal Template Name";
-            "Journal Batch Name" := FAJournalBatch.Name;
-            "Line No." := LibraryUtility.GetNewRecNo(FAJournalLine, FieldNo("Line No."));
-            "Document No." := DocumentNo;
-            "FA No." := CreateFixedAsset();
-            "Employee No." := EmployeeNo;
-            "Location Code" := FALocationCode;
+        FAJournalLine.Init();
+        FAJournalLine."Journal Template Name" := FAJournalBatch."Journal Template Name";
+        FAJournalLine."Journal Batch Name" := FAJournalBatch.Name;
+        FAJournalLine."Line No." := LibraryUtility.GetNewRecNo(FAJournalLine, FAJournalLine.FieldNo("Line No."));
+        FAJournalLine."Document No." := DocumentNo;
+        FAJournalLine."FA No." := CreateFixedAsset();
+        FAJournalLine."Employee No." := EmployeeNo;
+        FAJournalLine."Location Code" := FALocationCode;
 
-            "Actual Quantity" := LibraryRandom.RandIntInRange(10, 2);
-            "Actual Amount" := LibraryRandom.RandDecInRange(10, 100, 2);
-            "Calc. Quantity" := LibraryRandom.RandIntInRange(10, 2);
-            "Calc. Amount" := LibraryRandom.RandDecInRange(10, 100, 2);
-            Insert();
+        FAJournalLine."Actual Quantity" := LibraryRandom.RandIntInRange(10, 2);
+        FAJournalLine."Actual Amount" := LibraryRandom.RandDecInRange(10, 100, 2);
+        FAJournalLine."Calc. Quantity" := LibraryRandom.RandIntInRange(10, 2);
+        FAJournalLine."Calc. Amount" := LibraryRandom.RandDecInRange(10, 100, 2);
+        FAJournalLine.Insert();
 
-            TotalArr[1] += "Actual Quantity";
-            TotalArr[2] += "Actual Amount";
-            TotalArr[3] += "Calc. Quantity";
-            TotalArr[4] += "Calc. Amount";
-        end;
+        TotalArr[1] += FAJournalLine."Actual Quantity";
+        TotalArr[2] += FAJournalLine."Actual Amount";
+        TotalArr[3] += FAJournalLine."Calc. Quantity";
+        TotalArr[4] += FAJournalLine."Calc. Amount";
     end;
 
     local procedure CreateFAJournalBatch(var FAJournalBatch: Record "FA Journal Batch")
@@ -167,46 +163,40 @@ codeunit 144716 "ERM FA Inventory Test"
     var
         Employee: Record Employee;
     begin
-        with Employee do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            "Org. Unit Name" := LibraryUtility.GenerateGUID();
-            "Job Title" := LibraryUtility.GenerateGUID();
-            "Last Name" := LibraryUtility.GenerateGUID();
-            Initials := LibraryUtility.GenerateGUID();
-            Insert();
-            exit("No.");
-        end;
+        Employee.Init();
+        Employee."No." := LibraryUtility.GenerateGUID();
+        Employee."Org. Unit Name" := LibraryUtility.GenerateGUID();
+        Employee."Job Title" := LibraryUtility.GenerateGUID();
+        Employee."Last Name" := LibraryUtility.GenerateGUID();
+        Employee.Initials := LibraryUtility.GenerateGUID();
+        Employee.Insert();
+        exit(Employee."No.");
     end;
 
     local procedure CreateFALocation(EmployeeNo: Code[20]): Code[10]
     var
         FALocation: Record "FA Location";
     begin
-        with FALocation do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Name := LibraryUtility.GenerateGUID();
-            Validate("Employee No.", EmployeeNo);
-            Insert();
-            exit(Code);
-        end;
+        FALocation.Init();
+        FALocation.Code := LibraryUtility.GenerateGUID();
+        FALocation.Name := LibraryUtility.GenerateGUID();
+        FALocation.Validate("Employee No.", EmployeeNo);
+        FALocation.Insert();
+        exit(FALocation.Code);
     end;
 
     local procedure ClearPrintingData(FAJournalBatch: Record "FA Journal Batch")
     var
         DocumentPrintBuffer: Record "Document Print Buffer";
     begin
-        with DocumentPrintBuffer do begin
-            SetRange("Table ID", DATABASE::"FA Journal Line");
-            DeleteAll();
-            Init();
-            "User ID" := UserId;
-            "Table ID" := DATABASE::"FA Journal Line";
-            "Journal Template Name" := FAJournalBatch."Journal Template Name";
-            "Journal Batch Name" := FAJournalBatch.Name;
-            Insert();
-        end;
+        DocumentPrintBuffer.SetRange("Table ID", DATABASE::"FA Journal Line");
+        DocumentPrintBuffer.DeleteAll();
+        DocumentPrintBuffer.Init();
+        DocumentPrintBuffer."User ID" := UserId;
+        DocumentPrintBuffer."Table ID" := DATABASE::"FA Journal Line";
+        DocumentPrintBuffer."Journal Template Name" := FAJournalBatch."Journal Template Name";
+        DocumentPrintBuffer."Journal Batch Name" := FAJournalBatch.Name;
+        DocumentPrintBuffer.Insert();
     end;
 
     local procedure FormatAmount(Amount: Decimal): Text
@@ -218,10 +208,8 @@ codeunit 144716 "ERM FA Inventory Test"
 
     local procedure FilterFAJnlLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch")
     begin
-        with FAJournalLine do begin
-            SetRange("Journal Template Name", FAJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", FAJournalBatch.Name);
-        end;
+        FAJournalLine.SetRange("Journal Template Name", FAJournalBatch."Journal Template Name");
+        FAJournalLine.SetRange("Journal Batch Name", FAJournalBatch.Name);
     end;
 
     local procedure RunFAINV1Report(FAJournalBatch: Record "FA Journal Batch"; EmployeeNo: Code[20]; FALocationCode: Code[10])

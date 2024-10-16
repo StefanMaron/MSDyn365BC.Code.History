@@ -12,7 +12,9 @@ codeunit 14935 "TORG-13 Report Helper"
         LocMgt: Codeunit "Localisation Management";
         PrevDocPageNo: Integer;
         CurrentDocumentNo: Text;
+#pragma warning disable AA0470
         PageNoTxt: Label 'Waybill %1 Page %2';
+#pragma warning restore AA0470
         LastTotalAmount: array[4] of Decimal;
         TotalAmount: array[4] of Decimal;
 

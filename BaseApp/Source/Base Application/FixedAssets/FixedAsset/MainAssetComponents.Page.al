@@ -7,6 +7,8 @@ page 5658 "Main Asset Components"
     DataCaptionFields = "Main Asset No.";
     PageType = List;
     SourceTable = "Main Asset Component";
+    AboutTitle = 'About Main Asset Components';
+    AboutText = 'You can overview all the component fixed assets updated to a main fixed asset.';
 
     layout
     {

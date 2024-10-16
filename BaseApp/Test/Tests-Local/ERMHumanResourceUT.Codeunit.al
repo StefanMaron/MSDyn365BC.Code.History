@@ -71,18 +71,14 @@ codeunit 147202 "ERM Human Resource UT"
 
     local procedure MockVendorWithPurchInvHeader(var Vendor: Record Vendor; var PurchInvHeader: Record "Purch. Inv. Header")
     begin
-        with Vendor do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        Vendor.Init();
+        Vendor."No." := LibraryUtility.GenerateGUID();
+        Vendor.Insert();
 
-        with PurchInvHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            "Buy-from Vendor No." := Vendor."No.";
-            Insert();
-        end;
+        PurchInvHeader.Init();
+        PurchInvHeader."No." := LibraryUtility.GenerateGUID();
+        PurchInvHeader."Buy-from Vendor No." := Vendor."No.";
+        PurchInvHeader.Insert();
     end;
 
     local procedure UpdateVendorWithPurchInvoicHeaderForResponsibleEmployee(var Vendor: Record Vendor; var PurchInvHeader: Record "Purch. Inv. Header")

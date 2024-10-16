@@ -233,6 +233,8 @@ report 5936 "Service Item Worksheet"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ServiceFormatAddress: Codeunit "Service Format Address";
             begin
                 ServHeader.Get("Document Type", "Document No.");
 
@@ -243,7 +245,7 @@ report 5936 "Service Item Worksheet"
                 end else
                     FormatAddr.Company(CompanyAddr, CompanyInfo);
 
-                FormatAddr.ServiceOrderSellto(CustAddr, ServHeader);
+                ServiceFormatAddress.ServiceOrderSellto(CustAddr, ServHeader);
                 ShowShippingAddr := "Ship-to Code" <> '';
                 if "Ship-to Code" = '' then begin
                     FormatAddr.FormatAddr(

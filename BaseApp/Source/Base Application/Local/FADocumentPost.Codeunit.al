@@ -106,14 +106,30 @@ codeunit 12471 "FA Document-Post"
         DimMgt: Codeunit DimensionManagement;
         FAReclassTransferLine: Codeunit "FA Reclass. Transfer Line";
         FAReclassCheckLine: Codeunit "FA Reclass. Check Line";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 must be last Operation.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DocSignMgt: Codeunit "Doc. Signature Management";
         InvtRcptPost: Codeunit "Invt. Doc.-Post Receipt";
         ReclassDone: Boolean;
         PreviewMode: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'The combination of dimensions used in %1 %2 is blocked. %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'The dimensions used in %1 %2, line no. %3 are invalid. %4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure InsertFADocLine(FADocLine: Record "FA Document Line"; PostedDocNo: Code[20])

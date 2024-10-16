@@ -864,13 +864,11 @@ codeunit 144013 "ERM Print Corr. Documents"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            OldSalesReceivablesSetup := SalesReceivablesSetup;
-            Validate("Credit Warnings", CreditWarnings);
-            Validate("Stockout Warning", StockoutWarning);
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        OldSalesReceivablesSetup := SalesReceivablesSetup;
+        SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
+        SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure ReleaseSalesDocWithNewQuantity(SalesInvHeader: Record "Sales Header"; Multiplier: Decimal)
@@ -884,19 +882,15 @@ codeunit 144013 "ERM Print Corr. Documents"
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
     end;
 
     local procedure UpdateQuantityInSalesLine(var SalesLine: Record "Sales Line"; Multiplier: Decimal)
     begin
-        with SalesLine do begin
-            Validate("Quantity (After)", Round("Quantity (After)" * Multiplier, 1));
-            Modify(true);
-        end;
+        SalesLine.Validate("Quantity (After)", Round(SalesLine."Quantity (After)" * Multiplier, 1));
+        SalesLine.Modify(true);
     end;
 
     local procedure VerifyCorrReportOnPrint(CorrSalesHeader: Record "Sales Header")

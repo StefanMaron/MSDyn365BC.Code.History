@@ -44,7 +44,7 @@ table 12470 "FA Document Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = const(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
             trigger OnValidate()
             begin
@@ -55,7 +55,7 @@ table 12470 "FA Document Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = const(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
             trigger OnValidate()
             begin
@@ -74,7 +74,7 @@ table 12470 "FA Document Header"
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = exist("FA Comment" WHERE("Document Type" = field("Document Type"),
+            CalcFormula = exist("FA Comment" where("Document Type" = field("Document Type"),
                                                     "Document No." = field("No."),
                                                     "Document Line No." = const(0)));
             Caption = 'Comment';
@@ -255,9 +255,15 @@ table 12470 "FA Document Header"
         FADocLine: Record "FA Document Line";
         FASetup: Record "FA Setup";
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DocSignMgt: Codeunit "Doc. Signature Management";
+#pragma warning disable AA0074
         Text064: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure InitRecord()
@@ -270,50 +276,44 @@ table 12470 "FA Document Header"
     begin
         case "Document Type" of
             "Document Type"::Writeoff:
-                begin
-                    if ("No. Series" <> '') and
-                       (FASetup."Writeoff Nos." = FASetup."Posted Writeoff Nos.")
-                    then
-                        "Posting No. Series" := "No. Series"
-                    else
-                        if "Posting No. Series" = '' then
+                if ("No. Series" <> '') and
+                    (FASetup."Writeoff Nos." = FASetup."Posted Writeoff Nos.")
+                then
+                    "Posting No. Series" := "No. Series"
+                else
+                    if "Posting No. Series" = '' then
 #if CLEAN24
-                            if NoSeries.IsAutomatic(FASetup."Posted Writeoff Nos.") then
-                                "Posting No. Series" := FASetup."Posted Writeoff Nos.";
+                        if NoSeries.IsAutomatic(FASetup."Posted Writeoff Nos.") then
+                            "Posting No. Series" := FASetup."Posted Writeoff Nos.";
 #else
-                            NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Writeoff Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Writeoff Nos.");
 #endif
-                end;
             "Document Type"::Release:
-                begin
-                    if ("No. Series" <> '') and
-                       (FASetup."Release Nos." = FASetup."Posted Release Nos.")
-                    then
-                        "Posting No. Series" := "No. Series"
-                    else
-                        if "Posting No. Series" = '' then
+                if ("No. Series" <> '') and
+                    (FASetup."Release Nos." = FASetup."Posted Release Nos.")
+                then
+                    "Posting No. Series" := "No. Series"
+                else
+                    if "Posting No. Series" = '' then
 #if CLEAN24
-                            if NoSeries.IsAutomatic(FASetup."Posted Release Nos.") then
-                                "Posting No. Series" := FASetup."Posted Release Nos.";
+                        if NoSeries.IsAutomatic(FASetup."Posted Release Nos.") then
+                            "Posting No. Series" := FASetup."Posted Release Nos.";
 #else
-                            NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Release Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Release Nos.");
 #endif
-                end;
             "Document Type"::Movement:
-                begin
-                    if ("No. Series" <> '') and
-                       (FASetup."Disposal Nos." = FASetup."Posted Disposal Nos.")
-                    then
-                        "Posting No. Series" := "No. Series"
-                    else
-                        if "Posting No. Series" = '' then
+                if ("No. Series" <> '') and
+                    (FASetup."Disposal Nos." = FASetup."Posted Disposal Nos.")
+                then
+                    "Posting No. Series" := "No. Series"
+                else
+                    if "Posting No. Series" = '' then
 #if CLEAN24
-                            if NoSeries.IsAutomatic(FASetup."Posted Disposal Nos.") then
-                                "Posting No. Series" := FASetup."Posted Disposal Nos.";
+                        if NoSeries.IsAutomatic(FASetup."Posted Disposal Nos.") then
+                            "Posting No. Series" := FASetup."Posted Disposal Nos.";
 #else
-                            NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Disposal Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Disposal Nos.");
 #endif
-                end;
         end;
 
         if "Posting No. Series" = '' then

@@ -82,7 +82,7 @@ page 14925 "VAT Settlement Worksheet"
                     Caption = 'Remaining VAT Amount';
                     Editable = false;
                     Style = Strong;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies the VAT amount that remains to be processed.';
 
                     trigger OnDrillDown()
@@ -415,8 +415,14 @@ page 14925 "VAT Settlement Worksheet"
         xType: Option ,Purchase,Sale,"Fixed Asset","Future Expense";
         PeriodType: Enum "Analysis Period Type";
         AmountType: Enum "Analysis Amount Type";
+#pragma warning disable AA0074
         Text002: Label 'There is nothing to allocate.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'There are lines in which %1 is Yes. Do you want to apply these changes? ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ChangedVendorVATInvoiceVisible: Boolean;
         VendorVATInvoiceNoVisible: Boolean;
         VendorVATInvoiceDateVisible: Boolean;

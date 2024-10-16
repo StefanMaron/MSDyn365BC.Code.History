@@ -576,24 +576,20 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            Validate("Enable Russian Tax Accounting", true);
-            Validate("Cancel Curr. Prepmt. Adjmt.", NewCancelCurrAdjmtPrepmt);
-            Validate("Currency Adjmt with Correction", false);
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("Enable Russian Tax Accounting", true);
+        GLSetup.Validate("Cancel Curr. Prepmt. Adjmt.", NewCancelCurrAdjmtPrepmt);
+        GLSetup.Validate("Currency Adjmt with Correction", false);
+        GLSetup.Modify(true);
     end;
 
     local procedure UpdateSalesSetup()
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesSetup do begin
-            Get();
-            Validate("Create Prepayment Invoice", false);
-            Modify(true);
-        end;
+        SalesSetup.Get();
+        SalesSetup.Validate("Create Prepayment Invoice", false);
+        SalesSetup.Modify(true);
     end;
 
     local procedure SetupExchRateAmount(var ExchRateAmount: array[3] of Decimal; IsRaise: Boolean)
@@ -634,12 +630,10 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            "Cancel Curr. Prepmt. Adjmt." := CancelCurrPrepmtAdjmt;
-            "Cancel Prepmt. Adjmt. in TA" := CancelPrepmtAdjmtInTA;
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup."Cancel Curr. Prepmt. Adjmt." := CancelCurrPrepmtAdjmt;
+        GLSetup."Cancel Prepmt. Adjmt. in TA" := CancelPrepmtAdjmtInTA;
+        GLSetup.Modify(true);
     end;
 
     local procedure SetCreatePrepmtInvInSalesSetup()
@@ -933,14 +927,12 @@
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            InitGenJnlLine(GenJnlLine);
-            CreateGenJnlLine(
-              GenJnlLine, "Document Type"::Refund, PostingDate, GetCustNoFromCustLedgEntry(PmtNo), CurrencyCode, false, -EntryAmount);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            ApplyCustomerPaymentToRefund(PmtNo, "Document No.");
-            exit("Document No.");
-        end;
+        InitGenJnlLine(GenJnlLine);
+        CreateGenJnlLine(
+          GenJnlLine, GenJnlLine."Document Type"::Refund, PostingDate, GetCustNoFromCustLedgEntry(PmtNo), CurrencyCode, false, -EntryAmount);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        ApplyCustomerPaymentToRefund(PmtNo, GenJnlLine."Document No.");
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure CreateCurrencyWithExchRates(StartingDate: Date; ExchRateAmount: array[3] of Decimal) CurrencyCode: Code[10]
@@ -959,15 +951,13 @@
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
-            Validate("Exchange Rate Amount", 1);
-            Validate("Adjustment Exch. Rate Amount", 1);
-            Validate("Relational Currency Code", RelationalCurrencyCode);
-            Validate("Relational Exch. Rate Amount", RelationalAmount);
-            Validate("Relational Adjmt Exch Rate Amt", RelationalAmount);
-            Modify(true);
-        end;
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Currency Code", RelationalCurrencyCode);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalAmount);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalAmount);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateUnrealVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATRate: Decimal)
@@ -999,12 +989,10 @@
 
     local procedure UpdateItemCost(var Item: Record Item)
     begin
-        with Item do begin
-            Validate("Costing Method", "Costing Method"::Standard);
-            Validate("Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
-            Validate("Unit Price", "Unit Cost");
-            Modify(true);
-        end;
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        Item.Validate("Unit Price", Item."Unit Cost");
+        Item.Modify(true);
     end;
 
     local procedure CreatePostPrepayment(PostingDate: Date; SalesLine: Record "Sales Line"; CurrencyCode: Code[10]; PmtAmount: Decimal): Code[20]
@@ -1012,14 +1000,12 @@
         GenJnlLine: Record "Gen. Journal Line";
     begin
         InitGenJnlLine(GenJnlLine);
-        with GenJnlLine do begin
-            CreateGenJnlLine(
-              GenJnlLine, "Document Type"::Payment, PostingDate, SalesLine."Sell-to Customer No.", CurrencyCode, true, PmtAmount);
-            Validate("Prepayment Document No.", SalesLine."Document No.");
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            exit("Document No.");
-        end;
+        CreateGenJnlLine(
+          GenJnlLine, GenJnlLine."Document Type"::Payment, PostingDate, SalesLine."Sell-to Customer No.", CurrencyCode, true, PmtAmount);
+        GenJnlLine.Validate("Prepayment Document No.", SalesLine."Document No.");
+        GenJnlLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure InitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -1039,17 +1025,15 @@
 
     local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; AccountNo: Code[20]; CurrencyCode: Code[10]; IsPrepayment: Boolean; EntryAmount: Decimal)
     begin
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name", DocType,
-              "Account Type"::Customer, AccountNo, EntryAmount);
-            Validate("Posting Date", PostingDate);
-            Validate(Prepayment, IsPrepayment);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", DocType,
+            GenJnlLine."Account Type"::Customer, AccountNo, EntryAmount);
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        GenJnlLine.Validate(Prepayment, IsPrepayment);
+        GenJnlLine.Validate("Currency Code", CurrencyCode);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreateItemSalesDocWithCurrency(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; PostingDate: Date; CurrencyCode: Code[10])
@@ -1194,26 +1178,22 @@
     var
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        with SalesShipmentLine do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-            exit("Document No.");
-        end;
+        SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentLine.SetRange("No.", ItemNo);
+        SalesShipmentLine.FindFirst();
+        exit(SalesShipmentLine."Document No.");
     end;
 
     local procedure GetSaleILENo(ItemNo: Code[20]; DocumentNo: Code[20]): Integer
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", "Entry Type"::Sale);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Entry No.");
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
+        ItemLedgerEntry.FindFirst();
+        exit(ItemLedgerEntry."Entry No.");
     end;
 
     local procedure GetItemChrgInvDocNo(CustomerNo: Code[20]; var AmountExclVAT: Decimal; var AmountInclVAT: Decimal): Code[20]
@@ -1302,13 +1282,11 @@
 
     local procedure FindDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type")
     begin
-        with DtldCustLedgEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("Entry Type", EntryType);
-            Assert.IsTrue(
-              FindLast(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
-        end;
+        DtldCustLedgEntry.SetRange("Document Type", DocType);
+        DtldCustLedgEntry.SetRange("Document No.", DocNo);
+        DtldCustLedgEntry.SetRange("Entry Type", EntryType);
+        Assert.IsTrue(
+          DtldCustLedgEntry.FindLast(), StrSubstNo(EntryDoesNotExistErr, DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.GetFilters));
     end;
 
     local procedure FindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; ItemNo: Code[20])
@@ -1319,11 +1297,9 @@
 
     local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20])
     begin
-        with GLEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("G/L Account No.", GLAccNo);
-        end;
+        GLEntry.SetRange("Document Type", DocType);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
     end;
 
     local procedure VerifyZeroRemAmtOnLedgEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -1331,13 +1307,11 @@
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         FindCustLedgEntry(CustLedgEntry, DocType, DocNo);
-        with CustLedgEntry do begin
-            CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-            Assert.AreEqual(
-              0, "Remaining Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Remaining Amount"), "Entry No."));
-            Assert.AreEqual(
-              0, "Remaining Amt. (LCY)", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Remaining Amt. (LCY)"), "Entry No."));
-        end;
+        CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+        Assert.AreEqual(
+          0, CustLedgEntry."Remaining Amount", StrSubstNo(WrongValueErr, CustLedgEntry.TableCaption(), CustLedgEntry.FieldCaption("Remaining Amount"), CustLedgEntry."Entry No."));
+        Assert.AreEqual(
+          0, CustLedgEntry."Remaining Amt. (LCY)", StrSubstNo(WrongValueErr, CustLedgEntry.TableCaption(), CustLedgEntry.FieldCaption("Remaining Amt. (LCY)"), CustLedgEntry."Entry No."));
     end;
 
     local procedure VerifyUnappliedLedgerEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -1345,13 +1319,11 @@
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         FindCustLedgEntry(CustLedgEntry, DocType, DocNo);
-        with CustLedgEntry do begin
-            CalcFields(Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)");
-            Assert.AreEqual(
-              "Remaining Amount", Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount), "Entry No."));
-            Assert.AreEqual(
-              "Remaining Amt. (LCY)", "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
-        end;
+        CustLedgEntry.CalcFields(Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)");
+        Assert.AreEqual(
+          CustLedgEntry."Remaining Amount", CustLedgEntry.Amount, StrSubstNo(WrongValueErr, CustLedgEntry.TableCaption(), CustLedgEntry.FieldCaption(Amount), CustLedgEntry."Entry No."));
+        Assert.AreEqual(
+          CustLedgEntry."Remaining Amt. (LCY)", CustLedgEntry."Amount (LCY)", StrSubstNo(WrongValueErr, CustLedgEntry.TableCaption(), CustLedgEntry.FieldCaption("Amount (LCY)"), CustLedgEntry."Entry No."));
     end;
 
     local procedure VerifyGainLossEntries(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; CurrencyCode: Code[10]; IsRaise: Boolean; ExpectedAmount: Decimal)
@@ -1373,12 +1345,10 @@
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         FindDtldCustLedgEntry(DtldCustLedgEntry, DocType, DocNo, GetEntryType(IsGain));
-        with DtldCustLedgEntry do begin
-            Assert.AreEqual(
-              0, Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount), "Entry No."));
-            Assert.AreEqual(
-              ExpectedAmount, "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
-        end;
+        Assert.AreEqual(
+          0, DtldCustLedgEntry.Amount, StrSubstNo(WrongValueErr, DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.FieldCaption(Amount), DtldCustLedgEntry."Entry No."));
+        Assert.AreEqual(
+          ExpectedAmount, DtldCustLedgEntry."Amount (LCY)", StrSubstNo(WrongValueErr, DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.FieldCaption("Amount (LCY)"), DtldCustLedgEntry."Entry No."));
     end;
 
     local procedure VerifyPrepmtDiffApplication(DocNo: Code[20]; ExpectedAmount: Decimal)
@@ -1388,15 +1358,13 @@
     begin
         CustLedgEntry.SetRange("Document No.", DocNo);
         CustLedgEntry.FindLast();
-        with DtldCustLedgEntry do begin
-            SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
-            SetRange("Prepmt. Diff.", true);
-            Assert.IsTrue(
-              FindLast(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
-            Assert.AreEqual(
-              ExpectedAmount, "Amount (LCY)",
-              StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
-        end;
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
+        DtldCustLedgEntry.SetRange("Prepmt. Diff.", true);
+        Assert.IsTrue(
+          DtldCustLedgEntry.FindLast(), StrSubstNo(EntryDoesNotExistErr, DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.GetFilters));
+        Assert.AreEqual(
+          ExpectedAmount, DtldCustLedgEntry."Amount (LCY)",
+          StrSubstNo(WrongValueErr, DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.FieldCaption("Amount (LCY)"), DtldCustLedgEntry."Entry No."));
     end;
 
     local procedure VerifyPrepmtDiffGLEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -1406,15 +1374,13 @@
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         FindCustLedgEntry(CustLedgEntry, DocType, DocNo);
-        with DtldCustLedgEntry do begin
-            SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
-            SetRange("Prepmt. Diff.", true);
-            SetRange(Unapplied, true);
-            Assert.IsTrue(FindLast(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
-            CustPostingGroup.Get(CustLedgEntry."Customer Posting Group");
-            VerifyGLEntry(
-              DocType, DocNo, CustPostingGroup."Receivables Account", "Amount (LCY)");
-        end;
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
+        DtldCustLedgEntry.SetRange("Prepmt. Diff.", true);
+        DtldCustLedgEntry.SetRange(Unapplied, true);
+        Assert.IsTrue(DtldCustLedgEntry.FindLast(), StrSubstNo(EntryDoesNotExistErr, DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.GetFilters));
+        CustPostingGroup.Get(CustLedgEntry."Customer Posting Group");
+        VerifyGLEntry(
+          DocType, DocNo, CustPostingGroup."Receivables Account", DtldCustLedgEntry."Amount (LCY)");
     end;
 
     local procedure VerifyAdjGLEntries(DocNo: Code[20]; CurrencyCode: Code[10]; IsRaise: Boolean; IsCancelPrepmt: Boolean; ExpectedAmount: Decimal)
@@ -1445,33 +1411,27 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            FilterGLEntry(GLEntry, DocType, DocNo, GLAccNo);
-            FindLast();
-            TestField(Amount, ExpectedAmount);
-        end;
+        FilterGLEntry(GLEntry, DocType, DocNo, GLAccNo);
+        GLEntry.FindLast();
+        GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyDebitCreditGLEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedDebitAmount: Decimal; ExpectedCreditAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            FilterGLEntry(GLEntry, DocType, DocNo, GLAccNo);
-            FindLast();
-            TestField("Debit Amount", ExpectedDebitAmount);
-            TestField("Credit Amount", ExpectedCreditAmount);
-        end;
+        FilterGLEntry(GLEntry, DocType, DocNo, GLAccNo);
+        GLEntry.FindLast();
+        GLEntry.TestField("Debit Amount", ExpectedDebitAmount);
+        GLEntry.TestField("Credit Amount", ExpectedCreditAmount);
     end;
 
     local procedure VerifyGLEntryDoesNotExist(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            FilterGLEntry(GLEntry, DocType, DocNo, GLAccNo);
-            Assert.RecordIsEmpty(GLEntry);
-        end;
+        FilterGLEntry(GLEntry, DocType, DocNo, GLAccNo);
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyPrepaymentAdjmtValueEntry(SalesLine: Record "Sales Line"; PrepmtExchRate: Decimal; InvoiceExchRate: Decimal)
@@ -1496,13 +1456,11 @@
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Item Ledger Entry No.", ILENo);
-            FindFirst();
-            Assert.AreEqual(ExpectedAmount, "Sales Amount (Actual)", FieldCaption("Sales Amount (Actual)"));
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.SetRange("Item Ledger Entry No.", ILENo);
+        ValueEntry.FindFirst();
+        Assert.AreEqual(ExpectedAmount, ValueEntry."Sales Amount (Actual)", ValueEntry.FieldCaption("Sales Amount (Actual)"));
     end;
 
     local procedure VerifyDetailedCustLedgEntry(CustomerNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])

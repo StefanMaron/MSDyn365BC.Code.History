@@ -78,34 +78,6 @@ table 6565 "Item Tracking Setup"
             Caption = 'Package No. Mismatch';
             CaptionClass = '6,6';
         }
-        field(12400; "CD No. Required"; Boolean)
-        {
-            Caption = 'CD No. Required';
-            ObsoleteReason = 'Replaced by field Package No. Required';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(12410; "CD No."; Code[50])
-        {
-            Caption = 'CD No.';
-            ObsoleteReason = 'Replaced by field Package No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(12420; "CD No. Info Required"; Boolean)
-        {
-            Caption = 'CD No. Info Required';
-            ObsoleteReason = 'Replaced by field Package No. Info Required.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(12430; "CD No. Mismatch"; Boolean)
-        {
-            Caption = 'CD No. Mismatch';
-            ObsoleteReason = 'Replaced by field Package No. Mismatch';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys

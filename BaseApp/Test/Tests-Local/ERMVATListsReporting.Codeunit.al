@@ -492,12 +492,10 @@ codeunit 147124 "ERM VAT Lists Reporting"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            Init();
-            SetRange("Pre-Assigned No.", SalesInvoiceNo);
-            FindFirst();
-            exit("No.");
-        end;
+        SalesInvoiceHeader.Init();
+        SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesInvoiceNo);
+        SalesInvoiceHeader.FindFirst();
+        exit(SalesInvoiceHeader."No.");
     end;
 
     local procedure PostSalesCrMemo(SalesInvoiceNo: Code[20]; CustomerNo: Code[20]; PostingDate: Date; Qty: Integer; IncludeInPurchVATLedger: Boolean): Code[20]
@@ -523,15 +521,14 @@ codeunit 147124 "ERM VAT Lists Reporting"
         temp2 := false;
         CopyDocMgt.CopySalesInvLinesToDoc(SalesHeader, SalesInvoiceLine, temp1, temp2);
 
-        if Qty > 0 then
-            with SalesLine do begin
-                SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-                SetRange("Document No.", SalesHeader."No.");
-                SetRange("Sell-to Customer No.", CustomerNo);
-                FindFirst();
-                Validate(Quantity, Qty);
-                Modify(true);
-            end;
+        if Qty > 0 then begin
+            SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
+            SalesLine.SetRange("Document No.", SalesHeader."No.");
+            SalesLine.SetRange("Sell-to Customer No.", CustomerNo);
+            SalesLine.FindFirst();
+            SalesLine.Validate(Quantity, Qty);
+            SalesLine.Modify(true);
+        end;
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         exit(SalesHeader."No.");

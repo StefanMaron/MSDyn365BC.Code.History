@@ -418,26 +418,70 @@ report 14933 "Calculate Group Depreciation"
         NoSeries: Code[20];
         DeprBookCode: Code[10];
         DocumentNo: Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Fixed Asset %1 has been disposed %2. Depreciation cannot be calculated for %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Depreciating fixed asset      #1##########\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Not depreciating fixed asset  #2##########\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Inserting journal lines       #3##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'Group %4 cannot be written off.\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'There is posted depreciation later then %1.\for FA Code %2\FA Depreciation Book Code %3 ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 %2 Group Depreciation FA (%3)';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12400: Label 'Previous periods Depreciation was not calculated';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12401: Label 'Depreciation was already calculated';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12402: Label '\for Depr. Period Starting Date %1\FA Code %2\FA Depreciation Book Code %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DocumentNo2: Code[20];
         TotalDeprAmount: Decimal;
         GroupDeprAmount: Decimal;
         GroupBookValue: Decimal;
         DeprRate: Decimal;
         DeprDiff: Decimal;
+#pragma warning disable AA0074
         Text12407: Label 'FA Posting Date must be into Accounting Period.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12409: Label 'Posting Date must be into Accounting Period.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12410: Label 'Write-off the cost of group';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12411: Label 'DP-';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure SetProperties()
@@ -637,7 +681,7 @@ report 14933 "Calculate Group Depreciation"
         if FixedAsset.FindSet() then
             repeat
                 if FADeprBook.Get(FixedAsset."No.", DeprBookCode) then
-                    if CheckDeprBook() then begin
+                    if CheckDeprBook() then
                         case ExistingDeprPeriods(FixedAsset."No.", DeprBookCode, Period) of
                             0:
                                 if FADeprBook."Depreciation Starting Date" < DatePeriod."Period Start" then // it's not first depr
@@ -647,7 +691,6 @@ report 14933 "Calculate Group Depreciation"
                             4:
                                 Error(Text006 + Text007, CalcDate('<+1M>', Period), FixedAsset."No.", DeprBookCode, DeprGroup);
                         end;
-                    end;
             until FixedAsset.Next() = 0;
     end;
 

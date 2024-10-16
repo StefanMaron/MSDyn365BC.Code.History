@@ -29,10 +29,9 @@ page 26589 "Compound XML Element Lines"
                         XMLElementLines.SetTableView(XMLElementLine);
                         XMLElementLines.LookupMode := true;
 
-                        if Rec."XML Element Line No." <> 0 then begin
+                        if Rec."XML Element Line No." <> 0 then
                             if XMLElementLine.Get(Rec."Report Code", Rec."XML Element Line No.") then
                                 XMLElementLines.SetRecord(XMLElementLine);
-                        end;
 
                         if XMLElementLines.RunModal() = ACTION::LookupOK then begin
                             XMLElementLines.GetRecord(XMLElementLine);

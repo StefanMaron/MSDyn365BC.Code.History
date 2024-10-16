@@ -166,24 +166,20 @@ codeunit 147127 "ERM Bank Statement RU"
     var
         DataExchField: Record "Data Exch. Field";
     begin
-        with DataExchField do begin
-            SetRange("Data Exch. No.", DataExchFieldHeader."Data Exch. No.");
-            SetRange("Column No.", DataExchFieldHeader."Column No.");
-            SetFilter("Line No.", '<%1', DataExchFieldHeader."Line No.");
-            exit(IsEmpty);
-        end;
+        DataExchField.SetRange("Data Exch. No.", DataExchFieldHeader."Data Exch. No.");
+        DataExchField.SetRange("Column No.", DataExchFieldHeader."Column No.");
+        DataExchField.SetFilter("Line No.", '<%1', DataExchFieldHeader."Line No.");
+        exit(DataExchField.IsEmpty);
     end;
 
     local procedure IsLastFooter(DataExchFieldFooter: Record "Data Exch. Field"): Boolean
     var
         DataExchField: Record "Data Exch. Field";
     begin
-        with DataExchField do begin
-            SetRange("Data Exch. No.", DataExchFieldFooter."Data Exch. No.");
-            SetRange("Column No.", DataExchFieldFooter."Column No.");
-            SetFilter("Line No.", '>%1', DataExchFieldFooter."Line No.");
-            exit(IsEmpty);
-        end;
+        DataExchField.SetRange("Data Exch. No.", DataExchFieldFooter."Data Exch. No.");
+        DataExchField.SetRange("Column No.", DataExchFieldFooter."Column No.");
+        DataExchField.SetFilter("Line No.", '>%1', DataExchFieldFooter."Line No.");
+        exit(DataExchField.IsEmpty);
     end;
 
     local procedure ExportDataExchToCSVFile(DataExchNo: Integer; var Filename: Text[1024])
@@ -249,10 +245,10 @@ codeunit 147127 "ERM Bank Statement RU"
                             end;
                         end;
                     else begin
-                            DataExchLine := StrSubstNo('%1%2', '=', DataExchField.Value);
-                            Assert.AreEqual(
-                              DataExchLine, LinesRead.GetValue(LineNo - 1 - Shift), ExportedDataIsWrongErr);
-                        end;
+                        DataExchLine := StrSubstNo('%1%2', '=', DataExchField.Value);
+                        Assert.AreEqual(
+                          DataExchLine, LinesRead.GetValue(LineNo - 1 - Shift), ExportedDataIsWrongErr);
+                    end;
                 end;
                 LineNo += 1;
             until DataExchField.Next() = 0;

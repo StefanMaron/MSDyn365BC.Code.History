@@ -86,7 +86,7 @@ report 12413 "Posted Inv. Shipment TORG-12"
 
                 trigger OnPostDataItem()
                 begin
-                    if not Preview then
+                    if not PreviewReport then
                         CODEUNIT.Run(CODEUNIT::"Sales Inv.-Printed", Header);
                 end;
 
@@ -160,7 +160,7 @@ report 12413 "Posted Inv. Shipment TORG-12"
                 if BillCust.Get("Bill-to Customer No.") then;
 
                 if LogInteraction then
-                    if not Preview then begin
+                    if not PreviewReport then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -169,7 +169,6 @@ report 12413 "Posted Inv. Shipment TORG-12"
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
             end;
 
             trigger OnPreDataItem()
@@ -222,7 +221,7 @@ report 12413 "Posted Inv. Shipment TORG-12"
                         Caption = 'Print Weight Information';
                         ToolTip = 'Specifies if you want to print shipping weight information.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -301,7 +300,7 @@ report 12413 "Posted Inv. Shipment TORG-12"
         ForeignTxt: Label 'u.e.';
         CurrencyText: Text[30];
         AtLeastOneLineExists: Boolean;
-        Preview: Boolean;
+        PreviewReport: Boolean;
         ReportFileName: Text;
 
     local procedure ShipmentDocNo(): Code[20]
@@ -406,7 +405,7 @@ report 12413 "Posted Inv. Shipment TORG-12"
     procedure InitializeRequest(FileName: Text; NewPreview: Boolean)
     begin
         ReportFileName := FileName;
-        Preview := NewPreview;
+        PreviewReport := NewPreview;
     end;
 }
 

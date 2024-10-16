@@ -218,14 +218,13 @@ codeunit 130013 "Snapshot Management"
         TempSnapshot.SetCurrentKey("Snapshot No.");
         if TempSnapshot.FindSet() then
             repeat
-                if TempSnapshot."Snapshot No." <> RestoringSnapshotNo then begin
+                if TempSnapshot."Snapshot No." <> RestoringSnapshotNo then
                     if not BackupStorage.BackupTableIsTainted(TempSnapshot."Snapshot No.", TableID) then
                         BackupStorage.TaintTable(TempSnapshot."Snapshot No.", TableID, RestoringSnapshotNo <> 0)
                     else
                         if RestoringSnapshotNo = 0 then
                             BackupStorage.ClearImplicitTaint(TempSnapshot."Snapshot No.", TableID);
-                end;
-            until TempSnapshot.Next() = 0
+            until TempSnapshot.Next() = 0;
     end;
 
     [Scope('OnPrem')]

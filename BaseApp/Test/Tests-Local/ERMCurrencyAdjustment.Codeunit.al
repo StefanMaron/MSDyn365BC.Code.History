@@ -338,17 +338,15 @@ codeunit 144103 "ERM Currency Adjustment"
         GLEntry: Record "G/L Entry";
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
-        with GLEntry do begin
-            SetRange("Posting Date", PostingDate);
-            SetRange("Source No.", SourceNo);
-            FindSet();
-            repeat
-                LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, "Dimension Set ID");
-                Assert.AreEqual(
-                  DimensionValue."Dimension Value ID", DimensionSetEntry."Dimension Value ID",
-                  StrSubstNo(IncorrectDimensionValueErr, TableCaption));
-            until Next() = 0;
-        end;
+        GLEntry.SetRange("Posting Date", PostingDate);
+        GLEntry.SetRange("Source No.", SourceNo);
+        GLEntry.FindSet();
+        repeat
+            LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, GLEntry."Dimension Set ID");
+            Assert.AreEqual(
+              DimensionValue."Dimension Value ID", DimensionSetEntry."Dimension Value ID",
+              StrSubstNo(IncorrectDimensionValueErr, GLEntry.TableCaption));
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyAdjustmentGLEntry(DocNo: Code[20])
@@ -363,12 +361,10 @@ codeunit 144103 "ERM Currency Adjustment"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            Init();
-            SetRange("Posting Date", PostingDate);
-            SetRange("Source No.", SourceNo);
-            Assert.RecordIsNotEmpty(GLEntry);
-        end;
+        GLEntry.Init();
+        GLEntry.SetRange("Posting Date", PostingDate);
+        GLEntry.SetRange("Source No.", SourceNo);
+        Assert.RecordIsNotEmpty(GLEntry);
     end;
 
     [RequestPageHandler]

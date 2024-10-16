@@ -586,52 +586,42 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
 
     local procedure UpdateCorrectionInfo(var SalesHeader: Record "Sales Header"; CorrDocType: Option; CorrDocNo: Code[20])
     begin
-        with SalesHeader do begin
-            Validate("Corrective Document", true);
-            Validate("Corrective Doc. Type", "Corrective Doc. Type"::Correction);
-            Validate("Corrected Doc. Type", CorrDocType);
-            Validate("Corrected Doc. No.", CorrDocNo);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Corrective Document", true);
+        SalesHeader.Validate("Corrective Doc. Type", SalesHeader."Corrective Doc. Type"::Correction);
+        SalesHeader.Validate("Corrected Doc. Type", CorrDocType);
+        SalesHeader.Validate("Corrected Doc. No.", CorrDocNo);
+        SalesHeader.Modify(true);
     end;
 
     local procedure UpdateRevisionInfo(var SalesHeader: Record "Sales Header"; IsCorrInvoice: Boolean; CorrDocNo: Code[20]; RevisionNo: Code[20])
     begin
-        with SalesHeader do begin
-            Validate("Corrective Document", true);
-            Validate("Corrective Doc. Type", "Corrective Doc. Type"::Revision);
-            if IsCorrInvoice then
-                Validate("Corrected Doc. Type", "Corrected Doc. Type"::Invoice)
-            else
-                Validate("Corrected Doc. Type", "Corrected Doc. Type"::"Credit Memo");
-            Validate("Corrected Doc. No.", CorrDocNo);
-            Validate("Revision No.", RevisionNo);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Corrective Document", true);
+        SalesHeader.Validate("Corrective Doc. Type", SalesHeader."Corrective Doc. Type"::Revision);
+        if IsCorrInvoice then
+            SalesHeader.Validate("Corrected Doc. Type", SalesHeader."Corrected Doc. Type"::Invoice)
+        else
+            SalesHeader.Validate("Corrected Doc. Type", SalesHeader."Corrected Doc. Type"::"Credit Memo");
+        SalesHeader.Validate("Corrected Doc. No.", CorrDocNo);
+        SalesHeader.Validate("Revision No.", RevisionNo);
+        SalesHeader.Modify(true);
     end;
 
     local procedure UpdateInclInPurchVATLedger(var SalesHeader: Record "Sales Header"; IsIncludeInSalesVATLedger: Boolean)
     begin
-        with SalesHeader do begin
-            Validate("Include In Purch. VAT Ledger", IsIncludeInSalesVATLedger);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Include In Purch. VAT Ledger", IsIncludeInSalesVATLedger);
+        SalesHeader.Modify(true);
     end;
 
     local procedure UpdateAddVATLedgSheet(var SalesHeader: Record "Sales Header"; IsAddVATLedgetSheet: Boolean)
     begin
-        with SalesHeader do begin
-            Validate("Additional VAT Ledger Sheet", IsAddVATLedgetSheet);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Additional VAT Ledger Sheet", IsAddVATLedgetSheet);
+        SalesHeader.Modify(true);
     end;
 
     local procedure UpdateCorrDocDate(var SalesHeader: Record "Sales Header"; CorrDocDate: Date)
     begin
-        with SalesHeader do begin
-            Validate("Corrected Document Date", CorrDocDate);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Corrected Document Date", CorrDocDate);
+        SalesHeader.Modify(true);
     end;
 
     local procedure PostSalesDoc(SalesHeader: Record "Sales Header"): Code[20]
@@ -646,18 +636,16 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, "Account Type"::Customer, CustNo, 0);
-            Validate("Posting Date", PostingDate);
-            Validate(Prepayment, true);
-            "External Document No." := LibraryUtility.GenerateGUID();
-            Validate("Prepayment Document No.", PrepmtDocNo);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustNo, 0);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate(Prepayment, true);
+        GenJournalLine."External Document No." := LibraryUtility.GenerateGUID();
+        GenJournalLine.Validate("Prepayment Document No.", PrepmtDocNo);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -677,24 +665,20 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
 
     local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; PostingDate: Date; CustNo: Code[20])
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
-            SetHideValidationDialog(true);
-            Validate("Posting Date", PostingDate);
-            Validate("Prices Including VAT", true);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
+        SalesHeader.SetHideValidationDialog(true);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
     end;
 
     local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; GLAccountNo: Code[20]; UnitPrice: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", GLAccountNo, 1);
-            Validate("Unit Price", UnitPrice);
-            Modify();
-        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify();
     end;
 
     local procedure CreateSalesCorrLine(SalesHeader: Record "Sales Header")
@@ -753,12 +737,10 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            SetRange("Bill-to Customer No.", CustNo);
-            SetRange("Prepayment Invoice", true);
-            FindLast();
-            exit("No.");
-        end;
+        SalesInvoiceHeader.SetRange("Bill-to Customer No.", CustNo);
+        SalesInvoiceHeader.SetRange("Prepayment Invoice", true);
+        SalesInvoiceHeader.FindLast();
+        exit(SalesInvoiceHeader."No.");
     end;
 
     local procedure VerifyPurchVATLedgerLineCnt(VATLedgerCode: Code[20]; CustNo: Code[20]; ExpectedCnt: Integer)
@@ -799,13 +781,11 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
     var
         VATLedgerLine: Record "VAT Ledger Line";
     begin
-        with VATLedgerLine do begin
-            SetRange(Type, VATLEdgerType);
-            SetRange("Additional Sheet", IsAddSheet);
-            SetRange(Code, VATLedgerCode);
-            SetRange("C/V No.", CVNo);
-            Assert.AreEqual(ExpectedCnt, Count, VATLedgerLineCntErr);
-        end;
+        VATLedgerLine.SetRange(Type, VATLEdgerType);
+        VATLedgerLine.SetRange("Additional Sheet", IsAddSheet);
+        VATLedgerLine.SetRange(Code, VATLedgerCode);
+        VATLedgerLine.SetRange("C/V No.", CVNo);
+        Assert.AreEqual(ExpectedCnt, VATLedgerLine.Count, VATLedgerLineCntErr);
     end;
 
     local procedure VerifyCrMemoPurchVATLedgerLine(VATLedgerCode: Code[20]; VendorNo: Code[20]; DocNo: Code[20]; DocDate: Date; CorrNo: Code[20]; CorrDate: Date; RevNo: Code[20]; RevDate: Date; RevOfCorrNo: Code[20]; RevOfCorrDate: Date)
@@ -822,23 +802,21 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
     var
         VATLedgerLine: Record "VAT Ledger Line";
     begin
-        with VATLedgerLine do begin
-            SetRange(Type, VATLEdgerType);
-            SetRange("Additional Sheet", IsAddSheet);
-            SetRange(Code, VATLedgerCode);
-            SetRange("C/V No.", CVNo);
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("Document Date", DocDate);
-            SetRange(Prepayment, IsPrepmt);
-            SetRange("Correction No.", CorrNo);
-            SetRange("Correction Date", CorrDate);
-            SetRange("Revision No.", RevNo);
-            SetRange("Revision Date", RevDate);
-            SetRange("Revision of Corr. No.", RevOfCorrNo);
-            SetRange("Revision of Corr. Date", RevOfCorrDate);
-            FindFirst();
-        end;
+        VATLedgerLine.SetRange(Type, VATLEdgerType);
+        VATLedgerLine.SetRange("Additional Sheet", IsAddSheet);
+        VATLedgerLine.SetRange(Code, VATLedgerCode);
+        VATLedgerLine.SetRange("C/V No.", CVNo);
+        VATLedgerLine.SetRange("Document Type", DocType);
+        VATLedgerLine.SetRange("Document No.", DocNo);
+        VATLedgerLine.SetRange("Document Date", DocDate);
+        VATLedgerLine.SetRange(Prepayment, IsPrepmt);
+        VATLedgerLine.SetRange("Correction No.", CorrNo);
+        VATLedgerLine.SetRange("Correction Date", CorrDate);
+        VATLedgerLine.SetRange("Revision No.", RevNo);
+        VATLedgerLine.SetRange("Revision Date", RevDate);
+        VATLedgerLine.SetRange("Revision of Corr. No.", RevOfCorrNo);
+        VATLedgerLine.SetRange("Revision of Corr. Date", RevOfCorrDate);
+        VATLedgerLine.FindFirst();
     end;
 
     local procedure CreateCustomerGLAccount(var CustomerNo: Code[20]; var GLAccountNo: Code[20])

@@ -18,7 +18,6 @@ codeunit 1738 "OData Initializer"
         CallMetadataEndpoint();
     end;
 
-    [NonDebuggable]
     local procedure CallMetadataEndpoint()
     var
         ODataUtility: Codeunit ODataUtility;
@@ -55,12 +54,14 @@ codeunit 1738 "OData Initializer"
     local procedure UpdateODataInitializedStatus(): Boolean
     var
         ODataInitializedStatus: Record "OData Initialized Status";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        ODataInitializedStatus2: Record "OData Initialized Status";
         moduleInfo: ModuleInfo;
     begin
         if not NavApp.GetCurrentModuleInfo(moduleInfo) then
             exit(false);
 
-        if not (ODataInitializedStatus.ReadPermission() and ODataInitializedStatus.WritePermission()) then
+        if not (ODataInitializedStatus.ReadPermission() and ODataInitializedStatus2.WritePermission()) then
             exit(false);
 
         if ODataInitializedStatus.FindFirst() and (ODataInitializedStatus."Initialized version" = Format(moduleInfo.AppVersion())) then

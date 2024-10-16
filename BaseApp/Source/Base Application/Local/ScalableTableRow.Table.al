@@ -80,6 +80,10 @@ table 26555 "Scalable Table Row"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Table %1 can''t contain more then %2 rows.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

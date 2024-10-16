@@ -257,9 +257,17 @@ page 26586 "Format Versions"
         FileMgt: Codeunit "File Management";
         FileName: Text[1024];
         PathName: Text[1024];
+#pragma warning disable AA0074
         Text004: Label 'Select a filename to import Format Versions.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Select a filename to export Format Versions to.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'You cannot import %1 because there are linked reports.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ExportFormatVersions()

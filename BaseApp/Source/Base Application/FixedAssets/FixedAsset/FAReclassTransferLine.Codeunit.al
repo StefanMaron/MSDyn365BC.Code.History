@@ -47,18 +47,56 @@ codeunit 5642 "FA Reclass. Transfer Line"
         DeprBook: Record "Depreciation Book";
         TransferAmntToGenJnl: Boolean;
         GLSetup: Record "General Ledger Setup";
+#pragma warning disable AA0074
         Text12400: Label 'Nothing to reclassify.';
+#pragma warning restore AA0074
         PostToGenJnL: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'is a %1 and %2 is not a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 is disposed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%2 = 0 for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label '%2 is greater than %3 for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'It was not possible to find a %1 in %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label '%1 must be %2 or %3 for %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label '%1 must be %2 for %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label 'must not be used together with %1 in %2 %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text009: Label '%1 cannot be calculated for %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure FAReclassLine(var FAReclassJnlLine: Record "FA Reclass. Journal Line"; var Done: Boolean)
     var

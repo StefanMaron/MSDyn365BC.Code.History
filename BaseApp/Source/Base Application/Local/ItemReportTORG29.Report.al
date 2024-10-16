@@ -521,10 +521,18 @@ report 14919 "Item Report TORG-29"
         OperationType: Text[30];
         ReportNo: Text[30];
         ShipmentTotalHeader: Text[30];
+#pragma warning disable AA0074
         Text005: Label 'Report term is incorrect.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'Location Code is required.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label 'Employee Code for Report Acceptor should be entered.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label 'Employee Code for Responsible Employee should be entered.';
+#pragma warning restore AA0074
         FileName: Text;
         CtrlEnable: Boolean;
         SalesCodeCtrlEnable: Boolean;

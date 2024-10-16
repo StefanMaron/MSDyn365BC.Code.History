@@ -666,10 +666,13 @@ page 5975 "Posted Service Shipment"
                     ApplicationArea = Service;
                     Caption = 'S&tatistics';
                     Image = Statistics;
-                    RunObject = Page "Service Shipment Statistics";
-                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View information about the physical contents of the shipment, such as quantity of the shipped items, resource hours or costs, and weight and volume of the shipped items.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.OpenStatistics();
+                    end;
                 }
                 action("Co&mments")
                 {

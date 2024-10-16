@@ -209,15 +209,13 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::Customer, CustomerNo, GLAmount);
-            Validate(Prepayment, true);
-            Validate("Prepayment Document No.", PrepaymentDocNo);
-            Modify();
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit("Document No.");
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo, GLAmount);
+        GenJournalLine.Validate(Prepayment, true);
+        GenJournalLine.Validate("Prepayment Document No.", PrepaymentDocNo);
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreatePostInvoiceAndPayment(var CustLedgerEntry: Record "Cust. Ledger Entry"; var InvoiceNo: Code[20]; var PaymentNo: Code[20]; PostingDate: Date)
@@ -267,13 +265,11 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
         SourceCodeSetup: Record "Source Code Setup";
     begin
         SourceCodeSetup.Get();
-        with GLEntry do begin
-            SetRange("G/L Account No.", FindPrepaymentAcc(SourceNo));
-            SetRange("Source No.", SourceNo);
-            SetRange("Source Code", SourceCodeSetup."Unapplied Sales Entry Appln.");
-            FindFirst();
-            Assert.AreEqual(Amount, GLAmount, WrongCustBackPrepaymentErr);
-        end;
+        GLEntry.SetRange("G/L Account No.", FindPrepaymentAcc(SourceNo));
+        GLEntry.SetRange("Source No.", SourceNo);
+        GLEntry.SetRange("Source Code", SourceCodeSetup."Unapplied Sales Entry Appln.");
+        GLEntry.FindFirst();
+        Assert.AreEqual(GLEntry.Amount, GLAmount, WrongCustBackPrepaymentErr);
     end;
 
     local procedure VerifyClosedEntriesForCustomer(CustomerNo: Code[20])

@@ -89,15 +89,13 @@ codeunit 144704 "ERM INV-17 Report"
 
     local procedure MockInvActHeader(var InvtActHeader: Record "Invent. Act Header")
     begin
-        with InvtActHeader do begin
-            Init();
-            Insert(true);
-            Validate("Inventory Date", WorkDate());
-            Validate("Reason Document No.", LibraryUtility.GenerateGUID());
-            Validate("Reason Document Date", CalcDate('<1D>', "Inventory Date"));
-            Validate("Act Date", CalcDate('<1D>', "Reason Document Date"));
-            Modify(true);
-        end;
+        InvtActHeader.Init();
+        InvtActHeader.Insert(true);
+        InvtActHeader.Validate("Inventory Date", WorkDate());
+        InvtActHeader.Validate("Reason Document No.", LibraryUtility.GenerateGUID());
+        InvtActHeader.Validate("Reason Document Date", CalcDate('<1D>', InvtActHeader."Inventory Date"));
+        InvtActHeader.Validate("Act Date", CalcDate('<1D>', InvtActHeader."Reason Document Date"));
+        InvtActHeader.Modify(true);
     end;
 
     local procedure InitCustBuffer(var TempInvtActLine: Record "Invent. Act Line" temporary; ActNo: Code[20])
@@ -170,21 +168,19 @@ codeunit 144704 "ERM INV-17 Report"
 
     local procedure MockInvActLine(var InvtActLine: Record "Invent. Act Line"; ActNo: Code[20]; ContractorType: Option; ContractorNo: Code[20]; GLAccNo: Code[20]; PostingGroup: Code[20]; CategoryType: Option)
     begin
-        with InvtActLine do begin
-            Init();
-            Validate("Act No.", ActNo);
-            Validate("Contractor Type", ContractorType);
-            Validate("Contractor No.", ContractorNo);
-            Validate("Posting Group", PostingGroup);
-            Validate(Category, CategoryType);
-            Validate("Contractor Name", GetContractorName(ContractorType, ContractorNo));
-            Validate("G/L Account No.", GLAccNo);
-            Validate("Total Amount", LibraryRandom.RandDec(100, 2));
-            Validate("Confirmed Amount", LibraryRandom.RandDec(100, 2));
-            Validate("Not Confirmed Amount", LibraryRandom.RandDec(100, 2));
-            Validate("Overdue Amount", LibraryRandom.RandDec(100, 2));
-            Insert(true);
-        end;
+        InvtActLine.Init();
+        InvtActLine.Validate("Act No.", ActNo);
+        InvtActLine.Validate("Contractor Type", ContractorType);
+        InvtActLine.Validate("Contractor No.", ContractorNo);
+        InvtActLine.Validate("Posting Group", PostingGroup);
+        InvtActLine.Validate(Category, CategoryType);
+        InvtActLine.Validate("Contractor Name", GetContractorName(ContractorType, ContractorNo));
+        InvtActLine.Validate("G/L Account No.", GLAccNo);
+        InvtActLine.Validate("Total Amount", LibraryRandom.RandDec(100, 2));
+        InvtActLine.Validate("Confirmed Amount", LibraryRandom.RandDec(100, 2));
+        InvtActLine.Validate("Not Confirmed Amount", LibraryRandom.RandDec(100, 2));
+        InvtActLine.Validate("Overdue Amount", LibraryRandom.RandDec(100, 2));
+        InvtActLine.Insert(true);
     end;
 
     local procedure MockCustomerWithLedgEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; InvDate: Date)
@@ -211,19 +207,17 @@ codeunit 144704 "ERM INV-17 Report"
         CustAgreement.Insert(true);
 
         EntryAmount := LibraryRandom.RandDec(100, 2);
-        with Customer do begin
-            // Ledger entry outside of date range
-            MockCustLedgEntryWithDtldEntry(
-              CustLedgEntry, Customer, CalcDate('<1M>', InvDate), InvDate, CustAgreement."No.", EntryAmount, false);
-            // Dtld. Ledger Entry outside of date range
-            MockCustLedgEntryWithDtldEntry(
-              CustLedgEntry, Customer, InvDate, CalcDate('<1M>', InvDate), CustAgreement."No.", EntryAmount, false);
-            // Ledger Entries that should be print in report
-            MockCustLedgEntryWithDtldEntry(
-              CustLedgEntry, Customer, InvDate, InvDate, CustAgreement."No.", EntryAmount, true);
-            MockCustLedgEntryWithDtldEntry(
-              CustLedgEntry, Customer, InvDate, InvDate, CustAgreement."No.", -EntryAmount, true);
-        end;
+        // Ledger entry outside of date range
+        MockCustLedgEntryWithDtldEntry(
+          CustLedgEntry, Customer, CalcDate('<1M>', InvDate), InvDate, CustAgreement."No.", EntryAmount, false);
+        // Dtld. Ledger Entry outside of date range
+        MockCustLedgEntryWithDtldEntry(
+          CustLedgEntry, Customer, InvDate, CalcDate('<1M>', InvDate), CustAgreement."No.", EntryAmount, false);
+        // Ledger Entries that should be print in report
+        MockCustLedgEntryWithDtldEntry(
+          CustLedgEntry, Customer, InvDate, InvDate, CustAgreement."No.", EntryAmount, true);
+        MockCustLedgEntryWithDtldEntry(
+          CustLedgEntry, Customer, InvDate, InvDate, CustAgreement."No.", -EntryAmount, true);
     end;
 
     local procedure MockVendorWithLedgEntries(var VendLedgEntry: Record "Vendor Ledger Entry"; InvDate: Date)
@@ -250,19 +244,17 @@ codeunit 144704 "ERM INV-17 Report"
         VendAgreement.Insert(true);
 
         EntryAmount := LibraryRandom.RandDec(100, 2);
-        with Vendor do begin
-            // Ledger entry outside of date range
-            MockVendLedgEntryWithDtldEntry(
-              VendLedgEntry, Vendor, CalcDate('<1M>', InvDate), InvDate, VendAgreement."No.", EntryAmount, false);
-            // Dtld. Ledger Entry outside of date range
-            MockVendLedgEntryWithDtldEntry(
-              VendLedgEntry, Vendor, InvDate, CalcDate('<1M>', InvDate), VendAgreement."No.", EntryAmount, false);
-            // Ledger Entries that should be print in report
-            MockVendLedgEntryWithDtldEntry(
-              VendLedgEntry, Vendor, InvDate, InvDate, VendAgreement."No.", EntryAmount, true);
-            MockVendLedgEntryWithDtldEntry(
-              VendLedgEntry, Vendor, InvDate, InvDate, VendAgreement."No.", -EntryAmount, true);
-        end;
+        // Ledger entry outside of date range
+        MockVendLedgEntryWithDtldEntry(
+          VendLedgEntry, Vendor, CalcDate('<1M>', InvDate), InvDate, VendAgreement."No.", EntryAmount, false);
+        // Dtld. Ledger Entry outside of date range
+        MockVendLedgEntryWithDtldEntry(
+          VendLedgEntry, Vendor, InvDate, CalcDate('<1M>', InvDate), VendAgreement."No.", EntryAmount, false);
+        // Ledger Entries that should be print in report
+        MockVendLedgEntryWithDtldEntry(
+          VendLedgEntry, Vendor, InvDate, InvDate, VendAgreement."No.", EntryAmount, true);
+        MockVendLedgEntryWithDtldEntry(
+          VendLedgEntry, Vendor, InvDate, InvDate, VendAgreement."No.", -EntryAmount, true);
     end;
 
     local procedure MockCustLedgEntryWithDtldEntry(var CustLedgEntryBuffer: Record "Cust. Ledger Entry"; Customer: Record Customer; PostingDate: Date; DtldEntryPostingDate: Date; AgreementNo: Code[20]; EntryAmount: Decimal; InsertInBuffer: Boolean)
@@ -293,30 +285,26 @@ codeunit 144704 "ERM INV-17 Report"
 
     local procedure MockCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; EntryNo: Integer; CustNo: Code[20]; CustPostGroupCode: Code[20]; PostingDate: Date; AgreementNo: Code[20])
     begin
-        with CustLedgEntry do begin
-            Init();
-            "Entry No." := EntryNo;
-            "Customer No." := CustNo;
-            "Customer Posting Group" := CustPostGroupCode;
-            "Posting Date" := PostingDate;
-            "Document Type" := "Document Type"::Invoice;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Agreement No." := AgreementNo;
-            Insert();
-        end;
+        CustLedgEntry.Init();
+        CustLedgEntry."Entry No." := EntryNo;
+        CustLedgEntry."Customer No." := CustNo;
+        CustLedgEntry."Customer Posting Group" := CustPostGroupCode;
+        CustLedgEntry."Posting Date" := PostingDate;
+        CustLedgEntry."Document Type" := CustLedgEntry."Document Type"::Invoice;
+        CustLedgEntry."Document No." := LibraryUtility.GenerateGUID();
+        CustLedgEntry."Agreement No." := AgreementNo;
+        CustLedgEntry.Insert();
     end;
 
     local procedure MockDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryNo: Integer; CustLedgEntryNo: Integer; DtldEntryPostingDate: Date; EntryAmount: Decimal)
     begin
-        with DtldCustLedgEntry do begin
-            Init();
-            "Entry No." := EntryNo;
-            "Cust. Ledger Entry No." := CustLedgEntryNo;
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            "Posting Date" := DtldEntryPostingDate;
-            "Amount (LCY)" := EntryAmount;
-            Insert();
-        end;
+        DtldCustLedgEntry.Init();
+        DtldCustLedgEntry."Entry No." := EntryNo;
+        DtldCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntryNo;
+        DtldCustLedgEntry."Entry Type" := DtldCustLedgEntry."Entry Type"::"Initial Entry";
+        DtldCustLedgEntry."Posting Date" := DtldEntryPostingDate;
+        DtldCustLedgEntry."Amount (LCY)" := EntryAmount;
+        DtldCustLedgEntry.Insert();
     end;
 
     local procedure MockVendLedgEntryWithDtldEntry(var VendLedgEntryBuffer: Record "Vendor Ledger Entry"; Vendor: Record Vendor; PostingDate: Date; DtldEntryPostingDate: Date; AgreementNo: Code[20]; EntryAmount: Decimal; InsertInBuffer: Boolean)
@@ -347,30 +335,26 @@ codeunit 144704 "ERM INV-17 Report"
 
     local procedure MockVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; EntryNo: Integer; VendNo: Code[20]; VendPostGroupCode: Code[20]; PostingDate: Date; AgreementNo: Code[20])
     begin
-        with VendLedgEntry do begin
-            Init();
-            "Entry No." := EntryNo;
-            "Vendor No." := VendNo;
-            "Vendor Posting Group" := VendPostGroupCode;
-            "Posting Date" := PostingDate;
-            "Document Type" := "Document Type"::Invoice;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Agreement No." := AgreementNo;
-            Insert();
-        end;
+        VendLedgEntry.Init();
+        VendLedgEntry."Entry No." := EntryNo;
+        VendLedgEntry."Vendor No." := VendNo;
+        VendLedgEntry."Vendor Posting Group" := VendPostGroupCode;
+        VendLedgEntry."Posting Date" := PostingDate;
+        VendLedgEntry."Document Type" := VendLedgEntry."Document Type"::Invoice;
+        VendLedgEntry."Document No." := LibraryUtility.GenerateGUID();
+        VendLedgEntry."Agreement No." := AgreementNo;
+        VendLedgEntry.Insert();
     end;
 
     local procedure MockDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryNo: Integer; VendLedgEntryNo: Integer; DtldEntryPostingDate: Date; EntryAmount: Decimal)
     begin
-        with DtldVendLedgEntry do begin
-            Init();
-            "Entry No." := EntryNo;
-            "Vendor Ledger Entry No." := VendLedgEntryNo;
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            "Posting Date" := DtldEntryPostingDate;
-            "Amount (LCY)" := EntryAmount;
-            Insert();
-        end;
+        DtldVendLedgEntry.Init();
+        DtldVendLedgEntry."Entry No." := EntryNo;
+        DtldVendLedgEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
+        DtldVendLedgEntry."Entry Type" := DtldVendLedgEntry."Entry Type"::"Initial Entry";
+        DtldVendLedgEntry."Posting Date" := DtldEntryPostingDate;
+        DtldVendLedgEntry."Amount (LCY)" := EntryAmount;
+        DtldVendLedgEntry.Insert();
     end;
 
     local procedure GetContractorName(ContractorType: Option; ContractorNo: Code[20]): Text[250]
@@ -397,44 +381,36 @@ codeunit 144704 "ERM INV-17 Report"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(CustNo);
-            exit(
-              Name + "Name 2" + ', ' + Address +
-              "Address 2" + ', ' + "Phone No.");
-        end;
+        Customer.Get(CustNo);
+        exit(
+          Customer.Name + Customer."Name 2" + ', ' + Customer.Address +
+          Customer."Address 2" + ', ' + Customer."Phone No.");
     end;
 
     local procedure GetCustAgrDescription(CustLedgEntry: Record "Cust. Ledger Entry"): Text
     var
         CustAgreement: Record "Customer Agreement";
     begin
-        with CustLedgEntry do begin
-            CustAgreement.Get("Customer No.", "Agreement No.");
-            exit(Description + ' ' + CustAgreement.Description);
-        end;
+        CustAgreement.Get(CustLedgEntry."Customer No.", CustLedgEntry."Agreement No.");
+        exit(CustLedgEntry.Description + ' ' + CustAgreement.Description);
     end;
 
     local procedure GetVendFullNameAndContacts(VendNo: Code[20]): Text
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(VendNo);
-            exit(
-              Name + "Name 2" + ', ' + Address +
-              "Address 2" + ', ' + "Phone No.");
-        end;
+        Vendor.Get(VendNo);
+        exit(
+          Vendor.Name + Vendor."Name 2" + ', ' + Vendor.Address +
+          Vendor."Address 2" + ', ' + Vendor."Phone No.");
     end;
 
     local procedure GetVendAgrDescription(VendLedgEntry: Record "Vendor Ledger Entry"): Text
     var
         VendAgreement: Record "Vendor Agreement";
     begin
-        with VendLedgEntry do begin
-            VendAgreement.Get("Vendor No.", "Agreement No.");
-            exit(Description + ' ' + VendAgreement.Description);
-        end;
+        VendAgreement.Get(VendLedgEntry."Vendor No.", VendLedgEntry."Agreement No.");
+        exit(VendLedgEntry.Description + ' ' + VendAgreement.Description);
     end;
 
     local procedure CalcDebtLiabilitiesAmount(var DebtsAmount: Decimal; var LiabilitiesAmount: Decimal; Amount: Decimal)
@@ -449,13 +425,11 @@ codeunit 144704 "ERM INV-17 Report"
 
     local procedure SummarizeAmounts(var ToInvActLine: Record "Invent. Act Line"; FromInvActLine: Record "Invent. Act Line")
     begin
-        with ToInvActLine do begin
-            "Total Amount" += FromInvActLine."Total Amount";
-            "Confirmed Amount" += FromInvActLine."Confirmed Amount";
-            "Not Confirmed Amount" += FromInvActLine."Not Confirmed Amount";
-            "Overdue Amount" += FromInvActLine."Overdue Amount";
-            Modify();
-        end;
+        ToInvActLine."Total Amount" += FromInvActLine."Total Amount";
+        ToInvActLine."Confirmed Amount" += FromInvActLine."Confirmed Amount";
+        ToInvActLine."Not Confirmed Amount" += FromInvActLine."Not Confirmed Amount";
+        ToInvActLine."Overdue Amount" += FromInvActLine."Overdue Amount";
+        ToInvActLine.Modify();
     end;
 
     local procedure RunINV17Report(InvtActHeader: Record "Invent. Act Header")
@@ -509,19 +483,17 @@ codeunit 144704 "ERM INV-17 Report"
         for CategoryType := TempInvtActLine.Category::Debts to TempInvtActLine.Category::Liabilities do begin
             TempInvtActLine.SetRange(Category, CategoryType);
             TempInvtActLine.FindSet();
-            with TempInvtActLine do begin
-                repeat
-                    VerifyLineValue(
-                      RowShift,
-                      "Contractor Name",
-                      "G/L Account No.",
-                      "Total Amount",
-                      "Confirmed Amount",
-                      "Not Confirmed Amount",
-                      "Overdue Amount");
-                    RowShift += 1;
-                until Next() = 0;
-            end;
+            repeat
+                VerifyLineValue(
+                  RowShift,
+                  TempInvtActLine."Contractor Name",
+                  TempInvtActLine."G/L Account No.",
+                  TempInvtActLine."Total Amount",
+                  TempInvtActLine."Confirmed Amount",
+                  TempInvtActLine."Not Confirmed Amount",
+                  TempInvtActLine."Overdue Amount");
+                RowShift += 1;
+            until TempInvtActLine.Next() = 0;
             RowShift += 6; // Printing of page header
         end;
     end;
@@ -552,20 +524,18 @@ codeunit 144704 "ERM INV-17 Report"
         DebtsAmount: Decimal;
         LiabilitiesAmount: Decimal;
     begin
-        with CustLedgEntry do begin
-            FindSet();
-            repeat
-                CalcFields("Remaining Amt. (LCY)");
-                TestField("Remaining Amt. (LCY)");
-                CalcDebtLiabilitiesAmount(DebtsAmount, LiabilitiesAmount, "Remaining Amt. (LCY)");
-                VerifySupplementLineValue(
-                  Counter, GetCustFullNameAndContacts("Customer No."),
-                  GetCustAgrDescription(CustLedgEntry), Format("Posting Date"),
-                  Format(DebtsAmount), Format(LiabilitiesAmount),
-                  Format("Document Type"), "Document No.", Format("Posting Date"));
-                Counter += 1;
-            until Next() = 0;
-        end;
+        CustLedgEntry.FindSet();
+        repeat
+            CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
+            CustLedgEntry.TestField("Remaining Amt. (LCY)");
+            CalcDebtLiabilitiesAmount(DebtsAmount, LiabilitiesAmount, CustLedgEntry."Remaining Amt. (LCY)");
+            VerifySupplementLineValue(
+              Counter, GetCustFullNameAndContacts(CustLedgEntry."Customer No."),
+              GetCustAgrDescription(CustLedgEntry), Format(CustLedgEntry."Posting Date"),
+              Format(DebtsAmount), Format(LiabilitiesAmount),
+              Format(CustLedgEntry."Document Type"), CustLedgEntry."Document No.", Format(CustLedgEntry."Posting Date"));
+            Counter += 1;
+        until CustLedgEntry.Next() = 0;
     end;
 
     local procedure VerifySupplementLineValuesFromVendBuffer(var VendLedgEntry: Record "Vendor Ledger Entry" temporary; var Counter: Integer)
@@ -573,20 +543,18 @@ codeunit 144704 "ERM INV-17 Report"
         DebtsAmount: Decimal;
         LiabilitiesAmount: Decimal;
     begin
-        with VendLedgEntry do begin
-            FindSet();
-            repeat
-                CalcFields("Remaining Amt. (LCY)");
-                TestField("Remaining Amt. (LCY)");
-                CalcDebtLiabilitiesAmount(DebtsAmount, LiabilitiesAmount, "Remaining Amt. (LCY)");
-                VerifySupplementLineValue(
-                  Counter, GetVendFullNameAndContacts("Vendor No."),
-                  GetVendAgrDescription(VendLedgEntry), Format("Posting Date"),
-                  Format(DebtsAmount), Format(LiabilitiesAmount),
-                  Format("Document Type"), "Document No.", Format("Posting Date"));
-                Counter += 1;
-            until Next() = 0;
-        end;
+        VendLedgEntry.FindSet();
+        repeat
+            VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
+            VendLedgEntry.TestField("Remaining Amt. (LCY)");
+            CalcDebtLiabilitiesAmount(DebtsAmount, LiabilitiesAmount, VendLedgEntry."Remaining Amt. (LCY)");
+            VerifySupplementLineValue(
+              Counter, GetVendFullNameAndContacts(VendLedgEntry."Vendor No."),
+              GetVendAgrDescription(VendLedgEntry), Format(VendLedgEntry."Posting Date"),
+              Format(DebtsAmount), Format(LiabilitiesAmount),
+              Format(VendLedgEntry."Document Type"), VendLedgEntry."Document No.", Format(VendLedgEntry."Posting Date"));
+            Counter += 1;
+        until VendLedgEntry.Next() = 0;
     end;
 
     local procedure VerifySupplementLineValue(Counter: Integer; Name: Text; AgreementDescription: Text; DocDate: Text; DebtsAmount: Text; LiabilitiesAmount: Text; DocType: Text; DocNo: Text; PostingDate: Text)

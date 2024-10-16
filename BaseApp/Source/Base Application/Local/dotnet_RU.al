@@ -13,11 +13,4 @@ dotnet
         {
         }
     }
-
-    assembly("Microsoft.Dynamics.Nav.Integration.Office")
-    {
-        type("Microsoft.Dynamics.Nav.Integration.Helper"; "Helper")
-        {
-        }
-    }
 }

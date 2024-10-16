@@ -682,9 +682,9 @@ table 274 "Bank Acc. Reconciliation Line"
                                     if Vend.FindFirst() then begin
                                         VendBankAcc.SetRange("Vendor No.", Vend."No.");
                                         VendBankAcc.SetRange("Bank Account No.", BankAccountNo);
-                                        if VendBankAcc.FindLast() then begin
-                                            "Line Status" := "Line Status"::"Contractor Confirmed";
-                                        end else
+                                        if VendBankAcc.FindLast() then
+                                            "Line Status" := "Line Status"::"Contractor Confirmed"
+                                        else
                                             IncorrectContractor();
                                     end else
                                         IncorrectContractor();
@@ -700,9 +700,9 @@ table 274 "Bank Acc. Reconciliation Line"
                                     if Cust.FindFirst() then begin
                                         CustBankAcc.SetRange("Customer No.", Cust."No.");
                                         CustBankAcc.SetRange("Bank Account No.", BankAccountNo);
-                                        if CustBankAcc.FindLast() then begin
-                                            "Line Status" := "Line Status"::"Contractor Confirmed";
-                                        end else
+                                        if CustBankAcc.FindLast() then
+                                            "Line Status" := "Line Status"::"Contractor Confirmed"
+                                        else
                                             IncorrectContractor();
                                     end else
                                         IncorrectContractor();
@@ -723,9 +723,8 @@ table 274 "Bank Acc. Reconciliation Line"
                                 end;
                         end;
                     end else
-                        if "Line Status" = "Line Status"::"Contractor Confirmed" then begin
+                        if "Line Status" = "Line Status"::"Contractor Confirmed" then
                             "Line Status" := "Line Status"::Imported;
-                        end;
 
                 if "Entity No." <> xRec."Entity No." then
                     CalculateDebitCreditAmount();
@@ -1084,7 +1083,7 @@ table 274 "Bank Acc. Reconciliation Line"
                     Validate("Debit Amount", 0);
                     Validate("Credit Amount", "Statement Amount");
                 end;
-            end else begin
+            end else
                 if ("Document Type" = "Document Type"::Refund) and ("Entity Type" = "Entity Type"::"G/L Account") then begin
                     Validate("Debit Amount", 0);
                     Validate("Credit Amount", "Statement Amount");
@@ -1092,7 +1091,6 @@ table 274 "Bank Acc. Reconciliation Line"
                     Validate("Debit Amount", "Statement Amount");
                     Validate("Credit Amount", 0);
                 end;
-            end;
         end else begin
             Validate("Debit Amount", 0);
             Validate("Credit Amount", 0);

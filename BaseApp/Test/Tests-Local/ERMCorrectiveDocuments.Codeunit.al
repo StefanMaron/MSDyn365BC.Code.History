@@ -27,16 +27,13 @@ codeunit 144017 "ERM Corrective Documents"
         // [SCENARIO 362383] "Vend. VAT Invoice Date" should not depend on "Posting Date"
 
         Initialize();
-        with PurchHeader do begin
-            // [GIVEN] "Posting Date" = "X"
-            "Posting Date" := WorkDate();
-            // [WHEN] "Vend. VAT Invoice Date" = "X" - 1
-            Validate("Vendor VAT Invoice Date", "Posting Date" - 1);
-
-            // [THEN] "Vend. VAT Invoice Date" = "X" - 1
-            Assert.AreEqual(
-              "Posting Date" - 1, "Vendor VAT Invoice Date", FieldCaption("Vendor VAT Invoice Date"));
-        end;
+        // [GIVEN] "Posting Date" = "X"
+        PurchHeader."Posting Date" := WorkDate();
+        // [WHEN] "Vend. VAT Invoice Date" = "X" - 1
+        PurchHeader.Validate("Vendor VAT Invoice Date", PurchHeader."Posting Date" - 1);
+        // [THEN] "Vend. VAT Invoice Date" = "X" - 1
+        Assert.AreEqual(
+          PurchHeader."Posting Date" - 1, PurchHeader."Vendor VAT Invoice Date", PurchHeader.FieldCaption("Vendor VAT Invoice Date"));
     end;
 
     [Test]
@@ -49,16 +46,13 @@ codeunit 144017 "ERM Corrective Documents"
         // [SCENARIO 362383] "Vend. VAT Invoice Rcvd Date" should not depend on "Posting Date"
 
         Initialize();
-        with PurchHeader do begin
-            // [GIVEN] "Posting Date" = "X"
-            "Posting Date" := WorkDate();
-            // [WHEN] "Vend. VAT Invoice Rcvd Date" = "X" - 1
-            Validate("Vendor VAT Invoice Rcvd Date", "Posting Date" - 1);
-
-            // [THEN] "Vend. VAT Invoice Rcvd Date" = "X" - 1
-            Assert.AreEqual(
-              "Posting Date" - 1, "Vendor VAT Invoice Rcvd Date", FieldCaption("Vendor VAT Invoice Date"));
-        end;
+        // [GIVEN] "Posting Date" = "X"
+        PurchHeader."Posting Date" := WorkDate();
+        // [WHEN] "Vend. VAT Invoice Rcvd Date" = "X" - 1
+        PurchHeader.Validate("Vendor VAT Invoice Rcvd Date", PurchHeader."Posting Date" - 1);
+        // [THEN] "Vend. VAT Invoice Rcvd Date" = "X" - 1
+        Assert.AreEqual(
+          PurchHeader."Posting Date" - 1, PurchHeader."Vendor VAT Invoice Rcvd Date", PurchHeader.FieldCaption("Vendor VAT Invoice Date"));
     end;
 
     [Test]

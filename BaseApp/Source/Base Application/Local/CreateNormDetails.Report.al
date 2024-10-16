@@ -147,7 +147,9 @@ report 17207 "Create Norm Details"
         DateEnd: Date;
         Periodicity: Option Month,Quarter,Year;
         AccountPeriod: Text[30];
+#pragma warning disable AA0074
         Text1001: Label 'Existing details will be delete.\Continue?';
+#pragma warning restore AA0074
         DeleteWasConfirmed: Boolean;
 
     [Scope('OnPrem')]

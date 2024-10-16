@@ -452,8 +452,12 @@ page 17306 "Tax Difference Journal"
         SourceName: Text[50];
         ShortcutDimCode: array[8] of Code[20];
         OpenedFromBatch: Boolean;
+#pragma warning disable AA0074
         Text19047108: Label 'Tax. Diff. Name';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text19033216: Label 'Source Name';
+#pragma warning restore AA0074
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin

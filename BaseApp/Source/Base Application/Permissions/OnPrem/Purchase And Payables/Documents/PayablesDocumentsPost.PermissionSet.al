@@ -65,8 +65,10 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Bank Account Ledger Entry" = rim,
                   tabledata "Batch Processing Parameter" = Rimd,
                   tabledata "Batch Processing Session Map" = Rimd,
+#if not CLEAN25
                   tabledata "CD No. Header" = RIMD,
                   tabledata "CD No. Information" = RIMD,
+#endif                  
                   tabledata "Check Ledger Entry" = rim,
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,

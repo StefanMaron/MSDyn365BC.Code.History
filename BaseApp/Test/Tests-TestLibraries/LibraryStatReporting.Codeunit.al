@@ -39,17 +39,15 @@ codeunit 143014 "Library - Stat. Reporting"
     var
         RecRef: RecordRef;
     begin
-        with XMLElementLine do begin
-            Init();
-            "Report Code" := ReportCode;
-            RecRef.GetTable(XMLElementLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "Source Type" := SourceType;
-            "Data Type" := "Data Type"::Integer;
-            Value := LineValue;
-            Insert();
-            exit("Line No.");
-        end;
+        XMLElementLine.Init();
+        XMLElementLine."Report Code" := ReportCode;
+        RecRef.GetTable(XMLElementLine);
+        XMLElementLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, XMLElementLine.FieldNo("Line No."));
+        XMLElementLine."Source Type" := SourceType;
+        XMLElementLine."Data Type" := XMLElementLine."Data Type"::Integer;
+        XMLElementLine.Value := LineValue;
+        XMLElementLine.Insert();
+        exit(XMLElementLine."Line No.");
     end;
 
     [Scope('OnPrem')]
@@ -58,15 +56,13 @@ codeunit 143014 "Library - Stat. Reporting"
         XMLElementExpressionLine: Record "XML Element Expression Line";
         RecRef: RecordRef;
     begin
-        with XMLElementExpressionLine do begin
-            Init();
-            "Report Code" := ReportCode;
-            "Base XML Element Line No." := BaseXMLElementLineNo;
-            RecRef.GetTable(XMLElementExpressionLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "XML Element Line No." := ChildXMLElementLineNo;
-            Insert();
-        end;
+        XMLElementExpressionLine.Init();
+        XMLElementExpressionLine."Report Code" := ReportCode;
+        XMLElementExpressionLine."Base XML Element Line No." := BaseXMLElementLineNo;
+        RecRef.GetTable(XMLElementExpressionLine);
+        XMLElementExpressionLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, XMLElementExpressionLine.FieldNo("Line No."));
+        XMLElementExpressionLine."XML Element Line No." := ChildXMLElementLineNo;
+        XMLElementExpressionLine.Insert();
     end;
 
     [Scope('OnPrem')]

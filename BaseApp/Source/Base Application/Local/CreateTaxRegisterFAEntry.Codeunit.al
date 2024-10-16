@@ -7,7 +7,11 @@ codeunit 17205 "Create Tax Register FA Entry"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000900: Label 'Search Table    #4############################\Begin period    #1##########\End period      #2##########\@3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TaxRegSetup: Record "Tax Register Setup";
         Window: Dialog;
 

@@ -530,7 +530,9 @@ page 9261 "Contr. G/Loss (Cust.) Matrix"
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         ShipToFilter: Text[250];
         CustomerFilter: Text[250];
+#pragma warning disable AA0074
         Text000: Label '<Sign><Integer Thousand><Decimals,3>', Locked = true;
+#pragma warning restore AA0074
         Field1Visible: Boolean;
         Field2Visible: Boolean;
         Field3Visible: Boolean;

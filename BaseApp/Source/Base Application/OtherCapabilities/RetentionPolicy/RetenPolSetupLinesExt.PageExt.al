@@ -31,6 +31,7 @@ pageextension 3997 "Reten. Pol. Setup Lines Ext." extends "Retention Policy Setu
     internal procedure SetIsDocumentArchiveTable(TableId: Integer)
     begin
         IsDocumentArchiveTable := TableId in [Database::"Sales Header Archive", Database::"Purchase Header Archive", Database::"Job Archive"];
+        OnAfterSetIsDocumentArchiveTable(TableId, IsDocumentArchiveTable);
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -42,5 +43,10 @@ pageextension 3997 "Reten. Pol. Setup Lines Ext." extends "Retention Policy Setu
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         RecIsLocked := false;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetIsDocumentArchiveTable(TableId: Integer; var IsDocumentArchiveTable: Boolean)
+    begin
     end;
 }

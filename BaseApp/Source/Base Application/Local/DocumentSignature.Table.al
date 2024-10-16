@@ -91,7 +91,11 @@ table 12420 "Document Signature"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You can not rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Employee: Record Employee;
 }
 

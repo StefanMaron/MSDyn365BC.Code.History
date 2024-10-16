@@ -9,6 +9,8 @@ page 5631 "FA Journal Template List"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = "FA Journal Template";
+    AboutTitle = 'About FA Journal Template List';
+    AboutText = 'With the **FA Journal Template List** you can review all the templates created related to the fixed assets process.';
 
     layout
     {

@@ -41,7 +41,6 @@ codeunit 137161 "SCM Warehouse Orders"
         CrossDockWarehouseEntryErr: Label 'Cross Dock Warehouse Entry must not exist.';
         DateCompressConfirmMsg: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         EmailBlankErr: Label 'Email must have a value in Contact: No.=%1', Locked = true;
-        ExpectedFailedErr: Label '%1 must be equal to ''%2''  in %3', Locked = true;
         ExpectedWarehousePickErrMsg: Label 'This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.';
         InventoryPickExistsAndShippingAdviceCompleteErr: Label 'You cannot add an item line because an open inventory pick exists for the Sales Header and because Shipping Advice is Complete.';
         InventoryPickMsg: Label 'Number of Invt. Pick activities created';
@@ -77,11 +76,9 @@ codeunit 137161 "SCM Warehouse Orders"
         // [SCENARIO 361128] Partial Pick Worksheet Line remains in the Pick Worksheet after Pick creation when Qty on ILE is enough
         Initialize();
 
-        with LibraryRandom do begin
-            QtyOnPO := RandDec(100, 2);
-            QtyResvdOnILE := RandDec(100, 2);
-            QtyOnInventory := QtyOnPO + QtyResvdOnILE + RandDecInRange(100, 200, 2);
-        end;
+        QtyOnPO := LibraryRandom.RandDec(100, 2);
+        QtyResvdOnILE := LibraryRandom.RandDec(100, 2);
+        QtyOnInventory := QtyOnPO + QtyResvdOnILE + LibraryRandom.RandDecInRange(100, 200, 2);
 
         // [GIVEN] Sales Order for Item with Qty = "Q"
         // [GIVEN] Item with Inventory "X", where "X" > "Q"
@@ -890,21 +887,17 @@ codeunit 137161 "SCM Warehouse Orders"
           SalesHeader, WhseWorksheetName, WhseWorksheetLine, LocationWhite.Code);
 
         // [GIVEN] Open Pick Worksheet, set partial Qty. to handle.
-        with WhseWorksheetLine do begin
-            Validate("Qty. to Handle", "Qty. Outstanding" / 2);
-            Modify(true);
-            ExpectedQty := "Qty. Outstanding" - "Qty. to Handle";
-
-            // [WHEN] Create Pick from Worksheet.
-            LibraryWarehouse.CreatePickFromPickWorksheet(
-              WhseWorksheetLine, "Line No.", "Worksheet Template Name", Name,
-              LocationWhite.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
-
-            // [THEN] Outstanding Quantity for the pick line is decreased by picked quantity.
-            Find();
-            Assert.AreEqual(
-              ExpectedQty, "Qty. Outstanding", StrSubstNo(QtyToCrossDockErr, FieldCaption("Qty. Outstanding")));
-        end;
+        WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine."Qty. Outstanding" / 2);
+        WhseWorksheetLine.Modify(true);
+        ExpectedQty := WhseWorksheetLine."Qty. Outstanding" - WhseWorksheetLine."Qty. to Handle";
+        // [WHEN] Create Pick from Worksheet.
+        LibraryWarehouse.CreatePickFromPickWorksheet(
+          WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
+          LocationWhite.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
+        // [THEN] Outstanding Quantity for the pick line is decreased by picked quantity.
+        WhseWorksheetLine.Find();
+        Assert.AreEqual(
+          ExpectedQty, WhseWorksheetLine."Qty. Outstanding", StrSubstNo(QtyToCrossDockErr, WhseWorksheetLine.FieldCaption("Qty. Outstanding")));
     end;
 
     [Test]
@@ -951,22 +944,17 @@ codeunit 137161 "SCM Warehouse Orders"
         // [GIVEN] Create Pick Worksheet line, related to Sales Order.
         CreatePartialPickForWhseShipment(
           SalesHeader, WhseWorksheetName, WhseWorksheetLine, LocationWhite.Code);
-
         // [GIVEN] Open Pick Worksheet, set "Qty. to Handle" to (X / 2).
-        with WhseWorksheetLine do begin
-            Validate("Qty. to Handle", QtyOnStock / 2);
-            Modify(true);
-
-            // [WHEN] Create Pick from Worksheet.
-            LibraryWarehouse.CreatePickFromPickWorksheet(
-              WhseWorksheetLine, "Line No.", "Worksheet Template Name", Name,
-              LocationWhite.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
-
-            // [THEN] "Qty. Outstanding" for the pick line is (X / 2).
-            Find();
-            Assert.AreEqual(
-              QtyOnStock / 2, "Qty. Outstanding", StrSubstNo(QtyToCrossDockErr, FieldCaption("Qty. Outstanding")));
-        end;
+        WhseWorksheetLine.Validate("Qty. to Handle", QtyOnStock / 2);
+        WhseWorksheetLine.Modify(true);
+        // [WHEN] Create Pick from Worksheet.
+        LibraryWarehouse.CreatePickFromPickWorksheet(
+          WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
+          LocationWhite.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
+        // [THEN] "Qty. Outstanding" for the pick line is (X / 2).
+        WhseWorksheetLine.Find();
+        Assert.AreEqual(
+          QtyOnStock / 2, WhseWorksheetLine."Qty. Outstanding", StrSubstNo(QtyToCrossDockErr, WhseWorksheetLine.FieldCaption("Qty. Outstanding")));
 
         // Teardown.
         UpdateAlwaysCreatePickLine(LocationWhite.Code, PrevAlwaysCreatePickLine);
@@ -3215,13 +3203,11 @@ codeunit 137161 "SCM Warehouse Orders"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         CreateSalesLine(SalesHeader, SalesLine, ItemNo, Quantity, LocationCode);
-        with SalesLine do begin
-            Validate("Unit of Measure Code", UOMCode);
-            Validate("Shipment Date", WorkDate() + LibraryRandom.RandInt(5));
-            Modify();
-            if DoReserve then
-                ShowReservation();
-        end;
+        SalesLine.Validate("Unit of Measure Code", UOMCode);
+        SalesLine.Validate("Shipment Date", WorkDate() + LibraryRandom.RandInt(5));
+        SalesLine.Modify();
+        if DoReserve then
+            SalesLine.ShowReservation();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -3813,12 +3799,10 @@ codeunit 137161 "SCM Warehouse Orders"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Get(LocationCode);
-            PrevAlwaysCreatePickLine := "Always Create Pick Line";
-            Validate("Always Create Pick Line", SetAlwaysCreatePickLine);
-            Modify(true);
-        end;
+        Location.Get(LocationCode);
+        PrevAlwaysCreatePickLine := Location."Always Create Pick Line";
+        Location.Validate("Always Create Pick Line", SetAlwaysCreatePickLine);
+        Location.Modify(true);
     end;
 
     local procedure UpdateBinCodeJobNoAndJobTaskNoOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task"; BinCode: Code[20])
@@ -4022,8 +4006,7 @@ codeunit 137161 "SCM Warehouse Orders"
     var
         ProdOrderComp: Record "Prod. Order Component";
     begin
-        with ProdOrderComp do
-            Assert.ExpectedError(StrSubstNo(ExpectedFailedErr, FieldCaption("Reserved Qty. (Base)"), 0, TableCaption));
+        Assert.ExpectedTestFieldError(ProdOrderComp.FieldCaption("Reserved Qty. (Base)"), Format(0));
     end;
 
     local procedure VerifyCrossDockWarehouseEntry(SourceNo: Code[20]; Location: Record Location; ItemNo: Code[20]; Quantity: Decimal)

@@ -29,7 +29,7 @@ codeunit 139180 "CRM Entity Synch Test"
         MultipleSyncStartedMsg: Label 'The synchronization has been scheduled for 2 of 4 records. 0 records failed. 2 records were skipped.';
         ItemMustBeCoupledErr: Label '%1 %2 must be coupled to a record in %3.';
         PriceListMustBeCoupledErr: Label 'Price List Code %1 must be coupled to a record in %2.';
-#if not CLEAN23
+#if not CLEAN25
         SalesCodeMustBeCoupledErr: Label 'Sales Code %1 must be coupled to a record in %2.';
 #endif
         SalespersonMustBeCoupledErr: Label 'Salesperson Code %1 must be coupled to a record in %2.';
@@ -1626,7 +1626,7 @@ codeunit 139180 "CRM Entity Synch Test"
         VerifyIntegrationSynchJob(IntegrationTableMapping.Name, 0, 1);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
@@ -1820,7 +1820,7 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMProductpricelevel.TestField(Amount, PriceListLine[2]."Unit Price");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SyncModifiedSalesPriceIfCustPriceGroupIsNotCoupled()
@@ -1913,7 +1913,7 @@ codeunit 139180 "CRM Entity Synch Test"
             StrSubstNo(PriceListMustBeCoupledErr, PriceListHeader.Code, CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SyncDuplicateSalesPriceShouldCoupleRecords()
@@ -2000,7 +2000,7 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob.TestField(Modified, 1);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SyncPriceListForDecoupledItemShouldFail()
@@ -2121,7 +2121,7 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationFieldMapping.TestField(Direction, IntegrationFieldMapping.Direction::Bidirectional);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('TestSyncSingleRecordStrMenuHandler,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -2518,12 +2518,10 @@ codeunit 139180 "CRM Entity Synch Test"
     var
         CRMProductpricelevel: Record "CRM Productpricelevel";
     begin
-        with CRMProductpricelevel do begin
-            SetRange(ProductId, CRMProductId);
-            SetRange(PriceLevelId, CRMPriceLevelId);
-            FindFirst();
-            TestField(Amount, ExpectedAmount);
-        end;
+        CRMProductpricelevel.SetRange(ProductId, CRMProductId);
+        CRMProductpricelevel.SetRange(PriceLevelId, CRMPriceLevelId);
+        CRMProductpricelevel.FindFirst();
+        CRMProductpricelevel.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure OneDayBefore(DateTime: DateTime): DateTime
@@ -2537,12 +2535,14 @@ codeunit 139180 "CRM Entity Synch Test"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);

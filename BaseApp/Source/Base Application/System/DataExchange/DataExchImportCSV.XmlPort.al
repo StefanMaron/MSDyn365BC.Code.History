@@ -82,10 +82,15 @@ xmlport 1220 "Data Exch. Import - CSV"
     }
 
     trigger OnPostXmlPort()
+    var
+        ErrorMessage: Text;
     begin
         if not ColumnsAsRows then
-            if (not LastLineIsFooter and SkipLine) or HeaderWarning then
-                Error(LastLineIsHeaderErr);
+            if (not LastLineIsFooter and SkipLine) or HeaderWarning then begin
+                ErrorMessage := LastLineIsHeaderErr;
+                OnNoLinesFoundSetErrorMessage(ErrorMessage);
+                Error(ErrorMessage);
+            end;
     end;
 
     trigger OnPreXmlPort()
@@ -189,20 +194,24 @@ xmlport 1220 "Data Exch. Import - CSV"
                 CurrentLineType := LineType::Header;
             (FooterTag <> '') and (StrLen(col1) <= FooterTagLength()) and (StrPos(FooterTag, col1) = 1):
                 CurrentLineType := LineType::Footer;
-            else begin
+            else
                 if ColumnsAsRows then
                     IdentifyLineTypeByColumnName()
                 else
                     CurrentLineType := LineType::Data;
-            end;
         end;
     end;
 
     local procedure ValidateNonDataLine()
+    var
+        ErrorMessage: Text;
     begin
         if CurrentLineType = LineType::Header then
-            if (HeaderTag <> '') and (StrLen(col1) <= HeaderTagLength()) and (StrPos(HeaderTag, col1) = 0) then
-                Error(WrongHeaderErr);
+            if (HeaderTag <> '') and (StrLen(col1) <= HeaderTagLength()) and (StrPos(HeaderTag, col1) = 0) then begin
+                ErrorMessage := WrongHeaderErr;
+                OnInvalidHeaderSetErrorMessage(ErrorMessage);
+                Error(ErrorMessage);
+            end;
     end;
 
     local procedure TrackNonDataLines()
@@ -269,10 +278,25 @@ xmlport 1220 "Data Exch. Import - CSV"
     end;
 
     local procedure ValidateHeaderTag()
+    var
+        ErrorMessage: Text;
     begin
         if SkipLine and (CurrentLineType = LineType::Header) and (HeaderTag <> '') then
-            if StrPos(FullHeaderLine, HeaderTag) = 0 then
-                Error(WrongHeaderErr);
+            if StrPos(FullHeaderLine, HeaderTag) = 0 then begin
+                ErrorMessage := WrongHeaderErr;
+                OnInvalidHeaderSetErrorMessage(ErrorMessage);
+                Error(ErrorMessage);
+            end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInvalidHeaderSetErrorMessage(var ErrorMessage: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNoLinesFoundSetErrorMessage(var ErrorMessage: Text);
+    begin
     end;
 
     local procedure IdentifyLineTypeByColumnName()

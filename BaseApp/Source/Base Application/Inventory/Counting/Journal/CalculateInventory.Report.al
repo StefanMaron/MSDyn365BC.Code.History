@@ -352,10 +352,20 @@ report 790 "Calculate Inventory"
         NegQty: Decimal;
         ItemNotOnInventoryErr: Label 'Items Not on Inventory.';
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'Enter the document no.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Processing items    #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Retain Dimensions';
+#pragma warning restore AA0074
 
     protected var
         WhseEntry: Record "Warehouse Entry";
@@ -576,7 +586,7 @@ report 790 "Calculate Inventory"
                         ItemJnlLine."Line No.", ItemJnlLine."Qty. per Unit of Measure",
                         Abs(WhseEntry.Quantity), Abs(WhseEntry."Qty. (Base)"), ReservEntry);
                     if WhseEntry."Qty. (Base)" < 0 then
-                    // only Date on positive adjustments
+                        // only Date on positive adjustments
                         CreateReservEntry.SetDates(WhseEntry."Warranty Date", WhseEntry."Expiration Date");
                     CreateReservEntry.CreateEntry(
                         ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Location Code", ItemJnlLine.Description, 0D, 0D, 0, "Reservation Status"::Prospect);

@@ -50,12 +50,20 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%2 %3  with status %1 has been changed to %5 %6 with status %4.';
+#pragma warning restore AA0470
         Text002: Label 'Posting Automatic consumption...\\';
+#pragma warning disable AA0470
         Text003: Label 'Posting lines         #1###### @2@@@@@@@@@@@@@';
         Text004: Label '%1 %2 has not been finished. Some output is still missing. Do you still want to finish the order?';
+#pragma warning restore AA0470
         Text005: Label 'The update has been interrupted to respect the warning.';
+#pragma warning disable AA0470
         Text006: Label '%1 %2 has not been finished. Some consumption is still missing. Do you still want to finish the order?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ToProdOrder: Record "Production Order";
         SourceCodeSetup: Record "Source Code Setup";
         Item: Record Item;
@@ -74,9 +82,13 @@ codeunit 5407 "Prod. Order Status Management"
         NewPostingDate: Date;
         NewUpdateUnitCost: Boolean;
         SourceCodeSetupRead: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 %2 cannot be finished as the associated subcontract order %3 has not been fully delivered.';
         Text009: Label 'You cannot finish line %1 on %2 %3. It has consumption or capacity posted with no output.';
         Text010: Label 'You must specify a %1 in %2 %3 %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ProdOrderCompRemainToPickErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.', Comment = '%1: Production Order No.';
 
     procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)

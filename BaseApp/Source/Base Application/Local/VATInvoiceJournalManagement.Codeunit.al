@@ -471,12 +471,11 @@ codeunit 12424 "VAT Invoice Journal Management"
     procedure GetVATRegKPP(VATRegNo: Code[20]; KPPCode: Code[10]) VATRegNoKPP: Text
     begin
         VATRegNoKPP := VATRegNo;
-        if KPPCode <> '' then begin
+        if KPPCode <> '' then
             if VATRegNoKPP <> '' then
                 VATRegNoKPP := VATRegNoKPP + ' / ' + KPPCode
             else
                 VATRegNoKPP := KPPCode;
-        end;
     end;
 
     local procedure GetDocAmounts(var AmtInclVATText: Text[30]; var VATAmtText: Text[30]; var Column: Option " ",Decrease,Increase; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Option Purchase,Sale; VATExempt: Boolean)
@@ -495,7 +494,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         VATAmtText := '';
         Column := Column::" ";
         Sign := 1;
-        if EntryType = EntryType::Sale then begin
+        if EntryType = EntryType::Sale then
             case DocType of
                 VATEntry."Document Type"::Invoice:
                     if SalesInvHeader.Get(DocNo) then begin
@@ -515,8 +514,8 @@ codeunit 12424 "VAT Invoice Journal Management"
                             Sign := -1;
                         CalcSalesCrMemoAmount(AmtInclVAT, VATAmount, SalesCrMemoHeader."No.");
                     end;
-            end;
-        end else
+            end
+        else
             case DocType of
                 VATEntry."Document Type"::Invoice:
                     if PurchInvHeader.Get(DocNo) then begin
@@ -559,12 +558,11 @@ codeunit 12424 "VAT Invoice Journal Management"
         if Currency.Get(CurrencyCode) then begin
             CurrencyDescription :=
               LowerCase(CopyStr(Currency.Description, 1, 1)) + CopyStr(Currency.Description, 2);
-            if Currency."RU Bank Digital Code" <> '' then begin
+            if Currency."RU Bank Digital Code" <> '' then
                 if CurrencyDescription <> '' then
                     CurrencyDescription := CurrencyDescription + '; ' + Currency."RU Bank Digital Code"
                 else
                     CurrencyDescription := Currency."RU Bank Digital Code";
-            end;
         end;
         exit(CurrencyDescription);
     end;
@@ -606,12 +604,11 @@ codeunit 12424 "VAT Invoice Journal Management"
                                         VendLedgEntry.SetCurrentKey("Document Type", "Document No.");
                                         VendLedgEntry.SetRange("Document Type", PurchInvHeader."Original Doc. Type");
                                         VendLedgEntry.SetRange("Document No.", PurchInvHeader."Original Doc. No.");
-                                        if VendLedgEntry.FindFirst() then begin
+                                        if VendLedgEntry.FindFirst() then
                                             if VendLedgEntry."Vendor VAT Invoice No." <> '' then
                                                 OrigVATInvNo := VendLedgEntry."Vendor VAT Invoice No."
                                             else
                                                 OrigVATInvNo := VendLedgEntry."Document No.";
-                                        end;
                                         VendLedgEntry.Reset();
                                     end;
                             end;
@@ -642,12 +639,11 @@ codeunit 12424 "VAT Invoice Journal Management"
                                         VendLedgEntry.SetCurrentKey("Document Type", "Document No.");
                                         VendLedgEntry.SetRange("Document Type", PurchCrMemoHeader."Original Doc. Type");
                                         VendLedgEntry.SetRange("Document No.", PurchCrMemoHeader."Original Doc. No.");
-                                        if VendLedgEntry.FindFirst() then begin
+                                        if VendLedgEntry.FindFirst() then
                                             if VendLedgEntry."Vendor VAT Invoice No." <> '' then
                                                 OrigVATInvNo := VendLedgEntry."Vendor VAT Invoice No."
                                             else
                                                 OrigVATInvNo := VendLedgEntry."Document No.";
-                                        end;
                                         VendLedgEntry.Reset();
                                     end;
                             end;
@@ -661,12 +657,11 @@ codeunit 12424 "VAT Invoice Journal Management"
                 EntryType := EntryType::Sale
             else
                 EntryType := EntryType::Purchase;
-        end else begin
+        end else
             if not (IsCrMemo and IsCrMemoIncludedInVatLedg(DocNo, ReportType)) then
                 EntryType := EntryType::Sale
             else
                 EntryType := EntryType::Purchase;
-        end;
     end;
 
     [Scope('OnPrem')]

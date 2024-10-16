@@ -205,13 +205,12 @@ report 12441 "Customer Accounting Card"
 
                         trigger OnAfterGetRecord()
                         begin
-                            if "Entry Type" = "Entry Type"::Application then begin
+                            if "Entry Type" = "Entry Type"::Application then
                                 if "Prepmt. Diff." then begin
                                     if HasRelatedRealizedEntry("Transaction No.") or (not IsCurrencyAdjEntry()) then
                                         CurrReport.Skip();
                                 end else
                                     CurrReport.Skip();
-                            end;
 
                             case "Entry Type" of
                                 "Entry Type"::"Unrealized Gain":
@@ -221,12 +220,11 @@ report 12441 "Customer Accounting Card"
                                         DtldCustLedgEntry2.SetRange("Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
                                         DtldCustLedgEntry2.SetRange("Entry Type", "Entry Type"::"Realized Gain");
                                         DtldCustLedgEntry2.SetRange("Posting Date", "Posting Date");
-                                        if DtldCustLedgEntry2.FindFirst() then begin
+                                        if DtldCustLedgEntry2.FindFirst() then
                                             if Abs("Amount (LCY)") >= Abs(DtldCustLedgEntry2."Amount (LCY)") then
                                                 "Credit Amount (LCY)" := "Credit Amount (LCY)" - DtldCustLedgEntry2."Debit Amount (LCY)"
                                             else
                                                 CurrReport.Skip();
-                                        end;
                                     end;
                                 "Entry Type"::"Realized Gain":
                                     begin
@@ -235,12 +233,11 @@ report 12441 "Customer Accounting Card"
                                         DtldCustLedgEntry2.SetRange("Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
                                         DtldCustLedgEntry2.SetRange("Entry Type", "Entry Type"::"Unrealized Gain");
                                         DtldCustLedgEntry2.SetRange("Posting Date", "Posting Date");
-                                        if DtldCustLedgEntry2.FindFirst() then begin
+                                        if DtldCustLedgEntry2.FindFirst() then
                                             if Abs("Amount (LCY)") >= Abs(DtldCustLedgEntry2."Amount (LCY)") then // print Realized Gain Debit
                                                 "Debit Amount (LCY)" := "Debit Amount (LCY)" - DtldCustLedgEntry2."Credit Amount (LCY)"
                                             else
                                                 CurrReport.Skip();
-                                        end;
                                     end;
                             end;
                         end;
@@ -342,10 +339,18 @@ report 12441 "Customer Accounting Card"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Debit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Credit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'Starting Balance as of ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Ending Balance as of ';
+#pragma warning restore AA0074
         DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         LocMgt: Codeunit "Localisation Management";
         CurrentDate: Text[30];
@@ -359,7 +364,11 @@ report 12441 "Customer Accounting Card"
         NewPageForCustomer: Boolean;
         RowNumber: Integer;
         PageNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'For Period from %1 to %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Customer_Accounting_CardCaptionLbl: Label 'Customer Accounting Card';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Posting_DateCaptionLbl: Label 'Posting Date';

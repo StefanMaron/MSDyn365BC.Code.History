@@ -346,11 +346,9 @@ codeunit 144507 "ERM FA Depreciation Bonus"
 
     local procedure FindFADeprLedgerEntry(FixedAssetNo: Code[20]; var FALedgerEntry: Record "FA Ledger Entry"; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     begin
-        with FALedgerEntry do begin
-            SetRange("FA No.", FixedAssetNo);
-            SetRange("FA Posting Type", FAPostingType);
-            FindFirst();
-        end;
+        FALedgerEntry.SetRange("FA No.", FixedAssetNo);
+        FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
+        FALedgerEntry.FindFirst();
     end;
 
     local procedure VerifyFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; Amount: Decimal; IsBonus: Boolean)
@@ -371,13 +369,11 @@ codeunit 144507 "ERM FA Depreciation Bonus"
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
           GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Fixed Asset", FixedAssetNo,
           Amount);
-        with GenJournalLine do begin
-            Validate("Posting Date", PostingDate);
-            Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("FA Posting Type", GenJournalLine."FA Posting Type"::"Acquisition Cost");
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalLine.Modify(true);
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -413,17 +409,15 @@ codeunit 144507 "ERM FA Depreciation Bonus"
     begin
         CreateFAJournalBatch(FAJournalBatch);
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
-        with FAJournalLine do begin
-            Validate("Document Type", DocumentType);
-            Validate("Document No.", GetDocumentNo(FAJournalBatch));
-            Validate("Posting Date", WorkDate());
-            Validate("FA Posting Date", WorkDate());
-            Validate("FA Posting Type", FAPostingType);
-            Validate("FA No.", FANo);
-            Validate(Amount, AmountValue);
-            Validate("Depreciation Book Code", DepreciationBookCode);
-            Modify(true);
-        end;
+        FAJournalLine.Validate("Document Type", DocumentType);
+        FAJournalLine.Validate("Document No.", GetDocumentNo(FAJournalBatch));
+        FAJournalLine.Validate("Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Type", FAPostingType);
+        FAJournalLine.Validate("FA No.", FANo);
+        FAJournalLine.Validate(Amount, AmountValue);
+        FAJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
+        FAJournalLine.Modify(true);
     end;
 
     local procedure CreateFAJournalBatch(var FAJournalBatch: Record "FA Journal Batch")
@@ -465,13 +459,11 @@ codeunit 144507 "ERM FA Depreciation Bonus"
           FAJournalLine, FixedAssetNo,
           AppreciationAmount, DeprBook,
           FAJournalLine."Document Type"::" ", FAJournalLine."FA Posting Type"::Appreciation);
-        with FAJournalLine do begin
-            Validate("Depreciation Book Code", DeprBook);
-            Validate("Depr. Bonus", IsDeprBonus);
-            Validate("FA Posting Date", PostingDate);
-            Validate("Posting Date", PostingDate);
-            Modify(true);
-        end;
+        FAJournalLine.Validate("Depreciation Book Code", DeprBook);
+        FAJournalLine.Validate("Depr. Bonus", IsDeprBonus);
+        FAJournalLine.Validate("FA Posting Date", PostingDate);
+        FAJournalLine.Validate("Posting Date", PostingDate);
+        FAJournalLine.Modify(true);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
 

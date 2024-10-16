@@ -82,6 +82,12 @@ report 491 "Delete Invd Blnkt Purch Orders"
                 if GuiAllowed() then
                     ProgressDialog.Open(ProcessingProgressTxt);
             end;
+
+            trigger OnPostDataItem()
+            begin
+                if GuiAllowed() then
+                    ProgressDialog.Close();
+            end;
         }
     }
 

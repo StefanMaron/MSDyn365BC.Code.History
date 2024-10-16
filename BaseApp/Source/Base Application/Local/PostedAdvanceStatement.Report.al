@@ -313,13 +313,12 @@ report 12454 "Posted Advance Statement"
     var
         k: Integer;
     begin
-        for k := 1 to 8 do begin
+        for k := 1 to 8 do
             if DtAccount[k] = '' then begin
                 DtAccount[k] := Account;
                 DtSum[k] := Sum;
                 exit;
-            end
-        end;
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -426,7 +425,7 @@ report 12454 "Posted Advance Statement"
         DtldVendLedgerEntry1.SetCurrentKey("Vendor Ledger Entry No.");
         DtldVendLedgerEntry1.SetRange("Vendor Ledger Entry No.", CreateVendLedgerEntry."Entry No.");
         DtldVendLedgerEntry1.SetRange(Unapplied, false);
-        if DtldVendLedgerEntry1.FindSet() then begin
+        if DtldVendLedgerEntry1.FindSet() then
             repeat
                 if DtldVendLedgerEntry1."Vendor Ledger Entry No." =
                    DtldVendLedgerEntry1."Applied Vend. Ledger Entry No."
@@ -437,7 +436,7 @@ report 12454 "Posted Advance Statement"
                       "Applied Vend. Ledger Entry No.", DtldVendLedgerEntry1."Applied Vend. Ledger Entry No.");
                     DtldVendLedgerEntry2.SetRange("Entry Type", DtldVendLedgerEntry2."Entry Type"::Application);
                     DtldVendLedgerEntry2.SetRange(Unapplied, false);
-                    if DtldVendLedgerEntry2.Find('-') then begin
+                    if DtldVendLedgerEntry2.Find('-') then
                         repeat
                             if DtldVendLedgerEntry2."Vendor Ledger Entry No." <>
                                DtldVendLedgerEntry2."Applied Vend. Ledger Entry No."
@@ -448,7 +447,6 @@ report 12454 "Posted Advance Statement"
                                     VendLedgerEntry.Mark(true);
                             end;
                         until DtldVendLedgerEntry2.Next() = 0;
-                    end;
                 end else begin
                     VendLedgerEntry.SetCurrentKey("Entry No.");
                     VendLedgerEntry.SetRange("Entry No.", DtldVendLedgerEntry1."Applied Vend. Ledger Entry No.");
@@ -456,7 +454,6 @@ report 12454 "Posted Advance Statement"
                         VendLedgerEntry.Mark(true);
                 end;
             until DtldVendLedgerEntry1.Next() = 0;
-        end;
         VendLedgerEntry.SetCurrentKey("Entry No.");
         VendLedgerEntry.SetRange("Entry No.");
         if CreateVendLedgerEntry."Closed by Entry No." <> 0 then begin

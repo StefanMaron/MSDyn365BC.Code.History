@@ -8,7 +8,11 @@
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text21000900: Label 'Search Table    #4############################\Begin period    #1##########\End period      #2##########\@3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure "Code"(StartDate: Date; EndDate: Date; TaxCalcSectionCode: Code[10])
@@ -102,14 +106,14 @@
                                     TaxCalcFAEntry.Insert();
                                 end;
                             else begin
-                                    TempTaxCalcFAEntry.FindSet();
-                                    repeat
-                                        TaxCalcFAEntry.TransferFields(TempTaxCalcFAEntry, false);
-                                        TaxCalcFAEntry.Disposed := Disposed;
-                                        TaxCalcFAEntry."Entry No." += 1;
-                                        TaxCalcFAEntry.Insert();
-                                    until TempTaxCalcFAEntry.Next() = 0;
-                                end;
+                                TempTaxCalcFAEntry.FindSet();
+                                repeat
+                                    TaxCalcFAEntry.TransferFields(TempTaxCalcFAEntry, false);
+                                    TaxCalcFAEntry.Disposed := Disposed;
+                                    TaxCalcFAEntry."Entry No." += 1;
+                                    TaxCalcFAEntry.Insert();
+                                until TempTaxCalcFAEntry.Next() = 0;
+                            end;
                         end;
                 end;
             until FixedAsset.Next() = 0;

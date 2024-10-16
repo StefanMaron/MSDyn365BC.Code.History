@@ -502,9 +502,11 @@ report 2502 "Day Book Vendor Ledger Entry"
         ActualAmount_Control35Caption_Control54Lbl: Label 'Actual Amount';
         MissingDateRangeFilterErr: Label 'Posting Date filter must be set.';
         MaxPostingDateErr: Label 'Posting Date period must not be longer than 1 year.';
+#pragma warning disable AA0470
         TotalForVendLedgerEntryLbl: Label 'Total for  %1 : %2.', Comment = 'Total for Vend. Ledger Entry 3403  ';
         TotalForDatePeriodStartLbl: Label 'Total for %1.', Comment = 'Total for posting date 12122012';
         AllAmountsAreInLbl: Label 'All amounts are in %1.', Comment = 'All amounts are in GBP';
+#pragma warning restore AA0470
 
     local procedure PrintGLDetailsOnAfterValidate()
     begin

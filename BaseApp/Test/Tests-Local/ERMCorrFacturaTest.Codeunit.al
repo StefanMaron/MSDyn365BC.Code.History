@@ -403,52 +403,44 @@ codeunit 144718 "ERM Corr. Factura Test"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate(Description, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Description), 0), 1, MaxStrLen(Description)));
-            Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
-            Validate("Tariff No.", CreateTariffNo());
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate(Description, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Item.Description), 0), 1, MaxStrLen(Item.Description)));
+        Item.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        Item.Validate("Tariff No.", CreateTariffNo());
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreateTariffNo(): Code[20]
     var
         TariffNumber: Record "Tariff Number";
     begin
-        with TariffNumber do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Tariff Number");
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-            exit("No.");
-        end;
+        TariffNumber.Init();
+        TariffNumber."No." := LibraryUtility.GenerateRandomCode(TariffNumber.FieldNo("No."), DATABASE::"Tariff Number");
+        TariffNumber.Description := LibraryUtility.GenerateGUID();
+        TariffNumber.Insert();
+        exit(TariffNumber."No.");
     end;
 
     local procedure CreateCurrency(): Code[10]
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            Get(LibraryERM.CreateCurrencyWithRandomExchRates());
-            Validate("RU Bank Digital Code", 'RUB');
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Modify(true);
-            exit(Code);
-        end;
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
+        Currency.Validate("RU Bank Digital Code", 'RUB');
+        Currency.Validate(Description, LibraryUtility.GenerateGUID());
+        Currency.Modify(true);
+        exit(Currency.Code);
     end;
 
     local procedure UpdateSalesReceivablesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Credit Warnings", "Credit Warnings"::"No Warning");
-            Validate("Stockout Warning", false);
-            Validate("Link Doc. Date To Posting Date", true);
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
+        SalesReceivablesSetup.Validate("Stockout Warning", false);
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure ReleaseSalesDocWithNewQuantity(SalesInvHeader: Record "Sales Header"; Multiplier: Decimal)
@@ -462,35 +454,27 @@ codeunit 144718 "ERM Corr. Factura Test"
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
     end;
 
     local procedure FindSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; DocumentNo: Code[20])
     begin
-        with SalesCrMemoLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        SalesCrMemoLine.FindFirst();
     end;
 
     local procedure FindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; DocumentNo: Code[20])
     begin
-        with SalesInvoiceLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.FindFirst();
     end;
 
     local procedure UpdateQuantityInSalesLine(var SalesLine: Record "Sales Line"; Multiplier: Decimal)
     begin
-        with SalesLine do begin
-            Validate("Quantity (After)", Round("Quantity (After)" * Multiplier, 1));
-            Modify(true);
-        end;
+        SalesLine.Validate("Quantity (After)", Round(SalesLine."Quantity (After)" * Multiplier, 1));
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateCurrency(var SalesHeader: Record "Sales Header")
@@ -618,13 +602,11 @@ codeunit 144718 "ERM Corr. Factura Test"
           LibraryReportValidation.GetFileName(), CompanyInformation."VAT Registration No." + ' / ' + CompanyInformation."KPP Code");
         LibraryRUReports.VerifyCorrFactura_BuyerName(FileName, LocalReportMgt.GetCustName(CustomerNo));
 
-        with Customer do begin
-            Get(CustomerNo);
-            LibraryRUReports.VerifyCorrFactura_BuyerAddress(
-              LibraryReportValidation.GetFileName(), LibraryRUReports.GetCustomerFullAddress("No."));
-            LibraryRUReports.VerifyCorrFactura_BuyerINN(
-              LibraryReportValidation.GetFileName(), "VAT Registration No." + ' / ' + "KPP Code");
-        end;
+        Customer.Get(CustomerNo);
+        LibraryRUReports.VerifyCorrFactura_BuyerAddress(
+          LibraryReportValidation.GetFileName(), LibraryRUReports.GetCustomerFullAddress(Customer."No."));
+        LibraryRUReports.VerifyCorrFactura_BuyerINN(
+          LibraryReportValidation.GetFileName(), Customer."VAT Registration No." + ' / ' + Customer."KPP Code");
     end;
 
     local procedure VerifyCorrFacturaReportLine(ItemNo: Code[20]; Price: Decimal; Amount: Decimal; VATPct: Decimal; VATAmount: Decimal; AmountInclVAT: Decimal)

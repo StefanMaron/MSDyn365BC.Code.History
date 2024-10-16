@@ -191,7 +191,11 @@ table 14926 "Default VAT Allocation Line"
 
     var
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The maximum permitted value for total %1 is 100.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var

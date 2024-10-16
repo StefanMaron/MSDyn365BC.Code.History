@@ -859,12 +859,10 @@ codeunit 144007 "ERM VAT Reinstatement"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetCurrentKey(Type, "Bill-to/Pay-to No.");
-            SetRange("Bill-to/Pay-to No.", VendNo);
-            FindLast();
-            exit("Entry No.");
-        end;
+        VATEntry.SetCurrentKey(Type, "Bill-to/Pay-to No.");
+        VATEntry.SetRange("Bill-to/Pay-to No.", VendNo);
+        VATEntry.FindLast();
+        exit(VATEntry."Entry No.");
     end;
 
     local procedure FindDocNosFromGenJnlLine(var DocNo: array[2] of Code[20]; var GenJnlLine: Record "Gen. Journal Line"; VendNo: Code[20])

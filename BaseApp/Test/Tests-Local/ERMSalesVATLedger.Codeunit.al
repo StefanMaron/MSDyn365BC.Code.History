@@ -418,17 +418,15 @@ codeunit 147130 "ERM Sales VAT Ledger"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Posting Date" := VATEntry."Posting Date";
-            "Vendor No." := VATEntry."Bill-to/Pay-to No.";
-            "Document Type" := VATEntry."Document Type";
-            "Document No." := VATEntry."Document No.";
-            "Document Date" := VATEntry."Document Date";
-            Insert();
-            exit("Entry No.");
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Posting Date" := VATEntry."Posting Date";
+        VendorLedgerEntry."Vendor No." := VATEntry."Bill-to/Pay-to No.";
+        VendorLedgerEntry."Document Type" := VATEntry."Document Type";
+        VendorLedgerEntry."Document No." := VATEntry."Document No.";
+        VendorLedgerEntry."Document Date" := VATEntry."Document Date";
+        VendorLedgerEntry.Insert();
+        exit(VendorLedgerEntry."Entry No.");
     end;
 
     local procedure MockSaleVATEntry(VATPostingSetup: Record "VAT Posting Setup"; CVNo: Code[20]; PostingDate: Date; DocumentDate: Date): Integer
@@ -470,21 +468,19 @@ codeunit 147130 "ERM Sales VAT Ledger"
 
     local procedure InsertVATEntryWithVATAmount(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; CVNo: Code[20]; PostingDate: Date; DocumentDate: Date; VATType: Enum "General Posting Type"; BaseAmount: Decimal; VATAmount: Decimal): Integer
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-            "Bill-to/Pay-to No." := CVNo;
-            "Posting Date" := PostingDate;
-            "Document Date" := DocumentDate;
-            Type := VATType;
-            Base := BaseAmount;
-            Amount := VATAmount;
-            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"VAT Entry");
-            Insert();
-            exit("Entry No.");
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        VATEntry."Bill-to/Pay-to No." := CVNo;
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."Document Date" := DocumentDate;
+        VATEntry.Type := VATType;
+        VATEntry.Base := BaseAmount;
+        VATEntry.Amount := VATAmount;
+        VATEntry."Document No." := LibraryUtility.GenerateRandomCode(VATEntry.FieldNo("Document No."), DATABASE::"VAT Entry");
+        VATEntry.Insert();
+        exit(VATEntry."Entry No.");
     end;
 
     local procedure CreatePurchPrepmtVATEntry(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; CVNo: Code[20]; PostingDate: Date; DocumentDate: Date)
@@ -630,11 +626,9 @@ codeunit 147130 "ERM Sales VAT Ledger"
     var
         VATLedgerLine: Record "VAT Ledger Line";
     begin
-        with VATLedgerLine do begin
-            LibraryRUReports.FindVATLedgerLine(VATLedgerLine, Type::Sales, VATLedgerCode, CVNo);
-            Assert.AreEqual(ExpectedExternalDocNo, "External Document No.", FieldCaption("External Document No."));
-            Assert.AreEqual(ExpectedPaymentDate, "Payment Date", FieldCaption("Payment Date"));
-        end;
+        LibraryRUReports.FindVATLedgerLine(VATLedgerLine, VATLedgerLine.Type::Sales, VATLedgerCode, CVNo);
+        Assert.AreEqual(ExpectedExternalDocNo, VATLedgerLine."External Document No.", VATLedgerLine.FieldCaption("External Document No."));
+        Assert.AreEqual(ExpectedPaymentDate, VATLedgerLine."Payment Date", VATLedgerLine.FieldCaption("Payment Date"));
     end;
 }
 

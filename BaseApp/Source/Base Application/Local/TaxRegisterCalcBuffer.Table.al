@@ -137,7 +137,9 @@ table 17206 "Tax Register Calc. Buffer"
     }
 
     var
+#pragma warning disable AA0074
         Text1000: Label 'Filtering only by Global Dimensions.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure DrillDownAmount()

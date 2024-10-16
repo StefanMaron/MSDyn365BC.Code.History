@@ -67,7 +67,7 @@ page 14947 "VAT Reinstatement Worksheet"
                     Caption = 'Remaining VAT Amount';
                     Editable = false;
                     Style = Strong;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies the VAT amount that remains to be processed.';
 
                     trigger OnDrillDown()

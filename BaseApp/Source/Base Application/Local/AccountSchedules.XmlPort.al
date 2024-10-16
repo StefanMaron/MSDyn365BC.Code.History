@@ -21,12 +21,6 @@ xmlport 26552 "Account Schedules"
                 {
                     MinOccurs = Zero;
                 }
-#if not CLEAN22
-                fieldelement(DefaultColumnLayout; "Acc. Schedule Name"."Default Column Layout")
-                {
-                    MinOccurs = Zero;
-                }
-#endif
                 fieldelement(AnalysisViewName; "Acc. Schedule Name"."Analysis View Name")
                 {
                     MinOccurs = Zero;
@@ -366,10 +360,6 @@ xmlport 26552 "Account Schedules"
     var
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
-#if not CLEAN22
-        ColumnLayoutName: Record "Column Layout Name";
-        ColumnLayout: Record "Column Layout";
-#endif
         AccScheduleExtension: Record "Acc. Schedule Extension";
 
     [Scope('OnPrem')]
@@ -398,21 +388,6 @@ xmlport 26552 "Account Schedules"
                             end;
                     until AccScheduleLine.Next() = 0;
 
-#if not CLEAN22
-                if not "Column Layout Name".Get(TempAccScheduleName."Default Column Layout") then
-                    if ColumnLayoutName.Get(TempAccScheduleName."Default Column Layout") then begin
-                        "Column Layout Name" := ColumnLayoutName;
-                        "Column Layout Name".Insert();
-
-                        ColumnLayout.SetRange("Column Layout Name", TempAccScheduleName."Default Column Layout");
-                        if ColumnLayout.FindSet() then
-                            repeat
-                                "Column Layout" := ColumnLayout;
-                                "Column Layout".Insert();
-                            until ColumnLayout.Next() = 0;
-                    end;
-#endif
-
             until TempAccScheduleName.Next() = 0;
     end;
 
@@ -436,26 +411,6 @@ xmlport 26552 "Account Schedules"
                 AccScheduleLine := "Acc. Schedule Line";
                 AccScheduleLine.Insert();
             until "Acc. Schedule Line".Next() = 0;
-
-#if not CLEAN22
-        "Column Layout Name".Reset();
-        if "Column Layout Name".FindSet() then
-            repeat
-                if ColumnLayoutName.Get("Column Layout Name".Name) then
-                    ColumnLayoutName.Delete();
-                ColumnLayoutName := "Column Layout Name";
-                ColumnLayoutName.Insert();
-            until "Column Layout Name".Next() = 0;
-
-        "Column Layout".Reset();
-        if "Column Layout".FindSet() then
-            repeat
-                if ColumnLayout.Get("Column Layout"."Column Layout Name", "Column Layout"."Line No.") then
-                    ColumnLayout.Delete(true);
-                ColumnLayout := "Column Layout";
-                ColumnLayout.Insert();
-            until "Column Layout".Next() = 0;
-#endif
 
         "Acc. Schedule Extension".Reset();
         if "Acc. Schedule Extension".FindSet() then

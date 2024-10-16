@@ -6,19 +6,45 @@ codeunit 12401 "Local Report Management"
     end;
 
     var
+#pragma warning disable AA0074
         Text004: Label 'must be greater than 0';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'must be less than 0';
+#pragma warning restore AA0074
         Employee: Record Employee;
         CompanyInfo: Record "Company Information";
         DocumentSignature: Record "Document Signature";
         PostedDocumentSignature: Record "Posted Document Signature";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 BIC %2 corr. account %3 %4 %5 bank account %6';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text009: Label ', tel.: ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text010: Label ', fax: ';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text011: Label '. S/a %1 in %2, i/a %3 BIC %4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text013: Label '%1 No. %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text014: Label '%1 from %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text015: Label 'without VAT';
+#pragma warning restore AA0074
         DecimalFractionSerarator: Text[1];
         AAAATxt: Label 'AAAA', Locked = true;
         KKKKTxt: Label 'KKKK', Locked = true;
@@ -1104,12 +1130,11 @@ codeunit 12401 "Local Report Management"
         ResultExpr := '';
         if Expr1 <> '' then
             ResultExpr := Expr1;
-        if Expr2 <> '' then begin
+        if Expr2 <> '' then
             if ResultExpr <> '' then
                 ResultExpr := ResultExpr + '; ' + Expr2
             else
                 ResultExpr := Expr2;
-        end;
         exit(ResultExpr);
     end;
 

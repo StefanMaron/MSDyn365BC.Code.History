@@ -28,8 +28,10 @@ permissionset 8823 "Item Journals - Post"
 
     Permissions = tabledata "Accounting Period" = R,
                   tabledata "Avg. Cost Adjmt. Entry Point" = Ri,
+#if not CLEAN25
                   tabledata "CD No. Header" = R,
                   tabledata "CD No. Information" = R,
+#endif
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "Gen. Business Posting Group" = R,

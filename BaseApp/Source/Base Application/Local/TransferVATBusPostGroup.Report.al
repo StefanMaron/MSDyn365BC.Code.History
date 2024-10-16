@@ -103,7 +103,11 @@ report 14971 "Transfer VAT Bus. Post. Group"
     var
         NewVATBusPostGroup: Record "VAT Business Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label ' (From %1)';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NewVATPostingSetup: Record "VAT Posting Setup";
         Vendor: Record Vendor;
         Customer: Record Customer;

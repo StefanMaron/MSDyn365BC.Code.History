@@ -19,13 +19,11 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            Validate("Enable Russian Accounting", true);
-            Validate("Summarize Gains/Losses", NewSummarizeGainsLosses);
-            Validate("Currency Adjmt with Correction", false);
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("Enable Russian Accounting", true);
+        GLSetup.Validate("Summarize Gains/Losses", NewSummarizeGainsLosses);
+        GLSetup.Validate("Currency Adjmt with Correction", false);
+        GLSetup.Modify(true);
     end;
 
     [Test]
@@ -206,37 +204,33 @@
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            LibraryERM.CreateCurrency(Currency);
-            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
-            if IsDiffAccounts then begin
-                Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
-                Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
-            end else begin
-                Validate("Realized Gains Acc.", "Unrealized Gains Acc.");
-                Validate("Realized Losses Acc.", "Unrealized Losses Acc.");
-            end;
-            Validate("Sales PD Gains Acc. (TA)", LibraryERM.CreateGLAccountNo());
-            Validate("Sales PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo());
-            Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-            exit(Code);
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
+        if IsDiffAccounts then begin
+            Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+            Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
+        end else begin
+            Currency.Validate("Realized Gains Acc.", Currency."Unrealized Gains Acc.");
+            Currency.Validate("Realized Losses Acc.", Currency."Unrealized Losses Acc.");
         end;
+        Currency.Validate("Sales PD Gains Acc. (TA)", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Sales PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo());
+        Currency.Modify(true);
+        exit(Currency.Code);
     end;
 
     local procedure CreateCurrExchRates(CurrencyCode: Code[10]; StartingDate: Date; RelationalAmount: Decimal)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
-            Validate("Exchange Rate Amount", 1);
-            Validate("Adjustment Exch. Rate Amount", 1);
-            Validate("Relational Exch. Rate Amount", RelationalAmount);
-            Validate("Relational Adjmt Exch Rate Amt", RelationalAmount);
-            Modify(true);
-        end;
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalAmount);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalAmount);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreatePostInvoice(var SalesLine: Record "Sales Line"; CustNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]): Code[20]
@@ -274,18 +268,16 @@
         GenJnlLine: Record "Gen. Journal Line";
     begin
         InitGenJnlLine(GenJnlLine);
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name", "Document Type"::Payment, "Account Type"::Customer, CustNo, PmtAmount);
-            Validate("Posting Date", PostingDate);
-            Validate("Currency Code", CurrencyCode);
-            Validate(Amount, PmtAmount);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            exit("Document No.");
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Customer, CustNo, PmtAmount);
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        GenJnlLine.Validate("Currency Code", CurrencyCode);
+        GenJnlLine.Validate(Amount, PmtAmount);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJnlLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure InitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -313,16 +305,14 @@
         CustLedgerEntryFrom.CalcFields("Remaining Amount");
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntryFrom, CustLedgerEntryFrom."Remaining Amount");
 
-        with CustLedgerEntryTo do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetFilter("Document No.", '%1|%2', InvNo[1], InvNo[2]);
-            FindSet();
-            repeat
-                CalcFields("Remaining Amount");
-                Validate("Amount to Apply", "Remaining Amount");
-                Modify(true);
-            until Next() = 0;
-        end;
+        CustLedgerEntryTo.SetRange("Document Type", CustLedgerEntryTo."Document Type"::Invoice);
+        CustLedgerEntryTo.SetFilter("Document No.", '%1|%2', InvNo[1], InvNo[2]);
+        CustLedgerEntryTo.FindSet();
+        repeat
+            CustLedgerEntryTo.CalcFields("Remaining Amount");
+            CustLedgerEntryTo.Validate("Amount to Apply", CustLedgerEntryTo."Remaining Amount");
+            CustLedgerEntryTo.Modify(true);
+        until CustLedgerEntryTo.Next() = 0;
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntryTo);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntryFrom);
@@ -346,12 +336,10 @@
 
     local procedure FindDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocNo: Code[20])
     begin
-        with DtldCustLedgEntry do begin
-            SetRange("Entry Type", EntryType);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocNo);
-            FindLast();
-        end;
+        DtldCustLedgEntry.SetRange("Entry Type", EntryType);
+        DtldCustLedgEntry.SetRange("Document Type", DtldCustLedgEntry."Document Type"::Invoice);
+        DtldCustLedgEntry.SetRange("Document No.", DocNo);
+        DtldCustLedgEntry.FindLast();
     end;
 
     local procedure GetInvPostingDate(OrderNo: Code[20]): Date
@@ -415,14 +403,12 @@
         CalcGainLossParameters(EntryType, AccNo, CurrencyCode, IsRaise, IsSummarizeGainsLosses);
         for i := 1 to ArrayLen(InvNo) do begin
             FindDtldCustLedgEntry(DtldCustLedgEntry, EntryType[i], InvNo[i]);
-            with GLEntry do begin
-                SetRange("G/L Account No.", AccNo[i]);
-                SetRange("Document Type", "Document Type"::Invoice);
-                SetRange("Document No.", DtldCustLedgEntry."Document No.");
-                SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
-                Assert.IsTrue(
-                  FindLast(), StrSubstNo(EntryDoesNotExist, TableCaption(), GetFilters));
-            end;
+            GLEntry.SetRange("G/L Account No.", AccNo[i]);
+            GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+            GLEntry.SetRange("Document No.", DtldCustLedgEntry."Document No.");
+            GLEntry.SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
+            Assert.IsTrue(
+              GLEntry.FindLast(), StrSubstNo(EntryDoesNotExist, GLEntry.TableCaption(), GLEntry.GetFilters));
         end;
     end;
 }

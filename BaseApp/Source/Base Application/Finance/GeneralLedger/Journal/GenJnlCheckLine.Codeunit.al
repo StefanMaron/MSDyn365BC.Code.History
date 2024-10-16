@@ -57,19 +57,63 @@ codeunit 11 "Gen. Jnl.-Check Line"
         LogErrorMode: Boolean;
         IsBatchMode: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'can only be a closing date for G/L entries';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text001: Label 'is not within your range of allowed posting dates';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 or %2 must be G/L Account or Bank Account.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'must have the same sign as %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'You must not specify %1 when %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label '%1 + %2 must be %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label '%1 + %2 must be -%3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label 'must be positive';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label 'must be negative';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text009: Label 'must have a different sign than %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text010: Label '%1 %2 and %3 %4 is not allowed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text011: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text012: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DuplicateRecordErr: Label 'Document No. %1 already exists. It is not possible to calculate new deferrals for a Document No. that already exists.', Comment = '%1=Document No.';
         SpecifyGenPostingTypeErr: Label 'Posting to Account %1 must either be of type Purchase or Sale (see %2), because there are specified values in one of the following fields: %3, %4 , %5, or %6', comment = '%1 an G/L Account number;%2 = Gen. Posting Type; %3 = Gen. Bus. Posting Group; %4 = Gen. Prod. Posting Group; %5 = VAT Bus. Posting Group, %6 = VAT Prod. Posting Group';
         SalesDocAlreadyExistsErr: Label 'Sales %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
@@ -79,8 +123,12 @@ codeunit 11 "Gen. Jnl.-Check Line"
         GLAccCurrencyDoesNotMatchErr: Label 'The currency code %1 on general journal line does not match with the currency code %2 of G/L account %3.', Comment = '%1 and %2 - currency code, %3 - G/L Account No.';
         GLAccSourceCurrencyDoesNotMatchErr: Label 'The currency code %1 on general journal line does not match with the any source currency code of G/L account %2.', Comment = '%1 - currency code, %2 - G/L Account No.';
         GLAccSourceCurrencyDoesNotAllowedErr: Label 'The currency code %1 on general journal line does not allowed for posting to G/L account %2.', Comment = '%1 - currency code, %2 - G/L Account No.';
+#pragma warning disable AA0074
         Text12400: Label 'Include in Other VAT Entry and Additional VAT Ledger List are forbidden together.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12401: Label 'is not within agreement range of allowed posting dates.';
+#pragma warning restore AA0074
 
     procedure RunCheck(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -159,12 +207,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
         if GenJnlLine."Bal. Account No." <> '' then
             CheckBalAccountNo(GenJnlLine);
-#if not CLEAN22
-        if (GenJnlLine."IC Partner G/L Acc. No." <> '') and (GenJnlLine."IC Account No." = '') then begin
-            GenJnlLine."IC Account Type" := GenJnlLine."IC Account Type"::"G/L Account";
-            GenJnlLine."IC Account No." := GenJnlLine."IC Partner G/L Acc. No.";
-        end;
-#endif
         if GenJnlLine."IC Account No." <> '' then begin
             if GenJnlLine."IC Account Type" = GenJnlLine."IC Account Type"::"G/L Account" then
                 if ICGLAcount.Get(GenJnlLine."IC Account No.") then
@@ -529,11 +571,10 @@ codeunit 11 "Gen. Jnl.-Check Line"
                         CheckICPartner(GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine."Document Type", GenJnlLine);
 
                     if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then
-                        if Cust.Get(GenJnlLine."Account No.") then begin
+                        if Cust.Get(GenJnlLine."Account No.") then
                             if GLSetup."Enable Russian Accounting" then
                                 if GenJnlLine.Prepayment and (GenJnlLine."Prepayment Status" = GenJnlLine."Prepayment Status"::" ") and not GenJnlLine."System-Created Entry" then
-                                    Cust.CheckPrepaymentDocNo(GenJnlLine, true)
-                        end;
+                                    Cust.CheckPrepaymentDocNo(GenJnlLine, true);
                 end;
             GenJnlLine."Account Type"::"Bank Account":
                 begin

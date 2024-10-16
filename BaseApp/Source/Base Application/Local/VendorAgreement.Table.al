@@ -358,7 +358,7 @@ table 14901 "Vendor Agreement"
                                                         "G/L Account No." = field("G/L Account Filter"),
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                        "Posting Date" = field(UPPERLIMIT("G/L Starting Date Filter"))));
+                                                        "Posting Date" = field(upperlimit("G/L Starting Date Filter"))));
             Caption = 'G/L Starting Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -414,7 +414,7 @@ table 14901 "Vendor Agreement"
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
                                                         "Agreement No." = field("No."),
-                                                        "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                        "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'G/L Balance to Date';
             Editable = false;
             FieldClass = FlowField;
@@ -530,7 +530,9 @@ table 14901 "Vendor Agreement"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'You cannot delete agreement if you already have ledger entries.';
+#pragma warning restore AA0074
         PurchSetup: Record "Purchases & Payables Setup";
         Vend: Record Vendor;
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -540,14 +542,40 @@ table 14901 "Vendor Agreement"
         DefaultDim2: Record "Default Dimension";
         VendAgrmt: Record "Vendor Agreement";
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'You cannot rename %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'post';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'create';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'You cannot %1 this type of document when Vendor %2 is blocked with type %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12400: Label 'Agreement';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12401: Label 'You cannot change %1 until you check %2 in %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12402: Label '%1 should be later than %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12403: Label 'This %1 already used for vendor %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrivacyBlockedActionErr: Label 'You cannot %1 this type of document when Vendor %2 is blocked for privacy.', Comment = '%1 = action (create or post), %2 = vendor code.';
 
     [Scope('OnPrem')]

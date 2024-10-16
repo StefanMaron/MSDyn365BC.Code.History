@@ -214,10 +214,12 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         BatchName: Code[10];
     begin
         // [FEATURE] [Planning Worksheet] [Production Order] 
-        // [SCENARIO 502388] Calculate Order Plan and Recalculate Requisition Plan for Item with Frozen period. Specific scenario.
+        // [SCENARIO 502388] Calculate Order Plan and Recalculate Requisition Plan for Item with Frozen period. 
+        // Calculation have the issue just with specific scenario with exact values for dates and Rescheduling Period.
         Initialize();
 
-        // [GIVEN] Create Item
+        // [GIVEN] Create Item with Replenishment System as Prod. Order and Reordering Policy as Lot-for-Lot.
+        // [GIVEN] Set Rescheduling Period as 215D as with that exact value system had an issue.
         CreateItem(Item, Item."Replenishment System"::"Prod. Order");
         Item."Reordering Policy" := Item."Reordering Policy"::"Lot-for-Lot";
         Evaluate(Item."Rescheduling Period", '215D');
@@ -740,9 +742,9 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         Location: Record Location;
         TransferLine: Record "Transfer Line";
         TransferLine2: Record "Transfer Line";
+        BatchPostTransferOrders: Report "Batch Post Transfer Orders";
         TransferHeaderFilter: Text[100];
         Quantity: Decimal;
-        BatchPostTransferOrders: Report "Batch Post Transfer Orders";
         TransferFilterLbl: Label '%1|%2', Comment = '%1 = Transfer Header code, %2 = Transfer Header code';
     begin
         // [FEATURE] [Transfer Order]
@@ -775,7 +777,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     [HandlerFunctions('BatchPostTransferOrders')]
     procedure BatchPostDirectTransferTransferOrder()
     var
-        Quantity: Decimal;
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         Location: Record Location;
@@ -783,6 +784,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         TransferLine2: Record "Transfer Line";
         BatchPostTransferOrders: Report "Batch Post Transfer Orders";
         TransferHeaderFilter: Text[100];
+        Quantity: Decimal;
         TransferFilterLbl: Label '%1|%2', Comment = '%1 = Transfer Header code, %2 = Transfer Header code';
     begin
         // [FEATURE] [Transfer Order]
@@ -816,7 +818,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     [HandlerFunctions('BatchPostTransferOrders')]
     procedure BatchPostReceiveTransferOrder()
     var
-        Quantity: Decimal;
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         Location: Record Location;
@@ -824,6 +825,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         TransferLine2: Record "Transfer Line";
         BatchPostTransferOrders: Report "Batch Post Transfer Orders";
         TransferHeaderFilter: Text[100];
+        Quantity: Decimal;
         TransferFilterLbl: Label '%1|%2', Comment = '%1 = Transfer Header code, %2 = Transfer Header code';
     begin
         // [FEATURE] [Transfer Order]
@@ -862,7 +864,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     [HandlerFunctions('BatchPostTransferOrders,ErrorMessageTransferOrderPageHandler')]
     procedure BatchPostReceiveTransferOrderWithTwoNotShipped()
     var
-        Quantity: Decimal;
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         Location: Record Location;
@@ -872,6 +873,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         BatchPostTransferOrders: Report "Batch Post Transfer Orders";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         TransferHeaderFilter: Text[100];
+        Quantity: Decimal;
         TransferFilterLbl: Label '%1|%2|%3', Comment = '%1 = Transfer Header code, %2 = Transfer Header code, %3 = Transfer Header code';
         ExpectedErrorMsg: Label 'An error or warning occured during operation Batch post Transfer Order record.', Locked = true;
     begin
@@ -913,7 +915,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     [HandlerFunctions('BatchPostTransferOrders,ErrorMessageTransferOrderPageHandler')]
     procedure BatchPostShipTransferOrderWithNoQuantity()
     var
-        Quantity: Decimal;
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         Location: Record Location;
@@ -923,6 +924,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         BatchPostTransferOrders: Report "Batch Post Transfer Orders";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         TransferHeaderFilter: Text[100];
+        Quantity: Decimal;
         TransferFilterLbl: Label '%1|%2|%3', Comment = '%1 = Transfer Header code, %2 = Transfer Header code, %3 = Transfer Header code';
         ExpectedErrorMsg: Label 'An error or warning occured during operation Batch post Transfer Order record.', Locked = true;
     begin
@@ -1353,7 +1355,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
 
         // Verify.
-        SalesLine.TestField("Planned Delivery Date", CalcDate(Location."Outbound Whse. Handling Time", SalesLine."Shipment Date"));
+        SalesLine.TestField("Planned Delivery Date", CalcDate(SalesHeader."Outbound Whse. Handling Time", SalesLine."Shipment Date"));
         SalesLine.TestField("Planned Shipment Date", CalcDate(SalesHeader."Outbound Whse. Handling Time", SalesLine."Shipment Date"));
     end;
 
@@ -2655,12 +2657,10 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
     local procedure UpdateSKUReorderingPolicy(var SKU: Record "Stockkeeping Unit"; ReorderingPolicy: Enum "Reordering Policy"; ReorderPoint: Decimal; ReorderQty: Decimal)
     begin
-        with SKU do begin
-            Validate("Reordering Policy", ReorderingPolicy);
-            Validate("Reorder Point", ReorderPoint);
-            Validate("Reorder Quantity", ReorderQty);
-            Modify(true);
-        end;
+        SKU.Validate("Reordering Policy", ReorderingPolicy);
+        SKU.Validate("Reorder Point", ReorderPoint);
+        SKU.Validate("Reorder Quantity", ReorderQty);
+        SKU.Modify(true);
     end;
 
     local procedure GetSaveFileName(): Text

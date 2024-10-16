@@ -423,13 +423,19 @@ report 99001043 "Exchange Production BOM Item"
         CreateNewVersionEditable: Boolean;
         DeleteExchangedComponentEditab: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You must enter a Starting Date.';
         Text001: Label 'You must enter the Type to exchange.';
         Text002: Label 'You must enter the No. to exchange.';
+#pragma warning restore AA0074
         ItemBOMExchangeErr: Label 'You cannot exchange %1 %2 with %3 %4.', Comment = '%1 and %3 are strings (''Item'' or ''Production BOM''), %2 and %4 are either an Item No. or a Production BOM Header No. (Code[20])';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Exchanging #1########## #2############\';
         Text005: Label 'Production BOM No.      #3############';
+#pragma warning restore AA0470
         Text006: Label 'Type must be entered.';
+#pragma warning restore AA0074
 
     local procedure CheckParameters()
     var

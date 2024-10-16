@@ -76,13 +76,13 @@ table 12472 "Posted FA Doc. Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = const(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(28; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = const(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(30; Status; Option)
         {
@@ -112,7 +112,7 @@ table 12472 "Posted FA Doc. Line"
         field(50; "Item Receipt No."; Code[20])
         {
             Caption = 'Item Receipt No.';
-            TableRelation = "Invt. Document Header"."No." WHERE("Document Type" = const(Receipt));
+            TableRelation = "Invt. Document Header"."No." where("Document Type" = const(Receipt));
         }
         field(51; Canceled; Boolean)
         {
@@ -145,11 +145,23 @@ table 12472 "Posted FA Doc. Line"
 
     var
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
         Text14700: Label 'The selected FA Movement Act lines will be canceled.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text14701: Label 'FA Movement between Depreciation Books must be canceled using standard Cancel Entries function.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text14702: Label 'FA Movement must be last operation.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text14703: Label 'FA Movement Act lines have been canceled.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text14704: Label 'FA Movement Act line %1 is already canceled.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ShowDimensions()
@@ -231,9 +243,8 @@ table 12472 "Posted FA Doc. Line"
                 PstdFADocLine.Modify();
                 LedgEntriesCanceled := true;
             until PstdFADocLine.Next() = 0;
-        if LedgEntriesCanceled then begin
+        if LedgEntriesCanceled then
             Message(Text14703);
-        end;
     end;
 }
 

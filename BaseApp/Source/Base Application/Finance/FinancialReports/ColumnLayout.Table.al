@@ -198,23 +198,59 @@ table 334 "Column Layout"
         HasGLSetup: Boolean;
 
         PeriodFormulaErr: Label '%1 is not a valid Period Formula.', Comment = '%1 - value of Comparison Period Formula field';
+#pragma warning disable AA0074
         Text002: Label 'P', Comment = 'Period';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'FY', Comment = 'Fiscal year';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'CP', Comment = 'Current Period';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'LP', Comment = 'Last period';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label '1,6,,Dimension 1 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text007: Label '1,6,,Dimension 2 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text008: Label '1,6,,Dimension 3 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text009: Label '1,6,,Dimension 4 Filter';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text010: Label ',, Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text011: Label '1,5,,Dimension 1 Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text012: Label '1,5,,Dimension 2 Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text013: Label '1,5,,Dimension 3 Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text014: Label '1,5,,Dimension 4 Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text015: Label 'The %1 refers to %2 %3, which does not exist. The field %4 on table %5 has now been deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12400: Label ',, Corr. Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12401: Label '1,5,,Dimension 1 Corr. Totaling';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text12402: Label '1,5,,Dimension 2 Corr. Totaling';
+#pragma warning restore AA0074
 
     procedure ParsePeriodFormula(FormulaExpression: Code[20]; var Steps: Integer; var Type: Option " ",Period,"Fiscal Year"; var RangeFromType: Option Int,CP,LP; var RangeToType: Option Int,CP,LP; var RangeFromInt: Integer; var RangeToInt: Integer)
     var
@@ -530,16 +566,16 @@ table 334 "Column Layout"
             12401:
                 begin
                     if GLSetup."Global Dimension 1 Code" <> '' then
-                        exit('1,5,' + GLSetup."Global Dimension 1 Code" + Text12400)
-                    else
-                        exit(Text12401);
+                        exit('1,5,' + GLSetup."Global Dimension 1 Code" + Text12400);
+
+                    exit(Text12401);
                 end;
             12402:
                 begin
                     if GLSetup."Global Dimension 2 Code" <> '' then
-                        exit('1,5,' + GLSetup."Global Dimension 2 Code" + Text12400)
-                    else
-                        exit(Text12402);
+                        exit('1,5,' + GLSetup."Global Dimension 2 Code" + Text12400);
+
+                    exit(Text12402);
                 end;
         end;
     end;

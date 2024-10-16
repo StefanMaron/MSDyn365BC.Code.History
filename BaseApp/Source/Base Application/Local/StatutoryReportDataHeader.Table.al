@@ -252,16 +252,40 @@ table 26563 "Statutory Report Data Header"
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
+#pragma warning disable AA0074
         Text002: Label 'You must specify the File Name.';
+#pragma warning restore AA0074
         ReportFile: File;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label 'Export to Excel\Processing sheet #1##############\Sheet progress   @2@@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text012: Label 'Opening workbook';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text013: Label 'Value of the %1 cannot be empty.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text014: Label 'XML file is verified.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text015: Label 'Data has been successfully updated.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text016: Label 'Report %1 does not have linked internal data sources.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text006: Label 'Export';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text009: Label 'All Files (*.*)|*.*';
+#pragma warning restore AA0074
         [WithEvents]
         XmlReaderSettings: DotNet XmlReaderSettings;
         XlWrkBkWriter: DotNet WorkbookWriter;

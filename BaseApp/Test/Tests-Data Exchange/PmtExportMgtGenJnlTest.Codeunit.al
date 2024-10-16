@@ -670,35 +670,31 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with VendLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendLedgerEntry, FieldNo("Entry No."));
-            "Vendor No." := VendorCode;
-            "Posting Date" := WorkDate();
-            "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID();
-            Open := true;
-            "Due Date" := CalcDate('<1D>', "Posting Date");
-            Amount := -LibraryRandom.RandDecInRange(100, 1000, 2);
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := BankAccountCode;
-            "Payment Method Code" := VendorPaymentMethodCode;
-            "Recipient Bank Account" := VendorBankAccountCode;
-            "Message to Recipient" := LibraryUtility.GenerateGUID();
-            "Exported to Payment File" := Exported;
-            "Currency Code" := Currency.Code;
-            "Amount (LCY)" := Amount * Currency."Currency Factor";
-            Insert();
-        end;
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            Amount := VendLedgerEntry.Amount;
-            "Vendor Ledger Entry No." := VendLedgerEntry."Entry No.";
-            "Ledger Entry Amount" := true;
-            "Posting Date" := VendLedgerEntry."Date Filter";
-            Insert();
-        end;
+        VendLedgerEntry.Init();
+        VendLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendLedgerEntry, VendLedgerEntry.FieldNo("Entry No."));
+        VendLedgerEntry."Vendor No." := VendorCode;
+        VendLedgerEntry."Posting Date" := WorkDate();
+        VendLedgerEntry."Document Type" := DocumentType;
+        VendLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        VendLedgerEntry.Open := true;
+        VendLedgerEntry."Due Date" := CalcDate('<1D>', VendLedgerEntry."Posting Date");
+        VendLedgerEntry.Amount := -LibraryRandom.RandDecInRange(100, 1000, 2);
+        VendLedgerEntry."Bal. Account Type" := VendLedgerEntry."Bal. Account Type"::"Bank Account";
+        VendLedgerEntry."Bal. Account No." := BankAccountCode;
+        VendLedgerEntry."Payment Method Code" := VendorPaymentMethodCode;
+        VendLedgerEntry."Recipient Bank Account" := VendorBankAccountCode;
+        VendLedgerEntry."Message to Recipient" := LibraryUtility.GenerateGUID();
+        VendLedgerEntry."Exported to Payment File" := Exported;
+        VendLedgerEntry."Currency Code" := Currency.Code;
+        VendLedgerEntry."Amount (LCY)" := VendLedgerEntry.Amount * Currency."Currency Factor";
+        VendLedgerEntry.Insert();
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry.Amount := VendLedgerEntry.Amount;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendLedgerEntry."Entry No.";
+        DetailedVendorLedgEntry."Ledger Entry Amount" := true;
+        DetailedVendorLedgEntry."Posting Date" := VendLedgerEntry."Date Filter";
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure CreateExportGenJournalBatch(var GenJnlBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])

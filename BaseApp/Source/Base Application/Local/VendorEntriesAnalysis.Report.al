@@ -493,10 +493,18 @@ report 12446 "Vendor Entries Analysis"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Debit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text003: Label 'Credit';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text004: Label 'LCY';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
         Text005: Label 'Balance at';
+#pragma warning restore AA0074
         ApplVendLedgerEntry: Record "Vendor Ledger Entry";
         ApplicationLocalization: Codeunit "Localisation Management";
         CurrentDate: Text[30];

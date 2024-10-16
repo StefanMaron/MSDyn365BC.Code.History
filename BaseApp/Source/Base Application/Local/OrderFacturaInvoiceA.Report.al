@@ -146,7 +146,7 @@ report 12411 "Order Factura-Invoice (A)"
 
                 trigger OnPostDataItem()
                 begin
-                    if not Preview then
+                    if not PreviewReport then
                         CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
                 end;
 
@@ -157,14 +157,13 @@ report 12411 "Order Factura-Invoice (A)"
                     if not SalesLine1.Find('-') then
                         CurrReport.Break();
 
-                    if Header."Posting No." = '' then begin
-                        if Preview then
+                    if Header."Posting No." = '' then
+                        if PreviewReport then
                             Header."Posting No." := NoSeries.PeekNextNo(Header."Posting No. Series", Header."Posting Date")
                         else begin
                             Header."Posting No." := NoSeries.GetNextNo(Header."Posting No. Series", Header."Posting Date");
                             Header.Modify();
                         end;
-                    end;
 
                     SetRange(Number, 1, CopiesNumber);
                 end;
@@ -196,10 +195,9 @@ report 12411 "Order Factura-Invoice (A)"
 
                 SalesLine1.SetRange("Attached to Line No.", 0);
 
-                if "Currency Code" <> '' then begin
+                if "Currency Code" <> '' then
                     if not Currency.Get("Currency Code") then
                         Currency.Description := DollarUSATxt;
-                end;
 
                 CurrencyWrittenAmount := FacturaInvoiceHelper.GetCurrencyAmtCode("Currency Code", AmountInvoiceCurrent);
                 FacturaInvoiceHelper.GetCurrencyInfo(CurrencyWrittenAmount, CurrencyDigitalCode, CurrencyDescription);
@@ -220,9 +218,7 @@ report 12411 "Order Factura-Invoice (A)"
                 ItemTrackingDocMgt.RetrieveDocumentItemTracking(
                     TempTrackingSpecBuffer, "No.", DATABASE::"Sales Header", "Document Type".AsInteger());
 
-                if not Preview then begin
-                    // IF ArchiveDocument THEN
-                    //   ArchiveManagement.StoreSalesDocument(Header,LogInteraction);
+                if not PreviewReport then
                     if LogInteraction then begin
                         CalcFields("No. of Archived Versions");
                         if "Bill-to Contact No." <> '' then
@@ -236,7 +232,6 @@ report 12411 "Order Factura-Invoice (A)"
                               "No. of Archived Versions", DATABASE::Customer, "Bill-to Customer No.",
                               "Salesperson Code", "Campaign No.", "Posting Description", "Opportunity No.");
                     end;
-                end;
             end;
 
             trigger OnPreDataItem()
@@ -283,7 +278,7 @@ report 12411 "Order Factura-Invoice (A)"
                         Caption = 'Log Interaction';
                         ToolTip = 'Specifies that interactions with the related contact are logged.';
                     }
-                    field(Preview; Preview)
+                    field(Preview; PreviewReport)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview';
@@ -366,7 +361,7 @@ report 12411 "Order Factura-Invoice (A)"
         TotalAmountText: array[3] of Text;
         TrackingSpecCount: Integer;
         CurrencyDigitalCode: Code[3];
-        Preview: Boolean;
+        PreviewReport: Boolean;
         Proforma: Boolean;
         FileName: Text;
 
@@ -376,7 +371,7 @@ report 12411 "Order Factura-Invoice (A)"
         CopiesNumber := NoOfCopies;
         AmountInvoiceDone := PrintCurr;
         LogInteraction := IsLog;
-        Preview := IsPreview;
+        PreviewReport := IsPreview;
         Proforma := IsProforma;
     end;
 

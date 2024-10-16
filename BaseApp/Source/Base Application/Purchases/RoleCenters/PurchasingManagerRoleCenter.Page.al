@@ -36,7 +36,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 
 page 8905 "Purchasing Manager Role Center"
@@ -421,13 +420,6 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Assembly Orders';
                     RunObject = page "Assembly Orders";
                     Tooltip = 'Open the Assembly Orders page.';
-                }
-                action("Orders3")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service Orders';
-                    RunObject = page "Service Orders";
-                    Tooltip = 'Open the Service Orders page.';
                 }
                 action("Jobs")
                 {

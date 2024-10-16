@@ -1,4 +1,4 @@
-#if not CLEAN23
+#if not CLEAN25
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -17,7 +17,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Pricing;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Document;
 
 codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
 {
@@ -88,7 +87,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         case CurrLineWithPrice.GetTableNo() of
             Database::"Sales Line":
                 Result := SalesPriceCalcMgt.NoOfSalesLineLineDisc(Header, Line, ShowAll);
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 Result := SalesPriceCalcMgt.NoOfServLineLineDisc(Header, Line, ShowAll);
             Database::"Purchase Line":
                 Result := PurchPriceCalcMgt.NoOfPurchLineLineDisc(Header, Line, ShowAll);
@@ -104,7 +103,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         case CurrLineWithPrice.GetTableNo() of
             Database::"Sales Line":
                 Result := SalesPriceCalcMgt.NoOfSalesLinePrice(Header, Line, ShowAll);
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 Result := SalesPriceCalcMgt.NoOfServLinePrice(Header, Line, ShowAll);
             Database::"Purchase Line":
                 Result := PurchPriceCalcMgt.NoOfPurchLinePrice(Header, Line, ShowAll);
@@ -187,7 +186,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         case CurrLineWithPrice.GetTableNo() of
             Database::"Sales Line":
                 Result := SalesPriceCalcMgt.SalesLineLineDiscExists(Header, Line, ShowAll);
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 Result := SalesPriceCalcMgt.ServLineLineDiscExists(Header, Line, ShowAll);
             Database::"Purchase Line":
                 Result := PurchPriceCalcMgt.PurchLineLineDiscExists(Header, Line, ShowAll);
@@ -203,7 +202,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         case CurrLineWithPrice.GetTableNo() of
             Database::"Sales Line":
                 Result := SalesPriceCalcMgt.SalesLinePriceExists(Header, Line, ShowAll);
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 Result := SalesPriceCalcMgt.ServLinePriceExists(Header, Line, ShowAll);
             Database::"Purchase Line":
                 Result := PurchPriceCalcMgt.PurchLinePriceExists(Header, Line, ShowAll);
@@ -223,7 +222,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                     SalesPriceCalcMgt.GetSalesLineLineDisc(Header, Line);
                     PriceType := PriceType::Sale;
                 end;
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 begin
                     SalesPriceCalcMgt.GetServLineLineDisc(Header, Line);
                     PriceType := PriceType::Sale;
@@ -246,7 +245,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         case CurrLineWithPrice.GetTableNo() of
             Database::"Sales Line":
                 SalesPriceCalcMgt.GetSalesLinePrice(Header, Line);
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 SalesPriceCalcMgt.GetServLinePrice(Header, Line);
             Database::"Purchase Line":
                 PurchPriceCalcMgt.GetPurchLinePrice(Header, Line);
@@ -299,7 +298,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         JobPlanningLine: Record "Job Planning Line";
         ResJournalLine: Record "Res. Journal Line";
         SalesLine: Record "Sales Line";
-        ServiceLine: Record "Service Line";
+        ServiceLine: Record Microsoft.Service.Document."Service Line";
         StandardItemJournalLine: Record "Standard Item Journal Line";
         JobTransferLine: Codeunit "Job Transfer Line";
         Header: Variant;
@@ -346,7 +345,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                     SalesPriceCalcMgt.FindSalesLinePrice(Header, SalesLine, CalledByFieldNo);
                     CurrLineWithPrice.SetLine(PriceType::Sale, SalesLine);
                 end;
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 begin
                     ServiceLine := Line;
                     SalesPriceCalcMgt.FindServLinePrice(Header, ServiceLine, CalledByFieldNo);
@@ -368,7 +367,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
     local procedure ApplyDiscountSalesHandler()
     var
         SalesLine: Record "Sales Line";
-        ServiceLine: Record "Service Line";
+        ServiceLine: Record Microsoft.Service.Document."Service Line";
         Header: Variant;
         Line: Variant;
         PriceType: Enum "Price Type";
@@ -390,7 +389,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                     SalesPriceCalcMgt.FindSalesLineLineDisc(Header, SalesLine);
                     CurrLineWithPrice.SetLine(PriceType::Sale, SalesLine);
                 end;
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 begin
                     ServiceLine := Line;
                     SalesPriceCalcMgt.FindServLineDisc(Header, ServiceLine);
@@ -409,7 +408,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         PurchaseLine: Record "Purchase Line";
         RequisitionLine: Record "Requisition Line";
         SalesLine: Record "Sales Line";
-        ServiceLine: Record "Service Line";
+        ServiceLine: Record Microsoft.Service.Document."Service Line";
         StandardItemJournalLine: Record "Standard Item Journal Line";
         Header: Variant;
         Line: Variant;
@@ -473,7 +472,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                     PurchPriceCalcMgt.FindResUnitCost(SalesLine);
                     CurrLineWithPrice.SetLine(PriceType::Purchase, SalesLine);
                 end;
-            Database::"Service Line":
+            Database::Microsoft.Service.Document."Service Line":
                 begin
                     ServiceLine := Line;
                     if ServiceLine.Type <> ServiceLine.Type::Resource then

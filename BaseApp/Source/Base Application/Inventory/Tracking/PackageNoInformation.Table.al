@@ -40,23 +40,9 @@ table 6515 "Package No. Information"
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(9; "CD Header No."; Code[30])
-        {
-            Caption = 'CD Header No.';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to CD Tracking extension field.';
-            ObsoleteTag = '18.0';
-        }
         field(10; Description; Text[100])
         {
             Caption = 'Description';
-        }
-        field(11; "Temporary CD No."; Boolean)
-        {
-            Caption = 'Temporary CD No.';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to CD Tracking extension field.';
-            ObsoleteTag = '18.0';
         }
         field(12; "Certificate Number"; Code[20])
         {
@@ -117,11 +103,6 @@ table 6515 "Package No. Information"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(40; "Current No."; Code[6])
-        {
-            Caption = 'Current No.';
-            Description = 'Not used';
-        }
     }
 
     keys
@@ -163,9 +144,6 @@ table 6515 "Package No. Information"
         if not Country.Get("Country/Region Code") then
             exit('');
 
-        if Country."Local Name" <> '' then
-            exit(Country."Local Name");
-
         exit(Country.Name);
     end;
 
@@ -175,9 +153,6 @@ table 6515 "Package No. Information"
     begin
         if not Country.Get("Country/Region Code") then
             exit('');
-
-        if Country."Local Country/Region Code" <> '' then
-            exit(Country."Local Country/Region Code");
 
         exit('');
     end;
