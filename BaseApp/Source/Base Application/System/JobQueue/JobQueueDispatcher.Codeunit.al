@@ -15,7 +15,7 @@ codeunit 448 "Job Queue Dispatcher"
         if Skip then
             exit;
 
-        Rec.ReadIsolation(IsolationLevel::ReadCommitted);
+        Rec.ReadIsolation(IsolationLevel::UpdLock);
         Rec.Get(Rec.ID);
         if not Rec.IsReadyToStart() then
             exit;
@@ -23,17 +23,20 @@ codeunit 448 "Job Queue Dispatcher"
         if Rec.IsExpired(CurrentDateTime) then
             Rec.DeleteTask()
         else
-            if WaitForOthersWithSameCategory(Rec) or (not IsWithinStartEndTime(Rec)) then begin
-                Commit();
+            if not IsWithinStartEndTime(Rec) then
                 Reschedule(Rec)
-            end else begin
-                HandleRequest(Rec);
-                if Rec."Job Queue Category Code" <> '' then begin
-                    Commit();
-                    Rec.ActivateNextJobInCategory();
+            else
+                if WaitForOthersWithSameCategory(Rec) then 
+                    RescheduleAsWaiting(Rec)
+                else begin
+                    HandleRequest(Rec);
+                    if Rec."Job Queue Category Code" <> '' then begin
+                        Commit();
+                        Rec.ActivateNextJobInCategory();
+                    end;
                 end;
-            end;
         Commit();
+        CleanupCurrentUsersJobsWithSameCategory(Rec);
     end;
 
     var
@@ -49,10 +52,6 @@ codeunit 448 "Job Queue Dispatcher"
         JobQueueStartTime: DateTime;
         JobQueueExecutionTimeInMs: Integer;
     begin
-        JobQueueEntry.RefreshLocked();
-        if not JobQueueEntry.IsReadyToStart() then
-            exit;
-
         OnBeforeHandleRequest(JobQueueEntry);
 
         // Always update the JQE because if the session dies and the task is rerun, it should have the latest information
@@ -121,7 +120,6 @@ codeunit 448 "Job Queue Dispatcher"
     procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry") Result: Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
-        JobQueueEntryCheck: Record "Job Queue Entry";
         JobQueueCategory: Record "Job Queue Category";
         IsHandled: Boolean;
     begin
@@ -138,10 +136,8 @@ codeunit 448 "Job Queue Dispatcher"
         if not JobQueueCategory.Get(CurrJobQueueEntry."Job Queue Category Code") then
             exit(false);
 
-        JobQueueEntryCheck.ReadIsolation(IsolationLevel::UpdLock);
-        JobQueueEntryCheck.SetLoadFields(ID, "Job Queue Category Code", Status, "User ID");
         JobQueueEntry.SetLoadFields(ID);
-        JobQueueEntry.ReadIsolation(JobQueueEntry.ReadIsolation::ReadCommitted);
+        JobQueueEntry.ReadIsolation(JobQueueEntry.ReadIsolation::ReadUnCommitted);
         JobQueueEntry.SetFilter(ID, '<>%1', CurrJobQueueEntry.ID);
         JobQueueEntry.SetRange("Job Queue Category Code", CurrJobQueueEntry."Job Queue Category Code");
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
@@ -151,18 +147,35 @@ codeunit 448 "Job Queue Dispatcher"
             exit(true);
 
         JobQueueEntry.SetRange(Scheduled, false);
-        if not JobQueueEntry.IsEmpty() then
-            if TestMode then
+        if TestMode then
+            if not JobQueueEntry.IsEmpty() then
                 exit(true);
+        exit(false);
+    end;
 
+    local procedure CleanupCurrentUsersJobsWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry")
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueEntryCheck: Record "Job Queue Entry";
+    begin
+        if CurrJobQueueEntry."Job Queue Category Code" = '' then
+            exit;
+        JobQueueEntry.SetLoadFields(ID);
+        JobQueueEntry.ReadIsolation(JobQueueEntry.ReadIsolation::ReadCommitted);
+        JobQueueEntry.SetFilter(ID, '<>%1', CurrJobQueueEntry.ID);
+        JobQueueEntry.SetRange("Job Queue Category Code", CurrJobQueueEntry."Job Queue Category Code");
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
+        JobQueueEntry.SetRange(Scheduled, false);
         JobQueueEntry.SetRange("User ID", UserId());
+        JobQueueEntryCheck.ReadIsolation(IsolationLevel::UpdLock);
         if JobQueueEntry.FindSet() then
             repeat
                 if JobQueueEntryCheck.Get(JobQueueEntry.ID) then
-                    Reschedule(JobQueueEntryCheck);
+                    if JobQueueEntryCheck.IsExpired(CurrentDateTime) then
+                        JobQueueEntryCheck.DeleteTask()
+                    else
+                        Reschedule(JobQueueEntryCheck);
             until JobQueueEntry.Next() = 0;
-
-        exit(false);
     end;
 
     [Scope('OnPrem')]
@@ -173,6 +186,17 @@ codeunit 448 "Job Queue Dispatcher"
 
     local procedure Reschedule(var JobQueueEntry: Record "Job Queue Entry")
     begin
+        Clear(JobQueueEntry."System Task ID"); // to avoid canceling this task, which has already been executed
+        JobQueueEntry."Earliest Start Date/Time" := CalcInitialRunTime(JobQueueEntry, CurrentDateTime());
+        OnRescheduleOnBeforeJobQueueEnqueue(JobQueueEntry);
+        JobQueueEntry."System Task ID" := TASKSCHEDULER.CreateTask(CODEUNIT::"Job Queue Dispatcher", CODEUNIT::"Job Queue Error Handler", true, JobQueueEntry.CurrentCompany(), JobQueueEntry."Earliest Start Date/Time", JobQueueEntry.RecordId());
+        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry.Modify();
+    end;
+
+    local procedure RescheduleAsWaiting(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+        Commit();
         JobQueueEntry.RefreshLocked();
         Clear(JobQueueEntry."System Task ID"); // to avoid canceling this task, which has already been executed
         OnRescheduleOnBeforeJobQueueEnqueue(JobQueueEntry);

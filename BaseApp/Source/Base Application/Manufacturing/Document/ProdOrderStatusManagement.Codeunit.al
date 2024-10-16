@@ -796,6 +796,7 @@ codeunit 5407 "Prod. Order Status Management"
             exit;
 
         PurchLine.SetCurrentKey("Document Type", Type, "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.");
+        PurchLine.SetLoadFields("Document No.");
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchLine.SetRange(Type, PurchLine.Type::Item);
         PurchLine.SetRange("Prod. Order No.", ProdOrder."No.");
@@ -807,6 +808,8 @@ codeunit 5407 "Prod. Order Status Management"
         OnCheckBeforeFinishProdOrderOnAfterCheckProdOrder(ProdOrder);
 
         ShowWarning := false;
+        ProdOrderLine.SetLoadFields("Routing No.", "Routing Reference No.");
+        ProdOrderRtngLine.SetLoadFields("Prod. Order No.");
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
         ProdOrderLine.SetFilter("Remaining Quantity", '<>0');

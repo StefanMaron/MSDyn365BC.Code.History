@@ -51,6 +51,7 @@ codeunit 134123 "Price List Line UT"
         AssignToNoErr: Label 'Invalid Assign-to No.';
         VATProdPostingGroupErr: Label 'VAT Product Posting Group are not equal.';
         AmountTypeNotAllowedForSourceTypeErr: Label '%1 is not allowed for %2.', Comment = '%1 - Price or Discount, %2 - Source Type';
+        VariantCodeErr: Label 'Variant Code must be empty when new record is inserted.';
 
     [Test]
     [HandlerFunctions('ItemUOMModalHandler')]
@@ -3344,11 +3345,8 @@ codeunit 134123 "Price List Line UT"
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
         CreateNewSalesPriceListLine(SalesPriceList, Item."No.", ItemVariant.Code);
 
-        // [WHEN] Create new Price List line with same Item No.
+        // [GIVEN] Create new Price List line with same Item No.
         CreateNewSalesPriceListLine(SalesPriceList, Item."No.", '');
-
-        // [THEN] Verify Variant Code is automatically inserted in second line
-        SalesPriceList.Lines."Variant Code".AssertEquals(ItemVariant.Code);
 
         // [WHEN] Create New Price Line from Action                
         CreateNewSalesPriceListLine(SalesPriceList, Item2."No.", '');
@@ -3721,6 +3719,53 @@ codeunit 134123 "Price List Line UT"
                 AmountTypeNotAllowedForSourceTypeErr,
                 PriceListHeader."Amount Type"::Any,
                 PriceListHeader."Source Type"));
+    end;
+
+    [Test]
+    procedure VariantCodeMustBeBlankWhenInsertNewRecord()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [SCENARIO 537505] When creating a new price for variant items the variant code does not automatically display in the price list based on the previously created line.
+        Initialize(true);
+
+        // [GIVEN] Create a Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item Variant.
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Create Sales Price Header with Price Type Sales and Source Type All Customers.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader,
+            PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers",
+            '');
+
+        // [GIVEN] Create a Price Line.
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine,
+            PriceListHeader,
+            "Price Amount Type"::Price,
+            "Price Asset Type"::Item,
+            Item."No.");
+
+        // [GIVEN] Validate a Variant Code.
+        PriceListLine.Validate("Variant Code", ItemVariant.Code);
+        PriceListLine.Modify();
+
+        // [GIVEN] Open Sales Price List Page and insert new Line.
+        SalesPriceList.OpenEdit();
+        SalesPriceList.GoToRecord(PriceListHeader);
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Product No.".SetValue(Item."No.");
+
+        // [THEN] The value of Variant Code in new line must be empty.
+        Assert.AreEqual('', SalesPriceList.Lines."Variant Code".Value(), VariantCodeErr);
     end;
 
     local procedure Initialize()

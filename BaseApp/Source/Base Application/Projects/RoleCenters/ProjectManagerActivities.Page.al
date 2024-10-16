@@ -1,15 +1,16 @@
 namespace Microsoft.Projects.RoleCenters;
 
 using Microsoft.Projects.Project.Job;
-using Microsoft.Integration.FieldService;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Project.WIP;
 using System;
 using System.Environment;
 using System.Visualization;
+#if not CLEAN25
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Integration.Dataverse;
+#endif
 
 page 9068 "Project Manager Activities"
 {
@@ -161,17 +162,24 @@ page 9068 "Project Manager Activities"
                     }
                 }
             }
+#if not CLEAN25
             cuegroup("Data Integration")
             {
                 Caption = 'Data Integration';
-                Visible = ShowFSIntegrationCues;
+                Visible = false;
+                ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
+
                 field("CDS Integration Errors"; Rec."FS Integration Errors")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Integration Errors';
                     DrillDownPageID = "Integration Synch. Error List";
                     ToolTip = 'Specifies the number of errors related to data integration with Dynamics 365 Field Service.';
-                    Visible = ShowFSIntegrationCues;
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
                 {
@@ -179,9 +187,12 @@ page 9068 "Project Manager Activities"
                     Caption = 'Coupled Data Synchronization Errors';
                     DrillDownPageID = "CRM Skipped Records";
                     ToolTip = 'Specifies the number of errors that occurred in the latest synchronization of coupled data between Business Central and Dynamics 365 Field Service.';
-                    Visible = ShowFSIntegrationCues;
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
             }
+#endif
         }
     }
 
@@ -233,8 +244,6 @@ page 9068 "Project Manager Activities"
     end;
 
     trigger OnOpenPage()
-    var
-        FSConnectionSetup: Record "FS Connection Setup";
     begin
         Rec.Reset();
         if not Rec.Get() then begin
@@ -247,7 +256,6 @@ page 9068 "Project Manager Activities"
         Rec.SetRange("User ID Filter", UserId());
 
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
-        ShowFSIntegrationCues := FSConnectionSetup.IsEnabled();
     end;
 
     var
@@ -263,7 +271,6 @@ page 9068 "Project Manager Activities"
         SetupIsComplete: Boolean;
         MyCompanyTxt: Label 'My Company';
         ShowIntelligentCloud: Boolean;
-        ShowFSIntegrationCues: Boolean;
 
     procedure RefreshRoleCenter()
     begin

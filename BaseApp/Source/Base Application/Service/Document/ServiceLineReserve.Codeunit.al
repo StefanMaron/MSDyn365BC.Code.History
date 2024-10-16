@@ -63,7 +63,7 @@ codeunit 99000842 "Service Line-Reserve"
         end;
 
         IsHandled := false;
-        OnCreateReservationOnBeforeCreateReservEntry(ServiceLine, Quantity, QuantityBase, ForReservationEntry, IsHandled);
+        OnCreateReservationOnBeforeCreateReservEntry(ServiceLine, Quantity, QuantityBase, ForReservationEntry, IsHandled, FromTrackingSpecification, ExpectedReceiptDate, Description, ShipmentDate);
         if not IsHandled then begin
             CreateReservEntry.CreateReservEntryFor(
                 DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(),
@@ -794,7 +794,7 @@ codeunit 99000842 "Service Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ServiceLine: Record "Service Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ServiceLine: Record "Service Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean; var FromTrackingSpecification: Record "Tracking Specification"; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
     begin
     end;
 

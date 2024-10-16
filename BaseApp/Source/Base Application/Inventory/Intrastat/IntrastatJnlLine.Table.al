@@ -485,7 +485,8 @@ table 263 "Intrastat Jnl. Line"
         IntraJnlManagement: Codeunit IntraJnlManagement;
         EU3rdPartyTrade: Boolean;
     begin
-        ItemLedgerEntry.Get("Source Entry No.");
+        if not ItemLedgerEntry.Get("Source Entry No.") then
+            exit('');
         case ItemLedgerEntry."Document Type" of
             ItemLedgerEntry."Document Type"::"Sales Invoice":
                 if SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.") then

@@ -617,19 +617,25 @@ codeunit 2000042 "Post Coded Bank Statement"
     var
         VendLedgEntry2: Record "Vendor Ledger Entry";
         Found: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSearchVendorLedgerEntry(CodBankStmtLine, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(VendLedgEntry);
         if SearchVendor() then begin
+            VendLedgEntry2.SetAutoCalcFields("Remaining Amount");
             VendLedgEntry2.SetCurrentKey("Vendor No.", Open, Positive);
             VendLedgEntry2.SetRange("Vendor No.", Vend."No.");
             VendLedgEntry2.SetRange(Open, true);
             VendLedgEntry2.SetRange(Positive, CodBankStmtLine."Statement Amount" > 0);
             if VendLedgEntry2.FindSet() then
                 repeat
-                    VendLedgEntry2.CalcFields("Remaining Amount");
                     if VendLedgEntry2."Remaining Amount" = CodBankStmtLine."Statement Amount" then begin
                         Found := Found + 1;
-                        VendLedgEntry := VendLedgEntry2
+                        VendLedgEntry := VendLedgEntry2;
                     end;
                 until VendLedgEntry2.Next() = 0;
             // Multiple Entries with Same Amount: Do Not Assign
@@ -799,6 +805,11 @@ codeunit 2000042 "Post Coded Bank Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferCodBankStmtLinesOnBeforeGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; CodBankStmtLine: Record "CODA Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSearchVendorLedgerEntry(var CODAStatementLine: Record "CODA Statement Line"; var IsHandled: Boolean)
     begin
     end;
 }

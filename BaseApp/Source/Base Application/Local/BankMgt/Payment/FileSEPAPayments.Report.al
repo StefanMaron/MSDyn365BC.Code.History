@@ -1,10 +1,11 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.DirectDebit;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Address;
@@ -17,6 +18,7 @@ using Microsoft.Sales.Receivables;
 using System;
 using System.Environment;
 using System.IO;
+using System.Telemetry;
 using System.Utilities;
 using System.Xml;
 
@@ -234,10 +236,15 @@ report 2000005 "File SEPA Payments"
     trigger OnPreReport()
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
         XMLRootElement: DotNet XmlElement;
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
     begin
+        FeatureTelemetry.LogUptake('0000N2H', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000N2I', SEPACTExportFile.FeatureName(), 'Report (BE) File SEPA Payments');
+
         EBSetup.Get();
         CompanyInfo.Get();
 

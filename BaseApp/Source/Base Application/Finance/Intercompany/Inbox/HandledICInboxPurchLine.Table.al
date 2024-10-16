@@ -145,6 +145,13 @@ table 441 "Handled IC Inbox Purch. Line"
             Caption = 'Line Amount';
             Editable = false;
         }
+        field(104; "VAT Difference"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'VAT Difference';
+            Editable = false;
+        }
         field(107; "IC Partner Ref. Type"; Enum "IC Partner Reference Type")
         {
             Caption = 'IC Partner Ref. Type';

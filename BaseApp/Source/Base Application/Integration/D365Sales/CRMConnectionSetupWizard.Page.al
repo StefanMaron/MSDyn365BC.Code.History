@@ -200,6 +200,75 @@ page 1817 "CRM Connection Setup Wizard"
                 {
                     InstructionalText = 'To enable the connection, choose Finish. You may be asked to specify an administrative user account in Dynamics 365 Sales.';
                     ShowCaption = false;
+                    Visible = FinishActionEnabled;
+                }
+                group(Control29)
+                {
+                    InstructionalText = 'To enable the connection, choose Next. You may be asked to specify an administrative user account in Dynamics 365 Sales.';
+                    ShowCaption = false;
+                    Visible = not FinishActionEnabled;
+                }
+            }
+            group(Step3)
+            {
+                Caption = '';
+                Visible = FieldServiceStepVisible;
+
+                group(Control24)
+                {
+                    Caption = 'SET UP FIELD SERVICE INTEGRATION';
+                    InstructionalText = 'Get the Field Service Integration app to integrate Dynamics 365 Field Service with Business Central.';
+                }
+                group(Control25)
+                {
+                    InstructionalText = 'Use the link below to go to AppSource and get the Field Service Integration app. After you install the app, go to Field Service Integration setup wizard to set up integration.';
+                    ShowCaption = false;
+
+                    field(InstallFieldServiceIntegrationApp; FieldServiceIntegrationAppInstallTxt)
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                        ShowCaption = false;
+                        Caption = ' ';
+                        ToolTip = 'Get the Field Service Integration app from Microsoft AppSource.';
+
+                        trigger OnDrillDown()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            Hyperlink(CRMIntegrationManagement.GetFieldServiceIntegrationAppSourceLink());
+                        end;
+                    }
+                }
+                group(Control26)
+                {
+                    Visible = FieldServiceIntegrationAppInstalled;
+                    ShowCaption = false;
+
+                    field(FieldServiceIntegrationAppInstalledLbl; FieldServiceIntegrationAppInstalledTxt)
+                    {
+                        ApplicationArea = Suite;
+                        ToolTip = 'Indicates whether the Field Service Integration app is installed in the Dataverse environment.';
+                        Caption = 'The Field Service Integration Table app is installed.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Favorable;
+                    }
+                }
+                group(Control27)
+                {
+                    Visible = not FieldServiceIntegrationAppInstalled;
+                    ShowCaption = false;
+
+                    field(FieldServiceIntegrationAppNotInstalledLbl; FieldServiceIntegrationAppNotInstalledTxt)
+                    {
+                        ApplicationArea = Suite;
+                        Tooltip = 'Indicates that the Field Service Integration app is not installed in the Dataverse environment.';
+                        Caption = 'The Field Service Integration app is not installed.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Ambiguous;
+                    }
                 }
             }
         }
@@ -297,9 +366,12 @@ page 1817 "CRM Connection Setup Wizard"
     }
 
     trigger OnInit()
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         LoadTopBanners();
         SetVisibilityFlags();
+        SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
     end;
 
     trigger OnOpenPage()
@@ -347,7 +419,7 @@ page 1817 "CRM Connection Setup Wizard"
         MediaResourcesDone: Record "Media Resources";
         CRMProductName: Codeunit "CRM Product Name";
         ClientTypeManagement: Codeunit "Client Type Management";
-        Step: Option Start,Credentials,Finish;
+        Step: Option Start,Credentials,FieldService;
         TopBannerVisible: Boolean;
         ConnectionStringFieldsEditable: Boolean;
         BackActionEnabled: Boolean;
@@ -355,6 +427,7 @@ page 1817 "CRM Connection Setup Wizard"
         FinishActionEnabled: Boolean;
         FirstStepVisible: Boolean;
         CredentialsStepVisible: Boolean;
+        FieldServiceStepVisible: Boolean;
         EnableCRMConnection: Boolean;
         ImportSolution: Boolean;
         EnableCRMConnectionEnabled: Boolean;
@@ -369,12 +442,17 @@ page 1817 "CRM Connection Setup Wizard"
         AdvancedActionEnabled: Boolean;
         SimpleActionEnabled: Boolean;
         IsUserNamePasswordVisible: Boolean;
+        SoftwareAsAService: Boolean;
+        FieldServiceIntegrationAppInstalled: Boolean;
         [NonDebuggable]
         Password: Text;
         ConnectionNotSetUpQst: Label 'The %1 connection has not been set up.\\Are you sure you want to exit?', Comment = '%1 = CRM product name';
         CRMURLShouldNotBeEmptyErr: Label 'You must specify the URL of your %1 solution.', Comment = '%1 = CRM product name';
         CRMSynchUserCredentialsNeededErr: Label 'You must specify the credentials for the user account for synchronization with %1.', Comment = '%1 = CRM product name';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
+        FieldServiceIntegrationAppInstalledTxt: Label 'Field Service Integration app is installed.';
+        FieldServiceIntegrationAppNotInstalledTxt: Label 'Field Service Integration app is not installed.';
+        FieldServiceIntegrationAppInstallTxt: Label 'Install Field Service Integration app';
 
     local procedure LoadTopBanners()
     begin
@@ -418,6 +496,7 @@ page 1817 "CRM Connection Setup Wizard"
 
         FirstStepVisible := false;
         CredentialsStepVisible := false;
+        FieldServiceStepVisible := false;
 
         ImportCRMSolutionEnabled := true;
         PublishItemAvailabilityServiceEnabled := true;
@@ -433,7 +512,9 @@ page 1817 "CRM Connection Setup Wizard"
             Step::Start:
                 ShowStartStep();
             Step::Credentials:
-                ShowFinishStep();
+                ShowCredentialsStep();
+            Step::FieldService:
+                ShowFieldServiceStep();
         end;
     end;
 
@@ -447,16 +528,29 @@ page 1817 "CRM Connection Setup Wizard"
         SimpleActionEnabled := false;
     end;
 
-    local procedure ShowFinishStep()
+    local procedure ShowFieldServiceStep()
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        BackActionEnabled := true;
+        NextActionEnabled := false;
+        FinishActionEnabled := true;
+        AdvancedActionEnabled := false;
+        SimpleActionEnabled := false;
+        FieldServiceStepVisible := true;
+        FieldServiceIntegrationAppInstalled := CRMIntegrationManagement.IsFieldServiceIntegrationAppInstalled();
+    end;
+
+    local procedure ShowCredentialsStep()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         BackActionEnabled := true;
-        NextActionEnabled := false;
+        NextActionEnabled := SoftwareAsAService;
         AdvancedActionEnabled := not ShowAdvancedSettings;
         SimpleActionEnabled := not AdvancedActionEnabled;
         CredentialsStepVisible := true;
-        FinishActionEnabled := true;
+        FinishActionEnabled := not SoftwareAsAService;
 
         EnableBidirectionalSalesOrderIntegrationEnabled := ImportCRMSolutionEnabled;
         EnableSalesOrderIntegrationEnabled := ImportCRMSolutionEnabled;
