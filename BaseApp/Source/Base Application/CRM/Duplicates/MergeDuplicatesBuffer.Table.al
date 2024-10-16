@@ -98,10 +98,10 @@ table 64 "Merge Duplicates Buffer"
     }
 
     var
-        RenameErr: Label '%1 has not been renamed to %3.', Comment = '%1 - Customer/Vendor, %2 - old No., %3 - new No.';
-        RecNotExistErr: Label '%1 %2 does not exist.', Comment = '%1 - table name; %2 - primary key value';
         TempMergeDuplicatesLineBuffer: Record "Merge Duplicates Line Buffer" temporary;
         TempMergeDuplicatesConflict: Record "Merge Duplicates Conflict" temporary;
+        RenameErr: Label '%1 has not been renamed to %3.', Comment = '%1 - Customer/Vendor, %2 - old No., %3 - new No.';
+        RecNotExistErr: Label '%1 %2 does not exist.', Comment = '%1 - table name; %2 - primary key value';
         ConflictsErr: Label 'Resolve (%1) conflicts before merge.', Comment = '%1 - number of conflicts';
         ConfirmMergeTxt: Label 'Are you sure you want to merge the two records? This step cannot be undone.';
         ConfirmRenameTxt: Label 'Are you sure you want to rename record %1?', Comment = '%1 - values of the primary key fields';
@@ -148,7 +148,7 @@ table 64 "Merge Duplicates Buffer"
     begin
         FindRecords(RecordRef, FoundDuplicateRecord);
         TempMergeDuplicatesLineBuffer.GetPrimaryKeyFields(RecordRef[1], TempPKInt);
-        for Index := 1 to RecordRef[1].FieldCount do
+        for Index := 1 to RecordRef[1].FieldCount() do
             TempMergeDuplicatesLineBuffer.AddFieldData(RecordRef, "Conflict Field ID", Index, FoundDuplicateRecord, TempPKInt);
         RecordRef[1].Close();
         if FoundDuplicateRecord then
@@ -216,12 +216,13 @@ table 64 "Merge Duplicates Buffer"
 
     local procedure FindRelatedFields(var TempTableRelationsMetadata: Record "Table Relations Metadata" temporary): Boolean
     var
-        "Field": Record "Field";
         TableRelationsMetadata: Record "Table Relations Metadata";
         TableMetadata: Record "Table Metadata";
+        RelatedField: Record "Field";
     begin
         TempTableRelationsMetadata.Reset();
         TempTableRelationsMetadata.DeleteAll();
+
         TableRelationsMetadata.SetRange("Related Table ID", "Table ID");
         TableRelationsMetadata.SetRange("Related Field No.", GetKeyFieldNo("Table ID"));
         if TableRelationsMetadata.FindSet() then
@@ -229,19 +230,32 @@ table 64 "Merge Duplicates Buffer"
                 if TableMetadata.Get(TableRelationsMetadata."Table ID") and
                    (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed)
                 then begin
-                    Field.Get(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.");
-                    if (Field.Class = Field.Class::Normal) and Field.Enabled and (Field.ObsoleteState <> Field.ObsoleteState::Removed) then
+                    RelatedField.Get(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.");
+                    if (RelatedField.Class = RelatedField.Class::Normal) and (RelatedField.Enabled) and (RelatedField.ObsoleteState <> RelatedField.ObsoleteState::Removed) then
                         if (TempTableRelationsMetadata."Table ID" <> TableRelationsMetadata."Table ID") or
-                        (TempTableRelationsMetadata."Field No." <> TableRelationsMetadata."Field No.")
-                        then begin
-                            TempTableRelationsMetadata := TableRelationsMetadata;
-                            TempTableRelationsMetadata.Insert();
-                        end;
+                           (TempTableRelationsMetadata."Field No." <> TableRelationsMetadata."Field No.")
+                        then
+                            if IsRelatedFieldWithTableRelationValidationAndSupportedLength(TableRelationsMetadata, RelatedField) then begin
+                                TempTableRelationsMetadata := TableRelationsMetadata;
+                                TempTableRelationsMetadata.Insert();
+                            end;
                 end;
             until TableRelationsMetadata.Next() = 0;
+
         IncludeDefaultDimTable(TempTableRelationsMetadata);
+
         OnAfterFindRelatedFields(TempTableRelationsMetadata);
+
         exit(TempTableRelationsMetadata.FindSet());
+    end;
+
+    local procedure IsRelatedFieldWithTableRelationValidationAndSupportedLength(var TableRelationsMetadata: Record "Table Relations Metadata"; var RelatedField: Record "Field"): Boolean
+    begin
+        if not TableRelationsMetadata."Validate Table Relation" then
+            if RelatedField.Len < GetKeyFieldLength("Table ID") then
+                exit(false);
+
+        exit(true);
     end;
 
     procedure GetConflictsMsg(): Text
@@ -254,23 +268,36 @@ table 64 "Merge Duplicates Buffer"
     local procedure GetKeyFieldNo(TableNo: Integer) FieldNo: Integer
     var
         RecRef: RecordRef;
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
     begin
         RecRef.Open(TableNo);
         KeyRef := RecRef.KeyIndex(1);
-        FieldRef := KeyRef.FieldIndex(KeyRef.FieldCount);
-        FieldNo := FieldRef.Number;
+        FieldRef := KeyRef.FieldIndex(KeyRef.FieldCount());
+        FieldNo := FieldRef.Number();
+        RecRef.Close();
+    end;
+
+    local procedure GetKeyFieldLength(TableNo: Integer) FieldLength: Integer
+    var
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        KeyRef: KeyRef;
+    begin
+        RecRef.Open(TableNo);
+        KeyRef := RecRef.KeyIndex(1);
+        FieldRef := KeyRef.FieldIndex(KeyRef.FieldCount());
+        FieldLength := FieldRef.Length();
         RecRef.Close();
     end;
 
     local procedure GetKeyValues(RecordRef: RecordRef; var KeyValue: array[16] of Variant) Index: Integer
     var
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
     begin
         KeyRef := RecordRef.KeyIndex(1);
-        for Index := 1 to KeyRef.FieldCount do begin
+        for Index := 1 to KeyRef.FieldCount() do begin
             FieldRef := KeyRef.FieldIndex(Index);
             KeyValue[Index] := FieldRef.Value();
         end;
@@ -370,7 +397,7 @@ table 64 "Merge Duplicates Buffer"
             Contact[2].Get(Current);
             Contact[1].Get(Duplicate);
 
-            MergeRecords(Contact[1].RecordId, Contact[2].RecordId, 0);
+            MergeRecords(Contact[1].RecordId(), Contact[2].RecordId(), 0);
             Contact[2].Find();
             Contact[2].UpdateBusinessRelation();
             Contact[2].Modify();
@@ -390,7 +417,7 @@ table 64 "Merge Duplicates Buffer"
             Customer[1].Get(Duplicate);
             Customer[2].Get(Current);
             MoveCommentLinesFromDuplicateToCurrent("Comment Line Table Name"::Customer, Customer[1]."No.", Customer[2]."No.");
-            MergeRecords(Customer[1].RecordId, Customer[2].RecordId, Customer[1].FieldNo(SystemId));
+            MergeRecords(Customer[1].RecordId(), Customer[2].RecordId(), Customer[1].FieldNo(SystemId));
         end;
 
         OnAfterMergeCustomers(Rec, Customer);
@@ -407,7 +434,7 @@ table 64 "Merge Duplicates Buffer"
             Vendor[2].Get(Current);
             Vendor[1].Get(Duplicate);
             MoveCommentLinesFromDuplicateToCurrent("Comment Line Table Name"::Vendor, Vendor[1]."No.", Vendor[2]."No.");
-            MergeRecords(Vendor[1].RecordId, Vendor[2].RecordId, Vendor[1].FieldNo(SystemId));
+            MergeRecords(Vendor[1].RecordId(), Vendor[2].RecordId(), Vendor[1].FieldNo(SystemId));
         end;
 
         OnAfterMergeVendors(Rec, Vendor);
@@ -423,28 +450,28 @@ table 64 "Merge Duplicates Buffer"
     begin
         RecordRef[2].Get(CurrentRecID);
         RecordRef[1].Get(DuplicateRecID);
-        NewSystemID := RecordRef[2].Field(RecordRef[2].SystemIdNo).Value();
-        OldSystemID := RecordRef[1].Field(RecordRef[1].SystemIdNo).Value();
+        NewSystemID := RecordRef[2].Field(RecordRef[2].SystemIdNo()).Value();
+        OldSystemID := RecordRef[1].Field(RecordRef[1].SystemIdNo()).Value();
 
         OverrideSelectedFields(RecordRef[2], RecordRef[1], false);
 
         RecordRef[2].Delete();
         KeyFieldCount := GetKeyValues(RecordRef[2], KeyValue);
         if not RenameRecord(RecordRef[1], KeyFieldCount, KeyValue) then
-            Error(RenameErr, RecordRef[1].RecordId, RecordRef[2].RecordId);
+            Error(RenameErr, RecordRef[1].RecordId(), RecordRef[2].RecordId());
         RestoreSystemID(RecordRef[1], NewSystemID);
 
         UpdateIDs(
-          RecordRef[1].Number, IdFieldId, OldSystemID, NewSystemID);
+          RecordRef[1].Number(), IdFieldId, OldSystemID, NewSystemID);
     end;
 
-    local procedure RestoreSystemID(RenamedRecRef: RecordRef; SystemID: Guid)
+    local procedure RestoreSystemID(RenamedRecRef: RecordRef; NewSystemID: Guid)
     var
         SystemIdFldRef: FieldRef;
     begin
         RenamedRecRef.Delete(); // Inserts "deleted" IntegrationRecord
-        SystemIdFldRef := RenamedRecRef.Field(RenamedRecRef.SystemIdNo);
-        SystemIdFldRef.Value(SystemID);
+        SystemIdFldRef := RenamedRecRef.Field(RenamedRecRef.SystemIdNo());
+        SystemIdFldRef.Value(NewSystemID);
         RenamedRecRef.Insert(false, true);
     end;
 
@@ -464,7 +491,7 @@ table 64 "Merge Duplicates Buffer"
             repeat
                 FieldRef[1] := FromRecRef.Field(TempMergeDuplicatesLineBuffer.ID);
                 FieldRef[2] := ToRecRef.Field(TempMergeDuplicatesLineBuffer.ID);
-                FieldRef[2].Value(FieldRef[1].Value);
+                FieldRef[2].Value(FieldRef[1].Value());
             until TempMergeDuplicatesLineBuffer.Next() = 0;
             exit(true);
         end;
@@ -498,8 +525,8 @@ table 64 "Merge Duplicates Buffer"
     var
         ConfirmManagement: Codeunit "Confirm Management";
         RecordRef: RecordRef;
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
         KeyValue: Variant;
         VariantKeyValue: array[16] of Variant;
         Index: Integer;
@@ -512,12 +539,12 @@ table 64 "Merge Duplicates Buffer"
 
         RecordRef.Get("Duplicate Record ID");
         KeyRef := RecordRef.KeyIndex(1);
-        for Index := 1 to KeyRef.FieldCount do begin
+        for Index := 1 to KeyRef.FieldCount() do begin
             FieldRef := KeyRef.FieldIndex(Index);
             KeyValue := FieldRef.Value();
             if FieldRef.Type in [FieldType::Text, FieldType::Code] then begin
-                TempMergeDuplicatesLineBuffer.Get(TempMergeDuplicatesLineBuffer.Type::Field, "Table ID", FieldRef.Number);
-                if Format(FieldRef.Value) <> TempMergeDuplicatesLineBuffer."Duplicate Value" then
+                TempMergeDuplicatesLineBuffer.Get(TempMergeDuplicatesLineBuffer.Type::Field, "Table ID", FieldRef.Number());
+                if Format(FieldRef.Value()) <> TempMergeDuplicatesLineBuffer."Duplicate Value" then
                     KeyValue := TempMergeDuplicatesLineBuffer."Duplicate Value";
             end;
             VariantKeyValue[Index] := KeyValue;

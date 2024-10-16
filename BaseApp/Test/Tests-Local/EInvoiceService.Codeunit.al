@@ -16,6 +16,7 @@ codeunit 144111 "E-Invoice Service"
         EInvoiceExportCommon: Codeunit "E-Invoice Export Common";
         NOXMLReadHelper: Codeunit "NO XML Read Helper";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -31,6 +32,7 @@ codeunit 144111 "E-Invoice Service"
         TestValueTxt: Label 'Test Value';
         IncorrectFieldValueEInvoiceErr: Label 'Incorrect bool value of field E-Invoice on the Service Header table';
         ChangeBillToCustomerNoQst: Label 'Do you want to change the %1?';
+        ExternalDocumentNoErr: Label 'External Document No. should be passed from Service Header to Service Shipment Header.';
 
     [Test]
     [HandlerFunctions('SuccessMsgHandler')]
@@ -1050,6 +1052,39 @@ codeunit 144111 "E-Invoice Service"
         ExpectedResult := DocumentTools.GetEInvoiceExportPaymentID(DummyEInvoiceExportHeader);
         NOXMLReadHelper.Initialize(XmlFileName);
         NOXMLReadHelper.VerifyNodeValue('//cac:PaymentMeans/cbc:PaymentID', ExpectedResult);
+    end;
+
+    [Test]
+    procedure TransferExternalDocumentNoWhilePostingServiceOrderToShipmentOrder()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        ExternalDocumentNo: Code[10];
+    begin
+        // [SCENARIO 545779] Service Order transfers "External Document No." when posting the shipment to the Posted Service Shipment.
+        Initialize();
+
+        // [GIVEN] Create a service Header.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Generate and Validate Random text for External Document No.
+        ExternalDocumentNo := LibraryRandom.RandText(10);
+        ServiceHeader.Validate("External Document No.", ExternalDocumentNo);
+        ServiceHeader.Modify(true);
+
+        // [GIVEN] Create Service Line and Validate Quantity.
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        ServiceLine.Modify(true);
+
+        // [WHEN] Post the Service Order as Shipped.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [THEN] External Document No. must be populated in Service Shipment Header.
+        ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
+        ServiceShipmentHeader.FindFirst();
+        Assert.AreEqual(ServiceShipmentHeader."External Document No.", ExternalDocumentNo, ExternalDocumentNoErr);
     end;
 
     local procedure Initialize()
