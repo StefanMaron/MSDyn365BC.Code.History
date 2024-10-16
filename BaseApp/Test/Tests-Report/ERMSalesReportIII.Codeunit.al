@@ -4138,10 +4138,14 @@ codeunit 134984 "ERM Sales Report III"
     var
         nodeList: DotNet XmlNodeList;
         TotalLastIndex: Integer;
+        TotalLCYText: Text;
+        TotalLCYActual: Decimal;
     begin
         LibraryXPathXMLReader.GetNodeList('//Result/GrandTotalCLE1AmtLCY', nodeList);
         TotalLastIndex := nodeList.Count - 1; // index of the last node that contains Total(LCY) value
-        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/GrandTotalCLE1AmtLCY', FormatDecimalXML(TotalLCY), TotalLastIndex);
+        TotalLCYText := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Result/GrandTotalCLE1AmtLCY', TotalLastIndex);
+        Evaluate(TotalLCYActual, TotalLCYText);
+        Assert.AreEqual(TotalLCY, TotalLCYActual, 'Total(LCY) amount is not as expected');
     end;
 
     local procedure VerifyInternalInformation(DimensionValueRec: Record "Dimension Value"; Separator: Text[3])
@@ -4533,9 +4537,6 @@ codeunit 134984 "ERM Sales Report III"
             LibraryReportDataset.AssertCurrentRowValueEquals('YourReference', "Your Reference");
             LibraryReportDataset.AssertCurrentRowValueEquals('ExternalDocumentNo', "External Document No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', "No.");
-#if not CLEAN23
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyLegalOffice', CompanyInformation.GetLegalOffice());
-#endif
             LibraryReportDataset.AssertCurrentRowValueEquals('SalesPersonName', "Salesperson Code");
             LibraryReportDataset.AssertCurrentRowValueEquals('ShipmentMethodDescription', ShipmentMethod.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('Currency', LibraryERM.GetLCYCode());

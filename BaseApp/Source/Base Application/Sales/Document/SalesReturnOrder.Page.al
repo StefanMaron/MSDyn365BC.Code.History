@@ -280,6 +280,11 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the campaign number the document is linked to.';
+                    trigger OnValidate()
+                    begin
+                        if Rec."Campaign No." <> xRec."Campaign No." then
+                            CurrPage.Update();
+                    end;
                 }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {

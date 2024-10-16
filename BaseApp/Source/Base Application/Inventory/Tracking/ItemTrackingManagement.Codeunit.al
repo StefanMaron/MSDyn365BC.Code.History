@@ -1929,9 +1929,14 @@ codeunit 6500 "Item Tracking Management"
                         Qty := -TempTrackingSpecification."Qty. to Handle (Base)";
                         if RegPickNo <> '' then begin
                             RegisteredWhseActLine.SetRange("Activity Type", RegisteredWhseActLine."Activity Type"::Pick);
-                            RegisteredWhseActLine.SetSourceFilter(
-                              TempTrackingSpecification."Source Type", TempTrackingSpecification."Source Subtype",
-                              TempTrackingSpecification."Source ID", TempTrackingSpecification."Source Ref. No.", -1, true);
+                            if TempTrackingSpecification."Source Type" = Database::"Prod. Order Component" then
+                                RegisteredWhseActLine.SetSourceFilter(
+                                    TempTrackingSpecification."Source Type", TempTrackingSpecification."Source Subtype",
+                                    TempTrackingSpecification."Source ID", TempTrackingSpecification."Source Prod. Order Line", TempTrackingSpecification."Source Ref. No.", true)
+                            else
+                                RegisteredWhseActLine.SetSourceFilter(
+                                    TempTrackingSpecification."Source Type", TempTrackingSpecification."Source Subtype",
+                                    TempTrackingSpecification."Source ID", TempTrackingSpecification."Source Ref. No.", -1, true);
                             RegisteredWhseActLine.SetTrackingFilterFromSpec(TempTrackingSpecification);
                             RegisteredWhseActLine.SetFilter("No.", '<> %1', RegPickNo);
                             if not RegisteredWhseActLine.FindFirst() then

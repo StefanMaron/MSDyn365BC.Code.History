@@ -1360,6 +1360,82 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Assert.AreEqual(ExpectedClientFileName, ActualClientFileName, StrSubstNo(WrongFileNameErr, ExpectedClientFileName));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetAccountingSupplierPartyLegalEntity_VATRegNo_DK()
+    var
+        CompanyInfo: Record "Company Information";
+        CountryRegion: Record "Country/Region";
+        PEPPOLMgt: Codeunit "PEPPOL Management";
+        PartyLegalEntityRegName: Text;
+        PartyLegalEntityCompanyID: Text;
+        PartyLegalEntitySchemeID: Text;
+        SupplierRegAddrCityName: Text;
+        SupplierRegAddrCountryIdCode: Text;
+        SupplRegAddrCountryIdListId: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 533311] DK VAT Registration No. always should have a prefix in Supplier Legal Entity.
+        Initialize();
+
+        // [GIVEN] Company Information with DK VAT Registration No. = '12345678'
+        CompanyInfo.Get();
+        CompanyInfo.GLN := '';
+        CompanyInfo."Use GLN in Electronic Document" := true;
+        CompanyInfo.Validate("Country/Region Code", GetISOCountryCodeDK());
+        CompanyInfo."VAT Registration No." := Format(LibraryRandom.RandIntInRange(10000000, 99999999));
+        CompanyInfo.Modify();
+
+        // [WHEN] Get Accounting Supplier Party Legal Entity
+        PEPPOLMgt.GetAccountingSupplierPartyLegalEntityBIS(
+          PartyLegalEntityRegName, PartyLegalEntityCompanyID, PartyLegalEntitySchemeID, SupplierRegAddrCityName,
+          SupplierRegAddrCountryIdCode, SupplRegAddrCountryIdListId);
+
+        // [THEN] VAT Registration No. should have a prefix, , SchemaID is taken from CountryRegion (0184)
+        CountryRegion.Get(CompanyInfo."Country/Region Code");
+        Assert.AreEqual(CompanyInfo.Name, PartyLegalEntityRegName, '');
+        Assert.AreEqual(GetISOCountryCodeDK() + CompanyInfo."VAT Registration No.", PartyLegalEntityCompanyID, '');
+        Assert.AreEqual(CountryRegion."VAT Scheme", PartyLegalEntitySchemeID, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetAccountingCustomerPartyLegalEntity_VATRegNo_DK()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        PEPPOLMgt: Codeunit "PEPPOL Management";
+        CustPartyLegalEntityRegName: Text;
+        CustPartyLegalEntityCompanyID: Text;
+        CustPartyLegalEntityIDSchemeID: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 533311] DK VAT Registration No. always should have a prefix in Customer Legal Entity.
+        Initialize();
+
+        // [GIVEN] Customer with DK VAT Registration No. = '12345678'
+        LibrarySales.CreateCustomer(Customer);
+        Customer."Country/Region Code" := GetISOCountryCodeDK();
+        Customer."VAT Registration No." := Format(LibraryRandom.RandIntInRange(10000000, 99999999));
+        Customer.GLN := '';
+        Customer."Use GLN in Electronic Document" := true;
+        Customer.Modify();
+
+        SalesHeader.Validate("Bill-to Customer No.", Customer."No.");
+        SalesHeader.Validate("VAT Registration No.", Customer."VAT Registration No.");
+
+        // [WHEN] Get Accounting Customer Party Legal Entity
+        PEPPOLMgt.GetAccountingCustomerPartyLegalEntityBIS(
+          SalesHeader, CustPartyLegalEntityRegName, CustPartyLegalEntityCompanyID, CustPartyLegalEntityIDSchemeID);
+
+        // [THEN] VAT Registration No. should have a prefix, SchemaID is taken from CountryRegion (0184)
+        CountryRegion.Get(Customer."Country/Region Code");
+        Assert.AreEqual(Customer.Name, CustPartyLegalEntityRegName, '');
+        Assert.AreEqual(GetISOCountryCodeDK() + Customer."VAT Registration No.", CustPartyLegalEntityCompanyID, '');
+        Assert.AreEqual(CountryRegion."VAT Scheme", CustPartyLegalEntityIDSchemeID, '');
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -1641,6 +1717,11 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
         exit(VATProductPostingGroup.Code);
+    end;
+
+    local procedure GetISOCountryCodeDK(): Code[10]
+    begin
+        exit('DK');
     end;
 
     local procedure GetCompanyVATRegNo(CompanyInformation: Record "Company Information"): Text

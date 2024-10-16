@@ -60,6 +60,8 @@
         RequisitionLineMustBeFoundErr: Label 'Requisition Line must be found.';
         BinCodeErr: Label '%1 must be %2 in %3', Comment = '%1 = Bin Code, %2 = Bin Code value, %3 = Planning Component';
         BOMLineNoAndProdOrderBOMLineNoMustNotMatchErr: Label 'BOM Line No. and Prod. Order BOM Line No. must not match.';
+        ItemFiltersLbl: Label '%1|%2', Comment = '%1 = Item, %2 = Item 2';
+        QuantityErr: Label '%1 must be %2 in %3', Comment = '%1 = Quantity, %2 = Minimum Order Quanity, %3 = Requisition Line';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -4588,6 +4590,87 @@
             BOMLineNoAndProdOrderBOMLineNoMustNotMatchErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalcRegPlanCreatesOneReqLineForItemHavingMinQtyAndOrderMultiple()
+    var
+        Item: array[3] of Record Item;
+        Customer: Record Customer;
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[5] of Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        MinOrderQty: Decimal;
+    begin
+        // [SCENARIO 502028] When Calculate Regenerative Planning in Planning Worksheet for Items having Minimum Order Quantity,
+        // Order Multiple, Reorder policy set as Lot-for-Lot and Manufacturing Policy set as Make-to-Order.
+        Initialize();
+
+        // [GIVEN] Generate and save Minimum Order Quantity in a Variable.
+        MinOrderQty := LibraryRandom.RandIntInRange(50, 50);
+
+        // [GIVEN] Create MTO Item with Lot-for-Lot Reordering Policy.
+        CreateMTOItemWithLotForLotReorderingPolicy(Item[1]);
+
+        // [GIVEN] Create MTO Item 2 with Lot-for-Lot Reordering Policy.
+        CreateMTOItemWithLotForLotReorderingPolicy(Item[2]);
+
+        // [GIVEN] Create Sales Header and Validate Shipment Date.
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, Customer."No.");
+        SalesHeader[1].Validate("Shipment Date", WorkDate());
+        SalesHeader[1].Modify(true);
+
+        // [GIVEN] Create three Sales Lines with Item and Item 2.
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(5, 5));
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader[1], SalesLine[2].Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(2, 2));
+        LibrarySales.CreateSalesLine(SalesLine[3], SalesHeader[1], SalesLine[3].Type::Item, Item[2]."No.", LibraryRandom.RandIntInRange(8, 8));
+
+        // [GIVEN] Create Sales Header 2 and Validate Shipment Date.
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Order, Customer."No.");
+        SalesHeader[2].Validate("Shipment Date", CalcDate('<30D>', WorkDate()));
+        SalesHeader[2].Modify(true);
+
+        // [GIVEN] Create two Sales Lines with Item and Items 2.
+        LibrarySales.CreateSalesLine(SalesLine[3], SalesHeader[2], SalesLine[3].Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(8, 8));
+        LibrarySales.CreateSalesLine(SalesLine[4], SalesHeader[2], SalesLine[4].Type::Item, Item[2]."No.", LibraryRandom.RandIntInRange(8, 8));
+
+        // [GIVEN] Set Item Filter.
+        Item[3].SetFilter("No.", StrSubstNo(ItemFiltersLbl, Item[1]."No.", Item[2]."No."));
+
+        // [GIVEN] Run Calculate Regenerative Plan.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(
+            Item[3],
+            CalcDate('<-CM>', WorkDate()),
+            CalcDate('<CM>', CalcDate('<50D>', WorkDate())));
+
+        // [WHEN] Find Requisition Line.
+        RequisitionLine.SetRange("No.", Item[1]."No.");
+        RequisitionLine.FindFirst();
+
+        // [THEN] Quantity of Requisition Line must be equal to Minimum Order Quantity.
+        Assert.AreEqual(
+            MinOrderQty,
+            RequisitionLine.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                RequisitionLine.FieldCaption(Quantity),
+                MinOrderQty,
+                RequisitionLine.TableCaption()));
+
+        // [WHEN] Find Requisition Line.
+        RequisitionLine.SetRange("No.", Item[2]."No.");
+        RequisitionLine.FindFirst();
+
+        // [THEN] Quantity of Requisition Line must be equal to Minimum Order Quantity.
+        Assert.AreEqual(
+            MinOrderQty,
+            RequisitionLine.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                RequisitionLine.FieldCaption(Quantity),
+                MinOrderQty,
+                RequisitionLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6273,6 +6356,18 @@
         CarryOutActionMsgPlan.UseRequestPage(false);
         CarryOutActionMsgPlan.SetDemandOrder(ReqLine, MfgUserTemplate);
         CarryOutActionMsgPlan.RunModal();
+    end;
+
+    local procedure CreateMTOItemWithLotForLotReorderingPolicy(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Minimum Order Quantity", LibraryRandom.RandIntInRange(50, 50));
+        Item.Validate("Order Multiple", LibraryRandom.RandIntInRange(10, 10));
+        Evaluate(Item."Lot Accumulation Period", '5D');
+        Item.Modify(true);
     end;
 
     [RequestPageHandler]

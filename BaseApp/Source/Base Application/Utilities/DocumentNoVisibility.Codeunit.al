@@ -457,6 +457,8 @@ codeunit 1400 DocumentNoVisibility
     local procedure DetermineSalesSeriesNo(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo): Code[20]
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        IsHandled: Boolean;
+        ReturnValue: Code[20];
     begin
         SalesReceivablesSetup.Get();
         case DocType of
@@ -476,6 +478,12 @@ codeunit 1400 DocumentNoVisibility
                 exit(SalesReceivablesSetup."Reminder Nos.");
             DocType::FinChMemo:
                 exit(SalesReceivablesSetup."Fin. Chrg. Memo Nos.");
+            else begin
+                IsHandled := false;
+                OnDeterminePurchaseSeriesNoOnElseDocType(DocType, ReturnValue, IsHandled);
+                if IsHandled then
+                    exit(ReturnValue);
+            end;
         end;
     end;
 
@@ -748,6 +756,11 @@ codeunit 1400 DocumentNoVisibility
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeContactNoIsVisible(var IsVisible: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeterminePurchaseSeriesNoOnElseDocType(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; var ReturnValue: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -115,7 +115,9 @@ page 1486 "Role Center Overview"
         SessionSet.Init();
         SessionSet.ProfileId := NewAllProfile."Profile ID";
         SessionSet.ProfileAppId := NewAllProfile."App ID";
+#pragma warning disable AL0667
         SessionSet.ProfileSystemScope := NewAllProfile.Scope = NewAllProfile.Scope::System;
+#pragma warning restore AL0667
         SessionSet.LanguageId := UserPersonalization."Language ID";
         SessionSet.LocaleId := UserPersonalization."Locale ID";
         SessionSet.Timezone := UserPersonalization."Time Zone";

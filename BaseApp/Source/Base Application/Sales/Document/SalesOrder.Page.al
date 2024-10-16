@@ -345,6 +345,11 @@ page 42 "Sales Order"
                     ApplicationArea = RelationshipMgmt;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the campaign that the document is linked to.';
+                    trigger OnValidate()
+                    begin
+                        if Rec."Campaign No." <> xRec."Campaign No." then
+                            CurrPage.Update();
+                    end;
                 }
                 field("Opportunity No."; Rec."Opportunity No.")
                 {

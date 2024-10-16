@@ -1307,6 +1307,7 @@ codeunit 950 "Time Sheet Management"
                 ServiceLine.Validate("Qty. to Consume", QtyToPost);
             ServiceLine."Planned Delivery Date" := TimeSheetDetail.Date;
             ServiceLine.Validate("Work Type Code", TimeSheetLine."Work Type Code");
+            OnAddServLinesFromTSDetailOnBeforeInsertServiceLine(ServiceLine, LineNo, ServiceHeader, TimeSheetDetail);
             ServiceLine.Insert();
         end;
     end;
@@ -1466,6 +1467,11 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckTimeSheetLineFieldsVisible(var WorkTypeCodeVisible: Boolean; var JobFieldsVisible: Boolean; var ChargeableVisible: Boolean; var ServiceOrderNoVisible: Boolean; var AbsenceCauseVisible: Boolean; var AssemblyOrderNoVisible: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddServLinesFromTSDetailOnBeforeInsertServiceLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var LineNo: Integer; ServiceHeader: Record Microsoft.Service.Document."Service Header"; TimeSheetDetail: Record "Time Sheet Detail")
     begin
     end;
 }
