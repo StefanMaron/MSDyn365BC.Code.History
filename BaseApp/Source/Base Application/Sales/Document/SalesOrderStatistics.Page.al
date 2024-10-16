@@ -425,6 +425,15 @@ page 402 "Sales Order Statistics"
                         end;
                     end;
                 }
+                field("Amount Excl. Prepayment"; TotalSalesLine[2]."Line Amount" - PrepmtTotalAmount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
+                    Caption = 'Amount Excl. Prepayment';
+                    Editable = false;
+                    ToolTip = 'Specifies the difference between Amount Excl. VAT and Prepayment Amount Excl. VAT.';
+                }
             }
             group(Shipping)
             {
