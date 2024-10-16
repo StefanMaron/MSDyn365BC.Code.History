@@ -16,7 +16,9 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Vendor;
+using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Automation;
 using System.Environment;
@@ -283,6 +285,9 @@ page 39 "General Journal"
                 field("Posting Group"; Rec."Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
+                    Editable = IsPostingGroupEditable;
+                    ToolTip = 'Specifies the posting group that will be used in posting the journal line.The field is used only if the account type is either customer or vendor.';
+                    Visible = IsPostingGroupEditable;
                 }
                 field("Source Type"; Rec."Source Type")
                 {
@@ -2159,6 +2164,8 @@ page 39 "General Journal"
 
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         PayrollManagement: Codeunit "Payroll Management";
@@ -2182,6 +2189,7 @@ page 39 "General Journal"
         HasIncomingDocument: Boolean;
         BalanceVisible: Boolean;
         TotalBalanceVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
         StyleTxt: Text;
         IsPowerAutomatePrivacyNoticeApproved: Boolean;
         ApprovalEntriesExistSentByCurrentUser: Boolean;
@@ -2459,6 +2467,8 @@ page 39 "General Journal"
     begin
         IsSaaS := EnvironmentInfo.IsSaaS();
         GLSetup.Get();
+        PurchasesPayablesSetup.GetRecordOnce();
+        SalesReceivablesSetup.GetRecordOnce();
         if IsSimplePage then begin
             AmountVisible := false;
             DebitCreditVisible := true;
@@ -2466,6 +2476,7 @@ page 39 "General Journal"
             AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
             DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
         end;
+        IsPostingGroupEditable := (PurchasesPayablesSetup."Allow Multiple Posting Groups") or (SalesReceivablesSetup."Allow Multiple Posting Groups");
     end;
 
     local procedure SetDocumentNumberFilter(DocNoToSet: Code[20])

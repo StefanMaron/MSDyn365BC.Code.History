@@ -32,6 +32,7 @@ codeunit 144004 "ERM RU SE Fixes"
         CorrectDateNotFoundErr: Label 'Appropriate date has not been taken into account.';
         WrongDateFoundErr: Label 'Inappropriate date has been taken into account.';
         TotalingTypeErr: Label 'Incosistent Totaling Type option in Acc. Shedule Expession Buffer';
+        FALedgerEntryDimErr: Label 'FA Ledger Entry should consists of Dimension Set ID.';
 
     [Test]
     [Scope('OnPrem')]
@@ -957,6 +958,51 @@ codeunit 144004 "ERM RU SE Fixes"
     end;
 #endif
 
+#if not CLEAN22
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessagesHandler')]
+    procedure PostingFAMovementTransfersDimensionSetID()
+    var
+        DimensionValue: Record "Dimension Value";
+        FADocumentHeader: Record "FA Document Header";
+        FADocumentLine: Record "FA Document Line";
+        FixedAsset: Record "Fixed Asset";
+        Vendor: Record Vendor;
+        DepreciationDate: Date;
+    begin
+        // [SCENARIO 543387] FA movement dimension Set Entries are created for Incoming transactions in FA Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Prepare Fixed Asset.
+        PrepareFixedAsset(Vendor, FixedAsset);
+
+        // [GIVEN] Create Dimension Value and Validate in Fixed Assets.
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        FixedAsset.Validate("Global Dimension 1 Code", DimensionValue.Code);
+        FixedAsset.Modify(true);
+
+        // [GIVEN] Create and store Depreciation Date.
+        DepreciationDate := CalcDate('<1Y+CM>', WorkDate());
+
+        // [GIVEN] Create FA Movement Document and Validate New FA Location Code.
+        LibraryFixedAsset.CreateFAMovementDoc(FADocumentHeader, FixedAsset."No.", DepreciationDate, GetFAReleaseDeprBookCode());
+        FADocumentHeader.Validate("New FA Location Code", CreateFALocation());
+        FADocumentHeader.Modify(true);
+
+        // [GIVEN] Find FA Document Line.
+        FADocumentLine.SetRange("Document Type", FADocumentHeader."Document Type");
+        FADocumentLine.SetRange("Document No.", FADocumentHeader."No.");
+        FADocumentLine.FindFirst();
+
+        // [WHEN] Post FA Document.
+        LibraryFixedAsset.PostFADocument(FADocumentHeader);
+
+        // [THEN] Dimension Set ID must be passed to FA Ledger Entry.
+        VerifyFALedgerEntryDimensionSetID(FixedAsset."No.", DepreciationDate, FADocumentLine."Dimension Set ID");
+    end;
+#endif
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1626,6 +1672,18 @@ codeunit 144004 "ERM RU SE Fixes"
         VendorLedgerEntry.TestField(Open, false);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, VendorLedgerEntry."Document Type"::Payment, PaymentNo);
         VendorLedgerEntry2.TestField(Open, false);
+    end;
+
+    local procedure VerifyFALedgerEntryDimensionSetID(FANo: Code[20]; DepreciationDate: Date; FADocumentLineDimensionSetID: Integer)
+    var
+        FALedgerEntry: Record "FA Ledger Entry";
+    begin
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetRange("Posting Date", DepreciationDate);
+        FALedgerEntry.FindSet();
+        repeat
+            Assert.AreEqual(FALedgerEntry."Dimension Set ID", FADocumentLineDimensionSetID, FALedgerEntryDimErr);
+        until FALedgerEntry.Next() = 0;
     end;
 
     [ModalPageHandler]

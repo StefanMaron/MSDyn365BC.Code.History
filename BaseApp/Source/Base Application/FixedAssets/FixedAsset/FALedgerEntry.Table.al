@@ -453,6 +453,10 @@ table 5601 "FA Ledger Entry"
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
+        field(6210; "Non-Ded. VAT FA Cost"; Boolean)
+        {
+            Caption = 'Non-Deductible VAT FA Cost';
+        }
         field(12405; "Employee No."; Code[20])
         {
             Caption = 'Employee No.';

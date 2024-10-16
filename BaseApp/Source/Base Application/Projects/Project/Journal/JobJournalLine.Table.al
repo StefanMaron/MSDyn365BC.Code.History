@@ -383,6 +383,7 @@ table 210 "Job Journal Line"
                                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                     end;
                 CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
+                UpdateDimensions();
             end;
         }
         field(22; Chargeable; Boolean)

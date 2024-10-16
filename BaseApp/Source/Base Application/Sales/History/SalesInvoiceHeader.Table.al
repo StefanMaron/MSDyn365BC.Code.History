@@ -41,6 +41,7 @@ using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
 using System.Utilities;
+using System.Email;
 
 table 112 "Sales Invoice Header"
 {
@@ -594,6 +595,19 @@ table 112 "Sales Invoice Header"
         field(180; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
+        }
+        field(185; "Last Email Sent Time"; DateTime)
+        {
+            Caption = 'Last Email Sent Time';
+            FieldClass = FlowField;
+            CalcFormula = max("Email Related Record".SystemCreatedAt where("Table Id" = const(Database::"Sales Invoice Header"),
+                                                                           "System Id" = field(SystemId)));
+        }
+        field(186; "Last Email Sent Message Id"; Guid)
+        {
+            Caption = 'Last Email Sent Message Id';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Email Related Record"."Email Message Id" where(SystemCreatedAt = field("Last Email Sent Time")));
         }
         field(200; "Work Description"; BLOB)
         {

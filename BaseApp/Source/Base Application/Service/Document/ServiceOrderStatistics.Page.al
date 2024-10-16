@@ -468,7 +468,7 @@ page 5914 "Service Order Statistics"
                             Editable = false;
                             ToolTip = 'Specifies the total cost, in LCY, of the items in the service order, adjusted for any changes in the original costs of these items.';
 
-                            trigger OnLookup(var Text: Text): Boolean
+                            trigger OnDrillDown()
                             begin
                                 Rec.LookupAdjmtValueEntries(1);
                             end;
