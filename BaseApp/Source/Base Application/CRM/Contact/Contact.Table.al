@@ -1927,32 +1927,33 @@ table 5050 Contact
 
     procedure ShowBusinessRelation(LinkToTable: Enum "Contact Business Relation Link To Table"; All: Boolean)
     var
-        ContBusRel: Record "Contact Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
         RecSelected: Boolean;
         IsHandled: Boolean;
     begin
-        FilterBusinessRelations(ContBusRel, LinkToTable, All);
-        if ContBusRel.IsEmpty() then begin
+        FilterBusinessRelations(ContactBusinessRelation, LinkToTable, All);
+        OnShowBusinessRelationOnAfterFilterBusinessRelations(Rec, ContactBusinessRelation, LinkToTable, All);
+        if ContactBusinessRelation.IsEmpty() then begin
             ShowBusinessRelations();
             exit;
         end;
 
-        if ContBusRel.Count() = 1 then
-            RecSelected := ContBusRel.FindFirst()
+        if ContactBusinessRelation.Count() = 1 then
+            RecSelected := ContactBusinessRelation.FindFirst()
         else begin
-            PAGE.Run(PAGE::"Contact Business Relations", ContBusRel);
+            Page.Run(Page::"Contact Business Relations", ContactBusinessRelation);
             exit;
         end;
 
         IsHandled := false;
-        OnShowCustVendBankOnBeforeRunPage(Rec, RecSelected, ContBusRel, IsHandled);
+        OnShowCustVendBankOnBeforeRunPage(Rec, RecSelected, ContactBusinessRelation, IsHandled);
         if IsHandled then
             exit;
 
         if RecSelected then
-            ContBusRel.ShowRelatedCardPage();
+            ContactBusinessRelation.ShowRelatedCardPage();
 
-        OnAfterShowCustVendBank(Rec, ContBusRel, RecSelected);
+        OnAfterShowCustVendBank(Rec, ContactBusinessRelation, RecSelected);
     end;
 
     procedure ShowBusinessRelations()
@@ -3904,6 +3905,11 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateBankAccountLink(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowBusinessRelationOnAfterFilterBusinessRelations(var Rec: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; ContactBusinessRelationLinkToTable: Enum "Contact Business Relation Link To Table"; All: Boolean)
     begin
     end;
 }

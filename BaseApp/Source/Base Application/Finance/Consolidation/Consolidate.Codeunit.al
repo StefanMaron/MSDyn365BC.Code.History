@@ -387,6 +387,7 @@ codeunit 432 Consolidate
         Text032: Label 'The %1 is later than the %2 in company %3.';
         Text033: Label '%1 must not be empty when %2 is not empty, in company %3.';
         Text034: Label 'It is not possible to consolidate ledger entry dimensions for G/L Entry No. %1, because there are conflicting dimension values %2 and %3 for consolidation dimension %4.';
+       ConsolidationAccMissingErr: Label 'The G/L account %1 can''t be found in the consolidation company, but it is specified in the business unit %2. Verify that the G/L account exists in the consolidation company or that it''s correctly mapped by setting the Consolidation fields in the subsidiary G/L account.', Comment = '%1 - A G/L account code, %2 - A Business Unit code';
 
     procedure SetDocNo(NewDocNo: Code[20])
     begin
@@ -1158,7 +1159,8 @@ codeunit 432 Consolidate
             exit;
 
         OnCreateAndPostGenJnlLineOnBeforeConsolidGLAccGet(GenJnlLine, GLEntry, BusUnit, TempSubsidGLAcc);
-        ConsolidGLAcc.Get(GenJnlLine."Account No.");
+        if not ConsolidGLAcc.Get(GenJnlLine."Account No.") then
+            Error(ConsolidationAccMissingErr, GenJnlLine."Account No.", BusUnit.Code);
 
         OriginalTranslationMethod := TempSubsidGLAcc."Consol. Translation Method";
         if TempSubsidGLAcc."Consol. Translation Method" = TempSubsidGLAcc."Consol. Translation Method"::"Average Rate (Manual)" then

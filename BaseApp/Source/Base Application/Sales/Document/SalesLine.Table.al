@@ -5528,8 +5528,12 @@ table 37 "Sales Line"
     var
         ItemListPage: Page "Item List";
         SelectionFilter: Text;
+        IsHandled: Boolean;
     begin
-        OnBeforeSelectMultipleItems(Rec);
+        IsHandled := false;
+        OnBeforeSelectMultipleItems(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         if IsCreditDocType() then
             SelectionFilter := ItemListPage.SelectActiveItems()
@@ -8694,7 +8698,8 @@ table 37 "Sales Line"
     begin
         ItemTempl.Get(NonstockItem."Item Templ. Code");
         ItemTempl.TestField("Gen. Prod. Posting Group");
-        ItemTempl.TestField("Inventory Posting Group");
+        if ItemTempl.Type = ItemTempl.Type::Inventory then
+            ItemTempl.TestField("Inventory Posting Group");
     end;
 
     local procedure CheckQuoteCustomerTemplateCode(SalesHeader: Record "Sales Header")
@@ -9555,7 +9560,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSelectMultipleItems(var SalesLine: Record "Sales Line")
+    local procedure OnBeforeSelectMultipleItems(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

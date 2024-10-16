@@ -2815,6 +2815,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
 
         LibraryCFHelper.CreateSpecificCashFlowCard(CashFlowForecast, false, false);
+        CashFlowForecast.Validate("Manual Payments From", 0D);
         CashFlowForecast.Validate("Manual Payments To", WorkDate() - 2);
         CashFlowForecast.Modify(true);
 
@@ -2829,6 +2830,42 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries.Trap();
         CashFlowStatistic.LiquidFunds.DrillDown();
         CashFlowStatistic.LiquidFunds.AssertEquals(LedgerEntryAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CashFlowForecastStatisticsWithManualPaymentsFrom()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowForecastCard: TestPage "Cash Flow Forecast Card";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        ConsiderSource: array[16] of Boolean;
+        LedgerEntryAmount: Decimal;
+    begin
+        // [SCENARIO 537619] Cash Flow Forecast Statistics takes into consideration Manual Payments From
+        Initialize();
+
+        // [GIVEN] 2 entries for Receivables source type on 2 different days 01/01/24 and 02/01/24
+        // [GIVEN] Set Manual Payments From to 02/01/24
+        LedgerEntryAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
+
+        LibraryCFHelper.CreateSpecificCashFlowCard(CashFlowForecast, false, false);
+        CashFlowForecast.Validate("Manual Payments From", WorkDate() - 1);
+        CashFlowForecast.Modify(true);
+
+        InsertCFLedgerEntriesDifferentDays(CashFlowForecast, ConsiderSource, LedgerEntryAmount);
+
+        // [WHEN] Open CF Statistics FactBox and CF Statistics page
+        // [THEN] Receivables amount should be equal to the amount of the entry on 02/01/24
+        CashFlowForecastCard.OpenView();
+        CashFlowForecastCard.Filter.SetFilter("No.", CashFlowForecast."No.");
+        CashFlowForecastCard.Control1905906307.Receivables.AssertEquals(LedgerEntryAmount);
+
+        CashFlowStatistic.Trap();
+        CashFlowForecastCard."&Statistics".Invoke();
+        CashFlowStatistic.Receivables.AssertEquals(LedgerEntryAmount);
     end;
 
     [Test]
@@ -2876,7 +2913,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowCard.OpenNew();
         CashFlowCard."Manual Payments From".SetValue(Today);
         AssertError CashFlowCard."Manual Payments To".SetValue(Today - 1);
-        Assert.ExpectedError('The "Manual Payments To" date precedes the "Manual Payments From" date. Select an end date after the start date.');
+        Assert.ExpectedError('The "Manual Revenue/Expenses To" date precedes the "Manual Revenue/Expenses From" date. Select an end date after the start date.');
     end;
 
     local procedure Initialize()

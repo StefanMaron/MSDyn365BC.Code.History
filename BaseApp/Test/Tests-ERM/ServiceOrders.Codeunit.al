@@ -5328,6 +5328,44 @@ codeunit 136101 "Service Orders"
         CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Allowed);
     end;
 
+    [Test]
+    procedure ReleasingOfServiceOrderHavingServiceLineWithoutUOMGivesError()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+        ServiceLine: Record "Service Line";
+    begin
+        // [SCENARIO 522444] When run Release action from a Service Order having a Service Line without 
+        // Unit of Measure Code, then it gives error and the document is not released.
+        Initialize();
+
+        // [GIVEN] Craete a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Service Item.
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+
+        // [GIVEN] Craete a Service Order with Service Item Line.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+
+        // [GIVEN] Create a Service Line.
+        CreateServiceLineToShipAndInvoice(ServiceLine, ServiceHeader, ServiceItem."No.");
+
+        // [GIVEN] Find Service Header and Service Line.
+        ServiceHeader.SetRange("No.", ServiceHeader."No.");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+
+        // [WHEN] Validate Unit of Measure Code in Service Line.
+        ServiceLine.Validate("Unit of Measure Code", '');
+        ServiceLine.Modify(true);
+
+        // [THEN] Error is shown and the Service Order is not released.
+        asserterror LibraryService.ReleaseServiceDocument(ServiceHeader);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTRUE(Question: Text[1024]; var Reply: Boolean)

@@ -76,6 +76,12 @@ page 7385 "Reg. Invt. Movement Subform"
                     ToolTip = 'Specifies the lot number of the item that was moved.';
                     Visible = false;
                 }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the package number of the item that was moved.';
+                    Visible = false;
+                }
                 field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;

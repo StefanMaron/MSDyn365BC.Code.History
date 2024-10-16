@@ -149,6 +149,7 @@ codeunit 5760 "Whse.-Post Receipt"
             WhseRcptLine.SetRange("Source Type");
             WhseRcptLine.SetRange("Source Subtype");
             WhseRcptLine.SetRange("Source No.");
+            OnCodeOnAfterRemoveSourceFilterFromWhseRcptLine(WhseRcptLine, PurchHeader, SalesHeader, TransHeader);
         until WhseRcptLine.Next() = 0;
 
         OnCodeOnAfterPostSourceDocuments(WhseRcptHeader, WhseRcptLine);
@@ -953,6 +954,10 @@ codeunit 5760 "Whse.-Post Receipt"
             exit;
         end;
 
+        if WhseRcptHeader."Receiving No." <> '' then
+            if PostedWhseRcptHeader.Get(WhseRcptHeader."Receiving No.") then
+                exit;
+            
         PostedWhseRcptHeader.Init();
         PostedWhseRcptHeader.TransferFields(WhseRcptHeader);
         PostedWhseRcptHeader."No." := WhseRcptHeader."Receiving No.";
@@ -1918,6 +1923,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentHeaderOnBeforeRunPurchRelease(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterRemoveSourceFilterFromWhseRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header")
     begin
     end;
 }
