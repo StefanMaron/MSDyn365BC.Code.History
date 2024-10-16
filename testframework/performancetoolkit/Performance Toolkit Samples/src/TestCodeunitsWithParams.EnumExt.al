@@ -40,4 +40,8 @@ enumextension 149100 "Test Codeunits with Params" extends "BCPT Test Param. Enum
     {
         Implementation = "BCPT Test Param. Provider" = "BCPT Sleep X seconds JQ";
     }
+    value(149132; "149132")
+    {
+        Implementation = "BCPT Test Param. Provider" = "BCPT Schedule Job Queue";
+    }
 }

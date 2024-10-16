@@ -12,6 +12,7 @@ using System.Environment;
 using System.Security.Authentication;
 using System.Threading;
 using System.Utilities;
+using System.Telemetry;
 
 page 4705 "VAT Group Setup Guide"
 {
@@ -496,9 +497,15 @@ page 4705 "VAT Group Setup Guide"
                 InFooterBar = true;
 
                 trigger OnAction()
+                var
+                    FeatureTelemetry: Codeunit "Feature Telemetry";
+                    VATGroupCommunication: Codeunit "VAT Group Communication";
                 begin
                     ValidateAndFinishSetup();
                     CurrPage.Close();
+                    FeatureTelemetry.LogUptake('0000NGA', VATGroupCommunication.FeatureName(), Enum::"Feature Uptake Status"::"Set up");
+                    FeatureTelemetry.LogUptake('0000NGB', VATGroupCommunication.FeatureName(), Enum::"Feature Uptake Status"::Used);
+                    FeatureTelemetry.LogUsage('0000NGD', VATGroupCommunication.FeatureName(), 'Successfully set up');
                 end;
             }
         }
@@ -534,6 +541,8 @@ page 4705 "VAT Group Setup Guide"
     var
         EnvironmentInformation: Codeunit "Environment Information";
         VATGroupHelperFunctions: Codeunit "VAT Group Helper Functions";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        VATGroupCommunication: Codeunit "VAT Group Communication";
     begin
         if not VATReportSetup.Get() then
             Error(NoVATReportSetupErr);
@@ -545,6 +554,7 @@ page 4705 "VAT Group Setup Guide"
         MemberIdentifier := CreateGuid();
 
         IsSaaS := EnvironmentInformation.IsSaaSInfrastructure();
+        FeatureTelemetry.LogUptake('0000NGC', VATGroupCommunication.FeatureName(), Enum::"Feature Uptake Status"::Discovered);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

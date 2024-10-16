@@ -2595,7 +2595,12 @@ page 21 "Customer Card"
     var
         CustomerCardCalculations: Codeunit "Customer Card Calculations";
         Args: Dictionary of [Text, Text];
+        IsHandled: Boolean;
     begin
+        OnBeforeStartBackgroundCalculations(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Rec."No." = PrevCustNo then
             exit;
         PrevCustNo := Rec."No.";
@@ -2969,6 +2974,11 @@ page 21 "Customer Card"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnOpenPage(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeStartBackgroundCalculations(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }
