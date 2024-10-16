@@ -39,7 +39,7 @@
         NoOfRecordErr: Label 'No. of records must be 1.';
         DeleteRetRcptOrderErr: Label 'No. Printed must have a value in Return Receipt Header: No.=%1. It cannot be zero or empty.', Comment = '.';
         DeleteSalesCrMemoErr: Label 'No. Printed must have a value in Sales Cr.Memo Header: No.=%1. It cannot be zero or empty.', Comment = '.';
-        GetRetRcptErr: Label 'You cannot assign new numbers from the number series';
+        GetRetRcptErr: Label 'Argument NoSeriesCode in GetNoSeriesLine cannot be blank.';
         PostGreaterQtyErr: Label 'You cannot invoice more than';
         OutstdSalesOrdErr: Label 'You cannot delete Customer %1 because there is at least one outstanding Sales Return Order for this customer.', Comment = '.';
         OutstdSalesReturnErr: Label 'You cannot delete Item %1 because there is at least one outstanding Sales Return Order that includes this item.', Comment = '%1: Field(No)';

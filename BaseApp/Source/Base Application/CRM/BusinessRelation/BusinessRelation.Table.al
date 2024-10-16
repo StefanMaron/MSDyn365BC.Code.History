@@ -1,4 +1,5 @@
 namespace Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Setup;
 
 table 5053 "Business Relation"
 {
@@ -20,7 +21,7 @@ table 5053 "Business Relation"
         }
         field(3; "No. of Contacts"; Integer)
         {
-            CalcFormula = count ("Contact Business Relation" where("Business Relation Code" = field(Code)));
+            CalcFormula = count("Contact Business Relation" where("Business Relation Code" = field(Code)));
             Caption = 'No. of Contacts';
             Editable = false;
             FieldClass = FlowField;
@@ -38,5 +39,34 @@ table 5053 "Business Relation"
     fieldgroups
     {
     }
+
+    trigger OnRename()
+    var
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        MarketingSetup.Get();
+        case xRec.Code of
+            MarketingSetup."Bus. Rel. Code for Bank Accs.":
+                begin
+                    MarketingSetup."Bus. Rel. Code for Bank Accs." := Rec.Code;
+                    MarketingSetup.Modify(true);
+                end;
+            MarketingSetup."Bus. Rel. Code for Customers":
+                begin
+                    MarketingSetup."Bus. Rel. Code for Customers" := Rec.Code;
+                    MarketingSetup.Modify(true);
+                end;
+            MarketingSetup."Bus. Rel. Code for Employees":
+                begin
+                    MarketingSetup."Bus. Rel. Code for Employees" := Rec.Code;
+                    MarketingSetup.Modify(true);
+                end;
+            MarketingSetup."Bus. Rel. Code for Vendors":
+                begin
+                    MarketingSetup."Bus. Rel. Code for Vendors" := Rec.Code;
+                    MarketingSetup.Modify(true);
+                end;
+        end;
+    end;
 }
 

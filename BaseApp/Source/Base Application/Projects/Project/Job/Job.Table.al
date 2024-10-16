@@ -140,7 +140,6 @@ table 167 Job
             trigger OnValidate()
             var
                 JobPlanningLine: Record "Job Planning Line";
-                TimeSheetLine: Record "Time Sheet Line";
                 ATOLink: Record "Assemble-to-Order Link";
                 JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
                 ConfirmManagement: Codeunit "Confirm Management";
@@ -159,17 +158,17 @@ table 167 Job
                     if xRec.Status = xRec.Status::Completed then begin
                         IsHandled := false;
                         OnValidateStatusOnBeforeConfirm(Rec, xRec, UndidCompleteStatus, IsHandled);
-                        if not IsHandled then begin
-                            if ConfirmManagement.GetResponseOrDefault(StatusChangeQst, true) then
+                        if not IsHandled then
+                            if ConfirmManagement.GetResponseOrDefault(StatusChangeQst, true) then begin
                                 Validate(Complete, false);
-                            UndidCompleteStatus := true;
-                        end else
-                            Status := xRec.Status;
+                                UndidCompleteStatus := true;
+                            end else
+                                Status := xRec.Status;
                     end;
                     Modify();
 
                     ATOLink.CheckIfAssembleToOrderLinkExist(Rec);
-                    TimeSheetLine.CheckIfTimeSheetLineLinkExist(Rec);
+                    CheckIfTimeSheetLineLinkExist();
 
                     JobPlanningLine.SetCurrentKey("Job No.");
                     JobPlanningLine.SetRange("Job No.", "No.");
@@ -2482,7 +2481,7 @@ table 167 Job
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSellToCustomerNoUpdated(Job, xJob, CurrFieldNo, IsHandled);
+        OnBeforeSellToCustomerNoUpdated(Job, xJob, CurrFieldNo, IsHandled, SkipSellToContact);
         if IsHandled then
             exit;
         if Job."Sell-to Customer No." <> '' then begin
@@ -2645,6 +2644,8 @@ table 167 Job
     var
         JobPlanningLine: Record "Job Planning Line";
         ConfirmManagement: Codeunit "Confirm Management";
+        ConfirmResult: Boolean;
+        IsHandled: Boolean;
     begin
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.SetFilter(Type, '<>%1', JobPlanningLine.Type::Text);
@@ -2652,7 +2653,14 @@ table 167 Job
         if JobPlanningLine.IsEmpty() then
             exit;
 
-        if not ConfirmManagement.GetResponseOrDefault(UpdateCostPricesOnRelatedLinesQst, true) then
+        IsHandled := false;
+        OnUpdateCostPricesOnRelatedJobPlanningLinesOnBeforeConfirmUpdate(Job, ConfirmResult, IsHandled);
+        if not IsHandled then begin
+        if not Job.GetHideValidationDialog() then
+            if not ConfirmResult then
+                ConfirmResult := ConfirmManagement.GetResponseOrDefault(UpdateCostPricesOnRelatedLinesQst, true);
+        end;
+        if not ConfirmResult then
             exit;
 
         JobPlanningLine.FindSet(true);
@@ -2990,6 +2998,19 @@ table 167 Job
             until (JobPlanningLine.Next() = 0) or Confirmed;
     end;
 
+    local procedure CheckIfTimeSheetLineLinkExist()
+    var
+        TimeSheetLine: Record "Time Sheet Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIfTimeSheetLineLinkExist(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        TimeSheetLine.CheckIfTimeSheetLineLinkExist(Rec);
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterCalcRecognizedProfitAmount(var Result: Decimal)
     begin
@@ -3169,7 +3190,7 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSellToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeSellToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean; var SkipSellToContact: Boolean)
     begin
     end;
 
@@ -3300,6 +3321,16 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSellToCust(var Job: Record Job; var ContactNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCostPricesOnRelatedJobPlanningLinesOnBeforeConfirmUpdate(var Job: Record Job; var ConfirmResult: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfTimeSheetLineLinkExist(var Job: Record Job; var IsHandled: Boolean)
     begin
     end;
 }

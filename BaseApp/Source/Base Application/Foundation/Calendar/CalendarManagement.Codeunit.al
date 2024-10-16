@@ -482,6 +482,9 @@ codeunit 7600 "Calendar Management"
                     LoopCounter := LoopCounter + 1;
                 if NewDate >= OrgDate + CalConvTimeFrame then
                     LoopCounter := Abs(CalcDate(DateFormula, OrgDate) - OrgDate);
+                if LoopFactor = -1 then
+                    if NewDate <= OrgDate - CalConvTimeFrame then
+                        LoopCounter := Abs(CalcDate(DateFormula, OrgDate) - OrgDate);
             until LoopCounter = Abs(CalcDate(DateFormula, OrgDate) - OrgDate);
 
         LoopCounter := 0;

@@ -86,6 +86,15 @@
       <Cmt Name="Dev"><![CDATA[%1=No. Series Code]D;]A;(LookupHint=Codeunit No. Series Tests - NamedType CannotAssignNewErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1742721939 - NamedType 1333705271" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Argument NoSeriesCode in GetNoSeriesLine cannot be blank.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No. Series Tests - NamedType CannotGetNoSeriesLineNoWithEmtpyCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1742721939 - Method 753991080 - NamedType 1559878157" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SCI0000001]]></Val>

@@ -24,72 +24,83 @@ report 6661 "Delete Invd Purch. Ret. Orders"
 
             trigger OnAfterGetRecord()
             var
+                PurchaseReturnOrderLine: Record "Purchase Line";
+                PurchRcptHeader: Record "Purch. Rcpt. Header";
+                PurchInvHeader: Record "Purch. Inv. Header";
+                PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+                ReturnShipmentHeader: Record "Return Shipment Header";
+                PrepaymentPurchInvHeader: Record "Purch. Inv. Header";
+                PrepaymentPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+                PurchCommentLine: Record "Purch. Comment Line";
+                ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+                WhseRequest: Record "Warehouse Request";
+                PurchLineReserve: Codeunit "Purch. Line-Reserve";
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                ArchiveManagement: Codeunit ArchiveManagement;
                 PostPurchDelete: Codeunit "PostPurch-Delete";
+                AllLinesDeleted: Boolean;
                 IsHandled: Boolean;
                 ShouldDeleteLinks: Boolean;
             begin
                 IsHandled := false;
-                OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled);
+                OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled, ProgressDialog);
                 if IsHandled then
                     CurrReport.Skip();
 
                 if GuiAllowed() then
-                    Window.Update(1, "No.");
+                    ProgressDialog.Update(1, "No.");
 
                 AllLinesDeleted := true;
-                ItemChargeAssgntPurch.Reset();
-                ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
-                ItemChargeAssgntPurch.SetRange("Document No.", "No.");
-                PurchLine.Reset();
-                PurchLine.SetRange("Document Type", "Document Type");
-                PurchLine.SetRange("Document No.", "No.");
-                PurchLine.SetFilter("Quantity Invoiced", '<>0');
-                if PurchLine.Find('-') then begin
-                    PurchLine.SetRange("Quantity Invoiced");
-                    PurchLine.SetFilter("Outstanding Quantity", '<>0');
-                    OnAfterSetPurchLineFilters(PurchLine);
-                    if not PurchLine.Find('-') then begin
-                        PurchLine.SetRange("Outstanding Quantity");
-                        PurchLine.SetFilter("Return Qty. Shipped Not Invd.", '<>0');
-                        if not PurchLine.Find('-') then begin
-                            PurchLine.LockTable();
-                            if not PurchLine.Find('-') then begin
-                                PurchLine.SetRange("Return Qty. Shipped Not Invd.");
+                ItemChargeAssignmentPurch.SetRange("Document Type", "Document Type");
+                ItemChargeAssignmentPurch.SetRange("Document No.", "No.");
+                PurchaseReturnOrderLine.SetRange("Document Type", "Document Type");
+                PurchaseReturnOrderLine.SetRange("Document No.", "No.");
+                PurchaseReturnOrderLine.SetFilter("Quantity Invoiced", '<>0');
+                if PurchaseReturnOrderLine.Find('-') then begin
+                    PurchaseReturnOrderLine.SetRange("Quantity Invoiced");
+                    PurchaseReturnOrderLine.SetFilter("Outstanding Quantity", '<>0');
+                    OnAfterSetPurchLineFilters(PurchaseReturnOrderLine);
+                    if not PurchaseReturnOrderLine.Find('-') then begin
+                        PurchaseReturnOrderLine.SetRange("Outstanding Quantity");
+                        PurchaseReturnOrderLine.SetFilter("Return Qty. Shipped Not Invd.", '<>0');
+                        if not PurchaseReturnOrderLine.Find('-') then begin
+                            PurchaseReturnOrderLine.LockTable();
+                            if not PurchaseReturnOrderLine.Find('-') then begin
+                                PurchaseReturnOrderLine.SetRange("Return Qty. Shipped Not Invd.");
                                 ArchiveManagement.AutoArchivePurchDocument("Purchase Header");
-                                if PurchLine.Find('-') then
+                                if PurchaseReturnOrderLine.Find('-') then
                                     repeat
-                                        PurchLine.CalcFields("Qty. Assigned");
-                                        if ((PurchLine."Qty. Assigned" = PurchLine."Quantity Invoiced") and
-                                            (PurchLine."Qty. Assigned" <> 0)) or
-                                           (PurchLine.Type <> PurchLine.Type::"Charge (Item)")
+                                        PurchaseReturnOrderLine.CalcFields("Qty. Assigned");
+                                        if ((PurchaseReturnOrderLine."Qty. Assigned" = PurchaseReturnOrderLine."Quantity Invoiced") and
+                                            (PurchaseReturnOrderLine."Qty. Assigned" <> 0)) or
+                                           (PurchaseReturnOrderLine.Type <> PurchaseReturnOrderLine.Type::"Charge (Item)")
                                         then begin
-                                            if PurchLine.Type = PurchLine.Type::"Charge (Item)" then begin
-                                                ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
-                                                ItemChargeAssgntPurch.DeleteAll();
+                                            if PurchaseReturnOrderLine.Type = PurchaseReturnOrderLine.Type::"Charge (Item)" then begin
+                                                ItemChargeAssignmentPurch.SetRange("Document Line No.", PurchaseReturnOrderLine."Line No.");
+                                                ItemChargeAssignmentPurch.DeleteAll();
                                             end;
-                                            ShouldDeleteLinks := PurchLine.HasLinks();
-                                            OnPurchaseHeaderOnAfterGetRecordOnAfterCalcShouldDeleteLinks(PurchLine, ShouldDeleteLinks);
+                                            ShouldDeleteLinks := PurchaseReturnOrderLine.HasLinks();
+                                            OnPurchaseHeaderOnAfterGetRecordOnAfterCalcShouldDeleteLinks(PurchaseReturnOrderLine, ShouldDeleteLinks);
                                             if ShouldDeleteLinks then
-                                                PurchLine.DeleteLinks();
-                                            OnBeforePurchLineDelete(PurchLine);
-                                            PurchLine.Delete();
-                                            OnAfterPurchLineDelete(PurchLine);
+                                                PurchaseReturnOrderLine.DeleteLinks();
+                                            OnBeforePurchLineDelete(PurchaseReturnOrderLine);
+                                            PurchaseReturnOrderLine.Delete();
+                                            OnAfterPurchLineDelete(PurchaseReturnOrderLine);
                                         end else
                                             AllLinesDeleted := false;
-                                    until PurchLine.Next() = 0;
+                                    until PurchaseReturnOrderLine.Next() = 0;
 
                                 if AllLinesDeleted then begin
                                     PostPurchDelete.DeleteHeader(
-                                      "Purchase Header", PurchRcptHeader, PurchInvHeader, PurchCrMemoHeader,
-                                      ReturnShptHeader, PrepmtPurchInvHeader, PrepmtPurchCrMemoHeader);
+                                      "Purchase Header", PurchRcptHeader, PurchInvHeader, PurchCrMemoHdr,
+                                      ReturnShipmentHeader, PrepaymentPurchInvHeader, PrepaymentPurchCrMemoHdr);
                                     PurchLineReserve.DeleteInvoiceSpecFromHeader("Purchase Header");
 
                                     PurchCommentLine.SetRange("Document Type", "Document Type");
                                     PurchCommentLine.SetRange("No.", "No.");
                                     PurchCommentLine.DeleteAll();
 
-                                    WhseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
+                                    WhseRequest.SetRange("Source Type", Database::"Purchase Line");
                                     WhseRequest.SetRange("Source Subtype", "Document Type");
                                     WhseRequest.SetRange("Source No.", "No.");
                                     if not WhseRequest.IsEmpty() then
@@ -114,44 +125,14 @@ report 6661 "Delete Invd Purch. Ret. Orders"
             trigger OnPreDataItem()
             begin
                 if GuiAllowed() then
-                    Window.Open(Text000);
+                    ProgressDialog.Open(ProcessingProgressTxt);
             end;
         }
     }
 
-    requestpage
-    {
-
-        layout
-        {
-        }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
-    }
-
     var
-        PurchLine: Record "Purchase Line";
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-        PurchInvHeader: Record "Purch. Inv. Header";
-        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        ReturnShptHeader: Record "Return Shipment Header";
-        PrepmtPurchInvHeader: Record "Purch. Inv. Header";
-        PrepmtPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        PurchCommentLine: Record "Purch. Comment Line";
-        ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-        WhseRequest: Record "Warehouse Request";
-        PurchLineReserve: Codeunit "Purch. Line-Reserve";
-        ArchiveManagement: Codeunit ArchiveManagement;
-        Window: Dialog;
-        AllLinesDeleted: Boolean;
-
-        Text000: Label 'Processing purch. orders #1##########';
+        ProgressDialog: Dialog;
+        ProcessingProgressTxt: Label 'Processing purchase return orders #1##########', Comment = '%1 - Purchase Return Order No.';
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
@@ -179,7 +160,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchaseHeaderOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforePurchaseHeaderOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var ProgressDialog: Dialog)
     begin
     end;
 

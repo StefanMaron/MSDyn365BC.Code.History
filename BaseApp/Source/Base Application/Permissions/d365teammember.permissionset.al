@@ -871,6 +871,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "G/L Account Category" = RM,
                   tabledata "G/L Account Net Change" = RM,
                   tabledata "G/L Account Where-Used" = RM,
+                  tabledata "G/L Account Source Currency" = RMID,
                   tabledata "G/L Budget Entry" = RM,
                   tabledata "G/L Budget Name" = RM,
                   tabledata "G/L Entry - VAT Entry Link" = Rimd,

@@ -1231,6 +1231,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         QtyReservedOnPickShip: Decimal;
         QtyOnDedicatedBins: Decimal;
         QtyBlocked: Decimal;
+        SourceLineNo: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1256,10 +1257,12 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     WarehouseActivityLine."Location Code", WarehouseActivityLine."Item No.", WarehouseActivityLine."Variant Code", WhseActivLineItemTrackingSetup);
         end;
 
+        SourceLineNo := GetSourceLineNo(WarehouseActivityLine);
+
         LineReservedQty :=
             WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
                 WarehouseActivityLine."Source Type", WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.",
-                WarehouseActivityLine."Source Line No.", WarehouseActivityLine."Source Subline No.", true, WhseItemTrackingSetup, TempWarehouseActivityLine2);
+                SourceLineNo, WarehouseActivityLine."Source Subline No.", true, WhseItemTrackingSetup, TempWarehouseActivityLine2);
 
         QtyReservedOnPickShip :=
             WarehouseAvailabilityMgt.CalcReservQtyOnPicksShips(
@@ -2321,6 +2324,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         if ExpirationDate <> 0D then
             WarehouseActivityLine."Expiration Date" := ExpirationDate;
+    end;
+
+    local procedure GetSourceLineNo(WarehouseActivityLine: Record "Warehouse Activity Line"): Integer
+    begin
+        if WarehouseActivityLine."Source Type" <> Database::Job then
+            exit(WarehouseActivityLine."Source Line No.");
+
+        exit(-1);
     end;
 
     [IntegrationEvent(false, false)]

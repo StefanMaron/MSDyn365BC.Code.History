@@ -11,14 +11,8 @@ codeunit 451 "Job Queue Category Scheduler"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.ActivateNextJobInCategory(Rec);
-
-        Clear(Rec."Recovery Task Id");  // current task has been executed
-        Clear(Rec."Recovery Task Start Time");
-
-        if JobQueueEntry.AnyReadyJobInCategory(Rec) then
-            JobQueueEntry.RefreshRecoveryTask(Rec)
-        else
-            Rec.Modify();
+        if not JobQueueEntry.ActivateNextJobInCategory(Rec) then
+            if JobQueueEntry.AnyReadyJobInCategory(Rec) then
+                JobQueueEntry.RefreshRecoveryTask(Rec);
     end;
 }

@@ -3015,6 +3015,37 @@
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceChangeVendorDoUpdateRemitToCode()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        RemitAddress: Record "Remit Address";
+        VendorNo: Code[20];
+        VendorNo2: Code[20];
+    begin
+        // [SCENARIO] [542440] [Purchase Header] [Remit-to Code] is updated to empty when changing vendor to the one without Remit-to address
+        Initialize();
+
+        // [GIVEN] Create a new Vendor X and Remit-to address
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, VendorNo);
+
+        // [GIVEN] Create a new Vendor Y without Remit-to address
+        VendorNo2 := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Purchase Invoice with vendor X and remit-to address
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Remit-to Code", RemitAddress.Code);
+
+        // [WHEN] Change vendor to the one Y without Remit-to address
+        PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo2);
+
+        // [THEN] Remit-to code is updated to empty
+        PurchaseHeader.Testfield("Remit-to Code", '');
+    end;
+
+    [Test]
     [HandlerFunctions('VendorLookupSelectVendorPageHandler')]
     [Scope('OnPrem')]
     procedure EnsureInsertingSearchVendorNameInPurchaseInvoice()
