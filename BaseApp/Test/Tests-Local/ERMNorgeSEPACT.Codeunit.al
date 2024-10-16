@@ -16,7 +16,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
         ExportHasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
         ALotOfRegRepCodesNotAllowedErr: Label 'It is not allowed to have more than 10 regulatory reporting codes.';
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
@@ -567,8 +567,8 @@ codeunit 144137 "ERM Norge SEPA CT"
         // [THEN] Waiting journal values for "SEPA Payment Inf ID" are the same as in the exported file
         PaymentInfId[1] := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//PmtInfId', 0);
         PaymentInfId[2] := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//PmtInfId', 1);
-        Evaluate(ReqdExctnDt[1], LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//ReqdExctnDt//Dt', 0), 9);
-        Evaluate(ReqdExctnDt[2], LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//ReqdExctnDt//Dt', 1), 9);
+        Evaluate(ReqdExctnDt[1], LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//ReqdExctnDt', 0), 9);
+        Evaluate(ReqdExctnDt[2], LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//ReqdExctnDt', 1), 9);
 
         // [THEN] WaitingJournal."Sepa Payment Inf ID" matches the value in XML
         ValidateWaitingJournal(

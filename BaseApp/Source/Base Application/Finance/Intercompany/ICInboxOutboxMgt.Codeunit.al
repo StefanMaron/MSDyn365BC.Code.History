@@ -1061,6 +1061,7 @@ codeunit 427 ICInboxOutboxMgt
                     SalesLine.Validate("Unit Price", ICInboxSalesLine."Unit Price");
                     SalesLine."Amount Including VAT" := ICInboxSalesLine."Amount Including VAT";
                     SalesLine.Validate("Line Discount %", ICInboxSalesLine."Line Discount %");
+                    SalesLine.Validate("Inv. Discount Amount", ICInboxSalesLine."Inv. Discount Amount");
                     SalesLine.UpdateAmounts();
                 end;
                 ValidateSalesLineDeliveryDates(SalesLine, ICInboxSalesLine);
@@ -1329,8 +1330,9 @@ codeunit 427 ICInboxOutboxMgt
                 OnCreatePurchLinesOnBeforeCalcPriceAndAmounts(PurchHeader, PurchLine, IsHandled);
                 if not IsHandled then begin
                     PurchLine.Validate("Direct Unit Cost", ICInboxPurchLine."Direct Unit Cost");
-                    PurchLine.Validate("Line Discount Amount", ICInboxPurchLine."Line Discount Amount");
                     PurchLine."Amount Including VAT" := ICInboxPurchLine."Amount Including VAT";
+                    PurchLine.Validate("Line Discount Amount", ICInboxPurchLine."Line Discount Amount");
+                    PurchLine.Validate("Inv. Discount Amount", ICInboxPurchLine."Inv. Discount Amount");
                     PurchLine."VAT Base Amount" := Round(ICInboxPurchLine."Amount Including VAT" / (1 + (PurchLine."VAT %" / 100)), Precision2);
                     if PurchHeader."Prices Including VAT" then
                         PurchLine."Line Amount" := ICInboxPurchLine."Amount Including VAT"
@@ -2425,6 +2427,8 @@ codeunit 427 ICInboxOutboxMgt
             "Direct Unit Cost" := ICOutboxSalesLine."Unit Price";
             "Line Discount Amount" := ICOutboxSalesLine."Line Discount Amount";
             "Amount Including VAT" := ICOutboxSalesLine."Amount Including VAT";
+            Amount := ICOutboxSalesLine.Amount;
+            "Inv. Discount Amount" := ICOutboxSalesLine."Inv. Discount Amount";
             "Job No." := ICOutboxSalesLine."Job No.";
             "VAT Base Amount" := ICOutboxSalesLine."VAT Base Amount";
             "Unit Cost" := ICOutboxSalesLine."Unit Price";
@@ -2538,6 +2542,8 @@ codeunit 427 ICInboxOutboxMgt
             Quantity := ICOutboxPurchLine.Quantity;
             "Line Discount Amount" := ICOutboxPurchLine."Line Discount Amount";
             "Amount Including VAT" := ICOutboxPurchLine."Amount Including VAT";
+            Amount := ICOutboxPurchLine.Amount;
+            "Inv. Discount Amount" := ICOutboxPurchLine."Inv. Discount Amount";
             "Job No." := ICOutboxPurchLine."Job No.";
             "VAT Base Amount" := ICOutboxPurchLine."VAT Base Amount";
             "Unit Price" := ICOutboxPurchLine."Direct Unit Cost";
@@ -3817,4 +3823,3 @@ codeunit 427 ICInboxOutboxMgt
     begin
     end;
 }
-
