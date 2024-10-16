@@ -110,7 +110,7 @@ codeunit 231 "Gen. Jnl.-Post"
                         Message(JournalsScheduledMsg);
                 end else begin
                     IsHandled := false;
-                    OnBeforeGenJnlPostBatchRun(GenJnlLine, IsHandled);
+                    OnBeforeGenJnlPostBatchRun(GenJnlLine, IsHandled, GenJnlPostBatch);
                     if IsHandled then
                         exit;
 
@@ -182,7 +182,7 @@ codeunit 231 "Gen. Jnl.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenJnlPostBatchRun(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeGenJnlPostBatchRun(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch")
     begin
     end;
 

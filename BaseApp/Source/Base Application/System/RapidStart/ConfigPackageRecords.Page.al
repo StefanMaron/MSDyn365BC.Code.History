@@ -1246,8 +1246,8 @@ page 8626 "Config. Package Records"
                 if ConfigPackageData.Get(Rec."Package Code", Rec."Table ID", Rec."No.", ConfigPackageField."Field ID") then begin
                     if ConfigPackageManagement.IsBLOBField(ConfigPackageData."Table ID", ConfigPackageData."Field ID") then begin
                         ConfigPackageData.CalcFields("BLOB Value");
-                        ConfigPackageData."BLOB Value".CreateInStream(InStream);
-                        InStream.ReadText(MatrixCellData[MatrixColumnOrdinal]);
+                        ConfigPackageData."BLOB Value".CreateInStream(InStream, TextEncoding::UTF8);
+                        InStream.Read(MatrixCellData[MatrixColumnOrdinal]);
                     end else
                         MatrixCellData[MatrixColumnOrdinal] := ConfigPackageData.Value;
                     PackageColumnField[MatrixColumnOrdinal] := ConfigPackageData."Field ID";
@@ -1575,8 +1575,8 @@ page 8626 "Config. Package Records"
 
             if IsBlobField then begin
                 TempBlob.FromFieldRef(FieldRef);
-                TempBlob.CreateInStream(InStream);
-                InStream.ReadText(MatrixCellData[ColumnID]);
+                TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
+                InStream.Read(MatrixCellData[ColumnID]);
                 ConfigPackageData."BLOB Value" := FieldRef.Value();
             end else begin
                 MatrixCellData[ColumnID] := Format(FieldRef.Value);

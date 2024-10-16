@@ -68,7 +68,7 @@ page 27 "Vendor List"
                 }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
                 field("Location Code"; Rec."Location Code")
@@ -503,7 +503,7 @@ page 27 "Vendor List"
                 }
                 action("Invoice &Discounts")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Invoice &Discounts';
                     Image = CalculateInvoiceDiscount;
                     RunObject = Page "Vend. Invoice Discounts";
@@ -587,7 +587,7 @@ page 27 "Vendor List"
 #if not CLEAN23
                 action(Prices)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Prices';
                     Image = Price;
                     Visible = not ExtendedPriceEnabled;
@@ -601,7 +601,7 @@ page 27 "Vendor List"
                 }
                 action("Line Discounts")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
                     Visible = not ExtendedPriceEnabled;
@@ -635,7 +635,7 @@ page 27 "Vendor List"
                 }
                 action("Mapping Text to Account")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Mapping Text to Account';
                     Image = MapAccounts;
                     RunObject = Page "Text-to-Account Mapping Wksh.";
@@ -659,7 +659,7 @@ page 27 "Vendor List"
                 }
                 action(Orders)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Orders';
                     Image = Document;
                     RunObject = Page "Purchase Order List";
@@ -719,7 +719,7 @@ page 27 "Vendor List"
                 }
                 action(Purchases)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Purchases';
                     Image = Purchase;
                     RunObject = Page "Vendor Purchases";
@@ -1500,7 +1500,6 @@ page 27 "Vendor List"
 
     trigger OnInit()
     begin
-        CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
 
@@ -1528,7 +1527,6 @@ page 27 "Vendor List"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         ReadSoftOCRMasterDataSync: Codeunit "ReadSoft OCR Master Data Sync";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
-        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         CanSendEmail: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
