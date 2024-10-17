@@ -1,5 +1,6 @@
 namespace Microsoft.Utility.ImageAnalysis;
 
+using System;
 using System.Utilities;
 using System.Environment;
 using Microsoft.Inventory.Item;
@@ -374,6 +375,10 @@ page 2029 "Image Analyzer Wizard"
         ItemAttrPopulate: Codeunit "Item Attr Populate";
         ContactPictureAnalyze: Codeunit "Contact Picture Analyze";
         ItemAttrPopManagement: Codeunit "Image Analyzer Ext. Mgt.";
+        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+        MyALAuditCategory: DotNet ALAuditCategory;
+        ImageAnalyzerConsentProvidedLbl: Label 'Image Analyzer - consent provided by UserSecurityId %1.', Locked = true;
     begin
         ItemAttrPopManagement.HandleSetupAndEnable();
 
@@ -389,7 +394,7 @@ page 2029 "Image Analyzer Wizard"
         if IsSetContactToFill then
             if ContactPictureAnalyze.AnalyzePicture(ContactToFill) then
                 CurrPage.Close();
-
+        MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(ImageAnalyzerConsentProvidedLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
     end;
 
     local procedure ShowStartStep()

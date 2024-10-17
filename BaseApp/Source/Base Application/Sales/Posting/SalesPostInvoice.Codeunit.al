@@ -392,6 +392,10 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         GenJnlLine."Adjustment Applies-to" := SalesHeader."Adjustment Applies-to";
 
         InvoicePostingBuffer.CopyToGenJnlLine(GenJnlLine);
+        GenJnlLine."VAT Base (ACY)" := InvoicePostingBuffer."VAT Base (ACY)";
+        GenJnlLine."VAT Amount (ACY)" := InvoicePostingBuffer."VAT Amount(ACY)";
+        GenJnlLine."VAT Difference (ACY)" := InvoicePostingBuffer."VAT Difference (ACY)";
+        GenJnlLine."Amount Including VAT (ACY)" := InvoicePostingBuffer."Amount Including VAT (ACY)";
         if GLSetup."Journal Templ. Name Mandatory" then
             GenJnlLine."Journal Template Name" := InvoicePostingBuffer."Journal Templ. Name";
         GenJnlLine."Orig. Pmt. Disc. Possible" := TotalSalesLine."Pmt. Discount Amount";
@@ -591,6 +595,9 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
             InvoicePostingBuffer."VAT Base Amount (ACY)" := SalesLineACY.Amount;
             InvoicePostingBuffer."VAT Amount (ACY)" := SalesLineACY."Amount Including VAT" - SalesLineACY.Amount;
             InvoicePostingBuffer."VAT Difference" := SalesLine."VAT Difference";
+            InvoicePostingBuffer."VAT Base (ACY)" := SalesLine."VAT Base (ACY)";
+            InvoicePostingBuffer."VAT Difference (ACY)" := SalesLine."VAT Difference (ACY)";
+            InvoicePostingBuffer."Amount Including VAT (ACY)" := SalesLine."Amount Including VAT (ACY)";
             InvoicePostingBuffer."VAT %" := SalesLine."VAT %";
             InvoicePostingBuffer.Adjustment := SalesHeader.Adjustment;
             InvoicePostingBuffer."Deferral Code" := SalesLine."Deferral Code";

@@ -17,6 +17,7 @@ using Microsoft.Inventory.Setup;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Setup;
+using System;
 using System.Diagnostics;
 using System.Environment.Configuration;
 using System.Globalization;
@@ -700,12 +701,16 @@ page 1 "Company Information"
     trigger OnClosePage()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+        MyALAuditCategory: DotNet ALAuditCategory;
     begin
         if ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(Experience) then
             RestartSession();
 
         if SystemIndicatorChanged then begin
             Message(CompanyBadgeRefreshPageTxt);
+            MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(CompanyBadgeChangedLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 3, 0);
             RestartSession();
         end;
     end;
@@ -746,6 +751,7 @@ page 1 "Company Information"
         BankAcctPostingGroup: Code[20];
         CountyVisible: Boolean;
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
+        CompanyBadgeChangedLbl: Label 'The Company badge settings have changed by UserSecurityId %1.', Locked = true;
 
     protected var
         SystemIndicatorChanged: Boolean;
@@ -761,9 +767,15 @@ page 1 "Company Information"
     end;
 
     local procedure SystemIndicatorOnAfterValidate()
+    var
+        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+        MyALAuditCategory: DotNet ALAuditCategory;
+        CompanyBadgeChangedLbl: Label 'Company badge changed.', Locked = true;
     begin
         SystemIndicatorChanged := true;
         UpdateSystemIndicator();
+        MyCustomerAuditLoggerALHelper.LogAuditMessage(CompanyBadgeChangedLbl, MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 3, 0);
     end;
 
     local procedure SetShowMandatoryConditions()

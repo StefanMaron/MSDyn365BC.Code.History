@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Registration;
 
+using System;
 using System.Environment;
 using System.Privacy;
 
@@ -41,6 +42,10 @@ page 248 "VAT Registration Config"
                     trigger OnValidate()
                     var
                         CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                        MyALAuditCategory: DotNet ALAuditCategory;
+                        VATRegServiceEnabledLbl: Label 'VAT Registration Service enabled by UserSecurityId %1.', Locked = true;
                     begin
                         if Rec.Enabled = xRec.Enabled then
                             exit;
@@ -49,7 +54,9 @@ page 248 "VAT Registration Config"
                             if not CustomerConsentMgt.ConfirmUserConsent() then begin
                                 Rec.Enabled := false;
                                 exit;
-                            end;
+                            end else
+                                MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(VATRegServiceEnabledLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
+
                             Rec.TestField("Service Endpoint");
                             Message(TermsAndAgreementMsg);
                         end;
