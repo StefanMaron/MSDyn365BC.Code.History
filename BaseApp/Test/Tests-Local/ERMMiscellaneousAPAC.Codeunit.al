@@ -1600,7 +1600,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [SCENARIO 542548] VAT Amount (ACY) on Purchase Statistics is changed when changing VAT amount
         Initialize();
-        
+
         // [GIVEN] "Max. VAT Difference Allowed" = 1
         LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandIntInRange(1, 1));
         // [GIVEN] Set VAT posting setup for VAT = 10%
@@ -1685,6 +1685,162 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [THEN] The error is executed, the VAT amount cannot be changed with the VAT difference bigger than "Max Allowed VAT Difference" * "Vendor Exchange Rate (ACY)"
         Assert.ExpectedError(StrSubstNo(VATDifferenceErr, MaxVATDifferenceAllowed * PurchaseHeader."Vendor Exchange Rate (ACY)"));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsHandler')]
+    procedure TransferAmountACYWhenPostPurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        NewVATAmount: Decimal;
+        PurchaseInvoiceNo: Code[20];
+    begin
+        // [SCENARIO 542548] Amount (ACY) is transferred from purchase invoice to posted purchase invoice after the posting
+        Initialize();
+
+        // [GIVEN] "Max. VAT Difference Allowed" = 1
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandIntInRange(1, 1));
+        // [GIVEN] Set VAT posting setup for VAT = 10%
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.UpdateVATPostingSetup(VATPostingSetup, 10);
+        // [GIVEN] "Allow VAT Difference" = true
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [GIVEN] Create Purchase Invoice with VAT amount = 10.1
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+        PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+        LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
+        PurchaseLine.Modify();
+
+        // [WHEN] Change VAT Amount to 10 on Purchase Statistics
+        // True means update VAT Amount to get some VAT Difference
+        NewVATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(NewVATAmount);
+        PurchaseHeader.OpenDocumentStatistics();
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        // [WHEN] Post purchase invoice
+        PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Amount (ACY) is transferred correctly and visible on purchase invoice statistics
+        GetPurchaseInvoiceVATAmountLine(TempVATAmountLine, PurchaseInvoiceNo);
+
+        TempVATAmountLine.TestField("VAT Base (ACY)", PurchaseLine."VAT Base (ACY)");
+        TempVATAmountLine.TestField("Amount (ACY)", PurchaseLine."Amount (ACY)");
+        TempVATAmountLine.TestField("Amount Including VAT (ACY)", PurchaseLine."Amount Including VAT (ACY)");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    procedure ChangedVATAmountACYOnSalesStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        NewVATAmount: Decimal;
+    begin
+        // [SCENARIO 537713] VAT Amount (ACY) on Sales Statistics is changed when changing VAT amount
+        Initialize();
+
+        // [GIVEN] "Max. VAT Difference Allowed" = 1
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandIntInRange(1, 1));
+        // [GIVEN] Set VAT posting setup for VAT = 10%
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.UpdateVATPostingSetup(VATPostingSetup, 10);
+        // [GIVEN] "Allow VAT Difference" = true
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Create Sales Invoice with VAT amount = 10.1
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Invoice,
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibrarySales.CreateSalesLine(
+        SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+        LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
+        SalesLine.Modify();
+
+        // [WHEN] Change VAT Amount to 10 on Sales Statistics
+        // True means update VAT Amount to get some VAT Difference
+        NewVATAmount := SalesLine."Amount Including VAT" - SalesLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(NewVATAmount);
+        SalesHeader.OpenDocumentStatistics();
+
+        // [THEN] VAT Amount (ACY) is updated when VAT amount is changed
+        // [THEN] VAT Amount (ACY) is changed and saved when reopening Statistic page
+        // [THEN] VAT Difference (ACY) is calculated correctly
+        // false means don't update VAT Amount (ACY) after Statistic page reopened.
+        LibraryVariableStorage.Enqueue(false);
+        SalesHeader.OpenDocumentStatistics();
+
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        GetSalesVATAmountLine(SalesHeader, TempVATAmountLine);
+        TempVATAmountLine.TestField("VAT Difference (ACY)", TempVATAmountLine."VAT Amount (ACY)" - TempVATAmountLine."Calculated VAT Amount (ACY)");
+        TempVATAmountLine.TestField("VAT Amount (ACY)", SalesLine."Amount Including VAT (ACY)" - SalesLine."Amount (ACY)");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    procedure TransferAmountACYWhenPostSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        NewVATAmount: Decimal;
+        SalesInvoiceNo: Code[20];
+    begin
+        // [SCENARIO 537713] Amount (ACY) is transferred from sales invoice to posted sales invoice after the posting
+        Initialize();
+
+        // [GIVEN] "Max. VAT Difference Allowed" = 1
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandIntInRange(1, 1));
+        // [GIVEN] Set VAT posting setup for VAT = 10%
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.UpdateVATPostingSetup(VATPostingSetup, 10);
+        // [GIVEN] "Allow VAT Difference" = true
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Create Sales Invoice with VAT amount = 10.1
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Invoice,
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibrarySales.CreateSalesLine(
+        SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+        LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
+        SalesLine.Modify();
+
+        // [WHEN] Change VAT Amount to 10 on Sales Statistics
+        // True means update VAT Amount to get some VAT Difference
+        NewVATAmount := SalesLine."Amount Including VAT" - SalesLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(NewVATAmount);
+        SalesHeader.OpenDocumentStatistics();
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        // [WHEN] Post sales invoice
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] VAT Amount (ACY) is updated when VAT amount is changed
+        // [THEN] Amount (ACY) is transferred correctly and visible on sales invoice statistics
+        GetSalesInvoiceVATAmountLine(TempVATAmountLine, SalesInvoiceNo);
+
+        TempVATAmountLine.TestField("VAT Base (ACY)", SalesLine."VAT Base (ACY)");
+        TempVATAmountLine.TestField("Amount (ACY)", SalesLine."Amount (ACY)");
+        TempVATAmountLine.TestField("Amount Including VAT (ACY)", SalesLine."Amount Including VAT (ACY)");
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -2408,6 +2564,33 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         TempPurchaseLine.CalcVATAmountLines(0, PurchaseHeader, TempPurchaseLine, VATAmountLine);
     end;
 
+    local procedure GetSalesVATAmountLine(SalesHeader: Record "Sales Header"; var VATAmountLine: Record "VAT Amount Line")
+    var
+        TempSalesLine: Record "Sales Line" temporary;
+        SalesPost: Codeunit "Sales-Post";
+    begin
+        SalesPost.GetSalesLines(SalesHeader, TempSalesLine, 0);
+        TempSalesLine.CalcVATAmountLines(0, SalesHeader, TempSalesLine, VATAmountLine);
+    end;
+
+    local procedure GetSalesInvoiceVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; DocumentNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesInvoiceHeader.Get(DocumentNo);
+        SalesInvoiceLine.CalcVATAmountLines(SalesInvoiceHeader, VATAmountLine);
+    end;
+
+    local procedure GetPurchaseInvoiceVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; DocumentNo: Code[20])
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+    begin
+        PurchInvHeader.Get(DocumentNo);
+        PurchInvLine.CalcVATAmountLines(PurchInvHeader, VATAmountLine);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AUNZStatementRequestPageHandler(var AUNZStatement: TestRequestPage "AU/NZ Statement")
@@ -2442,6 +2625,19 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         asserterror PurchaseStatistics.SubForm."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
         PurchaseStatistics.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
+    var
+        UpdateVATAmount: Boolean;
+        VATAmountACYNotUpdatedLbl: Label 'VAT Amount (ACY) is not updated';
+    begin
+        UpdateVATAmount := LibraryVariableStorage.DequeueBoolean();
+        if UpdateVATAmount then
+            SalesStatistics.SubForm."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
+        Assert.AreEqual(SalesStatistics.SubForm."VAT Amount (ACY)".Value, SalesStatistics.SubForm."VAT Amount".Value, VATAmountACYNotUpdatedLbl);
+        SalesStatistics.OK().Invoke();
     end;
 }
 

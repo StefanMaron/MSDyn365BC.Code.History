@@ -2272,6 +2272,136 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure RoundingOfItemChargeAmountDistributedToTwoPurchaseOrderLines()
+    var
+        Currency: Record Currency;
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineItem1, PurchaseLineItem2, PurchaseLineItemCharge : Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ValueEntry: Record "Value Entry";
+        GLEntry: Record "G/L Entry";
+        InvoiceNo: Code[20];
+        ExchangeRate: Decimal;
+        Qty: Decimal;
+    begin
+        // [SCENARIO 550410] Rounding error in Item Charge distribution to multiple Purchase Order lines.
+        Initialize();
+        Qty := 100;
+        ExchangeRate := 1.333333;
+
+        // [GIVEN] Create currency "FCY" with exchange rate 1 "FCY" = 1.333333 LCY.
+        CreateCurrencyWithExchangeRate(Currency, ExchangeRate);
+
+        // [GIVEN] Item "I", item charge "C".
+        LibraryInventory.CreateItem(Item);
+        ItemCharge.FindLast();
+
+        // [GIVEN] Purchase order, set currency code = "FCY".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Currency Code", Currency.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Two purchase order lines for item "I", quantity = 1, unit cost = 100.
+        CreatePurchaseLine(PurchaseLineItem1, PurchaseHeader, PurchaseLineItem1.Type::Item, Item."No.", 1, Qty);
+        CreatePurchaseLine(PurchaseLineItem2, PurchaseHeader, PurchaseLineItem2.Type::Item, Item."No.", 1, Qty);
+
+        // [GIVEN] Add a line for item charge "C", quantity = 1, unit cost = 200.
+        // [GIVEN] Assign the item charge evenly to the item lines in the purchase order.
+        CreatePurchaseLine(PurchaseLineItemCharge, PurchaseHeader, PurchaseLineItemCharge.Type::"Charge (Item)", ItemCharge."No.", 1, 2 * Qty);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLineItemCharge, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order,
+          PurchaseLineItem1."Document No.", PurchaseLineItem1."Line No.", Item."No.");
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", 0.5);
+        ItemChargeAssignmentPurch.Modify(true);
+
+        Clear(ItemChargeAssignmentPurch);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLineItemCharge, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order,
+          PurchaseLineItem2."Document No.", PurchaseLineItem2."Line No.", Item."No.");
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", 0.5);
+        ItemChargeAssignmentPurch.Modify(true);
+
+        // [WHEN] Post the Purchase Order.
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] The cost amount is equal to the document amount.
+        ValueEntry.SetRange("Document No.", InvoiceNo);
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+
+        GLEntry.SetRange("Document No.", InvoiceNo);
+        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Purchase);
+        GLEntry.CalcSums(Amount);
+        GLEntry.TestField(Amount, ValueEntry."Cost Amount (Actual)");
+    end;
+
+    [Test]
+    procedure RoundingOfItemChargeAmountDistributedToTwoSalesOrderLines()
+    var
+        Currency: Record Currency;
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        SalesHeader: Record "Sales Header";
+        SalesLineItem1, SalesLineItem2, SalesLineItemCharge : Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        ValueEntry: Record "Value Entry";
+        GLEntry: Record "G/L Entry";
+        InvoiceNo: Code[20];
+        ExchangeRate: Decimal;
+        Qty: Decimal;
+    begin
+        // [SCENARIO 550410] Rounding error in Item Charge distribution to multiple Sales Order lines.
+        Initialize();
+        Qty := 100;
+        ExchangeRate := 1.333333;
+
+        // [GIVEN] Create currency "FCY" with exchange rate 1 "FCY" = 1.333333 LCY.
+        CreateCurrencyWithExchangeRate(Currency, ExchangeRate);
+
+        // [GIVEN] Item "I", item charge "C".
+        LibraryInventory.CreateItem(Item);
+        ItemCharge.FindLast();
+
+        // [GIVEN] Sales order, set currency code = "FCY".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Currency Code", Currency.Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Two Sales order lines for item "I", quantity = 1, unit cost = 100.
+        CreateSalesLine(SalesLineItem1, SalesHeader, SalesLineItem1.Type::Item, Item."No.", 1, Qty);
+        CreateSalesLine(SalesLineItem2, SalesHeader, SalesLineItem2.Type::Item, Item."No.", 1, Qty);
+
+        // [GIVEN] Add a line for item charge "C", quantity = 1, unit cost = 200.
+        // [GIVEN] Assign the item charge evenly to the item lines in the Sales order.
+        CreateSalesLine(SalesLineItemCharge, SalesHeader, SalesLineItemCharge.Type::"Charge (Item)", ItemCharge."No.", 1, 2 * Qty);
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLineItemCharge, ItemChargeAssignmentSales."Applies-to Doc. Type"::Order,
+          SalesLineItem1."Document No.", SalesLineItem1."Line No.", Item."No.");
+        ItemChargeAssignmentSales.Validate("Qty. to Assign", 0.5);
+        ItemChargeAssignmentSales.Modify(true);
+
+        Clear(ItemChargeAssignmentSales);
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLineItemCharge, ItemChargeAssignmentSales."Applies-to Doc. Type"::Order,
+          SalesLineItem2."Document No.", SalesLineItem2."Line No.", Item."No.");
+        ItemChargeAssignmentSales.Validate("Qty. to Assign", 0.5);
+        ItemChargeAssignmentSales.Modify(true);
+
+        // [WHEN] Post the Sales Order.
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] The sales amount is equal to the document amount.
+        ValueEntry.SetRange("Document No.", InvoiceNo);
+        ValueEntry.CalcSums("Sales Amount (Actual)");
+
+        GLEntry.SetRange("Document No.", InvoiceNo);
+        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Sale);
+        GLEntry.CalcSums(Amount);
+        GLEntry.TestField(Amount, -ValueEntry."Sales Amount (Actual)");
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2757,6 +2887,19 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
+    end;
+
+    local procedure CreateCurrencyWithExchangeRate(var Currency: Record Currency; ExchangeRate: Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", ExchangeRate);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", ExchangeRate);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreatePurchaseDocumentWithItemChargeAndCalcInvDisc(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; LineDiscountPct: Decimal; Quantity: Decimal; DirectUnitCost: Decimal) VATPct: Decimal
