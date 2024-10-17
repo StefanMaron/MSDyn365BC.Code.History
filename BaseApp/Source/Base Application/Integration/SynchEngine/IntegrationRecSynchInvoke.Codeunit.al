@@ -237,7 +237,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             OnAfterInsertRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
             if DestinationRecordRef.Number() = IntegrationTableMapping."Table ID" then
                 // refetch the local record as subscribers to the OnAfterInsertRecord above could update it
-                DestinationRecordRef.GetBySystemId(DestinationRecordRef.Field(DestinationRecordRef.SystemIdNo).Value());
+                if DestinationRecordRef.GetBySystemId(DestinationRecordRef.Field(DestinationRecordRef.SystemIdNo).Value()) then;
             UpdateIntegrationRecordTimestamp(
               IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType, JobId);
         end;
@@ -258,7 +258,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             if DestinationRecordRef.Number() = IntegrationTableMapping."Table ID" then
                 // refetch the local record as subscribers to the OnAfterModifyRecord above could update it
                 // for example, this is the case while synching customers and vendors
-                DestinationRecordRef.GetBySystemId(DestinationRecordRef.Field(DestinationRecordRef.SystemIdNo).Value());
+                if DestinationRecordRef.GetBySystemId(DestinationRecordRef.Field(DestinationRecordRef.SystemIdNo).Value()) then;
             UpdateIntegrationRecordTimestamp(
               IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType, JobId, BothModified);
         end else begin
