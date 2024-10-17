@@ -12,10 +12,7 @@ https://github.com/StefanMaron/MSDyn365BC.Code.History/branches/all?query=de
 
 ## Schedule
 
-The repository will automatically update itself from the artifacts once a day:
-
-- Regular/current branches will run at midnight UTC and pull the last 24 hours of artifacts
-- vNext/insider branches will run at 2 am UTC and pull the last 24 hours of artifacts
+The repository will automatically update itself from the artifacts once a day at midnight UTC
 
 ## Differences
 
