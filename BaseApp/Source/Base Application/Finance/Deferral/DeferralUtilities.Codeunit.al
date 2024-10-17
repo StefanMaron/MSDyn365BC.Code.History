@@ -1126,6 +1126,38 @@ codeunit 1720 "Deferral Utilities"
         exit(CopyStr(StrSubstNo(DescriptionTok, DocumentNo, Description), 1, 100));
     end;
 
+    procedure CreateCopyOfDeferralSchedule(DeferralHeader: Record "Deferral Header"; NewSourceLineNo: Integer)
+    var
+        DeferralLine: Record "Deferral Line";
+        NewDeferralHeader: Record "Deferral Header";
+        NewDeferralLine: Record "Deferral Line";
+    begin
+        if NewDeferralHeader.Get(
+            DeferralHeader."Deferral Doc. Type", DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
+             DeferralHeader."Document Type", DeferralHeader."Document No.", NewSourceLineNo) then
+            exit;
+
+        NewDeferralHeader.TransferFields(DeferralHeader);
+        NewDeferralHeader."Line No." := NewSourceLineNo;
+        NewDeferralHeader.Insert();
+
+        FilterDeferralLines(NewDeferralLine, NewDeferralHeader."Deferral Doc. Type".AsInteger(),
+                    NewDeferralHeader."Gen. Jnl. Template Name", NewDeferralHeader."Gen. Jnl. Batch Name",
+                    NewDeferralHeader."Document Type", NewDeferralHeader."Document No.", NewDeferralHeader."Line No.");
+        if not NewDeferralLine.IsEmpty() then
+            exit;
+
+        FilterDeferralLines(DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
+                    DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
+                    DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.");
+        if DeferralLine.FindSet() then
+            repeat
+                NewDeferralLine.TransferFields(DeferralLine);
+                NewDeferralLine."Line No." := NewDeferralHeader."Line No.";
+                NewDeferralLine.Insert();
+            until DeferralLine.Next() = 0;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateDaysPerPeriod(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
