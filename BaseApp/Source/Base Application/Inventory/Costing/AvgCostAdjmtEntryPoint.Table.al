@@ -96,7 +96,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
         "Item No." := ValueEntry."Item No.";
         "Valuation Date" := ValueEntry."Valuation Date";
         GetItem(ValueEntry."Item No.");
-        OnValuationExistsOnAfterGetItem(Item, ValueEntry);
+        OnValuationExistsOnAfterGetItem(Item, ValueEntry, Rec);
         if Item."Costing Method" = Item."Costing Method"::Average then begin
             CalendarPeriod."Period Start" := "Valuation Date";
             GetValuationPeriod(CalendarPeriod);
@@ -267,7 +267,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValuationExistsOnAfterGetItem(var Item: Record Item; ValueEntry: Record "Value Entry")
+    local procedure OnValuationExistsOnAfterGetItem(var Item: Record Item; ValueEntry: Record "Value Entry"; var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point")
     begin
     end;
 }

@@ -6,6 +6,7 @@ namespace Microsoft.Integration.Dataverse;
 
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.SyncEngine;
+using System;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Security.Authentication;
@@ -144,6 +145,10 @@ page 7200 "CDS Connection Setup"
                         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
                         FeatureTelemetry: Codeunit "Feature Telemetry";
                         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                        MyALAuditCategory: DotNet ALAuditCategory;
+                        DataverseEnabledLbl: Label 'User %1 enabled integration to Dataverse.', Locked = true;
                     begin
                         RefreshStatuses := true;
                         CurrPage.Update(true);
@@ -151,6 +156,7 @@ page 7200 "CDS Connection Setup"
                             FeatureTelemetry.LogUptake('0000H7J', 'Dataverse', Enum::"Feature Uptake Status"::"Set up");
                             FeatureTelemetry.LogUptake('0000IIM', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CDE', CDSConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(DataverseEnabledLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
 
                             if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
                                 if CDSIntegrationImpl.MultipleCompaniesConnected() then

@@ -369,8 +369,9 @@ page 160 "Sales Statistics"
 
     local procedure SetVATSpecification()
     begin
-        CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
-        CurrPage.SubForm.PAGE.InitGlobals(
+        CurrPage.Subform.Page.SetSourceHeader(Rec);
+        CurrPage.SubForm.Page.SetTempVATAmountLine(TempVATAmountLine);
+        CurrPage.SubForm.Page.InitGlobals(
           Rec."Currency Code", AllowVATDifference, AllowVATDifference,
           Rec."Prices Including VAT", AllowInvDisc, Rec."VAT Base Discount %");
     end;

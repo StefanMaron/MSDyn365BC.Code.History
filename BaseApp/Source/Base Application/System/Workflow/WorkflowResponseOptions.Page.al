@@ -387,6 +387,8 @@ page 1523 "Workflow Response Options"
         WorkflowStepEvent: Record "Workflow Step";
         WorkflowEvent: Record "Workflow Event";
     begin
+        if Rec."Table No." <> 0 then
+            exit;
         WorkflowStep.SetRange(Argument, Rec.ID);
         if WorkflowStep.FindFirst() then
             if WorkflowStep.HasParentEvent(WorkflowStepEvent) then begin

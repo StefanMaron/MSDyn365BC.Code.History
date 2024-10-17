@@ -1670,6 +1670,15 @@
       <Cmt Name="Dev"><![CDATA[%1  text value]D;]A;(LookupHint=Codeunit ERM Consolidation - NamedType LegalEntityIDLineTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 187546204 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Starting Date, %2 = WorkDate, %3 = Consolidate Wizard]D;]A;(LookupHint=Codeunit ERM Consolidation - NamedType StartingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 187546204 - NamedType 1749115446" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[2,"%1","%2",%3,"%4",%5,%6,%7,%8,%9]]></Val>
@@ -13134,6 +13143,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType WrongAllowDeferralPostingDatesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 518006362 - Method 3039364185 - NamedType 3870762580" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Deferral amounts cannot be 0]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - Method PostPurchaseInvoiceWithAllocationAccountAndUserDefinedDeferralWithError - NamedType ZeroDeferralAmtErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 518006362 - Method 2450948280 - NamedType 3870762580" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
