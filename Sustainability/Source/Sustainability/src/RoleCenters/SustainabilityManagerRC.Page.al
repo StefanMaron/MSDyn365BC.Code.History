@@ -1,3 +1,4 @@
+#pragma warning disable AS0032
 namespace Microsoft.Sustainability.RoleCenters;
 
 using Microsoft.API.V1;
@@ -18,6 +19,7 @@ using Microsoft.Sustainability.Account;
 using Microsoft.Sustainability.Certificate;
 using Microsoft.Sustainability.Journal;
 using Microsoft.Sustainability.Ledger;
+using Microsoft.Finance.Analysis.StatisticalAccount;
 using Microsoft.Sustainability.Reports;
 using Microsoft.Sustainability.Scorecard;
 using Microsoft.Sustainability.Setup;
@@ -43,24 +45,20 @@ page 6235 "Sustainability Manager RC"
             {
                 ApplicationArea = Basic, Suite;
             }
-            group("Emission By Scope")
+            part(CO2RatioChart; "Emission Scope Ratio Chart")
             {
-                Caption = 'CO2 Emission By Scope';
-                part(CO2RatioChart; "Emission Scope Ratio Chart")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'CO2';
-                }
-                part(CH4RatioChart; "CH4 Emission Ratio Chart")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'CH4';
-                }
-                part(N2ORatioChart; "N2O Emission Ratio Chart")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'N2O';
-                }
+                ApplicationArea = Basic, Suite;
+                Caption = 'CO2';
+            }
+            part(CH4RatioChart; "CH4 Emission Ratio Chart")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'CH4';
+            }
+            part(N2ORatioChart; "N2O Emission Ratio Chart")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'N2O';
             }
         }
     }
@@ -248,9 +246,9 @@ page 6235 "Sustainability Manager RC"
                 }
                 action("Statistical Accounts")
                 {
-                    ApplicationArea = Dimensions;
+                    ApplicationArea = Suite;
                     Caption = 'Statistical Accounts';
-                    RunObject = page "Dimensions";
+                    RunObject = page "Statistical Account List";
                     Tooltip = 'Open the Statistical Accounts page.';
                 }
                 action("Allocations")
@@ -363,3 +361,4 @@ page 6235 "Sustainability Manager RC"
         }
     }
 }
+#pragma warning restore

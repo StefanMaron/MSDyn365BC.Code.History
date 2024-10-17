@@ -639,6 +639,10 @@ codeunit 137410 "Extended Text Documents"
         ExtTextJobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
         ExtTextJobPlanningLine.SetRange("Attached to Line No.", JobPlanningLine."Line No.");
         Assert.RecordCount(ExtTextJobPlanningLine, ExtendedTextLine.Count());
+
+        ExtTextJobPlanningLine.FindFirst();
+        Assert.IsTrue(ExtTextJobPlanningLine."Contract Line" = true, 'Contract Line expected.');
+        Assert.IsTrue(ExtTextJobPlanningLine."Job Contract Entry No." <> 0, 'Job Contract Entry No. expected.');
     end;
 }
 

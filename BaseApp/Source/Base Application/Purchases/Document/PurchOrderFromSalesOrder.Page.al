@@ -275,8 +275,10 @@ page 1328 "Purch. Order From Sales Order"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if CloseAction = ACTION::LookupOK then
+        if CloseAction = ACTION::LookupOK then begin
+            CheckkForDPPLocation();
             ValidateSupplyFromVendor();
+        end;
     end;
 
     var
@@ -290,6 +292,7 @@ page 1328 "Purch. Order From Sales Order"
         CannotCreatePurchaseOrderWithoutVendorErr: Label 'You cannot create purchase orders without specifying a vendor for all lines.';
         JobQuantityLbl: Label 'Project Quantity';
         SalesOrderQuantityLbl: Label 'Sales Order Quantity';
+        DPPLocationErr: Label 'You cannot create purchase orders for items that are set up for directed put-away and pick. You can activate and select Reserve field from personalization in order to finish this task.';
 
     protected var
         OrderNo: Code[20];
@@ -376,6 +379,28 @@ page 1328 "Purch. Order From Sales Order"
             DemandType::Job:
                 exit(JobQuantityLbl);
         end;
+    end;
+
+    local procedure CheckkForDPPLocation()
+    var
+        ReqLine: Record "Requisition Line";
+        Location: Record Location;
+        LocationCode: Code[10];
+    begin
+        ReqLine.Copy(Rec);
+        ReqLine.SetLoadFields("Location Code");
+        ReqLine.SetCurrentKey("Location Code");
+        ReqLine.SetFilter("Location Code", '<>%1', '');
+        ReqLine.SetRange(Reserve, false);
+        if ReqLine.FindSet() then
+            repeat
+                if LocationCode <> ReqLine."Location Code" then begin
+                    if Location.Get(ReqLine."Location Code") then
+                        if Location."Directed Put-away and Pick" then
+                            Error(DPPLocationErr);
+                    LocationCode := ReqLine."Location Code";
+                end;
+            until ReqLine.Next() = 0;
     end;
 }
 
