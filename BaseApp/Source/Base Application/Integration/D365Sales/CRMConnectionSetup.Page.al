@@ -6,6 +6,7 @@ namespace Microsoft.Integration.D365Sales;
 
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
+using System;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Security.Encryption;
@@ -82,11 +83,16 @@ page 5330 "CRM Connection Setup"
                     var
                         FeatureTelemetry: Codeunit "Feature Telemetry";
                         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                        MyALAuditCategory: DotNet ALAuditCategory;
+                        Dynamics365SalesEnabledLbl: Label 'User %1 enabled integration to Dynamics 365 Sales.', Locked = true;
                     begin
                         CurrPage.Update(true);
                         if Rec."Is Enabled" then begin
                             FeatureTelemetry.LogUptake('0000H7A', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CM7', CRMConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(Dynamics365SalesEnabledLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
 
                             if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
                                 if CDSIntegrationImpl.MultipleCompaniesConnected() then
