@@ -115,7 +115,7 @@ table 6219 "Sustainability Goal"
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Baseline for CO2';
             FieldClass = FlowField;
-            CalcFormula = sum("Sustainability Ledger Entry"."Emission CO2" where("Posting Date" = field("Baseline Period")));
+            CalcFormula = sum("Sustainability Ledger Entry"."Emission CO2" where("Posting Date" = field("Baseline Period"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
         }
         field(13; "Baseline for CH4"; Decimal)
@@ -124,7 +124,7 @@ table 6219 "Sustainability Goal"
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Baseline for CH4';
             FieldClass = FlowField;
-            CalcFormula = sum("Sustainability Ledger Entry"."Emission CH4" where("Posting Date" = field("Baseline Period")));
+            CalcFormula = sum("Sustainability Ledger Entry"."Emission CH4" where("Posting Date" = field("Baseline Period"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
         }
         field(14; "Baseline for N2O"; Decimal)
@@ -133,7 +133,7 @@ table 6219 "Sustainability Goal"
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Baseline for N2O';
             FieldClass = FlowField;
-            CalcFormula = sum("Sustainability Ledger Entry"."Emission N2O" where("Posting Date" = field("Baseline Period")));
+            CalcFormula = sum("Sustainability Ledger Entry"."Emission N2O" where("Posting Date" = field("Baseline Period"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
         }
         field(15; "Current Value for CO2"; Decimal)
@@ -141,7 +141,7 @@ table 6219 "Sustainability Goal"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             FieldClass = FlowField;
-            CalcFormula = sum("Sustainability Ledger Entry"."Emission CO2" where("Posting Date" = field("Current Period Filter")));
+            CalcFormula = sum("Sustainability Ledger Entry"."Emission CO2" where("Posting Date" = field("Current Period Filter"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
             Caption = 'Current Value for CO2';
         }
@@ -150,7 +150,7 @@ table 6219 "Sustainability Goal"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             FieldClass = FlowField;
-            CalcFormula = sum("Sustainability Ledger Entry"."Emission CH4" where("Posting Date" = field("Current Period Filter")));
+            CalcFormula = sum("Sustainability Ledger Entry"."Emission CH4" where("Posting Date" = field("Current Period Filter"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
             Caption = 'Current Value for CH4';
         }
@@ -159,7 +159,7 @@ table 6219 "Sustainability Goal"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             FieldClass = FlowField;
-            CalcFormula = sum("Sustainability Ledger Entry"."Emission N2O" where("Posting Date" = field("Current Period Filter")));
+            CalcFormula = sum("Sustainability Ledger Entry"."Emission N2O" where("Posting Date" = field("Current Period Filter"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
             Caption = 'Current Value for N2O';
         }
@@ -212,6 +212,18 @@ table 6219 "Sustainability Goal"
                 ValidateBaselineWithCurrentDateFilter(Rec."Start Date", Rec."End Date");
             end;
         }
+        field(25; "Country/Region Code Filter"; Code[10])
+        {
+            Caption = 'Country/Region Code Filter';
+            FieldClass = FlowFilter;
+            TableRelation = "Country/Region";
+        }
+        field(26; "Responsibility Center Filter"; Code[10])
+        {
+            Caption = 'Responsibility Center Filter';
+            FieldClass = FlowFilter;
+            TableRelation = "Responsibility Center";
+        }
     }
 
     keys
@@ -234,7 +246,6 @@ table 6219 "Sustainability Goal"
     var
         SustainabilityGoal: Record "Sustainability Goal";
     begin
-        SustainabilityGoal.SetRange("Scorecard No.", Rec."Scorecard No.");
         SustainabilityGoal.SetRange("Main Goal", true);
         if SustainabilityGoal.FindFirst() then
             Error(CanOnlyHaveOneMainGoalErr, SustainabilityGoal."Scorecard No.", SustainabilityGoal.Owner);
@@ -293,6 +304,18 @@ table 6219 "Sustainability Goal"
         end;
     end;
 
+    procedure UpdateFlowFiltersOnRecord()
+    begin
+        Rec.SetRange("Country/Region Code Filter");
+        Rec.SetRange("Responsibility Center Filter");
+
+        if Rec."Country/Region Code" <> '' then
+            Rec.SetRange("Country/Region Code Filter", Rec."Country/Region Code");
+
+        if Rec."Responsibility Center" <> '' then
+            Rec.SetRange("Country/Region Code Filter", Rec."Responsibility Center");
+    end;
+
     procedure ApplyOwnerFilter(var SustainabilityGoal: Record "Sustainability Goal")
     begin
         SustainabilityGoal.SetRange(Owner, UserId());
@@ -329,6 +352,12 @@ table 6219 "Sustainability Goal"
     var
         SustainabilityLedgEntry: Record "Sustainability Ledger Entry";
     begin
+        if SustainabilityGoal."Country/Region Code" <> '' then
+            SustainabilityLedgEntry.SetRange("Country/Region Code", SustainabilityGoal."Country/Region Code");
+
+        if SustainabilityGoal."Responsibility Center" <> '' then
+            SustainabilityLedgEntry.SetRange("Responsibility Center", SustainabilityGoal."Responsibility Center");
+
         case true of
             (SustainabilityGoal."Baseline Start Date" = 0D) and (SustainabilityGoal."Baseline End Date" <> 0D):
                 SustainabilityLedgEntry.SetFilter("Posting Date", '..%1', SustainabilityGoal."Baseline End Date");
@@ -358,6 +387,8 @@ table 6219 "Sustainability Goal"
 
         SustainabilityGoals2.UpdateCurrentDateFilter(SustainabilityGoals."Start Date", SustainabilityGoals."End Date");
         SustainabilityGoals2.UpdateBaselineDateFilter(SustainabilityGoals."Baseline Start Date", SustainabilityGoals."Baseline End Date");
+        SustainabilityGoals2.UpdateFlowFiltersOnRecord();
+
         SustainabilityGoals2.CalcFields("Current Value for CO2", "Current Value for CH4", "Current Value for N2O");
         SustainabilityGoals2.CalcFields("Baseline for CO2", "Baseline for CH4", "Baseline for N2O");
 
