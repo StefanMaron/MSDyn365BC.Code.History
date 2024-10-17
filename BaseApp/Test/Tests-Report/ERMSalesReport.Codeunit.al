@@ -677,15 +677,17 @@
     procedure OverdueEntriesStatementReport()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        Amount: Decimal;
+        CreditAmount: Decimal;
+        DebitAmount: Decimal;
         PeriodLength: DateFormula;
     begin
         // Verify Overdue Entries in Statement Report when Print Overdue Entries option is True.
 
         // Setup: Create and post General Journal Line, apply partial Payment over the Invoice with Random Values.
         Initialize();
-        Amount := LibraryRandom.RandDec(1000, 2);
-        PostJournalLines(GenJournalLine, CreateCustomer, Amount, -Amount / 2);
+        CreditAmount := -LibraryRandom.RandDecInRange(100, 200, 2);             // -100
+        DebitAmount := -CreditAmount * LibraryRandom.RandIntInRange(3, 5);      // 300
+        PostJournalLines(GenJournalLine, CreateCustomer, DebitAmount, CreditAmount);
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
 
         // Exercise: Save Statement Report for the Customer Created.
@@ -693,7 +695,7 @@
 
         // Verify Remaining Amount in Statement Report in Overdue Entries.
         LibraryReportDataset.LoadDataSetFile;
-        VerifyOverDueEntry(GenJournalLine."Posting Date", Amount / 2);
+        VerifyOverDueEntry(GenJournalLine."Posting Date", DebitAmount - Abs(CreditAmount));      // 300 - 100 = 200
     end;
 
     [Test]
@@ -1348,6 +1350,8 @@
     procedure PrintExternalDocNoOnDraftSalesInvoiceReport()
     var
         SalesHeader: Record "Sales Header";
+        ExtDocNoRowNo: Integer;
+        ExtDocColNo: Integer;
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 257521] External Document Number is printed in report "Standard Sales - Draft Invoice".
@@ -1364,8 +1368,9 @@
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
         // [THEN] Saved Excel file contains "External Doc No.".
-        LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(21, 17, SalesHeader."External Document No.");
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet('External Document No.', 1, ExtDocNoRowNo, ExtDocColNo);
+        LibraryReportValidation.VerifyCellValue(ExtDocNoRowNo, ExtDocColNo + 4, SalesHeader."External Document No.");
     end;
 
     [Test]
