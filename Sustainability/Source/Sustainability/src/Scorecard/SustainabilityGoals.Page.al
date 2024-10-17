@@ -338,33 +338,49 @@ page 6234 "Sustainability Goals"
     end;
 
     local procedure FormatLine()
-    var
-        CurrentPeriodDateNotification: Notification;
-        BaselinePeriodDateNotification: Notification;
     begin
         CanEditScorecard := not CalledFromScorecard;
+        ShowNotificationIfFlowFiltersAppliedFromPage();
+        Rec.UpdateCurrentEmissionValues(Rec);
+    end;
 
+    local procedure ShowNotificationIfFlowFiltersAppliedFromPage()
+    begin
         if Rec.GetFilter("Current Period Filter") <> '' then begin
             Rec.SetFilter("Current Period Filter", '');
-            CurrentPeriodDateNotification.Id := CreateGuid();
-            CurrentPeriodDateNotification.Message := StrSubstNo(CannotApplyCurrentPeriodFilterFromPageMsg, Rec.FieldCaption("Start Date"), Rec.FieldCaption("End Date"));
-            CurrentPeriodDateNotification.Scope := NotificationScope::LocalScope;
-            CurrentPeriodDateNotification.Send();
+            SendNotification(StrSubstNo(CannotApplyCurrentPeriodFilterFromPageMsg, Rec.FieldCaption("Start Date"), Rec.FieldCaption("End Date")), NotificationScope::LocalScope);
         end;
 
         if Rec.GetFilter("Baseline Period") <> '' then begin
             Rec.SetFilter("Baseline Period", '');
-            BaselinePeriodDateNotification.Id := CreateGuid();
-            BaselinePeriodDateNotification.Message := StrSubstNo(CannotApplyCurrentPeriodFilterFromPageMsg, Rec.FieldCaption("Baseline Start Date"), Rec.FieldCaption("Baseline End Date"));
-            BaselinePeriodDateNotification.Scope := NotificationScope::LocalScope;
-            BaselinePeriodDateNotification.Send();
+            SendNotification(StrSubstNo(CannotApplyCurrentPeriodFilterFromPageMsg, Rec.FieldCaption("Baseline Start Date"), Rec.FieldCaption("Baseline End Date")), NotificationScope::LocalScope);
         end;
 
-        Rec.UpdateCurrentEmissionValues(Rec);
+        if Rec.GetFilter("Responsibility Center Filter") <> '' then begin
+            Rec.SetFilter("Responsibility Center Filter", '');
+            SendNotification(StrSubstNo(CannotApplyResponsibilityCenterFilterFromPageMsg, Rec.FieldCaption("Responsibility Center")), NotificationScope::LocalScope);
+        end;
+
+        if Rec.GetFilter("Country/Region Code Filter") <> '' then begin
+            Rec.SetFilter("Country/Region Code Filter", '');
+            SendNotification(StrSubstNo(CannotApplyCountryRegionFilterFromPageMsg, Rec.FieldCaption("Country/Region Code")), NotificationScope::LocalScope);
+        end;
+    end;
+
+    local procedure SendNotification(NotificationMsg: Text; Scope: NotificationScope)
+    var
+        Notification: Notification;
+    begin
+        Notification.Id := CreateGuid();
+        Notification.Message := NotificationMsg;
+        Notification.Scope := Scope;
+        Notification.Send();
     end;
 
     var
         CalledFromScorecard: Boolean;
         CanEditScorecard: Boolean;
         CannotApplyCurrentPeriodFilterFromPageMsg: Label 'You cannot apply current date filter from the page as the field calculation happens based on %1 and %2 for each Goal line(s).', Comment = '%1 - Start Date caption, %2 - End Date Caption';
+        CannotApplyCountryRegionFilterFromPageMsg: Label 'You cannot apply Country/Region Code filter from the page as the calculation happens based on field %1 for each Goal line(s).', Comment = '%1 - Country/Region Code';
+        CannotApplyResponsibilityCenterFilterFromPageMsg: Label 'You cannot apply Responsibility Center filter from the page as the calculation happens based on field %1 for each Goal line(s).', Comment = '%1 - Responsibility Center';
 }
