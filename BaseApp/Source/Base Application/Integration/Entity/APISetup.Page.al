@@ -5,6 +5,7 @@
 namespace Microsoft.Integration.Entity;
 
 using Microsoft.Integration.Graph;
+using System;
 using System.Environment;
 using System.IO;
 using System.Reflection;
@@ -259,6 +260,16 @@ page 5469 "API Setup"
     begin
         Rec.SetAutoCalcFields("Selection Criteria");
         SetupActionVisible := EnvironmentInformation.IsOnPrem();
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+        MyALAuditCategory: DotNet ALAuditCategory;
+        APISetupRecordCreatedLbl: Label 'The new API Setup record Table ID %1, Template Code %2, Page ID %3 is created by the UserSecurityId %4.', Locked = true;
+    begin
+        MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(APISetupRecordCreatedLbl, Rec."Table ID", Rec."Template Code", Rec."Page ID", UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
     end;
 
     var
