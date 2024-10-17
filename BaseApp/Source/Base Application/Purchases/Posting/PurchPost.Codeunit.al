@@ -8349,11 +8349,6 @@ codeunit 90 "Purch.-Post"
                 TempTrackingSpecification.Init();
         end;
 
-        PreciseTotalChargeAmt := 0;
-        PreciseTotalChargeAmtACY := 0;
-        RoundedPrevTotalChargeAmt := 0;
-        RoundedPrevTotalChargeAmtACY := 0;
-
         ShouldProcessShipment := PurchHeader.IsCreditDocType();
         OnPostItemTrackingOnAfterCalcShouldProcessShipment(PurchHeader, PurchLine, ShouldProcessShipment);
         if ShouldProcessShipment then begin
