@@ -601,6 +601,35 @@ table 115 "Sales Cr.Memo Line"
         {
             Caption = 'WHT Absorb Base';
         }
+        field(28081; "VAT Base (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'VAT Base (ACY)';
+            Editable = false;
+        }
+        field(28082; "VAT Amount (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'VAT Amount (ACY)';
+        }
+        field(28083; "Amount Including VAT (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Amount Including VAT (ACY)';
+            Editable = false;
+        }
+        field(28084; "Amount (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Amount (ACY)';
+            Editable = false;
+        }
+        field(28085; "VAT Difference (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'VAT Difference (ACY)';
+            Editable = false;
+        }
     }
 
     keys
@@ -697,6 +726,13 @@ table 115 "Sales Cr.Memo Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesCrMemoLine(Rec);
+                TempVATAmountLine."VAT Base (ACY)" := "VAT Base (ACY)";
+                TempVATAmountLine."VAT Amount (ACY)" := "Amount Including VAT (ACY)" - "Amount (ACY)";
+                TempVATAmountLine."Amount Including VAT (ACY)" := "Amount Including VAT (ACY)";
+                TempVATAmountLine."Amount (ACY)" := "Amount (ACY)";
+                TempVATAmountLine."VAT Difference (ACY)" := "VAT Difference (ACY)";
+                TempVATAmountLine."Calculated VAT Amount (ACY)" :=
+                  "Amount Including VAT (ACY)" - "Amount (ACY)" - "VAT Difference (ACY)";
                 TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;

@@ -428,6 +428,7 @@ codeunit 5520 "Get Unplanned Demand"
     local procedure CalcNeededDemands(var UnplannedDemand: Record "Unplanned Demand")
     var
         TempUnplannedDemand: Record "Unplanned Demand" temporary;
+        JobPlanningLine: Record "Job Planning Line";
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
         HeaderExists: Boolean;
         ForceIncludeDemand: Boolean;
@@ -451,8 +452,11 @@ codeunit 5520 "Get Unplanned Demand"
                         CalcDemand(TempUnplannedDemand, false) + CalcDemand(UnplannedDemand, true),
                         TempUnplannedDemand."Quantity (Base)");
 
-                if UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Job then
-                    UnplannedDemand."Needed Qty. (Base)" -= ReduceJobRealtedQtyReceivedNotInvoiced(UnplannedDemand."Demand Order No.", GetJobTaskNo(UnplannedDemand), TempUnplannedDemand."Item No.", TempUnplannedDemand."Variant Code", TempUnplannedDemand."Location Code", TempUnplannedDemand."Demand Date");
+                if UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Job then begin
+                    GetJobTask(UnplannedDemand, JobPlanningLine);
+                    UnplannedDemand."Quantity (Base)" := JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)";
+                    UnplannedDemand."Needed Qty. (Base)" -= ReduceJobRealtedQtyReceivedNotInvoiced(UnplannedDemand."Demand Order No.", JobPlanningLine."Job Task No.", TempUnplannedDemand."Item No.", TempUnplannedDemand."Variant Code", TempUnplannedDemand."Location Code", TempUnplannedDemand."Demand Date");
+                end;
 
                 ForceIncludeDemand :=
                   (UnplannedDemand."Demand Order No." = IncludeMetDemandForSpecificSalesOrderNo) and
@@ -479,15 +483,17 @@ codeunit 5520 "Get Unplanned Demand"
         end;
     end;
 
-    local procedure GetJobTaskNo(var UnplannedDemand: Record "Unplanned Demand"): Code[20]
-    var
-        ForJobPlanningLine: Record "Job Planning Line";
+    local procedure GetJobTask(var UnplannedDemand: Record "Unplanned Demand"; var JobPlanningLine: Record "Job Planning Line")
     begin
-        ForJobPlanningLine.SetLoadFields("Job Task No.");
-        ForJobPlanningLine.SetRange("Job No.", UnplannedDemand."Demand Order No.");
-        ForJobPlanningLine.SetRange("Job Contract Entry No.", UnplannedDemand."Demand Line No.");
-        if ForJobPlanningLine.FindFirst() then
-            exit(ForJobPlanningLine."Job Task No.");
+        Clear(JobPlanningLine);
+
+        JobPlanningLine.SetLoadFields("Job Task No.", "Remaining Qty. (Base)", Status, "Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job No.", UnplannedDemand."Demand Order No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", UnplannedDemand."Demand Line No.");
+        if not JobPlanningLine.FindFirst() then
+            exit;
+
+        JobPlanningLine.CalcFields("Reserved Qty. (Base)");
     end;
 
     local procedure ReduceJobRealtedQtyReceivedNotInvoiced(JobNo: Code[20]; JobTaskNo: Code[20]; ItemNo: Text[250]; VariantFilter: Text[250]; LocationFilter: Text[250]; DemandDate: Date): Decimal
