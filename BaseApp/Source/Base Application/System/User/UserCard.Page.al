@@ -711,8 +711,13 @@ page 9807 "User Card"
 
     local procedure ValidateAuthentication(): Boolean
     var
+        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+        MyALAuditCategory: DotNet ALAuditCategory;
         ValidationField: Text;
         ShowConfirmDisableUser: Boolean;
+        IsDisableUserMsgConfirmed: Boolean;
+        UserDisabledLbl: Label 'The user with UserSecurityID %1 has been disabled by user with UserSecurityID %2.', Locked = true;
     begin
         UserSecID.Reset();
         if (UserSecID.Count = 1) or (UserSecurityId() = Rec."User Security ID") then begin
@@ -733,8 +738,12 @@ page 9807 "User Card"
 
         ShowConfirmDisableUser := (InitialState = Rec.State::Enabled) and (Rec.State = Rec.State::Disabled);
         OnValidateAuthenticationOnAfterCalcShowConfirmDisableUser(InitialState, Rec, ShowConfirmDisableUser);
-        if ShowConfirmDisableUser then
-            exit(Confirm(Confirm003Qst, false));
+        if ShowConfirmDisableUser then begin
+            IsDisableUserMsgConfirmed := Confirm(Confirm003Qst, false);
+            if IsDisableUserMsgConfirmed then
+                MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(UserDisabledLbl, Rec."Windows Security ID", UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 2, 0);
+            exit(IsDisableUserMsgConfirmed);
+        end;
 
         exit(true);
     end;

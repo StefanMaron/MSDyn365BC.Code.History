@@ -1,5 +1,6 @@
 namespace Microsoft.Inventory.InventoryForecast;
 
+using System;
 using System.Threading;
 using System.AI;
 using System.Privacy;
@@ -36,12 +37,19 @@ page 1853 "Sales Forecast Setup Card"
                     var
                         CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
                         UserPermissions: Codeunit "User Permissions";
+                        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                        MyALAuditCategory: DotNet ALAuditCategory;
+                        SalesInvForceastConsentProvidedLbl: Label 'Sales and Inventory Forecast application - consent provided by UserSecurityId %1.', Locked = true;
                     begin
                         if (Rec.Enabled <> xRec.Enabled) and not UserPermissions.IsSuper(UserSecurityId()) then
                             Error(NotAdminErr);
 
                         if not xRec.Enabled and Rec.Enabled then
                             Rec.Enabled := CustomerConsentMgt.ConsentToMicrosoftServiceWithAI();
+
+                        if Rec.Enabled then
+                            MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(SalesInvForceastConsentProvidedLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
                     end;
                 }
                 field("Period Type"; "Period Type")
