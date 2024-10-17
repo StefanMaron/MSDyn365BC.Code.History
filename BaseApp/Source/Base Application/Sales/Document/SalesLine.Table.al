@@ -986,6 +986,7 @@ table 37 "Sales Line"
                               Round(Amount * (1 - GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
                             "Amount Including VAT" :=
                               Round(Amount + "VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
+                            UpdateACYAmounts(SalesHeader);
                             OnValidateAmountOnAfterCalculateNormalVAT(Rec, SalesHeader, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
@@ -3433,6 +3434,35 @@ table 37 "Sales Line"
         {
             Caption = 'WHT Absorb Base';
         }
+        field(28081; "VAT Base (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'VAT Base (ACY)';
+            Editable = false;
+        }
+        field(28082; "VAT Amount (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'VAT Amount (ACY)';
+        }
+        field(28083; "Amount Including VAT (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Amount Including VAT (ACY)';
+            Editable = false;
+        }
+        field(28084; "Amount (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Amount (ACY)';
+            Editable = false;
+        }
+        field(28085; "VAT Difference (ACY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'VAT Difference (ACY)';
+            Editable = false;
+        }
     }
 
     keys
@@ -5142,8 +5172,10 @@ table 37 "Sales Line"
     /// </summary>
     procedure UpdateAmounts()
     var
+        AddCurrency: Record Currency;
         VATBaseAmount: Decimal;
         LineAmount: Decimal;
+        CurrencyFactor: Decimal;
         LineAmountChanged: Boolean;
         IsHandled: Boolean;
     begin
@@ -5172,6 +5204,18 @@ table 37 "Sales Line"
         if "Line Amount" <> LineAmount then begin
             "Line Amount" := LineAmount;
             "VAT Difference" := 0;
+            "VAT Difference (ACY)" := 0;
+            if SalesHeader."Currency Code" <> GLSetup."Additional Reporting Currency" then begin
+                CurrencyFactor := GetCurrencyFactorACY(AddCurrency);
+                "Amount (ACY)" :=
+                  Round(
+                    CurrExchRate.ExchangeAmtLCYToFCY(
+                      SalesHeader."Posting Date", GLSetup."Additional Reporting Currency",
+                      Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                          SalesHeader."Posting Date", SalesHeader."Currency Code", "Line Amount",
+                          SalesHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+                    AddCurrency."Amount Rounding Precision");
+            end;
             LineAmountChanged := true;
         end;
 
@@ -5208,6 +5252,7 @@ table 37 "Sales Line"
     procedure UpdateVATAmounts()
     var
         SalesLine2: Record "Sales Line";
+        AddCurrency: Record Currency;
         TotalLineAmount: Decimal;
         TotalInvDiscAmount: Decimal;
         TotalAmount: Decimal;
@@ -5215,6 +5260,9 @@ table 37 "Sales Line"
         TotalVATDifference: Decimal;
         TotalQuantityBase: Decimal;
         TotalVATBaseAmount: Decimal;
+        TotalLineAmountACY: Decimal;
+        TotalAmountInclVATACY: Decimal;
+        CurrencyFactor: Decimal;
         IsHandled: Boolean;
         LineIsInvDiscountAmount: Boolean;
     begin
@@ -5239,6 +5287,8 @@ table 37 "Sales Line"
             Amount := 0;
             "VAT Base Amount" := 0;
             "Amount Including VAT" := 0;
+            "VAT Base (ACY)" := 0;
+            "Amount Including VAT (ACY)" := 0;
             OnUpdateVATAmountOnAfterSetZeroAmointIfLineIsInvDiscountAmount(Rec);
             if (Quantity = 0) and (xRec.Quantity <> 0) and (xRec.Amount <> 0) then begin
                 if "Line No." <> 0 then
@@ -5272,6 +5322,8 @@ table 37 "Sales Line"
                     TotalQuantityBase := SalesLine2."Quantity (Base)";
                     TotalVATBaseAmount := SalesLine2."VAT Base Amount";
                     OnAfterUpdateTotalAmounts(Rec, SalesLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount);
+                    TotalLineAmountACY := SalesLine2."Amount (ACY)";
+                    TotalAmountInclVATACY := SalesLine2."Amount Including VAT (ACY)";
                 end;
             end;
 
@@ -5337,6 +5389,23 @@ table 37 "Sales Line"
                                 (TotalAmount + Amount) * (1 - GetVatBaseDiscountPct(SalesHeader) / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT + TotalVATDifference;
+                            CurrencyFactor := GetCurrencyFactorACY(AddCurrency);
+                            "Amount (ACY)" :=
+                            Round(
+                              CurrExchRate.ExchangeAmtLCYToFCY(
+                                SalesHeader."Posting Date", GLSetup."Additional Reporting Currency",
+                                Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                                    SalesHeader."Posting Date", SalesHeader."Currency Code", Amount,
+                                    SalesHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+                              AddCurrency."Amount Rounding Precision");
+                            "VAT Base (ACY)" :=
+                              Round("Amount (ACY)" * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                            "Amount Including VAT (ACY)" :=
+                              TotalLineAmountACY + "Amount (ACY)" +
+                              Round(
+                                (TotalLineAmountACY + "Amount (ACY)") * (1 - SalesHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
+                                Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
+                              TotalAmountInclVATACY;
                             OnUpdateVATAmountsOnAfterCalculateNormalVAT(Rec, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
@@ -6538,6 +6607,7 @@ table 37 "Sales Line"
     var
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         Currency: Record Currency;
+        AddCurrency: Record Currency;
         NewAmount: Decimal;
         NewAmountIncludingVAT: Decimal;
         NewVATBaseAmount: Decimal;
@@ -6546,10 +6616,17 @@ table 37 "Sales Line"
         InvDiscAmount: Decimal;
         LineAmountToInvoice: Decimal;
         FullGST: Boolean;
+        NewAmountACY: Decimal;
+        NewAmountIncludingVATACY: Decimal;
+        NewVATBaseAmountACY: Decimal;
+        VATAmountACY: Decimal;
+        VATDifferenceACY: Decimal;
         LineAmountToInvoiceDiscounted: Decimal;
         DeferralAmount: Decimal;
+        CurrencyFactor: Decimal;
     begin
         GetGLSetup();
+        CurrencyFactor := GetCurrencyFactorACY(AddCurrency);
 
         if IsUpdateVATOnLinesHandled(SalesHeader, SalesLine, VATAmountLine, QtyType, LineWasModified) then
             exit(LineWasModified);
@@ -6642,13 +6719,34 @@ table 37 "Sales Line"
                             end else begin
                                 if SalesLine."VAT Calculation Type" = SalesLine."VAT Calculation Type"::"Full VAT" then begin
                                     VATAmount := SalesLine.CalcLineAmount();
+                                    if (GLSetup."Additional Reporting Currency" <> '') and
+                                        (SalesHeader."Currency Code" = GLSetup."Additional Reporting Currency") then
+                                        VATAmountACY := TempVATAmountLineRemainder."VAT Amount (ACY)" +
+                                          Round(VATAmount, Currency."Amount Rounding Precision")
+                                    else
+                                        VATAmountACY :=
+                                          TempVATAmountLineRemainder."VAT Amount (ACY)" +
+                                          Round(
+                                            CurrExchRate.ExchangeAmtLCYToFCY(
+                                              GetDate(), GLSetup."Additional Reporting Currency",
+                                              Round(
+                                                CurrExchRate.ExchangeAmtFCYToLCY(
+                                                  GetDate(), SalesHeader."Currency Code", VATAmount,
+                                                  SalesHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+                                            AddCurrency."Amount Rounding Precision");
                                     NewAmount := 0;
+                                    NewAmountACY := 0;
                                     NewVATBaseAmount := 0;
+                                    NewVATBaseAmountACY := 0;
                                 end else begin
                                     NewAmount := SalesLine.CalcLineAmount();
+                                    NewAmountACY := SalesLine."Amount (ACY)";
                                     NewVATBaseAmount :=
                                       Round(
                                         NewAmount * (1 - SalesLine.GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
+                                    NewVATBaseAmountACY :=
+                                        Round(
+                                            NewAmountACY * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
                                     if VATAmountLine."VAT Base" = 0 then
                                         VATAmount := 0
                                     else
@@ -6659,21 +6757,36 @@ table 37 "Sales Line"
                                 OnUpdateVATOnLinesOnBeforeCalculateNewAmount(
                                   Rec, SalesHeader, VATAmountLine, TempVATAmountLineRemainder, NewAmount, VATAmount);
                                 NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
+                                if VATAmountLine."VAT Base (ACY)" = 0 then
+                                    VATAmountACY := 0
+                                else
+                                    VATAmountACY :=
+                                      TempVATAmountLineRemainder."VAT Amount (ACY)" +
+                                      VATAmountLine."VAT Amount (ACY)" * NewAmountACY / VATAmountLine."VAT Base (ACY)";
+                                NewAmountIncludingVATACY := NewAmountACY + Round(VATAmountACY, Currency."Amount Rounding Precision");
                             end;
                             OnUpdateVATOnLinesOnAfterCalculateNewAmount(
                               Rec, SalesHeader, VATAmountLine, TempVATAmountLineRemainder, NewAmountIncludingVAT, VATAmount,
                               NewAmount, NewVATBaseAmount);
                         end else begin
-                            if VATAmountLine.CalcLineAmount() = 0 then
-                                VATDifference := 0
-                            else
+                            if VATAmountLine.CalcLineAmount() = 0 then begin
+                                VATDifference := 0;
+                                VATDifferenceACY := 0;
+                            end else begin
                                 VATDifference :=
                                   TempVATAmountLineRemainder."VAT Difference" +
                                   VATAmountLine."VAT Difference" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount();
-                            if LineAmountToInvoice = 0 then
-                                SalesLine."VAT Difference" := 0
-                            else
+                                VATDifferenceACY :=
+                                    TempVATAmountLineRemainder."VAT Difference (ACY)" +
+                                    VATAmountLine."VAT Difference (ACY)" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount();
+                            end;
+                            if LineAmountToInvoice = 0 then begin
+                                SalesLine."VAT Difference" := 0;
+                                SalesLine."VAT Difference (ACY)" := 0;
+                            end else begin
                                 SalesLine."VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
+                                SalesLine."VAT Difference (ACY)" := Round(VATDifferenceACY, Currency."Amount Rounding Precision");
+                            end;
                         end;
                         OnUpdateVATOnLinesOnAfterCalculateAmounts(SalesLine, SalesHeader);
 
@@ -6681,6 +6794,9 @@ table 37 "Sales Line"
                             if not SalesLine."Prepayment Line" then
                                 SalesLine.UpdatePrepmtAmounts();
                             UpdateBaseAmounts(NewAmount, Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision"), NewVATBaseAmount);
+                            SalesLine."Amount Including VAT (ACY)" := Round(NewAmountIncludingVATACY, Currency."Amount Rounding Precision");
+                            SalesLine."VAT Base (ACY)" := NewVATBaseAmountACY;
+                            SalesLine."Amount (ACY)" := NewAmountACY;
                             OnUpdateVATOnLinesOnAfterUpdateBaseAmounts(SalesHeader, SalesLine, TempVATAmountLineRemainder, VATAmountLine, Currency);
                         end;
                         SalesLine.InitOutstanding();
@@ -6697,6 +6813,10 @@ table 37 "Sales Line"
                           NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                         TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                         TempVATAmountLineRemainder."VAT Difference" := VATDifference - SalesLine."VAT Difference";
+                        TempVATAmountLineRemainder."Amount Including VAT (ACY)" :=
+                            NewAmountIncludingVATACY - Round(NewAmountIncludingVATACY, Currency."Amount Rounding Precision");
+                        TempVATAmountLineRemainder."VAT Amount (ACY)" := VATAmountACY - NewAmountIncludingVATACY + NewAmountACY;
+                        TempVATAmountLineRemainder."VAT Difference (ACY)" := VATDifferenceACY - SalesLine."VAT Difference (ACY)";
                         OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(Rec, TempVATAmountLineRemainder, VATAmount, NewVATBaseAmount);
                         TempVATAmountLineRemainder.Modify();
                     end;
@@ -6751,8 +6871,9 @@ table 37 "Sales Line"
         TotalVATAmount: Decimal;
         QtyToHandle: Decimal;
         AmtToHandle: Decimal;
-        ValueLCY: Decimal;
-        ValueACY: Decimal;
+        AmountLCY: Decimal;
+        AmountACY: Decimal;
+        AmountToInvoice: Decimal;
         RoundingLineInserted: Boolean;
         CurrencyFactor: Decimal;
         UseDate: Date;
@@ -6817,6 +6938,10 @@ table 37 "Sales Line"
                                 OnCalcVATAmountLinesOnBeforeQtyTypeGeneralCase(SalesHeader, SalesLine, VATAmountLine, IncludePrepayments, QtyType, QtyToHandle, AmtToHandle);
                                 VATAmountLine.Quantity += SalesLine."Quantity (Base)";
                                 SumVATAmountLine(SalesHeader, SalesLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
+                                VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
+                                VATAmountLine."VAT Difference (ACY)" += SalesLine."VAT Difference (ACY)";
+                                VATAmountLine.Modify();
+                                AmountToInvoice := SalesLine.Amount;
                             end;
                         QtyType::Invoicing:
                             begin
@@ -6853,6 +6978,10 @@ table 37 "Sales Line"
                                 else
                                     AmtToHandle := SalesLine.GetLineAmountToHandle(QtyToHandle);
                                 SumVATAmountLine(SalesHeader, SalesLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
+                                VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
+                                VATAmountLine."VAT Difference (ACY)" += SalesLine."VAT Difference (ACY)";
+                                VATAmountLine.Modify();
+                                AmountToInvoice := SalesLine.Amount * QtyToHandle / SalesLine.Quantity;
                             end;
                         QtyType::Shipping:
                             begin
@@ -6870,8 +6999,21 @@ table 37 "Sales Line"
                                 else
                                     AmtToHandle := SalesLine.GetLineAmountToHandle(QtyToHandle);
                                 SumVATAmountLine(SalesHeader, SalesLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
+                                VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
+                                VATAmountLine."VAT Difference (ACY)" += SalesLine."VAT Difference (ACY)";
+                                VATAmountLine.Modify();
+                                AmountToInvoice := SalesLine.Amount * QtyToHandle / SalesLine.Quantity;
                             end;
                     end;
+
+                    if SalesHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
+                        VATAmountLine."Amount (ACY)" += SalesLine.Amount
+                    else begin
+                        AmountLCY := CurrExchRate.ExchangeAmtFCYToLCY(UseDate, SalesHeader."Currency Code", Round(AmountToInvoice, Currency."Amount Rounding Precision"), SalesHeader."Currency Factor");
+                        AmountACY := CurrExchRate.ExchangeAmtLCYToFCY(UseDate, GLSetup."Additional Reporting Currency", Round(AmountLCY, Currency."Amount Rounding Precision"), CurrencyFactor);
+                        VATAmountLine."Amount (ACY)" += Round(AmountACY, AddCurrency."Amount Rounding Precision");
+                    end;
+                    VATAmountLine.Modify();
                     TotalVATAmount += SalesLine."Amount Including VAT" - SalesLine.Amount;
                     TotalVATBase += SalesLine.Amount;
                     OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, SalesHeader, SalesLine, Currency, QtyType, TotalVATAmount, QtyToHandle);
@@ -6915,6 +7057,18 @@ table 37 "Sales Line"
                                         (1 - SalesHeader."VAT Base Discount %" / 100),
                                         Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Base" + VATAmountLine."VAT Amount";
+                                    VATAmountLine."VAT Base (ACY)" :=
+                                              Round(
+                                                (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount") / (1 + VATAmountLine."VAT %" / 100),
+                                                Currency."Amount Rounding Precision") - VATAmountLine."VAT Difference (ACY)";
+                                    VATAmountLine."VAT Amount (ACY)" :=
+                                      VATAmountLine."VAT Difference (ACY)" +
+                                      Round(
+                                        PrevVatAmountLine."VAT Amount (ACY)" +
+                                        (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Base (ACY)" - VATAmountLine."VAT Difference (ACY)") *
+                                        (1 - SalesHeader."VAT Base Discount %" / 100),
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                    VATAmountLine."Amount Including VAT (ACY)" := VATAmountLine."VAT Base (ACY)" + VATAmountLine."VAT Amount (ACY)";
                                 end;
                                 if VATAmountLine.Positive then
                                     PrevVatAmountLine.Init()
@@ -6926,6 +7080,9 @@ table 37 "Sales Line"
                                     PrevVatAmountLine."VAT Amount" :=
                                       PrevVatAmountLine."VAT Amount" -
                                       Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                    PrevVatAmountLine."VAT Amount (ACY)" :=
+                                      PrevVatAmountLine."VAT Amount (ACY)" -
+                                      Round(PrevVatAmountLine."VAT Amount (ACY)", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     if VATAmountLine."Full GST on Prepayment" then
                                         CalcFullGSTValues(VATAmountLine, SalesLine, SalesHeader."Prices Including VAT");
                                 end;
@@ -6970,6 +7127,18 @@ table 37 "Sales Line"
                                     VATAmountLine."VAT Base" * (1 - SalesHeader."VAT Base Discount %" / 100),
                                     Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                 VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" + VATAmountLine."VAT Amount";
+                                VATAmountLine."VAT Base (ACY)" :=
+                                  Round(
+                                    VATAmountLine."Amount (ACY)" * (1 - SalesHeader."VAT Base Discount %" / 100),
+                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                VATAmountLine."VAT Amount (ACY)" :=
+                                  VATAmountLine."VAT Difference (ACY)" +
+                                  Round(
+                                    PrevVatAmountLine."VAT Amount (ACY)" +
+                                    VATAmountLine."VAT Base (ACY)" * VATAmountLine."VAT %" / 100 * (1 - SalesHeader."VAT Base Discount %" / 100),
+                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" + VATAmountLine."VAT Amount";
+                                VATAmountLine."Amount Including VAT (ACY)" := VATAmountLine."Amount (ACY)" + VATAmountLine."VAT Amount (ACY)";
                                 if VATAmountLine.Positive then
                                     PrevVatAmountLine.Init()
                                 else begin
@@ -6980,6 +7149,14 @@ table 37 "Sales Line"
                                         PrevVatAmountLine."VAT Amount" :=
                                           PrevVatAmountLine."VAT Amount" -
                                           Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                        PrevVatAmountLine."VAT Amount (ACY)" :=
+                                              Round(
+                                                CurrExchRate.ExchangeAmtLCYToFCY(
+                                                  UseDate, GLSetup."Additional Reporting Currency",
+                                                  Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                                                      UseDate, SalesHeader."Currency Code", PrevVatAmountLine."VAT Amount",
+                                                      SalesHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+                                                AddCurrency."Amount Rounding Precision");
                                     end;
                                     if VATAmountLine."Full GST on Prepayment" then
                                         CalcFullGSTValues(VATAmountLine, SalesLine, SalesHeader."Prices Including VAT");
@@ -7014,24 +7191,7 @@ table 37 "Sales Line"
                     TotalVATBase := TotalVATBase - VATAmountLine."VAT Base";
                 end;
                 VATAmountLine."Calculated VAT Amount" := VATAmountLine."VAT Amount" - VATAmountLine."VAT Difference";
-                if GLSetup."Additional Reporting Currency" <> '' then
-                    if SalesHeader."Currency Code" = GLSetup."Additional Reporting Currency" then begin
-                        VATAmountLine."Amount (ACY)" := VATAmountLine."VAT Base";
-                        VATAmountLine."VAT Base (ACY)" := VATAmountLine."VAT Base";
-                        VATAmountLine."VAT Amount (ACY)" := VATAmountLine."VAT Amount";
-                        VATAmountLine."Amount Including VAT (ACY)" := VATAmountLine."Amount Including VAT";
-                    end else begin
-                        ValueLCY := CurrExchRate.ExchangeAmtFCYtoLCY(UseDate, SalesHeader."Currency Code", VATAmountLine."VAT Base", SalesHeader."Currency Factor");
-                        ValueACY := Round(CurrExchRate.ExchangeAmtLCYToFCY(UseDate, GLSetup."Additional Reporting Currency", ValueLCY, CurrencyFactor), AddCurrency."Amount Rounding Precision");
-                        VATAmountLine."Amount (ACY)" := ValueACY;
-                        VATAmountLine."VAT Base (ACY)" := ValueACY;
-                        ValueLCY := CurrExchRate.ExchangeAmtFCYtoLCY(UseDate, SalesHeader."Currency Code", VATAmountLine."VAT Amount", SalesHeader."Currency Factor");
-                        ValueACY := Round(CurrExchRate.ExchangeAmtLCYToFCY(UseDate, GLSetup."Additional Reporting Currency", ValueLCY, CurrencyFactor), AddCurrency."Amount Rounding Precision");
-                        VATAmountLine."VAT Amount (ACY)" := ValueACY;
-                        ValueLCY := CurrExchRate.ExchangeAmtFCYtoLCY(UseDate, SalesHeader."Currency Code", VATAmountLine."Amount Including VAT", SalesHeader."Currency Factor");
-                        ValueACY := Round(CurrExchRate.ExchangeAmtLCYToFCY(UseDate, GLSetup."Additional Reporting Currency", ValueLCY, CurrencyFactor), AddCurrency."Amount Rounding Precision");
-                        VATAmountLine."Amount Including VAT (ACY)" := ValueACY;
-                    end;
+                VATAmountLine."Calculated VAT Amount (ACY)" := VATAmountLine."VAT Amount (ACY)" - VATAmountLine."VAT Difference (ACY)";
 
                 VATAmountLine.Modify();
             until VATAmountLine.Next() = 0;
@@ -10162,6 +10322,39 @@ table 37 "Sales Line"
               Text031,
               SalesHeader.FieldCaption("Bill-to Customer No."),
               SalesHeader.FieldCaption("Bill-to Customer Templ. Code"));
+    end;
+
+    procedure UpdateACYAmounts(SalesHeaderToCalc: Record "Sales Header")
+    var
+        AddCurrency: Record Currency;
+        CurrencyFactor: Decimal;
+    begin
+        GetGLSetup();
+        SalesHeader := SalesHeaderToCalc;
+        CurrencyFactor := GetCurrencyFactorACY(AddCurrency);
+        "VAT Base (ACY)" :=
+          Round(
+            CurrExchRate.ExchangeAmtLCYToFCY(
+              SalesHeader."Posting Date", GLSetup."Additional Reporting Currency",
+              Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                  SalesHeader."Posting Date", "Currency Code", "VAT Base Amount",
+                  SalesHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+            AddCurrency."Amount Rounding Precision");
+        "Amount Including VAT (ACY)" :=
+          Round("Amount (ACY)" + "VAT Base (ACY)" * "VAT %" / 100,
+            Currency."Amount Rounding Precision");
+    end;
+
+    local procedure GetCurrencyFactorACY(var AddCurrency: Record Currency): Decimal
+    begin
+        GetGLSetup();
+        if GLSetup."Additional Reporting Currency" = '' then
+            exit;
+
+        AddCurrency.Get(GLSetup."Additional Reporting Currency");
+        exit(
+            CurrExchRate.ExchangeRate(
+            GetDate(), GLSetup."Additional Reporting Currency"));
     end;
 
     /// <summary>

@@ -805,7 +805,7 @@ table 55 "Invoice Posting Buffer"
         OnAfterPrepareSales(SalesLine, InvoicePostingBuffer);
     end;
 
-    [Obsolete('Moved to codeunit Sales Post Invoice Events', '25.0')]
+    [Obsolete('Replaced by event OnAfterPrepareInvoicePostingBuffer in codeunit Sales Post Invoice Events', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareSales(var SalesLine: Record Microsoft.Sales.Document."Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
@@ -818,7 +818,7 @@ table 55 "Invoice Posting Buffer"
         OnAfterPreparePurchase(PurchaseLine, InvoicePostingBuffer);
     end;
 
-    [Obsolete('Moved to codeunit Sales Post Invoice Events', '25.0')]
+    [Obsolete('Replaced by event OnAfterPrepareInvoicePostingBuffer in Purch. Post Invoice Events', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPreparePurchase(var PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin

@@ -2,7 +2,7 @@
   "id": "c9bea3a6-a9af-499f-b78a-130a42eceedd",
   "name": "Tests-SMB",
   "publisher": "Microsoft",
-  "version": "25.0.23364.24652",
+  "version": "25.0.23364.25445",
   "platform": "25.0.0.0",
   "dependencies": [
     {

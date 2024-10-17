@@ -2,7 +2,7 @@
   "id": "a0673989-48a4-48a0-9517-499c9f4037d3",
   "name": "Sustainability Contoso Coffee Demo Dataset",
   "publisher": "Microsoft",
-  "version": "25.0.23364.24652",
+  "version": "25.0.23364.25445",
   "brief": "To help partners demonstrate the capabilities of Sustainability extension, we are making demo data available for various sustainability scenarios.",
   "description": "Sustainability specialists can run the tool on top of Cronus or My Company and get the setup and demo data they'll need when they demonstrate various sustainability reporting scenarios.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?linkid=724009",
