@@ -45,19 +45,19 @@ report 1407 "Bank Account Statement"
             column(G_L_BalanceCaption; G_L_BalanceCaptionTxt)
             {
             }
-            column(Bank_Acc__Reconciliation___TotalBalOnBankAccount; "Bank Account Statement"."G/L Balance at Posting Date")
+            column(Bank_Acc__Reconciliation___TotalBalOnBankAccount; GLBalanceAtPostingDate)
             {
             }
             column(Subtotal_Caption; Subtotal_CaptionLbl)
             {
             }
-            column(GL_Subtotal; "Bank Account Statement"."G/L Balance at Posting Date" + "Bank Account Statement"."Total Pos. Diff. at Posting")
+            column(GL_Subtotal; GLBalanceAtPostingDate + "Bank Account Statement"."Total Pos. Diff. at Posting")
             {
             }
             column(Ending_G_L_BalanceCaption; BankAccountBalanceLbl)
             {
             }
-            column(Ending_GL_Balance; "Bank Account Statement"."G/L Balance at Posting Date" + "Bank Account Statement"."Total Pos. Diff. at Posting" + "Bank Account Statement"."Total Neg. Diff. at Posting")
+            column(Ending_GL_Balance; GLBalanceAtPostingDate + "Bank Account Statement"."Total Pos. Diff. at Posting" + "Bank Account Statement"."Total Neg. Diff. at Posting")
             {
             }
             column(Currency_CodeCaption; CurrencyCodeCaption)
@@ -247,6 +247,7 @@ report 1407 "Bank Account Statement"
                     G_L_BalanceCaptionTxt := G_L_BalanceCaptionTxt + AtLbl + format("Statement Date");
 
                 GatherOutstandingTransactions("Bank Account No.");
+                GLBalanceAtPostingDate := BankAccReconTest.GetGLAccountBalanceLCYForBankStatement("Bank Account Statement");
             end;
         }
     }
@@ -289,6 +290,7 @@ report 1407 "Bank Account Statement"
     end;
 
     var
+        BankAccReconTest: Codeunit "Bank Acc. Recon. Test";
         BankAccStmtFilter: Text;
         G_L_BalanceCaptionTxt: Text;
         CurrencyCodeCaption: Text;
@@ -322,6 +324,7 @@ report 1407 "Bank Account Statement"
         AtLbl: Label ' at ', Comment = 'used to build the construct a string like balance at 31-12-2020';
         CurrencyCode: Code[20];
         PrintOutstandingTransactions: Boolean;
+        GLBalanceAtPostingDate: Decimal;
 
     local procedure GatherOutstandingTransactions(BankAccountNo: Code[20])
     var
