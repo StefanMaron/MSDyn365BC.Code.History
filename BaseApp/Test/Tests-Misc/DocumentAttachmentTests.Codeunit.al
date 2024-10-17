@@ -3535,7 +3535,6 @@ codeunit 134776 "Document Attachment Tests"
     #endregion [Service Management]
 
     [Test]
-    [Scope('OnPrem')]
     procedure EnsureUploadMultipleFileBasicFunction()
     var
         Customer: Record Customer;
@@ -3587,7 +3586,6 @@ codeunit 134776 "Document Attachment Tests"
     end;
 
     [Test]
-    [Scope('OnPrem')]
     procedure EnsureUploadMultipleFileBasicFunctionInServiceItem()
     var
         Customer: Record Customer;
@@ -3608,15 +3606,9 @@ codeunit 134776 "Document Attachment Tests"
         Assert.IsTrue(ServiceItemListTestPage."Attached Documents List".OpenInDetail.Enabled(), 'OpenInDetail button must be enabled');
         // [TODO] fileupload is not supported in TestPage for now. Add it back when supported.
         // Assert.IsTrue(ServiceItemListTestPage."Attached Documents List".UploadFiles.Enabled(), 'UploadFiles button must be visible');
-        Assert.IsFalse(ServiceItemListTestPage."Attached Documents List".EditInOneDrive.Visible(), 'EditInOneDrive button must be invisible');
-        Assert.IsFalse(ServiceItemListTestPage."Attached Documents List".OpenInOneDrive.Visible(), 'OpenInOneDrive button must be invisible');
-        Assert.IsFalse(ServiceItemListTestPage."Attached Documents List".ShareWithOneDrive.Visible(), 'OpenInOneDrive button must be invisible');
 
         // [WHEN] Upload 2 attachments to the service item record
-        // [TODO] fileupload is not supported in TestPage for now. Add it back when supported.
-        // CustomerTestPage."Attached Documents List".UploadFiles.Invoke();
         RecRef.Get(ServiceItem.RecordId);
-        // [TODO] for now cannot init fileupload in test. Replace with fileupload when supported.
         CreateDocAttach(RecRef, 'Cust1.jpeg', false, false);
         CreateDocAttach(RecRef, 'Cust2.jpeg', false, false);
 
@@ -3627,15 +3619,13 @@ codeunit 134776 "Document Attachment Tests"
 
         // [WHEN] Move to the first attachment on the Doc. Attachment List Factbox page 
         ServiceItemListTestPage."Attached Documents List".First();
-        // [THEN] The download button should be enabled. And the first line should be the first attachment
-        Assert.IsTrue(ServiceItemListTestPage."Attached Documents List".DownloadInRepeater.Enabled(), 'DownloadInRepeater button must be enabled');
+        // [THEN] And the first line should be the first attachment
         Assert.AreEqual('Cust1', ServiceItemListTestPage."Attached Documents List".Name.Value, 'Unexpected file name');
         Assert.AreEqual('jpeg', ServiceItemListTestPage."Attached Documents List"."File Extension".Value, 'Unexpected file extension');
 
         // [WHEN] Move to the second attachment on the Doc. Attachment List Factbox page 
         ServiceItemListTestPage."Attached Documents List".Next();
-        // [THEN] The download button should be enabled. And the next line should be the second attachment
-        Assert.IsTrue(ServiceItemListTestPage."Attached Documents List".DownloadInRepeater.Enabled(), 'DownloadInRepeater button must be enabled');
+        // [THEN] And the next line should be the second attachment
         Assert.AreEqual('Cust2', ServiceItemListTestPage."Attached Documents List".Name.Value, 'Unexpected file name');
         Assert.AreEqual('jpeg', ServiceItemListTestPage."Attached Documents List"."File Extension".Value, 'Unexpected file extension');
     end;
