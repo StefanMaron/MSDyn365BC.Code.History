@@ -2,7 +2,7 @@
   "id": "ac0b4daa-f46f-42ef-9468-6b623298e36b",
   "name": "Email - Current User Connector Tests",
   "publisher": "Microsoft",
-  "version": "25.0.23364.24652",
+  "version": "25.0.23364.25445",
   "brief": "Tests for Current User Connector",
   "description": "Tests for Current User Connector",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",

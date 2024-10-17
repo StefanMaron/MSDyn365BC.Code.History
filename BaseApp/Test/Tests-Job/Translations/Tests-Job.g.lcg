@@ -1868,6 +1868,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Customer No, %2 - Blocked Type]D;]A;(LookupHint=Codeunit UT T Job - NamedType CustomerBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3438364934 - NamedType 975652208" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create purchase orders for items that are set up for directed put-away and pick. You can activate and select Reserve field from personalization in order to finish this task.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job - NamedType DPPLocationErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3438364934 - NamedType 651857920" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Source ID.]]></Val>
