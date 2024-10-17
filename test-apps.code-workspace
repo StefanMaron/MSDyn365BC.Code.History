@@ -299,11 +299,11 @@
     }
   ],
   "settings": {
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     },
     "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false,
     "allint.enabled": false
   }
 }

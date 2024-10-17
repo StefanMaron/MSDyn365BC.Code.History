@@ -388,6 +388,9 @@ codeunit 99000872 "Sales Availability Mgt."
         OrderPromisingLine."Quantity (Base)" := SalesLine."Outstanding Qty. (Base)";
 
         OnAfterTransferToOrderPromisingLine(OrderPromisingLine, SalesLine);
+#if not CLEAN25
+        OrderPromisingLine.RunOnAfterTransferFromSalesLine(OrderPromisingLine, SalesLine);
+#endif
     end;
 
     [IntegrationEvent(false, false)]
