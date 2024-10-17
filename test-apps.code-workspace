@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "al.enableCodeActions": false,
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "allint.enabled": false,
+    "al.enableCodeAnalysis": false
+  },
   "folders": [
     {
       "path": "./reviewglentries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
@@ -255,13 +263,5 @@
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
     }
-  ],
-  "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false,
-    "al.enableCodeActions": false
-  }
+  ]
 }
