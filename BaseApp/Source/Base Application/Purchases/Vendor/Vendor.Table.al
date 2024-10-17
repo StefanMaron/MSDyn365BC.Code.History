@@ -1690,14 +1690,14 @@ table 23 Vendor
             NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Vendor Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-            "No. Series" := PurchSetup."Vendor Nos.";
-            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                "No. Series" := xRec."No. Series";
-            "No." := NoSeries.GetNextNo("No. Series");
-            Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
-            Vendor.SetLoadFields("No.");
-            while Vendor.Get("No.") do
+                "No. Series" := PurchSetup."Vendor Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
+                Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
+                Vendor.SetLoadFields("No.");
+                while Vendor.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
 #if not CLEAN24
                 NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Vendor Nos.", 0D, "No.");
             end;
@@ -2290,15 +2290,19 @@ table 23 Vendor
     procedure SelectVendor(var Vendor: Record Vendor): Boolean
     var
         VendorLookup: Page "Vendor Lookup";
+        PreviousVendorCode: Code[20];
         Result: Boolean;
     begin
         VendorLookup.SetTableView(Vendor);
         VendorLookup.SetRecord(Vendor);
         VendorLookup.LookupMode := true;
-        Result := VendorLookup.RunModal() = ACTION::LookupOK;
-        if Result then
-            VendorLookup.GetRecord(Vendor)
-        else
+        PreviousVendorCode := Vendor."No.";
+
+        VendorLookup.RunModal();
+        VendorLookup.GetRecord(Vendor);
+        Result := Vendor."No." <> PreviousVendorCode;
+
+        if not Result then
             Clear(Vendor);
 
         exit(Result);
