@@ -1000,7 +1000,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         if Rec.Type <> Rec.Type::Dataverse then
             exit;
 
-        JobQueueEntry.LockTable();
+        JobQueueEntry.LockTable(true);
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetFilter("Object ID to Run", '%1|%2|%3', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner", Codeunit::"Int. Coupling Job Runner");
         JobQueueEntry.SetRange("Record ID to Process", Rec.RecordId());

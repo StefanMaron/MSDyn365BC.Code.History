@@ -79,6 +79,7 @@ codeunit 5763 "Whse.-Post Shipment"
         PurchHeader: Record Microsoft.Purchases.Document."Purchase Header";
         TransHeader: Record Microsoft.Inventory.Transfer."Transfer Header";
         ServiceHeader: Record Microsoft.Service.Document."Service Header";
+        SourceRecRef: RecordRef;
 #endif
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         NoSeries: Codeunit "No. Series";
@@ -157,8 +158,20 @@ codeunit 5763 "Whse.-Post Shipment"
                 CounterSourceDocTotal := CounterSourceDocTotal + 1;
 
 #if not CLEAN25
+                SourceRecRef.GetTable(GlobalSourceHeader);
+                case SourceRecRef.Number of
+                    Database::Microsoft.Sales.Document."Sales Header":
+                        SalesHeader := GlobalSourceHeader;
+                    Database::Microsoft.Purchases.Document."Purchase Header":
+                        PurchHeader := GlobalSourceHeader;
+                    Database::Microsoft.Inventory.Transfer."Transfer Header":
+                        TransHeader := GlobalSourceHeader;
+                    Database::Microsoft.Service.Document."Service Header":
+                        ServiceHeader := GlobalSourceHeader;
+                end;
                 OnBeforePostSourceDocument(WhseShptLine, PurchHeader, SalesHeader, TransHeader, ServiceHeader, WhsePostParameters."Suppress Commit");
 #endif
+                OnBeforePostSourceHeader(WhseShptLine, GlobalSourceHeader, WhsePostParameters);
                 PostSourceDocument(WhseShptLine, GlobalSourceHeader);
                 WhseJnlRegisterLine.LockIfLegacyPosting();
 
@@ -849,7 +862,7 @@ codeunit 5763 "Whse.-Post Shipment"
         OnAfterSalesPost(WarehouseShipmentLine, SalesHeader, WhsePostParameters."Post Invoice");
     end;
 
-    [Obsolete('Moved to codeunit Purch. Whse. Post Shipment', '25.0')]
+    [Obsolete('Moved to codeunit Sales Whse. Post Shipment', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesPost(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SalesHeader: Record Microsoft.Sales.Document."Sales Header"; Invoice: Boolean)
     begin
@@ -1100,12 +1113,17 @@ codeunit 5763 "Whse.-Post Shipment"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Not used anymore.', '25.0')]
+    [Obsolete('Replaced by event OnBeforePostSourceHeader', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostSourceDocument(var WhseShptLine: Record "Warehouse Shipment Line"; var PurchaseHeader: Record Microsoft.Purchases.Document."Purchase Header"; var SalesHeader: Record Microsoft.Sales.Document."Sales Header"; var TransferHeader: Record Microsoft.Inventory.Transfer."Transfer Header"; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; SuppressCommit: Boolean)
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSourceHeader(var WhseShptLine: Record "Warehouse Shipment Line"; GlobalSourceHeader: Variant; WhsePostParameters: Record "Whse. Post Parameters")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostUpdateWhseDocuments(var WhseShptHeader: Record "Warehouse Shipment Header")
