@@ -362,6 +362,9 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
 
         InvoicePostingBuffer."Journal Templ. Name" := PurchLine.GetJnlTemplateName();
 
+#if not CLEAN25
+        InvoicePostingBuffer.RunOnAfterPreparePurchase(PurchLine, InvoicePostingBuffer);
+#endif
         PurchPostInvoiceEvents.RunOnAfterPrepareInvoicePostingBuffer(PurchLine, InvoicePostingBuffer);
     end;
 

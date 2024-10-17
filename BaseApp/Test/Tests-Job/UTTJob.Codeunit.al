@@ -30,6 +30,7 @@ codeunit 136350 "UT T Job"
         LibraryRandom: Codeunit "Library - Random";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
@@ -47,6 +48,7 @@ codeunit 136350 "UT T Job"
         PlanningLinesNotUpdatedMsg: Label 'You have changed %1 on the project task, but it has not been changed on the existing project planning lines.', Comment = '%1 = a Field Caption like Location Code';
         UpdatePlanningLinesManuallyMsg: Label 'You must update the existing project planning lines manually.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
+        DPPLocationErr: Label 'You cannot create purchase orders for items that are set up for directed put-away and pick. You can activate and select Reserve field from personalization in order to finish this task.';
 
     [Test]
     [Scope('OnPrem')]
@@ -525,6 +527,44 @@ codeunit 136350 "UT T Job"
         MockJobLedgEntryWithTotalCostLCY(Job."No.", UsageCost);
 
         InvokeUpdateOverBudgetValueFunctionWithVerification(false, InputCost, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesAssignSNModalPageHandler,EnterQuantityToCreateModalPageHandler')]
+    procedure JobPlanningLineLinkedWithNegativeQtyPurchaseLine()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Item with SN Tracking
+        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(), CreateSNItemTrackingCode());
+        //LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Job with Job Task and Job Planning Line
+        CreateJobAndJobTask();
+        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 0);
+
+        // [GIVEN] Create Purchase Header and Purchase Line linked with Job, with negative quantity and assign SN
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        CreatePurchaseLineForJobPlanningLine(PurchaseHeader, PurchaseLine, JobPlanningLine, -1);
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [WHEN] Post the purchase receipt
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] It is possible to UNDO Purchase Receipt Line
+        PurchRcptLine.SetRange("No.", Item."No.");
+        PurchRcptLine.FindFirst();
+        PurchRcptLine.SetRecFilter();
+        Codeunit.Run(Codeunit::"Undo Purchase Receipt Line", PurchRcptLine);
     end;
 
     [Test]
@@ -1705,7 +1745,48 @@ codeunit 136350 "UT T Job"
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromJobModalPageHandler')]
+    [HandlerFunctions('PurchOrderFromJobModalPageHandlerWithDPPLocation')]
+    procedure VerifyErrorOnCreatePurchaseOrderFromJobForDPPLocation()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseOrder: TestPage "Purchase Order";
+        JobCard: TestPage "Job Card";
+    begin
+        // [SCENARIO 549866] Verify error on create Purchase Order from Job for DPP Location
+        Initialize();
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Directed Put-away and Pick Location
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+
+        // [GIVEN] Create Job with Job Task
+        CreateJobAndJobTask();
+
+        // [GIVEN] Create Job Planning Line
+        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 1);
+        JobPlanningLine.Validate("Location Code", Location.Code);
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Create Purchase Order from Job
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        PurchaseOrder.Trap();
+        JobCard.OpenEdit();
+        JobCard.GotoRecord(Job);
+        asserterror JobCard.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify error
+        Assert.ExpectedError(DPPLocationErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromJobModalPageHandlerWithQtyCheck')]
     procedure CreatePurchaseOrderFromJobTaskWhenItIsCreatedAlready()
     var
         Vendor: Record Vendor;
@@ -1738,6 +1819,8 @@ codeunit 136350 "UT T Job"
 
         // [WHEN] Create Purchase Order from Job Planning Lines for Job Y
         LibraryVariableStorage.Enqueue(Vendor."No.");
+        JobPlanningLine.CalcFields("Reserved Qty. (Base)");
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)");
         PurchaseOrder.Trap();
         JobPlanningLines.Trap();
         JobCard.OpenEdit();
@@ -2223,6 +2306,23 @@ codeunit 136350 "UT T Job"
           DimValue2Code, JobTask."Global Dimension 2 Code", JobTask.FieldCaption("Global Dimension 2 Code"));
     end;
 
+    local procedure CreatePurchaseLineForJobPlanningLine(Purchaseheader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; JobPlanningLine: Record "Job Planning Line"; Qty: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, JobPlanningLine."No.", Qty);
+        PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateSNItemTrackingCode(): Code[10]
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+        exit(ItemTrackingCode.Code);
+    end;
+
     local procedure VerifyJobDefaultDimensionsFromCustDefaultDimensions(JobNo: Code[20]; CustomerNo: Code[20])
     var
         JobDefaultDimension: Record "Default Dimension";
@@ -2299,6 +2399,19 @@ codeunit 136350 "UT T Job"
         CustomerLookup.OK().Invoke();
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesAssignSNModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Assign &Serial No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure EnterQuantityToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK().Invoke();
+    end;
 
     [ModalPageHandler]
     procedure PurchOrderFromJobModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
@@ -2306,6 +2419,21 @@ codeunit 136350 "UT T Job"
         PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
         if PurchOrderFromSalesOrder.Next() then
             PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromJobModalPageHandlerWithDPPLocation(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromJobModalPageHandlerWithQtyCheck(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal(), PurchOrderFromSalesOrder."Demand Quantity".AsDecimal(), 'Demand Quantity not matched');
         PurchOrderFromSalesOrder.OK().Invoke();
     end;
 

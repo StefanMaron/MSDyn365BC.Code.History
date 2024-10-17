@@ -1,4 +1,4 @@
-namespace Microsoft.Manufacturing.Document;
+﻿namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
@@ -1007,7 +1007,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
         OnAfterTransferInventoryProfileFromProdOrderLine(InventoryProfile, ProdOrderLine);
 #if not CLEAN25
-        OnAfterTransferInventoryProfileFromProdOrderLine(InventoryProfile, ProdOrderLine);
+        InventoryProfile.RunOnAfterTransferFromProdOrderLine(InventoryProfile, ProdOrderLine);
 #endif
     end;
 

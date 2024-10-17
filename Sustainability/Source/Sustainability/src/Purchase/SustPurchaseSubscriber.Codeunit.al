@@ -35,22 +35,13 @@ codeunit 6225 "Sust. Purchase Subscriber"
         PostSustainabilityLine(PurchaseHeader, PurchaseLine, SrcCode, GenJnlLineDocNo);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnPostUpdateInvoiceLineOnBeforePurchOrderLineModify', '', false, false)]
-    local procedure OnPostUpdateInvoiceLineOnBeforePurchOrderLineModify(var PurchOrderLine: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnPostUpdateOrderLineOnBeforeLoop', '', false, false)]
+    local procedure OnPostUpdateOrderLineOnBeforeLoop(PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary)
     begin
-        InitEmissionOnPurchLine(PurchOrderLine);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]
-    local procedure OnBeforePostUpdateOrderLineModifyTempLine(var TempPurchaseLine: Record "Purchase Line" temporary)
-    begin
-        InitEmissionOnPurchLine(TempPurchaseLine);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnPostUpdateCreditMemoLineOnBeforeInitQtyToInvoice', '', false, false)]
-    local procedure OnPostUpdateCreditMemoLineOnBeforeInitQtyToInvoice(var PurchaseLine: Record "Purchase Line")
-    begin
-        InitEmissionOnPurchLine(PurchaseLine);
+        if PurchHeader.Invoice then begin
+            UpdatePostedSustainabilityEmission(PurchHeader, TempPurchLine);
+            InitEmissionOnPurchLine(TempPurchLine);
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnAfterBindSubscription', '', false, false)]
@@ -66,14 +57,17 @@ codeunit 6225 "Sust. Purchase Subscriber"
         UnbindSubscription(SustPreviewPostingHandler);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnPostUpdateOrderLineOnBeforeInitOutstanding', '', false, false)]
-    local procedure OnPostUpdateOrderLineOnBeforeInitOutstanding(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]
+    local procedure OnBeforePostUpdateOrderLineModifyTempLine(var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
-        UpdatePostedSustainabilityEmission(PurchaseHeader, TempPurchaseLine);
+        TempPurchaseLine.UpdateSustainabilityEmission(TempPurchaseLine);
     end;
 
     local procedure InitEmissionOnPurchLine(var PurchaseLine: Record "Purchase Line")
     begin
+        if IsGHGCreditLine(PurchaseLine) then
+            exit;
+
         PurchaseLine."Emission CO2 Per Unit" := 0;
         PurchaseLine."Emission CH4 Per Unit" := 0;
         PurchaseLine."Emission N2O Per Unit" := 0;
@@ -91,7 +85,7 @@ codeunit 6225 "Sust. Purchase Subscriber"
         if not PurchaseHeader.Invoice then
             exit;
 
-        GHGCredit := IfGHGCreditLine(TempPurchaseLine);
+        GHGCredit := IsGHGCreditLine(TempPurchaseLine);
         Sign := GetPostingSign(PurchaseHeader, GHGCredit);
 
         TempPurchaseLine."Posted Emission CO2" += (TempPurchaseLine."Emission CO2 Per Unit" * Abs(TempPurchaseLine."Qty. to Invoice") * TempPurchaseLine."Qty. per Unit of Measure") * Sign;
@@ -109,7 +103,10 @@ codeunit 6225 "Sust. Purchase Subscriber"
         CH4ToPost: Decimal;
         N2OToPost: Decimal;
     begin
-        GHGCredit := IfGHGCreditLine(PurchaseLine);
+        if PurchaseLine."Qty. to Invoice" = 0 then
+            exit;
+
+        GHGCredit := IsGHGCreditLine(PurchaseLine);
 
         if GHGCredit then begin
             PurchaseLine.TestField("Emission CH4 Per Unit", 0);
@@ -178,7 +175,7 @@ codeunit 6225 "Sust. Purchase Subscriber"
         exit(Sign);
     end;
 
-    local procedure IfGHGCreditLine(PurchaseLine: Record "Purchase Line"): Boolean
+    local procedure IsGHGCreditLine(PurchaseLine: Record "Purchase Line"): Boolean
     var
         Item: Record Item;
     begin

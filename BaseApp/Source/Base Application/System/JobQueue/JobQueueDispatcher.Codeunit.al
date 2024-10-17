@@ -18,10 +18,10 @@ codeunit 448 "Job Queue Dispatcher"
         if Skip then
             exit;
 
-        Rec.ReadIsolation(IsolationLevel::UpdLock);
-        Rec.Get(Rec.ID);
         if not Rec.IsReadyToStart() then
             exit;
+
+        Rec.RefreshLocked();
 
         if Rec.IsExpired(CurrentDateTime) then
             Rec.DeleteTask()
