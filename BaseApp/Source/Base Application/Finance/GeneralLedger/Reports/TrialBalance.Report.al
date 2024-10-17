@@ -540,8 +540,12 @@ report 10022 "Trial Balance"
         /* set up the date ranges */
         FromDate := "G/L Account".GetRangeMin("Date Filter");
         ToDate := "G/L Account".GetRangeMax("Date Filter");
-        PriorFromDate := CalcDate('<-1Y>', FromDate + 1) - 1;
-        PriorToDate := CalcDate('<-1Y>', ToDate + 1) - 1;
+        PriorFromDate := CalcDate('<-1Y>', NormalDate(FromDate) + 1) - 1;
+        PriorToDate := CalcDate('<-1Y>', NormalDate(ToDate) + 1) - 1;
+        if FromDate <> NormalDate(FromDate) then
+            PriorFromDate := ClosingDate(PriorFromDate);
+        if ToDate <> NormalDate(ToDate) then
+            PriorToDate := ClosingDate(PriorToDate);
         "G/L Account".SetRange("Date Filter");       // since it is in the title, it does
         GLAccountFilter := "G/L Account".GetFilters(); // not have to be in the filter string
         /* set up header texts

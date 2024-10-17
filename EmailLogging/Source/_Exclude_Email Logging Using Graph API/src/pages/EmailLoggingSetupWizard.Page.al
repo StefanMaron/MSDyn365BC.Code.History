@@ -2,6 +2,7 @@ namespace Microsoft.CRM.EmailLoggin;
 
 
 using Microsoft.CRM.Interaction;
+using System;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Security.Authentication;
@@ -505,6 +506,10 @@ page 1681 "Email Logging Setup Wizard"
                 var
                     EmailLoggingSetup: Record "Email Logging Setup";
                     GuidedExperience: Codeunit "Guided Experience";
+                    MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                    MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                    MyALAuditCategory: DotNet ALAuditCategory;
+                    EmailLoggingSetUpLbl: Label 'Email Logging has been set up by UserSecurityId %1.', Locked = true;
                 begin
                     if EmailLoggingSetup.Get() then
                         EmailLoggingManagement.ClearEmailLoggingSetup(EmailLoggingSetup);
@@ -520,6 +525,7 @@ page 1681 "Email Logging Setup Wizard"
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Email Logging Setup Wizard");
 
                     Session.LogMessage('0000G0V', EmailLoggingSetupCompletedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(EmailLoggingSetUpLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
                     CurrPage.Close();
                 end;
             }
