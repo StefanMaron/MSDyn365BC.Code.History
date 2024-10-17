@@ -91,7 +91,8 @@ report 743 "VAT Reconciliation Report"
                     Amount, "VAT Calculation Type", Base, "Transaction No.", "Non-Deductible VAT Base", "Non-Deductible VAT Amount");
                 VATEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
                 VATEntry.SetRange(Amount, GLEntry."VAT Amount" - GLEntry."Non-Deductible VAT Amount");
-
+                if GLEntry."Document Type" = GLEntry."Document Type"::" " then
+                    VATEntry.SetRange(Base, GLEntry.Amount);
                 if VATEntry.FindFirst() then
                     if VATEntry."VAT Calculation Type" = Enum::"Tax Calculation Type"::"Reverse Charge VAT" then begin
                         BaseAmountRevCharges := VATEntry.Base + VATEntry."Non-Deductible VAT Base";

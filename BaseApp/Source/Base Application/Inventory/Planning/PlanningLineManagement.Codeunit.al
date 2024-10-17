@@ -120,6 +120,7 @@ codeunit 99000809 "Planning Line Management"
         BOMHeader: Record "Production BOM Header";
         CompSKU: Record "Stockkeeping Unit";
         ProductionBOMVersion: Record "Production BOM Version";
+        Item: Record Item;
         VersionCode: Code[20];
         ReqQty: Decimal;
         IsHandled: Boolean;
@@ -203,7 +204,9 @@ codeunit 99000809 "Planning Line Management"
                             ProdBOMLine[Level].Type::Item:
                                 begin
                                     IsHandled := false;
-                                    UpdateCondition := true;
+                                    Item.SetLoadFields(Blocked);
+                                    Item.Get(ProdBOMLine[Level]."No.");
+                                    UpdateCondition := (ReqQty <> 0) or ((ReqQty = 0) and not (Item.Blocked));
                                     OnTransferBOMOnBeforeUpdatePlanningComp(ProdBOMLine[Level], UpdateCondition, IsHandled);
                                     if not IsHandled then
                                         if UpdateCondition then begin

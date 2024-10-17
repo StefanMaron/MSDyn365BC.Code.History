@@ -1,5 +1,6 @@
 namespace System.Security.AccessControl;
 
+using System;
 using System.Reflection;
 
 report 9802 "Copy Permission Set"
@@ -19,6 +20,10 @@ report 9802 "Copy Permission Set"
                 PermissionSetLink: Record "Permission Set Link";
                 PermissionManager: Codeunit "Permission Manager";
                 PermissionSetRelation: Codeunit "Permission Set Relation";
+                MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                MyALAuditCategory: DotNet ALAuditCategory;
+                PermissionSetCopiedLbl: Label 'The permission set %1 has been copied by UserSecurityId %2.', Locked = true;
             begin
                 PermissionSetRelation.CopyPermissionSet(InputRoleID, Name, "Role ID", "App ID", Scope, InputCopyType);
 
@@ -30,6 +35,7 @@ report 9802 "Copy Permission Set"
                         PermissionSetLink."Source Hash" := PermissionManager.GenerateHashForPermissionSet("Role ID");
                         PermissionSetLink.Insert();
                     end;
+                MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(PermissionSetCopiedLbl, "App ID", UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::UserManagement, 2, 0);
             end;
 
 

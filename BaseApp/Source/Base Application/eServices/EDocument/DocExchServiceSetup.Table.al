@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.EServices.EDocument;
 
+using System;
 using System.Integration;
 using System.Privacy;
 using System.Security.Encryption;
@@ -200,10 +201,16 @@ table 1275 "Doc. Exch. Service Setup"
             trigger OnValidate()
             var
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                MyALAuditCategory: DotNet ALAuditCategory;
+                DocExchServiceSetupConsentProvidedLbl: Label 'Document Exchange Service Setup - consent provided by user %1.', Locked = true;
             begin
                 if Enabled then begin
                     if not CustomerConsentMgt.ConfirmUserConsent() then
                         Enabled := false;
+                    if Enabled then
+                        MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(DocExchServiceSetupConsentProvidedLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
                     DocExchServiceMgt.VerifyPrerequisites(true);
                 end;
             end;
