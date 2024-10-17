@@ -1,5 +1,6 @@
 namespace System.Threading;
 
+using System;
 using System.Automation;
 using System.Azure.Identity;
 
@@ -258,12 +259,19 @@ page 673 "Job Queue Entry Card"
                     Enabled = not IsPendingApproval;
 
                     trigger OnAction()
+                    var
+                        MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                        MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                        MyALAuditCategory: DotNet ALAuditCategory;
+                        SetStatustoReadyActivatedLbl: Label 'UserSecurityId %1 set the Status of the job queue entry %2 to Ready.', Locked = true;
                     begin
                         if IsUserDelegated then begin
                             JobQueueManagement.SendForApproval(Rec);
                             CurrPage.Update(false);
-                        end else
+                        end else begin
                             Rec.SetStatus(Rec.Status::Ready);
+                            MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(SetStatustoReadyActivatedLbl, UserSecurityId(), Rec."Entry No."), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 3, 0);
+                        end;
                     end;
                 }
                 action("Set On Hold")
