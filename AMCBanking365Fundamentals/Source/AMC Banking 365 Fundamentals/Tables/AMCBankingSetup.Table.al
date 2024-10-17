@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+using System;
 using System.Integration;
 using System.Privacy;
 
@@ -73,9 +74,15 @@ table 20101 "AMC Banking Setup"
             trigger OnValidate()
             var
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                MyALAuditCategory: DotNet ALAuditCategory;
+                AMCBankingConsentProvidedLbl: Label 'AMC Banking Fundamentals - consent provided by UserSecurityId %1.', Locked = true;
             begin
                 if not xRec."AMC Enabled" and Rec."AMC Enabled" then
                     Rec."AMC Enabled" := CustomerConsentMgt.ConfirmUserConsent();
+                if Rec."AMC Enabled" then
+                    MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(AMCBankingConsentProvidedLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
             end;
         }
     }

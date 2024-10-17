@@ -7901,9 +7901,6 @@ codeunit 80 "Sales-Post"
                 TempTrackingSpecification.Init();
         end;
 
-        PreciseTotalChargeAmt := 0;
-        RoundedPrevTotalChargeAmt := 0;
-
         ShouldProcessReceipt := SalesLine.IsCreditDocType();
         OnPostItemTrackingOnAfterCalcShouldProcessReceipt(SalesHeader, SalesLine, ShouldProcessReceipt, ItemJnlRollRndg);
         if ShouldProcessReceipt then begin
