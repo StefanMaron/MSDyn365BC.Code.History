@@ -1,4 +1,4 @@
-namespace Microsoft.Inventory.Planning;
+﻿namespace Microsoft.Inventory.Planning;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
@@ -94,6 +94,9 @@ codeunit 99000860 "Plng. Component Invt. Profile"
         InventoryProfile.IsSupply := InventoryProfile."Untracked Quantity" < 0;
 
         OnAfterTransferInventoryProfileFromPlanningComponent(InventoryProfile, PlanningComponent);
+#if not CLEAN25
+        InventoryProfile.RunOnAfterTransferFromPlanComponent(InventoryProfile, PlanningComponent);
+#endif 
     end;
 
     [IntegrationEvent(false, false)]

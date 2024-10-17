@@ -2,7 +2,7 @@
   "id": "d0e99b97-089b-449f-a0f5-a2ab994dbfd7",
   "name": "Tests-Upgrade",
   "publisher": "Microsoft",
-  "version": "25.0.23364.24652",
+  "version": "25.0.23364.25445",
   "platform": "25.0.0.0",
   "dependencies": [
     {

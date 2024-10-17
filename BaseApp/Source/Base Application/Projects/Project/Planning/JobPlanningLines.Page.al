@@ -976,7 +976,7 @@ page 1007 "Job Planning Lines"
                     ApplicationArea = Suite;
                     Caption = 'Create Purchase Order';
                     Image = Document;
-                    ToolTip = 'Create new purchase order to buy the items that are required by this project planning line, deducting any quantity that is already available.';
+                    ToolTip = 'Create new purchase order to buy the items that are required by planning lines in this project task, deducting any quantity that is already available.';
 
                     trigger OnAction()
                     var

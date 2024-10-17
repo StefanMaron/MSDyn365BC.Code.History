@@ -89,7 +89,6 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
             trigger OnValidate()
             begin
-                Rec.TestStatusOpen();
                 if Rec."Emission CO2 Per Unit" <> 0 then
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission CO2 Per Unit"));
 
@@ -105,7 +104,6 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
             trigger OnValidate()
             begin
-                Rec.TestStatusOpen();
                 if Rec."Emission CH4 Per Unit" <> 0 then
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission CH4 Per Unit"));
 
@@ -121,7 +119,6 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
             trigger OnValidate()
             begin
-                Rec.TestStatusOpen();
                 if Rec."Emission N2O Per Unit" <> 0 then
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission N2O Per Unit"));
 
@@ -137,7 +134,6 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
             trigger OnValidate()
             begin
-                Rec.TestStatusOpen();
                 if Rec."Emission CO2" <> 0 then
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission CO2"));
 
@@ -154,7 +150,6 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
             trigger OnValidate()
             begin
-                Rec.TestStatusOpen();
                 if Rec."Emission CH4" <> 0 then
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission CH4"));
 
@@ -170,7 +165,6 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
             trigger OnValidate()
             begin
-                Rec.TestStatusOpen();
                 if Rec."Emission N2O" <> 0 then
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission N2O"));
 
