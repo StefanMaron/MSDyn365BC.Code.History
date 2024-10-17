@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Finance.AllocationAccount.Purchase;
 
 using Microsoft.Finance.AllocationAccount;
+using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Posting;
 using Microsoft.Purchases.Document;
@@ -365,15 +366,38 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         MoveQuantities(PurchaseLine, AllocationPurchaseLine);
 
         PurchaseLine."Deferral Code" := AllocationPurchaseLine."Deferral Code";
-
+        CopyDeferralSchedule(PurchaseLine, AllocationPurchaseLine);
         TransferDimensionSetID(PurchaseLine, AllocationLine, AllocationPurchaseLine."Alloc. Acc. Modified by User");
         PurchaseLine."Allocation Account No." := AllocationLine."Allocation Account No.";
         PurchaseLine."Selected Alloc. Account No." := '';
         OnBeforeCreatePurchaseLine(PurchaseLine, AllocationLine, AllocationPurchaseLine);
+        BindSubscription(AllocAccHandleDocPost);
         PurchaseLine.Insert(true);
+        UnbindSubscription(AllocAccHandleDocPost);
         LastLineNo := PurchaseLine."Line No.";
         RedistributeQuantitiesIfNeededMoveQuantities(PurchaseLine, AllocationPurchaseLine, AllocationLine, AllocationAccount);
         exit(PurchaseLine.SystemId);
+    end;
+
+    local procedure CopyDeferralSchedule(PurchaseLine: Record "Purchase Line"; AllocationPurchaseLine: Record "Purchase Line")
+    var
+        DeferralHeader: Record "Deferral Header";
+        DeferralTemplate: Record "Deferral Template";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+    begin
+        if PurchaseLine."Deferral Code" = '' then
+            exit;
+
+        if not DeferralTemplate.Get(PurchaseLine."Deferral Code") then
+            exit;
+
+        if DeferralTemplate."Calc. Method" <> DeferralTemplate."Calc. Method"::"User-Defined" then
+            exit;
+
+        if not DeferralHeader.Get("Deferral Document Type"::Purchase, '', '', PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", AllocationPurchaseLine."Line No.") then
+            exit;
+
+        DeferralUtilities.CreateCopyOfDeferralSchedule(DeferralHeader, PurchaseLine."Line No.");
     end;
 
     local procedure MoveQuantities(var PurchaseLine: Record "Purchase Line"; var AllocationPurchaseLine: Record "Purchase Line")
