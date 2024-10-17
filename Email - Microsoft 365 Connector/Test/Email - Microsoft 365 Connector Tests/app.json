@@ -2,7 +2,7 @@
   "id": "c436fd91-e29f-406c-b91f-33cd176ca9be",
   "name": "Email - Microsoft 365 Connector Tests",
   "publisher": "Microsoft",
-  "version": "25.0.23364.24652",
+  "version": "25.0.23364.25445",
   "brief": "Tests for Microsoft 365 Connector",
   "description": "Tests for Microsoft 365 Connector",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",

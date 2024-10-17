@@ -859,7 +859,7 @@ codeunit 378 "Transfer Extended Text"
         if TempExtTextLine.Find('-') then begin
             repeat
                 ToJobPlanningLine.Init();
-                ToJobPlanningLine."Line Type" := JobPlanningLine."Line Type";
+                ToJobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type");
                 ToJobPlanningLine.Type := ToJobPlanningLine.Type::Text;
                 ToJobPlanningLine."Job No." := JobPlanningLine."Job No.";
                 ToJobPlanningLine."Job Task No." := JobPlanningLine."Job Task No.";
@@ -871,7 +871,7 @@ codeunit 378 "Transfer Extended Text"
                 IsHandled := false;
                 OnInsertJobExtTextRetLastOnBeforeToJobPlanningLineInsert(ToJobPlanningLine, JobPlanningLine, TempExtTextLine, NextLineNo, LineSpacing, IsHandled);
                 if not IsHandled then
-                    ToJobPlanningLine.Insert();
+                    ToJobPlanningLine.Insert(true);
             until TempExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
         end;
