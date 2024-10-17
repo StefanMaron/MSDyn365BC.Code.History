@@ -58,6 +58,7 @@ codeunit 5330 "CRM Integration Management"
         CachedCoupledToCRMFieldNo: Dictionary of [Integer, Integer];
         CachedDisableEventDrivenSynchJobReschedule: Dictionary of [Integer, Boolean];
         CachedIsCRMIntegrationRecord: Dictionary of [Integer, Boolean];
+        CachedDoesJobActOnTable: Dictionary of [Text, Boolean];
         CRMEntityUrlTemplateTxt: Label '%1/main.aspx?pagetype=entityrecord&etn=%2&id=%3', Locked = true;
         NewestUIAppIdParameterTxt: Label '&appid=%1', Locked = true;
         UnableToResolveCRMEntityNameFrmTableIDErr: Label 'The application is not designed to integrate table %1 with %2.', Comment = '%1 = table ID (numeric), %2 = Dataverse service name';
@@ -3943,6 +3944,7 @@ codeunit 5330 "CRM Integration Management"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
         JobQueueEntry: Record "Job Queue Entry";
+        JobQueueEntryUpdate: Record "Job Queue Entry";
         ScheduledTask: Record "Scheduled Task";
         IntegrationTableMapping: Record "Integration Table Mapping";
         DataUpgradeMgt: Codeunit "Data Upgrade Mgt.";
@@ -3986,37 +3988,52 @@ codeunit 5330 "CRM Integration Management"
 
         if DataUpgradeMgt.IsUpgradeInProgress() then
             exit;
-        JobQueueEntry.ReadIsolation := IsolationLevel::ReadUncommitted;
-        JobQueueEntry.Reset();
-        JobQueueEntry.SetFilter(Status, Format(JobQueueEntry.Status::Ready) + '|' + Format(JobQueueEntry.Status::"On Hold with Inactivity Timeout"));
-        JobQueueEntry.SetRange("Recurring Job", true);
-        if JobQueueEntry.IsEmpty() then
-            exit;
         if not UserCanRescheduleJob() then
+            exit;
+
+        JobQueueEntryUpdate.ReadIsolation := IsolationLevel::UpdLock;
+        JobQueueEntry.Reset();
+        JobQueueEntry.ReadIsolation := IsolationLevel::ReadUncommitted;
+        JobQueueEntry.SetLoadFields(Status, "System Task ID", "Object Type to Run", "Object ID to Run", "Record ID to Process", Description);
+        JobQueueEntry.SetFilter(Status, Format(JobQueueEntry.Status::Ready) + '|' + Format(JobQueueEntry.Status::"On Hold with Inactivity Timeout"));
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetFilter("Object ID to Run", '%1|%2|%3|%4|%5', Codeunit::"Integration Synch. Job Runner", Codeunit::"CRM Statistics Job", Codeunit::"Int. Coupling Job Runner",
+                                                            Codeunit::"Int. Uncouple Job Runner", Codeunit::"CRM Archived Sales Orders Job");
+        JobQueueEntry.SetRange("Recurring Job", true);
+        JobQueueEntry.SetFilter("Parameter String", '%1|%2', '', Format(TableNo));
+        JobQueueEntry.SetRange(Scheduled, true);
+
+        if JobQueueEntry.IsEmpty() then
             exit;
         if not JobQueueEntry.FindSet() then
             exit;
 
         // reschedule the synch job in 30 seconds from now, to give time to the user to make further changes
         RescheduleOffSetInMs := 30000;
+        OnBeforeRescheduleJobQueueEntries(TableNo, RescheduleOffSetInMs);
+        if RescheduleOffSetInMs < 5000 then
+            RescheduleOffSetInMs := 5000;
+
         ScheduledTask.ReadIsolation := IsolationLevel::ReadUncommitted;
         repeat
             // The rescheduled task might start while the current transaction is not committed yet.
             // Therefore the task will restart with a delay to lower a risk of use of "old" data.
             // If the task is scheduled to run soon (in 60 seconds from now) we don't reschedule
             NewEarliestStartDateTime := CurrentDateTime() + RescheduleOffsetInMs;
-            if ScheduledTask.Get(JobQueueEntry."System Task ID") then
-                if (NewEarliestStartDateTime + RescheduleOffSetInMs) < ScheduledTask."Not Before" then
-                    if DoesJobActOnTable(JobQueueEntry, TableNo) then
-                        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", NewEarliestStartDateTime) then
-                            if JobQueueEntry.Find() then
-                                if ScheduledTask.Get(JobQueueEntry."System Task ID") then begin
-                                    JobQueueEntry.RefreshLocked();
-                                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                                    JobQueueEntry."Earliest Start Date/Time" := ScheduledTask."Not Before";
-                                    JobQueueEntry.Modify();
+            if DoesJobActOnTable(JobQueueEntry, TableNo) then
+                if ScheduledTask.Get(JobQueueEntry."System Task ID") then
+                    if (NewEarliestStartDateTime + RescheduleOffSetInMs) < ScheduledTask."Not Before" then
+                        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", NewEarliestStartDateTime) then begin
+                            JobQueueEntryUpdate.ID := JobQueueEntry.ID;
+                            if JobQueueEntryUpdate.GetRecLockedExtendedTimeout() then
+                                if JobQueueEntryUpdate.Status in [JobQueueEntry.Status::Ready, JobQueueEntry.Status::"On Hold with Inactivity Timeout"] then begin
+                                    JobQueueEntryUpdate.Status := JobQueueEntry.Status::Ready;
+                                    JobQueueEntryUpdate."Earliest Start Date/Time" := NewEarliestStartDateTime;
+                                    JobQueueEntryUpdate."Parameter String" := Format(TableNo);
+                                    JobQueueEntryUpdate.Modify();
                                     Session.LogMessage('0000JAV', StrSubstNo(RescheduledTaskTxt, Format(ScheduledTask.ID), Format(JobQueueEntry.ID), JobQueueEntry.Description, Format(ScheduledTask."Not Before")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                                 end;
+                        end;
         until JobQueueEntry.Next() = 0;
     end;
 
@@ -4024,18 +4041,26 @@ codeunit 5330 "CRM Integration Management"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         RecRef: RecordRef;
+        CacheKey: Text;
+        ActsOnTable: Boolean;
     begin
-        if RecRef.Get(JobQueueEntry."Record ID to Process") and
-           (RecRef.Number = DATABASE::"Integration Table Mapping")
-        then begin
-            RecRef.SetTable(IntegrationTableMapping);
-            if IntegrationTableMapping."Table ID" = Database::"Sales Header" then
-                exit(TableNo = Database::"Sales Line");
-            exit(IntegrationTableMapping."Table ID" = TableNo);
-        end;
-
         if (JobQueueEntry."Object Type to Run" = JobQueueEntry."Object Type to Run"::Codeunit) and (JobQueueEntry."Object ID to Run" = Codeunit::"CRM Archived Sales Orders Job") then
             exit(TableNo = Database::"Sales Header Archive");
+
+        CacheKey := CompanyName + '$' + Format(JobQueueEntry.ID) + '$' + Format(TableNo);
+        if CachedDoesJobActOnTable.ContainsKey(CacheKey) then
+            exit(CachedDoesJobActOnTable.Get(CacheKey));
+
+        if JobQueueEntry."Record ID to Process".TableNo = DATABASE::"Integration Table Mapping" then
+            if RecRef.Get(JobQueueEntry."Record ID to Process") then begin
+                RecRef.SetTable(IntegrationTableMapping);
+                if IntegrationTableMapping."Table ID" = Database::"Sales Header" then
+                    ActsOnTable := TableNo = Database::"Sales Line"
+                else
+                    ActsOnTable := IntegrationTableMapping."Table ID" = TableNo;
+            end;
+        CachedDoesJobActOnTable.Add(CacheKey, ActsOnTable);
+        exit(ActsOnTable);
     end;
 
     [Scope('OnPrem')]
@@ -4536,6 +4561,11 @@ codeunit 5330 "CRM Integration Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddExtraFieldMappings(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRescheduleJobQueueEntries(TableNo: Integer; var RescheduleOffSetInMs: Integer)
     begin
     end;
 }
