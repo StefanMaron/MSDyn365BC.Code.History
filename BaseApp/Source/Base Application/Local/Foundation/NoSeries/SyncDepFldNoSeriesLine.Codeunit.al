@@ -34,22 +34,18 @@ codeunit 12145 "Sync. Dep. Fld. - NoSeriesLine"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"No. Series Line", 'OnAfterModifyEvent', '', false, false)]
-    local procedure SyncOnAfterModifyNoSeriesLine(var Rec: Record "No. Series Line"; var xRec: Record "No. Series Line"; RunTrigger: Boolean)
+    local procedure SyncOnAfterModifyNoSeriesLine(var Rec: Record "No. Series Line"; RunTrigger: Boolean)
     var
         NoSeriesLineSales: Record "No. Series Line Sales";
         NoSeriesLinePurchase: Record "No. Series Line Purchase";
         SyncDepFldUtilities: Codeunit "Sync.Dep.Fld-Utilities";
         SyncLoopingHelper: Codeunit "Sync. Looping Helper";
-        PreviousRecordRef: RecordRef;
     begin
         if Rec.IsTemporary() then
             exit;
 
         if SyncDepFldUtilities.IsFieldSynchronizationDisabled() then
             exit;
-
-        if SyncDepFldUtilities.GetPreviousRecord(Rec, PreviousRecordRef) then
-            PreviousRecordRef.SetTable(xRec);
 
         Rec.CalcFields("No. Series Type");
         case Rec."No. Series Type" of

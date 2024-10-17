@@ -511,6 +511,9 @@ table 1003 "Job Planning Line"
                 if "Line Type" = "Line Type"::Billable then
                     FieldError("Line Type");
 
+                if (not "Usage Link") and ("Qty. to Assemble" <> 0) then
+                    FieldError("Usage Link");
+
                 if ("Qty. to Assemble" <> Quantity) and ("Qty. to Assemble" <> 0) and WhsePickReqForLocation() then
                     FieldError("Qty. to Assemble", StrSubstNo(DifferentQtyToAssembleErr, FieldCaption(Quantity)));
 
