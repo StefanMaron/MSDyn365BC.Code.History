@@ -2,6 +2,7 @@
 
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Reporting;
+using System;
 using System.Environment;
 using System.Threading;
 using System.Upgrade;
@@ -91,6 +92,10 @@ report 357 "Copy Company"
             trigger OnPostDataItem()
             var
                 JobQueueManagement: Codeunit "Job Queue Management";
+                MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                MyALAuditCategory: DotNet ALAuditCategory;
+                CopiedCompanyLbl: Label 'Copied company with the new name %1 by UserSecurityId %2.', Locked = true;
             begin
                 ProgressWindow.Close();
                 SetNewNameToNewCompanyInfo();
@@ -98,6 +103,7 @@ report 357 "Copy Company"
                 OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName, Company);
                 RegisterUpgradeTags(NewCompanyName);
                 Message(CopySuccessMsg, Name);
+                MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(CopiedCompanyLbl, NewCompanyName, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 3, 0);
             end;
         }
     }

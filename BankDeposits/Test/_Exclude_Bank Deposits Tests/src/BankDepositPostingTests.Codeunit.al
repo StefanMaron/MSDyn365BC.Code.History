@@ -742,6 +742,40 @@ codeunit 139769 "Bank Deposit Posting Tests"
         Assert.AreEqual(AppliedCustLedgerEntry."Entry No.", InvoiceEntryNo, 'The found entry should be the invoice.');
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,ReverseEntriesPageHandler,MessageHandler')]
+    procedure PostedBankDepositShowsReversed()
+    var
+        GLAccount: Record "G/L Account";
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        BankDepositHeader: array[3] of Record "Bank Deposit Header";
+        PostedBankDepositHeader: Record "Posted Bank Deposit Header";
+        i: Integer;
+    begin
+        // [SCENARIO 551014] Reversed field shows correct value on posted bank deposits
+        Initialize();
+        PostedBankDepositHeader.DeleteAll();
+
+        // [GIVEN] Create GL Account X, Vendor X and Bank Account X
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // [GIVEN] Create and post Bank Deposit X, Y and Z
+        for i := 1 to ArrayLen(BankDepositHeader) do
+            SetupAndPostBankDeposit(BankDepositHeader[i], GLAccount."No.", Vendor."No.", BankAccount."No.");
+
+        // [GIVEN] Reverse Bank Deposit Y
+        PostedBankDepositHeader.Get(BankDepositHeader[2]."No.");
+        PostedBankDepositHeader.ReverseTransactions();
+
+        // [THEN] Posted Bank Deposit X has reversed = false
+        // [THEN] Posted Bank Deposit Y has reversed = true
+        // [THEN] Posted Bank Deposit Z has reversed = false
+        VerifyReversedOnPostedBankDepositList();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1016,16 +1050,42 @@ codeunit 139769 "Bank Deposit Posting Tests"
         exit(GenJournalBatch.Name);
     end;
 
+    local procedure VerifyReversedOnPostedBankDepositList()
+    var
+        PostedBankDepositList: TestPage "Posted Bank Deposit List";
+        ReversedErr: Label 'Reversed field is not calculated correctly.';
+    begin
+        PostedBankDepositList.OpenEdit();
+        PostedBankDepositList.First();
+        Assert.IsFalse(PostedBankDepositList.Reversed.AsBoolean(), ReversedErr);
+        PostedBankDepositList.Next();
+        Assert.IsTrue(PostedBankDepositList.Reversed.AsBoolean(), ReversedErr);
+        PostedBankDepositList.Next();
+        Assert.IsFalse(PostedBankDepositList.Reversed.AsBoolean(), ReversedErr);
+        PostedBankDepositList.Close();
+    end;
+
     [ModalPageHandler]
     procedure GeneralJournalBatchesPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
     begin
         GeneralJournalBatches.OK().Invoke();
     end;
 
+    [ModalPageHandler]
+    procedure ReverseEntriesPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
+    begin
+        ReverseTransactionEntries.Reverse.Invoke();
+    end;
+
     [ConfirmHandler]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -10886,6 +10886,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType NumberOfRowsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 901776604 - NamedType 3446503720" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Planning Component must not be found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType PlanningComponentMustNotBeFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 901776604 - NamedType 3471433997" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[is of lesser precision than expected]]></Val>

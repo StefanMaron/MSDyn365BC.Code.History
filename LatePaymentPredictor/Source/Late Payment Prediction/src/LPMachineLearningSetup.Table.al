@@ -1,5 +1,6 @@
 namespace Microsoft.Finance.Latepayment;
 
+using System;
 using System.AI;
 using System.Environment;
 using System.Utilities;
@@ -72,9 +73,15 @@ table 1950 "LP Machine Learning Setup"
             trigger OnValidate()
             var
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                MyCustomerAuditLoggerALHelper: DotNet CustomerAuditLoggerALHelper;
+                MyALSecurityOperationResult: DotNet ALSecurityOperationResult;
+                MyALAuditCategory: DotNet ALAuditCategory;
+                LatePaymentPredictionConsentProvidedLbl: Label 'Late Payment Prediction - consent provided by UserSecurityId %1.', Locked = true;
             begin
                 if not xRec."Use My Model Credentials" and Rec."Use My Model Credentials" then
                     Rec."Use My Model Credentials" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
+                if Rec."Use My Model Credentials" then
+                    MyCustomerAuditLoggerALHelper.LogAuditMessage(StrSubstNo(LatePaymentPredictionConsentProvidedLbl, UserSecurityId()), MyALSecurityOperationResult::Success, MyALAuditCategory::ApplicationManagement, 4, 0);
             end;
         }
 
