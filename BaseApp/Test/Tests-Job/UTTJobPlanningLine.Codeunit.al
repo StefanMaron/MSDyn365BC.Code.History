@@ -39,6 +39,7 @@ codeunit 136353 "UT T Job Planning Line"
         FBLedgerDrillDownErr: Label 'Wrong Project Ledger Entries';
         RoundingTo0Err: Label 'Rounding of the field';
         NoJobPlanningLineErr: Label '%1 must be %2 in %3', Comment = '%1 = "No." field of Job Planning Line, %2 = Value of "No." field of Item, %3 = Job Planning Line';
+        UnitCostLCYErr: Label '%1 must be %2 in %3', Comment = '%1 = Unit Cost (LCY), %2 = Unit Cost of Item, %3 = Job Planning Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -1935,6 +1936,66 @@ codeunit 136353 "UT T Job Planning Line"
                 JobPlanningLine.FieldCaption("No."),
                 Item."No.",
                 JobPlanningLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure UnitCostLCYIsNotChangedWhenUnitPriceIsChangedInJobPlanningLine()
+    var
+        Currency: Record Currency;
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine, JobPlanningLine2 : Record "Job Planning Line";
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [SCENARIO 550707] Unit Cost (LCY) in Job Planning Line is not changed when Unit Price is changed.
+        Initialize();
+
+        // [GIVEN] Create a Currency.
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Create a Random Currency Exchange Rate.
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+
+        // [GIVEN] Validate Unit-Amount Rounding Precision.
+        Currency.Validate("Unit-Amount Rounding Precision", 0.01);
+        Currency.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Unit Cost.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDecInDecimalRange(0.37, 0.37, 2));
+        Item.Modify(true);
+
+        // [GIVEN] Create a Job and a Job task.
+        CreateJobAndJobTask(Job, JobTask, false, Currency.Code);
+
+        // [GIVEN] Create a Job Planning Line and Validate Type and No.
+        CreateSimpleJobPlanningLine(JobPlanningLine, JobTask);
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Open Job Planning Lines page and set value in Unit Price.
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GoToRecord(JobPlanningLine);
+        JobPlanningLines."Unit Price".SetValue(LibraryRandom.RandIntInRange(5, 5));
+        JobPlanningLines.Close();
+
+        // [WHEN] Find Job Planning Line.
+        JobPlanningLine2.Get(
+            JobPlanningLine."Job No.", 
+            JobPlanningLine."Job Task No.", 
+            JobPlanningLine."Line No.");
+
+        // [THEN] Unit Cost (LCY) of Job Planning Line is equal to Unit Cost of Item.
+        Assert.AreEqual(
+            Item."Unit Cost",
+            JobPlanningLine2."Unit Cost (LCY)",
+            StrSubstNo(
+                UnitCostLCYErr,
+                JobPlanningLine2.FieldCaption("Unit Cost (LCY)"),
+                Item."Unit Cost",
+                JobPlanningLine2.TableCaption()));
     end;
 
     local procedure Initialize()
