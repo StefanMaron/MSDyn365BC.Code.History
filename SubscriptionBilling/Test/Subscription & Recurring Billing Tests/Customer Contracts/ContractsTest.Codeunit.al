@@ -9,7 +9,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Finance.Currency;
 
-codeunit 139897 "Contracts Test"
+codeunit 148155 "Contracts Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -36,6 +36,8 @@ codeunit 139897 "Contracts Test"
         ServiceCommitment1: Record "Service Commitment";
         NewServiceObject: Record "Service Object";
         SalesLine: Record "Sales Line";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         ContractTestLibrary: Codeunit "Contract Test Library";
         LibraryRandom: Codeunit "Library - Random";
         AssertThat: Codeunit Assert;
@@ -55,6 +57,7 @@ codeunit 139897 "Contracts Test"
         DocumentsCount: Integer;
         NextBillingTo: Date;
         CustomerReference: Text;
+        IsInitialized: Boolean;
 
     [Test]
     procedure CheckNewContractFromCustomer()
@@ -444,7 +447,8 @@ codeunit 139897 "Contracts Test"
     [HandlerFunctions('ExchangeRateSelectionModalPageHandler,MessageHandler,CreateCustomerBillingDocsContractPageHandler,SalesInvoiceListPageHandler,PostedSalesInvoicesPageHandler,SalesCreditMemosPageHandler,PostedSalesCrMemosPageHandler')]
     procedure CheckCustomerContractRelatedDocuments()
     begin
-        ClearAll();
+        Initialize();
+
         ContractTestLibrary.ResetContractRecords();
         ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, Customer."No.", true);
         ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer, WorkDate());
@@ -1560,6 +1564,8 @@ codeunit 139897 "Contracts Test"
         BillingBasePeriodArray: Array[4] of Text;
         ExpectedResultArray: Array[4] of Decimal;
         AmountArray: Array[4] of Decimal;
+        RoundedExpectedResult: Decimal;
+        RoundedResult: Decimal;
         i: Integer;
     begin
         //[SCENARIO]: Try to create Contract Analysis Entry and test the values
@@ -1593,14 +1599,20 @@ codeunit 139897 "Contracts Test"
         Report.Run(Report::"Create Contract Analysis");
 
         //THEN
+        Currency.InitRoundingPrecision();
         ContractAnalysisEntry.SetRange("Service Object No.", ServiceObject."No.");
         AssertThat.RecordIsNotEmpty(ContractAnalysisEntry);
-        if ContractAnalysisEntry.FindFirst() then
-            for i := 1 to 4 do begin
-                ContractAnalysisEntry.TestField("Monthly Recurr. Revenue (LCY)", ExpectedResultArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM>', ContractAnalysisEntry."Analysis Date")));
-                ContractAnalysisEntry.TestField("Monthly Recurring Cost (LCY)", ExpectedResultArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM>', ContractAnalysisEntry."Analysis Date")));
-                ContractAnalysisEntry.Next();
-            end;
+        ContractAnalysisEntry.FindFirst();
+        for i := 1 to 4 do begin
+            RoundedResult := Round(ContractAnalysisEntry."Monthly Recurr. Revenue (LCY)", Currency."Amount Rounding Precision");
+            RoundedExpectedResult := Round(ExpectedResultArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM>', ContractAnalysisEntry."Analysis Date")), Currency."Amount Rounding Precision");
+            AssertThat.AreEqual(RoundedExpectedResult, RoundedResult, 'Monthly Recurr. Revenue (LCY) was not calculated correctly');
+
+            RoundedResult := Round(ContractAnalysisEntry."Monthly Recurring Cost (LCY)", Currency."Amount Rounding Precision");
+            RoundedExpectedResult := Round(ExpectedResultArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM>', ContractAnalysisEntry."Analysis Date")), Currency."Amount Rounding Precision");
+            AssertThat.AreEqual(RoundedExpectedResult, RoundedResult, 'Monthly Recurring Cost (LCY) was not calculated correctly');
+            ContractAnalysisEntry.Next();
+        end;
         // Test Vendor Service Commitment in Contract Analysis Entry
         ContractAnalysisEntry.TestField("Monthly Recurr. Revenue (LCY)", 0);
         ContractAnalysisEntry.TestField("Monthly Recurring Cost (LCY)", ExpectedResultArray[i] * (CalcDate('<CM>', ContractAnalysisEntry."Analysis Date") - CalcDate('<-CM>', ContractAnalysisEntry."Analysis Date")));
@@ -1645,5 +1657,22 @@ codeunit 139897 "Contracts Test"
         ServiceCommitment.Validate("Calculation Base Amount", AmountArray[i]);
         ServiceCommitment.Validate("Service Amount", AmountArray[i]);
         ServiceCommitment.Modify();
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Contracts Test");
+        ClearAll();
+
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Contracts Test");
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+        IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Contracts Test");
     end;
 }

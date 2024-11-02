@@ -124,6 +124,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         CustLedgerEntry.SetRange("Document No.", IssuedFinChargeMemoHeader."No.");
         if CustLedgerEntry.FindFirst() then begin
             CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
+            OnCheckAppliedFinChargeMemoCustLedgerEntryOnAfterCalcAmounts(CustLedgerEntry);
             if CustLedgerEntry.Amount <> CustLedgerEntry."Remaining Amount" then begin
                 TempErrorMessage.LogMessage(
                   IssuedFinChargeMemoHeader,
@@ -343,6 +344,11 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCancelIssuedFinChargeMemo(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAppliedFinChargeMemoCustLedgerEntryOnAfterCalcAmounts(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

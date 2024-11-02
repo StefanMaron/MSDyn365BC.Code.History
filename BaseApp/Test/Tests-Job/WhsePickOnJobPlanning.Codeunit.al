@@ -3887,6 +3887,67 @@ codeunit 136318 "Whse. Pick On Job Planning"
         VerifyWhsePickReservationEntry(JobPlanningLine);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,WhseSrcCreateDocReqHandlerWithLocationFilter,WarehouseEmployeeHandler')]
+    procedure LocationFilterOnAssignedUserIdWhenUsingWarehousePick()
+    var
+        Item: Record Item;
+        JobTask: Record "Job Task";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        Location: array[3] of Record Location;
+        WarehouseEmployee: array[3] of Record "Warehouse Employee";
+        JobCardPage: TestPage "Job Card";
+        i: Integer;
+    begin
+        // [SCENARIO 545978] Filter on assigning User ID when creating a Warehouse Pick from a Project Card.
+        Initialize();
+
+        // [GIVEN] Create Warehouse Location and Employee with Location.
+        for i := 1 to ArrayLen(Location) do begin
+            LibraryWarehouse.CreateLocationWMS(Location[i], false, true, true, true, true);
+
+            LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee[i], Location[i].Code, false);
+            WarehouseEmployee[i].Validate("Location Code", Location[i].Code);
+            WarehouseEmployee[i].Modify(true);
+        end;
+
+        // [GIVEN] Store Warehouse Employee User Id.
+        LibraryVariableStorage.Enqueue(WarehouseEmployee[1]."User ID");
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Inventory of an Item on the Location.
+        CreateAndPostInvtAdjustmentWithUnitCost(
+            Item."No.", Location[1].Code, '',
+            LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Create a Job Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Validate Location Code in Job.
+        Job.Get(JobTask."Job No.");
+        Job.Validate("Location Code", Location[1].Code);
+        Job.Modify(true);
+
+        // [WHEN] Create Job Planning Line for Job Task with Item and Location.
+        CreateJobPlanningLineWithData(
+            JobPlanningLine,
+            JobTask,
+            "Job Planning Line Line Type"::"Both Budget and Billable",
+            JobPlanningLine.Type::Item,
+            Item."No.",
+            Location[1].Code,
+            '',
+            LibraryRandom.RandInt(10));
+
+        // [THEN] Assigned User Id should be able to select while creating Warehouse Pick.
+        JobCardPage.OpenEdit();
+        JobCardPage.GoToRecord(Job);
+        JobCardPage."Create Warehouse Pick".Invoke();
+    end;
+
     procedure AssignSNWhsePickLines(JobPlanningLine: Record "Job Planning Line")
     var
         WarehouseActivityLinePick: Record "Warehouse Activity Line";
@@ -4562,6 +4623,12 @@ codeunit 136318 "Whse. Pick On Job Planning"
         CreatePickReqPage.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    procedure WhseSrcCreateDocReqHandlerWithLocationFilter(var CreatePickReqPage: TestRequestPage "Whse.-Source - Create Document")
+    begin
+        CreatePickReqPage.AssignedID.Lookup();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AutoFillAndRegisterPickModalPageHandler(var WarehousePickPage: TestPage "Warehouse Pick")
@@ -4636,5 +4703,11 @@ codeunit 136318 "Whse. Pick On Job Planning"
     procedure ItemTrackingSummaryHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure WarehouseEmployeeHandler(var WarehouseEmployeeList: TestPage "Warehouse Employee List")
+    begin
+        Assert.AreNotEqual(WarehouseEmployeeList."User ID".Value(), '', '');
     end;
 }

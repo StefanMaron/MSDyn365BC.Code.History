@@ -1532,6 +1532,71 @@
         VendorLedgerEntryPayment.TestField(Open, true);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemainingAmountIsZeorBeforeAndAfterRunningExchRateAdjustmentReport()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ERMApplyUnapplyVendor: Codeunit "ERM Apply Unapply Vendor";
+        PostedDocumentNo: Code[20];
+        Amount: Decimal;
+        PaymentTolerance: Decimal;
+        PostingDate: array[3] of Date;
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 535548] Issue with Adjust Currency Exchange Rate using the new feature Report 596
+        Initialize();
+
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+        PaymentTolerance := LibraryRandom.RandDec(10, 2);  // Using Random value for Payment Tolerance.
+        SetPaymentTolerancePct(PaymentTolerance);
+
+        // [GIVEN] Create new currenct with different exchange rates on 01.01, 15.01, 31.01.
+        PostingDate[1] := Today();
+        PostingDate[2] := PostingDate[1] + 30;
+        PostingDate[3] := WorkDate();
+        CurrencyCode := CreateCurrencyAndExchangeRate(1, LibraryRandom.RandDecInDecimalRange(11.5575, 11.5575, 4), PostingDate[1]);
+        CreateExchangeRate(CurrencyCode, 1, LibraryRandom.RandDecInDecimalRange(11.753, 11.753, 3), PostingDate[2]);
+        CreateExchangeRate(CurrencyCode, 1, LibraryRandom.RandDecInDecimalRange(11.6398, 11.6398, 4), PostingDate[3]);
+
+        // [GIVEN] Create vendor with currency
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CreateCurrency(LibraryRandom.RandDec(10, 2)));
+        Vendor.Modify(true);
+
+        // [GIVEN] Create Purchase Invoice and post
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        Amount := CreateAndModifyPurchaseLine(PurchaseHeader);
+        Amount := LibraryERM.ConvertCurrency(Amount, PurchaseHeader."Currency Code", '', WorkDate());
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Payment and post for Posted Invoice
+        CreateGeneralJournalLine(GenJournalLine, 1, Vendor."No.", GenJournalLine."Document Type"::Payment, 0);
+        GenJournalLine.Validate("Posting Date", PostingDate[3]);
+        UpdateGenJournalLine(GenJournalLine, '', PostedDocumentNo, Amount);
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Verify: Verify Remaining Amount is zero on Vendor Ledger Entry before running Exchange Rate report
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, PurchaseHeader."Document Type", PostedDocumentNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", 0);
+
+        // [WHEN] Run Adjustment for Vendor by "Adjust Exchange Rate" on 31.01
+        BindSubscription(ERMApplyUnapplyVendor);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, PostingDate[3], PostingDate[3]);
+        UnbindSubscription(ERMApplyUnapplyVendor);
+
+        // [THEN] Verify: Verify Remaining Amount is zero on Vendor Ledger Entry after running Exchange Rate report
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, PurchaseHeader."Document Type", PostedDocumentNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

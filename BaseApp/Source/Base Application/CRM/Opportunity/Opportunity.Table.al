@@ -193,7 +193,7 @@ table 5092 Opportunity
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateContactNo(Rec, CurrFieldNo, IsHandled);
+                OnBeforeValidateContactNo(Rec, CurrFieldNo, IsHandled, xRec);
                 if IsHandled then
                     exit;
 
@@ -1393,7 +1393,7 @@ table 5092 Opportunity
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateContactNo(var Opportunity: Record Opportunity; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeValidateContactNo(var Opportunity: Record Opportunity; CurrentFieldNo: Integer; var IsHandled: Boolean; xOpportunity: Record Opportunity)
     begin
     end;
 

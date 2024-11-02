@@ -32,11 +32,6 @@ codeunit 1249 "Transform. Rule - Replace" implements "Transformation Rule"
 
     procedure ValidateTransformationRuleField(FieldNo: Integer; var TransformationRule: Record "Transformation Rule"; var xTransformationRule: Record "Transformation Rule"): Boolean;
     begin
-        case FieldNo of
-            TransformationRule.FieldNo("Find Value"),
-            TransformationRule.FieldNo("Replace Value"):
-                exit(true);
-        end;
     end;
 
     procedure GetVisibleGroups(TransformationRule: Record "Transformation Rule"; var VisibleTransformationRuleGroups: List of [Enum "Transformation Rule Group"])

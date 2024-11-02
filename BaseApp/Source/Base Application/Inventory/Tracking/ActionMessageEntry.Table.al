@@ -142,12 +142,14 @@ table 99000849 "Action Message Entry"
         ActionMessageEntry2.SetRange("Item No.", ActionMessageEntry2."Item No.");
         ActionMessageEntry."New Date" := 0D;
         ActionMessageEntry.Quantity := 0;
+        OnAfterAssignMessageEntry(ActionMessageEntry, ActionMessageEntry2);
         ActionMessageEntry.Type := ActionMessageEntry.Type::" ";
         if ActionMessageEntry2.FindSet() then
             repeat
                 if ActionMessageEntry2.Quantity <> 0 then begin
                     ActionMessageEntry.Quantity += ActionMessageEntry2.Quantity;
                     TypeArray[2] := true;
+                    OnAfterAssignQuantity(ActionMessageEntry, ActionMessageEntry2);
                 end;
                 if ActionMessageEntry2."New Date" <> 0D then begin
                     ActionMessageEntry."New Date" := ActionMessageEntry2."New Date";
@@ -170,6 +172,7 @@ table 99000849 "Action Message Entry"
         if TypeArray[5] then
             ActionMessageEntry.Type := ActionMessageEntry.Type::Cancel;
 
+        OnAfterAssignEntryType(ActionMessageEntry, ActionMessageEntry2);
         ActionMessageEntry2."New Date" := ActionMessageEntry."New Date";
         ActionMessageEntry2.Quantity := ActionMessageEntry.Quantity;
         ActionMessageEntry2.Type := ActionMessageEntry.Type;
@@ -312,6 +315,21 @@ table 99000849 "Action Message Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSourceFilter(var ActionMessageEntry: Record "Action Message Entry"; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceKey: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignMessageEntry(var ActionMessageEntry: Record "Action Message Entry"; var ActionMessageEntry2: Record "Action Message Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignQuantity(var ActionMessageEntry: Record "Action Message Entry"; var ActionMessageEntry2: Record "Action Message Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignEntryType(var ActionMessageEntry: Record "Action Message Entry"; var ActionMessageEntry2: Record "Action Message Entry")
     begin
     end;
 }

@@ -1,6 +1,7 @@
 namespace Microsoft.Finance.VAT.Ledger;
 
 using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Finance.VAT.Calculation;
 
 page 1575 "VAT Entries Preview Flat Subf."
 {
@@ -73,6 +74,18 @@ page 1575 "VAT Entries Preview Flat Subf."
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry in LCY.';
+                }
+                field(NonDeductibleVATBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                    Visible = NonDeductibleVATVisible;
+                }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = NonDeductibleVATVisible;
                 }
                 field("VAT Difference"; Rec."VAT Difference")
                 {
@@ -187,4 +200,14 @@ page 1575 "VAT Entries Preview Flat Subf."
                 Rec.Insert();
             until RecRef.Next() = 0;
     end;
+
+    trigger OnOpenPage()
+    var
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+    begin
+        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
+    end;
+
+    var
+        NonDeductibleVATVisible: Boolean;
 }

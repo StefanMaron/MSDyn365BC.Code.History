@@ -213,6 +213,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
                     FromInvtDocLine.Reset();
                     FromInvtDocLine.SetRange("Document Type", FromInvtDocHeader."Document Type");
                     FromInvtDocLine.SetRange("Document No.", FromInvtDocHeader."No.");
+                    OnCopyItemDocOnBeforeLoopFromInventoryDocumentLine(FromInvtDocLine);
                     if FromInvtDocLine.Find('-') then
                         repeat
                             CopyInvtDocLine(ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine, NextLineNo, LinesNotCopied, LinesSkipApplies);
@@ -223,6 +224,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
                     FromInvtDocHeader.TransferFields(FromInvtRcptHeader);
                     FromInvtRcptLine.Reset();
                     FromInvtRcptLine.SetRange("Document No.", FromInvtRcptHeader."No.");
+                    OnCopyItemDocOnBeforeLoopFromInventoryReceiptLine(FromInvtRcptLine);
                     if FromInvtRcptLine.Find('-') then
                         repeat
                             FromInvtDocLine.TransferFields(FromInvtRcptLine);
@@ -237,6 +239,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
                     FromInvtDocHeader."Document Type" := FromInvtDocHeader."Document Type"::Shipment;
                     FromInvtShptLine.Reset();
                     FromInvtShptLine.SetRange("Document No.", FromInvtShptHeader."No.");
+                    OnCopyItemDocOnBeforeLoopFromInventoryShipmentLine(FromInvtShptLine);
                     if FromInvtShptLine.Find('-') then
                         repeat
                             FromInvtDocLine.TransferFields(FromInvtShptLine);
@@ -550,6 +553,21 @@ codeunit 5857 "Copy Invt. Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyInvtDocLine(var ToInvtDocumentLine: Record "Invt. Document Line"; var FromInvtDocumentHeader: Record "Invt. Document Header"; var FromInvtDocumentLine: Record "Invt. Document Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemDocOnBeforeLoopFromInventoryDocumentLine(var FromInvtDocumentLine: Record "Invt. Document Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemDocOnBeforeLoopFromInventoryReceiptLine(var FromInvtReceiptLine: Record "Invt. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemDocOnBeforeLoopFromInventoryShipmentLine(var FromInvtShipmentLine: Record "Invt. Shipment Line")
     begin
     end;
 }

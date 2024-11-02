@@ -12,6 +12,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.FixedAssets.Ledger;
 using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -429,6 +430,11 @@ codeunit 6201 "Non-Ded. VAT Impl."
         GLEntry."Non-Deductible VAT Amount ACY" := GenJournalLine."Non-Deductible VAT Amount ACY";
     end;
 
+    procedure CopyNonDedVATFromGenJnlLineToFALedgEntry(var FALedgEntry: Record "FA Ledger Entry"; GenJnlLine: Record "Gen. Journal Line")
+    begin
+        FALedgEntry."Non-Ded. VAT FA Cost" := GenJnlLine."Non-Ded. VAT FA Cost";
+    end;
+
     procedure CheckPrepmtWithNonDeductubleVATInPurchaseLine(PurchaseLine: Record "Purchase Line")
     begin
         if (PurchaseLine."Prepayment %" <> 0) and (PurchaseLine."Non-Deductible VAT %" <> 0) then
@@ -630,6 +636,19 @@ codeunit 6201 "Non-Ded. VAT Impl."
         TotalInvoicePostBuffer."Non-Deductible VAT Diff." += InvoicePostBuffer."Non-Deductible VAT Diff.";
     end;
 #endif
+
+    procedure IsNonDedFALedgEntryInFirstAcquisition(FALedgEntry: Record "FA Ledger Entry"): Boolean
+    var
+        AdjacentFALedgEntry: Record "FA Ledger Entry";
+    begin
+        if not FALedgEntry."Non-Ded. VAT FA Cost" then
+            exit(false);
+        AdjacentFALedgEntry.ReadIsolation := IsolationLevel::ReadCommitted;
+        AdjacentFALedgEntry.SetRange("FA No.", FALedgEntry."FA No.");
+        AdjacentFALedgEntry.SetFilter("Transaction No.", '<>%1', FALedgEntry."Transaction No.");
+        AdjacentFALedgEntry.SetRange("Non-Ded. VAT FA Cost", false);
+        exit(AdjacentFALedgEntry.IsEmpty());
+    end;
 
     procedure Update(var TotalNonDedVATBase: Decimal; var TotalNonDedVATAmount: Decimal; var TotalNonDedVATBaseACY: Decimal; var TotalNonDedVATAmountACY: Decimal; var TotalNonDedVATDiff: Decimal; InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
