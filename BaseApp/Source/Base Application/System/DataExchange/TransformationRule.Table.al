@@ -334,14 +334,10 @@ table 1237 "Transformation Rule"
 
     procedure ValidateTransformationRuleField(FieldNo: Integer)
     var
-        RecordRef: RecordRef;
         TransformationRule: Interface "Transformation Rule";
     begin
         TransformationRule := Rec."Transformation Type";
-        if not TransformationRule.ValidateTransformationRuleField(FieldNo, Rec, xRec) then begin
-            RecordRef.GetTable(Rec);
-            RecordRef.Field(FieldNo).FieldError();
-        end;
+        TransformationRule.ValidateTransformationRuleField(FieldNo, Rec, xRec);
     end;
 
     procedure IsDataFormatUpdateAllowed(): Boolean

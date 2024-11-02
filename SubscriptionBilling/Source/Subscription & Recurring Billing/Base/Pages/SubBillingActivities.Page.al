@@ -191,7 +191,7 @@ page 8085 "Sub. Billing Activities"
     var
         ServiceContractSetup: Record "Service Contract Setup";
     begin
-        if not ServiceContractSetup.Get() then begin
+        if not ServiceContractSetup.get() then begin
             ServiceContractSetup.Init();
             ServiceContractSetup.Insert();
         end;

@@ -5,6 +5,7 @@
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Statement;
 using Microsoft.Bank.Ledger;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -185,6 +186,29 @@ codeunit 380 "Bank Acc. Recon. Test"
         exit(Total);
     end;
 
+    local procedure SetGLAccountBalanceFilters(BankAccountPostingGroup: Record "Bank Account Posting Group"; StatementDate: Date; var GLEntry: Record "G/L Entry")
+    begin
+        GLEntry.SetRange("G/L Account No.", BankAccountPostingGroup."G/L Account No.");
+        if (StatementDate <> 0D) then
+            GLEntry.SetFilter("Posting Date", '<= %1', StatementDate);
+    end;
+
+    procedure GetGLAccountBalanceLCYForBankStatement(BankAccountStatement: Record "Bank Account Statement"): Decimal
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+        GLEntry: Record "G/L Entry";
+    begin
+        if not BankAccount.Get(BankAccountStatement."Bank Account No.") then
+            exit(0);
+        if not BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group") then
+            exit(0);
+        SetGLAccountBalanceFilters(BankAccountPostingGroup, BankAccountStatement."Statement Date", GLEntry);
+        GLEntry.SetFilter(SystemCreatedAt, '< %1', BankAccountStatement.SystemCreatedAt);
+        GLEntry.CalcSums(Amount);
+        exit(GLEntry.Amount);
+    end;
+
     procedure GetGLAccountBalanceLCY(BankAcc: Record "Bank Account"; BankAccPostingGroup: Record "Bank Account Posting Group"; StatementDate: Date): Decimal
     var
         GLAccount: Record "G/L Account";
@@ -196,12 +220,7 @@ codeunit 380 "Bank Acc. Recon. Test"
         if not GLAccount.Get(BankAccPostingGroup."G/L Account No.") then
             exit(0);
 
-        GLEntries.SetRange("G/L Account No.", BankAccPostingGroup."G/L Account No.");
-        if (StatementDate <> 0D) then
-            GLEntries.SetFilter("Posting Date", '<= %1', StatementDate);
-
-        if GLEntries.IsEmpty() then
-            exit(0);
+        SetGLAccountBalanceFilters(BankAccPostingGroup, StatementDate, GLEntries);
 
         GLEntries.CalcSums(Amount);
         exit(GLEntries.Amount);
