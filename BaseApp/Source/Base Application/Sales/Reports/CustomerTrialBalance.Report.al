@@ -134,6 +134,8 @@ report 129 "Customer - Trial Balance"
 
     requestpage
     {
+        AboutTitle = 'About Customer Trial Balance';
+        AboutText = 'View the closing balances of customers at the end of a period to reconcile the customer subledger against receivables accounts in the general ledger. View beginning balances and net changes by customer for the period and fiscal year to date.';
 
         layout
         {

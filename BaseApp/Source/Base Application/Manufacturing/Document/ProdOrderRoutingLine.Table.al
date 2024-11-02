@@ -1058,59 +1058,65 @@ table 5409 "Prod. Order Routing Line"
 
     local procedure WorkCenterTransferFields()
     var
-        SkipUpdateDescription: Boolean;
+        IsHandled, SkipUpdateDescription : Boolean;
     begin
-        OnBeforeWorkCenterTransferFields(Rec, WorkCenter, SkipUpdateDescription);
-        "Work Center No." := WorkCenter."No.";
-        "Work Center Group Code" := WorkCenter."Work Center Group Code";
-        "Setup Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-        "Run Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-        "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-        "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-        if not SkipUpdateDescription then
-            Description := WorkCenter.Name;
-        "Flushing Method" := WorkCenter."Flushing Method";
-        "Unit Cost per" := WorkCenter."Unit Cost";
-        "Direct Unit Cost" := WorkCenter."Direct Unit Cost";
-        "Indirect Cost %" := WorkCenter."Indirect Cost %";
-        "Overhead Rate" := WorkCenter."Overhead Rate";
-        "Unit Cost Calculation" := WorkCenter."Unit Cost Calculation";
-        FillDefaultLocationAndBins();
-        GetSubcPricelist();
+        IsHandled := false;
+        OnBeforeWorkCenterTransferFields(Rec, WorkCenter, SkipUpdateDescription, xRec, IsHandled);
+        if not IsHandled then begin
+            "Work Center No." := WorkCenter."No.";
+            "Work Center Group Code" := WorkCenter."Work Center Group Code";
+            "Setup Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
+            "Run Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
+            "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
+            "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
+            if not SkipUpdateDescription then
+                Description := WorkCenter.Name;
+            "Flushing Method" := WorkCenter."Flushing Method";
+            "Unit Cost per" := WorkCenter."Unit Cost";
+            "Direct Unit Cost" := WorkCenter."Direct Unit Cost";
+            "Indirect Cost %" := WorkCenter."Indirect Cost %";
+            "Overhead Rate" := WorkCenter."Overhead Rate";
+            "Unit Cost Calculation" := WorkCenter."Unit Cost Calculation";
+            FillDefaultLocationAndBins();
+	        GetSubcPricelist();
+        end;
         OnAfterWorkCenterTransferFields(Rec, WorkCenter);
     end;
 
     local procedure MachineCtrTransferFields()
     var
-        SkipUpdateDescription: Boolean;
+        IsHandled, SkipUpdateDescription : Boolean;
     begin
         WorkCenter.Get(MachineCenter."Work Center No.");
         WorkCenterTransferFields();
 
+        IsHandled := false;
         SkipUpdateDescription := false;
-        OnMachineCtrTransferFieldsOnAfterWorkCenterTransferFields(Rec, WorkCenter, MachineCenter, SkipUpdateDescription);
-        if not SkipUpdateDescription then
-            Description := MachineCenter.Name;
-        "Setup Time" := MachineCenter."Setup Time";
-        "Wait Time" := MachineCenter."Wait Time";
-        "Move Time" := MachineCenter."Move Time";
-        "Fixed Scrap Quantity" := MachineCenter."Fixed Scrap Quantity";
-        "Scrap Factor %" := MachineCenter."Scrap %";
-        "Minimum Process Time" := MachineCenter."Minimum Process Time";
-        "Maximum Process Time" := MachineCenter."Maximum Process Time";
-        "Concurrent Capacities" := MachineCenter."Concurrent Capacities";
-        if "Concurrent Capacities" = 0 then
-            "Concurrent Capacities" := 1;
-        "Send-Ahead Quantity" := MachineCenter."Send-Ahead Quantity";
-        "Setup Time Unit of Meas. Code" := MachineCenter."Setup Time Unit of Meas. Code";
-        "Wait Time Unit of Meas. Code" := MachineCenter."Wait Time Unit of Meas. Code";
-        "Move Time Unit of Meas. Code" := MachineCenter."Move Time Unit of Meas. Code";
-        "Flushing Method" := MachineCenter."Flushing Method";
-        "Unit Cost per" := MachineCenter."Unit Cost";
-        "Direct Unit Cost" := MachineCenter."Direct Unit Cost";
-        "Indirect Cost %" := MachineCenter."Indirect Cost %";
-        "Overhead Rate" := MachineCenter."Overhead Rate";
-        FillDefaultLocationAndBins();
+        OnMachineCtrTransferFieldsOnAfterWorkCenterTransferFields(Rec, WorkCenter, MachineCenter, SkipUpdateDescription, xRec, IsHandled);
+        if not IsHandled then begin
+            if not SkipUpdateDescription then
+                Description := MachineCenter.Name;
+            "Setup Time" := MachineCenter."Setup Time";
+            "Wait Time" := MachineCenter."Wait Time";
+            "Move Time" := MachineCenter."Move Time";
+            "Fixed Scrap Quantity" := MachineCenter."Fixed Scrap Quantity";
+            "Scrap Factor %" := MachineCenter."Scrap %";
+            "Minimum Process Time" := MachineCenter."Minimum Process Time";
+            "Maximum Process Time" := MachineCenter."Maximum Process Time";
+            "Concurrent Capacities" := MachineCenter."Concurrent Capacities";
+            if "Concurrent Capacities" = 0 then
+                "Concurrent Capacities" := 1;
+            "Send-Ahead Quantity" := MachineCenter."Send-Ahead Quantity";
+            "Setup Time Unit of Meas. Code" := MachineCenter."Setup Time Unit of Meas. Code";
+            "Wait Time Unit of Meas. Code" := MachineCenter."Wait Time Unit of Meas. Code";
+            "Move Time Unit of Meas. Code" := MachineCenter."Move Time Unit of Meas. Code";
+            "Flushing Method" := MachineCenter."Flushing Method";
+            "Unit Cost per" := MachineCenter."Unit Cost";
+            "Direct Unit Cost" := MachineCenter."Direct Unit Cost";
+            "Indirect Cost %" := MachineCenter."Indirect Cost %";
+            "Overhead Rate" := MachineCenter."Overhead Rate";
+            FillDefaultLocationAndBins();
+        end;
         OnAfterMachineCtrTransferFields(Rec, WorkCenter, MachineCenter);
     end;
 
@@ -1856,12 +1862,12 @@ table 5409 "Prod. Order Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMachineCtrTransferFieldsOnAfterWorkCenterTransferFields(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var SkipUpdateDescription: Boolean)
+    local procedure OnMachineCtrTransferFieldsOnAfterWorkCenterTransferFields(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var SkipUpdateDescription: Boolean; xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWorkCenterTransferFields(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var SkipUpdateDescription: Boolean)
+    local procedure OnBeforeWorkCenterTransferFields(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var SkipUpdateDescription: Boolean; xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin
     end;
 }

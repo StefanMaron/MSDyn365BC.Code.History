@@ -2417,6 +2417,57 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Assert.RecordCount(AssemblyHeader, 2);
     end;
 
+    [Test]
+    procedure ForecastInPlanningHasMultipleSKU()
+    var
+        Item: Record Item;
+        Location: array[2] of Record Location;
+        ProductionForecastName: Record "Production Forecast Name";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 547123] Correct planning result of demand forecast that has multiple SKU.
+        Initialize();
+
+        // [GIVEN] Generate a Quantity and save it in a Variable.
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Set "Use Forecast on Locations" = TRUE in Manufacturing Setup.
+        UpdateUseForecastOnLocationsInManufacturingSetup(true);
+
+        // [GIVEN] Set Location Mandatory = TRUE in Inventory Setup.
+        LibraryInventory.SetLocationMandatory(true);
+
+        // [GIVEN] Create a Item and Validate Reordering Policy.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
+
+        // [GIVEN] Create two Locations and two Stock Keeping Unit.
+        for i := 1 to ArrayLen(Location) do begin
+            LibraryWarehouse.CreateLocation(Location[i]);
+            LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location[i].Code, Item."No.", '');
+            StockkeepingUnit.Validate("Include Inventory", false);
+            StockkeepingUnit.Modify(true);
+        end;
+
+        // [GIVEN] Create a Demand Forecast.        
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+
+        // [GIVEN] Create a Forecast Entry.
+        CreateProductionForecastEntryWithComponent(ProductionForecastName.Name, Item, Location[1].Code, '', WorkDate(), Qty);
+
+        // [GIVEN] Update Manufacturing Setup with Current Production Forecast Name
+        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
+
+        // [WHEN] Calculate Plan for Requisition WorkSheet.
+        CalcRequisitionPlanForReqWkshWithMfg(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+
+        // [THEN] Demand forecast is properly planned with One Item line and Quanity.
+        VerifyRequisitionLineCountAndQty(Item."No.", '', 1, Qty);
+    end;
+
     local procedure Initialize()
     var
         PlanningErrorLog: Record "Planning Error Log";
@@ -3747,6 +3798,45 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CarryOutActionMsgPlan.InitializeRequest(0, 0, 0, NewAsmOrderChoice::"Make Assembly Orders".Asinteger());
         CarryOutActionMsgPlan.UseRequestPage(false);
         CarryOutActionMsgPlan.RunModal();
+    end;
+
+    local procedure CreateProductionForecastEntryWithComponent(ProductionForecastName: Code[10]; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; ForecastDate: Date; Qty: Decimal)
+    var
+        ProductionForecastEntry: Record "Production Forecast Entry";
+    begin
+        LibraryManufacturing.CreateProductionForecastEntry(
+          ProductionForecastEntry, ProductionForecastName, Item."No.", LocationCode, ForecastDate, true);
+        ProductionForecastEntry.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        ProductionForecastEntry.Validate("Variant Code", VariantCode);
+        ProductionForecastEntry.Validate("Forecast Quantity", Qty);
+        ProductionForecastEntry.Modify(true);
+    end;
+
+    local procedure CalcRequisitionPlanForReqWkshWithMfg(var Item: Record Item; StartDate: Date; EndDate: Date)
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::"Req.");
+        CalculatePlanForReqWkshWithMfg(Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, StartDate, EndDate);
+    end;
+
+    local procedure CalculatePlanForReqWkshWithMfg(var Item: Record Item; TemplateName: Code[10]; WorksheetName: Code[10]; StartDate: Date; EndDate: Date)
+    var
+        TmpItem: Record Item;
+        CalculatePlanReqWksh: Report "Calculate Plan - Req. Wksh.";
+    begin
+        CalculatePlanReqWksh.SetTemplAndWorksheet(TemplateName, WorksheetName);
+        CalculatePlanReqWksh.InitializeRequest(StartDate, EndDate);
+        CalculatePlanReqWksh.InitializeFromMfgSetup();
+        if Item.HasFilter then
+            TmpItem.CopyFilters(Item)
+        else begin
+            Item.Get(Item."No.");
+            TmpItem.SetRange("No.", Item."No.");
+        end;
+        CalculatePlanReqWksh.SetTableView(TmpItem);
+        CalculatePlanReqWksh.UseRequestPage(false);
+        CalculatePlanReqWksh.RunModal();
     end;
 
     [ConfirmHandler]

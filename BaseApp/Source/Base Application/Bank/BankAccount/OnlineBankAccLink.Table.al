@@ -19,10 +19,12 @@ table 777 "Online Bank Acc. Link"
         field(2; "Online Bank Account ID"; Text[250])
         {
             Caption = 'Online Bank Account ID';
+            DataClassification = SystemMetadata;
         }
         field(3; "Online Bank ID"; Text[250])
         {
             Caption = 'Online Bank ID';
+            DataClassification = SystemMetadata;
         }
         field(4; "Automatic Logon Possible"; Boolean)
         {

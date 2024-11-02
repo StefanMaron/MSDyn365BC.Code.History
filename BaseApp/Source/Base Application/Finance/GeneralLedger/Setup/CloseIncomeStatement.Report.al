@@ -571,7 +571,7 @@ report 94 "Close Income Statement"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateEndDate(EndDateReq, FiscalYearStartDate, FiscYearClosingDate, OK, Result, IsHandled);
+        OnBeforeValidateEndDate(EndDateReq, FiscalYearStartDate, FiscYearClosingDate, OK, Result, RealMode, IsHandled);
         if IsHandled then
             exit(Result);
 
@@ -783,7 +783,7 @@ report 94 "Close Income Statement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateEndDate(EndDateReq: Date; var FiscalYearStartDate: Date; var FiscYearClosingDate: Date; var OK: Boolean; var Result: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeValidateEndDate(EndDateReq: Date; var FiscalYearStartDate: Date; var FiscYearClosingDate: Date; var OK: Boolean; var Result: Boolean; RealMode: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

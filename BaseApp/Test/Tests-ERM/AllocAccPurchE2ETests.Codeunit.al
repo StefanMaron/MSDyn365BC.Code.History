@@ -12,6 +12,8 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         Any: Codeunit Any;
         Assert: Codeunit Assert;
         Initialized: Boolean;
@@ -1111,6 +1113,69 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         Assert.IsTrue(AllocAccManualOverride.IsEmpty(), 'The manual override was not deleted');
     end;
 
+    [Test]
+    procedure PostPurchaseInvoiceWithAllocationAccountUsingSplitQuantity()
+    var
+        GLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DimensionValue: array[2] of Record "Dimension Value";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        GenPostingType: Enum "General Posting Type";
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 539634] Purchase Invoice gets Posted with Allocation Account same as Inherit Parent and
+        // as Breakdown Account Type equals GL Account.
+        Initialize();
+
+        // [GIVEN] Create a GL Account.
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Create a dimension that is defined as a department with two values.
+        CreateDimensionsWithValues(DimensionValue);
+
+        // [GIVEN] Create a Variable Allocation Account with Eight Distribution Lines and inherit from parent values.
+        CreateVariableAllocationAccountwithEightDistributionLinesInheritFromParent(AllocationAccount, GLAccount."No.", DimensionValue);
+
+        // [GIVEN] Create a VAT Posting Setup.
+        CreateVATPostingSetup(VATPostingSetup, 0, GLAccountNo, GenPostingType);
+
+        // [GIVEN] Create a General Posting Setup.
+        CreateGeneralPostingSetup(GeneralPostingSetup, GLAccountNo, GenPostingType, VATPostingSetup);
+
+        // [GIVEN] Create a Vendor.
+        CreateVendorWithPostingGroup(Vendor, GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Update "Vendor Invoice No.".
+        UpdatePurchInvoiceNo(PurchaseHeader);
+
+        // [GIVEN] Create a Purchase Line and Validate "Direct Unit Cost", "Allocation Account No.".
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::"G/L Account",
+            GLAccountNo,
+            LibraryRandom.RandIntInRange(6497, 6497));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInDecimalRange(1.96, 1.96, 2));
+        PurchaseLine.Validate("Selected Alloc. Account No.", AllocationAccount."No.");
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Purchase Invoice is Posted. 
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [THEN] Line is split into 8 Lines in "Purch. Inv Line".
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        Assert.RecordCount(PurchInvLine, 8);
+    end;
+
     local procedure CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(
         var AllocationAccount: Record "Allocation Account";
         FirstDimensionValue: Record "Dimension Value";
@@ -1429,6 +1494,108 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
     local procedure GetOverrideQuantity(): Decimal
     begin
         exit(0.33);
+    end;
+
+    local procedure CreateDimensionsWithValues(var DimensionValue: array[2] of Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], Dimension.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], Dimension.Code);
+    end;
+
+    local procedure CreateVariableAllocationAccountwithEightDistributionLinesInheritFromParent(
+        var AllocationAccount: Record "Allocation Account";
+        BreakdownAccountNumber: Code[20];
+        DimensionValue: array[2] of Record "Dimension Value")
+    var
+        VariableAllocationAccountCode: Code[20];
+        i: Integer;
+    begin
+        VariableAllocationAccountCode := CreateAllocationAccountWithVariableDistribution();
+
+        CreateAllocationAccountDistributionLineInheritFromParent(
+            VariableAllocationAccountCode,
+            BreakdownAccountNumber,
+            DimensionValue[1].Code);
+        CreateAllocationAccountDistributionLineInheritFromParent(
+            VariableAllocationAccountCode,
+            BreakdownAccountNumber,
+            DimensionValue[2].Code);
+
+        for i := 1 to 6 do
+            CreateAllocationAccountDistributionLineInheritFromParent(
+                VariableAllocationAccountCode,
+                BreakdownAccountNumber, '');
+
+        AllocationAccount.Get(VariableAllocationAccountCode);
+    end;
+
+    local procedure CreateAllocationAccountWithVariableDistribution(): Code[20]
+    var
+        AllocationAccount: Record "Allocation Account";
+    begin
+        AllocationAccount."No." := Format(LibraryRandom.RandText(5));
+        AllocationAccount."Account Type" := AllocationAccount."Account Type"::Variable;
+        AllocationAccount.Name := Format(LibraryRandom.RandText(10));
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Insert(true);
+        exit(AllocationAccount."No.");
+    end;
+
+    local procedure CreateAllocationAccountDistributionLineInheritFromParent(AllocationAccountNo: Code[20]; BreakdownAccountNumber: Code[20]; DimensionValueCode: Code[20])
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        AllocAccountDistribution."Allocation Account No." := AllocationAccountNo;
+        AllocAccountDistribution."Line No." := LibraryUtility.GetNewRecNo(AllocAccountDistribution, AllocAccountDistribution.FieldNo("Line No."));
+        AllocAccountDistribution.Validate("Account Type", AllocAccountDistribution."Account Type"::Variable);
+        AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"Inherit from Parent");
+        AllocAccountDistribution.Validate("Breakdown Account Type", AllocAccountDistribution."Breakdown Account Type"::"G/L Account");
+        AllocAccountDistribution.Validate("Breakdown Account Number", BreakdownAccountNumber);
+        AllocAccountDistribution.Validate("Calculation Period", AllocAccountDistribution."Calculation Period"::Month);
+        AllocAccountDistribution.Validate("Dimension 1 Filter", DimensionValueCode);
+        AllocAccountDistribution.Insert(true);
+    end;
+
+    local procedure CreateVATPostingSetup(
+        var VATPostingSetup: Record "VAT Posting Setup";
+        VATRate: Decimal;
+        var GLAccountNo: Code[20];
+        GenPostingType: Enum "General Posting Type")
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATRate);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType::Purchase);
+    end;
+
+    local procedure CreateGeneralPostingSetup(
+        var GeneralPostingSetup: Record "General Posting Setup";
+        GLAccountNo: Code[20];
+        GenPostingType: Enum "General Posting Type";
+        VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(GLAccountNo);
+        LibraryERM.CreateGeneralPostingSetupInvt(GeneralPostingSetup);
+        LibraryERM.UpdateGLAccountWithPostingSetup(GLAccount, GenPostingType, GeneralPostingSetup, VATPostingSetup);
+    end;
+
+    local procedure CreateVendorWithPostingGroup(
+        var Vendor: Record Vendor;
+        var GeneralPostingSetup: Record "General Posting Setup";
+        var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        Vendor.Get(
+            LibraryPurchase.CreateVendorWithBusPostingGroups(
+                GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+    end;
+
+    local procedure UpdatePurchInvoiceNo(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
     end;
 
     [ModalPageHandler]

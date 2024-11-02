@@ -22,6 +22,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         EmptyErr: Label '%1 must be empty.', Comment = '%1=Table Caption';
         PrintErr: Label 'The expected and actual error does not match.';
         DecimalFormatTxt: Label '<sign><Integer Thousand><Decimals,3><Precision,2:2>', Locked = true;
+        OriginalReportNoError: Label 'You must specify an original report for a report of type %1.', Comment = '%1=vat report type';
 
     [Test]
     [Scope('OnPrem')]
@@ -40,7 +41,8 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         asserterror VATReportMediator.GetLines(VATReportHeader);
 
         // 3. Verify: Error occurs for Original Report No.
-        Assert.ExpectedTestFieldError(VATReportHeader.FieldCaption("Original Report No."), '');
+        Assert.ExpectedError(
+          StrSubstNo(OriginalReportNoError, Format(VATReportHeader."VAT Report Type")));
     end;
 
     [Test]

@@ -232,6 +232,10 @@ page 7252 "Trans. To GL Acc. AI Proposal"
                     Rec."Journal Batch Name" := GenJournalBatch.Name;
                     JournalBatchName := GenJournalBatch.Name;
                 end;
+                if TransToGLAccJnlBatch."Open Journal Batch" then begin
+                    TransToGLAccJnlBatch."Open Journal Batch" := false;
+                    TransToGLAccJnlBatch.Modify();
+                end;
             end;
     end;
 

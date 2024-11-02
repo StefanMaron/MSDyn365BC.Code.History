@@ -620,45 +620,55 @@ table 99000830 "Planning Routing Line"
     end;
 
     local procedure WorkCenterTransferfields()
+    var
+        IsHandled: Boolean;
     begin
-        "Work Center No." := WorkCenter."No.";
-        "Work Center Group Code" := WorkCenter."Work Center Group Code";
-        "Setup Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-        "Run Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-        "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-        "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-        Description := WorkCenter.Name;
-        "Unit Cost per" := WorkCenter."Unit Cost";
-        "Direct Unit Cost" := WorkCenter."Direct Unit Cost";
-        "Indirect Cost %" := WorkCenter."Indirect Cost %";
-        "Overhead Rate" := WorkCenter."Overhead Rate";
-
+        IsHandled := false;
+        OnBeforeWorkCenterTransferFields(Rec, xRec, WorkCenter, IsHandled);
+        if not IsHandled then begin
+            "Work Center No." := WorkCenter."No.";
+            "Work Center Group Code" := WorkCenter."Work Center Group Code";
+            "Setup Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
+            "Run Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
+            "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
+            "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
+            Description := WorkCenter.Name;
+            "Unit Cost per" := WorkCenter."Unit Cost";
+            "Direct Unit Cost" := WorkCenter."Direct Unit Cost";
+            "Indirect Cost %" := WorkCenter."Indirect Cost %";
+            "Overhead Rate" := WorkCenter."Overhead Rate";
+        end;
         OnAfterWorkCenterTransferFields(Rec, WorkCenter);
     end;
 
     local procedure MachineCtrTransferfields()
+    var
+        IsHandled: Boolean;
     begin
         WorkCenter.Get(MachineCenter."Work Center No.");
         WorkCenterTransferfields();
 
-        Description := MachineCenter.Name;
-        "Setup Time" := MachineCenter."Setup Time";
-        "Wait Time" := MachineCenter."Wait Time";
-        "Move Time" := MachineCenter."Move Time";
-        "Fixed Scrap Quantity" := MachineCenter."Fixed Scrap Quantity";
-        "Scrap Factor %" := MachineCenter."Scrap %";
-        "Minimum Process Time" := MachineCenter."Minimum Process Time";
-        "Maximum Process Time" := MachineCenter."Maximum Process Time";
-        "Concurrent Capacities" := MachineCenter."Concurrent Capacities";
-        "Send-Ahead Quantity" := MachineCenter."Send-Ahead Quantity";
-        "Setup Time Unit of Meas. Code" := MachineCenter."Setup Time Unit of Meas. Code";
-        "Wait Time Unit of Meas. Code" := MachineCenter."Wait Time Unit of Meas. Code";
-        "Move Time Unit of Meas. Code" := MachineCenter."Move Time Unit of Meas. Code";
-        "Unit Cost per" := MachineCenter."Unit Cost";
-        "Direct Unit Cost" := MachineCenter."Direct Unit Cost";
-        "Indirect Cost %" := MachineCenter."Indirect Cost %";
-        "Overhead Rate" := MachineCenter."Overhead Rate";
-
+        IsHandled := false;
+        OnMachineCtrTransferFieldsOnAfterWorkCenterTransferFields(Rec, xRec, WorkCenter, MachineCenter, IsHandled);
+        if not IsHandled then begin
+            Description := MachineCenter.Name;
+            "Setup Time" := MachineCenter."Setup Time";
+            "Wait Time" := MachineCenter."Wait Time";
+            "Move Time" := MachineCenter."Move Time";
+            "Fixed Scrap Quantity" := MachineCenter."Fixed Scrap Quantity";
+            "Scrap Factor %" := MachineCenter."Scrap %";
+            "Minimum Process Time" := MachineCenter."Minimum Process Time";
+            "Maximum Process Time" := MachineCenter."Maximum Process Time";
+            "Concurrent Capacities" := MachineCenter."Concurrent Capacities";
+            "Send-Ahead Quantity" := MachineCenter."Send-Ahead Quantity";
+            "Setup Time Unit of Meas. Code" := MachineCenter."Setup Time Unit of Meas. Code";
+            "Wait Time Unit of Meas. Code" := MachineCenter."Wait Time Unit of Meas. Code";
+            "Move Time Unit of Meas. Code" := MachineCenter."Move Time Unit of Meas. Code";
+            "Unit Cost per" := MachineCenter."Unit Cost";
+            "Direct Unit Cost" := MachineCenter."Direct Unit Cost";
+            "Indirect Cost %" := MachineCenter."Indirect Cost %";
+            "Overhead Rate" := MachineCenter."Overhead Rate";
+        end;
         OnAfterMachineCtrTransferFields(Rec, WorkCenter, MachineCenter);
     end;
 
@@ -1031,5 +1041,16 @@ table 99000830 "Planning Routing Line"
     local procedure OnBeforeCalcStartingEndingDates(var PlanningRoutingLine: Record "Planning Routing Line"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMachineCtrTransferFieldsOnAfterWorkCenterTransferFields(var PlanningRoutingLine: Record "Planning Routing Line"; xPlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWorkCenterTransferFields(var PlanningRoutingLine: Record "Planning Routing Line"; xPlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center"; var IsHandled: Boolean)
+    begin
+    end;
+
 }
 

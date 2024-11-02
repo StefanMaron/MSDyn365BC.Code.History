@@ -277,6 +277,7 @@ table 380 "Detailed Vendor Ledg. Entry"
         }
         key(Key12; "Entry Type", "Vendor No.", "Posting Date")
         {
+            SumIndexFields = "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)";
         }
     }
 

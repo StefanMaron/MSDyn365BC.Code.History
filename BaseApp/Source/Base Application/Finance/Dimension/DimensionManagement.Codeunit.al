@@ -2209,6 +2209,7 @@ codeunit 408 DimensionManagement
         HighPriorityDefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         AddDimSource(DefaultDimSource, Database::Job, JobJournalLine."Job No.");
+        AddDimSource(DefaultDimSource, Database::Location, JobJournalLine."Location Code");
         AddDimSource(DefaultDimSource, TypeToTableID2(JobJournalLine.Type.AsInteger()), JobJournalLine."No.");
         AddDimSource(DefaultDimSource, Database::"Resource Group", JobJournalLine."Resource Group No.");
 

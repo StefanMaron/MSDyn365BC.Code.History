@@ -27,6 +27,7 @@ codeunit 134658 "Edit Posted Documents"
         UnexpectedNetWeightErr: Label 'Unexpected Net Weight shown.';
         UnexpectedGrossWeightErr: Label 'Unexpected Gross Weight shown.';
         UnexpectedVolumeErr: Label 'Unexpected Volume shown.';
+        CashFlowWorkSheetLineMustNotBeFoundErr: Label 'Cash Flow Worksheet Line must not be found.';
 
     [Test]
     [HandlerFunctions('PostedSalesShipmentUpdateGetEditablelModalPageHandler')]
@@ -853,6 +854,112 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(ReturnReceiptStatistics.TotalVolume.AsDecimal(), SalesLine.Quantity * SalesLine."Unit Volume", UnexpectedVolumeErr);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestWorksheetLinesReqPageHandler,ConfirmHandlerTrue')]
+    procedure CashFlowWorkSheetLineIsNotCreatedForPOIfPrepmtAndInvAreCompletelyPosted()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
+        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        CashFlowWorksheet: TestPage "Cash Flow Worksheet";
+    begin
+        // [SCENARIO 544391] When Stan runs Suggest Worksheet Lines action from Cash Flow Worksheet page 
+        // Then Cash Flow Worksheet Line is not created for a Purchase Order if Prepayment 
+        // And Purchase Invoice are completely posted.
+        Initialize();
+
+        // [GIVEN] Create a General Posting Setup and Validate Purch. Prepayments Account and Direct Cost Applied Account.
+        LibraryERM.CreateGeneralPostingSetupInvt(GeneralPostingSetup);
+        GeneralPostingSetup.Validate("Purch. Prepayments Account", GeneralPostingSetup."Inventory Adjmt. Account");
+        GeneralPostingSetup.Validate("Direct Cost Applied Account", GeneralPostingSetup."COGS Account");
+        GeneralPostingSetup.Modify(true);
+
+        // [GIVEN] Create a VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup,
+            VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+            0);
+
+        // [GIVEN] Validate Purch. Prepayments Account in VAT Posting Setup. // IT
+        VATPostingSetup.Validate("Purch. Prepayments Account", GeneralPostingSetup."Purch. Prepayments Account");
+        VATPostingSetup.Modify(true);
+ 
+        // [GIVEN] Validate Gen. and VAT Posting Groups in Purch. Prepayments Account.
+        ValidateGenAndVATPostingGrpsInPurchPrepymtAcc(GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create an Item and Validate Gen. Prod. Posting Group and VAT Prod. Posting Group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Vendor and Validate Gen. Bus. Posting Group and VAT Bus. Posting Group.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+
+        // [GIVEN] Create a Purchase Header and Validate Prepayment % and Prepayment Due Date.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, Vendor."No.");
+        PurchaseHeader[1].Validate("Prepayment %", LibraryRandom.RandIntInRange(20, 20));
+        PurchaseHeader[1].Validate("Prepayment Due Date", WorkDate());
+        PurchaseHeader[1].Modify(true);
+
+        // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 10));
+        PurchaseLine[1].Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine[1].Modify(true);
+
+        // [GIVEN] Valdiate Check Total in Purchase Header. // IT
+        PurchaseHeader[1].CalcFields("Amount Including VAT");
+        PurchaseHeader[1].Validate("Check Total", Round(PurchaseLine[1]."Amount Including VAT" * PurchaseLine[1]."Prepayment %" / 100));
+        PurchaseHeader[1].Modify(true);
+
+        // [GIVEN] Post Purchase Prepayment Invoice.
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader[1]);
+
+        // [GIVEN] Post Purchase Receipt.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
+
+        // [GIVEN] Create another Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Get Receipt Lines.
+        GetReceiptLines(PurchaseHeader[1], PurchaseHeader[2]);
+
+        // [GIVEN] Validate Check Total in Purchase Header. // IT
+        PurchaseHeader[1].Validate("Check Total", Round(PurchaseLine[1]."Amount Including VAT" * PurchaseLine[1]."Prepayment %" / 100));
+        PurchaseHeader[1].Modify(true);
+
+        // [GIVEN] Open Purchase Invoice page and run Post action.
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GoToRecord(PurchaseHeader[2]);
+        PurchaseInvoice."Check Total".SetValue(PurchaseLine[1].Amount - PurchaseHeader[1]."Check Total");
+        PurchaseInvoice.Post.Invoke();
+
+        // [GIVEN] Create a Cash Flow Forecast.
+        LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+
+        // [GIVEN] Open Cash Flow Journal page and run Suggest Worksheet Lines action.
+        LibraryVariableStorage.Enqueue(CashFlowForecast."No.");
+        CashFlowWorksheet.OpenEdit();
+        CashFlowWorksheet.SuggestWorksheetLines.Invoke();
+        CashFlowWorksheet.Close();
+
+        // [WHEN] Find Cash Flow Worksheet Line.
+        CashFlowWorksheetLine.SetRange("Source No.", PurchaseHeader[1]."No.");
+
+        // [THEN] Cash Flow Worksheet Line is not found.
+        Assert.IsTrue(CashFlowWorksheetLine.IsEmpty(), CashFlowWorkSheetLineMustNotBeFoundErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents");
@@ -1201,6 +1308,32 @@ codeunit 134658 "Edit Posted Documents"
         ServiceShptHeader."3rd Party Loader No." := LibraryPurchase.CreateVendorNo();
     end;
 
+    local procedure GetReceiptLines(PurchaseHeader: Record "Purchase Header"; PurchaseHeader2: Record "Purchase Header")
+    var
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptHeader.FindFirst();
+        PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+        PurchGetReceipt.SetPurchHeader(PurchaseHeader2);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+    end;
+
+    local procedure ValidateGenAndVATPostingGrpsInPurchPrepymtAcc(GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GeneralPostingSetup.Get(GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesShipmentUpdateOKModalPageHandler(var PostedSalesShipmentUpdate: TestPage "Posted Sales Shipment - Update")
@@ -1512,5 +1645,34 @@ codeunit 134658 "Edit Posted Documents"
         PostedServiceShptUpdate."3rd Party Loader Type".SetValue(LibraryVariableStorage.DequeueText());
         PostedServiceShptUpdate."3rd Party Loader No.".SetValue(LibraryVariableStorage.DequeueText());
         PostedServiceShptUpdate.Cancel().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestWorksheetLinesReqPageHandler(var SuggestWorksheetLines: TestRequestPage "Suggest Worksheet Lines")
+    var
+        CashFlowNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CashFlowNo);
+        SuggestWorksheetLines.CashFlowNo.SetValue(CashFlowNo);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Liquid Funds""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Service Orders""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::Receivables]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::Payables]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Purchase Order""]".SetValue(true);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Revenue""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sales Order""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Budgeted Fixed Asset""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Expense""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(false);
+        SuggestWorksheetLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(QuestionText: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }

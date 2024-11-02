@@ -100,6 +100,7 @@ report 393 "Suggest Vendor Payments"
                     GenJnlLine.Init();
                 end;
 
+                OnPostDataItemOnBeforeMakeGenJnlLines(GenJnlLine, GenJnlBatch, TempVendorLedgerEntry);
                 Window2.Open(Text008);
 
                 TempPayableVendorLedgerEntry.Reset();
@@ -791,7 +792,7 @@ report 393 "Suggest Vendor Payments"
                                 if TempVendorPaymentBuffer.Find() then begin
                                     TempVendorPaymentBuffer.Amount := TempVendorPaymentBuffer.Amount + TempPayableVendorLedgerEntry.Amount;
                                     TempVendorPaymentBuffer.Validate("Vendor Ledg. Entry Doc. Type", VendLedgEntry."Document Type");
-                                    OnMakeGenJnlLinesOnBeforeVendorPaymentBufferModify(TempVendorPaymentBuffer, VendLedgEntry);
+                                    OnMakeGenJnlLinesOnBeforeVendorPaymentBufferModify(TempVendorPaymentBuffer, VendLedgEntry, TempPayableVendorLedgerEntry);
                                     TempVendorPaymentBuffer.Modify();
                                 end else begin
                                     TempVendorPaymentBuffer."Document No." := NextDocNo;
@@ -814,11 +815,12 @@ report 393 "Suggest Vendor Payments"
                                 TempVendorPaymentBuffer."Vendor Ledg. Entry No." := VendLedgEntry."Entry No.";
                                 TempVendorPaymentBuffer.Amount := TempPayableVendorLedgerEntry.Amount;
                                 Window2.Update(1, VendLedgEntry."Vendor No.");
-                                OnMakeGenJnlLinesOnBeforeVendorPaymentBufferInsertNonSummarize(TempVendorPaymentBuffer, VendLedgEntry, SummarizePerVend, NextDocNo);
+                                OnMakeGenJnlLinesOnBeforeVendorPaymentBufferInsertNonSummarize(TempVendorPaymentBuffer, VendLedgEntry, SummarizePerVend, NextDocNo, TempPayableVendorLedgerEntry);
                                 TempVendorPaymentBuffer.Insert();
                             end;
                         end;
                         VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
+                        OnMakeGenJnlLinesOnBeforeModifyVendorLedgerEntry(VendLedgEntry);
                         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
                     end else begin
                         TempVendorLedgerEntry := VendLedgEntry;
@@ -851,6 +853,7 @@ report 393 "Suggest Vendor Payments"
     local procedure InsertGenJournalLine()
     var
         Vendor: Record Vendor;
+        IsHandled: Boolean;
     begin
         GenJnlLine.Init();
         Window2.Update(1, TempVendorPaymentBuffer."Vendor No.");
@@ -858,29 +861,35 @@ report 393 "Suggest Vendor Payments"
         GenJnlLine."Line No." := LastLineNo;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
         GenJnlLine."Posting No. Series" := GenJnlBatch."Posting No. Series";
-        if SummarizePerVend then
-            GenJnlLine."Document No." := TempVendorPaymentBuffer."Document No."
-        else
-            if DocNoPerLine then begin
-                if TempVendorPaymentBuffer.Amount < 0 then
-                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
+        GenJnlLine."Journal Batch Id" := GenJnlBatch.SystemId;
 
-                GenJnlLine."Document No." := NextDocNo;
-                RunIncrementDocumentNo(false);
-            end else
-                if (GenJnlLine2."Bal. Account No." = '') and not DocNoPerLine then
-                    GenJnlLine."Document No." := NextDocNo
-                else
-                    if (TempVendorPaymentBuffer."Vendor No." = TempOldVendorPaymentBuffer."Vendor No.") and
-                       (TempVendorPaymentBuffer."Currency Code" = TempOldVendorPaymentBuffer."Currency Code")
-                    then
-                        GenJnlLine."Document No." := TempOldVendorPaymentBuffer."Document No."
-                    else begin
-                        GenJnlLine."Document No." := NextDocNo;
-                        RunIncrementDocumentNo(false);
-                        TempOldVendorPaymentBuffer := TempVendorPaymentBuffer;
-                        TempOldVendorPaymentBuffer."Document No." := GenJnlLine."Document No.";
-                    end;
+        IsHandled := false;
+        OnInsertGenJournalLineOnBeforeAssignDocumentNo(GenJnlLine, GenJnlLine2, GenJnlBatch, TempVendorPaymentBuffer, NextDocNo, BankPmtType, DocNoPerLine, TempOldVendorPaymentBuffer, SummarizePerVend, IsHandled);
+        if not IsHandled then
+            if SummarizePerVend then
+                GenJnlLine."Document No." := TempVendorPaymentBuffer."Document No."
+            else
+                if DocNoPerLine then begin
+                    if TempVendorPaymentBuffer.Amount < 0 then
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
+
+                    GenJnlLine."Document No." := NextDocNo;
+                    RunIncrementDocumentNo(false);
+                end else
+                    if (GenJnlLine2."Bal. Account No." = '') and not DocNoPerLine then
+                        GenJnlLine."Document No." := NextDocNo
+                    else
+                        if (TempVendorPaymentBuffer."Vendor No." = TempOldVendorPaymentBuffer."Vendor No.") and
+                        (TempVendorPaymentBuffer."Currency Code" = TempOldVendorPaymentBuffer."Currency Code")
+                        then
+                            GenJnlLine."Document No." := TempOldVendorPaymentBuffer."Document No."
+                        else begin
+                            GenJnlLine."Document No." := NextDocNo;
+                            RunIncrementDocumentNo(false);
+                            TempOldVendorPaymentBuffer := TempVendorPaymentBuffer;
+                            TempOldVendorPaymentBuffer."Document No." := GenJnlLine."Document No.";
+                        end;
+
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
         GenJnlLine.SetHideValidation(true);
         ShowPostingDateWarning := ShowPostingDateWarning or
@@ -981,6 +990,7 @@ report 393 "Suggest Vendor Payments"
     var
         BankAcc: Record "Bank Account";
     begin
+        OnBeforeSetBankAccCurrencyFilter(BalAccType, BalAccNo, TempPayableVendorLedgerEntry);
         if BalAccType = BalAccType::"Bank Account" then
             if BalAccNo <> '' then begin
                 BankAcc.Get(BalAccNo);
@@ -1342,12 +1352,22 @@ report 393 "Suggest Vendor Payments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertGenJournalLineOnBeforeAssignDocumentNo(var GenJournalLine: record "Gen. Journal Line"; GenJournalLine2: record "Gen. Journal Line"; GenJournalBatch: record "Gen. Journal Batch"; TempVendorPaymentBuffer: record "Vendor Payment Buffer" temporary; var NextDocNo: Code[20]; BankPmtType: Enum "Bank Payment Type"; DocNoPerLine: Boolean; var TempOldVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; SummarizePerVend: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeGenJnlLinesOnBeforeModifyVendorLedgerEntry(var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnMakeGenJnlLinesOnBeforeUpdateVendorPaymentBufferAmounts(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry"; var SummarizePerVend: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMakeGenJnlLinesOnBeforeVendorPaymentBufferInsertNonSummarize(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry"; var SummarizePerVend: Boolean; var NextDocNo: Code[20])
+    local procedure OnMakeGenJnlLinesOnBeforeVendorPaymentBufferInsertNonSummarize(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry"; var SummarizePerVend: Boolean; var NextDocNo: Code[20]; var TempPayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary)
     begin
     end;
 
@@ -1357,12 +1377,22 @@ report 393 "Suggest Vendor Payments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMakeGenJnlLinesOnBeforeVendorPaymentBufferModify(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry")
+    local procedure OnMakeGenJnlLinesOnBeforeVendorPaymentBufferModify(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry"; var TempPayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetMessageToRecipient(SummarizePerVend: Boolean; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; var IsHandled: Boolean; var Message: Text[140])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemOnBeforeMakeGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; var TempPayableVendorLedgEntry: Record "Vendor Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TempPayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary)
     begin
     end;
 }

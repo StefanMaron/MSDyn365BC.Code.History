@@ -33,6 +33,7 @@ codeunit 134092 "ERM Consolidation"
         GLAccountLineTok: Label '1,"%1","%2"', Comment = '%1, %2 - text value, %3 - number';
         DimensionValueLineTok: Label '7,"%1",%2,%3', Comment = '%1 text value, %2, %3 - number';
         LegalEntityIDLineTok: Label '4,"%1"', Comment = '%1  text value';
+        StartingDateErr: Label '%1 must be %2 in %3', Comment = '%1 = Starting Date, %2 = WorkDate, %3 = Consolidate Wizard';
 
     [Test]
     [Scope('OnPrem')]
@@ -701,6 +702,47 @@ codeunit 134092 "ERM Consolidation"
         // [THEN] It also deletes the child "Business Units in Consolidation Process".
         Assert.AreEqual(0, BusUnitInConsProcess.Count(), 'Business Units in Consolidation Process should be deleted.');
         Assert.AreEqual(0, ConsolidationProcess.Count(), 'Consolidation Processes should be deleted.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingDateAndEndingDateCanBeChangedInConsolidateWizardWithoutErr()
+    var
+        BusinessUnit: Record "Business Unit";
+        CompanyInformation: Record "Company Information";
+        ConsolidateWizard: TestPage "Consolidate Wizard";
+    begin
+        // [SCENARIO 550614] Starting Date and Ending Date in Consolidate Wizard can be changed without any error.
+        Initialize();
+
+        // [GIVEN] Find Company Information.
+        CompanyInformation.Get();
+
+        // [GIVEN] Create a Business Unit and Validate Company Name.
+        LibraryERM.CreateBusinessUnit(BusinessUnit);
+        BusinessUnit.Validate("Company Name", CompanyInformation.Name);
+        BusinessUnit.Modify(true);
+
+        // [GIVEN] Open Consolidate Wizard and set Starting Date, Ending Date and Document No.
+        ConsolidateWizard.Trap();
+        Page.Run(Page::"Consolidate Wizard");
+        ConsolidateWizard.ActionNext.Invoke();
+        ConsolidateWizard.StartingDate.SetValue('C' + Format(WorkDate()));
+        ConsolidateWizard.EndingDate.SetValue('C' + Format(WorkDate()));
+        ConsolidateWizard.DocumentNo.SetValue(LibraryRandom.RandText(4));
+
+        // [WHEN] Change Starting Date.
+        ConsolidateWizard.StartingDate.SetValue(WorkDate());
+
+        // [THEN] Starting Date in Consolidate Wizard is equal to WorkDate.
+        Assert.AreEqual(
+            WorkDate(),
+            ConsolidateWizard.StartingDate.AsDate(),
+            StrSubstNo(
+                StartingDateErr,
+                ConsolidateWizard.StartingDate.Caption(),
+                WorkDate(),
+                ConsolidateWizard.Caption()));
     end;
 
     local procedure Initialize()

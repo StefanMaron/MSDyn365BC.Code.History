@@ -219,6 +219,7 @@ report 12152 "Create Subcontr.Transf. Order"
         ProdOrderComponent.SetRange("Prod. Order Line No.", PurchLine."Prod. Order Line No.");
         ProdOrderComponent.SetRange("Routing Link Code", ProdOrderRoutingLine."Routing Link Code");
         ProdOrderComponent.SetRange("Purchase Order Filter", PurchLine."Document No.");
+        OnCheckPurchLineOnAfterProdOrderComponentSetFilters(ProdOrderComponent, PurchLine);
         if ProdOrderComponent.FindSet() then
             repeat
                 Item.Get(ProdOrderComponent."Item No.");
@@ -321,6 +322,11 @@ report 12152 "Create Subcontr.Transf. Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnPurchaselineOnAfterGetRecordOnAfterTransferLineInsert(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckPurchLineOnAfterProdOrderComponentSetFilters(var ProdOrderComponent: Record "Prod. Order Component"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

@@ -482,12 +482,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
         Item.CopyFilter("Location Filter", ForecastEntry2."Location Code");
 
         for ComponentForecast := ComponentForecastFrom to true do begin
-            if ComponentForecast then begin
-                if not FindReplishmentLocation(ReplenishmentLocation, Item) then
-                    ReplenishmentLocation := ManufacturingSetup."Components at Location";
-                if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
-                    exit;
-            end;
+            if not ManufacturingSetup."Use Forecast on Locations" then
+                if ComponentForecast then begin
+                    if not FindReplishmentLocation(ReplenishmentLocation, Item) then
+                        ReplenishmentLocation := ManufacturingSetup."Components at Location";
+                    if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
+                        exit;
+                end;
             ForecastEntry.SetRange("Component Forecast", ComponentForecast);
             ForecastEntry2.SetRange("Component Forecast", ComponentForecast);
             if ForecastEntry2.Find('-') then
@@ -902,6 +903,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         ReservEntry.SetFilter(ReservEntry."Reservation Status", '<>%1', ReservEntry."Reservation Status"::Prospect);
         if ReservEntry.Find('-') then
             repeat
+                Item.SetLoadFields("Manufacturing Policy", "Replenishment System");
                 Item.Get(ReservEntry."Item No.");
                 if not IsTrkgForSpecialOrderOrDropShpt(ReservEntry) then begin
                     if ShouldDeleteReservEntry(ReservEntry, ToDate) then begin
@@ -930,9 +932,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
         DeleteCondition: Boolean;
     begin
         IsReservedForProdComponent := ReservedForProdComponent(ReservEntry);
-        if IsReservedForProdComponent and IsProdOrderPlanned(ReservEntry) and not ReservEntry.IsReservationOrTracking() then
-            exit(false);
+        if IsReservedForProdComponent and not ReservEntry.IsReservationOrTracking() then
+            if IsProdOrderPlanned(ReservEntry) then
+                exit(false);
 
+        Item.SetLoadFields("Manufacturing Policy", "Replenishment System");
         Item.Get(ReservEntry."Item No.");
         DeleteCondition :=
             ((ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Reservation) and
@@ -949,21 +953,22 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     local procedure IsProdOrderPlanned(ReservationEntry: Record "Reservation Entry"): Boolean
     var
-        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderComponent: Record "Prod. Order Component";
         RequisitionLine: Record "Requisition Line";
     begin
-        if not ProdOrderComp.Get(
+        ProdOrderComponent.SetLoadFields(Status, "Prod. Order No.", "Prod. Order Line No.");
+        if not ProdOrderComponent.Get(
              ReservationEntry."Source Subtype", ReservationEntry."Source ID",
              ReservationEntry."Source Prod. Order Line", ReservationEntry."Source Ref. No.")
         then
-            exit;
+            exit(false);
 
         RequisitionLine.SetRefOrderFilters(
-          RequisitionLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status.AsInteger(),
-          ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.");
+          RequisitionLine."Ref. Order Type"::"Prod. Order", ProdOrderComponent.Status.AsInteger(),
+          ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.");
         RequisitionLine.SetRange("Operation No.", '');
 
-        exit(not RequisitionLine.IsEmpty);
+        exit(not RequisitionLine.IsEmpty());
     end;
 
     local procedure RemoveOrdinaryInventory(var Supply: Record "Inventory Profile")
@@ -1615,25 +1620,29 @@ codeunit 99000854 "Inventory Profile Offsetting"
     local procedure PlanItemNextStateMatchDates(var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile"; var TempReminderInvtProfile: Record "Inventory Profile" temporary; var WeAreSureThatDatesMatch: Boolean; IsReorderPointPlanning: Boolean; var LastProjectedInventory: Decimal; var LatestBucketStartDate: Date; var ROPHasBeenCrossed: Boolean; var NewSupplyHasTakenOver: Boolean)
     var
         OriginalSupplyDate: Date;
+        ShouldCalcNewSupplyDate: Boolean;
         NewSupplyDate: Date;
         CanBeRescheduled: Boolean;
         DemandDueDate: Date;
         LimitedHorizon: Boolean;
         IsHandled: Boolean;
     begin
+        ShouldCalcNewSupplyDate := true;
         IsHandled := false;
-        OnBeforePlanItemNextStateMatchDates(DemandInvtProfile, SupplyInvtProfile, NextState, IsHandled);
+        OnBeforePlanItemNextStateMatchDates(DemandInvtProfile, SupplyInvtProfile, NextState, IsHandled, ShouldCalcNewSupplyDate);
         if IsHandled then
             exit;
 
-        if FromLotAccumulationPeriodStartDate(LotAccumulationPeriodStartDate, DemandInvtProfile."Due Date") then begin
-            NewSupplyDate := LotAccumulationPeriodStartDate;
-            SupplyInvtProfile."Fixed Date" := NewSupplyDate;
-        end else begin
-            NewSupplyDate := SupplyInvtProfile."Due Date";
-            LotAccumulationPeriodStartDate := 0D;
-        end;
+        if ShouldCalcNewSupplyDate then
+            if FromLotAccumulationPeriodStartDate(LotAccumulationPeriodStartDate, DemandInvtProfile."Due Date") then begin
+                NewSupplyDate := LotAccumulationPeriodStartDate;
+                SupplyInvtProfile."Fixed Date" := NewSupplyDate;
+            end else begin
+                NewSupplyDate := SupplyInvtProfile."Due Date";
+                LotAccumulationPeriodStartDate := 0D;
+            end;
 
+        OnPlanItemNextStateMatchDatesOnAfterCalcNewSupplyDate(NewSupplyDate, TempSKU, SupplyInvtProfile, LotAccumulationPeriodStartDate);
         DemandDueDate := DemandInvtProfile."Due Date";
         if TempSKU."Replenishment System" = TempSKU."Replenishment System"::Purchase then
             DemandDueDate := GetPrevAvailDateFromCompanyCalendar(DemandInvtProfile."Due Date");
@@ -2074,7 +2083,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 end;
 
             if ((TempSKU."Replenishment System" = TempSKU."Replenishment System"::"Prod. Order") and (TempSKU."Manufacturing Policy" = TempSKU."Manufacturing Policy"::"Make-to-Stock"))
-                or (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Purchase) then
+                or (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Purchase) or (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Assembly) then
                 ReorderQty += AdjustReorderQty(ReorderQty, TempSKU, SupplyInvtProfile."Line No.", SupplyInvtProfile."Min. Quantity");
             SupplyInvtProfile."Max. Quantity" := TempSKU."Maximum Order Quantity";
         end;
@@ -4494,7 +4503,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     local procedure IsTrkgForSpecialOrderOrDropShpt(ReservEntry: Record "Reservation Entry") Result: Boolean
     var
         SalesLine: Record "Sales Line";
-        PurchLine: Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4504,11 +4513,17 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         case ReservEntry."Source Type" of
             Database::"Sales Line":
-                if SalesLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.") then
-                    exit(SalesLine."Special Order" or SalesLine."Drop Shipment");
+                begin
+                    SalesLine.SetLoadFields("Special Order", "Drop Shipment");
+                    if SalesLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.") then
+                        exit(SalesLine."Special Order" or SalesLine."Drop Shipment");
+                end;
             Database::"Purchase Line":
-                if PurchLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.") then
-                    exit(PurchLine."Special Order" or PurchLine."Drop Shipment");
+                begin
+                    PurchaseLine.SetLoadFields("Special Order", "Drop Shipment");
+                    if PurchaseLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.") then
+                        exit(PurchaseLine."Special Order" or PurchaseLine."Drop Shipment");
+                end;
         end;
 
         exit(false);
@@ -5260,7 +5275,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePlanItemNextStateMatchDates(var DemandInventoryProfile: Record "Inventory Profile"; var SupplyInventoryProfile: Record "Inventory Profile"; NextState: Option; var IsHandled: Boolean)
+    local procedure OnBeforePlanItemNextStateMatchDates(var DemandInventoryProfile: Record "Inventory Profile"; var SupplyInventoryProfile: Record "Inventory Profile"; NextState: Option; var IsHandled: Boolean; var ShouldCalcNewSupplyDate: Boolean)
     begin
     end;
 
@@ -6041,6 +6056,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransRcptTransLineToProfileOnAfterInsertInventoryProfile(var TransferLine: Record "Transfer Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemNextStateMatchDatesOnAfterCalcNewSupplyDate(var NewSupplyDate: Date; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var SupplyInvtProfile: Record "Inventory Profile"; LotAccumulationPeriodStartDate: Date)
     begin
     end;
 }

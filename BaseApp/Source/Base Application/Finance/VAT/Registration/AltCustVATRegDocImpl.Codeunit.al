@@ -28,7 +28,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
         CannotChangeVATDataWhenPrepmtErr: Label 'You cannot make this change because it leads to a different VAT Registration No., Gen. Bus. Posting Group or VAT Bus. Posting Group than in the sales document. Since you have posted a prepayment invoice, such a change will cause an inconsistency in the ledger entries.';
         CannotChangeVATDataWhenPartiallyPostedErr: Label 'You cannot make this change because it leads to a different VAT Registration No., Gen. Bus. Posting Group or VAT Bus. Posting Group than in the sales document. Since you have posted a partial shipment, such a change will cause an inconsistency in the ledger entries.';
         VATDataTakenFromCustomerMsg: Label 'The VAT Country/Region code has been changed to the value that does not have an alternative VAT registration.\\The following fields have been updated from the customer card: %1', Comment = '%1 = list of the fields';
-        FeatureNameTxt: Label 'Alternative Customer VAT Registration';
+        FeatureNameTxt: Label 'Alternative Customer VAT Registration', Locked = true;
         ConfirmAltCustVATRegNotificationNameTok: Label 'Confirm an alternative customer VAT registration.';
         ConfirmAltCustVATRegNotificationDescTok: Label 'Show the user the page to confirm an alternative customer VAT registration when choosing either ship-to address or the VAT country different from the customer''s';
         AddAlternativeCustVATRegQst: Label 'The VAT country is different than the customer''s. Do you want to add an alternative VAT registration for this VAT country?';

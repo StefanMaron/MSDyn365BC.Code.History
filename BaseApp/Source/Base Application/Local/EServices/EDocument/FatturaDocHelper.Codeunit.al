@@ -600,6 +600,7 @@ codeunit 12184 "Fattura Doc. Helper"
         VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
         VATEntry.SetFilter("Document Type", '%1|%2', VATEntry."Document Type"::Invoice, VATEntry."Document Type"::"Credit Memo");
         VATEntry.SetFilter("Posting Date", DateFilter);
+        OnBuildSelfBillingDocPageSourceOnAfterSetVATEntryFilters(TempVATEntry, VATEntry);
         BuildVATEntryBufferWithLinks(TempVATEntry, VATEntry);
     end;
 
@@ -1571,6 +1572,11 @@ codeunit 12184 "Fattura Doc. Helper"
 
     [IntegrationEvent(false, false)]
     local procedure OnCollectShipmentInfoFromLines(var TempFatturaHeader: Record "Fattura Header" temporary; var TempShptFatturaLine: Record "fattura Line" temporary; var TempLineNumberBuffer: Record "Line Number Buffer" temporary; var FatturaProjectCode: Code[15]; var FatturaTenderCode: Code[15]; var CustomerPurchOrderNo: Text[35]; Type: Text[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBuildSelfBillingDocPageSourceOnAfterSetVATEntryFilters(var TempVATEntry: Record "VAT Entry" temporary; var VATEntry: Record "VAT Entry")
     begin
     end;
 }
