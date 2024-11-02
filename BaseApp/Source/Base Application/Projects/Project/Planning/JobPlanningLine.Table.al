@@ -2020,7 +2020,7 @@ table 1003 "Job Planning Line"
         GetJob();
         if (Type = Type::Item) and Item.Get("No.") then
             if Item."Costing Method" = Item."Costing Method"::Standard then
-                if RetrieveCostPrice(CurrFieldNo) then begin
+                if RetrieveCostPrice(CurrFieldNo) or (CurrFieldNo = FieldNo("Unit Price")) then begin
                     if GetSKU() then
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
@@ -2029,7 +2029,7 @@ table 1003 "Job Planning Line"
                 end else
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
             else
-                if RetrieveCostPrice(CurrFieldNo) then begin
+                if RetrieveCostPrice(CurrFieldNo) or (CurrFieldNo = FieldNo("Unit Price")) then begin
                     CalculateRetrievedCost(RetrievedCost);
                     "Unit Cost" := ConvertAmountToFCY(RetrievedCost, UnitAmountRoundingPrecisionFCY);
                     "Unit Cost (LCY)" := Round(RetrievedCost, UnitAmountRoundingPrecision);
