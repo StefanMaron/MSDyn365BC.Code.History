@@ -31,6 +31,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         WorkMachineCenterNotExistErr: Label 'Operation no. %1 uses %2 no. %3 that no longer exists.', Comment = '%1 - Routing Line Operation No.; %2 - Work Center or Machine Center table caption; %3 - Work or Machine Center No.';
         ActionMustBeDisabledErr: Label 'Action must be disabled';
         ActionMustBeEnabledErr: Label 'Action must be enabled';
+        StartingDateTimeMustBeLessErr: Label 'Starting Date-Time of 1st Prod. Order Routing line must be less than Satrting Date-Time of 2nd Prod. Order Routing Line.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1981,6 +1982,82 @@ codeunit 137082 "SCM Manufacturing - Routings"
         UpdateDueDateOnReleasedProductionOrder(ProductionOrder."No.", CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 12)) + 'D>', WorkDate()));
     end;
 
+    [Test]
+    procedure StartingDateTimeIsCorrectInProdOrderRoutingLinesWhenCreateRelProdOrderWithParallelRouting()
+    var
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: array[2] of Record "Prod. Order Routing Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: array[4] of Record "Work Center";
+        ItemNo: Code[20];
+        ShopCalendarCode: array[2] of Code[10];
+    begin
+        // [SCENARIO 550078] When Stan creates Released Production Order using an Item having Parallel Routing 
+        // And runs Refresh Production Order action then Prod. Order Routing Lines are created with 
+        // correct Starting Date Time based on Previous and Next Operations defined in that Parallel Routing.
+        Initialize();
+
+        // [GIVEN] Create a Capacity Unit of Measure in Minutes.
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Minutes);
+
+        // [GIVEN] Create a ShopCalendar [1] with working days from 8AM till 4PM.
+        ShopCalendarCode[1] := LibraryManufacturing.UpdateShopCalendarFullWorkingWeekCustomTime(080000T, 160000T);
+
+        // [GIVEN] Create another ShopCalendar [2] with working days from 8AM till 11PM.
+        ShopCalendarCode[2] := LibraryManufacturing.UpdateShopCalendarFullWorkingWeekCustomTime(080000T, 230000T);
+
+        // [GIVEN] Create four Work Centers.
+        CreateWorkCenterAndCalcWorkCenterCalendar(WorkCenter[1], 1.20, CapacityUnitOfMeasure.Code, LibraryRandom.RandIntInRange(3, 3), ShopCalendarCode[1]);
+        CreateWorkCenterAndCalcWorkCenterCalendar(WorkCenter[2], 1.50, CapacityUnitOfMeasure.Code, LibraryRandom.RandInt(0), ShopCalendarCode[1]);
+        CreateWorkCenterAndCalcWorkCenterCalendar(WorkCenter[3], 1.70, CapacityUnitOfMeasure.Code, LibraryRandom.RandInt(0), ShopCalendarCode[2]);
+        CreateWorkCenterAndCalcWorkCenterCalendar(WorkCenter[4], 2.50, CapacityUnitOfMeasure.Code, LibraryRandom.RandInt(0), ShopCalendarCode[2]);
+
+        // [GIVEN] Create a Routing with Type as Parallel.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '100', RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '200', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '300', RoutingLine.Type::"Work Center", WorkCenter[3]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '400', RoutingLine.Type::"Work Center", WorkCenter[4]."No.");
+
+        // [GIVEN] Update Next and Previous Operations in Routing Lines.
+        UpdateSequentialExecution(RoutingHeader."No.", '', '100', '', '200|300', 0);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '200', '100', '400', LibraryRandom.RandIntInRange(100, 100));
+        UpdateSequentialExecution(RoutingHeader."No.", '', '300', '100', '400', LibraryRandom.RandIntInRange(1000, 1000));
+        UpdateSequentialExecution(RoutingHeader."No.", '', '400', '200|300', '', 0);
+
+        // [GIVEN] Update Routing Status.
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Create an Item with Routing.
+        ItemNo := CreateItemWithRoutingAndProductionBOM(RoutingHeader."No.", '');
+
+        // [GIVEN] Create a Released Production Order.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            "Production Order Status"::Released,
+            ProductionOrder."Source Type"::Item,
+            ItemNo,
+            LibraryRandom.RandInt(0));
+
+        // [GIVEN] Refresh Production Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Find Prod. Order Routing Line [1].
+        ProdOrderRoutingLine[1].SetRange("Routing No.", RoutingHeader."No.");
+        ProdOrderRoutingLine[1].SetRange("Operation No.", '100');
+        ProdOrderRoutingLine[1].FindFirst();
+
+        // [WHEN] Find Prod. Order Routing Line [2].
+        ProdOrderRoutingLine[2].SetRange("Routing No.", RoutingHeader."No.");
+        ProdOrderRoutingLine[2].SetRange("Operation No.", '200');
+        ProdOrderRoutingLine[2].FindFirst();
+
+        // [THEN] Starting Date-Time of Prod. Order Routing Line [1] is less then Starting Date-Time of Prod. Order Routing Line [2].
+        Assert.IsTrue(ProdOrderRoutingLine[1]."Starting Date-Time" < ProdOrderRoutingLine[2]."Starting Date-Time", StartingDateTimeMustBeLessErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing - Routings");
@@ -2237,6 +2314,28 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ReleasedProductionOrder.FILTER.SetFilter("No.", ProdOrderNo);
         ReleasedProductionOrder."Due Date".SetValue(DueDate);
         ReleasedProductionOrder.OK().Invoke();
+    end;
+
+    local procedure CreateWorkCenterAndCalcWorkCenterCalendar(
+        var WorkCenter: Record "Work Center";
+        UnitCost: Decimal;
+        UOMCode: Code[10];
+        Capacity: Decimal;
+        ShopCalendarCode: Code[10])
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Direct Unit Cost", UnitCost);
+        WorkCenter.Validate("Unit Cost", UnitCost);
+        WorkCenter.Validate("Unit Cost Calculation", WorkCenter."Unit Cost Calculation"::Time);
+        WorkCenter.Validate("Unit of Measure Code", UOMCode);
+        WorkCenter.Validate(Capacity, Capacity);
+        WorkCenter.Validate(Efficiency, LibraryRandom.RandIntInRange(100, 100));
+        WorkCenter.Validate("Shop Calendar Code", ShopCalendarCode);
+        WorkCenter.Validate("Queue Time", 0);
+        WorkCenter.Validate("Queue Time Unit of Meas. Code", '');
+        WorkCenter.Modify(true);
+
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, DMY2Date(1, 1, Date2DMY(Today(), 3)), DMY2Date(31, 12, Date2DMY(Today(), 3)));
     end;
 
     [ModalPageHandler]

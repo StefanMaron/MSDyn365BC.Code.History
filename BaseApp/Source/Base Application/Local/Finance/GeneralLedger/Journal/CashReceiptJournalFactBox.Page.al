@@ -338,6 +338,8 @@ page 35516 "Cash Receipt Journal FactBox"
             OnUpdateInfoBoxOnAFterCalculateDays(CustLedgEntry);
 
             CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+            OnUpdateInfoBoxOnAfterCalcRemainingAmount(CustLedgEntry);
+
             CurrOeRemainAmountFC := CustLedgEntry."Remaining Amount";
             CurrPMTDiscount :=
               ExchRate.ExchangeAmtFCYToFCY(Rec."Posting Date", CustLedgEntry."Currency Code",
@@ -419,6 +421,11 @@ page 35516 "Cash Receipt Journal FactBox"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateInfoBoxOnAfterSetCustLedgEntryFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateInfoBoxOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

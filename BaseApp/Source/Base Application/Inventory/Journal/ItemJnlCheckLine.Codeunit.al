@@ -83,8 +83,11 @@ codeunit 21 "Item Jnl.-Check Line"
             if not ItemJournalLine.OnlyStopTime() then
                 ItemJournalLine.TestField("Item No.", ErrorInfo.Create());
 
-        if Item.Get(ItemJournalLine."Item No.") then
-            Item.TestField("Base Unit of Measure", ErrorInfo.Create());
+        IsHandled := false;
+        OnBeforeGetItem(Item, IsHandled);
+        if not IsHandled then
+            if Item.Get(ItemJournalLine."Item No.") then
+                Item.TestField("Base Unit of Measure", ErrorInfo.Create());
 
         IsHandled := false;
         OnAfterGetItem(Item, ItemJournalLine, IsHandled);
@@ -849,6 +852,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunCheckOnBeforeTestFieldAppliesToEntry(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItem(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 }

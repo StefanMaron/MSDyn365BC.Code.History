@@ -64,6 +64,7 @@ codeunit 426 "Payment Tolerance Management"
 
         DelCustPmtTolAcc(CustLedgEntry, CustEntryApplId);
         CustLedgEntry.CalcFields("Remaining Amount");
+        OnPmtTolCustBeforeCalcCustApplnAmount(CustLedgEntry);
         CalcCustApplnAmount(
           CustLedgEntry, GLSetup, AppliedAmount, ApplyingAmount, AmounttoApply, PmtDiscAmount,
           MaxPmtTolAmount, CustEntryApplId, ApplnRoundingPrecision);
@@ -132,6 +133,7 @@ codeunit 426 "Payment Tolerance Management"
 
         DelVendPmtTolAcc(VendLedgEntry, VendEntryApplID);
         VendLedgEntry.CalcFields("Remaining Amount");
+        OnPmtTolVendBeforeCalcVendApplnAmount(VendLedgEntry);
         CalcVendApplnAmount(
           VendLedgEntry, GLSetup, AppliedAmount, ApplyingAmount, AmounttoApply, PmtDiscAmount,
           MaxPmtTolAmount, VendEntryApplID, ApplnRoundingPrecision);
@@ -484,9 +486,10 @@ codeunit 426 "Payment Tolerance Management"
                 end else
                     i := 2;
 
-                if AppliedCustLedgEntry.Find('-') then
+                if AppliedCustLedgEntry.FindSet() then
                     repeat
                         AppliedCustLedgEntry.CalcFields("Remaining Amount");
+                        OnCalcCustApplnAmountAfterCalcRemainingAmount(AppliedCustLedgEntry);
                         TempAppliedCustLedgerEntry := AppliedCustLedgEntry;
                         if AppliedCustLedgEntry."Currency Code" <> ApplnCurrencyCode then
                             AppliedCustLedgEntry.UpdateAmountsForApplication(ApplnDate, ApplnCurrencyCode, false, true);
@@ -659,9 +662,10 @@ codeunit 426 "Payment Tolerance Management"
                 end else
                     i := 2;
 
-                if AppliedVendLedgEntry.Find('-') then
+                if AppliedVendLedgEntry.FindSet() then
                     repeat
                         AppliedVendLedgEntry.CalcFields("Remaining Amount");
+                        OnCalcVendApplnAmountAfterCalcRemainingAmount(AppliedVendLedgEntry);
                         TempAppliedVendorLedgerEntry := AppliedVendLedgEntry;
                         if AppliedVendLedgEntry."Currency Code" <> ApplnCurrencyCode then
                             AppliedVendLedgEntry.UpdateAmountsForApplication(ApplnDate, ApplnCurrencyCode, false, true);
@@ -777,7 +781,7 @@ codeunit 426 "Payment Tolerance Management"
         IsHandled := false;
         OnBeforeCheckPmtDiscTolCust(NewPostingdate, NewDocType, NewAmount, OldCustLedgEntry, ApplnRoundingPrecision, MaxPmtTolAmount, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         if ((NewDocType = NewDocType::Payment) and
             ((OldCustLedgEntry."Document Type" in [OldCustLedgEntry."Document Type"::Invoice,
@@ -813,7 +817,13 @@ codeunit 426 "Payment Tolerance Management"
     local procedure CheckPmtDiscTolVend(NewPostingdate: Date; NewDocType: Enum "Gen. Journal Document Type"; NewAmount: Decimal; OldVendLedgEntry: Record "Vendor Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal): Boolean
     var
         ToleranceAmount: Decimal;
+        IsHandled, Result : Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPmtDiscTolVend(NewPostingdate, NewDocType, NewAmount, OldVendLedgEntry, ApplnRoundingPrecision, MaxPmtTolAmount, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if ((NewDocType = NewDocType::Payment) and
             ((OldVendLedgEntry."Document Type" in [OldVendLedgEntry."Document Type"::Invoice,
                                                    OldVendLedgEntry."Document Type"::"Credit Memo"]) and
@@ -950,6 +960,7 @@ codeunit 426 "Payment Tolerance Management"
         if AppliedCustLedgEntry.FindSet(false) then
             repeat
                 AppliedCustLedgEntry.CalcFields(Amount);
+                OnPutCustPmtTolAmountAfterCalcAmount(AppliedCustLedgEntry);
                 if CustledgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then
                     AppliedCustLedgEntry.Amount :=
                       CurrExchRate.ExchangeAmount(
@@ -1033,6 +1044,7 @@ codeunit 426 "Payment Tolerance Management"
         if AppliedVendLedgEntry.FindSet(false) then
             repeat
                 AppliedVendLedgEntry.CalcFields(Amount);
+                OnPutVendPmtTolAmountAfterCalcAmount(AppliedVendLedgEntry);
                 if VendLedgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then
                     AppliedVendLedgEntry.Amount :=
                       CurrExchRate.ExchangeAmount(
@@ -1548,6 +1560,7 @@ codeunit 426 "Payment Tolerance Management"
     local procedure UpdateCustAmountsForApplication(var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; var TempAppliedCustLedgEntry: Record "Cust. Ledger Entry" temporary)
     begin
         AppliedCustLedgEntry.CalcFields("Remaining Amount");
+        OnUpdateCustAmountsForApplicationAfterCalcRemainingAmount(AppliedCustLedgEntry);
         TempAppliedCustLedgEntry := AppliedCustLedgEntry;
         if CustLedgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then
             AppliedCustLedgEntry.UpdateAmountsForApplication(CustLedgEntry."Posting Date", CustLedgEntry."Currency Code", true, true);
@@ -1556,6 +1569,7 @@ codeunit 426 "Payment Tolerance Management"
     local procedure UpdateVendAmountsForApplication(var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntry: Record "Vendor Ledger Entry"; var TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary)
     begin
         AppliedVendLedgEntry.CalcFields("Remaining Amount");
+        OnUpdateVendAmountsForApplicationAfterCalcRemainingAmount(AppliedVendLedgEntry);
         TempAppliedVendLedgEntry := AppliedVendLedgEntry;
         if VendLedgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then
             AppliedVendLedgEntry.UpdateAmountsForApplication(VendLedgEntry."Posting Date", VendLedgEntry."Currency Code", true, true);
@@ -1996,6 +2010,7 @@ codeunit 426 "Payment Tolerance Management"
         if AppliedCustLedgEntry.FindSet() then
             repeat
                 AppliedCustLedgEntry.CalcFields("Remaining Amount");
+                OnManagePaymentDiscToleranceWarningCustomerAfterCalcRemainingAmount(AppliedCustLedgEntry);
                 if CallPmtDiscTolWarning(
                      AppliedCustLedgEntry."Posting Date", AppliedCustLedgEntry."Customer No.",
                      AppliedCustLedgEntry."Document No.", AppliedCustLedgEntry."Currency Code",
@@ -2042,6 +2057,7 @@ codeunit 426 "Payment Tolerance Management"
         if AppliedVendLedgEntry.FindSet() then
             repeat
                 AppliedVendLedgEntry.CalcFields("Remaining Amount");
+                OnManagePaymentDiscToleranceWarningVendorAfterCalcRemainingAmount(AppliedVendLedgEntry);
                 if CallPmtDiscTolWarning(
                      AppliedVendLedgEntry."Posting Date", AppliedVendLedgEntry."Vendor No.",
                      AppliedVendLedgEntry."Document No.", AppliedVendLedgEntry."Currency Code",
@@ -2224,6 +2240,11 @@ codeunit 426 "Payment Tolerance Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPmtDiscTolVend(NewPostingdate: Date; NewDocType: Enum "Gen. Journal Document Type"; NewAmount: Decimal; OldVendLedgEntry: Record "Vendor Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDelPmtTolApllnDocNo(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -2315,6 +2336,56 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnPmtTolGenJnlOnAfterCheckConditions(GenJournalLine: Record "Gen. Journal Line"; var SuppressCommit: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCustApplnAmountAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVendApplnAmountAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnManagePaymentDiscToleranceWarningCustomerAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnManagePaymentDiscToleranceWarningVendorAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPmtTolCustBeforeCalcCustApplnAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPmtTolVendBeforeCalcVendApplnAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPutCustPmtTolAmountAfterCalcAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPutVendPmtTolAmountAfterCalcAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustAmountsForApplicationAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendAmountsForApplicationAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

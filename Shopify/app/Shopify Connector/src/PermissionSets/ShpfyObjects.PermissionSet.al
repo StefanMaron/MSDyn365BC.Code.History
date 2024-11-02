@@ -166,6 +166,7 @@ permissionset 30104 "Shpfy - Objects"
         codeunit "Shpfy GQL FindVariantBySKU" = X,
         codeunit "Shpfy GQL Fulfill Order" = X,
         codeunit "Shpfy GQL Get Fulfillments" = X,
+        codeunit "Shpfy GQL GetProductImage" = X,
         codeunit "Shpfy GQL InventoryEntries" = X,
         codeunit "Shpfy GQL LocationOrderLines" = X,
         codeunit "Shpfy GQL Locations" = X,

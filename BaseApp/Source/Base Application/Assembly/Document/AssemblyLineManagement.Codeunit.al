@@ -568,7 +568,7 @@ codeunit 905 "Assembly Line Management"
             repeat
                 ToAssemblyLine := AssemblyLine;
                 ToAssemblyLine.Insert();
-                OnCopyAssemblyDataOnAfterToAssemblyLineInsert(AssemblyLine, ToAssemblyLine);
+                OnCopyAssemblyDataOnAfterToAssemblyLineInsert(AssemblyLine, ToAssemblyLine, ToAssemblyHeader);
                 NoOfLinesInserted += 1;
             until AssemblyLine.Next() = 0;
     end;
@@ -1012,7 +1012,7 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyAssemblyDataOnAfterToAssemblyLineInsert(var AssemblyLine: Record "Assembly Line"; var ToAssemblyLine: Record "Assembly Line")
+    local procedure OnCopyAssemblyDataOnAfterToAssemblyLineInsert(var AssemblyLine: Record "Assembly Line"; var ToAssemblyLine: Record "Assembly Line"; var ToAssemblyHeader: Record "Assembly Header")
     begin
     end;
 

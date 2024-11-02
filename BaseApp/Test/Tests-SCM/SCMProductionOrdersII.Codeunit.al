@@ -54,7 +54,6 @@
         DeleteItemTrackingQst: Label 'has item reservation. Do you want to delete it anyway?';
         ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Update Quantity","Manual Lot No.";
         ProdOrderRtngLineNotUpdatedMsg: Label 'Prod. Order Routing Line is not updated.';
-        TotalDurationExceedsAvailTimeErr: Label 'The sum of setup, move and wait time exceeds the available time in the period.';
         CancelReservationTxt: Label 'Cancel reservation';
         PostingProductionJournalQst: Label 'Do you want to post the journal lines?';
         PostingProductionJournalTxt: Label 'The journal lines were successfully posted';
@@ -1634,28 +1633,6 @@
         // Verify: Verify change status successfully. The Finished Quantity is correct and finishing the Production Order.
         VerifyProdOrderLine(
           ParentItem."No.", ProductionOrder.Status::Finished, ProductionOrder.Quantity, ProductionOrder.Quantity);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure IncreaseDurationOfOperationsInManuallyScheduledProdOrderRoutingLine()
-    var
-        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        NewSetupTime: Decimal;
-    begin
-        // [SCENARIO 379761] An error should occur when total duration of setup-wait-move operations exceeds the period between Starting and Ending Dates in Prod. Order Routing Line with "Schedule Manually" flag on.
-        Initialize();
-
-        // [GIVEN] Released Production Order.
-        // [GIVEN] "Schedule Manually" flag is set to TRUE in Prod. Order Routing Line "L".
-        CreateReleasedProdOrderWithManuallyScheduledRoutingLine(ProdOrderRoutingLine);
-
-        // [WHEN] Increase Setup Time in "L".
-        NewSetupTime := ProdOrderRoutingLine."Setup Time" + LibraryRandom.RandInt(5);
-        asserterror UpdateSetupTimeInProdOrderRoutingLine(ProdOrderRoutingLine, NewSetupTime);
-
-        // [THEN] Error message of exceeding duration of operations is shown.
-        Assert.ExpectedError(TotalDurationExceedsAvailTimeErr);
     end;
 
     [Test]
@@ -4862,6 +4839,176 @@
                 QuantityErr,
                 ItemLedgerEntry.FieldCaption(Quantity),
                 -ProdOrderComponent."Qty. Picked (Base)",
+                ItemLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IncreaseDurationOfOperationsInManuallyScheduledProdOrderRoutingLine()
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        NewSetupTime: Decimal;
+    begin
+        // [SCENARIO 532972] When Stan increases Setup Time which increases the total duration 
+        // Of setup-wait-move operations in Prod. Order Routing Line having "Schedule Manually" 
+        // Set to true then no error occurs.
+        Initialize();
+
+        // [GIVEN] Create a Released Production Order with Manually Scheduled Routing Line.
+        CreateReleasedProdOrderWithManuallyScheduledRoutingLine(ProdOrderRoutingLine);
+
+        // [GIVEN] Generate and save New Setup Time.
+        NewSetupTime := ProdOrderRoutingLine."Setup Time" + LibraryRandom.RandInt(5);
+
+        // [WHEN] Update Setup Time in Prod. Order Routing Line.
+        UpdateSetupTimeInProdOrderRoutingLine(ProdOrderRoutingLine, NewSetupTime);
+
+        // [THEN] Setup Time in Prod. Order Routing Line is equal to New Setup Time value.
+        Assert.AreEqual(NewSetupTime, ProdOrderRoutingLine."Setup Time", ProdOrderRtngLineNotUpdatedMsg);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ProductionJournalPageHandlerOnlyOutput,ConfirmHandlerTrue,MessageHandler')]
+    procedure ILEQuantityWhenFlushingMethodIsBackwardandCalculationFormulaUsed()
+    var
+        CompItem, CompItem2, ProdItem : Record Item;
+        CompItemUnitOfMeasure, CompItemUnitOfMeasure2, ProdItemUnitOfMeasure : array[2] of Record "Item Unit of Measure";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        RoutingLink: Record "Routing Link";
+        WorkCenter: Record "Work Center";
+        ProductionJournalMgt: codeunit "Production Journal Mgt";
+        QuantityCalculationFormula: Enum "Quantity Calculation Formula";
+        ConsumptionQuantity: Decimal;
+        ConsumptionQuantity2: Decimal;
+    begin
+        // [SCENARIO 538860] When Calculation formula used in Production BOM and flushing method Pick+Backward is used on Raw Material, ILE should calculated  from quantity in Product
+        Initialize();
+
+        // [GIVEN] Create Component Item with Item Unit of Measure Code.
+        CreateComponentItemWithItemUnitOfMeasureCode(CompItem, CompItemUnitOfMeasure);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::"Pick + Backward");
+        CompItem.Modify(true);
+
+        // [GIVEN] Create Component Item 2 with Item Unit of Measure Code.
+        CreateComponentItemWithItemUnitOfMeasureCode(CompItem2, CompItemUnitOfMeasure2);
+        CompItem2.Validate("Flushing Method", CompItem2."Flushing Method"::"Pick + Backward");
+        CompItem2.Modify(true);
+
+        // [GIVEN] Create and Post two Item Journal Lines of Component Item and Component Item 2.
+        CreateAndPostItemJournalLine(CompItem."No.", LibraryRandom.RandIntInRange(100, 100), '', '', false);
+        CreateAndPostItemJournalLine(CompItem2."No.", LibraryRandom.RandIntInRange(100, 100), '', '', false);
+
+        // [GIVEN] Create Production Item with Item Unit of Measure Code.
+        CreateProductionItemWithItemUnitOfMeasureCode(ProdItem, ProdItemUnitOfMeasure);
+
+        // [GIVEN] Create Routing Link.
+        LibraryManufacturing.CreateRoutingLink(RoutingLink);
+
+        // [GIVEN] Create Work Center and Validate Flushing Method, Capacity and Efficiency.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Flushing Method", WorkCenter."Flushing Method"::Backward);
+        WorkCenter.Validate(Capacity, LibraryRandom.RandInt(0));
+        WorkCenter.Validate(Efficiency, LibraryRandom.RandIntInRange(100, 100));
+        WorkCenter.Modify(true);
+
+        // [GIVEN] Create and Certify Routing with Routing Link Code..
+        CreateAndCertifyRoutingWithRoutingLinkCode(RoutingHeader, RoutingLine, WorkCenter."No.", RoutingLink.Code);
+
+        // [GIVEN] Create and Certify Production BOM with Routing Link Code.
+        CreateAndCertifyProductionBOMwithRoutingLinkCode(ProductionBOMHeader, ProductionBOMLine, ProdItem, CompItem, CompItem2, RoutingLink);
+
+        // [GIVEN] Update Production Item.
+        ProdItem.Validate("Base Unit of Measure", ProdItemUnitOfMeasure[1].Code);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Rounding Precision", 0.001);
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProdItem."No.",
+            LibraryRandom.RandIntInRange(10, 10),
+            '',
+            '');
+
+        // [GIVEN] Find and Update Prod. Order Component of Component Item.
+        FindAndUpdateProdOrderComponentWithCalcFormula(
+            ProductionOrder,
+            ProdOrderComponent,
+            CompItem,
+            RoutingLink,
+            LibraryRandom.RandIntInRange(3, 3),
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandInt(0),
+            QuantityCalculationFormula::Length);
+
+        // [GIVEN] Generate and save Consumption Quantity in a Variable.
+        ConsumptionQuantity := ProdOrderComponent."Quantity per" * ProdOrderComponent.Length * ProductionOrder.Quantity;
+
+        // [GIVEN] Find and Update Prod. Order Component of Component Item 2.
+        FindAndUpdateProdOrderComponentWithCalcFormula(
+            ProductionOrder,
+            ProdOrderComponent,
+            CompItem2,
+            RoutingLink,
+            LibraryRandom.RandIntInRange(2, 2),
+            LibraryRandom.RandIntInRange(2, 2),
+            LibraryRandom.RandInt(0),
+            QuantityCalculationFormula::"Length * Width");
+
+        // [GIVEN] Generate and save Consumption Quantity 2 in a Variable.
+        ConsumptionQuantity2 := ProdOrderComponent."Quantity per" * ProdOrderComponent.Length * ProdOrderComponent.Width * ProductionOrder.Quantity;
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Post Production Journal.
+        LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalQst);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalTxt);
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Find Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Document No.", ProductionOrder."No.");
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.FindFirst();
+
+        // [THEN] Consumption Quantity and Item Ledger Entry Quantity are same.
+        Assert.AreEqual(
+            -ConsumptionQuantity,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                ItemLedgerEntry.FieldCaption(Quantity),
+                -ConsumptionQuantity,
+                ItemLedgerEntry.TableCaption()));
+
+        // [WHEN] Find Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Document No.", ProductionOrder."No.");
+        ItemLedgerEntry.SetRange("Item No.", CompItem2."No.");
+        ItemLedgerEntry.FindFirst();
+
+        // [THEN] Consumption Quantity 2 and Item Ledger Entry Quantity are same.
+        Assert.AreEqual(
+            -ConsumptionQuantity2,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                ItemLedgerEntry.FieldCaption(Quantity),
+                -ConsumptionQuantity2,
                 ItemLedgerEntry.TableCaption()));
     end;
 

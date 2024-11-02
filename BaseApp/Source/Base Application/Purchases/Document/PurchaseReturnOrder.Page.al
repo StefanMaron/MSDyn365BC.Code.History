@@ -410,7 +410,7 @@ page 6640 "Purchase Return Order"
                 {
                     ApplicationArea = Location;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
+                    ToolTip = 'Specifies the location where the items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
@@ -1141,6 +1141,75 @@ page 6640 "Purchase Return Order"
                         CurrPage.PurchLines.Page.Update(false);
                     end;
                 }
+                group(IncomingDocument)
+                {
+                    Caption = 'Incoming Document';
+                    Image = Documents;
+                    action(IncomingDocCard)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'View Incoming Document';
+                        Enabled = HasIncomingDocument;
+                        Image = ViewOrder;
+                        ToolTip = 'View any incoming document records and file attachments that exist for the entry or document, for example for auditing purposes';
+
+                        trigger OnAction()
+                        var
+                            IncomingDocument: Record "Incoming Document";
+                        begin
+                            IncomingDocument.ShowCardFromEntryNo(Rec."Incoming Document Entry No.");
+                        end;
+                    }
+                    action(SelectIncomingDoc)
+                    {
+                        AccessByPermission = TableData "Incoming Document" = R;
+                        ApplicationArea = Suite;
+                        Caption = 'Select Incoming Document';
+                        Image = SelectLineToApply;
+                        ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
+
+                        trigger OnAction()
+                        var
+                            IncomingDocument: Record "Incoming Document";
+                        begin
+                            Rec.Validate("Incoming Document Entry No.", IncomingDocument.SelectIncomingDocument(Rec."Incoming Document Entry No.", Rec.RecordId));
+                        end;
+                    }
+                    action(IncomingDocAttachFile)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Create Incoming Document from File';
+                        Ellipsis = true;
+                        Enabled = (Rec."Incoming Document Entry No." = 0) and (Rec."No." <> '');
+                        Image = Attach;
+                        ToolTip = 'Create an incoming document from a file that you select from the disk. The file will be attached to the incoming document record.';
+
+                        trigger OnAction()
+                        var
+                            IncomingDocumentAttachment: Record "Incoming Document Attachment";
+                        begin
+                            IncomingDocumentAttachment.NewAttachmentFromPurchaseDocument(Rec);
+                        end;
+                    }
+                    action(RemoveIncomingDoc)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Remove Incoming Document';
+                        Enabled = HasIncomingDocument;
+                        Image = RemoveLine;
+                        ToolTip = 'Remove any incoming document records and file attachments.';
+
+                        trigger OnAction()
+                        var
+                            IncomingDocument: Record "Incoming Document";
+                        begin
+                            if IncomingDocument.Get(Rec."Incoming Document Entry No.") then
+                                IncomingDocument.RemoveLinkToRelatedRecord();
+                            Rec."Incoming Document Entry No." := 0;
+                            Rec.Modify(true);
+                        end;
+                    }
+                }
                 action("Apply Entries")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1487,6 +1556,23 @@ page 6640 "Purchase Return Order"
                 actionref(GetPostedDocumentLinesToReverse_Promoted; GetPostedDocumentLinesToReverse)
                 {
                 }
+                group("Category_Incoming Document")
+                {
+                    Caption = 'Incoming Document';
+
+                    actionref(IncomingDocAttachFile_Promoted; IncomingDocAttachFile)
+                    {
+                    }
+                    actionref(SelectIncomingDoc_Promoted; SelectIncomingDoc)
+                    {
+                    }
+                    actionref(IncomingDocCard_Promoted; IncomingDocCard)
+                    {
+                    }
+                    actionref(RemoveIncomingDoc_Promoted; RemoveIncomingDoc)
+                    {
+                    }
+                }
                 actionref(CalculateInvoiceDiscount_Promoted; CalculateInvoiceDiscount)
                 {
                 }
@@ -1676,6 +1762,7 @@ page 6640 "Purchase Return Order"
         IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         VATDateEnabled: Boolean;
+        HasIncomingDocument: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
@@ -1773,6 +1860,7 @@ page 6640 "Purchase Return Order"
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         JobQueueVisible := Rec."Job Queue Status" = Rec."Job Queue Status"::"Scheduled for Posting";
+        HasIncomingDocument := Rec."Incoming Document Entry No." <> 0;
 
         OpenApprovalEntriesExistForCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId());
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId());

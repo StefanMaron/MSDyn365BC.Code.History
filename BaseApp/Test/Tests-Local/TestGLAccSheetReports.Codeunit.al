@@ -1027,6 +1027,64 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         VerifyDebitCreditForTemporaryPostings(GenJournalLine, 'ProvDebit', 'ProvCredit');
     end;
 
+    [Test]
+    [HandlerFunctions('GLAccSheetForeignCurrReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLSheetForeignCurrFCYBalanceHasValues()
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        GenJournalTemplateType: Enum "Gen. Journal Template Type";
+        AmountFCY: Decimal;
+        CurrencyCode: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 547828] When Stan runs report G/L Acc Sheet Foreign Curr 
+        // Then Entries having Foriegn Currency prints values in Balance FCY and Amount FCY.
+        Initialize();
+
+        // [GIVEN] Generate a Amount and save it in a Variable.
+        AmountFCY := -LibraryRandom.RandIntInRange(1000, 100);
+
+        // [GIVEN] Generate a Currency Code and save it in a Variable.
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(
+            WorkDate(),
+            LibraryRandom.RandDec(100, 2),
+            LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Create a Customer.
+        CreateCustomer(CustomerPostingGroup, Customer, CurrencyCode);
+
+        // [GIVEN] Create a General Journal Batch.
+        CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplateType);
+
+        // [GIVEN] Create a General Journal Line.
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer, Customer."No.",
+            AmountFCY);
+
+        // [GIVEN] Save Gen. Journal Line "Document No." in a Variable.
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [GIVEN] Posts a General Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Get a Receivable Account.
+        GLAccount.Get(CustomerPostingGroup."Receivables Account");
+
+        // [WHEN] Runs G/L Account Sheet Foreign Currency Report.
+        LibraryVariableStorage.Enqueue(GLAccount."No.");
+        RunSRGLAccSheetForeignCurrReport(GLAccount);
+
+        // [THEN] Verify Foreign Currency Amounts.
+        VerifyGLAccForeignCurrReportValues(GLAccount, CurrencyCode, DocumentNo, AmountFCY)
+    end;
+
     local procedure Initialize()
     var
         GenJnlTemplate: Record "Gen. Journal Template";
@@ -1566,6 +1624,57 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals(DebitTag, GenJournalLine[3].Amount);
     end;
 
+    local procedure CreateCustomer(
+        var CustomerPostingGroup: Record "Customer Posting Group";
+        var Customer: Record Customer;
+        CurrencyCode: Code[20])
+    begin
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplateType::General);
+        GenJournalTemplate.Modify();
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Income Statement";
+        GLAccount.Modify(true);
+        GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
+        GenJournalBatch.Modify(true);
+    end;
+
+    local procedure VerifyGLAccForeignCurrReportValues(
+        GLAccount: Record "G/L Account";
+        CurrencyCode: Code[20];
+        DocumentNoCode: Code[20];
+        AmountFCY: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        GLEntry.SetRange("G/L Account No.", GLAccount."No.");
+        GLEntry.SetRange("Document No.", DocumentNoCode);
+        GLEntry.FindFirst();
+
+        LibraryReportDataset.Reset();
+        LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
+        LibraryReportDataset.SetRange('DocumentNo_GLEntry', GLEntry."Document No.");
+        LibraryReportDataset.GetNextRow();
+
+        LibraryReportDataset.AssertCurrentRowValueEquals('GLEntryFcyAcyBalance', AmountFCY);
+        LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyAmt', AmountFCY);
+        LibraryReportDataset.AssertCurrentRowValueEquals('CurrencyCode_GLAccount', CurrencyCode);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLAccSheetBalanceInfoReqPageHandler(var SRGLAccSheetBalAccount: TestRequestPage "SR G/L Acc Sheet Bal Account")
@@ -1639,6 +1748,17 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SRGLAccSheetVATInfo.ShowAllAccounts.SetValue(false);
         SRGLAccSheetVATInfo.WithoutClosingEntries.SetValue(false);
         SRGLAccSheetVATInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure GLAccSheetForeignCurrReqPageHandler(var SRGLAccSheetForeignCurr: TestRequestPage "SR G/L Acc Sheet Foreign Curr")
+    var
+        GLAccountNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(GLAccountNo);
+        SRGLAccSheetForeignCurr."G/L Account".SetFilter("No.", GLAccountNo);
+        SRGLAccSheetForeignCurr.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
