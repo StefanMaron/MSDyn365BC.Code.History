@@ -915,11 +915,16 @@ codeunit 1890 "Reminder Communication"
         ReadStream: InStream;
         WriteStream: OutStream;
         HtmlContent: Text;
+        ReportIDExit: Boolean;
     begin
         if IsHandled then
             exit;
-        if ReportID <> Report::Reminder then
-            exit;
+        if ReportID <> Report::Reminder then begin
+            ReportIDExit := true;
+            OnBeforeExitReportIDOnReplaceHTMLText(ReportID, RecordVariant, ReportIDExit);
+            if ReportIDExit then
+                exit;
+        end;
         if not RecordVariant.IsRecordRef() then
             exit;
 
@@ -999,5 +1004,10 @@ codeunit 1890 "Reminder Communication"
 
         if not FindFileName(IssuedReminderHeader, AttachmentFileName, PDFFileExtensionTok) then
             exit;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExitReportIDOnReplaceHTMLText(ReportID: Integer; var RecordVariant: Variant; var ReportIDExit: Boolean)
+    begin
     end;
 }

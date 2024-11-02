@@ -22,6 +22,18 @@ page 464 "Tax Area"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the tax area. For example, if you use a number as the tax code, you might want to describe the tax area in this field.';
+
+                    trigger OnValidate()
+                    var
+                        Notification: Notification;
+                    begin
+                        if (StrLen(Rec.Description) > 30) and ShowTaxDescriptionWarning then begin
+                            ShowTaxDescriptionWarning := false;
+                            Notification.Message := TaxAreaDescriptionWarningMsg;
+                            Notification.Scope := NotificationScope::LocalScope;
+                            Notification.Send();
+                        end;
+                    end;
                 }
                 field("Country/Region"; Rec."Country/Region")
                 {
@@ -81,6 +93,7 @@ page 464 "Tax Area"
     trigger OnOpenPage()
     begin
         ShowTaxDetails := true;
+        ShowTaxDescriptionWarning := true;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -98,5 +111,7 @@ page 464 "Tax Area"
     var
         TaxAreaNotSetupQst: Label 'The Tax Area functionality does not work because you have not specified the Jurisdictions field.\\Do you want to continue?';
         ShowTaxDetails: Boolean;
+        TaxAreaDescriptionWarningMsg: Label 'Descriptions longer than 30 characters may cause problems with printing Purchase Invoice';
+        ShowTaxDescriptionWarning: Boolean;
 }
 

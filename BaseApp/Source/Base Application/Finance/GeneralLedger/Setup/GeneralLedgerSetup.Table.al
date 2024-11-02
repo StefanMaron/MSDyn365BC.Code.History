@@ -945,12 +945,12 @@ table 98 "General Ledger Setup"
             trigger OnValidate()
             var
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
-                CFDIConsentProvidedLbl: Label 'CFDI - consent provided.', Locked = true;
+                CFDIConsentProvidedLbl: Label 'CFDI - consent provided by UserSecurityId %1.', Locked = true;
             begin
                 if "CFDI Enabled" then
                     "CFDI Enabled" := CustomerConsentMgt.ConfirmUserConsent();
                 if "CFDI Enabled" then
-                    Session.LogAuditMessage(CFDIConsentProvidedLbl, SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                    Session.LogAuditMessage(StrSubstNo(CFDIConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
             end;
         }
         field(10010; "Sim. Signature"; Boolean)

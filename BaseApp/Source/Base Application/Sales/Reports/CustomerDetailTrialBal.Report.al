@@ -269,6 +269,8 @@ report 104 "Customer - Detail Trial Bal."
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'Customer - Detail Trial Bal.';
+        AboutText = 'View customer balances at the end of a period, including the opening balance, each transaction within the period, and the closing balance grouped by customer. View details for remaining amounts and due dates.';
 
         layout
         {

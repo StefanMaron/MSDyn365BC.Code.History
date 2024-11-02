@@ -10,6 +10,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
         TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         Any: Codeunit Any;
         Assert: Codeunit Assert;
@@ -1234,6 +1235,133 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         Assert.IsTrue(AllocAccManualOverride.IsEmpty(), 'The manual override was not deleted');
     end;
 
+    [Test]
+    procedure AllLinesAreBalancedWhenAllocateToSameAccountsWithFixedGLAllocationWhenPostsGenJournal()
+    var
+        GenJournalLine: array[4] of Record "Gen. Journal Line";
+        AllocationAccount: array[2] of Record "Allocation Account";
+        BankAccount: Record "Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GLEntry: Record "G/L Entry";
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CurrencyCode: Code[20];
+        DocumentNo: Code[20];
+        ShareValue: array[3] of Decimal;
+        ShareValue2: array[3] of Decimal;
+        AmountValue: array[4] of Decimal;
+    begin
+        // [SCENARIO 539589] When Stan posts General Journal Lines with Currency Code
+        // And Allocation Account are same as Inherit Parent then G/L Entries are Balanced.
+        Initialize();
+
+        // [GIVEN] Generate Share Value and save it in a Variable.
+        AssignShareValues(ShareValue);
+
+        // [GIVEN] Generate Amount Value and save it in a Variable.
+        AssignAmountValue(AmountValue);
+
+        // [GIVEN] Create a General Posting Setup.
+        CreateGeneralPostingSetupforVAT(GenBusinessPostingGroup, GenProductPostingGroup, GLAccount);
+
+        // [GIVEN] Create a VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Generate a Currency Code With Exchange Rates.
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Create An Allocation Account One With Fixed distributions and Three inherit from parent values.
+        CreateAllocationAccountwithFixedDistributionsInheritFromParent(AllocationAccount[1], ShareValue);
+
+        // [GIVEN] Create a Bank Account.
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // [GIVEN] Generate Document No. and save it in a Variable.
+        DocumentNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create General Journal Batch.
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create General Journal line One with Allocation Account
+        CreateLineOnGeneralJournal2(
+            GenJournalLine[1],
+            GLAccount."No.",
+            GenJournalLine[1]."Account Type"::"G/L Account",
+            GenJournalLine[1]."Bal. Account Type"::"G/L Account",
+            '',
+            AmountValue[1],
+            DocumentNo,
+            GenJournalBatch,
+            VATPostingSetup."VAT Bus. Posting Group",
+            VATPostingSetup."VAT Prod. Posting Group",
+            CurrencyCode,
+            AllocationAccount[1]."No.");
+
+        // [GIVEN] Create General Journal line Two with Allocation Account.
+        CreateLineOnGeneralJournal2(
+            GenJournalLine[2],
+            GLAccount."No.",
+            GenJournalLine[2]."Account Type"::"G/L Account",
+            GenJournalLine[2]."Bal. Account Type"::"G/L Account",
+            '',
+            AmountValue[2],
+            DocumentNo,
+            GenJournalBatch,
+            VATPostingSetup."VAT Bus. Posting Group",
+            VATPostingSetup."VAT Prod. Posting Group",
+            CurrencyCode,
+            AllocationAccount[1]."No.");
+
+        // [GIVEN] Generate Share Value and save it in a Variable.
+        AssignShareValues2(ShareValue2);
+
+        // [GIVEN] Create An Allocation Account Two With Fixed GL distributions and three inherit from parent values.
+        CreateAllocationAccountwithFixedDistributionsInheritFromParent(AllocationAccount[2], ShareValue2);
+
+        // [GIVEN] Create General Journal line Three with Second Allocation Account Created Above.
+        CreateLineOnGeneralJournal2(
+            GenJournalLine[3],
+            GLAccount."No.",
+            GenJournalLine[3]."Account Type"::"G/L Account",
+            GenJournalLine[3]."Bal. Account Type"::"G/L Account",
+            '',
+            AmountValue[3],
+            DocumentNo,
+            GenJournalBatch,
+            VATPostingSetup."VAT Bus. Posting Group",
+            VATPostingSetup."VAT Prod. Posting Group",
+            CurrencyCode,
+            AllocationAccount[2]."No.");
+
+        // [GIVEN] Calculate Sum of Amount Value Variable to Create Balancing Line of General Journal.
+        AmountValue[4] := AmountValue[1] + AmountValue[2] + AmountValue[3];
+
+        // [GIVEN] Create General Journal Line Four as Balancing Line.     
+        CreateLineOnGeneralJournal2(
+            GenJournalLine[4],
+            BankAccount."No.",
+            GenJournalLine[4]."Account Type"::"Bank Account",
+            GenJournalLine[4]."Bal. Account Type"::"G/L Account",
+            '',
+            -AmountValue[4],
+            DocumentNo,
+            GenJournalBatch,
+            '',
+            '',
+            CurrencyCode,
+            '');
+
+        // [WHEN] Posts General Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[4]);
+
+        // [THEN] Posted Gen. Journal Lines are balanced by Document No.
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.CalcSums(Amount);
+        VerifyGLEntryAmount(GLEntry, 0, 1);
+    end;
+
     local procedure CreateLineOnCashReceiptJournal(var DocumentNumber: Code[10]; var CashReceiptJournalPage: TestPage "Cash Receipt Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
                                                                                                                                                          BalancingAccountType: Enum "Gen. Journal Account Type";
                                                                                                                                                          BalancingAccountNo: Code[20])
@@ -1662,6 +1790,112 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
     local procedure GetOverrideAmount(): Decimal
     begin
         exit(100.11);
+    end;
+
+    local procedure CreateAllocationAccountwithFixedDistributionsInheritFromParent(var AllocationAccount: Record "Allocation Account"; ShareValue: array[3] of Decimal)
+    var
+        FixedAllocationAccountCode: Code[20];
+    begin
+        FixedAllocationAccountCode := CreateAllocationAccountWithFixedDistributionByRecord();
+        CreateFixedAllocationAccountDistributionLinesInheritFromParent(FixedAllocationAccountCode, ShareValue[1]);
+        CreateFixedAllocationAccountDistributionLinesInheritFromParent(FixedAllocationAccountCode, ShareValue[2]);
+        CreateFixedAllocationAccountDistributionLinesInheritFromParent(FixedAllocationAccountCode, ShareValue[3]);
+        AllocationAccount.Get(FixedAllocationAccountCode);
+    end;
+
+    local procedure CreateAllocationAccountWithFixedDistributionByRecord(): Code[20]
+    var
+        AllocationAccount: Record "Allocation Account";
+    begin
+        AllocationAccount."No." := Format(LibraryRandom.RandText(5));
+        AllocationAccount."Account Type" := AllocationAccount."Account Type"::Fixed;
+        AllocationAccount.Name := Format(LibraryRandom.RandText(10));
+        AllocationAccount.Insert(true);
+        exit(AllocationAccount."No.");
+    end;
+
+    local procedure CreateFixedAllocationAccountDistributionLinesInheritFromParent(AllocationAccountNo: Code[20]; ShareValue: Decimal)
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        AllocAccountDistribution."Allocation Account No." := AllocationAccountNo;
+        AllocAccountDistribution."Line No." := LibraryUtility.GetNewRecNo(AllocAccountDistribution, AllocAccountDistribution.FieldNo("Line No."));
+        AllocAccountDistribution.Validate("Account Type", AllocAccountDistribution."Account Type"::Fixed);
+        AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"Inherit from Parent");
+        AllocAccountDistribution.Validate(Share, ShareValue);
+        AllocAccountDistribution.Insert(true);
+    end;
+
+    local procedure CreateGeneralPostingSetupforVAT(
+        var GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        var GLAccount: Record "G/L Account")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        GLAccount.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
+        GLAccount.Modify(true);
+    end;
+
+    local procedure AssignShareValues(var ShareValue: array[3] of Decimal)
+    begin
+        ShareValue[1] := 0.51;
+        ShareValue[2] := 0.20;
+        ShareValue[3] := 0.29;
+    end;
+
+    local procedure AssignShareValues2(var ShareValue2: array[3] of Decimal)
+    begin
+        ShareValue2[1] := 0.42;
+        ShareValue2[2] := 0.40;
+        ShareValue2[3] := 0.18;
+    end;
+
+    local procedure AssignAmountValue(var AmountValue: array[3] of Decimal)
+    begin
+        AmountValue[1] := LibraryRandom.RandDecInRange(510000, 512000, 2);
+        AmountValue[2] := LibraryRandom.RandDecInRange(52000, 52000, 2);
+        AmountValue[3] := LibraryRandom.RandDecInRange(202000, 203000, 2);
+    end;
+
+    local procedure CreateLineOnGeneralJournal2(
+        var GenJournalLine: Record "Gen. Journal Line";
+        AccountNo: Code[20];
+        AccountType: Enum "Gen. Journal Account Type";
+        BalancingAccountType: Enum "Gen. Journal Account Type";
+        BalancingAccountNo: Code[20];
+        Amount: Decimal;
+        DocumentNo: Code[20];
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VATBusPostingGroup: Code[20];
+        VATProdPostingGroup: Code[20];
+        CurrencyCode: Code[20];
+        SelectedAllocAccountNo: Code[20])
+    begin
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ",
+            AccountType,
+            AccountNo,
+            BalancingAccountType,
+            BalancingAccountNo,
+            Amount);
+
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        GenJournalLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Selected Alloc. Account No.", SelectedAllocAccountNo);
+        GenJournalLine.Modify(true);
     end;
 
     [ModalPageHandler]

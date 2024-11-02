@@ -332,6 +332,7 @@ page 1156 "Company Detail"
                         RunObject = Codeunit "Run Template Retained Earn.";
                         ToolTip = 'Open a spreadsheet that shows your company''s changes in retained earnings based on net income from the other financial statements.';
                     }
+#if not CLEAN25
                     action(ExcelTemplateTrialBalance)
                     {
                         ApplicationArea = All;
@@ -339,6 +340,9 @@ page 1156 "Company Detail"
                         Image = Excel;
                         RunObject = Codeunit "Run Template Trial Balance";
                         ToolTip = 'Open a spreadsheet that shows a summary trial balance by account.';
+                        ObsoleteReason = 'Functionality replaced by "EXR Trial Balance Excel". Extend this report object with Excel layout instead.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
                     action(ExcelTemplateAgedAccPay)
                     {
@@ -347,6 +351,9 @@ page 1156 "Company Detail"
                         Image = Excel;
                         RunObject = Codeunit "Run Template Aged Acc. Pay.";
                         ToolTip = 'Open a spreadsheet that shows a list of aged remaining balances for each vendor by period.';
+                        ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Payable Excel". Extend this report object with Excel layout instead.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
                     action(ExcelTemplateAgedAccRec)
                     {
@@ -355,7 +362,11 @@ page 1156 "Company Detail"
                         Image = Excel;
                         RunObject = Codeunit "Run Template Aged Acc. Rec.";
                         ToolTip = 'Open a spreadsheet that shows when customer payments are due or overdue by period.';
+                        ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Receivable Excel". Extend this report object with Excel layout instead.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                 }
             }
             group(Link)
@@ -402,15 +413,26 @@ page 1156 "Company Detail"
                 actionref(ExcelTemplateRetainedEarn_Promoted; ExcelTemplateRetainedEarn)
                 {
                 }
+#if not CLEAN25
                 actionref(ExcelTemplateTrialBalance_Promoted; ExcelTemplateTrialBalance)
                 {
+                    ObsoleteReason = 'Functionality replaced by "EXR Trial Balance Excel". Extend this report object with Excel layout instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 actionref(ExcelTemplateAgedAccPay_Promoted; ExcelTemplateAgedAccPay)
                 {
+                    ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Payable Excel". Extend this report object with Excel layout instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 actionref(ExcelTemplateAgedAccRec_Promoted; ExcelTemplateAgedAccRec)
                 {
+                    ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Receivable Excel". Extend this report object with Excel layout instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
             }
         }
     }

@@ -47,6 +47,7 @@
         ForceDocBalanceFalseQst: Label 'Warning:  Transactions cannot be financially voided when Force Doc. Balance is set to No';
         CheckExportedErr: Label 'Check Exported must be true.';
         DocumentNoBlankErr: Label 'Document No. must be blank.';
+        AppliedIsTrueErr: Label 'Applied(Yes/No) must be Yes.';
         IsInitialized: Boolean;
 
     [Test]
@@ -2787,6 +2788,52 @@
         // [THEN] Address of Company Information is displyed in the report.
         LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress_1_', CompanyInformation.Name);
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ExportElectronicPaymentsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AppliedIsTrueOnPaymentJournalAfterVoidActionIsExecuted()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 546680] Export Payment Journal when "Applies-to Doc. No." set and during Void 
+        // "Applies-to Doc. No." will not be blank.
+        Initialize();
+
+        // [GIVEN] Set Client Type and BindSubscription.
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        // [GIVEN] Create Export Report Selection.
+        CreateExportReportSelection(Layout::RDLC);
+
+        // [GIVEN] Create one payment journal with "Applies-to Doc. No.".
+        CreateElectronicPaymentJournal(GenJournalLine);
+
+        // [WHEN] Export Payment Journals.
+        PaymentJournal.OpenEdit();
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+        ExportPaymentJournal(PaymentJournal, GenJournalLine);
+        PaymentJournal.Close();
+
+        // [THEN] Verify Check Exported as true.
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.FindSet();
+        Assert.IsTrue(GenJournalLine."Check Exported", CheckExportedErr);
+
+        // [WHEN] Void the Transaction as exported.
+        PerformVoidTransmitElecPayments(GenJournalLine);
+
+        // [THEN] Verify GenJournalLine "Applies-to DocumentNo." is True after void the Exported file.
+        Assert.AreEqual(true, GenJournalLine.IsApplied(), AppliedIsTrueErr);
     end;
 
     local procedure Initialize()

@@ -193,6 +193,8 @@ report 10003 "Closing Trial Balance"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Closing Trial Balance';
+        AboutText = 'Report and verify your end of financial year figures, excluding closing entries, comparing this year to the previous year.';
 
         layout
         {

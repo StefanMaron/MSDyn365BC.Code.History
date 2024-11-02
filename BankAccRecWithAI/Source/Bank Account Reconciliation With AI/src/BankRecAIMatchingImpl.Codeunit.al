@@ -79,6 +79,12 @@ codeunit 7250 "Bank Rec. AI Matching Impl."
             CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, 'Statement Line: Id: 6, Description: I 522, Amount: 100, Date: 2023-07-05\n');
             CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, 'Ledger Entry: Id: 52, DocumentNo: 522, Description: J, Amount: 348, Date: 2023-07-02\n');
             CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, 'Matches: (5, [52]), (6, [52])\n\n');
+            CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, '\n**Example 6**:\n');
+            CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, 'Statement Line: Id: 7, Description: ABCD 3, Amount: 250, Date: 2023-07-02\n');
+            CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, 'Statement Line: Id: 8, Description: ABCD, Amount: 248, Date: 2023-07-05\n');
+            CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, 'Ledger Entry: Id: 62, DocumentNo: 622, Description: ABCD 3, Amount: 248, Date: 2023-07-02\n');
+            CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, 'Ledger Entry: Id: 63, DocumentNo: 623, Description: ABCD Amount: 248, Date: 2023-07-02\n');
+            CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, 'Matches: (7, [62]), (8, [63])\n\n');
         end;
         CompletionTaskTxt := AddCompletionPromptLine(CompletionTaskTxt, '\n\n');
         exit(CompletionTaskTxt);

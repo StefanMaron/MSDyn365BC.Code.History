@@ -549,6 +549,8 @@ page 6560 "Document Line Tracking"
                     PAGE.RunModal(PAGE::"Purchase Line Archive List", PurchLineArchive);
             DATABASE::"Return Shipment Line":
                 PAGE.RunModal(0, ReturnShipmentLine);
+            else
+                OnShowRecordsOnElseCase(TempDocumentEntry);
         end;
     end;
 
@@ -682,7 +684,7 @@ page 6560 "Document Line Tracking"
                         SalesCrMemoLine."No.", SalesCrMemoLine.Description, SalesCrMemoLine.Quantity, SalesCrMemoLine."Unit of Measure Code");
                 end;
             else
-                OnAssignLineFieldFromDocumentAfterCase(DocType, DocNo, DocArchive, DocLineType, DocLineNo, DocLineDescription, DocLineQuantity, DocLineUnit);
+                OnAssignLineFieldFromDocumentAfterCase(DocType, DocNo, DocArchive, DocLineType, DocLineNo, DocLineDescription, DocLineQuantity, DocLineUnit, SourceDocType);
         end;
     end;
 
@@ -1064,7 +1066,7 @@ page 6560 "Document Line Tracking"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignLineFieldFromDocumentAfterCase(var DocType: Text[30]; var DocNo: Code[20]; var DocArchive: Text[30]; var DocLineType: Text[30]; var DocLineItemNo: Code[20]; var DocLineDescription: Text[100]; var DocLineQuantity: Decimal; var DocLineUnit: Code[10])
+    local procedure OnAssignLineFieldFromDocumentAfterCase(var DocType: Text[30]; var DocNo: Code[20]; var DocArchive: Text[30]; var DocLineType: Text[30]; var DocLineItemNo: Code[20]; var DocLineDescription: Text[100]; var DocLineQuantity: Decimal; var DocLineUnit: Code[10]; SourceDocType: Enum "Document Line Source Type")
     begin
     end;
 
@@ -1085,6 +1087,11 @@ page 6560 "Document Line Tracking"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindRecordsRelatedToPurchaseReturnOrder(DocNo: Code[20]; DocLineNo: Integer; var TempDocumentEntry: Record "Document Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnShowRecordsOnElseCase(var TempDocumentEntry: Record "Document Entry" temporary)
     begin
     end;
 }

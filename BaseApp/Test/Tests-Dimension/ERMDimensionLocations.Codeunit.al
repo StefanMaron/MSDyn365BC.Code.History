@@ -24,6 +24,7 @@ codeunit 134474 "ERM Dimension Locations"
         LibraryJob: Codeunit "Library - Job";
         IsInitialized: Boolean;
         DimPostErr: Label 'Select a Dimension Value Code for the Dimension Code';
+        ProjectTaskDimensionErr: Label 'Project Task Dimension must be updated as per Default Dimension.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1095,6 +1096,65 @@ codeunit 134474 "ERM Dimension Locations"
 
         // [VERIFY] Verify: Item Reclassification Journal should post successfully
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    [Test]
+    procedure ProjectAndProjectTaskDimensionReplacesLocationDimensionInProjectJournals()
+    var
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+        DimensionValue: array[2] of Record "Dimension Value";
+        Item: Record Item;
+        Location: Record Location;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        // [SCENARIO 543630] Location ID Dimension does not overrides the Project No. and Project Task No. Dimension in the Project Journals.
+        Initialize();
+
+        // [GIVEN] Create Dimension Value for Global Dimension 1.
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Dimension.
+        LibraryDimension.CreateDimension(Dimension);
+
+        // [GIVEN] Create Dimension Value for Dimension.
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], Dimension.Code);
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Default Dimension for Location.
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension,
+            Database::Location,
+            Location.Code,
+            DimensionValue[2]."Dimension Code",
+            DimensionValue[2].Code);
+
+        // [GIVEN] Create a Job.
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create a Job Task with the Job and Validate the Dimension.
+        LibraryJob.CreateJobTask(Job, JobTask);
+        JobTask.Validate("Global Dimension 1 Code", DimensionValue[1].Code);
+        JobTask.Modify(true);
+
+        // [GIVEN] Create Job Journal Line and Validate Item.
+        LibraryJob.CreateJobJournalLine("Job Line Type"::" ", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", Item."No.");
+
+        // [WHEN] Validate Location Code in Job Journal Line.
+        JobJournalLine.Validate("Location Code", Location.Code);
+        JobJournalLine.Modify(true);
+
+        // [THEN] Dimension must be avilable in Job Journal Line.
+        Assert.AreEqual(JobJournalLine."Shortcut Dimension 1 Code", DimensionValue[1].Code, ProjectTaskDimensionErr);
     end;
 
     local procedure Initialize()

@@ -32,6 +32,12 @@ codeunit 1252 "Match Bank Rec. Lines"
         BankAccountRecTotalAndMatchedLinesLbl: Label 'Total Bank Statement Lines: %1, of those applied: %2', Locked = true;
         AutomatchEventNameTelemetryTxt: Label 'Automatch', Locked = true;
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
+        OptimizationDisabledLbl: Label 'Bank Rec. optimization disabled', Locked = true;
+        PotentiallyBetterMatchLbl: Label 'Bank Rec. better-candidate-found loop', Locked = true;
+        BankTransactionRequiresTextComparisonsLbl: Label 'Bank Ledger Entry requires text nearness with Bank Rec. Line', Locked = true;
+        BankRecLineHasNoDateLbl: Label 'Bank Rec. Line has no transaction date specified', Locked = true;
+        ToleranceDaysLbl: Label 'Tolerance window for matching', Locked = true;
+        EndOfClassicBankRecMatchLbl: Label 'End of classic Bank Rec. Automatch', Locked = true;
         Relation: Option "One-to-One","One-to-Many","Many-to-One";
         TextMatchGreater: Option First,Second,Tie;
         MatchLengthTreshold: Integer;
@@ -255,6 +261,9 @@ codeunit 1252 "Match Bank Rec. Lines"
     begin
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
         DisableOptimization := BankAccount."Disable Bank Rec. Optimization";
+        if DisableOptimization then
+            Session.LogMessage('0000NUK', OptimizationDisabledLbl, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
+        Session.LogMessage('0000NUL', ToleranceDaysLbl, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl, 'Tolerance', Format(DaysTolerance));
         FeatureTelemetry.LogUptake('0000JLB', BankAccReconciliation.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
         Overwrite := true;
         BankAccRecLineCounter := 0;
@@ -310,12 +319,14 @@ codeunit 1252 "Match Bank Rec. Lines"
 
             SaveOneToOneMatching(TempBankStatementMatchingBuffer, BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
             if RemovedPreviouslyAssigned then begin
+                Session.LogMessage('0000NUM', PotentiallyBetterMatchLbl, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
                 BankAccountLedgerEntry.SetBankReconciliationCandidatesFilter(BankAccReconciliation);
                 InitializeBLEMatchingTempTable(TempBankAccLedgerEntryMatchingBuffer, BankAccountLedgerEntry);
                 BankAccReconciliationLine.Reset();
                 BankAccReconciliationLine.FilterBankRecLinesByDate(BankAccReconciliation, false);
             end;
         until not RemovedPreviouslyAssigned;
+        Session.LogMessage('0000NUN', EndOfClassicBankRecMatchLbl, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
 
         if GuiAllowed() then
             ProgressDialog.Close();
@@ -381,7 +392,9 @@ codeunit 1252 "Match Bank Rec. Lines"
             if BankAccReconciliationLine."Transaction Date" <> 0D then begin
                 BankTransactionTooEarly := (BankAccReconciliationLine."Transaction Date" - TempBankAccLedgerEntryMatchingBuffer."Posting Date") > DaysTolerance;
                 BankTransactionTooLate := (TempBankAccLedgerEntryMatchingBuffer."Posting Date" - BankAccReconciliationLine."Transaction Date") > DaysTolerance;
-            end;
+            end
+            else
+                Session.LogMessage('0000NUO', BankRecLineHasNoDateLbl, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
 
             // Subsequent calls to this method are with Bank Rec Lines sorted ascending by Transaction date, therefore
             // if a candidate BLE is too early for this Bank Rec Line, it will be too early for posterior calls as well.
@@ -391,6 +404,7 @@ codeunit 1252 "Match Bank Rec. Lines"
 
             if (not BankTransactionTooEarly) and (not BankTransactionTooLate) then begin
                 TempMatchingDetailsBankStatementMatchingBuffer.Reset();
+                Session.LogMessage('0000NUP', BankTransactionRequiresTextComparisonsLbl, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
                 if MatchingIsAcceptable(BankAccReconciliationLine, TempBankAccLedgerEntryMatchingBuffer, TempMatchingDetailsBankStatementMatchingBuffer) then begin
                     if (not DisableOptimization) and MatchingIsHighConfidence(TempMatchingDetailsBankStatementMatchingBuffer) then
                         if AddMatchToCandidatesIfBetter(TempBankStatementMatchingBuffer, TempMatchingDetailsBankStatementMatchingBuffer, RemovedPreviouslyAssigned) then

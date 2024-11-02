@@ -195,6 +195,8 @@ report 1404 "Bank Acc. - Detail Trial Bal."
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Bank Acc. - Detail Trial Bal.';
+        AboutText = 'View bank account balances at the end of a period, including the opening balance, each transaction within the period, and the closing balance grouped by bank. View a running balance and reconciled entries.';
 
         layout
         {

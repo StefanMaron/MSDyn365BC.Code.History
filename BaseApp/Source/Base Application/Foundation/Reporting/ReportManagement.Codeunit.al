@@ -215,6 +215,7 @@ codeunit 44 ReportManagement
 
             Success := true;
         end;
+        DesignTimeReportSelection.ClearLayoutSelection();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'FetchReportLayoutByCode', '', false, false)]
