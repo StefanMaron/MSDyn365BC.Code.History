@@ -448,6 +448,8 @@ report 28 "Dimensions - Detail"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Dimensions - Detail';
+        AboutText = 'Build a group of dimensions for combinations of dimension values. Define a hierarchy of dimension levels from an analysis view, and list all G/L entries for each group.';
 
         layout
         {

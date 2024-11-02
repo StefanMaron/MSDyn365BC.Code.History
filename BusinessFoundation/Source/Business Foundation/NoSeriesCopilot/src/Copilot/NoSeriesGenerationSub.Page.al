@@ -85,7 +85,6 @@ page 333 "No. Series Generation Sub"
                     ToolTip = 'Specifies the value of the Setup Field Name field.';
                     Enabled = IsEnabled;
                 }
-
             }
         }
     }

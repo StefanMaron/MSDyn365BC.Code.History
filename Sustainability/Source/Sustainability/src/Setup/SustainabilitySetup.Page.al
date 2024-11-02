@@ -52,7 +52,7 @@ page 6221 "Sustainability Setup"
                 Caption = 'Procurement';
                 field("Use Emissions In Purch. Doc."; Rec."Use Emissions In Purch. Doc.")
                 {
-                    ToolTip = 'Specifies the value of the Use Emissions In Purchase Documents field.';
+                    ToolTip = 'Specifies that you want to enable sustainability features in purchase documents. Until this field is selected, sustainability fields will not be displayed in the purchase lines. Select this field only if you intend to post your GHG emissions using purchase documents or to post purchasing carbon credits.';
                 }
             }
             group(Calculations)
@@ -136,7 +136,7 @@ page 6221 "Sustainability Setup"
                 Caption = 'Emission Fees';
                 Image = CostBudget;
                 RunObject = Page "Emission Fees";
-                ToolTip = 'View or add Emission Fees.';
+                ToolTip = 'Set up internal carbon fees and CO2 equivalent.';
             }
         }
         area(Promoted)
