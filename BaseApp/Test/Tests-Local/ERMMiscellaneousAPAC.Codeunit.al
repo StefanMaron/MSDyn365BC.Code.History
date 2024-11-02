@@ -1741,7 +1741,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     end;
 
     [Test]
-    [HandlerFunctions('SalesStatisticsHandler')]
+    [HandlerFunctions('ChangeVATAmtCheckSameVATAmtACYSalesStatisticsHandler')]
     procedure ChangedVATAmountACYOnSalesStatistics()
     var
         SalesHeader: Record "Sales Header";
@@ -1793,7 +1793,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     end;
 
     [Test]
-    [HandlerFunctions('SalesStatisticsHandler')]
+    [HandlerFunctions('ChangeVATAmtCheckSameVATAmtACYSalesStatisticsHandler')]
     procedure TransferAmountACYWhenPostSalesInvoice()
     var
         SalesHeader: Record "Sales Header";
@@ -1841,6 +1841,66 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         TempVATAmountLine.TestField("VAT Base (ACY)", SalesLine."VAT Base (ACY)");
         TempVATAmountLine.TestField("Amount (ACY)", SalesLine."Amount (ACY)");
         TempVATAmountLine.TestField("Amount Including VAT (ACY)", SalesLine."Amount Including VAT (ACY)");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeVATAmtCheckVATAmtACYSalesStatisticsHandler')]
+    procedure ChangedVATAmountACYOnSalesStatisticsWithACYEnabled()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        NewVATAmount, NewVATAmountACY : Decimal;
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 554855] VAT Amount (ACY) on Sales Statistics is changed when changing VAT amount with Additional Currency option enabled
+        Initialize();
+
+        // [GIVEN] Additional Reporting Currency with exchange rate amount 5 is set in General Ledger Setup.
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LibraryERM.SetAddReportingCurrency(CurrencyCode);
+        // [GIVEN] "Max. VAT Difference Allowed" = 1
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandIntInRange(1, 1));
+        // [GIVEN] Set VAT posting setup for VAT = 10%
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.UpdateVATPostingSetup(VATPostingSetup, 10);
+        // [GIVEN] "Allow VAT Difference" = true
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Create Sales Invoice with VAT amount = 10.1
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Invoice,
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibrarySales.CreateSalesLine(
+        SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+        LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
+        SalesLine.Modify();
+
+        // [WHEN] Change VAT Amount to 10 on Sales Statistics
+        // True means update VAT Amount to get some VAT Difference
+        NewVATAmount := SalesLine."Amount Including VAT" - SalesLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
+        NewVATAmountACY :=
+            Round(LibraryERM.ConvertCurrency(NewVATAmount, '', CurrencyCode, SalesHeader."Posting Date"));
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(NewVATAmount);
+        LibraryVariableStorage.Enqueue(NewVATAmountACY);
+        SalesHeader.OpenDocumentStatistics();
+
+        // [THEN] VAT Amount (ACY) is updated to 50 when VAT amount is changed
+        // [THEN] VAT Amount (ACY) is changed and saved when reopening Statistic page
+        // [THEN] VAT Difference (ACY) is calculated correctly
+        // false means don't update VAT Amount (ACY) after Statistic page reopened.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(NewVATAmountACY);
+        SalesHeader.OpenDocumentStatistics();
+
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        GetSalesVATAmountLine(SalesHeader, TempVATAmountLine);
+        TempVATAmountLine.TestField("VAT Difference (ACY)", TempVATAmountLine."VAT Amount (ACY)" - TempVATAmountLine."Calculated VAT Amount (ACY)");
+        TempVATAmountLine.TestField("VAT Amount (ACY)", SalesLine."Amount Including VAT (ACY)" - SalesLine."Amount (ACY)");
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -2628,7 +2688,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     end;
 
     [ModalPageHandler]
-    procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
+    procedure ChangeVATAmtCheckSameVATAmtACYSalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
     var
         UpdateVATAmount: Boolean;
         VATAmountACYNotUpdatedLbl: Label 'VAT Amount (ACY) is not updated';
@@ -2637,6 +2697,19 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         if UpdateVATAmount then
             SalesStatistics.SubForm."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
         Assert.AreEqual(SalesStatistics.SubForm."VAT Amount (ACY)".Value, SalesStatistics.SubForm."VAT Amount".Value, VATAmountACYNotUpdatedLbl);
+        SalesStatistics.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ChangeVATAmtCheckVATAmtACYSalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
+    var
+        UpdateVATAmount: Boolean;
+        VATAmountACYNotUpdatedLbl: Label 'VAT Amount (ACY) is not updated';
+    begin
+        UpdateVATAmount := LibraryVariableStorage.DequeueBoolean();
+        if UpdateVATAmount then
+            SalesStatistics.SubForm."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
+        Assert.AreEqual(Format(LibraryVariableStorage.DequeueDecimal()), SalesStatistics.SubForm."VAT Amount (ACY)".Value, VATAmountACYNotUpdatedLbl);
         SalesStatistics.OK().Invoke();
     end;
 }
