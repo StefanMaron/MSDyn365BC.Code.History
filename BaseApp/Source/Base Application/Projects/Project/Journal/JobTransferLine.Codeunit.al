@@ -711,7 +711,7 @@ codeunit 1004 "Job Transfer Line"
                                 JobJnlLine."Currency Factor"),
                             Currency."Unit-Amount Rounding Precision")
                 else
-                    JobJnlLine."Unit Cost" := PurchLine."Unit Cost";
+                    JobJnlLine."Unit Cost" := PurchLine."Unit Cost" / PurchLine."Qty. per Unit of Measure";
             else
                 JobJnlLine."Unit Cost" :=
                     Round(
