@@ -324,6 +324,55 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     end;
 
     [Test]
+    [HandlerFunctions('AllocateCostsForBudget,ConfirmHandlerYes,MessageHandler,DeleteCostBudgetEntries')]
+    procedure DeleteAllocatedCostBudgetEntriesWhenDeleteCostBugdetRegister()
+    var
+        CostAllocationSource: Record "Cost Allocation Source";
+        CostAllocationTarget: Record "Cost Allocation Target";
+        CostBudgetEntry: Record "Cost Budget Entry";
+        CostBudgetName: Record "Cost Budget Name";
+        CostBudgetRegister: Record "Cost Budget Register";
+    begin
+        // [SCENARIO 543014] When deleting a Cost Budget Register the related Cost Budget Entries are removed.
+        Initialize();
+
+        // [GIVEN] Clear Allocation Source Level.
+        ClearAllocSourceLevel(MaxLevel);
+
+        // [GIVEN] Create Allocation Source and Targets.
+        CreateAllocSourceAndTargets(CostAllocationSource, MaxLevel, CostAllocationTarget.Base::Static);
+
+        // [GIVEN] Create Cost Budget Name.
+        CreateCostBudgetName(CostBudgetName);
+
+        // [GIVEN] Create Cost Budget Entry.
+        CreateCostBudgetEntry(
+            CostBudgetEntry,
+            CostBudgetName.Name,
+            CostAllocationSource."Credit to Cost Type",
+            CostAllocationSource."Cost Center Code");
+
+        // [GIVEN] Run Cost Allocation Report.
+        SelectedCostBudget := CostBudgetName.Name;
+        RunCostAllocationReport();
+
+        // [GIVEN] Find Cost Budget Register and Cost Budget Entry.
+        CostBudgetRegister.FindLast();
+        CostBudgetEntry.SetRange("Allocated with Journal No.", CostBudgetRegister."No.");
+        CostBudgetEntry.FindFirst();
+
+        // [GIVEN] Store Cost Budget Register "No.".
+        LibraryVariableStorage.Enqueue(CostBudgetRegister."No.");
+
+        // [WHEN] Run Delete Cost Budget Entries Report.
+        REPORT.Run(REPORT::"Delete Cost Budget Entries");
+
+        // [THEN] Cost Budget Entry must be deleted.
+        CostBudgetEntry.SetRange("Entry No.", CostBudgetRegister."To Cost Budget Entry No.");
+        Assert.RecordIsEmpty(CostBudgetEntry);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure DynAllocNumOfEmployeesFiltered()
     begin
