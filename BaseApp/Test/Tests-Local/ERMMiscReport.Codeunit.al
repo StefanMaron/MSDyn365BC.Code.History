@@ -2324,6 +2324,34 @@ codeunit 142060 "ERM Misc. Report"
         LibraryReportDataset.AssertCurrentRowValueEquals(ItemLedgerEntryInvoicedQuantityLbl, -Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('TrialBalanceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunTrialBalanceReportWithClosingDate()
+    var
+        DateFilterText: Text;
+        ToDate: Date;
+        FromDate: Date;
+    begin
+        // [SCENARIO 544390] When Stan runs Trial Balance Report with Closing Date then Report is executed.
+        Initialize();
+
+        // [GIVEN] Generate To Date and save it in a Variable.
+        ToDate := CalcDate('<CY>', Today());
+
+        // [GIVEN] Generate From Date and save it in a Variable.
+        FromDate := CalcDate('<-1Y>', ToDate + 1);
+
+        // [GIVEN] Generate Date Filter and save it in a Variable.
+        DateFilterText := Format(FromDate) + '..' + Format(ClosingDate(ToDate));
+
+        // [GIVEN] Run Purchase Invoice Book Report.
+        LibraryVariableStorage.Enqueue(DateFilterText);
+        LibraryVariableStorage.Enqueue(true);
+        Commit();
+        Report.Run(Report::"Trial Balance");
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -3512,6 +3540,18 @@ codeunit 142060 "ERM Misc. Report"
     procedure CashReceiptRPH(var CashApplied: TestRequestPage "Cash Applied")
     begin
         CashApplied.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TrialBalanceRequestPageHandler(var TrialBalance: TestRequestPage "Trial Balance")
+    var
+        DateFilterText: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DateFilterText);
+        TrialBalance.ActualBalances.SetValue(LibraryVariableStorage.DequeueBoolean());
+        TrialBalance."G/L Account".SetFilter("Date Filter", Format(DateFilterText));
+        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ReportHandler]

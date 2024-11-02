@@ -32,6 +32,8 @@ codeunit 139686 "Billing Correction Test"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
@@ -39,46 +41,14 @@ codeunit 139686 "Billing Correction Test"
         BillingToDateFormula: DateFormula;
         PostedDocumentNo: Code[20];
         BillingLineCount: Integer;
-
-    local procedure PostSalesInvoiceForContract()
-    begin
-        ClearAll();
-        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
-        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
-        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
-        BillingLine.SetRange(Partner, BillingLine.Partner::Customer);
-        Codeunit.Run(Codeunit::"Create Billing Documents", BillingLine);
-        //Post Sales Document
-        BillingLineCount := BillingLine.Count;
-        BillingLine.FindLast();
-        SalesHeader.Get(SalesHeader."Document Type"::Invoice, BillingLine."Document No.");
-        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        SalesInvoiceHeader.Get(PostedDocumentNo);
-    end;
-
-    local procedure PostPurchaseInvoiceForContract()
-    begin
-        ClearAll();
-        BillingTemplate.DeleteAll(false);
-        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, '', true);
-        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Vendor);
-        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
-        BillingLine.SetRange(Partner, BillingLine.Partner::Vendor);
-        Codeunit.Run(Codeunit::"Create Billing Documents", BillingLine);
-        //Post Purchase Document
-        BillingLineCount := BillingLine.Count;
-        BillingLine.FindFirst();
-        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, BillingLine."Document No.");
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-        PurchaseHeader.Modify(false);
-        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        PurchInvoiceHeader.Get(PostedDocumentNo);
-    end;
+        IsInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('CreateBillingDocsCustomerPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure ExpectErrorWhenNewerInvoiceExist()
     begin
+        Initialize();
+
         PostSalesInvoiceForContract();
         Evaluate(BillingDateFormula, '<9M-CM>');
         Evaluate(BillingToDateFormula, '<12M+CM>');
@@ -93,6 +63,8 @@ codeunit 139686 "Billing Correction Test"
     [HandlerFunctions('CreateBillingDocsCustomerPageHandler,SalesCreditMemosPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure ExpectErrorWhenRelatedSalesLineExist()
     begin
+        Initialize();
+
         PostSalesInvoiceForContract();
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
         Commit(); // retain data after asserterror
@@ -114,6 +86,8 @@ codeunit 139686 "Billing Correction Test"
     var
         i: Integer;
     begin
+        Initialize();
+
         for i := 0 to 5 do begin
             PostSalesInvoiceForContract();
             SalesHeader2."Document Type" := Enum::"Sales Document Type".FromInteger(i);
@@ -129,6 +103,8 @@ codeunit 139686 "Billing Correction Test"
     [HandlerFunctions('CreateBillingDocsCustomerPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure CheckBillingLinesCreatedForCreditMemo()
     begin
+        Initialize();
+
         PostSalesInvoiceForContract();
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
         BillingLineArchive.SetRange("Contract No.", SalesInvoiceLine."Contract No.");
@@ -151,6 +127,8 @@ codeunit 139686 "Billing Correction Test"
     [HandlerFunctions('CreateBillingDocsVendorPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure ExpectErrorWhenNewerPurchaseInvoiceExist()
     begin
+        Initialize();
+
         PostPurchaseInvoiceForContract();
         Evaluate(BillingDateFormula, '<9M-CM>');
         Evaluate(BillingToDateFormula, '<12M+CM>');
@@ -165,6 +143,8 @@ codeunit 139686 "Billing Correction Test"
     [HandlerFunctions('CreateBillingDocsVendorPageHandler,PurchaseCreditMemosPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure ExpectErrorWhenRelatedPurchaseLineExist()
     begin
+        Initialize();
+
         PostPurchaseInvoiceForContract();
         CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvoiceHeader, PurchaseHeader);
         Commit(); // retain data after asserterror
@@ -181,6 +161,8 @@ codeunit 139686 "Billing Correction Test"
     var
         i: Integer;
     begin
+        Initialize();
+
         for i := 0 to 5 do begin
             PostPurchaseInvoiceForContract();
             PurchaseHeader2."Document Type" := Enum::"Purchase Document Type".FromInteger(i);
@@ -196,6 +178,8 @@ codeunit 139686 "Billing Correction Test"
     [HandlerFunctions('CreateBillingDocsVendorPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure CheckBillingLinesCreatedForPurchaseCreditMemo()
     begin
+        Initialize();
+
         PostPurchaseInvoiceForContract();
         CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvoiceHeader, PurchaseHeader);
         BillingLineArchive.SetRange("Contract No.", PurchInvoiceLine."Contract No.");
@@ -221,6 +205,8 @@ codeunit 139686 "Billing Correction Test"
         ServiceCommitment: Record "Service Commitment";
         LibraryRandom: Codeunit "Library - Random";
     begin
+        Initialize();
+
         PostSalesInvoiceForContract();
         ServiceCommitment.Get(BillingLine."Service Commitment Entry No.");
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);        //Retrieve updated Service Commitment
@@ -235,6 +221,8 @@ codeunit 139686 "Billing Correction Test"
         ServiceCommitment: Record "Service Commitment";
         LibraryRandom: Codeunit "Library - Random";
     begin
+        Initialize();
+
         PostPurchaseInvoiceForContract();
         ServiceCommitment.Get(BillingLine."Service Commitment Entry No.");
         CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvoiceHeader, PurchaseHeader);
@@ -243,28 +231,77 @@ codeunit 139686 "Billing Correction Test"
         ServiceCommitment.Validate("Service Start Date", LibraryRandom.RandDateFrom(ServiceCommitment."Service Start Date", 100));
     end;
 
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Billing Correction Test");
+        ClearAll();
+
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Billing Correction Test");
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Billing Correction Test");
+    end;
+
+    local procedure PostPurchaseInvoiceForContract()
+    begin
+        ClearAll();
+        BillingTemplate.DeleteAll(false);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLines(VendorContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Vendor);
+        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        BillingLine.SetRange(Partner, BillingLine.Partner::Vendor);
+        Codeunit.Run(Codeunit::"Create Billing Documents", BillingLine);
+        //Post Purchase Document
+        BillingLineCount := BillingLine.Count;
+        BillingLine.FindFirst();
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, BillingLine."Document No.");
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(false);
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvoiceHeader.Get(PostedDocumentNo);
+    end;
+
+    local procedure PostSalesInvoiceForContract()
+    begin
+        ClearAll();
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLines(CustomerContract, ServiceObject, '', true);
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
+        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        BillingLine.SetRange(Partner, BillingLine.Partner::Customer);
+        Codeunit.Run(Codeunit::"Create Billing Documents", BillingLine);
+        //Post Sales Document
+        BillingLineCount := BillingLine.Count;
+        BillingLine.FindLast();
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, BillingLine."Document No.");
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(PostedDocumentNo);
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
     [ModalPageHandler]
     procedure CreateBillingDocsCustomerPageHandler(var CreateBillingDocsCustomerPage: TestPage "Create Customer Billing Docs")
     begin
         CreateBillingDocsCustomerPage.OK().Invoke();
     end;
 
-    [PageHandler]
-    procedure SalesCreditMemosPageHandler(var SalesCreditMemosPage: TestPage "Sales Credit Memos")
-    begin
-        SalesCreditMemosPage.OK().Invoke();
-    end;
-
-    [PageHandler]
-    procedure SalesCrMemoPageHandler(var SalesCreditMemoPage: TestPage "Sales Credit Memo")
-    begin
-        SalesCreditMemoPage.OK().Invoke();
-    end;
-
     [ModalPageHandler]
     procedure CreateBillingDocsVendorPageHandler(var CreateBillingDocsVendorPage: TestPage "Create Vendor Billing Docs")
     begin
         CreateBillingDocsVendorPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ExchangeRateSelectionModalPageHandler(var ExchangeRateSelectionPage: TestPage "Exchange Rate Selection")
+    begin
+        ExchangeRateSelectionPage.OK().Invoke();
     end;
 
     [PageHandler]
@@ -279,14 +316,15 @@ codeunit 139686 "Billing Correction Test"
         PurchaseCreditMemoPage.OK().Invoke();
     end;
 
-    [MessageHandler]
-    procedure MessageHandler(Message: Text[1024])
+    [PageHandler]
+    procedure SalesCreditMemosPageHandler(var SalesCreditMemosPage: TestPage "Sales Credit Memos")
     begin
+        SalesCreditMemosPage.OK().Invoke();
     end;
 
-    [ModalPageHandler]
-    procedure ExchangeRateSelectionModalPageHandler(var ExchangeRateSelectionPage: TestPage "Exchange Rate Selection")
+    [PageHandler]
+    procedure SalesCrMemoPageHandler(var SalesCreditMemoPage: TestPage "Sales Credit Memo")
     begin
-        ExchangeRateSelectionPage.OK().Invoke();
+        SalesCreditMemoPage.OK().Invoke();
     end;
 }

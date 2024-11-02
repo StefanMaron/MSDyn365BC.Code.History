@@ -71,6 +71,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemPlannedForExactDemandTxt: Label 'The item is planned to cover the exact demand.';
         SubcontractingDescriptionErr: Label 'The description in Subcontracting Worksheet must be from Work Center if available.';
         ProductionStatusErr: Label 'Selected Production Order must be released.';
+        QuanityPerErrorLbl: Label '%1 must be %2 in %3', Comment = '%1 = "Quantity Per", %2 = Expected Value, %3 = Table Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -3064,6 +3065,59 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Assert.AreEqual(ProductionOrder[4].Status, ProductionOrder[1].Status::Released, ProductionStatusErr);
     end;
 
+    [Test]
+    procedure ComponentWithNegativeAndZeroQuantityPerInPlannedProdOrder()
+    var
+        ParentItem: Record Item;
+        ChildItem: array[6] of Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ChildItemCode: array[6] of Code[20];
+        QuantityPer: array[6] of Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 527492] Production BOM Components is considering Negative and Zero Quantity in Production Order
+        // When Production Order Created from Planning Worksheet. 
+        Initialize();
+
+        // [GIVEN] Create Parent Item.
+        CreateItem(
+            ParentItem, ParentItem."Replenishment System"::"Prod. Order",
+            ParentItem."Reordering Policy"::Order, false,
+            0, 0, 0, '');
+
+        // [GIVEN] Create Child Items and save it in Variables.
+        for i := 1 to 6 do
+            ChildItemCode[i] := LibraryInventory.CreateItem(ChildItem[i]);
+
+        // [GIVEN] Generate Quantities and save it in Variables.
+        GenerateQtys(QuantityPer);
+
+        // [GIVEN] Create Production BOM and Certify it.
+        CreateProductionBOMWithSixComponentAndCertify(
+            ProductionBOMHeader, ParentItem."Base Unit of Measure",
+            ProductionBOMLine.Type::Item, ChildItemCode, QuantityPer);
+
+        // [GIVEN] Update Production BOM on Parent Item.
+        UpdateItem(ParentItem, ParentItem.FieldNo("Production BOM No."), ProductionBOMHeader."No.");
+
+        // [GIVEN] Create a Sales Order of Parent Item and Release the same.
+        CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", '');
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Calculate Regenerative Plan   
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate(), WorkDate());
+
+        // [WHEN] Carry Out Action Message
+        CarryOutActionMsgForItem(ParentItem."No.");
+
+        // [THEN] Verify Production Order Component Items Quantity Per.
+        for i := 1 to 6 do
+            VerifyProdOrderComponentQuantities(ParentItem."No.", ChildItemCode[i], QuantityPer[i]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5382,6 +5436,56 @@ codeunit 137063 "SCM Manufacturing 7.0"
             Item[i].Validate("Production BOM No.", ProductionBOMHeader[i]."No.");
             Item[i].Modify(true);
         end;
+    end;
+
+    local procedure GenerateQtys(var QuantityPer: array[6] of Integer)
+    begin
+        QuantityPer[1] := LibraryRandom.RandInt(0);
+        QuantityPer[2] := LibraryRandom.RandInt(0);
+        QuantityPer[3] := -LibraryRandom.RandInt(0);
+        QuantityPer[4] := -LibraryRandom.RandInt(0);
+        QuantityPer[5] := -LibraryRandom.RandInt(0);
+        QuantityPer[6] := LibraryRandom.RandInt(0) - 1;
+    end;
+
+    local procedure CreateProductionBOMWithSixComponentAndCertify(
+        var ProductionBOMHeader: Record "Production BOM Header";
+        BaseUnitOfMeasure: Code[10];
+        Type: Enum "Production BOM Line Type";
+        ChildItemNo: array[6] of Code[20];
+        QuantityPer: array[6] of Integer)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, ChildItemNo[1], QuantityPer[1]);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, ChildItemNo[2], QuantityPer[2]);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, ChildItemNo[3], QuantityPer[3]);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, ChildItemNo[4], QuantityPer[4]);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, ChildItemNo[5], QuantityPer[5]);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, ChildItemNo[6], QuantityPer[6]);
+        UpdateProductionBOMHeaderStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure VerifyProdOrderComponentQuantities(SourceNo: Code[20]; ItemNo: Code[20]; ExpectedQuantity: Decimal)
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", SourceNo);
+        ProductionOrder.FindFirst();
+
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder, ItemNo);
+        Assert.AreEqual(
+            ExpectedQuantity,
+            ProdOrderComponent."Quantity per",
+            StrSubstNo(
+                QuanityPerErrorLbl,
+                ProdOrderComponent.FieldCaption("Quantity per"),
+                ExpectedQuantity,
+                ProdOrderComponent.TableCaption()));
     end;
 }
 

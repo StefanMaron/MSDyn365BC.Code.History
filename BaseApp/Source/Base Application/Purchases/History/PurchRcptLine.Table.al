@@ -954,7 +954,6 @@ table 121 "Purch. Rcpt. Line"
                 PurchLine.Validate("Line Discount Amount", PurchOrderLine."Line Discount Amount");
                 PurchLine."Line Discount %" := PurchOrderLine."Line Discount %";
                 OnInsertInvLineFromRcptLineOnBeforePurchLineUpdatePrePaymentAmounts(PurchLine, PurchOrderLine);
-                PurchLine.UpdatePrePaymentAmounts();
                 if PurchOrderLine.Quantity = 0 then
                     PurchLine.Validate("Inv. Discount Amount", 0)
                 else begin
@@ -970,6 +969,7 @@ table 121 "Purch. Rcpt. Line"
                     else
                         PurchLine.Validate("Inv. Discount Amount", 0);
                 end;
+                PurchLine.UpdatePrePaymentAmounts();
             end;
 
             PurchLine."Attached to Line No." :=

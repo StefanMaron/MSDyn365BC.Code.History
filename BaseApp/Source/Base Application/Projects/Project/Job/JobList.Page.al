@@ -858,6 +858,14 @@ page 89 "Job List"
                     CODEUNIT.Run(CODEUNIT::"Jobs-Send", Rec);
                 end;
             }
+            action(ProjectsAnalysis)
+            {
+                ApplicationArea = Jobs;
+                Caption = 'Analyze Projects';
+                Image = Job;
+                RunObject = Query ProjectsAnalysis;
+                ToolTip = 'Analyze (group, summarize, pivot) your Project Ledger Entries with related Project master data such as Project Task, Resource, Item, and G/L Account.';
+            }
             group("Financial Management")
             {
                 Caption = 'Financial Management';
