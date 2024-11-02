@@ -614,7 +614,7 @@ report 393 "Suggest Vendor Payments"
         end;
         if GenJnlBatch."No. Series" = '' then
             NextDocNo := ''
-        else 
+        else
             NextDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", PostingDate);
     end;
 
@@ -929,6 +929,7 @@ report 393 "Suggest Vendor Payments"
         GenJnlLine."Line No." := LastLineNo;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
         GenJnlLine."Posting No. Series" := GenJnlBatch."Posting No. Series";
+        GenJnlLine."Journal Batch Id" := GenJnlBatch.SystemId;
         if SummarizePerVend then
             GenJnlLine."Document No." := TempVendorPaymentBuffer."Document No."
         else

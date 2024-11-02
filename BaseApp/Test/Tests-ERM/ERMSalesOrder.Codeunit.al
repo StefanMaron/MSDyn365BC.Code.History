@@ -71,6 +71,7 @@ codeunit 134378 "ERM Sales Order"
         DimensionSetIdHasChangedMsg: Label 'Dimension Set ID has changed on Sales Order';
         CustomerBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
         UnitPriceMustMatchErr: Label 'Unit Price must match.';
+        PlannedShipmentDateErr: Label 'Planned Shipment Date must be %1 in %2.', Comment = '%1= Value ,%2=Table Name.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5410,6 +5411,43 @@ codeunit 134378 "ERM Sales Order"
 
         //[THEN] Verifying that the ATO Item is changed in the SO Lines and the Reserved Qty should be calculated.
         SalesOrder.SalesLines."Reserved Quantity".AssertEquals(SalesLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure PlannedShippingDateMustBeUpdatedWhenShippingTimeExists()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 537460] When Validating "Planned Delivery Date" in Sales Line with blank "Shipment Date", it is correctly calculated.
+        Initialize();
+
+        // [GIVEN] Create Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine);
+
+        // [GIVEN] Create a Shipping Time.
+        Evaluate(ShippingTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(5)));
+
+        // [GIVEN] Validate Shipping Time, Planned Delivery Date, Planned Shipment Date and Shipment Date.
+        SalesLine.Validate("Shipping Time", ShippingTime);
+        SalesLine.Validate("Planned Delivery Date", 0D);
+        SalesLine.Validate("Planned Shipment Date", 0D);
+        SalesLine.Validate("Shipment Date", 0D);
+
+        // [WHEN] Validate Requested Delivery Date.
+        SalesLine.Validate("Requested Delivery Date", Today());
+        SalesLine.Modify(true);
+
+        // [THEN] Planned Shipment Date is calculated from Shipping Time.
+        Assert.AreEqual(
+            SalesLine.CalcPlannedDate(),
+            SalesLine."Planned Shipment Date",
+            StrSubstNo(
+                PlannedShipmentDateErr,
+                SalesLine.CalcPlannedDate(),
+                SalesLine.TableCaption()));
     end;
 
     local procedure Initialize()
