@@ -12,9 +12,12 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         Any: Codeunit Any;
         Assert: Codeunit Assert;
         Initialized: Boolean;
+        AmountMustBeEqualErr: Label 'Amount Must be equal.';
 
     local procedure Initialize()
     var
@@ -1074,6 +1077,55 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         Assert.IsTrue(AllocAccManualOverride.IsEmpty(), 'The manual override was not deleted');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure PostPurchaseInvoiceWithAllocationAccountUsingSplitQuantity()
+    var
+        DestinationGLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        PurchaseHeader: Record "Purchase Header";
+        DimensionValue: array[2] of Record "Dimension Value";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        Quantity: Integer;
+        DirectUnitCost: Decimal;
+        AmountIncludingVAT: Decimal;
+    begin
+        // [SCENARIO 539634] Purchase Invoice gets Posted with Allocation Account same as Inherit Parent and
+        // as Breakdown Account Type equals GL Account.
+        Initialize();
+
+        // [GIVEN] Create a GL Account.
+        DestinationGLAccount.Get(CreateGLAccount());
+
+        // [GIVEN] Create a dimension that is defined as a department with two values.
+        CreateDimensionsWithValues(DimensionValue);
+
+        // [GIVEN] Create a Variable Allocation Account with Eight Distribution Lines and inherit from parent values.
+        CreateVariableAllocationAccountwithEightDistributionLinesInheritFromParent(AllocationAccount, DestinationGLAccount."No.", DimensionValue);
+
+        // [GIVEN] Generate Quantity and save it in a Variable.
+        Quantity := LibraryRandom.RandIntInRange(6497, 6497);
+        DirectUnitCost := LibraryRandom.RandDecInDecimalRange(1.96, 1.96, 2);
+
+        // [GIVEN] Create a Purchase Invoice with Inherit 
+        CreatePurchaseInvoiceWithInheritFromParent(DestinationGLAccount."No.", AllocationAccount."No.", PurchaseInvoice, PurchaseHeader, Quantity, DirectUnitCost);
+
+        // [GIVEN] Save the value in AmountIncludingVAT variable 
+        Evaluate(AmountIncludingVAT, PurchaseInvoice.DocAmount.Value());
+
+        // [WHEN] The Purchase Invoice is posted
+        PurchaseInvoice.Post.Invoke();
+        PurchInvHeader.SetRange("Draft Invoice SystemId", PurchaseHeader.SystemId);
+        PurchInvHeader.FindFirst();
+
+        // [THEN] Verify the Amount Including VAT will be equal to Posted Purchase Invoice
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.CalcSums("Amount Including VAT");
+        Assert.AreEqual(AmountIncludingVAT, PurchInvLine."Amount Including VAT", AmountMustBeEqualErr);
+    end;
+
     local procedure CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(
         var AllocationAccount: Record "Allocation Account";
         FirstDimensionValue: Record "Dimension Value";
@@ -1368,6 +1420,92 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
     local procedure GetOverrideQuantity(): Decimal
     begin
         exit(0.33);
+    end;
+
+    local procedure CreateDimensionsWithValues(var DimensionValue: array[2] of Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], Dimension.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], Dimension.Code);
+    end;
+
+    local procedure CreateVariableAllocationAccountwithEightDistributionLinesInheritFromParent(
+        var AllocationAccount: Record "Allocation Account";
+        BreakdownAccountNumber: Code[20];
+        DimensionValue: array[2] of Record "Dimension Value")
+    var
+        VariableAllocationAccountCode: Code[20];
+        i: Integer;
+    begin
+        VariableAllocationAccountCode := CreateAllocationAccountWithVariableDistribution();
+
+        CreateAllocationAccountDistributionLineInheritFromParent(
+            VariableAllocationAccountCode,
+            BreakdownAccountNumber,
+            DimensionValue[1].Code);
+        CreateAllocationAccountDistributionLineInheritFromParent(
+            VariableAllocationAccountCode,
+            BreakdownAccountNumber,
+            DimensionValue[2].Code);
+
+        for i := 1 to 6 do
+            CreateAllocationAccountDistributionLineInheritFromParent(
+                VariableAllocationAccountCode,
+                BreakdownAccountNumber, '');
+
+        AllocationAccount.Get(VariableAllocationAccountCode);
+    end;
+
+    local procedure CreateAllocationAccountWithVariableDistribution(): Code[20]
+    var
+        AllocationAccount: Record "Allocation Account";
+    begin
+        AllocationAccount."No." := Format(LibraryRandom.RandText(5));
+        AllocationAccount."Account Type" := AllocationAccount."Account Type"::Variable;
+        AllocationAccount.Name := Format(LibraryRandom.RandText(10));
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Insert(true);
+        exit(AllocationAccount."No.");
+    end;
+
+    local procedure CreateAllocationAccountDistributionLineInheritFromParent(AllocationAccountNo: Code[20]; BreakdownAccountNumber: Code[20]; DimensionValueCode: Code[20])
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        AllocAccountDistribution."Allocation Account No." := AllocationAccountNo;
+        AllocAccountDistribution."Line No." := LibraryUtility.GetNewRecNo(AllocAccountDistribution, AllocAccountDistribution.FieldNo("Line No."));
+        AllocAccountDistribution.Validate("Account Type", AllocAccountDistribution."Account Type"::Variable);
+        AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"Inherit from Parent");
+        AllocAccountDistribution.Validate("Breakdown Account Type", AllocAccountDistribution."Breakdown Account Type"::"G/L Account");
+        AllocAccountDistribution.Validate("Breakdown Account Number", BreakdownAccountNumber);
+        AllocAccountDistribution.Validate("Calculation Period", AllocAccountDistribution."Calculation Period"::Month);
+        AllocAccountDistribution.Validate("Dimension 1 Filter", DimensionValueCode);
+        AllocAccountDistribution.Insert(true);
+    end;
+
+    local procedure CreatePurchaseInvoiceWithInheritFromParent(
+        GLAccountNo: Code[20];
+        SelectedAlloctationAccountNo: Code[20];
+        var PurchaseInvoice: TestPage "Purchase Invoice";
+        var PurchaseHeader: Record "Purchase Header";
+        Quantity: Decimal;
+        DirectUnitCost: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GoToRecord(PurchaseHeader);
+        PurchaseInvoice.PurchLines.New();
+        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::"G/L Account");
+        PurchaseInvoice.PurchLines."No.".SetValue(GLAccountNo);
+        PurchaseInvoice.PurchLines.Quantity.SetValue(Quantity);
+        PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(DirectUnitCost);
+        PurchaseInvoice.PurchLines."Allocation Account No.".SetValue(SelectedAlloctationAccountNo);
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        PurchaseInvoice.DocAmount.SetValue(PurchaseHeader."Amount Including VAT" + (Quantity * DirectUnitCost));
     end;
 
     [ModalPageHandler]

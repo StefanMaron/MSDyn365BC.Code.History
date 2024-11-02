@@ -875,7 +875,7 @@ page 7024 "Prices Overview"
             Rec.SetRange("Ending Date");
         Rec.FilterGroup(0);
 
-        OnAfterSetFilters(Rec);
+        OnAfterSetFilters(Rec, StartingDateFilter, EndingDateFilter);
     end;
 
     local procedure SetVisibleFields()
@@ -915,7 +915,7 @@ page 7024 "Prices Overview"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetFilters(var PriceListLine: record "Price List Line")
+    local procedure OnAfterSetFilters(var PriceListLine: record "Price List Line"; var StartingDateFilter: Text; var EndingDateFilter: Text)
     begin
     end;
 

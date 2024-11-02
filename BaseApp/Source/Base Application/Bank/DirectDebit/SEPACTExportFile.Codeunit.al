@@ -31,7 +31,6 @@ codeunit 1220 "SEPA CT-Export File"
         exit(FeatureNameTxt)
     end;
 
-    [Scope('OnPrem')]
     procedure Export(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer; FileName: Text) Result: Boolean
     var
         CreditTransferRegister: Record "Credit Transfer Register";

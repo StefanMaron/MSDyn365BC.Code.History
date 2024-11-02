@@ -514,7 +514,6 @@ report 12 "VAT Statement"
         exit(Round(Amt, 1, GetAmtRoundingDirection()));
     end;
 
-    [Scope('OnPrem')]
     procedure SetElectronicVAT(ElectronicVAT2: Boolean)
     begin
         ElectronicVAT := ElectronicVAT2;

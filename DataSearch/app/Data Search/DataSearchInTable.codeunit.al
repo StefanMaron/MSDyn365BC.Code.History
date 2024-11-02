@@ -144,7 +144,6 @@ codeunit 2680 "Data Search in Table"
             UseWildCharSearch := true;
             SearchString := DelChr(SearchString, '<', '*');
         end;
-
         RecRef.FilterGroup(-1); // 'OR' group
         foreach FieldNo in FieldList do
             if RecRef.FieldExist(FieldNo) then begin
@@ -250,7 +249,7 @@ codeunit 2680 "Data Search in Table"
         foreach FieldNo in FieldList do
             if RecRef.FieldExist(FieldNo) then begin
                 FldRef := RecRef.Field(FieldNo);
-                if StrPos(UpperCase(Format(FldRef.Value)), UpperCase(DelChr(SearchString, '=', '*'))) > 0 then
+                if StrPos(UpperCase(Format(FldRef.Value)), UpperCase(DelChr(SearchString, '=', '@*'))) > 0 then
                     exit(true);
             end;
         exit(false);
@@ -313,7 +312,7 @@ codeunit 2680 "Data Search in Table"
         foreach FieldNo in FieldList do
             if RecRef.FieldExist(FieldNo) then begin
                 FldRef := RecRef.Field(FieldNo);
-                if StrPos(UpperCase(Format(FldRef.Value)), UpperCase(DelChr(SearchString, '=', '*'))) > 0 then begin
+                if StrPos(UpperCase(Format(FldRef.Value)), UpperCase(DelChr(SearchString, '=', '@*'))) > 0 then begin
                     Field.Get(RecRef.Number, FieldNo);
                     exit(Field."Field Caption" + ': ' + Format(FldRef.Value));
                 end;

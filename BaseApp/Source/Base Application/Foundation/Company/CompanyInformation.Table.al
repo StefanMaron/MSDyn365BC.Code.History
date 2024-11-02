@@ -811,7 +811,6 @@ table 79 "Company Information"
         exit(DevBetaModeTxt);
     end;
 
-    [Scope('OnPrem')]
     procedure GetVATIdentificationNo(PartOfFiscalEntity: Boolean) Result: Text[20]
     begin
         Get();

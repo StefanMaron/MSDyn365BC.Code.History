@@ -91,7 +91,6 @@ codeunit 11400 "Local Functionality Mgt."
             Res := '+31' + CopyStr(Res, 5);
     end;
 
-    [Scope('OnPrem')]
     procedure GetPmtHistLineCountAndAmtForSEPAISO20022Pain(PaymentHistory: Record "Payment History"; var PaymentHistoryLine: Record "Payment History Line"; var TotalAmount: Text[50]; var LineCount: Text[20])
     var
         TotalAmountDecimal: Decimal;
@@ -125,7 +124,6 @@ codeunit 11400 "Local Functionality Mgt."
         GetPmtHistLineCountAndAmt(PaymentHistoryLine, TotalAmount, LineCount, PaymentHistory);
     end;
 
-    [Scope('OnPrem')]
     procedure GetPmtHistLineCountAndAmt(var PaymentHistoryLine: Record "Payment History Line"; var TotalAmount: Text[50]; var LineCount: Text[20]; PaymentHistory: Record "Payment History")
     begin
         GetPmtHistLineCountAndAmtForSEPAISO20022Pain(PaymentHistory, PaymentHistoryLine, TotalAmount, LineCount);

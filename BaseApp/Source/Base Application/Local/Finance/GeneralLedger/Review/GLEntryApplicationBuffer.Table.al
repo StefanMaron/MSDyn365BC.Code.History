@@ -403,7 +403,6 @@ table 11307 "G/L Entry Application Buffer"
         exit(GLSetup."Additional Reporting Currency");
     end;
 
-    [Scope('OnPrem')]
     procedure ShowDimensions()
     var
         DimManagement: Codeunit DimensionManagement;
@@ -413,7 +412,6 @@ table 11307 "G/L Entry Application Buffer"
             "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
 
-    [Scope('OnPrem')]
     procedure GetAppliedEntries(var TempGLEntryApplicationBuffer: Record "G/L Entry Application Buffer" temporary; OrgGLEntry: Record "G/L Entry")
     var
         GLEntry: Record "G/L Entry";
@@ -476,7 +474,6 @@ table 11307 "G/L Entry Application Buffer"
           (GLEntryApplicationBuffer."Remaining Amount" - TotalAppliedAmount) <> 0, 0, 0D, 0, '');
     end;
 
-    [Scope('OnPrem')]
     procedure Undo(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer")
     var
         OrgGLEntry: Record "G/L Entry";
@@ -570,7 +567,6 @@ table 11307 "G/L Entry Application Buffer"
         GLEntry.Modify();
     end;
 
-    [Scope('OnPrem')]
     procedure RealEntryChanged(GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; var GlEntry: Record "G/L Entry")
     begin
         // 'Real' G/L Entry changed whilst application ?

@@ -210,6 +210,8 @@ report 4 "Detail Trial Balance"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Detail Trial Balance';
+        AboutText = 'View bank account balances at the end of the period, including the opening balance, each transaction within the period, and the closing balance grouped by bank. View a running balance and reconciled entries.';
 
         layout
         {

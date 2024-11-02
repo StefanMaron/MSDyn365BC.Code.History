@@ -489,7 +489,6 @@ table 11000002 "Payment History Line"
         PaymentJnlExportErrorText.DeleteAll();
     end;
 
-    [Scope('OnPrem')]
     procedure WillBeSent()
     begin
         if Status = Status::New then begin
@@ -537,7 +536,6 @@ table 11000002 "Payment History Line"
         exit((AddrLine[1] + AddrLine[2] + AddrLine[3]) <> '');
     end;
 
-    [Scope('OnPrem')]
     procedure GetUnstrRemitInfo() UnstrRemitInfo: Text[140]
     var
         DetailLine: Record "Detail Line";

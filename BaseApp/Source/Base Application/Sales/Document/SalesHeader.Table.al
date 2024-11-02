@@ -4465,7 +4465,7 @@ table 36 "Sales Header"
                         FieldNo("Shipping Agent Code"):
                             SalesLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                         FieldNo("Shipping Agent Service Code"):
-                            if SalesLine."No." <> '' then
+                            if (SalesLine."No." <> '') and (SalesLine."Shipping Agent Code" <> '') then
                                 SalesLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
                         FieldNo("Shipping Time"):
                             if SalesLine."No." <> '' then
@@ -5949,6 +5949,7 @@ table 36 "Sales Header"
                 CustCheckCreditLimit.SalesHeaderCheck(Rec);
 
             CalcFields("Amount Including VAT");
+            OnCheckCreditLimitOnAfterCreditLimitCheck(Rec);
         end;
     end;
 
@@ -7962,11 +7963,14 @@ table 36 "Sales Header"
     procedure PerformManualRelease()
     var
         ReleaseSalesDoc: Codeunit "Release Sales Document";
+        IsHandled: Boolean;
     begin
-        if Rec.Status <> Rec.Status::Released then begin
-            ReleaseSalesDoc.PerformManualRelease(Rec);
-            Commit();
-        end;
+        OnBeforePerformManualRelease(Rec, IsHandled);
+        if not IsHandled then
+            if Rec.Status <> Rec.Status::Released then begin
+                ReleaseSalesDoc.PerformManualRelease(Rec);
+                Commit();
+            end;
     end;
 
     /// <summary>
@@ -9141,10 +9145,15 @@ table 36 "Sales Header"
         CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
     end;
 
-    local procedure IsNotFullyCancelled(var SalesCreditMemoHeader: Record "Sales Cr.Memo Header"): Boolean
+    local procedure IsNotFullyCancelled(var SalesCreditMemoHeader: Record "Sales Cr.Memo Header") Result: Boolean
     var
         CustLedgerEntry, ClosedCustLedgerEntry : Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        OnBeforeIsNotFullyCancelled(SalesCreditMemoHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SalesCreditMemoHeader."Cust. Ledger Entry No." = 0 then
             exit(true);
 
@@ -11055,6 +11064,21 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnBeforeValidateBillToContactNo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePerformManualRelease(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsNotFullyCancelled(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCreditLimitOnAfterCreditLimitCheck(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

@@ -200,7 +200,7 @@ table 1275 "Doc. Exch. Service Setup"
             trigger OnValidate()
             var
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
-                DocExchServiceSetupConsentProvidedLbl: Label 'Document Exchange Service Setup - consent provided by user %1.', Locked = true;
+                DocExchServiceSetupConsentProvidedLbl: Label 'Document Exchange Service Setup - consent has been provided by UserSecurityId %1.', Locked = true;
             begin
                 if Enabled then begin
                     if not CustomerConsentMgt.ConfirmUserConsent() then

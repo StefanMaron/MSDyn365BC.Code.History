@@ -143,7 +143,6 @@ table 11411 "Elec. Tax Decl. VAT Category"
         Text002: Label '%1 %2 cannot be deleted; one or more VAT statement lines refer to it.';
         Text003: Label '%1 %2 already uses this category and subcategory.';
 
-    [Scope('OnPrem')]
     procedure GetCategoryCode(Category: Integer; Subcategory: Integer): Code[10]
     var
         ElecTaxDeclVATCategory: Record "Elec. Tax Decl. VAT Category";

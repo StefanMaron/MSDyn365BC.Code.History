@@ -394,7 +394,6 @@ table 11409 "Elec. Tax Declaration Header"
                 Error('');
     end;
 
-    [Scope('OnPrem')]
     procedure InsertLine(LineType: Integer; IndentLevel: Integer; Name: Text[80]; Data: Text[250])
     var
         ElecTaxDeclarationLine: Record "Elec. Tax Declaration Line";
@@ -409,7 +408,6 @@ table 11409 "Elec. Tax Declaration Header"
         ElecTaxDeclarationLine.Insert(true);
     end;
 
-    [Scope('OnPrem')]
     procedure ClearLines()
     var
         ElecTaxDeclarationLine: Record "Elec. Tax Declaration Line";
@@ -434,7 +432,6 @@ table 11409 "Elec. Tax Declaration Header"
         ElecTaxDeclarationLine.Delete();
     end;
 
-    [Scope('OnPrem')]
     procedure FormatDateTime(Date: Date; Time: Time): Text[20]
     begin
         exit(
