@@ -402,7 +402,7 @@ page 507 "Blanket Sales Order"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
             }
             group("Shipping and Billing")

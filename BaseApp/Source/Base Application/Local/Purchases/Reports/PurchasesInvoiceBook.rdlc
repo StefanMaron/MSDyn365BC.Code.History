@@ -3890,10 +3890,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATBuffer2_Base_VATBuffer2_Amount.Value</Value>
+                                  <Value>=Fields!VATBuffer2_Base_VATBuffer2_Amount.Value+Fields!VATEntry2_NonDeductibleVATBase.Value+Fields!VATEntry2_NonDeductibleVATAmt.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!VATBuffer2_Base_VATBuffer2_AmountFormat.Value</Format>
+                                    <Format>=Fields!VATBuffer2_Base_VATBuffer2_Amount.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5117,7 +5117,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=SUM(Fields!VATBuffer2_Base_VATBuffer2_Amount.Value)</Value>
+                                  <Value>=Sum(Fields!VATBuffer2_Base_VATBuffer2_Amount.Value)+Sum(Fields!VATEntry2_NonDeductibleVATBase.Value)+Sum(Fields!VATEntry2_NonDeductibleVATAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -5474,7 +5474,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=SUM(Fields!VATBuffer2_Base_VATBuffer2_Amount_Control81.Value)</Value>
+                                  <Value>=SUM(Fields!VATBuffer2_Base_VATBuffer2_Amount_Control81.Value)+SUM(Fields!VATEntry2_NonDeductibleVATBase.Value)+SUM(Fields!VATEntry2_NonDeductibleVATAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!VATBuffer2_Base_VATBuffer2_Amount_Control81Format.Value</Format>
@@ -5796,7 +5796,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=SUM(Fields!VATBuffer2_Base_VATBuffer2_Amount.Value)</Value>
+                                  <Value>=Sum(Fields!VATBuffer2_Base_VATBuffer2_Amount.Value)+SUM(Fields!VATEntry2_NonDeductibleVATBase.Value)+SUM(Fields!VATEntry2_NonDeductibleVATAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -7673,6 +7673,12 @@ End Function
         </Field>
         <Field Name="VATEntry2_NonDeductibleVATAmtFormat">
           <DataField>VATEntry2_NonDeductibleVATAmtFormat</DataField>
+        </Field>
+        <Field Name="VATEntry2_TotalAmount">
+          <DataField>VATEntry2_TotalAmount</DataField>
+        </Field>
+        <Field Name="VATEntry2_TotalAmountFormat">
+          <DataField>VATEntry2_TotalAmountFormat</DataField>
         </Field>
         <Field Name="VarNotAmountReverse">
           <DataField>VarNotAmountReverse</DataField>

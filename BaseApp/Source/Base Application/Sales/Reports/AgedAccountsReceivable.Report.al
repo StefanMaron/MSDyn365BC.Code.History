@@ -650,6 +650,8 @@ report 120 "Aged Accounts Receivable"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Aged Accounts Receivables';
+        AboutText = 'Analyze customer balances at the end of each period by calculating outstanding invoice, credit memo, and payment totals in three periods of equal length. Measure the reliability of collectable debts for your customers.';
 
         layout
         {

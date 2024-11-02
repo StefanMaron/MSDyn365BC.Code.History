@@ -2,6 +2,7 @@
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Projects.Project.Analysis;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using System.Security.User;
@@ -477,6 +478,17 @@ page 92 "Job Ledger Entries"
                     Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
                     Navigate.Run();
                 end;
+            }
+        }
+        area(Reporting)
+        {
+            action(ProjectsAnalysis)
+            {
+                ApplicationArea = Jobs;
+                Caption = 'Analyze Projects';
+                Image = Job;
+                RunObject = Query ProjectsAnalysis;
+                ToolTip = 'Analyze (group, summarize, pivot) your Project Ledger Entries with related Project master data such as Project Task, Resource, Item, and G/L Account.';
             }
         }
         area(Promoted)

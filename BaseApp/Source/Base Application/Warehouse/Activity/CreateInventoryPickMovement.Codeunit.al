@@ -879,9 +879,19 @@ codeunit 7322 "Create Inventory Pick/Movement"
             NextLineNo := 10000;
     end;
 
+    procedure SetHideDialog(NewHideDialogValue: Boolean)
+    begin
+        HideDialog := NewHideDialogValue;
+    end;
+
     procedure SetWhseActivHeader(WhseActivHeader: Record "Warehouse Activity Header")
     begin
         CurrWarehouseActivityHeader := WhseActivHeader;
+    end;
+
+    procedure GetWhseActivHeader(var WhseActivHeader: Record "Warehouse Activity Header")
+    begin
+        WhseActivHeader := CurrWarehouseActivityHeader;
     end;
 
     procedure RunCreatePickOrMoveLine(NewWarehouseActivityLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; OutstandingQtyBase: Decimal; ReservationExists: Boolean)

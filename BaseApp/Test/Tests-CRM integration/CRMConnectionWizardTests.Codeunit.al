@@ -662,9 +662,10 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
     local procedure Initialize()
     var
-        AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
+        AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
         ClientSecret: Text;
     begin
@@ -684,6 +685,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
     local procedure RunWizardToCompletion(var CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard")

@@ -235,6 +235,7 @@ page 1190 "Create Payment"
                 OnCheckVendorLedgerEntryPostingDate(VendorLedgerEntry, PostingDate);
                 if VendorLedgerEntry."Applies-to ID" = '' then begin
                     VendorLedgerEntry.CalcFields("Remaining Amount");
+                    OnMakeGenJnlLinesOnAfterCalcRemainingAmount(VendorLedgerEntry);
                     TempVendorPaymentBuffer."Vendor No." := VendorLedgerEntry."Vendor No.";
                     TempVendorPaymentBuffer."Currency Code" := VendorLedgerEntry."Currency Code";
 
@@ -520,6 +521,11 @@ page 1190 "Create Payment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetMessageToRecipient(TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; DocumentsToApply: List of [Text]; var IsHandled: Boolean; var MessageToRecipient: Text[140])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnMakeGenJnlLinesOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

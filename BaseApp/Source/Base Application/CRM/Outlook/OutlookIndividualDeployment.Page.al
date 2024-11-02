@@ -117,7 +117,17 @@ page 1832 "Outlook Individual Deployment"
                         group("Para2.1.2.1")
                         {
                             Caption = '';
-                            InstructionalText = '2. In Outlook, choose ‘Get Add-ins’ from the ribbon.';
+                            field(OpenOutlook; OpenOutlookLinkLbl)
+                            {
+                                ApplicationArea = Basic, Suite;
+                                ShowCaption = false;
+                                Editable = false;
+
+                                trigger OnDrillDown()
+                                begin
+                                    Hyperlink(OutlookSideloadLinkTxt);
+                                end;
+                            }
                         }
                         group("Para2.1.2.2")
                         {
@@ -433,9 +443,11 @@ page 1832 "Outlook Individual Deployment"
         ProgressTemplateMsg: Label '#1##########\@2@@@@@@@@@@', Locked = true;
         VideoFwdLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2165118', Locked = true;
         LearnMoreFwdLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2102702', Locked = true;
+        OutlookSideloadLinkTxt: Label 'https://aka.ms/olksideload', Locked = true;
         LearnMoreLbl: Label 'Learn more about installing Outlook add-in';
         WatchVideoLbl: Label 'Watch the video';
         DownloadAddinsLbl: Label '1. Download the add-in files to your device.';
+        OpenOutlookLinkLbl: Label '2. Go to aka.ms/olksideload.';
         PrivacyStatementTxt: Label 'Privacy and cookies';
         SetupCompletedTelemetryTxt: Label 'Outlook add-in deployed.', Locked = true;
         SetupFailedTelemetryTxt: Label 'Outlook add-in deployment failed. Last Error: %1', Locked = true;

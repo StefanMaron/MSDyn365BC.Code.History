@@ -436,6 +436,8 @@ report 304 "Vendor - Detail Trial Balance"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Vendor - Detail Trial Balance';
+        AboutText = 'View vendor balances at the end of a period, including the opening balance, each transaction within the period, and the closing balance grouped by vendor. View details for remaining amounts and due dates.';
 
         layout
         {

@@ -975,6 +975,8 @@ page 402 "Sales Order Statistics"
         else
             Clear(Cust);
 
+        OnRefreshOnAfterGetRecordOnBeforeSetCreditLimitLCYExpendedPct(Cust, Rec);
+
         case true of
             Cust."Credit Limit (LCY)" = 0:
                 CreditLimitLCYExpendedPct := 0;
@@ -1311,6 +1313,11 @@ page 402 "Sales Order Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateHeaderInfoOnBeforeSetLineAmount(var TotalSalesLine: array[3] of Record "Sales Line"; var TotalAmount1: array[3] of Decimal; IndexNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnRefreshOnAfterGetRecordOnBeforeSetCreditLimitLCYExpendedPct(var Customer: Record Customer; var SalesHeader: Record "Sales Header")
     begin
     end;
 }

@@ -33,6 +33,7 @@ codeunit 147590 "Test VAT Statement"
         TotalBaseTok: Label 'TotalBase';
         TotalECAmtTok: Label 'TotalECAmt';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
+        AEATTransferenceValueErr: Label 'Value of 80 character should be accepted in AEATTransference File.';
 
     [Test]
     [HandlerFunctions('TemplateSelectionModalPageHandler')]
@@ -2008,6 +2009,50 @@ codeunit 147590 "Test VAT Statement"
           -NonDeductibleVATBase,
           VatEntry."Non-Deductible VAT Base",
           StrSubstNo(ValueMustBeEqualErr, VatEntry.FieldCaption("Non-Deductible VAT Base"), -NonDeductibleVATBase, VatEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('TransferenceTXTRequestPageHandler,TransferenceTXTModalPageHandlerSimple')]
+    procedure TelematicFileGenerationForTransFormatWithLargeForValueField()
+    var
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        AEATTransferenceFormat: Record "AEAT Transference Format";
+        GeneratedTextFromFile: BigText;
+        FileName: Text[1024];
+        Value: Text[80];
+    begin
+        // [SCENARIO 543195] Telematic VAT Declaration Report generates file for AEAT Transference Format with Value Length equal to 80.
+        Initialize();
+
+        // [GIVEN] VAT Statement with Line.
+        CreateVATStatement(VATStatementName);
+        CreateVATStatementLineDescription(VATStatementLine, VATStatementName);
+
+        // [GIVEN] Assign Random Text of 80 Character to Value.
+        Value := LibraryRandom.RandText(80);
+
+        // [GIVEN] AEAT Transreference Format for VAT Statement with Length 80.
+        LibraryVATStatement.CreateAEATTransreferenceFormatTxt(
+          AEATTransferenceFormat,
+          VATStatementName.Name,
+          1,
+          1,
+          80,
+          AEATTransferenceFormat.Type::Alphanumerical,
+          AEATTransferenceFormat.Subtype::" ",
+          Value,
+          '');
+
+        // [WHEN] Run Telematic VAT Declaration Report.
+        FileName := CopyStr(RunTelematicVATDeclaration(VATStatementLine, 0, 0, false), 1, 1024);
+
+        // [THEN] Generated file has value length accepts 80 Character.
+        LibraryTextFileValidation.ReadTextFile(FileName, GeneratedTextFromFile);
+        Assert.AreEqual(
+          AEATTransferenceFormat.Value,
+          Format(GeneratedTextFromFile),
+          AEATTransferenceValueErr);
     end;
 
     local procedure GetVATAmount(DocNo: Code[20]): Decimal

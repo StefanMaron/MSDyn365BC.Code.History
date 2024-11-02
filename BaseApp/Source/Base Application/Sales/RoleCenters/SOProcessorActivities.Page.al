@@ -301,7 +301,12 @@ page 9060 "SO Processor Activities"
         SOActivitiesCalculate: Codeunit "SO Activities Calculate";
         UIHelperTriggers: Codeunit "UI Helper Triggers";
         PrevUpdatedOn: DateTime;
+        IsHandled: Boolean;
     begin
+        OnBeforeOnPageBackgroundTaskCompleted(TaskId, CalcTaskId, Results, IsHandled);
+        if IsHandled then
+            exit;
+
         if TaskId <> CalcTaskId then
             exit;
 
@@ -373,6 +378,11 @@ page 9060 "SO Processor Activities"
         if not SatisfactionSurveyMgt.TryGetCheckUrl(CheckUrl) then
             exit;
         CurrPage.SATAsyncLoader.SendRequest(CheckUrl, SatisfactionSurveyMgt.GetRequestTimeoutAsync());
+    end;
+
+    [IntegrationEvent(true, false)]
+    procedure OnBeforeOnPageBackgroundTaskCompleted(TaskId: Integer; CalcTaskId: Integer; var Results: Dictionary of [Text, Text]; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -40,6 +40,21 @@ table 10704 "Sales/Purch. Book VAT Buffer"
             Caption = 'EC Amount';
             DataClassification = SystemMetadata;
         }
+        field(6; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %';
+            DataClassification = SystemMetadata;
+        }
+        field(7; "Non-Deductible VAT Base"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Base';
+            DataClassification = SystemMetadata;
+        }
+        field(8; "Non-Deductible VAT Amount"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Amount';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

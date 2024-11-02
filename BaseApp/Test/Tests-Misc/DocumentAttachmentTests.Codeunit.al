@@ -27,7 +27,7 @@ codeunit 134776 "Document Attachment Tests"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ReportSelectionUsage: Enum "Report Selection Usage";
         RecallNotifications: Boolean;
-        NoContentErr: Label 'The selected file has no content. Please choose another file.';
+        NoContentErr: Label 'The selected file ''%1'' has no content. Please choose another file.', Comment = '%1=FileName';
         DuplicateErr: Label 'This file is already attached to the document. Please choose another file.';
         PrintedToAttachmentTxt: Label 'The document has been printed to attachments.';
         NoSaveToPDFReportTxt: Label 'There are no reports which could be saved to PDF for this document.';
@@ -59,7 +59,7 @@ codeunit 134776 "Document Attachment Tests"
 
         CreateTempBLOBWithText(TempBlob, '');
         asserterror DocumentAttachment.SaveAttachment(RecRef, 'EmptyFile.txt', TempBlob);
-        Assert.ExpectedError(NoContentErr);
+        Assert.ExpectedError(StrSubstNo(NoContentErr, 'EmptyFile.txt'));
     end;
 
     [Test]
@@ -351,7 +351,7 @@ codeunit 134776 "Document Attachment Tests"
 #if not CLEAN25
         FinalDocAttachedAcount: Integer;
 #endif
-        begin
+    begin
         // [SCENARIO] Ensure that Documents Attachment factbox shows blank when quote is converted to order
 
         Initialize();
@@ -393,8 +393,7 @@ codeunit 134776 "Document Attachment Tests"
 #if not CLEAN25
         // [THEN] The number of attachments is updated
         FinalDocAttachedAcount := 0;
-        if SalesQuotes."No.".Value() <> '' then
-        begin
+        if SalesQuotes."No.".Value() <> '' then begin
             DocumentAttachment.Reset();
             DocumentAttachment.SetRange("Table ID", Database::"Sales Header");
             DocumentAttachment.SetRange("Document Type", SalesHeaderQuote."Document Type"::Quote);
@@ -2601,7 +2600,7 @@ codeunit 134776 "Document Attachment Tests"
         Assert.AreEqual('txt', PurchaseCreditMemos."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
         Assert.IsFalse(PurchaseCreditMemos."Attached Documents List".Next(), 'There should be only two attachments');
     end;
-    
+
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('QuoteToOrderConfirmHandler')]
@@ -3630,6 +3629,24 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] And the next line should be the second attachment
         Assert.AreEqual('Cust2', ServiceItemListTestPage."Attached Documents List".Name.Value, 'Unexpected file name');
         Assert.AreEqual('jpeg', ServiceItemListTestPage."Attached Documents List"."File Extension".Value, 'Unexpected file extension');
+    end;
+
+    [Test]
+    procedure CheckEmptyInputSteamError()
+    var
+        DocAttachment: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
+    begin
+        // [SCENARIO][Bug][544056]: Error message is shown when trying to upload an empty file as an attachment
+
+        // [GIVEN] Create an empty file
+        TempBlob.CreateInStream(InStr);
+        Assert.AreEqual(Format(0), Format(InStr.Length), 'Input stream must be empty');
+        // [WHEN] Import From Stream is called
+        // [THEN] No content error is thrown.       
+        asserterror DocAttachment.ImportFromStream(InStr, 'Test.txt');
+        Assert.ExpectedError(StrSubstNo(NoContentErr, 'Test.txt'));
     end;
 
     local procedure Initialize()

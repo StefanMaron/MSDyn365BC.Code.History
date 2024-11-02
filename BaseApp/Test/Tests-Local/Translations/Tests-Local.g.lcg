@@ -2678,6 +2678,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No Taxable VAT - NamedType VATBufferBaseCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2056835225 - NamedType 546742772" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Entries count must matched with expected value %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No Taxable VAT - NamedType VATEntryMustExistMsgLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2056835225 - NamedType 3465506657" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT Entry must not exist.]]></Val>
@@ -4872,6 +4881,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test VAT Registration No. - NamedType NoAlphanumericErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2971784732 - NamedType 1428717091" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value of 80 character should be accepted in AEATTransference File.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test VAT Statement - NamedType AEATTransferenceValueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2971784732 - NamedType 863404764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

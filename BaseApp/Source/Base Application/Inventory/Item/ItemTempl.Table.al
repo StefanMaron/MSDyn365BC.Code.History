@@ -1197,14 +1197,15 @@ table 1382 "Item Templ."
     begin
         for i := 3 to SrcRecRef.FieldCount do begin
             SrcFieldRef := SrcRecRef.FieldIndex(i);
-            DestFieldRef := DestRecRef.Field(SrcFieldRef.Number);
             IsHandled := false;
             OnTransferFieldValuesOnBeforeTransferFieldValue(SrcFieldRef, DestFieldRef, Reverse, IsHandled);
-            if not IsHandled then
+            if not IsHandled then begin
+                DestFieldRef := DestRecRef.Field(SrcFieldRef.Number);
                 if not Reverse then
-                    DestFieldRef.Value := SrcFieldRef.Value
+                    DestFieldRef.Value := SrcFieldRef.Value()
                 else
                     SrcFieldRef.Value := DestFieldRef.Value();
+            end;
         end;
 
         OnAfterTransferFieldValues(SrcRecRef, DestRecRef, Reverse);

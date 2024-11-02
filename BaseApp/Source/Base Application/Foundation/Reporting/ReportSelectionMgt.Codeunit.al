@@ -342,7 +342,12 @@ codeunit 1901 "Report Selection Mgt."
     procedure InsertReportSelectionWhse(ReportUsage: Enum "Report Selection Warehouse Usage"; Sequence: Code[10]; ReportID: Integer)
     var
         ReportSelectionWhse: Record "Report Selection Warehouse";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertRepSelectionWhse(ReportUsage, Sequence, ReportID, IsHandled);
+        if IsHandled then
+            exit;
         if not ReportSelectionWhse.Get(ReportUsage, Sequence) then begin
             ReportSelectionWhse.Init();
             ReportSelectionWhse.Usage := ReportUsage;
@@ -449,6 +454,11 @@ codeunit 1901 "Report Selection Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnInitReportUsageWhse(ReportUsage: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertRepSelectionWhse(ReportUsage: Enum "Report Selection Warehouse Usage"; Sequence: Code[10]; ReportID: Integer; var IsHandled: Boolean)
     begin
     end;
 }

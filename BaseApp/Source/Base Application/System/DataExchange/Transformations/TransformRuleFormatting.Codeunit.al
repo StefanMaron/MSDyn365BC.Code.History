@@ -37,13 +37,6 @@ codeunit 1245 "Transform. Rule - Formatting" implements "Transformation Rule"
 
     procedure ValidateTransformationRuleField(FieldNo: Integer; var TransformationRule: Record "Transformation Rule"; var xTransformationRule: Record "Transformation Rule"): Boolean;
     begin
-        case FieldNo of
-            TransformationRule.FieldNo("Data Format"):
-                if TransformationRule."Transformation Type" in [TransformationRule."Transformation Type"::"Date Formatting", TransformationRule."Transformation Type"::"Date and Time Formatting"] then
-                    exit(true);
-            TransformationRule.FieldNo("Data Formatting Culture"):
-                exit(true);
-        end;
     end;
 
     procedure GetVisibleGroups(TransformationRule: Record "Transformation Rule"; var VisibleTransformationRuleGroups: List of [Enum "Transformation Rule Group"])

@@ -559,6 +559,8 @@ report 322 "Aged Accounts Payable"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Aged Accounts Payable';
+        AboutText = 'Analyze vendor balances at the end of each period by calculating outstanding invoice, credit memo, and payment totals in three periods of equal length. Monitor unpaid invoices, and prioritize payments for overdue accounts. ';
 
         layout
         {

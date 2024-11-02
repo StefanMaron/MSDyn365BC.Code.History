@@ -289,7 +289,7 @@ codeunit 448 "Job Queue Dispatcher"
         end;
 
         IsHandled := false;
-        OnCalcNextRunTimeForRecurringJobOnAfterCalcNewRunDateTime(JobQueueEntry, NewRunDateTime, IsHandled);
+        OnCalcNextRunTimeForRecurringJobOnAfterCalcNewRunDateTime(JobQueueEntry, NewRunDateTime, IsHandled, StartingDateTime);
         if IsHandled then
             exit(NewRunDateTime);
 
@@ -493,7 +493,7 @@ codeunit 448 "Job Queue Dispatcher"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcNextRunTimeForRecurringJobOnAfterCalcNewRunDateTime(var JobQueueEntry: Record "Job Queue Entry"; var NewRunDateTime: DateTime; var IsHandled: Boolean)
+    local procedure OnCalcNextRunTimeForRecurringJobOnAfterCalcNewRunDateTime(var JobQueueEntry: Record "Job Queue Entry"; var NewRunDateTime: DateTime; var IsHandled: Boolean; StartingDateTime: DateTime)
     begin
     end;
 

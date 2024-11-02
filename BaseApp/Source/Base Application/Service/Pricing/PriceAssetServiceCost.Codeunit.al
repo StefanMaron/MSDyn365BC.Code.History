@@ -82,6 +82,8 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
                 PriceCalculationBuffer."Price Type"::Sale:
                     PriceListLine."Unit Price" := ServiceCost."Default Unit Price";
             end;
+
+        OnAfterFillBestLine(PriceCalculationBuffer, AmountType, PriceListLine);
     end;
 
     procedure FilterPriceLines(PriceAsset: Record "Price Asset"; var PriceListLine: Record "Price List Line") Result: Boolean;
@@ -136,6 +138,11 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillAdditionalFields(var PriceAsset: Record "Price Asset"; ServiceCost: Record "Service Cost")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillBestLine(PriceCalculationBuffer: Record "Price Calculation Buffer"; PriceAmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")
     begin
     end;
 }

@@ -317,8 +317,7 @@ page 9317 "Service Quotes"
                 trigger OnAction()
                 begin
                     CurrPage.Update();
-                    CODEUNIT.Run(CODEUNIT::"Serv-Quote to Order (Yes/No)", Rec);
-                    CurrPage.Update();
+                    Codeunit.Run(Codeunit::"Serv-Quote to Order (Yes/No)", Rec);
                 end;
             }
             action("&Print")

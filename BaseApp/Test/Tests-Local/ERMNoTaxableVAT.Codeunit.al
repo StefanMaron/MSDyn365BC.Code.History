@@ -19,6 +19,8 @@ codeunit 144075 "ERM No Taxable VAT"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryNonDeductibleVAT: Codeunit "Library - NonDeductible VAT";
+        LibraryDimension: Codeunit "Library - Dimension";
         IsInitialized: Boolean;
         NotEqualToTxt: Label '<>%1.';
         VATBufferAmountCap: Label 'VATBuffer2_Amount';
@@ -27,6 +29,7 @@ codeunit 144075 "ERM No Taxable VAT"
         VATEntryMustNotExistMsg: Label 'VAT Entry must not exist.';
         EUCountryCodeTxt: Label 'DE';
         NoTaxableEntryErr: Label 'Entries count must matched with expected value.';
+        VATEntryMustExistMsgLbl: Label 'Entries count must matched with expected value %1.';
 
     [Test]
     [Scope('OnPrem')]
@@ -463,6 +466,239 @@ codeunit 144075 "ERM No Taxable VAT"
                 if VATEntry."VAT %" = 0 then
                     VATEntry.TestField(Amount, 0);
             until VATEntry.Next() = 0;
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchasesInvoiceBookRequestPageHandler')]
+    procedure SumCorrectlyNonDeductibleVATAndBaseAmount()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Vendor: Record Vendor;
+        DimensionValue: array[4] of Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[4] of Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VATEntry: Record "VAT Entry";
+        PurchaseInvoiceBook: Report "Purchases Invoice Book";
+        ItemNo: array[4] of Code[20];
+        Quantity: Integer;
+        DirectUnitCost: array[4] of Integer;
+        i: Integer;
+        ExpectedValue: Integer;
+    begin
+        // [SCENARIO 544316] When Stan runs Purchase Invoice Book Report then Non Deductible VAT Base and VAT Amount Summing Correctly.
+        Initialize();
+
+        // [GIVEN] Create a VAT Posting Setup.
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 21, 60);
+
+        // [GIVEN] Create a General Posting Setup.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Create a Vendor.
+        CreateVendorWithPostingGroup(Vendor, GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create Dimension with two Dimension Values.
+        CreateDimensionsWithValues(DimensionValue);
+
+        // [GIVEN] Create a Item No with Posting Setup.
+        for i := 1 to 4 do
+            ItemNo[i] := LibraryInventory.CreateItemNoWithPostingSetup(
+                GeneralPostingSetup."Gen. Prod. Posting Group",
+                VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Generate a Quantity and save it in a Variable.
+        Quantity := LibraryRandom.RandInt(0);
+
+        // [GIVEN] Generate a Direct Unit Cost and save it in a Variable.
+        GenerateDirectUnitCost(DirectUnitCost);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Update "Vendor Invoice No.".
+        UpdatePurchInvoiceNo(PurchaseHeader);
+
+        // [GIVEN] Create a Purchase Line and Validate "Direct Unit Cost" and "Shortcut Dimension 1 Code".
+        for i := 1 to 4 do begin
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine[i], PurchaseHeader, PurchaseLine[i].Type::Item, ItemNo[i], Quantity);
+            PurchaseLine[i].Validate("Direct Unit Cost", DirectUnitCost[i]);
+            PurchaseLine[i].Validate("Shortcut Dimension 1 Code", DimensionValue[i].Code);
+            PurchaseLine[i].Modify(true);
+        end;
+
+        // [WHEN] Purchase Invoice is Posted. 
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [GIVEN] Generate and save Expected Value in a Variable.
+        ExpectedValue := LibraryRandom.RandIntInRange(2, 2);
+
+        // [WHEN] Retrieve VAT Entry.
+        GetVATEntry(VATEntry, PurchInvHeader."No.");
+
+        // [THEN Verify Count of VAT Entry.
+        Assert.AreEqual(2, VATEntry.Count, StrSubstNo(VATEntryMustExistMsgLbl, ExpectedValue));
+
+        // [WHEN] Run Purchase Invoice Book Report. 
+        LibraryVariableStorage.Enqueue(PurchInvHeader."No.");
+        Clear(PurchaseInvoiceBook);
+        PurchaseInvoiceBook.SetTableView(VATEntry);
+        PurchaseInvoiceBook.Run();
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [THEN] Verify Non Deductible VAT Base and Non Deductible VAT Amount are summing up correctly. 
+        LibraryReportDataset.AssertElementWithValueExists(
+            'VATEntry2_NonDeductibleVATBase', VATEntry."Non-Deductible VAT Base");
+        LibraryReportDataset.AssertElementWithValueExists(
+            'VATEntry2_NonDeductibleVATAmt', VATEntry."Non-Deductible VAT Amount");
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchasesInvoiceBookRequestPageHandler')]
+    procedure TotalAmountIsCorrectWhenUsingNonDeductibleVAT()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VATEntry: Record "VAT Entry";
+        PurchaseInvoiceBook: Report "Purchases Invoice Book";
+        ItemNo: Code[20];
+        Quantity: Integer;
+        DirectUnitCost: Integer;
+    begin
+        // [SCENARIO 546807] When Stan runs Purchase Invoice Book Report then Total Field Includes Base, Amount, Non Deductible VAT Base and VAT Amount.
+        Initialize();
+
+        // [GIVEN] Create a VAT Posting Setup.
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 21, 60);
+
+        // [GIVEN] Create a General Posting Setup.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Create a Vendor.
+        CreateVendorWithPostingGroup(Vendor, GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create a Item No with Posting Setup.
+        ItemNo := LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group",
+            VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Generate a Quantity and save it in a Variable.
+        Quantity := LibraryRandom.RandInt(0);
+
+        // [GIVEN] Generate a Direct Unit Cost and save it in a Variable.
+        DirectUnitCost := LibraryRandom.RandIntInRange(1000, 1000);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Update "Vendor Invoice No.".
+        UpdatePurchInvoiceNo(PurchaseHeader);
+
+        // [GIVEN] Create a Purchase Line and Validate "Direct Unit Cost".
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Purchase Invoice is Posted. 
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [THEN] Retrieve VAT Entry.
+        GetVATEntry(VATEntry, PurchInvHeader."No.");
+
+        // [WHEN] Run Purchase Invoice Book Report. 
+        LibraryVariableStorage.Enqueue(PurchInvHeader."No.");
+        Clear(PurchaseInvoiceBook);
+        PurchaseInvoiceBook.SetTableView(VATEntry);
+        PurchaseInvoiceBook.Run();
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [THEN] Verify Total Amount Field Included Base, Amount, Non-Deductible VAT Base, Non-Deductible VAT Amount. 
+        LibraryReportDataset.AssertElementWithValueExists(
+            'VATEntry2_TotalAmount',
+            VATEntry.Base +
+            VATEntry.Amount +
+            VATEntry."Non-Deductible VAT Base" +
+            VATEntry."Non-Deductible VAT Amount");
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchasesInvoiceBookRequestPageHandler')]
+    procedure NonDeductibleVATAndBaseAmountHasValuesWhenDifferentVATPercentInSameDocumentNo()
+    var
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VATEntry: Record "VAT Entry";
+        PurchaseInvoiceBook: Report "Purchases Invoice Book";
+        i: Integer;
+    begin
+        // [SCENARIO 545171] When Stan runs Purchase Invoice Book Report then Non Deductible VAT Base and VAT Amount having Correct Values.
+        Initialize();
+
+        // [GIVEN] Create a VAT Posting Setup.
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup[1], 21, 50);
+        CreateVATPostingSetUpWithZeroPercent(
+            VATPostingSetup[2], VATPostingSetup[1]."VAT Bus. Posting Group",
+            VATPostingSetup[1]."Sales VAT Account", VATPostingSetup[1]."Purchase VAT Account");
+
+        // [GIVEN] Create a General Posting Setup.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Create a Vendor.
+        CreateVendorWithPostingGroup(Vendor, GeneralPostingSetup, VATPostingSetup[1]);
+
+        // [GIVEN] Create a G/L Account No.
+        GLAccount.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
+        LibraryERM.UpdateGLAccountWithPostingSetup(
+            GLAccount, GLAccount."Gen. Posting Type"::Purchase,
+            GeneralPostingSetup, VATPostingSetup[1]);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Update "Vendor Invoice No.".
+        UpdatePurchInvoiceNo(PurchaseHeader);
+
+        // [GIVEN] Create Purchase Lines.
+        for i := 1 to 2 do begin
+            LibraryPurchase.CreatePurchaseLine(
+                PurchaseLine[i], PurchaseHeader,
+                PurchaseLine[i].Type::"G/L Account", GLAccount."No.",
+                LibraryRandom.RandInt(0));
+            PurchaseLine[i].Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(5, 10, 2));
+            PurchaseLine[i].Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+            PurchaseLine[i].Validate("VAT Prod. Posting Group", VATPostingSetup[i]."VAT Prod. Posting Group");
+            PurchaseLine[i].Modify(true);
+        end;
+
+        // [GIVEN] Purchase Invoice is Posted. 
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [GIVEN] Retrieve VAT Entry.
+        GetVATEntry(VATEntry, PurchInvHeader."No.");
+
+        // [WHEN] Run Purchase Invoice Book Report. 
+        LibraryVariableStorage.Enqueue(PurchInvHeader."No.");
+        Clear(PurchaseInvoiceBook);
+        PurchaseInvoiceBook.SetTableView(VATEntry);
+        PurchaseInvoiceBook.Run();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('VATEntry2__Document_No__', PurchInvHeader."No.");
+
+        // [THEN] Verify Non Deductible VAT Base and Non Deductible VAT Amount are having correct values. 
+        LibraryReportDataset.AssertElementWithValueExists(
+            'VATEntry2_NonDeductibleVATBase', VATEntry."Non-Deductible VAT Base");
+        LibraryReportDataset.AssertElementWithValueExists(
+            'VATEntry2_NonDeductibleVATAmt', VATEntry."Non-Deductible VAT Amount");
     end;
 
     local procedure Initialize()
@@ -964,6 +1200,71 @@ codeunit 144075 "ERM No Taxable VAT"
 
         ItemChargeAssignmentPurch."Unit Cost" := PurchaseLineSource."Direct Unit Cost";
         ItemChargeAssgntPurch.CreateRcptChargeAssgnt(PurchRcptLine, ItemChargeAssignmentPurch);
+    end;
+
+    local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        LibraryERM.CreateGeneralPostingSetupInvt(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupPurchAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateVendorWithPostingGroup(var Vendor: Record Vendor; var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        Vendor.Get(LibraryPurchase.CreateVendorWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+    end;
+
+    local procedure CreateDimensionsWithValues(var DimensionValue: array[2] of Record "Dimension Value")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], GeneralLedgerSetup."Global Dimension 1 Code");
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], GeneralLedgerSetup."Global Dimension 1 Code");
+        DimensionValue[3] := DimensionValue[1];
+        DimensionValue[4] := DimensionValue[2];
+    end;
+
+    local procedure GenerateDirectUnitCost(var DirectUnitCost: array[4] of Integer)
+    begin
+        DirectUnitCost[1] := LibraryRandom.RandIntInRange(120000, 120000);
+        DirectUnitCost[2] := LibraryRandom.RandIntInRange(48800, 48800);
+        DirectUnitCost[3] := LibraryRandom.RandIntInRange(403644, 403644);
+        DirectUnitCost[4] := LibraryRandom.RandIntInRange(150782, 150782);
+    end;
+
+    local procedure UpdatePurchInvoiceNo(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.Find();
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure GetVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.CalcSums(
+            Base, Amount,
+            "Non-Deductible VAT Base", "Non-Deductible VAT Amount");
+    end;
+
+    local procedure CreateVATPostingSetUpWithZeroPercent(
+        var VATPostingSetup: Record "VAT Posting Setup";
+        VATBusPostingGroup: Code[20];
+        SalesVATAccount: Code[20];
+        PurchaseVATAccount: Code[20])
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT %", 0);
+        VATPostingSetup.Validate("Sales VAT Account", SalesVATAccount);
+        VATPostingSetup.Validate("Purchase VAT Account", PurchaseVATAccount);
+        VATPostingSetup.Modify(true);
     end;
 
     [ConfirmHandler]
