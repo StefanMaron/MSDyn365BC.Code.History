@@ -739,6 +739,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
             Clear(DecimalArray);
             case TempItemChargeAssgntPurch."Applies-to Doc. Type" of
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::Quote,
                 TempItemChargeAssgntPurch."Applies-to Doc. Type"::Order,
                 TempItemChargeAssgntPurch."Applies-to Doc. Type"::Invoice,
                 TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Return Order",

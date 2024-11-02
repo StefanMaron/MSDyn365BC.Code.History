@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false
+  },
   "folders": [
     {
       "path": "./System Application/Test/System Application Test Library"
@@ -282,13 +290,5 @@
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
     }
-  ],
-  "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false,
-    "al.enableCodeActions": false
-  }
+  ]
 }

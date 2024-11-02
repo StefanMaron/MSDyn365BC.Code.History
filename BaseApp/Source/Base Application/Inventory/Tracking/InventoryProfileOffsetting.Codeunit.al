@@ -742,12 +742,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
         Item.CopyFilter("Location Filter", ForecastEntry2."Location Code");
 
         for ComponentForecast := ComponentForecastFrom to true do begin
-            if ComponentForecast then begin
-                if not FindReplishmentLocation(ReplenishmentLocation, Item) then
-                    ReplenishmentLocation := ManufacturingSetup."Components at Location";
-                if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
-                    exit;
-            end;
+            if not ManufacturingSetup."Use Forecast on Locations" then
+                if ComponentForecast then begin
+                    if not FindReplishmentLocation(ReplenishmentLocation, Item) then
+                        ReplenishmentLocation := ManufacturingSetup."Components at Location";
+                    if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
+                        exit;
+                end;
             ForecastEntry.SetRange("Component Forecast", ComponentForecast);
             ForecastEntry2.SetRange("Component Forecast", ComponentForecast);
             if ForecastEntry2.Find('-') then
