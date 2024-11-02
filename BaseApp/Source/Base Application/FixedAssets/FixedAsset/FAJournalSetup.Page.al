@@ -20,7 +20,6 @@ page 5609 "FA Journal Setup"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
-                    Visible = false;
                 }
                 field("User ID"; Rec."User ID")
                 {

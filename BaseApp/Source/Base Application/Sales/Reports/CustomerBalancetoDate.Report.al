@@ -461,7 +461,7 @@ report 121 "Customer - Balance to Date"
             CustLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
             CustLedgerEntry.CalcFields("Remaining Amount", "Original Amount", Amount);
             if CustLedgerEntry."Remaining Amount" <> 0 then
-                exit(not CheckUnappliedEntryExists(EntryNo));
+                exit(not CheckUnbalancedUnappliedEntryExists(EntryNo));
 
             if (ShowEntriesWithZeroBalance) and (DateFilterTxt <> '') then begin
                 if ClosingCustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.") then begin
@@ -522,6 +522,19 @@ report 121 "Customer - Balance to Date"
         end else
             if (ClosingCustLedgerEntry."Posting Date" = ClosingCustLedgerEntry.GetRangeMax("Date Filter")) then
                 exit(true);
+    end;
+
+    local procedure CheckUnbalancedUnappliedEntryExists(EntryNo: Integer): Boolean
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        DetailedCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", EntryNo);
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.SetFilter("Posting Date", '>%1', MaxDate);
+        DetailedCustLedgEntry.SetRange(Unapplied, true);
+        DetailedCustLedgEntry.CalcSums(Amount);
+        exit(DetailedCustLedgEntry.Amount <> 0);
     end;
 
     [IntegrationEvent(false, false)]

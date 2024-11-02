@@ -657,7 +657,7 @@ codeunit 5817 "Undo Posting Management"
 
             ItemJnlLine."Item Shpt. Entry No." := 0;
             ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
-            ItemJnlLine."Invoiced Quantity" := -TempApplyToItemLedgEntry."Invoiced Quantity";
+            ItemJnlLine."Invoiced Qty. (Base)" := -TempApplyToItemLedgEntry."Invoiced Quantity";
             ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
             if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
                 ItemJnlLine.CopyNewTrackingFromOldItemLedgerEntry(TempApplyToItemLedgEntry);
@@ -705,6 +705,10 @@ codeunit 5817 "Undo Posting Management"
         ItemTrackingMgt.AdjustQuantityRounding(
           NonDistrQuantity, ItemJnlLine.Quantity,
           NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
+
+        ItemTrackingMgt.AdjustQuantityRounding(
+         ItemJnlLine.Quantity, ItemJnlLine."Invoiced Quantity",
+         ItemJnlLine."Quantity (Base)", ItemJnlLine."Invoiced Qty. (Base)");
     end;
 
     procedure CollectItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; EntryRef: Integer)
@@ -1082,44 +1086,48 @@ codeunit 5817 "Undo Posting Management"
         if not IsHandled then
             if TempItemLedgEntry.Find('-') then begin
                 repeat
-                    TrackingSpecification.Get(TempItemLedgEntry."Entry No.");
-                    QtyToRevert := TrackingSpecification."Quantity Invoiced (Base)";
-
                     IsHandled := false;
-                    OnRevertPostedItemTrackingOnBeforeUpdateReservEntry(TempItemLedgEntry, TrackingSpecification, IsHandled);
-                    if not IsHandled then
-                        if not TrackingIsATO(TrackingSpecification) then begin
-                            ReservEntry.Init();
-                            ReservEntry.TransferFields(TrackingSpecification);
-                            if RevertInvoiced then begin
-                                ReservEntry."Quantity (Base)" := QtyToRevert;
-                                ReservEntry."Quantity Invoiced (Base)" -= QtyToRevert;
+                    OnRevertPostedItemTrackingOnBeforeGetTrackingSpecification(TempItemLedgEntry, IsHandled);
+                    if not IsHandled then begin
+                        TrackingSpecification.Get(TempItemLedgEntry."Entry No.");
+                        QtyToRevert := TrackingSpecification."Quantity Invoiced (Base)";
+
+                        IsHandled := false;
+                        OnRevertPostedItemTrackingOnBeforeUpdateReservEntry(TempItemLedgEntry, TrackingSpecification, IsHandled);
+                        if not IsHandled then
+                            if not TrackingIsATO(TrackingSpecification) then begin
+                                ReservEntry.Init();
+                                ReservEntry.TransferFields(TrackingSpecification);
+                                if RevertInvoiced then begin
+                                    ReservEntry."Quantity (Base)" := QtyToRevert;
+                                    ReservEntry."Quantity Invoiced (Base)" -= QtyToRevert;
+                                end;
+                                ReservEntry.Validate("Quantity (Base)");
+                                ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
+                                if ReservEntry.Positive then
+                                    ReservEntry."Expected Receipt Date" := AvailabilityDate
+                                else
+                                    ReservEntry."Shipment Date" := AvailabilityDate;
+
+                                ReservEntry."Warranty Date" := 0D;
+                                ReservEntry."Entry No." := 0;
+                                ReservEntry.UpdateItemTracking();
+                                OnRevertPostedItemTrackingOnBeforeReservEntryInsert(ReservEntry, TempItemLedgEntry);
+                                ReservEntry.Insert();
+
+                                TempReservEntry := ReservEntry;
+                                TempReservEntry.Insert();
                             end;
-                            ReservEntry.Validate("Quantity (Base)");
-                            ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
-                            if ReservEntry.Positive then
-                                ReservEntry."Expected Receipt Date" := AvailabilityDate
-                            else
-                                ReservEntry."Shipment Date" := AvailabilityDate;
 
-                            ReservEntry."Warranty Date" := 0D;
-                            ReservEntry."Entry No." := 0;
-                            ReservEntry.UpdateItemTracking();
-                            OnRevertPostedItemTrackingOnBeforeReservEntryInsert(ReservEntry, TempItemLedgEntry);
-                            ReservEntry.Insert();
-
-                            TempReservEntry := ReservEntry;
-                            TempReservEntry.Insert();
-                        end;
-
-                    if RevertInvoiced and (TrackingSpecification."Quantity (Base)" <> QtyToRevert) then begin
-                        TrackingSpecification."Quantity (Base)" -= QtyToRevert;
-                        TrackingSpecification."Quantity Handled (Base)" -= QtyToRevert;
-                        TrackingSpecification."Quantity Invoiced (Base)" := 0;
-                        TrackingSpecification."Buffer Value1" -= QtyToRevert;
-                        TrackingSpecification.Modify();
-                    end else
-                        TrackingSpecification.Delete();
+                        if RevertInvoiced and (TrackingSpecification."Quantity (Base)" <> QtyToRevert) then begin
+                            TrackingSpecification."Quantity (Base)" -= QtyToRevert;
+                            TrackingSpecification."Quantity Handled (Base)" -= QtyToRevert;
+                            TrackingSpecification."Quantity Invoiced (Base)" := 0;
+                            TrackingSpecification."Buffer Value1" -= QtyToRevert;
+                            TrackingSpecification.Modify();
+                        end else
+                            TrackingSpecification.Delete();
+                    end;
                 until TempItemLedgEntry.Next() = 0;
                 ReservEngineMgt.UpdateOrderTracking(TempReservEntry);
             end;
@@ -1599,6 +1607,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSkipTestWarehouseShipmentLine(UndoType: Integer; var SkipTest: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRevertPostedItemTrackingOnBeforeGetTrackingSpecification(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 }

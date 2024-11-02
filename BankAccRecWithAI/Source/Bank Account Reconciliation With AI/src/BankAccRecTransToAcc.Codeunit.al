@@ -16,6 +16,7 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
     Access = Internal;
     InherentPermissions = X;
     InherentEntitlements = X;
+    EventSubscriberInstance = Manual;
 
     procedure GetMostAppropriateGLAccountNos(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary): Dictionary of [Integer, Code[20]];
     var
@@ -240,12 +241,12 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
     var
         GLAccount: Record "G/L Account";
         BankRecAIMatchingImpl: Codeunit "Bank Rec. AI Matching Impl.";
-        StatementLines: Text;
+        LocalStatementLines: Text;
         InitialGLAccountFound: Boolean;
         InitialGLAccountInsertDone: Boolean;
     begin
-        if (StatementLines = '') then
-            StatementLines := '**Statement Lines**:\n"""\n';
+        if (LocalStatementLines = '') then
+            LocalStatementLines := '**Statement Lines**:\n"""\n';
 
         GLAccount.SetRange("Direct Posting", true);
         if GLAccount.FindFirst() then
@@ -262,21 +263,21 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
                         if InitialGLAccountFound then
                             if not InitialGLAccountInsertDone then begin
                                 if BankAccReconciliationLine."Statement Line No." > 1 then begin
-                                    StatementLines += '#Id: ' + Format(BankAccReconciliationLine."Statement Line No." - 1);
-                                    StatementLines += ', Description: ' + GLAccount.Name;
-                                    StatementLines += '\n';
+                                    LocalStatementLines += '#Id: ' + Format(BankAccReconciliationLine."Statement Line No." - 1);
+                                    LocalStatementLines += ', Description: ' + GLAccount.Name;
+                                    LocalStatementLines += '\n';
                                 end;
                                 InitialGLAccountInsertDone := true;
                             end;
-                        StatementLines += '#Id: ' + Format(BankAccReconciliationLine."Statement Line No.");
-                        StatementLines += ', Description: ' + BankAccReconciliationLine.Description;
-                        StatementLines += '\n';
+                        LocalStatementLines += '#Id: ' + Format(BankAccReconciliationLine."Statement Line No.");
+                        LocalStatementLines += ', Description: ' + BankAccReconciliationLine.Description;
+                        LocalStatementLines += '\n';
                     end
                 end else
                     InputWithReservedWordsFound := true;
             until BankAccReconciliationLine.Next() = 0;
 
-        exit(StatementLines);
+        exit(LocalStatementLines);
     end;
 
     procedure GenerateTransferToGLAccountProposals(var TempBankAccRecAIProposal: Record "Bank Acc. Rec. AI Proposal" temporary; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary)
@@ -327,17 +328,18 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
     var
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
         Dimension: Record Dimension;
-        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccRecTransToAcc: Codeunit "Bank Acc. Rec. Trans. to Acc.";
         UserSetupManagement: Codeunit "User Setup Management";
         FoundInvalidPostingDates: Boolean;
-        StatementLines: List of [Integer];
     begin
+        Clear(TempGlobalBankStatementMatchingBuffer);
+        Clear(StatementLines);
         TempBankAccRecAIProposal.Reset();
         TempBankAccRecAIProposal.SetFilter("G/L Account No.", '<>''''');
         if TempBankAccRecAIProposal.FindSet() then begin
@@ -347,6 +349,7 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
                         GenJnlLine.Init();
                         GenJnlLine.Validate("Journal Template Name", TransToGLAccJnlBatch."Journal Template Name");
                         GenJnlLine.Validate("Journal Batch Name", TransToGLAccJnlBatch."Journal Batch Name");
+                        GenJnlLine.Validate("Line No.", GenJnlLine.GetNewLineNo(TransToGLAccJnlBatch."Journal Template Name", TransToGLAccJnlBatch."Journal Batch Name"));
                         GenJnlLine.Validate("Posting Date", TempBankAccRecAIProposal."Transaction Date");
                         SourceCodeSetup.Get();
 
@@ -365,33 +368,90 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
                         GenJnlLine.Description := TempBankAccRecAIProposal.Description;
                         GenJnlLine."Keep Description" := true;
                         GenJnlLine."Source Code" := SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl.";
+                        GenJnlLine."Source No." := BankAccReconciliationLine."Statement No.";
+                        GenJnlLine."Source Line No." := BankAccReconciliationLine."Statement Line No.";
                         if Dimension.Get(GLAccount."Global Dimension 1 Code") then
                             GenJnlLine.Validate("Shortcut Dimension 1 Code", GLAccount."Global Dimension 1 Code");
                         if Dimension.Get(GLAccount."Global Dimension 2 Code") then
                             GenJnlLine.Validate("Shortcut Dimension 2 Code", GLAccount."Global Dimension 2 Code");
-                        GenJnlPostLine.RunWithoutCheck(GenJnlLine);
-                        BankAccountLedgerEntry.Reset();
-                        BankAccountLedgerEntry.SetAscending("Entry No.", true);
-                        BankAccountLedgerEntry.SetRange(Open, true);
-                        BankAccountLedgerEntry.SetRange("Bank Account No.", TempBankAccRecAIProposal."Bank Account No.");
-                        BankAccountLedgerEntry.SetFilter("Document No.", '=%1', GenJnlLine."Document No.");
-                        BankAccountLedgerEntry.SetRange("Posting Date", GenJnlLine."Posting Date");
-                        BankAccountLedgerEntry.SetFilter("Source Code", '=%1', GenJnlLine."Source Code");
-                        if BankAccountLedgerEntry.FindLast() then begin
-                            TempBankStatementMatchingBuffer."Line No." := BankAccReconciliationLine."Statement Line No.";
-                            TempBankStatementMatchingBuffer."Entry No." := BankAccountLedgerEntry."Entry No.";
-                            TempBankStatementMatchingBuffer."Match Details" := MatchJustificationTxt;
-                            TempBankStatementMatchingBuffer.Insert();
-                            if not StatementLines.Contains(TempBankAccRecAIProposal."Statement Line No.") then
-                                StatementLines.Add(TempBankAccRecAIProposal."Statement Line No.");
-                        end;
+                        GenJnlLine.Insert(true);
                     end else
                         FoundInvalidPostingDates := true;
             until TempBankAccRecAIProposal.Next() = 0;
+
+            GenJnlLine.Reset();
+            GenJnlLine.SetRange("Journal Template Name", TransToGLAccJnlBatch."Journal Template Name");
+            GenJnlLine.SetRange("Journal Batch Name", TransToGLAccJnlBatch."Journal Batch Name");
+            GenJnlLine.SetRange("Source Code", SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl.");
+            GenJnlLine.SetRange("Source No.", BankAccReconciliationLine."Statement No.");
+            GenJnlLine.SetRange("Bal. Account Type", GenJnlLine."Account Type"::"Bank Account");
+            GenJnlLine.Validate("Bal. Account No.", BankAccReconciliationLine."Bank Account No.");
+
+            if not GenJnlLine.FindSet() then
+                exit(StatementLines.Count());
+
+            Commit();
+            BindSubscription(BankAccRecTransToAcc);
+            if not GenJnlPostBatch.Run(GenJnlLine) then begin
+                BankAccRecTransToAcc.CopyStatementMatchingBuffer(TempBankStatementMatchingBuffer);
+                MatchBankRecLines.SaveOneToOneMatching(TempBankStatementMatchingBuffer, BankAccReconciliationLine."Bank Account No.", BankAccReconciliationLine."Statement No.");
+                Commit();
+                if Confirm(ErrorsDuringBatchPostingQst) then begin
+                    TransToGLAccJnlBatch."Open Journal Batch" := true;
+                    TransToGLAccJnlBatch.Modify()
+                end else
+                    Error(GetLastErrorText());
+            end;
+            UnbindSubscription(BankAccRecTransToAcc);
+            BankAccRecTransToAcc.CopyStatementMatchingBuffer(TempBankStatementMatchingBuffer);
             MatchBankRecLines.SaveOneToOneMatching(TempBankStatementMatchingBuffer, BankAccReconciliationLine."Bank Account No.", BankAccReconciliationLine."Statement No.");
             if FoundInvalidPostingDates then
                 Message(GetStatementLinesWithDisallowedDatesLbl());
             exit(StatementLines.Count());
+        end;
+    end;
+
+    internal procedure CopyStatementMatchingBuffer(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary)
+    begin
+        TempGlobalBankStatementMatchingBuffer.Reset();
+        if TempGlobalBankStatementMatchingBuffer.FindSet() then
+            repeat
+                TempBankStatementMatchingBuffer."Line No." := TempGlobalBankStatementMatchingBuffer."Line No.";
+                TempBankStatementMatchingBuffer."Entry No." := TempGlobalBankStatementMatchingBuffer."Entry No.";
+                TempBankStatementMatchingBuffer."Match Details" := TempGlobalBankStatementMatchingBuffer."Match Details";
+                TempBankStatementMatchingBuffer.Insert();
+            until TempGlobalBankStatementMatchingBuffer.Next() = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Batch", 'OnAfterPostGenJournalLine', '', false, false)]
+    local procedure InsertStatementMatchingBufferOnAfterPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+
+        if GenJournalLine."Source Code" <> SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl." then
+            exit;
+
+        if GenJournalLine."Bal. Account Type" <> GenJournalLine."Account Type"::"Bank Account" then
+            exit;
+
+        if GenJournalLine."Bal. Account No." = '' then
+            exit;
+
+        BankAccountLedgerEntry.Reset();
+        BankAccountLedgerEntry.SetAscending("Entry No.", true);
+        BankAccountLedgerEntry.SetRange(Open, true);
+        BankAccountLedgerEntry.SetRange("Bank Account No.", GenJournalLine."Bal. Account No.");
+        BankAccountLedgerEntry.SetRange("Posting Date", GenJournalLine."Posting Date");
+        if BankAccountLedgerEntry.FindLast() then begin
+            TempGlobalBankStatementMatchingBuffer."Line No." := GenJournalLine."Source Line No.";
+            TempGlobalBankStatementMatchingBuffer."Entry No." := BankAccountLedgerEntry."Entry No.";
+            TempGlobalBankStatementMatchingBuffer."Match Details" := MatchJustificationTxt;
+            TempGlobalBankStatementMatchingBuffer.Insert();
+            if not StatementLines.Contains(GenJournalLine."Source Line No.") then
+                StatementLines.Add(GenJournalLine."Source Line No.");
         end;
     end;
 
@@ -437,6 +497,8 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
     end;
 
     var
+        TempGlobalBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
+        StatementLines: List of [Integer];
         TelemetryNoDirectPostingGLAccountsErr: label 'User has no G/L Account that allows direct posting.', Locked = true;
         NoDirectPostingGLAccountsErr: label 'You must create at least one G/L Account that allows direct posting.';
         MatchJustificationTxt: label 'Applied by Copilot to a new payment based on semantic similarity with the G/L Account name.', Comment = 'Copilot is a Microsoft service acronym and must not be translated';
@@ -445,5 +507,6 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
         TelemetryConstructingPromptFailedErr: label 'There was an error with constructing the chat completion prompt from the Key Vault.', Locked = true;
         ChooseGLAccountLbl: label 'Choose G/L Account...';
         StatementLinesWithDisallowedDatesLbl: label 'There are statement lines that have transaction dates outside of the allowed posting date range. Payments will not be posted for these statement lines. You must match these lines manually. Alternatively, choose another journal template or adjust the allowed posting dates on the journal template or general ledger setup.';
+        ErrorsDuringBatchPostingQst: label 'There were errors while attempting to post the payments. Do you want to open the journal batch with the unposted payments?';
         InputWithReservedWordsFound: Boolean;
 }

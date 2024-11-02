@@ -144,7 +144,7 @@ page 7200 "CDS Connection Setup"
                         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
                         FeatureTelemetry: Codeunit "Feature Telemetry";
                         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
-                        DataverseEnabledLbl: Label 'User %1 enabled integration to Dataverse.', Locked = true;
+                        DataverseEnabledLbl: Label 'Integration to Dataverse has been enabled by UserSecurityId %1.', Locked = true;
                     begin
                         RefreshStatuses := true;
                         CurrPage.Update(true);

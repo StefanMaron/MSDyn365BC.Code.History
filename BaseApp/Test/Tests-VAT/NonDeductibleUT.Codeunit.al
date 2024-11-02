@@ -15,9 +15,13 @@ codeunit 134282 "Non-Deductible UT"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         DifferentNonDedVATRatesSameVATIdentifierErr: Label 'You cannot set different Non-Deductible VAT % for the combinations of business and product groups with the same VAT identifier.\The following combination with the same VAT identifier has different Non-Deductible VAT %: business group %1, product group %2', Comment = '%1, %2 - codes';
+        GLEntryAmountErrLbl: Label '%1 must be %2 in %3.', Comment = '%1 = Amount Field Caption, %2 = Amount Value, %3 = G/L Account No.', Locked = true;
+        AmountErrorLbl: Label '%1 must be %2.', Comment = '%1 = Amount Field Caption, %2 = Expected Amount';
 
     [Test]
     procedure NonDeductibleAmountsInPurchLineEndToEnd()
@@ -207,6 +211,80 @@ codeunit 134282 "Non-Deductible UT"
         PurchaseLine.TestField("Non-Deductible VAT Amount", 0);
     end;
 
+    [Test]
+    procedure PurchVATAccandNonDedPurchVATAccAreBalancedWhenPostsRecurrJnlWithRFReversingMethod()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GLAccount: Record "G/L Account";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        Amount: Decimal;
+        DocumentNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 541997] When Stan posts Recurring Journal Lines with Recurring Method
+        // "RF Reversing Fixed" then G/L Entries and VAT Entries are created with correct Amount 
+        // Which balances Purchase VAT Account and Non-Ded. Purchase VAT Account both.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setups.
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 20, 60);
+
+        // [GIVEN] Create Recurring Journal Batch.
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create General Posting Setup.
+        CreateGeneralPostingSetupForVAT(GLAccountNo);
+
+        // [GIVEN] Generate Amount and save it in a Variable.
+        Amount := LibraryRandom.RandInt(1000);
+
+        // [GIVEN] Generate Document No. and save it in a Variable.        
+        DocumentNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create Recurring Journal Line.
+        CreateRecurringJournalLine(
+            GenJournalLine[1],
+            GenJournalBatch,
+            GenJournalLine[1]."Recurring Method"::"RF Reversing Fixed",
+            GenJournalLine[1]."Document Type"::" ",
+            GLAccountNo,
+            Amount,
+            DocumentNo);
+
+        // [GIVEN] Validate VAT Bus. Posting Group and VAT Prod. Posting Group in Gen. Journal Line.
+        GenJournalLine[1].Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GenJournalLine[1].Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Validate Recurring Journal Line Reversal Parameters. 
+        ValidateRecurringJnlLineReversalParameters(GenJournalLine[1], DocumentNo);
+
+        // [GIVEN] Create Recurring Journal Line for Reversal.
+        CreateRecurringJournalLine(
+            GenJournalLine[2],
+            GenJournalBatch,
+            GenJournalLine[2]."Recurring Method"::"RF Reversing Fixed",
+            GenJournalLine[2]."Document Type"::" ",
+            CreateGLAccount(GLAccount."Income/Balance"::"Balance Sheet"),
+            -Amount,
+            DocumentNo);
+
+        // [GIVEN] Validate Recurring Journal Line Reversal Parameters. 
+        ValidateRecurringJnlLineReversalParameters(GenJournalLine[2], DocumentNo);
+
+        // [WHEN] Post recurring Gen. Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[2]);
+
+        // [THEN] Posted Gen. Journal Lines are balanced by Account No. and Document No.        
+        VerifyGLEntryAmountByAccountNo(0, VATPostingSetup."Purchase VAT Account", DocumentNo);
+
+        // [THEN] Reversed Posted Gen. Journal Lines are balanced by Account No. and Document No.
+        VerifyGLEntryAmountByAccountNo(0, VATPostingSetup."Non-Ded. Purchase VAT Account", DocumentNo);
+
+        // [THEN] Reversed Posted VAT Entries are balanced by Document No.
+        VerifyVATEntry(0, DocumentNo);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Non-Deductible UT");
@@ -220,5 +298,89 @@ codeunit 134282 "Non-Deductible UT"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Non-Deductible UT");
+    end;
+
+    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Enum "Gen. Journal Recurring Method"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+          GenJournalLine."Account Type"::"G/L Account", AccountNo, Amount);
+        GenJournalLine.Validate("Recurring Method", RecurringMethod);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+
+        Evaluate(GenJournalLine."Recurring Frequency", '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateGLAccount(IncomeBalance: Option): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Income/Balance", IncomeBalance);
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateRecurringGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateRecurringTemplateName(GenJournalTemplate);
+        LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateGeneralPostingSetupForVAT(var GLAccountNo: Code[20])
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+
+        GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Balance Sheet");
+
+        GLAccount.Get(GLAccountNo);
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        GLAccount.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
+        GLAccount.Modify();
+
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+    end;
+
+    local procedure ValidateRecurringJnlLineReversalParameters(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20])
+    begin
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        Evaluate(GenJournalLine."Recurring Frequency", '<' + Format(LibraryRandom.RandIntInRange(15, 15)) + 'D>');
+        Evaluate(GenJournalLine."Reverse Date Calculation", '<' + Format(LibraryRandom.RandIntInRange(1, 1)) + 'D>');
+        GenJournalLine.Validate("Posting Date", Today);
+        GenJournalLine.Validate("VAT Reporting Date", Today);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure VerifyGLEntryAmountByAccountNo(ExpectedAmount: Decimal; GLAccountNo: Code[20]; DocumentNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.CalcSums(Amount);
+        Assert.AreEqual(ExpectedAmount, GLEntry.Amount, StrSubstNo(GLEntryAmountErrLbl, GLEntry.FieldCaption(Amount), ExpectedAmount, GLEntry."G/L Account No."));
+    end;
+
+    local procedure VerifyVATEntry(ExpectedAmount: Decimal; DocumentNo: Code[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.CalcSums(Amount, Base, "Non-Deductible VAT Amount", "Non-Deductible VAT Base");
+        Assert.AreEqual(ExpectedAmount, VATEntry.Base, StrSubstNo(AmountErrorLbl, VATEntry.FieldCaption(Base), ExpectedAmount));
+        Assert.AreEqual(ExpectedAmount, VATEntry.Amount, StrSubstNo(AmountErrorLbl, VATEntry.FieldCaption(Amount), ExpectedAmount));
+        Assert.AreEqual(ExpectedAmount, VATEntry."Non-Deductible VAT Base", StrSubstNo(AmountErrorLbl, VATEntry.FieldCaption("Non-Deductible VAT Base"), ExpectedAmount));
+        Assert.AreEqual(ExpectedAmount, VATEntry."Non-Deductible VAT Amount", StrSubstNo(AmountErrorLbl, VATEntry.FieldCaption("Non-Deductible VAT Amount"), ExpectedAmount));
     end;
 }

@@ -26,6 +26,7 @@ report 1139 "Delete Cost Budget Entries"
                     CostBudgetEntry.SetRange("Allocated with Journal No.", "No.");
                     CostBudgetEntry.ModifyAll(Allocated, false);
                     CostBudgetEntry.ModifyAll("Allocated with Journal No.", 0);
+                    CostBudgetEntry.SetRange("Allocated with Journal No.");
                 end;
 
                 CostBudgetEntry.SetRange("Entry No.", "From Cost Budget Entry No.", "To Cost Budget Entry No.");

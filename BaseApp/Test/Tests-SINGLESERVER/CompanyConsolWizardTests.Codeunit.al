@@ -13,8 +13,10 @@ codeunit 139317 "Company Consol. Wizard Tests"
         Company: Record Company;
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN25
         SpecifyCompanyNameErr: Label 'To continue, you must specify a name for the company.';
         SpecifyBusinessUnitCodeTxt: Label 'Enter a Business Unit Code.';
+#endif
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
@@ -27,10 +29,13 @@ codeunit 139317 "Company Consol. Wizard Tests"
         Text005Err: Label 'Enter the ending date for the consolidation period.';
         GLEntryErrTagTok: Label 'ErrorText_Number__Control23';
         GLEntryDimensionErr: Label 'G/L Entry %1: The %2 must be %3 for %4 %5 for %6 %7. Currently it''s %8.', Comment = '%1 = G/L Entry No., %2 = "Dimension value code" caption, %3 = expected "Dimension value code" value, %4 = "Dimension code" caption, %5 = "Dimension Code" value, %6 = Table caption (Vendor), %7 = Table value (XYZ), %8 = current "Dimension value code" value';
+#if not CLEAN25
         EmptyCompanyNameErr: Label 'You must choose a company.';
+#endif
         Text017Txt: Label '%1 %2 in %3 has a %4 %5 that doesn''t exist in %6.', Comment = '%1=Field caption for Dimension Code field.;%2=Dimension Code value.;%3=Current Company Name value.;%4=Field caption for Consolidation Code.;%5=Consolidation Code value.;%6=Current Company name.';
         IsInitialized: Boolean;
 
+#if not CLEAN25
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -148,6 +153,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         Assert.ExpectedError(SpecifyBusinessUnitCodeTxt);
         CompanyConsolidationWizard.Close();
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConsolidationTestReportHandlerAllFieldsEntered')]
@@ -431,6 +437,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         IsInitialized := true;
     end;
 
+#if not CLEAN25
     local procedure RunConsolidationWizardToCompletion(var CompanyConsolidationWizard: TestPage "Company Consolidation Wizard"; BusinessUnit: Text[30]; NewCompanyName: Text[30])
     var
         ConsolidationAccount: Record "Consolidation Account";
@@ -493,6 +500,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         Assert.ExpectedError(EmptyCompanyNameErr);
         CompanyConsolidationWizard.Close();
     end;
+#endif
 
     local procedure CreateGLAccountWithConsolidationSetup(var GLAccount: Record "G/L Account")
     begin

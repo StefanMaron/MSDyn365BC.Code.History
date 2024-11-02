@@ -1493,15 +1493,14 @@ codeunit 5940 ServContractManagement
 
     procedure InitCodeUnit()
     var
-        ServLedgEntry: Record "Service Ledger Entry";
+        ServiceLedgEntry: Record "Service Ledger Entry";
         SourceCodeSetup: Record "Source Code Setup";
         KeepFromWarrEntryNo: Integer;
         KeepToWarrEntryNo: Integer;
     begin
-        ServLedgEntry.Reset();
-        ServLedgEntry.LockTable();
-        if ServLedgEntry.FindLast() then
-            NextEntry := ServLedgEntry."Entry No." + 1
+        ServiceLedgEntry.LockTable();
+        if ServiceLedgEntry.FindLast() then
+            NextEntry := ServiceLedgEntry."Entry No." + 1
         else
             NextEntry := 1;
 
@@ -1518,11 +1517,13 @@ codeunit 5940 ServContractManagement
         ServiceRegister."From Entry No." := NextEntry;
         ServiceRegister."From Warranty Entry No." := KeepFromWarrEntryNo;
         ServiceRegister."To Warranty Entry No." := KeepToWarrEntryNo;
-        ServiceRegister."Creation Date" := Today;
-        ServiceRegister."Creation Time" := Time;
+        ServiceRegister."Creation Date" := Today();
+        ServiceRegister."Creation Time" := Time();
         SourceCodeSetup.Get();
         ServiceRegister."Source Code" := SourceCodeSetup."Service Management";
-        ServiceRegister."User ID" := CopyStr(UserId(), 1, MaxStrLen(ServLedgEntry."User ID"));
+        ServiceRegister."User ID" := CopyStr(UserId(), 1, MaxStrLen(ServiceLedgEntry."User ID"));
+
+        OnAfterInitCodeUnit(ServiceRegister);
     end;
 
     procedure FinishCodeunit()
@@ -1943,18 +1944,26 @@ codeunit 5940 ServContractManagement
     local procedure FillTempServiceLedgerEntries(ServiceContractHeader: Record "Service Contract Header")
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
+        DoInsertTempServiceLedgerEntry: Boolean;
     begin
         if TempServLedgEntriesIsSet then
             exit;
+
         TempServLedgEntry.DeleteAll();
+
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         ServiceLedgerEntry.SetRange("Entry Type", ServiceLedgerEntry."Entry Type"::Sale);
         if not ServiceLedgerEntry.FindSet() then
             exit;
         repeat
-            TempServLedgEntry := ServiceLedgerEntry;
-            TempServLedgEntry.Insert();
+            DoInsertTempServiceLedgerEntry := true;
+            OnFillTempServiceLedgerEntriesOAfterCalcDoInsertTempServiceLedgerEntry(ServiceLedgerEntry, DoInsertTempServiceLedgerEntry);
+            if DoInsertTempServiceLedgerEntry then begin
+                TempServLedgEntry := ServiceLedgerEntry;
+                TempServLedgEntry.Insert();
+            end;
         until ServiceLedgerEntry.Next() = 0;
+
         TempServLedgEntriesIsSet := true;
     end;
 
@@ -3120,6 +3129,16 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateOrGetCreditHeaderOnAfterCopyFromCustomer(var ServiceHeader: Record "Service Header"; ServiceContract: Record "Service Contract Header"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitCodeUnit(var ServiceRegister: Record "Service Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillTempServiceLedgerEntriesOAfterCalcDoInsertTempServiceLedgerEntry(ServiceLedgerEntry: Record "Service Ledger Entry"; var DoInsertTempServiceLedgerEntry: Boolean)
     begin
     end;
 }

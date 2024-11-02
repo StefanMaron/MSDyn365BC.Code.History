@@ -3886,11 +3886,11 @@
   </Item>
   <Item ItemId=";Codeunit 2785749549 - NamedType 2456682063" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The selected file has no content. Please choose another file.]]></Val>
+      <Val><![CDATA[The selected file '%1' has no content. Please choose another file.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType NoContentErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1=FileName]D;]A;(LookupHint=Codeunit Document Attachment Tests - NamedType NoContentErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2785749549 - NamedType 1753349657" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4532,6 +4532,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Import Item Pictures Test - NamedType CannotCreateZIPErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 761554929 - NamedType 799399287" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incoming Document must be found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inc Doc Attachment Overview UT - NamedType IncomingDocMustBeFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 761554929 - NamedType 2910522905" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Remove Incoming Document action must be Disable]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inc Doc Attachment Overview UT - NamedType RemoveIncoDocIsEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 761554929 - NamedType 2979181423" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Supporting Attachments]]></Val>
@@ -4539,6 +4557,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inc Doc Attachment Overview UT - NamedType SupportingAttachmentsTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 761554929 - NamedType 871351867" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[View Incoming Document action is not enabled]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inc Doc Attachment Overview UT - NamedType ViewIncoDocIsNotEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4245486081 - NamedType 614457637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

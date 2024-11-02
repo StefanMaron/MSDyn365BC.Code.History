@@ -16,7 +16,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         StatusError: Label 'Status must be equal to ''Open''  in %1: %2=%3. Current value is ''Released''.', Comment = '%1=Table Caption;%2=Field Caption;%3=Field Value;';
-        OriginalReportNoError: Label 'Original Report No. must have a value in %1: %2=%3. It cannot be zero or empty.', Comment = '%1=Table Caption;%2=Field Caption;%3=Field Value;';
+        OriginalReportNoError: Label 'You must specify an original report for a report of type %1.', Comment = '%1=vat report type';
         VATReportConfigCodeError: Label '%1 must be equal to ''%2''  in %3: %4=%5. Current value is '' ''.', Comment = '%1=Field Caption;%2=Field Value;%3=Table Caption;%4=Field Caption;%5=Field Value;';
         NoLinesError: Label 'You cannot release the %1 report because no lines exist.', Comment = '%1=Table Caption;';
         SubmittedError: Label 'This is not allowed because of the setup in the %1 window.', Comment = '%1=Table Caption;';
@@ -41,7 +41,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
         // 3. Verify: Error occurs for Original Report No.
         Assert.ExpectedError(
-          StrSubstNo(OriginalReportNoError, VATReportHeader.TableCaption(), VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
+          StrSubstNo(OriginalReportNoError, Format(VATReportHeader."VAT Report Type")));
     end;
 
     [Test]

@@ -295,6 +295,8 @@ report 38 "Trial Balance by Period"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Trial Balance by Period';
+        AboutText = 'Get a detailed breakdown of your closing balances over 12 accounting periods for each G/L account, or summarized by totaling accounts.';
 
         layout
         {

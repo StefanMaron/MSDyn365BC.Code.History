@@ -1360,7 +1360,12 @@ table 5077 "Segment Line"
         DocumentSharing: Codeunit "Document Sharing";
         Telemetry: Codeunit Telemetry;
         ImportedFileName: Text;
+        IsHandled: Boolean;
     begin
+        OnBeforeHandleTrigger(Rec, TempAttachment, Merged, IsHandled);
+        if IsHandled then
+            exit;
+
         GlobalInteractionTemplate.Get("Interaction Template Code");
 
         case GlobalInteractionTemplate."Wizard Action" of
@@ -1980,6 +1985,11 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateInteractionTemplateCodeOnBeforeGettingContact(SegmentLine: Record "Segment Line"; xSegmentLine: Record "Segment Line"; var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleTrigger(var SegmentLine: Record "Segment Line"; var TempAttachment: Record Attachment temporary; var Merged: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

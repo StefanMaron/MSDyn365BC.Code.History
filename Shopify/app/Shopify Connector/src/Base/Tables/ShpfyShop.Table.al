@@ -833,6 +833,9 @@ table 30102 "Shpfy Shop"
         InvalidShopUrlErr: Label 'The URL must refer to the internal shop location at myshopify.com. It must not be the public URL that customers use, such as myshop.com.';
         CurrencyExchangeRateNotDefinedErr: Label 'The specified currency must have exchange rates configured. If your online shop uses the same currency as Business Central then leave the field empty.';
         AutoCreateErrorMsg: Label 'You cannot turn "%1" off if "%2" is set to the value of "%3".', Comment = '%1 = Field Caption of "Auto Create Orders", %2 = Field Caption of "Return and Refund Process", %3 = Field Value of "Return and Refund Process"';
+        ExpirationNotificationTxt: Label 'Shopify API version 30 days before expiry notification sent.', Locked = true;
+        BlockedNotificationTxt: Label 'Shopify API version expired notification sent.', Locked = true;
+        CategoryTok: Label 'Shopify Integration', Locked = true;
 
     [Scope('OnPrem')]
     internal procedure GetAccessToken() Result: SecretText
@@ -1069,5 +1072,19 @@ table 30102 "Shpfy Shop"
             exit(Enum::"Shpfy Weight Unit".FromInteger(Enum::"Shpfy Weight Unit".Ordinals().Get(Enum::"Shpfy Weight Unit".Names().IndexOf(Value))))
         else
             exit(Enum::"Shpfy Weight Unit"::" ");
+    end;
+
+    internal procedure CheckApiVersionExpiryDate(ApiVersion: Text; ApiVersionExpiryDateTime: DateTime)
+    var
+        ShopMgt: Codeunit "Shpfy Shop Mgt.";
+    begin
+        if CurrentDateTime() > ApiVersionExpiryDateTime then begin
+            ShopMgt.SendBlockedNotification();
+            Session.LogMessage('0000KNZ', BlockedNotificationTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        end else
+            if Round((ApiVersionExpiryDateTime - CurrentDateTime()) / 1000 / 3600 / 24, 1) <= 30 then begin
+                ShopMgt.SendExpirationNotification(DT2Date(ApiVersionExpiryDateTime));
+                Session.LogMessage('0000KO0', ExpirationNotificationTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            end;
     end;
 }

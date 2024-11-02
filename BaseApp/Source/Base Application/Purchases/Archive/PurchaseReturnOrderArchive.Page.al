@@ -1,6 +1,7 @@
 namespace Microsoft.Purchases.Archive;
 
 using Microsoft.CRM.Contact;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Vendor;
@@ -237,7 +238,7 @@ page 6644 "Purchase Return Order Archive"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
+                    ToolTip = 'Specifies the location where the items are to be shipped. This field acts as the default location for new lines. Location code for individual lines can differ from it.';
                 }
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
@@ -483,6 +484,35 @@ page 6644 "Purchase Return Order Archive"
 
     actions
     {
+        area(Processing)
+        {
+            group(Functions)
+            {
+                Caption = 'Functions';
+                Image = "Action";
+                group(IncomingDocument)
+                {
+                    Caption = 'Incoming Document';
+                    Image = Documents;
+
+                    action(IncomingDocCard)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'View Incoming Document';
+                        Enabled = HasIncomingDocument;
+                        Image = ViewOrder;
+                        ToolTip = 'View any incoming document records and file attachments that exist for the entry or document, for example for auditing purposes';
+
+                        trigger OnAction()
+                        var
+                            IncomingDocument: Record "Incoming Document";
+                        begin
+                            IncomingDocument.ShowCardFromEntryNo(Rec."Incoming Document Entry No.");
+                        end;
+                    }
+                }
+            }
+        }
         area(navigation)
         {
             group("Ver&sion")
@@ -540,7 +570,23 @@ page 6644 "Purchase Return Order Archive"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Order)
+            {
+                Caption = 'Order';
+
+                actionref(IncomingDocCard_Promoted; IncomingDocCard)
+                {
+                }
+            }
+        }
     }
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        SetControlAppearance();
+    end;
 
     trigger OnAfterGetRecord()
     begin
@@ -552,10 +598,16 @@ page 6644 "Purchase Return Order Archive"
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
         DocPrint: Codeunit "Document-Print";
+        HasIncomingDocument: Boolean;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
         CurrPage.Update();
+    end;
+
+    local procedure SetControlAppearance()
+    begin
+        HasIncomingDocument := Rec."Incoming Document Entry No." <> 0;
     end;
 }
 
