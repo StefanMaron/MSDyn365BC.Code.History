@@ -64,7 +64,15 @@ codeunit 7181 "Purchases Info-Pane Management"
     end;
 
     local procedure GetItem(var PurchLine: Record "Purchase Line"): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemOnPurchasesInfoPaneManagement(PurchLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if (PurchLine.Type <> PurchLine.Type::Item) or (PurchLine."No." = '') then
             exit(false);
 
@@ -75,6 +83,11 @@ codeunit 7181 "Purchases Info-Pane Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcAvailability(var Item: Record Item; PurchaseLine: Record "Purchase Line"; var AvailableQuantity: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemOnPurchasesInfoPaneManagement(var PurchaseLine: Record "Purchase Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

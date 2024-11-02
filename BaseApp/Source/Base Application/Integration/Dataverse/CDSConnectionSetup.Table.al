@@ -70,7 +70,7 @@ table 7200 "CDS Connection Setup"
             var
                 CRMConnectionSetup: Record "CRM Connection Setup";
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
-                CDSConnectionConsentLbl: Label 'CDS Connection Setup - consent provided by UserSecurityId %1.', Locked = true;
+                CDSConnectionConsentLbl: Label 'CDS Connection Setup - consent has been provided by UserSecurityId %1.', Locked = true;
             begin
                 if not "Is Enabled" then begin
                     if CRMConnectionSetup.Get() then

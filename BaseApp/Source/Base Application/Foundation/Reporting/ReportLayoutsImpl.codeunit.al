@@ -140,9 +140,8 @@ codeunit 9660 "Report Layouts Impl."
             ReportLayoutSelection.Insert(true);
         end;
 
-        CustomDimensions.Add('ReportId', Format(SelectedReportLayoutList."Report ID"));
-        CustomDimensions.Add('LayoutName', SelectedReportLayoutList."Name");
-        CustomDimensions.Add('Action', 'SetDefault');
+        InitReportLayoutListDimensions(SelectedReportLayoutList, CustomDimensions);
+        AddReportLayoutDimensionsAction('SetDefault', CustomDimensions);
         Log('0000N0D', 'Report layout default changed by user', CustomDimensions);
 
         if ShowMessage then
@@ -344,11 +343,10 @@ codeunit 9660 "Report Layouts Impl."
         TenantReportLayout."MIME Type" := CreateLayoutMime(UploadFileName);
         TenantReportLayout.Insert(true);
 
-        CustomDimensions.Add('ReportId', Format(TenantReportLayout."Report ID"));
-        CustomDimensions.Add('LayoutName', LayoutName);
-        CustomDimensions.Add('LayoutDescription', LayoutDescription);
-        CustomDimensions.Add('LayoutFormat', Format(LayoutFormat));
-        CustomDimensions.Add('Action', 'New');
+        InitReportLayoutDimensions(TenantReportLayout, CustomDimensions);
+        AddReportLayoutDimensionsDescription(LayoutDescription, CustomDimensions);
+        AddReportLayoutDimensionsFormat(LayoutFormat, CustomDimensions);
+        AddReportLayoutDimensionsAction('New', CustomDimensions);
         Log('0000N0E', 'Report layout added by user', CustomDimensions);
 
         ReturnReportID := TenantReportLayout."Report ID";
@@ -361,8 +359,8 @@ codeunit 9660 "Report Layouts Impl."
     begin
         TenantReportLayout.Delete(true);
 
-        AddReportLayoutDimensions(TenantReportLayout, CustomDimensions);
-        CustomDimensions.Add('Action', 'Delete');
+        InitReportLayoutDimensions(TenantReportLayout, CustomDimensions);
+        AddReportLayoutDimensionsAction('Delete', CustomDimensions);
         Log('0000N0F', 'Report layout deleted by user', CustomDimensions);
     end;
 
@@ -377,11 +375,10 @@ codeunit 9660 "Report Layouts Impl."
         if TenantReportLayout.Get(ReportID, LayoutName, TenantReportLayout."App ID") then begin
             InsertNewLayout(ReportID, LayoutName, LayoutDescription, LayoutFormat, TenantReportLayout."Company Name" = '', false, ReturnReportID, ReturnLayoutName);
 
-            CustomDimensions.Add('ReportId', Format(ReportID));
-            CustomDimensions.Add('LayoutName', LayoutName);
-            CustomDimensions.Add('LayoutDescription', LayoutDescription);
-            CustomDimensions.Add('LayoutFormat', Format(LayoutFormat));
-            CustomDimensions.Add('Action', 'Replace');
+            InitReportLayoutDimensions(TenantReportLayout, CustomDimensions);
+            AddReportLayoutDimensionsDescription(LayoutDescription, CustomDimensions);
+            AddReportLayoutDimensionsFormat(LayoutFormat, CustomDimensions);
+            AddReportLayoutDimensionsAction('Replace', CustomDimensions);
             Log('0000N0G', 'Report layout replaced by user', CustomDimensions);
         end;
     end;
@@ -474,7 +471,7 @@ codeunit 9660 "Report Layouts Impl."
             CustomDimensions.Add('OldLayoutDescription', TenantReportLayout.Description);
             CustomDimensions.Add('NewLayoutName', NewLayoutName);
             CustomDimensions.Add('NewLayoutDescription', NewDescription);
-            CustomDimensions.Add('Action', 'Edit');
+            AddReportLayoutDimensionsAction('Edit', CustomDimensions);
             Log('0000N0H', 'Report layout properties changed by user', CustomDimensions);
         end;
     end;
@@ -506,12 +503,11 @@ codeunit 9660 "Report Layouts Impl."
                 Message(CannotUpdateLayoutTxt);
         end;
 
-        CustomDimensions.Add('ReportId', Format(SelectedReportLayoutList."Report ID"));
-        CustomDimensions.Add('LayoutName', SelectedReportLayoutList."Name");
+        InitReportLayoutListDimensions(selectedReportLayoutList, CustomDimensions);
         if (UpdateOnOnexport) then
-            CustomDimensions.Add('Action', 'UpdateAndExport')
+            AddReportLayoutDimensionsAction('UpdateAndExport', CustomDimensions)
         else
-            CustomDimensions.Add('Action', 'Export');
+            AddReportLayoutDimensionsAction('Export', CustomDimensions);
 
         Log('0000N0I', 'Report layout exported by user', CustomDimensions);
 
@@ -659,10 +655,35 @@ codeunit 9660 "Report Layouts Impl."
         end;
     end;
 
-    local procedure AddReportLayoutDimensions(TenantReportLayout: Record "Tenant Report Layout"; var CustomDimensions: Dictionary of [Text, Text])
+    local procedure InitReportLayoutDimensions(TenantReportLayout: Record "Tenant Report Layout"; var CustomDimensions: Dictionary of [Text, Text])
     begin
         CustomDimensions.Set('ReportId', Format(TenantReportLayout."Report ID"));
         CustomDimensions.Set('LayoutName', TenantReportLayout."Name");
+    end;
+
+    local procedure InitReportLayoutListDimensions(ReportLayoutList: Record "Report Layout List"; var CustomDimensions: Dictionary of [Text, Text])
+    begin
+        CustomDimensions.Set('ReportId', Format(ReportLayoutList."Report ID"));
+        CustomDimensions.Set('LayoutName', ReportLayoutList."Name");
+    end;
+
+    local procedure AddReportLayoutDimensionsFormat(LayoutFormat: Option; var CustomDimensions: Dictionary of [Text, Text])
+    var
+        TenantReportLayout: Record "Tenant Report Layout";
+    begin
+        TenantReportLayout."Layout Format" := LayoutFormat;
+        // Format this option with the correct string value using metadata from the table.
+        CustomDimensions.Add('LayoutFormat', format(TenantReportLayout."Layout Format"));
+    end;
+
+    local procedure AddReportLayoutDimensionsDescription(Description: Text; var CustomDimensions: Dictionary of [Text, Text])
+    begin
+        CustomDimensions.Add('LayoutDescription', Description);
+    end;
+
+    local procedure AddReportLayoutDimensionsAction(Action: Text; var CustomDimensions: Dictionary of [Text, Text])
+    begin
+        CustomDimensions.Add('Action', Action);
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Report Layout Selection", 'OnSelectReportLayout', '', false, false)]

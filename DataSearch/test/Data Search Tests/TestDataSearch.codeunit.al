@@ -13,7 +13,6 @@ codeunit 139507 "Test Data Search"
     var
         LibraryAssert: Codeunit "Library Assert";
 
-
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure TestSetupTables()
@@ -21,6 +20,7 @@ codeunit 139507 "Test Data Search"
         DataSearchSetupTable: Record "Data Search Setup (Table)";
         DataSearchSetupField: Record "Data Search Setup (Field)";
         TestDataSearchOnArchives: Codeunit "Test Data Search On Archives";
+        DataSearchPage: TestPage "Data Search";
     begin
         // precondition: no setup exists
         DataSearchSetupTable.DeleteAll();
@@ -29,8 +29,10 @@ codeunit 139507 "Test Data Search"
         // activate the sales archive test subscribers
         BindSubscription(TestDataSearchOnArchives);
 
-        // When a search is initiated, a default setup is added via "Data Search Defaults"
-        Codeunit.run(Codeunit::"Data Search Defaults");
+        // When a search is initiated, a default setup is added
+        DataSearchPage.OpenEdit();
+        DataSearchPage.SearchString.Value('*Gibberish');  // doesn't matter if it finds anything
+        DataSearchPage.Close();
 
         UnBindSubscription(TestDataSearchOnArchives);
 
@@ -69,30 +71,17 @@ codeunit 139507 "Test Data Search"
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
-    procedure TestInvalidSearchTerm()
+    procedure TestSearchNothingFound()
     var
         DataSearchPage: TestPage "Data Search";
     begin
         Init();
         DataSearchPage.OpenEdit();
-        asserterror DataSearchPage.SearchString.Value('10000..30000'); // ranges are not allowed as search filters
-        asserterror DataSearchPage.SearchString.Value('(hello)'); // parentheses are not allowed as search filters
+        DataSearchPage.SearchString.Value(Format(CreateGuid())); // should hopeully not find anything
+
+        LibraryAssert.AreEqual('', Format(DataSearchPage.LinesPart.Description), 'Should be empty');
     end;
 
-    /*  Bug 546705: [Test Defect]Tests that involve pagebackgroundtasks make the system hang
-        [Test]
-        [TransactionModel(TransactionModel::AutoRollback)]
-        procedure TestSearchNothingFound()
-        var
-            DataSearchPage: TestPage "Data Search";
-        begin
-            Init();
-            DataSearchPage.OpenEdit();
-            DataSearchPage.SearchString.Value(Format(CreateGuid())); // should hopeully not find anything
-
-            LibraryAssert.AreEqual('', Format(DataSearchPage.LinesPart.Description), 'Should be empty');
-        end;
-    */
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure TestSearchFewFound()
@@ -411,25 +400,23 @@ codeunit 139507 "Test Data Search"
     begin
     end;
 
-    /*  Bug 546705: [Test Defect]Tests that involve pagebackgroundtasks make the system hang
-        [Test]
-        [HandlerFunctions('DataSearchPageHandler')]
-        [TransactionModel(TransactionModel::AutoRollback)]
-        procedure TestStartUpParameter()
-        var
-            DataSearch: Page "Data Search";
-        begin
-            DataSearch.SetSearchString('*Hello World');
-            DataSearch.Run();
-        end;
+    [Test]
+    [HandlerFunctions('DataSearchPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure TestStartUpParameter()
+    var
+        DataSearch: Page "Data Search";
+    begin
+        DataSearch.SetSearchString('*Hello World');
+        DataSearch.Run();
+    end;
 
-        [PageHandler]
-        procedure DataSearchPageHandler(var DataSearch: TestPage "Data Search")
-        begin
-            LibraryAssert.IsTrue(StrPos(DataSearch.SearchString.Value, 'Searching for "*Hello World"') = 1, 'Start-up parameter not specified correctly.');
-            DataSearch.Close();
-        end;
-    */
+    [PageHandler]
+    procedure DataSearchPageHandler(var DataSearch: TestPage "Data Search")
+    begin
+        LibraryAssert.IsTrue(StrPos(DataSearch.SearchString.Value, 'Searching for "*Hello World"') = 1, 'Start-up parameter not specified correctly.');
+        DataSearch.Close();
+    end;
 
     local procedure VerifyTableCaptionForTable(TableNo: Integer; TableSubType: Integer; PageNo: Integer)
     var

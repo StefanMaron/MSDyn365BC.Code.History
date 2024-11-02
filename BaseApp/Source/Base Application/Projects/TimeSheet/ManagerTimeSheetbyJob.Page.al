@@ -593,7 +593,13 @@ page 954 "Manager Time Sheet by Job"
     var
         "Action": Option "Approve Selected","Approve All","Reopen Selected","Reopen All","Reject Selected","Reject All";
         ActionType: Option Approve,Reopen,Reject;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApproveLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case ShowDialog(ActionType::Approve) of
             1:
                 Process(Action::"Approve All");
@@ -696,6 +702,11 @@ page 954 "Manager Time Sheet by Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcStartingDate(var TimeSheetLine: Record "Time Sheet Line"; Which: Option; InitialStartingDateBase: Date; var StartingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApproveLines(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean);
     begin
     end;
 }

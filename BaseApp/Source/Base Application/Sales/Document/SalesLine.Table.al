@@ -2524,10 +2524,7 @@ table 37 "Sales Line"
             begin
                 TestJobPlanningLine();
                 TestStatusOpen();
-                TestField("Quantity Shipped", 0);
-                TestField("Qty. Shipped (Base)", 0);
-                TestField("Return Qty. Received", 0);
-                TestField("Return Qty. Received (Base)", 0);
+                TestQuantityFieldsOnValidateUnitOfMeasure();
                 if "Unit of Measure Code" <> xRec."Unit of Measure Code" then begin
                     TestField("Shipment No.", '');
                     TestField("Return Receipt No.", '');
@@ -5701,7 +5698,7 @@ table 37 "Sales Line"
         if CurrFieldNo = FieldNo("Requested Delivery Date") then
             exit("Requested Delivery Date");
 
-        if "Shipment Date" = 0D then
+        if ("Shipment Date" = 0D) and (CurrFieldNo <> FieldNo("Planned Delivery Date")) then
             exit("Planned Delivery Date");
 
         CustomCalendarChange[1].SetSource(CalChange."Source Type"::"Shipping Agent", "Shipping Agent Code", "Shipping Agent Service Code", '');
@@ -6106,10 +6103,11 @@ table 37 "Sales Line"
 
         Clear(SalesHeader);
         TestStatusOpen();
-        if ItemSubstitutionMgt.ItemSubstGet(Rec) then
+        if ItemSubstitutionMgt.ItemSubstGet(Rec) then begin
+            Rec.Validate("Location Code");
             if TransferExtendedText.SalesCheckIfAnyExtText(Rec, false) then
                 TransferExtendedText.InsertSalesExtText(Rec);
-
+        end;
         OnAfterShowItemSub(Rec);
     end;
 
@@ -8725,7 +8723,7 @@ table 37 "Sales Line"
 
     local procedure CheckWMS()
     begin
-        if CurrFieldNo <> 0 then
+        if (CurrFieldNo <> 0) or (SalesHeader."VAT Bus. Posting Group" <> Rec."VAT Bus. Posting Group") then
             CheckLocationOnWMS();
     end;
 
@@ -10478,6 +10476,20 @@ table 37 "Sales Line"
             Codeunit::"Sales Line-Reserve",
             'SetSaleShipQty',
             StrSubstNo(QtyShipActionDescriptionLbl, Rec.FieldCaption("Qty. to Ship"), Rec.Quantity)));
+    end;
+
+    local procedure TestQuantityFieldsOnValidateUnitOfMeasure()
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeTestQuantityFieldsOnValidateUnitOfMeasure(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Quantity Shipped", 0);
+        TestField("Qty. Shipped (Base)", 0);
+        TestField("Return Qty. Received", 0);
+        TestField("Return Qty. Received (Base)", 0);
     end;
 
     [IntegrationEvent(false, false)]
@@ -12435,6 +12447,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcShipmentDateForLocation(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestQuantityFieldsOnValidateUnitOfMeasure(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

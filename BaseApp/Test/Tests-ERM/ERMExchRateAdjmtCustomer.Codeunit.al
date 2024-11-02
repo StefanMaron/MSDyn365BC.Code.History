@@ -21,8 +21,9 @@
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        AmountMismatchErr: Label '%1 field must be %2 in %3 table for %4 field %5.';
+        ReversalErr: Label 'Due to how Business Central posts and updates amounts in an additional reporting currency (ACY), you can''t use this feature if you use ACY. Business Central converts amounts in local currency to the alternate currency, but doesn''t net transactions. If you use ACY, you must manually reverse the amounts.';
         ReversalSuccessfullTxt: Label 'The entries were successfully reversed.';
+        AmountMismatchErr: Label '%1 field must be %2 in %3 table for %4 field %5.';
         PostingDate: Date;
         SetHandler: Boolean;
 
@@ -381,6 +382,40 @@
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure ReversePaymentWithUnrealizedGainLossforVendorAndACYEnabled()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        StartingDate: Date;
+        StartingDate2: Date;
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Reverse] [Purchase]
+        // [SCENARIO] Program doesn't allow to reverse the payment transaction when Realized gain or loss entries associated with Vendor Receipt transaction and ACY enabled.
+
+        // [GIVEN] Create Currency, Vendor, Apply Payment on Invoice using Gen. Journal Line.
+        Initialize();
+        CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
+        GeneralLedgerSetup.Modify();
+        CreatePostPaymentWithAppln(
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendor(CurrencyCode), CurrencyCode, 1, StartingDate);
+
+        // [GIVEN] Unapply Payment
+        UnapplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+
+        // [WHEN] Reverse Payment
+        asserterror LibraryERM.ReverseTransaction(VendorLedgerEntry."Transaction No.");
+
+        // [THEN] Error raised that you cannot reverse transaction because the entry has an associated Realized Gain/Loss entry.
+        Assert.ExpectedError(StrSubstNo(ReversalErr, VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No."));
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerTrue,ReversalMessageHandler')]
     [Scope('OnPrem')]
     procedure ReversePaymentWithUnrealizedGainLossforCustomer()
@@ -408,6 +443,41 @@
 
         // [THEN] Validation of succesful reversal in message handler
     end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure ReversePaymentWithUnrealizedGainLossforCustomerWithACY()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        StartingDate: Date;
+        StartingDate2: Date;
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Reverse] [Sales]
+        // [SCENARIO] Program doesn't allow to reverse the payment transaction when Realized gain or loss entries associated with Customer Receipt transaction and ACY enabled.
+
+        // [GIVEN] Create Currency, Customer, Apply Payment on Invoice using Gen. Journal Line.
+        Initialize();
+        CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
+        GeneralLedgerSetup.Modify();
+        CreatePostPaymentWithAppln(
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CurrencyCode), CurrencyCode, -1, StartingDate);
+
+        // [GIVEN] Unapply Payment
+        UnapplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+
+        // [WHEN] Reverse Payment
+        asserterror LibraryERM.ReverseTransaction(CustLedgerEntry."Transaction No.");
+
+        // [THEN] Error raised that you cannot reverse transaction because the entry has an associated Realized Gain/Loss entry.
+        Assert.ExpectedError(StrSubstNo(ReversalErr, CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
+    end;
+
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,ReversalMessageHandler')]

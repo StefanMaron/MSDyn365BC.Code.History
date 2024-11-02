@@ -652,6 +652,7 @@ table 5621 "FA Journal Line"
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
         if IsHandled then
             exit;

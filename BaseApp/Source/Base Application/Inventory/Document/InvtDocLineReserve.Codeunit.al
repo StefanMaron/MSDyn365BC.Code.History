@@ -797,12 +797,5 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
 
         IsHandled := true;
     end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnAfterSummEntryNo', '', false, false)]
-    local procedure OnBeforeSummEntryNo(ReservationEntry: Record "Reservation Entry"; var ReturnValue: Integer)
-    begin
-        if MatchThisTable(ReservationEntry."Source Type") then
-            ReturnValue := Enum::"Reservation Summary Type"::"Inventory Receipt".AsInteger() + ReservationEntry."Source Subtype";
-    end;
 }
 

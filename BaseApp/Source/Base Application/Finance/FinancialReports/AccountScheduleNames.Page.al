@@ -29,17 +29,6 @@ page 103 "Account Schedule Names"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the financial report row definition. The description is not shown on the final report but is used to provide more context when using the definition.';
                 }
-#if not CLEAN22
-                field("Default Column Layout"; Rec."Default Column Layout")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a column layout name that you want to use as a default for this account schedule.';
-                    ObsoleteReason = 'This relation is now stored in the field Financial Report Column Group of the table Financial Reports';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    Visible = false;
-                }
-#endif
                 field("Analysis View Name"; Rec."Analysis View Name")
                 {
                     ApplicationArea = Suite;
