@@ -179,7 +179,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+        SetOnMatchOnClosingDocumentNumber();
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -321,7 +321,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+        SetOnMatchOnClosingDocumentNumber();
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
@@ -1005,7 +1005,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+        SetOnMatchOnClosingDocumentNumber();
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -1085,7 +1085,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+        SetOnMatchOnClosingDocumentNumber();
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -2531,12 +2531,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         VendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
     end;
 
-    local procedure SetOnMatchOnClosingDocumentNumber(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    local procedure SetOnMatchOnClosingDocumentNumber()
     var
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
-        BankAccount: Record "Bank Account";
     begin
-        BankAccount.Get(BankAccReconciliation."Bank Account No.");
         BankPmtApplSettings."Bank Ledg Closing Doc No Match" := true;
         BankPmtApplSettings.Modify();
     end;

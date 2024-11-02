@@ -160,6 +160,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         PartiallyApplied: Boolean;
     begin
         CustLedgEntry.CalcFields(Amount, "Remaining Amount");
+        OnTestIfAppliedCorrectlyOnAfterCalcAmounts(CustLedgEntry);
         PartiallyApplied :=
           ((CustLedgEntry.Amount <> CustLedgEntry."Remaining Amount") and (CustLedgEntry."Remaining Amount" <> 0));
         if (CalcDtldCustLedgEntryCount(DetailedCustLedgEntry."Entry Type"::"Initial Entry", CustLedgEntry."Entry No.") <> 1) or
@@ -569,6 +570,11 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestIfCrMemoIsCorrectiveDoc(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestIfAppliedCorrectlyOnAfterCalcAmounts(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

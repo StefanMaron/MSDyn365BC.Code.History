@@ -149,7 +149,14 @@ table 5741 "Transfer Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToShip(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 GetLocation("Transfer-from Code");
                 if CurrFieldNo <> 0 then begin
                     if Location."Require Shipment" and
@@ -177,7 +184,14 @@ table 5741 "Transfer Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToReceive(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 GetLocation("Transfer-to Code");
                 if CurrFieldNo <> 0 then begin
                     if Location."Require Receive" and
@@ -2546,6 +2560,16 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateTransferToCode(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; CurrFieldNo: Integer; StatusCheckSuspended: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToShip(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToReceive(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

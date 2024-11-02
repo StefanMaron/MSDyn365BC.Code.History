@@ -274,7 +274,7 @@ table 379 "Detailed Cust. Ledg. Entry"
         }
         key(Key11; "Customer No.", "Entry Type", "Posting Date", "Initial Document Type")
         {
-            SumIndexFields = Amount, "Amount (LCY)";
+            SumIndexFields = Amount, "Amount (LCY)", "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)";
         }
         key(Key12; "Document Type")
         {

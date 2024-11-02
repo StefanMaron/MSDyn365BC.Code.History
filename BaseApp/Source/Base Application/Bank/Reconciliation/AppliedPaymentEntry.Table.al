@@ -547,11 +547,17 @@ table 1294 "Applied Payment Entry"
         OnAfterGetAcceptedPmtTolerance(Rec, Result);
     end;
 
-    local procedure GetCustLedgEntryRemAmt(): Decimal
+    local procedure GetCustLedgEntryRemAmt() Result: Decimal
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnGetCustLedgEntryRemAmtOnBeforeCalcFields(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         CustLedgEntry.Get("Applies-to Entry No.");
         if IsBankLCY() and (CustLedgEntry."Currency Code" <> '') then begin
             BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
@@ -564,11 +570,17 @@ table 1294 "Applied Payment Entry"
         exit(CustLedgEntry."Remaining Amount");
     end;
 
-    local procedure GetVendLedgEntryRemAmt(): Decimal
+    local procedure GetVendLedgEntryRemAmt() Result: Decimal
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnGetVendLedgEntryRemAmtOnBeforeCalcFields(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         VendLedgEntry.Get("Applies-to Entry No.");
         if IsBankLCY() and (VendLedgEntry."Currency Code" <> '') then begin
             BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
@@ -1188,6 +1200,16 @@ table 1294 "Applied Payment Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyFromBankStmtMatchingBufOnBeforeInsert(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; BankStmtMatchingBuffer: Record "Bank Statement Matching Buffer"; TextMapperAmount: Decimal; EntryNo: Integer; var AppliedPaymentEntry: Record "Applied Payment Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustLedgEntryRemAmtOnBeforeCalcFields(AppliedPaymentEntry: Record "Applied Payment Entry"; var IsHandled: Boolean; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVendLedgEntryRemAmtOnBeforeCalcFields(AppliedPaymentEntry: Record "Applied Payment Entry"; var IsHandled: Boolean; var Result: Decimal)
     begin
     end;
 }

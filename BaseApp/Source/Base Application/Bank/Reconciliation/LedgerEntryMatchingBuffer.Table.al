@@ -117,6 +117,7 @@ table 1248 "Ledger Entry Matching Buffer"
 
     procedure InsertFromCustomerLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; UseLCYAmounts: Boolean; var UsePaymentDiscounts: Boolean)
     begin
+        OnBeforeProcedureInsertFromCustomerLedgerEntry(CustLedgerEntry);
         Clear(Rec);
         "Entry No." := CustLedgerEntry."Entry No.";
         "Account Type" := "Account Type"::Customer;
@@ -149,6 +150,7 @@ table 1248 "Ledger Entry Matching Buffer"
 
     procedure InsertFromVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; UseLCYAmounts: Boolean; var UsePaymentDiscounts: Boolean)
     begin
+        OnBeforeProcedureInsertFromVendorLedgerEntry(VendorLedgerEntry);
         Clear(Rec);
         "Entry No." := VendorLedgerEntry."Entry No.";
         "Account Type" := "Account Type"::Vendor;
@@ -304,6 +306,16 @@ table 1248 "Ledger Entry Matching Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertFromBankAccountLedgerEntry(var LedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer"; BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcedureInsertFromVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcedureInsertFromCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

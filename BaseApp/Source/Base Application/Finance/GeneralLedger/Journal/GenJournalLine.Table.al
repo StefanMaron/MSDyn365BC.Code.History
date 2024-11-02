@@ -2930,6 +2930,10 @@ table 81 "Gen. Journal Line"
             Caption = 'Bal. Non-Deductible VAT Amount LCY';
             Editable = false;
         }
+        field(6230; "Non-Ded. VAT FA Cost"; Boolean)
+        {
+            Caption = 'Non-Ded. VAT FA Cost';
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -6122,7 +6126,7 @@ table 81 "Gen. Journal Line"
         OnAfterCleanLine(Rec, xRec);
     end;
 
-    local procedure ReplaceDescription() Result: Boolean
+    procedure ReplaceDescription() Result: Boolean
     var
         IsHandled: Boolean;
     begin
@@ -8845,12 +8849,12 @@ table 81 "Gen. Journal Line"
         case "Applies-to Doc. Type" of
             "Applies-to Doc. Type"::Payment:
                 "Document Type" := "Document Type"::Invoice;
-            "Applies-to Doc. Type"::"Credit Memo":
+        "Applies-to Doc. Type"::"Credit Memo":
                 "Document Type" := "Document Type"::Refund;
-            "Applies-to Doc. Type"::Invoice,
+        "Applies-to Doc. Type"::Invoice,
             "Applies-to Doc. Type"::Refund:
                 "Document Type" := "Document Type"::Payment;
-        end;
+    end;
     end;
 
     /// <summary>

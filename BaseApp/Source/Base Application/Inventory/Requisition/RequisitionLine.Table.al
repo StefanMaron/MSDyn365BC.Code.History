@@ -231,18 +231,21 @@ table 246 "Requisition Line"
                             Validate("Order Date", WorkDate());
 
                         Validate("Currency Code", Vend."Currency Code");
-                        "Price Calculation Method" := Vend.GetPriceCalculationMethod();
+                        if ("Planning Line Origin" <> "Planning Line Origin"::Planning) or ("Price Calculation Method" = "Price Calculation Method"::" ") then
+                            "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                         ValidateItemDescriptionAndQuantity(Vend);
                         SetPurchaserCode(Vend."Purchaser Code", "Purchaser Code");
                     end else begin
                         if ValidateFields() then
                             Error(Text005, FieldCaption("Vendor No."), "Vendor No.");
                         "Vendor No." := '';
-                        "Price Calculation Method" := Vend.GetPriceCalculationMethod();
+                        if ("Planning Line Origin" <> "Planning Line Origin"::Planning) or ("Price Calculation Method" = "Price Calculation Method"::" ") then
+                            "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                     end
                 else begin
                     UpdateDescription();
-                    "Price Calculation Method" := Vend.GetPriceCalculationMethod();
+                    if ("Planning Line Origin" <> "Planning Line Origin"::Planning) or ("Price Calculation Method" = "Price Calculation Method"::" ") then
+                        "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                 end;
                 UpdateDescription();
 
@@ -3332,18 +3335,20 @@ table 246 "Requisition Line"
 
     procedure FindCurrForecastName(var ForecastName: Code[10]): Boolean
     var
-        UntrackedPlngElement: Record "Untracked Planning Element";
+        UntrackedPlanningElement: Record "Untracked Planning Element";
     begin
         if (Type <> Type::Item) or
            ("Planning Line Origin" <> "Planning Line Origin"::Planning)
         then
             exit(false);
-        UntrackedPlngElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
-        UntrackedPlngElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
-        UntrackedPlngElement.SetRange("Item No.", "No.");
-        UntrackedPlngElement.SetRange("Source Type", Database::"Production Forecast Entry");
-        if UntrackedPlngElement.FindFirst() then begin
-            ForecastName := CopyStr(UntrackedPlngElement."Source ID", 1, 10);
+
+        UntrackedPlanningElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
+        UntrackedPlanningElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
+        UntrackedPlanningElement.SetRange("Item No.", "No.");
+        UntrackedPlanningElement.SetRange("Source Type", Database::"Production Forecast Entry");
+        UntrackedPlanningElement.SetLoadFields("Source ID");
+        if UntrackedPlanningElement.FindFirst() then begin
+            ForecastName := CopyStr(UntrackedPlanningElement."Source ID", 1, 10);
             exit(true);
         end;
     end;
@@ -3357,6 +3362,8 @@ table 246 "Requisition Line"
           DimMgt.EditDimensionSet(
             Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Worksheet Template Name", "Journal Batch Name", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec, xRec);
     end;
 
     /// <summary>
@@ -4478,6 +4485,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnReserveBindingOrder(var RequisitionLine: Record "Requisition Line"; TrackingSpecification: Record "Tracking Specification"; SourceDescription: Text[100]; ExpectedDate: Date; ReservQty: Decimal; ReservQtyBase: Decimal; UpdateReserve: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line")
     begin
     end;
 }
