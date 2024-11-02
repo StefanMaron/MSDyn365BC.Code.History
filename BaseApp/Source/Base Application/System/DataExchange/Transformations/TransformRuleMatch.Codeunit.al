@@ -26,10 +26,6 @@ codeunit 1257 "Transform. Rule - Match" implements "Transformation Rule"
 
     procedure ValidateTransformationRuleField(FieldNo: Integer; var TransformationRule: Record "Transformation Rule"; var xTransformationRule: Record "Transformation Rule"): Boolean;
     begin
-        case FieldNo of
-            TransformationRule.FieldNo("Find Value"):
-                exit(true);
-        end;
     end;
 
     procedure GetVisibleGroups(TransformationRule: Record "Transformation Rule"; var VisibleTransformationRuleGroups: List of [Enum "Transformation Rule Group"])

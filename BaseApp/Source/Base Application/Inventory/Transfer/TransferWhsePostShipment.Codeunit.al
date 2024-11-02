@@ -44,7 +44,7 @@ codeunit 5748 "Transfer Whse. Post Shipment"
                     TransHeader := SourceHeader;
                     TransHeader.Get(TransHeader."No.");
                     IsHandled := false;
-                    // OnInitSourceDocumentHeaderOnBeforeTransferHeaderUpdatePostingDate(TransHeader, WhseShptHeader, WhseShptLine, ModifyHeader, IsHandled);
+                    OnInitSourceDocumentHeaderOnBeforeTransferHeaderUpdatePostingDate(TransHeader, WhseShptHeader, WhseShptLine, ModifyHeader, IsHandled);
                     if not IsHandled then
                         if (TransHeader."Posting Date" = 0D) or
                            (TransHeader."Posting Date" <> WhseShptHeader."Posting Date")
@@ -84,7 +84,7 @@ codeunit 5748 "Transfer Whse. Post Shipment"
                         TransHeader."Shipment Method Code" := WhseShptHeader."Shipment Method Code";
                         ModifyHeader := true;
                     end;
-                    // OnInitSourceDocumentHeaderOnBeforeTransHeaderModify(TransHeader, WhseShptHeader, ModifyHeader);
+                    OnInitSourceDocumentHeaderOnBeforeTransHeaderModify(TransHeader, WhseShptHeader, ModifyHeader);
                     if ModifyHeader then
                         TransHeader.Modify();
                 end;
@@ -185,6 +185,9 @@ codeunit 5748 "Transfer Whse. Post Shipment"
     var
         TransHeader: Record "Transfer Header";
         WarehouseSetup: Record "Warehouse Setup";
+#if not CLEAN25
+        DummyTransferShipmentHeader: Record "Transfer Shipment Header";
+#endif
         IsHandled: Boolean;
     begin
         case WhseShptLine."Source Type" of
@@ -211,7 +214,10 @@ codeunit 5748 "Transfer Whse. Post Shipment"
 
                     if WhsePostParameters."Print Documents" then begin
                         IsHandled := false;
-                        // OnPostSourceDocumentOnBeforePrintTransferShipment(TransShptHeader, IsHandled, TransHeader);
+                        OnPostSourceDocumentOnBeforePrintTransferShipment(TransHeader, IsHandled);
+#if not CLEAN25
+                        WhsePostShipment.RunOnPostSourceDocumentOnBeforePrintTransferShipment(DummyTransferShipmentHeader, IsHandled, TransHeader);
+#endif
                         if not IsHandled then
                             InsertDocumentEntryToPrint(
                                 DocumentEntryToPrint, Database::"Transfer Shipment Header", TransHeader."Last Shipment No.");
@@ -424,6 +430,21 @@ codeunit 5748 "Transfer Whse. Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostSourceTransferDocument(var TransferPostShipment: Codeunit Microsoft.Inventory.Transfer."TransferOrder-Post Shipment"; var TransHeader: Record Microsoft.Inventory.Transfer."Transfer Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforeTransferHeaderUpdatePostingDate(var TransferHeader: Record "Transfer Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; ModifyHeader: Boolean; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforeTransHeaderModify(var TransferHeader: Record "Transfer Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; ModifyHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePrintTransferShipment(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

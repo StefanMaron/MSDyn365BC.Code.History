@@ -380,11 +380,8 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
 
     local procedure CopyDeferralSchedule(SalesLine: Record "Sales Line"; AllocationSalesLine: Record "Sales Line")
     var
-        DeferralTemplate: Record "Deferral Template";
         DeferralHeader: Record "Deferral Header";
-        DeferralLine: Record "Deferral Line";
-        NewDeferralHeader: Record "Deferral Header";
-        NewDeferralLine: Record "Deferral Line";
+        DeferralTemplate: Record "Deferral Template";
         DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         if SalesLine."Deferral Code" = '' then
@@ -396,34 +393,10 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         if DeferralTemplate."Calc. Method" <> DeferralTemplate."Calc. Method"::"User-Defined" then
             exit;
 
-        if NewDeferralHeader.Get("Deferral Document Type"::Sales, '', '', SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then
+        if not DeferralHeader.Get("Deferral Document Type"::Sales, '', '', SalesLine."Document Type".AsInteger(), SalesLine."Document No.", AllocationSalesLine."Line No.") then
             exit;
 
-        if not DeferralHeader.Get("Deferral Document Type"::Sales, '', '', SalesLine."Document Type", SalesLine."Document No.", AllocationSalesLine."Line No.") then
-            exit;
-
-        NewDeferralHeader.TransferFields(DeferralHeader);
-        NewDeferralHeader."Line No." := SalesLine."Line No.";
-        NewDeferralHeader.Insert();
-
-        DeferralUtilities.FilterDeferralLines(NewDeferralLine, NewDeferralHeader."Deferral Doc. Type".AsInteger(),
-                    NewDeferralHeader."Gen. Jnl. Template Name", NewDeferralHeader."Gen. Jnl. Batch Name",
-                    NewDeferralHeader."Document Type", NewDeferralHeader."Document No.", NewDeferralHeader."Line No.");
-        if not NewDeferralLine.IsEmpty() then
-            exit;
-
-        DeferralUtilities.FilterDeferralLines(DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
-                    DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
-                    DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.");
-        if DeferralLine.IsEmpty() then
-            exit;
-
-        if DeferralLine.FindSet() then
-            repeat
-                NewDeferralLine.TransferFields(DeferralLine);
-                NewDeferralLine."Line No." := NewDeferralHeader."Line No.";
-                NewDeferralLine.Insert();
-            until DeferralLine.Next() = 0;
+        DeferralUtilities.CreateCopyOfDeferralSchedule(DeferralHeader, SalesLine."Line No.");
     end;
 
     local procedure MoveQuantities(var SalesLine: Record "Sales Line"; var AllocationSalesLine: Record "Sales Line")

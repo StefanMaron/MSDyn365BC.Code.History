@@ -149,9 +149,12 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     procedure CreateFromPurchaseReturnOrder(PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateFromPurchaseReturnOrder(PurchHeader);
-        ShowResult(CreateFromPurchReturnOrderHideDialog(PurchHeader));
+        OnBeforeCreateFromPurchaseReturnOrder(PurchHeader, IsHandled);
+        if not IsHandled then
+            ShowResult(CreateFromPurchReturnOrderHideDialog(PurchHeader));
     end;
 
     procedure CreateFromPurchReturnOrderHideDialog(PurchHeader: Record "Purchase Header"): Boolean
@@ -163,9 +166,12 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     procedure CreateFromOutbndTransferOrder(TransHeader: Record "Transfer Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateFromOutbndTransferOrder(TransHeader);
-        ShowResult(CreateFromOutbndTransferOrderHideDialog(TransHeader));
+        OnBeforeCreateFromOutbndTransferOrder(TransHeader, IsHandled);
+        if not IsHandled then
+            ShowResult(CreateFromOutbndTransferOrderHideDialog(TransHeader));
     end;
 
     procedure CreateFromOutbndTransferOrderHideDialog(TransHeader: Record "Transfer Header"): Boolean
@@ -446,7 +452,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         if IsHandled then
             exit;
 
-        GetSourceDocuments.GetLastShptHeader(WarehouseShipmentHeader);        
+        GetSourceDocuments.GetLastShptHeader(WarehouseShipmentHeader);
         WMSManagement.CheckUserIsWhseEmployeeForLocation(WarehouseShipmentHeader."Location Code", true);
         PAGE.Run(PAGE::"Warehouse Shipment", WarehouseShipmentHeader);
     end;
@@ -659,12 +665,12 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateFromPurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeCreateFromPurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateFromOutbndTransferOrder(var TransferHeader: Record "Transfer Header")
+    local procedure OnBeforeCreateFromOutbndTransferOrder(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 

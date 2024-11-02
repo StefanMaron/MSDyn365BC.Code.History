@@ -123,7 +123,7 @@ page 99000831 "Released Production Order"
                 {
                     ApplicationArea = Manufacturing;
                     QuickEntry = false;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
+                    ToolTip = 'Specifies that the posting of consumption and output transactions for the released production order is blocked.';
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {

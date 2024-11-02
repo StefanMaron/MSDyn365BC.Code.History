@@ -1072,11 +1072,15 @@ table 5740 "Transfer Header"
     end;
 
     internal procedure PerformManualRelease()
+    var
+        IsHandled: Boolean;
     begin
-        if Rec.Status <> Rec.Status::Released then begin
-            CODEUNIT.Run(CODEUNIT::"Release Transfer Document", Rec);
-            Commit();
-        end;
+        OnBeforePerformManualRelease(Rec, IsHandled);
+        if not IsHandled then
+            if Rec.Status <> Rec.Status::Released then begin
+                CODEUNIT.Run(CODEUNIT::"Release Transfer Document", Rec);
+                Commit();
+            end;
     end;
 
     procedure CalledFromWarehouse(CalledFromWhse2: Boolean)
@@ -1819,6 +1823,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTransferLinesFromSelectedReceiptLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; LineNo: Integer; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePerformManualRelease(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

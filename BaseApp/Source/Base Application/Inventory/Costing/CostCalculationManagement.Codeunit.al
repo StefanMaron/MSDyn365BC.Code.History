@@ -525,7 +525,8 @@ codeunit 5836 "Cost Calculation Management"
         if IsHandled then
             exit(Result);
 
-        if ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::"Pick + Backward" then
+        if (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::"Pick + Backward") and
+            (ProdOrderComp."Calculation Formula" = ProdOrderComp."Calculation Formula"::" ") then
             CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity per" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure"
         else
             CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure";

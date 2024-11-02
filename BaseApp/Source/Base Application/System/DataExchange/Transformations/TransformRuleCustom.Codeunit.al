@@ -23,7 +23,6 @@ codeunit 1243 "Transform. Rule - Custom" implements "Transformation Rule"
 
     procedure ValidateTransformationRuleField(FieldNo: Integer; var TransformationRule: Record "Transformation Rule"; var xTransformationRule: Record "Transformation Rule"): Boolean;
     begin
-        exit(true);
     end;
 
     procedure GetVisibleGroups(TransformationRule: Record "Transformation Rule"; var VisibleTransformationRuleGroups: List of [Enum "Transformation Rule Group"])

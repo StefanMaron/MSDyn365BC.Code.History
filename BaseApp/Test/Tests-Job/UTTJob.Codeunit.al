@@ -2423,17 +2423,17 @@ codeunit 136350 "UT T Job"
     end;
 
     [ModalPageHandler]
-    procedure PurchOrderFromJobModalPageHandlerWithDPPLocation(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
-    begin
-        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
-        PurchOrderFromSalesOrder.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
     procedure PurchOrderFromJobModalPageHandlerWithQtyCheck(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
         PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
         Assert.AreEqual(LibraryVariableStorage.DequeueDecimal(), PurchOrderFromSalesOrder."Demand Quantity".AsDecimal(), 'Demand Quantity not matched');
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromJobModalPageHandlerWithDPPLocation(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
         PurchOrderFromSalesOrder.OK().Invoke();
     end;
 

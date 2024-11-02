@@ -232,6 +232,7 @@ table 7021 "Price Line Filters"
     begin
         if PriceListCode = '' then
             exit('');
+        PriceListHeader.SetLoadFields("Currency Code");
         PriceListHeader.Get(PriceListCode);
         exit(PriceListHeader."Currency Code");
     end;
