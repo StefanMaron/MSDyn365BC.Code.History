@@ -1807,6 +1807,14 @@ page 8901 "Finance Manager Role Center"
                     group("Group45")
                     {
                         Caption = 'Fixed Assets';
+                        action("FixedAssetsAnalysis")
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Analyze Fixed Assets';
+                            Image = NonStockItem;
+                            RunObject = Query "Fixed Assets Analysis";
+                            ToolTip = 'Analyze (group, summarize, pivot) your Fixed Asset Ledger Entries with related Fixed Asset master data such as Fixed Asset, Asset Class/Subclass, and Posting Date.';
+                        }
                         action("Posting Group - Net Change")
                         {
                             ApplicationArea = FixedAssets;

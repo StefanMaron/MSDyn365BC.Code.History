@@ -347,14 +347,11 @@ report 400 "Remittance Advice - Entries"
 
     var
         Vend: Record Vendor;
-        CompanyInfo: Record "Company Information";
         GLSetup: Record "General Ledger Setup";
         CurrExchRate: Record "Currency Exchange Rate";
         CreateVendLedgEntry: Record "Vendor Ledger Entry";
         VendLedgEntry3: Record "Vendor Ledger Entry";
         FormatAddr: Codeunit "Format Address";
-        VendorAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
         LineAmount: Decimal;
         LineDiscount: Decimal;
         LineDiscountCurr: Decimal;
@@ -376,6 +373,11 @@ report 400 "Remittance Advice - Entries"
         DocDateCaptionLbl: Label 'Document Date';
         PostingDateCaptionLbl: Label 'Posting Date';
         TotalCaptionLbl: Label 'Total';
+
+    protected var
+        CompanyInfo: Record "Company Information";
+        VendorAddr: array[8] of Text[100];
+        CompanyAddr: array[8] of Text[100];
 
     procedure CurrencyCode(SrcCurrCode: Code[10]): Code[10]
     begin

@@ -320,10 +320,16 @@ table 5878 "Phys. Invt. Record Line"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 CheckSerialNo();
-                if "Serial No." <> '' then
-                    Validate(Quantity, 1);
+
+                IsHandled := false;
+                OnValidateSerialNoOnAfterCheckSerialNo(Rec, IsHandled);
+                if not IsHandled then
+                    if "Serial No." <> '' then
+                        Validate(Quantity, 1);
             end;
         }
         field(131; "Lot No."; Code[50])
@@ -581,38 +587,51 @@ table 5878 "Phys. Invt. Record Line"
 #endif
 
 #if not CLEAN24
-        if PhysInvtTrackingMgt.IsPackageTrackingEnabled() then
+        if PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
 #endif
-            if TempInvtOrderTracking.FindFirst() then begin
-                Clear(InvtOrderTrackingLines);
-                InvtOrderTrackingLines.SetRecord(TempInvtOrderTracking);
-                InvtOrderTrackingLines.SetSources(TempInvtOrderTracking);
-                InvtOrderTrackingLines.LookupMode(true);
-                if InvtOrderTrackingLines.RunModal() = ACTION::LookupOK then begin
-                    InvtOrderTrackingLines.GetRecord(TempInvtOrderTracking);
-                    Validate("Serial No.", TempInvtOrderTracking."Serial No.");
-                    Validate("Lot No.", TempInvtOrderTracking."Lot No.");
-                    Validate("Package No.", TempInvtOrderTracking."Package No.");
-                    OnShowUsedTrackLinesOnAfterLookupOK2(Rec, TempInvtOrderTracking);
+            IsHandled := false;
+            OnBeforeRunPhysInvtTrackingLinesOnShowUsedTrackLines(Rec, TempInvtOrderTracking, IsHandled);
+            if not IsHandled then
+                if TempInvtOrderTracking.FindFirst() then begin
+                    Clear(InvtOrderTrackingLines);
+                    InvtOrderTrackingLines.SetRecord(TempInvtOrderTracking);
+                    InvtOrderTrackingLines.SetSources(TempInvtOrderTracking);
+                    InvtOrderTrackingLines.LookupMode(true);
+                    if InvtOrderTrackingLines.RunModal() = ACTION::LookupOK then begin
+                        InvtOrderTrackingLines.GetRecord(TempInvtOrderTracking);
+                        Validate("Serial No.", TempInvtOrderTracking."Serial No.");
+                        Validate("Lot No.", TempInvtOrderTracking."Lot No.");
+                        Validate("Package No.", TempInvtOrderTracking."Package No.");
+                        OnShowUsedTrackLinesOnAfterLookupOK2(Rec, TempInvtOrderTracking);
+                    end;
                 end;
-            end;
+#if not CLEAN24
+        end;
+#endif
     end;
 
     procedure CheckSerialNo()
     var
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        IsHandled: Boolean;
     begin
-        PhysInvtRecordLine.Reset();
-        PhysInvtRecordLine.SetRange("Order No.", "Order No.");
-        PhysInvtRecordLine.SetRange("Item No.", "Item No.");
-        if PhysInvtRecordLine.FindSet() then
-            repeat
-                if "Serial No." <> '' then
-                    if PhysInvtRecordLine."Serial No." = "Serial No." then
-                        if (PhysInvtRecordLine."Line No." <> "Line No.") or (PhysInvtRecordLine."Recording No." <> "Recording No.") then
-                            if Abs(PhysInvtRecordLine."Quantity (Base)") + Abs("Quantity (Base)") > 1 then
-                                Error(SerialNoAlreadyExistErr, "Serial No.", "Item No.");
-            until PhysInvtRecordLine.Next() = 0;
+        IsHandled := false;
+        OnBeforeCheckSerialNo(Rec, IsHandled);
+        if not IsHandled then begin
+            if "Serial No." = '' then
+                exit;
+
+            PhysInvtRecordLine.SetLoadFields("Quantity (Base)");
+            PhysInvtRecordLine.SetRange("Order No.", "Order No.");
+            PhysInvtRecordLine.SetRange("Item No.", "Item No.");
+            PhysInvtRecordLine.SetRange("Serial No.", "Serial No.");
+            if PhysInvtRecordLine.FindSet() then
+                repeat
+                    if (PhysInvtRecordLine."Line No." <> "Line No.") or (PhysInvtRecordLine."Recording No." <> "Recording No.") then
+                        if Abs(PhysInvtRecordLine."Quantity (Base)") + Abs("Quantity (Base)") > 1 then
+                            Error(SerialNoAlreadyExistErr, "Serial No.", "Item No.");
+                until PhysInvtRecordLine.Next() = 0;
+        end;
     end;
 
 #if not CLEAN24
@@ -763,6 +782,21 @@ table 5878 "Phys. Invt. Record Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateItemNo(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSerialNo(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSerialNoOnAfterCheckSerialNo(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPhysInvtTrackingLinesOnShowUsedTrackLines(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; var IsHandled: Boolean)
     begin
     end;
 }

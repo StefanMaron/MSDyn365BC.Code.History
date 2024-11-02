@@ -1108,14 +1108,15 @@ table 99000829 "Planning Component"
 
     procedure FindCurrForecastName(var ForecastName: Code[10]): Boolean
     var
-        UntrackedPlngElement: Record "Untracked Planning Element";
+        UntrackedPlanningElement: Record "Untracked Planning Element";
     begin
-        UntrackedPlngElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
-        UntrackedPlngElement.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
-        UntrackedPlngElement.SetRange("Item No.", "Item No.");
-        UntrackedPlngElement.SetRange("Source Type", Database::"Production Forecast Entry");
-        if UntrackedPlngElement.FindFirst() then begin
-            ForecastName := CopyStr(UntrackedPlngElement."Source ID", 1, 10);
+        UntrackedPlanningElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
+        UntrackedPlanningElement.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
+        UntrackedPlanningElement.SetRange("Item No.", "Item No.");
+        UntrackedPlanningElement.SetRange("Source Type", Database::"Production Forecast Entry");
+        UntrackedPlanningElement.SetLoadFields("Source ID");
+        if UntrackedPlanningElement.FindFirst() then begin
+            ForecastName := CopyStr(UntrackedPlanningElement."Source ID", 1, 10);
             exit(true);
         end;
     end;

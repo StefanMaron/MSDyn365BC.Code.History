@@ -1573,6 +1573,80 @@ codeunit 137157 "SCM Order Promising II"
         Assert.RecordIsNotEmpty(RequisitionLine);
     end;
 
+    [Test]
+    [HandlerFunctions('OrderPromisingLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CapableToPromiseUpdatesAvailabilityValueToZeroInOrderPromisingWhenUOMIsDiffinSOAndPO()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        UnitOfMeasure: array[2] of Record "Unit of Measure";
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 548751] When Stan runs Capable to Promise action from Order Promising page then Availability field value is 
+        // Updated to 0 if Purchase Order and Sales Order are created with different Unit of Measure Codes of same Item.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Unit of Measure Code [1].
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
+
+        // [GIVEN] Create Item Unit of Measure [1] and Validate Qty. Rounding Precision.
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[1], Item."No.", UnitOfMeasure[1].Code, 1);
+        ItemUnitOfMeasure[1].Validate("Qty. Rounding Precision", 0);
+        ItemUnitOfMeasure[1].Modify(true);
+
+        // [GIVEN] Create Unit of Measure Code [2].
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[2]);
+
+        // [GIVEN] Create Item Unit of Measure [2] and Validate Qty. Rounding Precision.
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[2], Item."No.", UnitOfMeasure[2].Code, 1.158);
+        ItemUnitOfMeasure[2].Validate("Qty. Rounding Precision", 0.00001);
+        ItemUnitOfMeasure[2].Modify(true);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Purchase Header and Validate Posting Date and Order Date.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Posting Date", CalcDate('<CY-7M>', WorkDate()));
+        PurchaseHeader.Validate("Order Date", CalcDate('<CY-7M>', WorkDate()));
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line and Validate Unit of Measure Code, Planned Receipt Date and Expected Receipt Date.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 0.8724);
+        PurchaseLine.Validate("Unit of Measure Code", UnitOfMeasure[1].Code);
+        PurchaseLine.Validate("Planned Receipt Date", CalcDate('<CY-7M>', WorkDate()));
+        PurchaseLine.Validate("Expected Receipt Date", CalcDate('<CY-7M>', WorkDate()));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Create a Sales Header and Validate Posting Date, Order Date and Shipment Date.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Posting Date", CalcDate('<CY-6M+30D>', WorkDate()));
+        SalesHeader.Validate("Order Date", CalcDate('<CY-6M+30D>', WorkDate()));
+        SalesHeader.Validate("Shipment Date", CalcDate('<CY-5M>', WorkDate()));
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create a Sales Line and Validate Unit of Measure Code, Planned Delivery Date and Planned Shipment Date.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 16);
+        SalesLine.Validate("Unit of Measure Code", UnitOfMeasure[2].Code);
+        SalesLine.Validate("Planned Delivery Date", CalcDate('<CY-5M>', WorkDate()));
+        SalesLine.Validate("Planned Shipment Date", CalcDate('<CY-5M>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [WHEN] Run Order Promising from the Sales Line.
+        RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, false);
+
+        // [THEN] Availibility field value is equal 0 in Order Promising page. // OrderPromisingLinesModalPageHandler
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2202,6 +2276,15 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
         SalesList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure OrderPromisingLinesModalPageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
+    begin
+        OrderPromisingLines.CapableToPromise.Invoke();
+        OrderPromisingLines.First();
+        OrderPromisingLines.CalcAvailability.AssertEquals(0);
+        OrderPromisingLines.OK().Invoke();
     end;
 
     [ConfirmHandler]

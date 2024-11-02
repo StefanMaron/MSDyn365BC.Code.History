@@ -33,6 +33,7 @@ codeunit 136323 "Jobs - Multiple Customers"
         OneInvoicesAreCreatedMsg: Label '1 invoice is created.';
         PostJournalLineQst: Label 'Do you want to post the journal lines?';
         PostedJournalLinesMsg: Label 'The journal lines were successfully posted.';
+        UpdateBillToCustMsg: Label 'You have changed a customer. Prices and costs needs to be updated on a related lines.\\Do you want to update related lines?';
 
     [Test]
     procedure DefaultTaskBillingMethodIsPulledOnNewProject()
@@ -1722,6 +1723,61 @@ codeunit 136323 "Jobs - Multiple Customers"
         JobTask.SetFilter("Job No.", '%1', Job."No.");
         JobCreateSalesInvoice.SetTableView(JobTask);
         JobCreateSalesInvoice.Run();
+    end;
+
+    [Test]
+    [HandlerFunctions('JobCreateSalesInvoiceHandler,MessageHandler,ConfirmSpecificMessageHandler')]
+    procedure CreateSalesInvoiceForDifferentBillToCustOnNewProjectTaskIfSalesInvoiceExistForOtherProjectTasks()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobTasks: array[3] of Record "Job Task";
+        Customers: array[2] of Record Customer;
+        JobCreateSalesInvoice: Report "Job Create Sales Invoice";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 554289] Create Sales Invoice for different Bill-to Customer on new Project Task if Sales Invoice exist for other Project Tasks
+        Initialize();
+
+        // [GIVEN] Set Multiple Customers on Project Setup
+        SetMultiupleCustomersOnProjectSetup();
+
+        // [GIVEN] Create Customers
+        LibrarySales.CreateCustomer(Customers[1]);
+        LibrarySales.CreateCustomer(Customers[2]);
+
+        // [GIVEN] Create new Project
+        LibraryJob.CreateJob(Job, Customers[1]."No.");
+
+        // [GIVEN] Create two Project Tasks
+        LibraryJob.CreateJobTask(Job, JobTasks[1]);
+        LibraryJob.CreateJobTask(Job, JobTasks[2]);
+
+        // [GIVEN] Create Job Planning Lines
+        Quantity := LibraryRandom.RandInt(10);
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLine, JobTasks[1], Quantity, Quantity);
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLine, JobTasks[2], Quantity, Quantity);
+
+        // [GIVEN] Enqueue data
+        LibraryVariableStorage.Enqueue(OneInvoicesAreCreatedMsg);
+
+        // [GIVEN] Run batch job "Create Job Sales Invoice" for Job Tasks
+        Commit();  // Commit required for batch report.
+        JobTask.SetFilter("Job No.", '%1', Job."No.");
+        JobCreateSalesInvoice.SetTableView(JobTask);
+        JobCreateSalesInvoice.Run();
+
+        // [WHEN] Create new Project Tasks and Project Planning Line
+        LibraryJob.CreateJobTask(Job, JobTasks[3]);
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLine, JobTasks[3], Quantity, Quantity);
+
+        // [GIVEN] Enqueue data
+        LibraryVariableStorage.Enqueue(UpdateBillToCustMsg);
+        LibraryVariableStorage.Enqueue(true);
+
+        // [THEN] Verify Update Bill-to Customer on new Project Task
+        JobTasks[3].Validate("Bill-to Customer No.", Customers[2]."No.");
     end;
 
     local procedure Initialize()

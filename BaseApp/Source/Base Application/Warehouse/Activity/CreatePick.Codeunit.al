@@ -1843,6 +1843,8 @@ codeunit 7312 "Create Pick"
 
     local procedure ProcessDoNotFillQtytoHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
+        OnBeforeProcessDoNotFillQtytoHandle(WarehouseActivityLine, TempWarehouseActivityLine, CreatePickParameters);
+
         if CreatePickParameters."Do Not Fill Qty. to Handle" then begin
             WarehouseActivityLine."Qty. to Handle" := 0;
             WarehouseActivityLine."Qty. to Handle (Base)" := 0;
@@ -4735,6 +4737,11 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcTotalAvailQtyToPickForDirectedPutAwayPickOnBeforeCalcAvailabilityAfterReservationImpact(var TotalAvailQtyBase: Decimal; MaxPickableQtyExcludingShipBin: Decimal; MaxPickableQtyInWhse: Decimal; ReservedQtyOnInventory: Decimal; QtyReservedOnPickShip: Decimal; LineReservedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessDoNotFillQtytoHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var CreatePickParameters: Record "Create Pick Parameters" temporary)
     begin
     end;
 }
