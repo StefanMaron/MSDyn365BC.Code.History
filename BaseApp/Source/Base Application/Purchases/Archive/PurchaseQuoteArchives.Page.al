@@ -179,7 +179,7 @@ page 9346 "Purchase Quote Archives"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document.';
+                    ToolTip = 'Specifies the location where the items are to be placed when they are received. This field acts as the default location for new lines. Location code for individual lines can differ from it.';
                     Visible = true;
                 }
                 field("Purchaser Code"; Rec."Purchaser Code")

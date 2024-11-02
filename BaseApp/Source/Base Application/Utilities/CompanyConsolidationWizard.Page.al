@@ -1,3 +1,4 @@
+#if not CLEAN25
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -15,6 +16,9 @@ page 1826 "Company Consolidation Wizard"
 {
     Caption = 'Company Consolidation';
     PageType = NavigatePage;
+    ObsoleteReason = 'Wizard deprecated due to low usage and to unify how DemoData is applied on new companies. Consolidation companies can be created as normal Business Central companies.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     layout
     {
@@ -438,7 +442,11 @@ page 1826 "Company Consolidation Wizard"
     end;
 
     trigger OnOpenPage()
+    var
+        ObsoletionNotification: Notification;
     begin
+        ObsoletionNotification.Message := ObsoletionMsg;
+        ObsoletionNotification.Send();
         Step := Step::Start;
         NewCompanyData := NewCompanyData::"Standard Data";
         UpdateDataDescription();
@@ -531,6 +539,7 @@ page 1826 "Company Consolidation Wizard"
         NoPermissionsErr: Label 'You do not have permissions to create a new company. Contact your system administrator.';
         PermissionsErr: Label 'You do not have permissions to run this wizard.';
         AfterCreateCompanyMsg: Label 'Here is a tip. After you finish this assisted setup guide you can test your settings before you actually transfer data. To run a test, sign in to the company you just created, go to the Business Units page, and then choose the Test Database action.';
+        ObsoletionMsg: Label 'This wizard will be removed in an upcoming release. You can create companies for consolidation in the Companies page. The setup of the consolidated companies is done in the Business Units page.';
 
     local procedure EnableControls()
     begin
@@ -910,3 +919,4 @@ page 1826 "Company Consolidation Wizard"
     end;
 }
 
+#endif

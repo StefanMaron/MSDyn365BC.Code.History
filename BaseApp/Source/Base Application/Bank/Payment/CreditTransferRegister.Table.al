@@ -112,7 +112,6 @@ table 1205 "Credit Transfer Register"
         Modify();
     end;
 
-    [Scope('OnPrem')]
     procedure Reexport()
     var
         CreditTransReExportHistory: Record "Credit Trans Re-export History";

@@ -426,6 +426,8 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
     requestpage
     {
+        AboutTitle = 'About Reconcile Cust. and Vend. Accs';
+        AboutText = 'Understand the difference in net change to control the G/L accounts setup on customer and vendor posting group tables. Highlight discrepancies between G/L and customer/vendor ledger balances.';
 
         layout
         {

@@ -1,6 +1,7 @@
 namespace Microsoft.Bank.Reconciliation;
 
 using System.AI;
+using Microsoft.Finance.GeneralLedger.Journal;
 using System.Telemetry;
 
 pageextension 7253 BankAccReconciliationExt extends "Bank Acc. Reconciliation"
@@ -55,9 +56,12 @@ pageextension 7253 BankAccReconciliationExt extends "Bank Acc. Reconciliation"
                     BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
                     BankAccReconciliation: Record "Bank Acc. Reconciliation";
                     TempBankAccRecAIProposal: Record "Bank Acc. Rec. AI Proposal" temporary;
+                    TransToGLAccountBatch: Record "Trans. to G/L Acc. Jnl. Batch";
+                    GenJournalBatch: Record "Gen. Journal Batch";
                     FeatureTelemetry: Codeunit "Feature Telemetry";
                     BankRecAIMatchingImpl: Codeunit "Bank Rec. AI Matching Impl.";
                     AzureOpenAI: Codeunit "Azure OpenAI";
+                    GenJnlManagement: Codeunit GenJnlManagement;
                     TransToGLAccAIProposal: Page "Trans. To GL Acc. AI Proposal";
                     LineNoFilter: Text;
                 begin
@@ -118,6 +122,11 @@ pageextension 7253 BankAccReconciliationExt extends "Bank Acc. Reconciliation"
                         TransToGLAccAIProposal.LookupMode(true);
                         if TransToGLAccAIProposal.RunModal() = Action::OK then
                             CurrPage.Update();
+
+                        if TransToGLAccountBatch.FindFirst() then
+                            if TransToGLAccountBatch."Open Journal Batch" then
+                                if GenJournalBatch.Get(TransToGLAccountBatch."Journal Template Name", TransToGLAccountBatch."Journal Batch Name") then
+                                    GenJnlManagement.TemplateSelectionFromBatch(GenJournalBatch);
                     end;
                 end;
             }

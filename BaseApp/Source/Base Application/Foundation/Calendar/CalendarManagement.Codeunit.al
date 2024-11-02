@@ -311,7 +311,7 @@ codeunit 7600 "Calendar Management"
         Customer: Record Customer;
         WhereUsedBaseCalendar: Record "Where Used Base Calendar";
     begin
-        Customer.Reset();
+        Customer.SetLoadFields("Base Calendar Code", "Name");
         Customer.SetRange("Base Calendar Code", BaseCalendarCode);
         if Customer.FindSet() then
             repeat
@@ -331,7 +331,7 @@ codeunit 7600 "Calendar Management"
         Location: Record Location;
         WhereUsedBaseCalendar: Record "Where Used Base Calendar";
     begin
-        Location.Reset();
+        Location.SetLoadFields("Base Calendar Code", "Name");
         Location.SetRange("Base Calendar Code", BaseCalendarCode);
         if Location.FindSet() then
             repeat
@@ -351,7 +351,7 @@ codeunit 7600 "Calendar Management"
         ShippingAgentServices: Record "Shipping Agent Services";
         WhereUsedBaseCalendar: Record "Where Used Base Calendar";
     begin
-        ShippingAgentServices.Reset();
+        ShippingAgentServices.SetLoadFields("Base Calendar Code", "Description");
         ShippingAgentServices.SetRange("Base Calendar Code", BaseCalendarCode);
         if ShippingAgentServices.FindSet() then
             repeat
@@ -372,7 +372,7 @@ codeunit 7600 "Calendar Management"
         Vendor: Record Vendor;
         WhereUsedBaseCalendar: Record "Where Used Base Calendar";
     begin
-        Vendor.Reset();
+        Vendor.SetLoadFields("Base Calendar Code", "Name");
         Vendor.SetRange("Base Calendar Code", BaseCalendarCode);
         if Vendor.FindSet() then
             repeat

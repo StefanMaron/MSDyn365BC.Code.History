@@ -101,8 +101,6 @@ codeunit 1255 "Match Bank Payments"
         PaymentRecPreformanceCategoryLbl: Label 'PaymentRecPerformance', Locked = true;
         MatchedLineTelemetryTxt: Label 'Line with SystemId: %1 Matched, Total Time: %2.  Total time Customer Matching %3, Total time Vendor Matching: %4, Total time Employee Matching: %5,Total time Bank Ledger Entries: %6, Total Time TextMappings: %7', Locked = true;
         AppliedEntriesToBankStatementLineTxt: Label 'Line with SystemId: %1 - Applied entries - Account Type: %2, One-To-Many match: %3, Match Quality: %4.', Locked = true;
-        TotalLedgerEntriesSummaryTxt: Label 'Count: Cust. Ledg. Entries: %1, Vendor Ledg. Entries: %2, Bank Ledg. Entries: %3.', Locked = true;
-        TotalTimeSummaryTxt: Label 'TimeSummary: Total Time: Customer Ledger Entries: %1, Vendor Ledger Entries: %2, Employee Ledger Entries: %3, Bank Ledger Entries: %4, TextMappings: %5.', Locked = true;
         SpecificTaskSummaryTxt: Label 'Specific Task Summary: TotalTimeDirectCollection: %1, TotalTimeRelatedPartyMatching: %2, TotalTimeDocumentNoMatching: %3, TotalTimeAmountMatching: %4, TotalTimeStringNearness: %5, TotalTimeDocumentNoMatchingForBankLedgerEntry: %6, TotalTimeSearchingDocumentNoInLedgerEntries: %7, HitCountClosingDocumentMatches: %8 out of %9', Locked = true;
         MissingRelatedPartyTelemetryMsg: Label 'The ledger entries contain the entries that do not exist in master data. This is indication of corrupted ledger entries. Master data type %1.', Locked = true, Comment = '%1 Master Data Type';
         PmtRecNoSeriesNotificationNameLbl: Label 'Payment reconciliation journals need a number series.';
@@ -564,9 +562,6 @@ codeunit 1255 "Match Bank Payments"
 
             UpdateOneToManyMatches(BankAccReconciliationLine);
 
-            Session.LogMessage('0000DKB', StrSubstNo(TotalLedgerEntriesSummaryTxt, TempCustomerLedgerEntryMatchingBuffer.Count(), TempVendorLedgerEntryMatchingBuffer.Count(), TempBankAccLedgerEntryMatchingBuffer.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentRecPreformanceCategoryLbl);
-
-            Session.LogMessage('0000DKC', StrSubstNo(TotalTimeSummaryTxt, TotalTimeMatchingCustomerLedgerEntriesPerLine, TotalTimeMatchingVendorLedgerEntriesPerLine, TotalTimeMatchingEmployeeLedgerEntriesPerLine, TotalTimeMatchingBankLedgerEntriesPerLine, TotalTimeTimeTextMappingsPerLine), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentRecPreformanceCategoryLbl);
             Session.LogMessage('0000DKD', StrSubstNo(SpecificTaskSummaryTxt, TotalTimeDirectCollection, TotalTimeRelatedPartyMatching, TotalTimeDocumentNoMatching, TotalTimeAmountMatching, TotalTimeStringNearness, TotalTimeDocumentNoMatchingForBankLedgerEntry, TotalTimeSearchingDocumentNoInLedgerEntries, HitCountClosingDocumentMatches, TotalNoClosingDocumentMatches), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentRecPreformanceCategoryLbl);
 
             Window.Close();

@@ -1067,6 +1067,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible Purch. Posting - NamedType PrepaymentsWithNDVATErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1722727050 - NamedType 4012351018" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Amount Field Caption, %2 = Expected Amount]D;]A;(LookupHint=Codeunit Non-Deductible UT - NamedType AmountErrorLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1722727050 - NamedType 3916242030" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot set different Non-Deductible VAT % for the combinations of business and product groups with the same VAT identifier.\The following combination with the same VAT identifier has different Non-Deductible VAT %: business group %1, product group %2]]></Val>

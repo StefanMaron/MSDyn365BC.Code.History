@@ -11,7 +11,6 @@ codeunit 4855 "Upg. Tag Def. Auto. Acc. Codes"
 {
     ObsoleteReason = 'Automatic Acc.functionality is moved to a new app.';
     ObsoleteState = Pending;
-
     ObsoleteTag = '25.0';
 
     Access = Internal;

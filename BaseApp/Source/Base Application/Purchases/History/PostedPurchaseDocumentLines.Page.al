@@ -171,6 +171,8 @@ page 5855 "Posted Purchase Document Lines"
     trigger OnOpenPage()
     begin
         CurrentMenuType := 1;
+        OnOpenPageOnAfterSetCurrentMenuType(Rec, CurrentMenuType);
+
         ChangeSubMenu(CurrentMenuType);
 
         Rec.SetRange("No.", Rec."No.");
@@ -350,6 +352,11 @@ page 5855 "Posted Purchase Document Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowLinesNotCopiedMessage(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnAfterSetCurrentMenuType(var Vendor: Record Vendor; var CurrentMenuType: Integer)
     begin
     end;
 }

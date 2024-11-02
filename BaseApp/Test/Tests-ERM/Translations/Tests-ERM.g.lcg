@@ -158,6 +158,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Document Type, %2 = Document No, %3 = Error text]D;]A;(LookupHint=Codeunit Doc. Backgr. Error Handling - NamedType InvalidDimensionsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 682729763 - NamedType 4266379167" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cash Flow Worksheet Line must not be found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Edit Posted Documents - NamedType CashFlowWorkSheetLineMustNotBeFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 682729763 - NamedType 2871896518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected Gross Weight shown.]]></Val>
@@ -1733,6 +1742,15 @@
       <Cmt Name="Dev"><![CDATA[%1  text value]D;]A;(LookupHint=Codeunit ERM Consolidation - NamedType LegalEntityIDLineTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 187546204 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Starting Date, %2 = WorkDate, %3 = Consolidate Wizard]D;]A;(LookupHint=Codeunit ERM Consolidation - NamedType StartingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 187546204 - NamedType 1749115446" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[2,"%1","%2",%3,"%4",%5,%6,%7,%8,%9]]></Val>
@@ -2588,6 +2606,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Customer - NamedType AmountMismatchErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2646364736 - NamedType 2975884559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Due to how Business Central posts and updates amounts in an additional reporting currency (ACY), you can't use this feature if you use ACY. Business Central converts amounts in local currency to the alternate currency, but doesn't net transactions. If you use ACY, you must manually reverse the amounts.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Customer - NamedType ReversalErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2646364736 - NamedType 3036878724" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The entries were successfully reversed.]]></Val>
@@ -2964,6 +2991,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Financial Reports II - NamedType NotAllowedPostingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3381789858 - NamedType 2209808801" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Preview Posting Boolean must be false when Report Request Page is rendered.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Financial Reports II - NamedType PreviewPostingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3381789858 - NamedType 1708179851" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4937,6 +4973,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType GenProdPostingGroupErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1951354433 - NamedType 1822650553" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be calculated in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Field Caption; %2 Page Caption.]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType GrossWeightErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 2983229909" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Dimension Set ID in %1.]]></Val>
@@ -6690,6 +6735,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Order - NamedType IncorrectDimSetIDErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3999279336 - NamedType 3051752815" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Planned Shipment Date must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Value ,%2=Table Name.]D;]A;(LookupHint=Codeunit ERM Sales Order - NamedType PlannedShipmentDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3999279336 - NamedType 3211338091" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -11181,6 +11235,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType WrongAllowDeferralPostingDatesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 518006362 - Method 3039364185 - NamedType 3870762580" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Deferral amounts cannot be 0]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - Method PostPurchaseInvoiceWithAllocationAccountAndUserDefinedDeferralWithError - NamedType ZeroDeferralAmtErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 518006362 - Method 2450948280 - NamedType 3870762580" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
