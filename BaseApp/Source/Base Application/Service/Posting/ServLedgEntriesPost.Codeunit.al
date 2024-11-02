@@ -58,10 +58,14 @@ codeunit 5912 "ServLedgEntries-Post"
         SrcCode := SrcCodeSetup."Service Management";
         ServiceRegister."Source Code" := SrcCode;
         ServiceRegister."User ID" := CopyStr(UserId(), 1, MaxStrLen(ServiceRegister."User ID"));
+
+        OnAfterInitServiceRegister(ServiceRegister);
     end;
 
     procedure FinishServiceRegister(var PassedServEntryNo: Integer; var PassedWarrantyEntryNo: Integer)
     begin
+        OnBeforeFinishServiceRegister(ServiceRegister);
+
         PassedServEntryNo := NextServLedgerEntryNo;
         PassedWarrantyEntryNo := NextWarrantyLedgerEntryNo;
 
@@ -1222,6 +1226,16 @@ codeunit 5912 "ServLedgEntries-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertServLedgEntryCrMemo(var PassedNextEntryNo: Integer; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; GenJnlLineDocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitServiceRegister(var ServiceRegister: Record "Service Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinishServiceRegister(var ServiceRegister: Record "Service Register")
     begin
     end;
 }

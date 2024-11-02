@@ -112,7 +112,7 @@ table 175 "Standard Vendor Purchase Code"
         StdVendPurchCode.FilterGroup := 0;
 
         IsHandled := false;
-        OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(StdVendPurchCode, IsHandled);
+        OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(StdVendPurchCode, IsHandled, PurchHeader);
         if not IsHandled then begin
             StdVendPurchCodes.SetTableView(StdVendPurchCode);
             StdVendPurchCodes.LookupMode(true);
@@ -318,7 +318,7 @@ table 175 "Standard Vendor Purchase Code"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var IsHandled: Boolean)
+    local procedure OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var IsHandled: Boolean; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

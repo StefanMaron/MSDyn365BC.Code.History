@@ -971,7 +971,7 @@ report 1305 "Standard Sales - Order Conf."
                 Clear(SalesPost);
                 VATAmountLine.DeleteAll();
                 Line.DeleteAll();
-                SalesPost.GetSalesLines(Header, Line, 0);
+                SalesPost.GetSalesLines(Header, Line, 0, false);
                 OnLineOnAfterGetRecordOnBeforeCalcVATAmountLines(Header, Line);
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);

@@ -443,6 +443,7 @@ codeunit 1004 "Job Transfer Line"
     var
         Job: Record Job;
         JobTask: Record "Job Task";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         OnBeforeFromGenJnlLineToJnlLine(JobJnlLine, GenJnlLine);
 
@@ -489,6 +490,13 @@ codeunit 1004 "Job Transfer Line"
 
         JobJnlLine."Total Cost (LCY)" := GenJnlLine."Job Total Cost (LCY)";
         JobJnlLine."Total Cost" := GenJnlLine."Job Total Cost";
+
+        if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then begin
+            JobJnlLine."Unit Cost (LCY)" += Abs(Round(GenJnlLine."Non-Deductible VAT Amount LCY" / JobJnlLine.Quantity));
+            JobJnlLine."Unit Cost" += Abs(Round(GenJnlLine."Non-Deductible VAT Amount" / JobJnlLine.Quantity));
+            JobJnlLine."Total Cost (LCY)" += Abs(GenJnlLine."Non-Deductible VAT Amount LCY");
+            JobJnlLine."Total Cost" += Abs(GenJnlLine."Non-Deductible VAT Amount");
+        end;
 
         JobJnlLine."Unit Price (LCY)" := GenJnlLine."Job Unit Price (LCY)";
         JobJnlLine."Unit Price" := GenJnlLine."Job Unit Price";
@@ -705,7 +713,7 @@ codeunit 1004 "Job Transfer Line"
                                 JobJnlLine."Currency Factor"),
                             Currency."Unit-Amount Rounding Precision")
                 else
-                    JobJnlLine."Unit Cost" := PurchLine."Unit Cost";
+                    JobJnlLine."Unit Cost" := PurchLine."Unit Cost" / PurchLine."Qty. per Unit of Measure";
             else
                 JobJnlLine."Unit Cost" :=
                     Round(

@@ -2545,6 +2545,36 @@ codeunit 137159 "SCM Warehouse VII"
             until WarehouseActivityLine.Next() = 0;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,DummyMessageHandler')]
+    [Scope('OnPrem')]
+    procedure WarehouseShipmentErrorWhenVATBusPostingOnSalesInvoiceHeaderHasChanged()
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [SCENARIO 545336] You can assign a location with Directed Put and Pick to the Sales Invoice Lines after changing the VAT Bus. Posting Group and recalculating lines
+        Initialize();
+
+        //[GIVEN] SetStockoutWarning to false
+        LibrarySales.SetStockoutWarning(false);
+
+        //[GIVEN] Creating VAT Business Posting Group
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+
+        //[GIVEN] Create Sales Invoice by page.
+        CreateAndOpenSalesInvoicePage(SalesInvoice);
+
+        //[GIVEN] Assigning Location Code
+        SalesInvoice."Location Code".SetValue(LocationWhite.Code);
+
+        // [THEN] Set Value to 'VAT Bus. Posting Group'
+        asserterror SalesInvoice."VAT Bus. Posting Group".SetValue(VATBusinessPostingGroup.Code);
+
+        // [VERIFY] Verify the Error 'Warehouse Shipment is Required'.
+        Assert.ExpectedError(WarehouseShipmentRequiredError);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4587,6 +4617,27 @@ codeunit 137159 "SCM Warehouse VII"
         WhseSourceCreateDocument.SetWhseWkshLine(DummyWhseWorksheetLine);
         WhseSourceCreateDocument.UseRequestPage(false);
         WhseSourceCreateDocument.Run();
+    end;
+
+    local procedure CreateAndOpenSalesInvoicePage(var SalesInvoice: TestPage "Sales Invoice")
+    begin
+        SalesInvoice.OpenNew();
+        SalesInvoice."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
+        SalesInvoice.SalesLines.Type.SetValue(SalesInvoice.SalesLines.Type.GetOption(3));  // Option 3 is used for Item.
+        SalesInvoice.SalesLines."No.".SetValue(CreateInventoriableItem());
+        SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(5));
+    end;
+
+    local procedure CreateInventoriableItem(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, Item.Type::Inventory);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Modify(true);
+
+        exit(Item."No.")
     end;
 
     [ConfirmHandler]
