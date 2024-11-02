@@ -702,7 +702,7 @@ codeunit 1004 "Job Transfer Line"
             '':
                 JobJnlLine."Unit Cost" := JobJnlLine."Unit Cost (LCY)";
             PurchLine."Currency Code":
-                JobJnlLine."Unit Cost" := PurchLine."Unit Cost";
+                JobJnlLine."Unit Cost" := PurchLine."Unit Cost" / PurchLine."Qty. per Unit of Measure";
             else
                 JobJnlLine."Unit Cost" :=
                     Round(

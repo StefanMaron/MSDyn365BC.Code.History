@@ -98,6 +98,7 @@
         QtyReceivedBaseErr: Label 'Qty. Received (Base) is not as expected.';
         InteractionLogErr: Label 'Interaction log must be enabled.';
         ItemRefrenceNoErr: Label 'Item Reference No. should be %1.', Comment = '%1 - old reference no.';
+        GrossWeightErr: Label '%1 must be calculated in %2.', Comment = '%1=Field Caption; %2 Page Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -8267,6 +8268,57 @@
         PurchaseLine.TestField("Line Discount %");
     end;
 
+    [Test]
+    [HandlerFunctions('GrossWeightItemChargeAssignmentHandler')]
+    procedure ValidateItemChargeAssignmentPostPurchaseQuote()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchaseQuote: TestPage "Purchase Quote";
+        ItemChargeNo: Code[20];
+    begin
+        // [SCENARIO 547482] Assigning the Charge (item) by Weight on Purchase Quote.
+        Initialize();
+
+        // [GIVEN] Create a Purchase Header with Document Type Quote.
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
+
+        // [GIVEN] Create a Purchase Line with an Item.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine[1],
+            PurchaseHeader,
+            PurchaseLine[1].Type::Item,
+            CreateItem(),
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Validate Direct Unit Cost, Net Weight, Gross Weight in Purchase Line.
+        PurchaseLine[1].Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine[1].Validate("Net Weight", LibraryRandom.RandDec(10, 2));
+        PurchaseLine[1].Validate("Gross Weight", LibraryRandom.RandDec(10, 2));
+        PurchaseLine[1].Modify(true);
+
+        // [GIVEN] Create an Item Charge.
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo();
+
+        // [GIVEN] Create Item Charge Line in Purchase Quote and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine[2],
+            PurchaseHeader,
+            PurchaseLine[2].Type::"Charge (Item)",
+            ItemChargeNo,
+            LibraryRandom.RandInt(10));
+        PurchaseLine[2].Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
+        PurchaseLine[2].Modify(true);
+
+        // [WHEN] Assign Item Charge.
+        PurchaseQuote.OpenEdit();
+        PurchaseQuote.GotoRecord(PurchaseHeader);
+        PurchaseQuote.PurchLines.Filter.SetFilter("No.", ItemChargeNo);
+
+        // [THEN] Item Charge Assignment should calculate Gross Weight.
+        PurchaseQuote.PurchLines.ItemChargeAssignment.Invoke();
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11774,6 +11826,23 @@
             ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal())
         else
             LibraryVariableStorage.Enqueue(ItemChargeAssignmentPurch."Qty. to Assign".Value);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GrossWeightItemChargeAssignmentHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
+
+        Assert.AreNotEqual(
+            ItemChargeAssignmentPurch."<Gross Weight>".AsDecimal(),
+            0,
+            StrSubstNo(
+                GrossWeightErr,
+                ItemChargeAssignmentPurch."<Gross Weight>".Caption(),
+                ItemChargeAssignmentPurch.Caption()));
+
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [ConfirmHandler]
