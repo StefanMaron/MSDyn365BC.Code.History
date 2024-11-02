@@ -1230,6 +1230,7 @@ table 1001 "Job Task"
 
         SalesLine.SetCurrentKey("Job No.");
         SalesLine.SetRange("Job No.", "Job No.");
+        SalesLine.SetRange("Job Task No.", "Job Task No.");
         Result := not SalesLine.IsEmpty();
     end;
 
