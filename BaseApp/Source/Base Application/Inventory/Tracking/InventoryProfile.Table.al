@@ -379,31 +379,35 @@ table 99000853 "Inventory Profile"
     procedure CalcReservedQty(var ReservationEntry: Record "Reservation Entry"; var ReservedQty: Decimal)
     var
         OppositeReservationEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
         ReservationEntry.SetCurrentKey(
           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line",
           "Reservation Status");
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
         ReservationEntry.SetRange(Binding, ReservationEntry.Binding::"Order-to-Order");
-        if ReservationEntry.Find('-') then begin
-            // Retrieving information about primary order:
-            if ReservationEntry.Positive then
-                OppositeReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive)
-            else
-                OppositeReservationEntry := ReservationEntry;
-            if "Primary Order No." = '' then begin
-                "Primary Order Type" := OppositeReservationEntry."Source Type";
-                "Primary Order Status" := OppositeReservationEntry."Source Subtype";
-                "Primary Order No." := OppositeReservationEntry."Source ID";
-                if OppositeReservationEntry."Source Type" = Database::"Prod. Order Component" then
-                    "Primary Order Line" := OppositeReservationEntry."Source Prod. Order Line";
-            end;
+        IsHandled := false;
+        OnCalcReservedQtyOnBeforeReservationEntryLoop(ReservationEntry, ReservedQty, IsHandled);
+        if not IsHandled then
+            if ReservationEntry.Find('-') then begin
+                // Retrieving information about primary order:
+                if ReservationEntry.Positive then
+                    OppositeReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive)
+                else
+                    OppositeReservationEntry := ReservationEntry;
+                if "Primary Order No." = '' then begin
+                    "Primary Order Type" := OppositeReservationEntry."Source Type";
+                    "Primary Order Status" := OppositeReservationEntry."Source Subtype";
+                    "Primary Order No." := OppositeReservationEntry."Source ID";
+                    if OppositeReservationEntry."Source Type" = Database::"Prod. Order Component" then
+                        "Primary Order Line" := OppositeReservationEntry."Source Prod. Order Line";
+                end;
 
-            Binding := ReservationEntry.Binding;
-            repeat
-                ReservedQty := ReservedQty + ReservationEntry."Quantity (Base)";
-            until ReservationEntry.Next() = 0;
-        end;
+                Binding := ReservationEntry.Binding;
+                repeat
+                    ReservedQty := ReservedQty + ReservationEntry."Quantity (Base)";
+                until ReservationEntry.Next() = 0;
+            end;
     end;
 
 #if not CLEAN25
@@ -675,6 +679,8 @@ table 99000853 "Inventory Profile"
         "Untracked Quantity" := TrackingReservationEntry."Quantity (Base)";
         if not IsSupply then
             ChangeSign();
+
+        OnAfterTransferQtyFromItemTrgkEntry(Rec, TrackingReservationEntry);
     end;
 
     procedure ReduceQtyByItemTracking(var NewInventoryProfile: Record "Inventory Profile")
@@ -686,6 +692,8 @@ table 99000853 "Inventory Profile"
         "Remaining Quantity" -= NewInventoryProfile."Remaining Quantity";
         "Remaining Quantity (Base)" -= NewInventoryProfile."Remaining Quantity (Base)";
         "Untracked Quantity" -= NewInventoryProfile."Untracked Quantity";
+
+        OnAfterReduceQtyByItemTracking(Rec, NewInventoryProfile);
     end;
 
     procedure ChangeSign()
@@ -697,6 +705,8 @@ table 99000853 "Inventory Profile"
         Quantity := -Quantity;
         "Remaining Quantity" := -"Remaining Quantity";
         "Finished Quantity" := -"Finished Quantity";
+
+        OnAfterChangeSign(Rec);
     end;
 
     procedure TransferToTrackingEntry(var TrackingReservationEntry: Record "Reservation Entry"; UseSecondaryFields: Boolean)
@@ -1091,6 +1101,26 @@ table 99000853 "Inventory Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferBindings(var ReservEntry: Record "Reservation Entry"; var TrackingEntry: Record "Reservation Entry"; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcReservedQtyOnBeforeReservationEntryLoop(var ReservationEntry: Record "Reservation Entry"; var ReservedQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferQtyFromItemTrgkEntry(var InventoryProfile: Record "Inventory Profile"; TrackingReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReduceQtyByItemTracking(var InventoryProfile: Record "Inventory Profile"; NewInventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterChangeSign(var InventoryProfile: Record "Inventory Profile")
     begin
     end;
 }

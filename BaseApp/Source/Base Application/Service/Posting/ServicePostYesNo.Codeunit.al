@@ -162,7 +162,7 @@ codeunit 5981 "Service-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostDocument(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line");
+    local procedure OnBeforePostDocument(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line" temporary);
     begin
     end;
 

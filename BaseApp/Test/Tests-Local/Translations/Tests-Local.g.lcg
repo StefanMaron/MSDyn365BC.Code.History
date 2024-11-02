@@ -95,6 +95,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit E-Invoice Service - NamedType ChangeBillToCustomerNoQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3655323664 - NamedType 494607362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[External Document No. should be passed from Service Header to Service Shipment Header.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit E-Invoice Service - NamedType ExternalDocumentNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3655323664 - NamedType 1759504635" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect bool value of field E-Invoice on the Service Header table]]></Val>

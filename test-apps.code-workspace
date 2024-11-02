@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false
+  },
   "folders": [
     {
       "path": "./System Application/Test/System Application Test Library"
@@ -124,10 +132,16 @@
       "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
     },
     {
+      "path": "./EDocumentsConnector/Test/E-Documents Connector Tests"
+    },
+    {
       "path": "./SAF-T/Test/SAF-T Tests"
     },
     {
       "path": "./ServiceDeclaration/Test/Service Declaration Tests"
+    },
+    {
+      "path": "./EDocumentConnectors/Avalara/Test/E-Document Connector - Avalara Tests"
     },
     {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
@@ -306,13 +320,5 @@
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
     }
-  ],
-  "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false,
-    "al.enableCodeActions": false
-  }
+  ]
 }

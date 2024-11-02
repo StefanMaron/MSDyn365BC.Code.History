@@ -450,6 +450,7 @@ codeunit 5920 ServItemManagement
             NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(ServItem."No. Series", ServMgtSetup."Service Item Nos.", 0D, ServItem."No.");
         end;
 #endif
+        OnCreateServItemOnServItemLineOnBeforeServiceItemInsert(ServItem, ServItemLine);
         ServItem.Insert();
         ServItem.Validate(Description, ServItemLine.Description);
         Clear(ServHeader);
@@ -866,6 +867,11 @@ codeunit 5920 ServItemManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyReservationEntryLineAfterCheckSalesLineNeedsServiceItemCreation(var SalesLine: Record "Sales Line"; var SalesLineNeedServiceItemCreation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServItemOnServItemLineOnBeforeServiceItemInsert(var ServiceItem: Record "Service Item"; ServiceItemLine: Record "Service Item Line")
     begin
     end;
 

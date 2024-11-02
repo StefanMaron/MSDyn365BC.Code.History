@@ -61,6 +61,7 @@
         DateOutOfBalanceErr: Label 'As of %1, the lines are out of balance by %2.';
         TotalOutOfBalanceErr: Label 'The total of the lines is out of balance by%1.';
         NotAllowedPostingDateErr: Label 'The Posting Date is not within your range of allowed posting dates.';
+        PreviewPostingErr: Label 'Preview Posting Boolean must be false when Report Request Page is rendered.';
 
     [Test]
     [HandlerFunctions('RHBankaccRecon')]
@@ -1535,6 +1536,115 @@
         Assert.AreEqual(Amount[3] + Amount[4], LibraryReportDataset.Sum('AmountVoided'), '');
     end;
 
+    [Test]
+    [HandlerFunctions('PreviewPostingExchRateAdjustmentReportReqPageHandler,StatisticsMessageHandler')]
+    procedure PreviewPostDisabledInExchRateAdjustmentReport()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        JobQueueEntry: Record "Job Queue Entry";
+        BankAccountNo: Code[20];
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 319616] Report "Bank Account - Check Details" shows right amounts for Amount Printed and Amount Voided columns.
+        Initialize();
+
+        // [GIVEN] Create a Currency With Multiple Exchange Rates.
+        CurrencyCode := CreateCurrencyWithMultipleExchangeRates();
+
+        // [GIVEN] Create Bank Account With Currency.
+        BankAccountNo := CreateBankAccountWithCurrency(CurrencyCode);
+
+        // [GIVEN] Create And Post General Journal Line With Currency.
+        CreateAndPostGenJournalLineWithCurrency(GenJournalLine, BankAccountNo, CurrencyCode);
+
+        // [GIVEN] Store Currency Code.
+        LibraryVariableStorage.Enqueue(CurrencyCode);
+
+        // [THEN] Run job queue for Exchange Rate Adjustment and Post adjustments.
+        SetAndRunJobQueue(Report::"Exch. Rate Adjustment", JobQueueEntry."Report Output Type"::"None (Processing only)", JobQueueEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('VATReconciliationRequestPageHandler')]
+    procedure VATReconciliationReportReportsCorrectAmountWhenSameDocumentNo()
+    var
+        GLAccount: array[3] of Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[4] of Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Amount: array[3] of Decimal;
+        DocumentNo: code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 550878] VAT Reconciliation Report Records the correct value for the base amount for all financial entries that have the same Document Number and Posting Date.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup With Accounts.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+
+        // [GIVEN] Create three "X, Y and Z" GL Account and Validate Income/Balance and Direct Posting.
+        for i := 1 to ArrayLen(GLAccount) do begin
+            LibraryERM.CreateGLAccount(GLAccount[i]);
+            GLAccount[i].Validate("Income/Balance", GLAccount[i]."Income/Balance"::"Income Statement");
+            GLAccount[i].Validate("Direct Posting", true);
+            GLAccount[i].Modify(true);
+        end;
+
+        // [GIVEN] Validate Gen. Posting Type, VAT Bus. Posting Group and VAT Prod. Posting Group in GL Account "X".
+        GLAccount[1].Validate(GLAccount[1]."Gen. Posting Type", GLAccount[1]."Gen. Posting Type"::Sale);
+        GLAccount[1].Validate(GLAccount[1]."VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount[1].Validate(GLAccount[1]."VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount[1].Modify(true);
+
+        // [GIVEN] Validate Consol. Credit Acc.,Consol. Debit Acc.,Reconciliation Account in GL Account "Y".
+        GLAccount[2].Validate("Consol. Credit Acc.", GLAccount[1]."No.");
+        GLAccount[2].Validate("Consol. Debit Acc.", GLAccount[1]."No.");
+        GLAccount[2].Validate("Reconciliation Account", true);
+        GLAccount[2].Modify(true);
+
+        // [GIVEN] Validate Consol. Credit Acc.,Consol. Debit Acc. in GL Account "Z". 
+        GLAccount[3].Validate("Consol. Credit Acc.", GLAccount[2]."No.");
+        GLAccount[3].Validate("Consol. Debit Acc.", GLAccount[2]."No.");
+        GLAccount[3].Modify(true);
+
+        // [GIVEN] Create and Store 3 Amounts.
+        Amount[1] := LibraryRandom.RandDec(100, 2);
+        Amount[2] := LibraryRandom.RandDec(200, 2);
+        Amount[3] := Amount[1] + Amount[2] + Amount[2];
+
+        // [GIVEN] Clear General Journal Line in a Batch.
+        ClearGeneralJournalLines(GenJournalBatch);
+
+        // [GIVEN] Create 4 General Journal Lines with different Amounts.
+        CreateGeneralJournalLine(GenJournalLine[1], GenJournalBatch, GLAccount[1]."No.", Amount[1]);
+        CreateGeneralJournalLine(GenJournalLine[2], GenJournalBatch, GLAccount[1]."No.", Amount[2]);
+        CreateGeneralJournalLine(GenJournalLine[3], GenJournalBatch, GLAccount[2]."No.", -Amount[3]);
+        CreateGeneralJournalLine(GenJournalLine[4], GenJournalBatch, GLAccount[3]."No.", Amount[2]);
+
+        // [GIVEN] Create a No. Series Code and store it.
+        DocumentNo := LibraryERM.CreateNoSeriesCode();
+        LibraryVariableStorage.Enqueue(DocumentNo);
+
+        // [GIVEN] Validate Document No. and Posting Date in all General Journal Lines.
+        for i := 1 to ArrayLen(GenJournalLine) do begin
+            GenJournalLine[i].Validate("Document No.", DocumentNo);
+            GenJournalLine[i].Validate("Posting Date", Today());
+            GenJournalLine[i].Modify(true);
+        end;
+
+        // [GIVEN] Post the General Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
+
+        // [WHEN] Run VAT Reconciliation Report.
+        Commit();
+        Report.Run(Report::"VAT Reconciliation Report");
+
+        // [THEN] Different Amount exists for same Document No. and posting Date.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BaseAmountSalesVAT', -Amount[1]);
+        LibraryReportDataset.AssertElementWithValueExists('BaseAmountSalesVAT', -Amount[2]);
+    end;
+
     local procedure Initialize()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -2999,6 +3109,18 @@
         Assert.IsTrue(LibraryReportDataset.CurrentRowHasElement(ErrorTextNumberTok), ExpectedErrorText);
     end;
 
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"G/L Account",
+            AccountNo,
+            Amount);
+    end;
+
 #if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -3090,6 +3212,23 @@
         BankAccount.SetRange("No.", BankAccountNo);
         BankAccount.SetRange("Date Filter", DateFilter);
         REPORT.Run(REPORT::"Bank Acc. - Detail Trial Bal.", true, false, BankAccount);
+    end;
+
+    local procedure SetAndRunJobQueue(ReportID: Integer; OutputType: Enum "Job Queue Report Output Type"; var JobQueueEntry: Record "Job Queue Entry")
+    var
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        JobQueueEntry.Init();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Report;
+        JobQueueEntry."Object ID to Run" := ReportID;
+        JobQueueEntry."Report Output Type" := OutputType;
+        JobQueueEntry.Description := Format(ReportID);
+        JobQueueEntry."Run in User Session" := true;
+        JobQueueEntry.Insert(true);
+        Commit();
+
+        JobQueueEntry.RunReportRequestPage();
+        LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
     end;
 
     [RequestPageHandler]
@@ -3276,6 +3415,28 @@
     procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
     begin
         Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure PreviewPostingExchRateAdjustmentReportReqPageHandler(var ExchRateAdjustment: TestRequestPage "Exch. Rate Adjustment")
+    begin
+        Assert.AreEqual(ExchRateAdjustment.PreviewPost.AsBoolean(), false, PreviewPostingErr);
+
+        ExchRateAdjustment.StartingDate.SetValue(WorkDate());
+        ExchRateAdjustment.EndingDate.SetValue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate()));
+        ExchRateAdjustment.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
+        ExchRateAdjustment.CurrencyFilter.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        ExchRateAdjustment.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure VATReconciliationRequestPageHandler(var VATReconciliationReport: TestRequestPage "VAT Reconciliation Report")
+    begin
+        VATReconciliationReport.ShowDetails.SetValue(true);
+        VATReconciliationReport.ShowTransWithoutVAT.SetValue(true);
+        VATReconciliationReport.GLEntry.SetFilter("Posting Date", Format(Today()));
+        VATReconciliationReport.GLEntry.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        VATReconciliationReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 }
 

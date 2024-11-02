@@ -301,11 +301,15 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         TrackedQty: Decimal;
         UnTrackedQty: Decimal;
         xTransferQty: Decimal;
+        IsHandled: Boolean;
     begin
         if not FindReservEntry(OldProdOrderComponent, OldReservationEntry) then
             exit;
 
-        OnBeforeTransferPOCompToItemJnlLineCheckILE(OldProdOrderComponent, NewItemJournalLine);
+        IsHandled := false;
+        OnBeforeTransferPOCompToItemJnlLineCheckILE(OldProdOrderComponent, NewItemJournalLine, IsHandled);
+        if IsHandled then
+            exit;
 
         if CheckApplFromItemEntry then
             if OppositeReservationEntry.Get(OldReservationEntry."Entry No.", not OldReservationEntry.Positive) then
@@ -868,7 +872,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferPOCompToItemJnlLineCheckILE(var ProdOrderComp: Record "Prod. Order Component"; var ItemJnlLine: record "Item Journal Line")
+    local procedure OnBeforeTransferPOCompToItemJnlLineCheckILE(var ProdOrderComp: Record "Prod. Order Component"; var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

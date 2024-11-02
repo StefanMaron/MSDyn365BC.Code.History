@@ -11,6 +11,7 @@ using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Tracking;
 using System.Globalization;
 using System.Telemetry;
+using System.Utilities;
 
 table 7302 "Bin Content"
 {
@@ -885,6 +886,7 @@ table 7302 "Bin Content"
         WhseActivLine: Record "Warehouse Activity Line";
         WMSMgt: Codeunit "WMS Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        Math: Codeunit Math;
         QtyAvailToPutAwayBase: Decimal;
         AvailableWeight: Decimal;
         AvailableCubage: Decimal;
@@ -918,9 +920,8 @@ table 7302 "Bin Content"
                 if "Max. Qty." <> 0 then begin
                     QtyAvailToPutAwayBase := CalcQtyAvailToPutAway(DeductQtyBase);
                     WMSMgt.CheckPutAwayAvailability(
-                      "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, QtyAvailToPutAwayBase,
-                      (Location."Bin Capacity Policy" =
-                       Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
+                        "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, Math.Min(QtyAvailToPutAwayBase, "Max. Qty."),
+                        (Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
                 end;
                 if Location."Bin Capacity Policy" in [Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.", Location."Bin Capacity Policy"::"Allow More Than Max. Capacity"] then begin
                     GetBin("Location Code", "Bin Code");

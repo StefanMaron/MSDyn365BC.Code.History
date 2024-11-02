@@ -86,6 +86,13 @@ report 99001014 "Update Unit Cost"
     begin
         CalcMethod := NewCalcMethod;
         UpdateReservations := NewUpdateReservations;
+
+        OnAfterInitializeRequest();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitializeRequest()
+    begin
     end;
 }
 

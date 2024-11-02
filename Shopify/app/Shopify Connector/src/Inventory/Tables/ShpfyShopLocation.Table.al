@@ -7,7 +7,6 @@ using Microsoft.Inventory.Location;
 /// </summary>
 table 30113 "Shpfy Shop Location"
 {
-    Access = Internal;
     Caption = 'Shopify Shop Location';
     DataClassification = CustomerContent;
     DrillDownPageId = "Shpfy Shop Locations Mapping";
