@@ -61,6 +61,7 @@
         ItemFiltersLbl: Label '%1|%2', Comment = '%1 = Item, %2 = Item 2';
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1 = Quantity, %2 = Minimum Order Quanity, %3 = Requisition Line';
         MPSOrderErr: Label '%1 must be true', Comment = '%1 = MPS Order';
+        PlanningComponentMustNotBeFoundErr: Label 'Planning Component must not be found.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -4656,6 +4657,174 @@
         UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
     end;
 
+    [Test]
+    procedure CalcRegPlanCreateReqLineForItemHavingMinQtyAndLotforLotforReplenSysAssembly()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        Quantity: Decimal;
+        MinOrderQty: Decimal;
+        CalulatedDate: Date;
+    begin
+        // [SCENARIO 502028] When Calculate Regenerative Planning in Planning Worksheet for Items having Minimum Order Quantity,
+        // Replenshiment System as Assembly, Reorder policy set as Lot-for-Lot.
+        Initialize();
+
+        // [GIVEN] Generate and save Minimum Order Quantity in a Variable.
+        MinOrderQty := LibraryRandom.RandIntInRange(100, 100);
+
+        // [GIVEN] Create Item with Lot-for-Lot Reordering Policy.
+        CreatItemWithLotForLotReorderingPolicy(Item, MinOrderQty);
+
+        // [GIVEN] Generate and save Quantity in a Variable.
+        Quantity := LibraryRandom.RandIntInRange(5, 5);
+
+        // [GIVEN] Generate and save Date in a Variable.
+        CalulatedDate := CalcDate('<30D>', WorkDate());
+
+        // [GIVEN] Create Sales Header and Validate Posting Date.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Posting Date", CalulatedDate);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create  Sales Lines with Item.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity);
+        SalesLine.Validate("Planned Delivery Date", CalulatedDate);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Release Sales Document.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Run Calculate Regenerative Plan.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(
+            Item,
+            CalcDate('<-CM>', CalulatedDate),
+            CalulatedDate);
+
+        // [WHEN] Find Requisition Line.
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+
+        // [THEN] Quantity of Requisition Line must be equal to Minimum Order Quantity.
+        Assert.AreEqual(
+            MinOrderQty,
+            RequisitionLine.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                RequisitionLine.FieldCaption(Quantity),
+                MinOrderQty,
+                RequisitionLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure CalcRegPlanDoesNotCreatePlanCompForBlockedItemHavingQuantityPerZeroInProdBOM()
+    var
+        Item: array[6] of Record Item;
+        Customer: Record Customer;
+        Location: Record Location;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BOMComponent: Record "BOM Component";
+        PlanningComponent: Record "Planning Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 542451] When Stan runs Calculate Regenerative Plan action from Planning Worksheet 
+        // For Items including Production Item and Assembly Item then Planning Component is not created 
+        // For an Item which is blocked and its Quantity Per is 0 in Production BOM.
+        Initialize();
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Validate Components at Location in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", Location.Code);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Lot for Lot Item[1] with Replenishment System and Assembly Policy.
+        CreateLotForLotItemWithReplenishmentSystemAndAssemblyPolicy(
+            Item[1],
+            Item[1]."Replenishment System"::Purchase,
+            Item[1]."Assembly Policy"::"Assemble-to-Stock");
+
+        // [GIVEN] Create Lot for Lot Item[2] with Replenishment System and Assembly Policy.
+        CreateLotForLotItemWithReplenishmentSystemAndAssemblyPolicy(
+            Item[2],
+            Item[2]."Replenishment System"::Purchase,
+            Item[2]."Assembly Policy"::"Assemble-to-Stock");
+
+        // [GIVEN] Create Lot for Lot Item[3] with Replenishment System and Assembly Policy.
+        CreateLotForLotItemWithReplenishmentSystemAndAssemblyPolicy(
+            Item[3],
+            Item[3]."Replenishment System"::Purchase,
+            Item[3]."Assembly Policy"::"Assemble-to-Stock");
+
+        // [GIVEN] Create Lot for Lot Item[4] with Replenishment System and Assembly Policy.
+        CreateLotForLotItemWithReplenishmentSystemAndAssemblyPolicy(
+            Item[4],
+            Item[4]."Replenishment System"::Purchase,
+            Item[4]."Assembly Policy"::"Assemble-to-Stock");
+
+        // [GIVEN] Create Lot for Lot Item[5] with Replenishment System and Assembly Policy.
+        CreateLotForLotItemWithReplenishmentSystemAndAssemblyPolicy(
+            Item[5],
+            Item[5]."Replenishment System"::Assembly,
+            Item[5]."Assembly Policy"::"Assemble-to-Order");
+
+        // [GIVEN] Create a Production BOM and Update Status.
+        CreateProductionBOMAndUpdateStatus(ProductionBOMHeader, Item[1], Item[2], Item[3]);
+
+        // [GIVEN] Validate Production BOM No. in Item[4].
+        Item[4].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[4].Modify(true);
+
+        // [GIVEN] Create a BOM Component for Item[5].
+        LibraryManufacturing.CreateBOMComponent(
+            BOMComponent,
+            Item[5]."No.",
+            BOMComponent.Type::Item,
+            Item[4]."No.",
+            LibraryRandom.RandInt(0),
+            Item[4]."Base Unit of Measure");
+
+        // [GIVEN] Create a Sales Header and Validate Location Code and Shipment Date.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Validate("Shipment Date", CalcDate('<CY+1D>', WorkDate()));
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create a Sales Line.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[5]."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Release Sales Document.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Set Item Filter.
+        Item[6].SetFilter("No.", StrSubstNo('%1|%2|%3|%4|%5', Item[1]."No.", Item[2]."No.", Item[3]."No.", Item[4]."No.", Item[5]."No."));
+
+        // [GIVEN] Run Calculate Regenerative Plan.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(
+            Item[6],
+            CalcDate('<CY+1D>', WorkDate()),
+            CalcDate('<CY+1D>', WorkDate()));
+
+        // [GIVEN] Find Requisition Line.
+        RequisitionLine.SetRange("No.", Item[4]."No.");
+        RequisitionLine.FindFirst();
+
+        // [WHEN] Find Planning Component.
+        PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningComponent.SetRange("Item No.", Item[3]."No.");
+
+        // [THEN] Planning Component is not found.
+        Assert.IsTrue(PlanningComponent.IsEmpty(), PlanningComponentMustNotBeFoundErr);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6343,6 +6512,46 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::Purchase);
         Item.Validate("Safety Stock Quantity", SafetyStockQty);
         Item.Validate("Include Inventory", true);
+        Item.Modify(true);
+    end;
+
+    local procedure CreatItemWithLotForLotReorderingPolicy(var Item: Record Item; MinOrderQty: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Minimum Order Quantity", MinOrderQty);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateProductionBOMAndUpdateStatus(
+        var ProductionBOMHeader: Record "Production BOM Header";
+        Item: Record Item;
+        Item2: Record Item;
+        Item3: Record Item)
+    var
+        ProductionBOMLine: array[3] of Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine[1], '', ProductionBOMLine[1].Type::Item, Item."No.", 0);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine[2], '', ProductionBOMLine[2].Type::Item, Item2."No.", LibraryRandom.RandInt(0));
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine[3], '', ProductionBOMLine[3].Type::Item, Item3."No.", 0);
+
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateLotForLotItemWithReplenishmentSystemAndAssemblyPolicy(
+        var Item: Record Item;
+        ReplenishmentSystem: Enum "Item Replenishment System";
+        AssemblyPolicy: Enum "Assembly Policy")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Assembly Policy", AssemblyPolicy);
         Item.Modify(true);
     end;
 

@@ -214,6 +214,8 @@ report 9 "Trial Balance/Budget"
 
     requestpage
     {
+        AboutTitle = 'About Trial Balance/Budget';
+        AboutText = 'View a snapshot of your chart of accounts to check the debit and credit net change and closing balance compared to the budget. Shows the percentage of actual vs. budget.';
 
         layout
         {

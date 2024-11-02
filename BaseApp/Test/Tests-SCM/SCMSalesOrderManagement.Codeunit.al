@@ -22,6 +22,7 @@ codeunit 137050 "SCM Sales Order Management"
         CalendarMgt: Codeunit "Calendar Management";
         IsInitialised: Boolean;
         SuggestAssignmentErr: Label 'Qty. to Invoice must have a value in Sales Line';
+        AgentServiceCodeValidationErr: Label 'Shipping Agent Service Code must be equal to %1', Comment = '%1 = Shipping Agent Service Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -533,6 +534,63 @@ codeunit 137050 "SCM Sales Order Management"
         SalesLine.TestField("Planned Delivery Date", CalcDate(ShippingTime[2], SalesLine."Shipment Date"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedSalesDocumentLinesPageHandler')]
+    procedure UpdateShippingAgentServiceCodeOnSalesReturnOrderWhenGetPostedDocumentLineToReserve()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: array[2] of Record "Shipping Agent Services";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 544543] When Stan creates Sales Return Order Line using action "Get Posted Document Line to Reserve"
+        // and change the "Shipping Agent Service Code" on Sales Return Order Header then "Shipping Agent Service Code"
+        // on header gets changed without an error.
+        Initialize();
+
+        // [GIVEN] Evaluate shipping time.
+        Evaluate(ShippingTime, '<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'D>');
+
+        // [GIVEN] Create an item.
+        CreateItem(Item);
+
+        // [GIVEN] Create a customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create "Shipping Agent Code" and "Shipping Agent Service Code".
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        CreateShippingAgentServices(ShippingAgentServices[1], ShippingAgent.Code, '', ShippingTime);
+        CreateShippingAgentServices(ShippingAgentServices[2], ShippingAgent.Code, '', ShippingTime);
+
+        // [GIVEN] Create and post Sales Order.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create Sales Return Order and validate "Shipping Agent Code" and "Shipping Agent Service Code".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", Customer."No.");
+        SalesHeader.Validate("Shipping Agent Code", ShippingAgentServices[1]."Shipping Agent Code");
+        SalesHeader.Validate("Shipping Agent Service Code", ShippingAgentServices[1].Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Get Posted Document Lines to Reserve on Sales Return Order.
+        GetPostedDocumentLinesToReverseOnSalesReturnOrder(SalesHeader."No.");
+
+        // [GIVEN] Find Sales Line. 
+        FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine.Type::Item, SalesLine."No.");
+
+        // [WHEN] Validate "Shipping Agent Service Code" on Sales Header.
+        SalesHeader.Validate("Shipping Agent Service Code", ShippingAgentServices[2].Code);
+        SalesHeader.Modify(true);
+
+        // [THEN] Verify Shipping Agent Service Code.
+        Assert.AreEqual(ShippingAgentServices[2].Code, SalesHeader."Shipping Agent Service Code", StrSubstNo(AgentServiceCodeValidationErr, ShippingAgentServices[2].Code));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -783,11 +841,36 @@ codeunit 137050 "SCM Sales Order Management"
         SalesLine.TestField("Planned Delivery Date", PlannedDeliveryDate);
     end;
 
+    local procedure GetPostedDocumentLinesToReverseOnSalesReturnOrder(No: Code[20])
+    var
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.Filter.SetFilter("No.", No);
+        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
+    end;
+
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20])
+    begin
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange(Type, Type);
+        SalesLine.SetRange("No.", No);
+        SalesLine.FindFirst();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentSalesPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
         ItemChargeAssignmentSales.GetShipmentLines.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesDocumentLinesPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
+    begin
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Shipment Header", 'OnAfterInsertEvent', '', false, false)]

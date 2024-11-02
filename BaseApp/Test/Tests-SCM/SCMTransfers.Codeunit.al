@@ -391,6 +391,61 @@
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesModalPageHandlerGeneric,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransShpt_LotTracking_AdditionalUoM()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemJournalLine: Record "Item Journal Line";
+        InTransitLocation: Record Location;
+        LocationFromCode: Code[10];
+        LocationToCode: Code[10];
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 548762] [Transfer] [Order] [Undo Shipment] [Item Tracking] [additional UoM]
+        // [SCENARIO] Check that Transfer Shipments with Lot No. Item Tracking and additional UoM can be undone 
+        Initialize();
+
+        // [GIVEN] From/To Locations and InTransit Location
+        CreateLocations(LocationFromCode, LocationToCode);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Create tracked item with additional UoM        
+        LibraryItemTracking.CreateLotItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 10);
+
+        // [GIVEN] Add inventory in additional UoM and with Lot No.
+        QtyToShip := LibraryRandom.RandInt(10);
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationFromCode, '', 2 * QtyToShip);
+        ItemJournalLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ItemJournalLine.Modify();
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] A shipped Transfer Order with one line tracked with Lot No. in additional UoM 
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFromCode, LocationToCode, InTransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", QtyToShip);
+        TransferLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        TransferLine.Modify();
+        LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [WHEN] The posted Transfer Shipment Lines are undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The Transfer Order has been completely unshipped
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader);
+
+        // [THEN] The order can be fully shipped and received with no error
+        ShipAndReceiveTransOrderFully(TransferHeader, true);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesModalPageHandlerGeneric,QuantityToCreatePageHandler,ItemTrackingSummaryPageHandler')]
     [Scope('OnPrem')]
     procedure UndoTransShptLineFindsCorrectTrackingInfo()

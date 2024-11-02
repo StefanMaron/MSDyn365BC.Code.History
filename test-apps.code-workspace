@@ -1,11 +1,11 @@
 {
   "settings": {
+    "al.enableCodeAnalysis": false,
     "al.enableCodeActions": false,
+    "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false
+    }
   },
   "folders": [
     {
@@ -133,6 +133,12 @@
     },
     {
       "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
+    },
+    {
+      "path": "./EDocumentsConnector/Test/E-Documents Connector Tests"
+    },
+    {
+      "path": "./EDocumentConnectors/Avalara/Test/E-Document Connector - Avalara Tests"
     },
     {
       "path": "./BaseApp/Test/Tests-Bank"

@@ -126,11 +126,16 @@ table 7500 "Item Attribute"
         ChangeUsedAttributeUoMQst: Label 'This item attribute has been assigned to at least one item.\\Are you sure you want to change its unit of measure?';
         ChangeToOptionQst: Label 'Predefined values can be defined only for item attributes of type Option.\\Do you want to change the type of this item attribute to Option?';
 
-    procedure GetTranslatedName(LanguageID: Integer): Text[250]
+    procedure GetTranslatedName(LanguageID: Integer) TranslatedName: Text[250]
     var
         Language: Codeunit Language;
         LanguageCode: Code[10];
+        IsHandled: Boolean;
     begin
+        OnBeforeGetTranslatedName(Rec, LanguageID, TranslatedName, IsHandled);
+        if IsHandled then
+            exit(TranslatedName);
+
         LanguageCode := Language.GetLanguageCode(LanguageID);
         if LanguageCode <> '' then begin
             GetAttributeTranslation(LanguageCode);
@@ -152,6 +157,7 @@ table 7500 "Item Attribute"
                 ItemAttributeTranslation."Attribute ID" := ID;
                 ItemAttributeTranslation."Language Code" := LanguageCode;
                 ItemAttributeTranslation.Name := Name;
+                OnGetAttributeTranslationOnAfterCreateNewTranslation(Rec, ItemAttributeTranslation);
             end;
     end;
 
@@ -261,6 +267,16 @@ table 7500 "Item Attribute"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckNameUniqueness(var NewItemAttribute: Record "Item Attribute"; ItemAttribute: Record "Item Attribute")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTranslatedName(var ItemAttribute: Record "Item Attribute"; LanguageID: Integer; var TranslatedName: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAttributeTranslationOnAfterCreateNewTranslation(ItemAttribute: Record "Item Attribute"; var ItemAttributeTranslation: Record "Item Attribute Translation")
     begin
     end;
 }

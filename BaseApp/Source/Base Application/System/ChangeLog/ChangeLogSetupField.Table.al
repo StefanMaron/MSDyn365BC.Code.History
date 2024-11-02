@@ -47,7 +47,7 @@ table 404 "Change Log Setup (Field)"
             var
                 EnabledLbl: Label 'Enabled', Locked = true;
                 DisabledLbl: Label 'Disabled', Locked = true;
-                AuditMessageLbl: Label 'The Field Monitoring has been %1 for the field %2 in the table %3 by UserSecurityId %4.', Locked = true;
+                AuditMessageLbl: Label 'Field Monitoring has been %1 for the field %2 in the table %3 by UserSecurityId %4.', Locked = true;
                 AuditMessageTxt: Text;
             begin
                 if "Monitor Sensitive Field" then

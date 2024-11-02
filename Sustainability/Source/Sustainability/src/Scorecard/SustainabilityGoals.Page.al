@@ -143,7 +143,7 @@ page 6234 "Sustainability Goals"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Baseline for CO2';
-                    ToolTip = 'Specifies the value of the Baseline for CO2 field.';
+                    ToolTip = 'Specifies the value of the Baseline for CO2. This value is automatically calculated based on Baseline Start and End Date and Country/Region Code and Responsibility Center. If the Country/Region Code and Responsibility Center fields are empty, field will show all entries.';
                     DrillDown = true;
 
                     trigger OnDrillDown()
@@ -155,7 +155,7 @@ page 6234 "Sustainability Goals"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Baseline for CH4';
-                    ToolTip = 'Specifies the value of the Baseline for CH4 field.';
+                    ToolTip = 'Specifies the value of the Baseline for CH4. This value is automatically calculated based on Baseline Start and End Date and Country/Region Code and Responsibility Center. If the Country/Region Code and Responsibility Center fields are empty, field will show all entries.';
                     DrillDown = true;
 
                     trigger OnDrillDown()
@@ -167,7 +167,7 @@ page 6234 "Sustainability Goals"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Baseline for N2O';
-                    ToolTip = 'Specifies the value of the Baseline for N2O field.';
+                    ToolTip = 'Specifies the value of the Baseline for N2O. This value is automatically calculated based on Baseline Start and End Date and Country/Region Code and Responsibility Center. If the Country/Region Code and Responsibility Center fields are empty, field will show all entries.';
                     DrillDown = true;
 
                     trigger OnDrillDown()
@@ -179,7 +179,7 @@ page 6234 "Sustainability Goals"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Current Value for CO2';
-                    ToolTip = 'Specifies the value of the Current Value for CO2 field.';
+                    ToolTip = 'Specifies the CO2 emission amount of the for the current period. This value is automatically calculated based on Start and End Date and Country/Region Code and Responsibility Center. If the Country/Region Code and Responsibility Center fields are empty, field will show all entries.';
                     DrillDown = true;
 
                     trigger OnDrillDown()
@@ -191,7 +191,7 @@ page 6234 "Sustainability Goals"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Current Value for CH4';
-                    ToolTip = 'Specifies the value of the Current Value for CH4 field.';
+                    ToolTip = 'Specifies the CH4 emission amount of the for the current period. This value is automatically calculated based on Start and End Date and Country/Region Code and Responsibility Center. If the Country/Region Code and Responsibility Center fields are empty, field will show all entries.';
                     DrillDown = true;
 
                     trigger OnDrillDown()
@@ -203,7 +203,7 @@ page 6234 "Sustainability Goals"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Current Value for N2O';
-                    ToolTip = 'Specifies the value of the Current Value for N2O field.';
+                    ToolTip = 'Specifies the N2O emission amount of the for the current period. This value is automatically calculated based on Start and End Date and Country/Region Code and Responsibility Center. If the Country/Region Code and Responsibility Center fields are empty, field will show all entries.';
                     DrillDown = true;
 
                     trigger OnDrillDown()
@@ -263,7 +263,7 @@ page 6234 "Sustainability Goals"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Main Goal';
-                    ToolTip = 'Specifies the value of the Main Goal field.';
+                    ToolTip = 'Specifies that this sustainability goal is the main goal for the company. You can designate only one goal as the primary goal for the entire company. KPIs related to this primary goal are displayed in the Sustainability Manager role center.';
 
                     trigger OnValidate()
                     begin
