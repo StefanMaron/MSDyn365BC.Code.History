@@ -83,6 +83,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         CheckPurchRcptLines(PurchRcptLine, Window);
 
         PurchRcptLine.Find('-');
+        OnCodeOnBeforeLoopPurchRcptLine(PurchRcptLine);
         repeat
             TempGlobalItemLedgEntry.Reset();
             if not TempGlobalItemLedgEntry.IsEmpty() then
@@ -671,6 +672,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckPurchRcptLineOnBeforeCollectItemLedgEntries(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeLoopPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
     end;
 }

@@ -507,7 +507,7 @@ page 118 "General Ledger Setup"
                 Caption = 'Local Functionalities';
                 group("AU Local Functionality")
                 {
-                    Caption = 'AU Local Functionality';
+                    Caption = 'NZ Local Functionality';
                     field("BAS to be Lodged as a Group"; Rec."BAS to be Lodged as a Group")
                     {
                         ApplicationArea = Basic, Suite;
@@ -529,7 +529,8 @@ page 118 "General Ledger Setup"
                     {
                         ApplicationArea = Basic, Suite;
                         Enabled = false;
-                        ToolTip = 'Specifies if certain Australian VAT features are activated.';
+                        ToolTip = 'Specifies if certain New Zealand VAT features are activated.';
+                        Caption = 'Enable GST (New Zealand)';
 
                         trigger OnValidate()
                         begin

@@ -644,6 +644,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Locations - NamedType DimPostErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2590755680 - NamedType 2031018407" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Project Task Dimension must be updated as per Default Dimension.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Locations - NamedType ProjectTaskDimensionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3052970996 - NamedType 3034474268" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong dimension value code.]]></Val>

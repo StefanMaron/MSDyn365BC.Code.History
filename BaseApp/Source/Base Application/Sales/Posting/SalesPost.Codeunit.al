@@ -5048,6 +5048,8 @@ codeunit 80 "Sales-Post"
                 ItemEntryRelation.Insert();
                 OnInsertShptEntryRelationOnAfterItemEntryRelationInsert(SalesShptLine, ItemEntryRelation, xSalesLine);
             until TempHandlingSpecification.Next() = 0;
+
+            OnInsertShptEntryRelationOnBeforeDeleteTempHandlingSpecification(TempHandlingSpecification);
             TempHandlingSpecification.DeleteAll();
             exit(0);
         end;
@@ -13283,6 +13285,11 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnSumSalesLinesTempOnAfterVatAmountSet(var VATAmount: Decimal; var TotalSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertShptEntryRelationOnBeforeDeleteTempHandlingSpecification(var TempHandlingTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 }

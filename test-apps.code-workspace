@@ -121,6 +121,12 @@
       "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
     },
     {
+      "path": "./EDocumentsConnector/Test/E-Documents Connector Tests"
+    },
+    {
+      "path": "./EDocumentConnectors/Avalara/Test/E-Document Connector - Avalara Tests"
+    },
+    {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
     },
     {
@@ -296,8 +302,8 @@
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeActions": false,
+    "allint.enabled": false,
     "al.enableCodeAnalysis": false,
-    "allint.enabled": false
+    "al.enableCodeActions": false
   }
 }

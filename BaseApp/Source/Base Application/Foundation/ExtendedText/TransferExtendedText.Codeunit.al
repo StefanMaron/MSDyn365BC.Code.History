@@ -895,7 +895,7 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeToPurchLineInsert(var ToPurchLine: Record "Purchase Line"; PurchLine: Record "Purchase Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeToPurchLineInsert(var ToPurchLine: Record "Purchase Line"; var PurchLine: Record "Purchase Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -1143,7 +1143,7 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertJobExtTextRetLastOnBeforeToJobPlanningLineInsert(var ToJobPlanningLine: Record "Job Planning Line"; JobPlanningLine: Record "Job Planning Line"; TempExtendedTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)
+    local procedure OnInsertJobExtTextRetLastOnBeforeToJobPlanningLineInsert(var ToJobPlanningLine: Record "Job Planning Line"; var JobPlanningLine: Record "Job Planning Line"; TempExtendedTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -28,6 +28,7 @@
         LibraryMarketing: Codeunit "Library - Marketing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryJournals: Codeunit "Library - Journals";
         isInitialized: Boolean;
         ColumnTotalLbl: Label 'Total';
         SuccessfullyReversedMessageMsg: Label 'The entries were successfully reversed.';
@@ -3199,6 +3200,60 @@
         VerifyVATClauseShouldBePrintOnlyOnce(VATClause);
     end;
 
+    [Test]
+    [HandlerFunctions('CustBalanceToDateRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerBalanceToDateShowsCorrectInvoicesWhenInvoicehasUnappliedAndReapplied()
+    var
+        Customer: Record Customer;
+        InvoiceAmount: array[3] of Decimal;
+        InvoiceNo: array[3] of Code[20];
+        PaymentDocumentNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 543032] When Stan Unapply and Apply again Invoice and Payment Customer Ledger Entries 
+        // On same Posting Date then Invoice Customer Ledger Entry exists in Customer - Balance to Date report.
+        Initialize();
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Generate and save Invoice Amount [1] in a Variable.
+        InvoiceAmount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Create and Post Sales Invoice.
+        InvoiceNo[1] := CreateAndPostInvoice(WorkDate(), Customer."No.", InvoiceAmount[1]);
+
+        // [GIVEN] Generate and save Invoice Amount [2] in a Variable.
+        InvoiceAmount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Create and Post Sales Invoice.
+        InvoiceNo[2] := CreateAndPostInvoice(WorkDate() + 10, Customer."No.", InvoiceAmount[2]);
+
+        // [GIVEN] Generate and save Invoice Amount [3] in a Variable.
+        InvoiceAmount[3] := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Create and Post Sales Invoice.
+        InvoiceNo[3] := CreateAndPostInvoice(WorkDate() + 35, Customer."No.", InvoiceAmount[3]);
+
+        // [GIVEN] Create Payment, Apply and Post.
+        PaymentDocumentNo[1] := CreatePaymentApplyAndPost(WorkDate() + 30, Customer."No.", InvoiceAmount[1], InvoiceNo[1]);
+
+        // [GIVEN] Create another Payment, Apply and Post.
+        PaymentDocumentNo[2] := CreatePaymentApplyAndPost(WorkDate() + 40, Customer."No.", InvoiceAmount[2], InvoiceNo[2]);
+
+        // [GIVEN] Unapply Customer ledger Entry.
+        UnapplyCustLedgerEntry("Gen. Journal Document Type"::Payment, PaymentDocumentNo[2]);
+
+        // [GIVEN] Apply and Post Customer Ledger Entry.
+        ApplyAndPostCustomerEntry(InvoiceNo[2], PaymentDocumentNo[2], InvoiceAmount[2], "Gen. Journal Document Type"::Invoice, "Gen. Journal Document Type"::Payment);
+
+        // [WHEN] Run Customer Balance To Date with Customer.
+        RunCustomerBalanceToDateWithCustomer(Customer."No.", false, WorkDate() + 20);
+
+        // [THEN] Two entries exist in Customer Balance To Date report.
+        VerifyCustomerBalanceToDateTwoEntriesExist(Customer."No.", InvoiceAmount[1], InvoiceAmount[1], InvoiceAmount[1] + InvoiceAmount[2]);
+    end;
+
     local procedure Initialize()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -4834,6 +4889,102 @@
         VATBaseAmount := ElementValue
     end;
 
+    local procedure CreateGenJnlLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocType, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Bal. Account Type", BalAccountType);
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostInvoice(PostingDate: Date; CustomerNo: Code[20]; InvoiceAmount: Decimal) InvoiceNo: Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::Customer,
+            CustomerNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo(),
+            InvoiceAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
+
+        InvoiceNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreatePaymentApplyAndPost(PostingDate: Date; CustomerNo: Code[20]; InvoiceAmount: Decimal; InvoiceNo: Code[20]) DocumentNo: Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer,
+            CustomerNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo(),
+            -InvoiceAmount);
+
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Applies-to Doc. Type", "Gen. Journal Document Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
+        GenJournalLine.Modify();
+        DocumentNo := GenJournalLine."Document No.";
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, DocumentType2, DocumentNo2);
+        CustLedgerEntry2.FindSet();
+        repeat
+            CustLedgerEntry2.CalcFields("Remaining Amount");
+            CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
+            CustLedgerEntry2.Modify(true);
+        until CustLedgerEntry2.Next() = 0;
+
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
+        Commit();
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
+    end;
+
+    local procedure RunCustomerBalanceToDateWithCustomer(CustomerNo: Code[20]; Unapplied: Boolean; ReportDate: Date)
+    var
+        Customer: Record Customer;
+        CustomerBalanceToDate: Report "Customer - Balance to Date";
+    begin
+        Commit();
+        Clear(CustomerBalanceToDate);
+        Customer.SetRange("No.", CustomerNo);
+        CustomerBalanceToDate.SetTableView(Customer);
+        CustomerBalanceToDate.InitializeRequest(false, false, Unapplied, ReportDate);
+        CustomerBalanceToDate.Run();
+    end;
+
+    local procedure VerifyCustomerBalanceToDateTwoEntriesExist(CustomerNo: Code[20]; PmtAmount: Decimal; Amount: Decimal; TotalAmount: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('No_Customer', CustomerNo);
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(PmtAmount));
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(Amount));
+        LibraryReportDataset.AssertElementWithValueExists('TtlAmtCurrencyTtlBuff', TotalAmount);
+        LibraryReportDataset.AssertElementWithValueNotExist('postDt_DtldCustLedgEntry', Format(WorkDate() + 1));
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
@@ -4986,6 +5137,14 @@
     begin
         LibraryVariableStorage.Dequeue(LogInteraction);
         StandardSalesShipment.LogInteractionControl.SetValue(LogInteraction);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CustBalanceToDateRequestPageHandler(var CustomerBalanceToDate: TestRequestPage "Customer - Balance to Date")
+    begin
+        CustomerBalanceToDate.ShowEntriesWithZeroBalance.SetValue(true);
+        CustomerBalanceToDate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

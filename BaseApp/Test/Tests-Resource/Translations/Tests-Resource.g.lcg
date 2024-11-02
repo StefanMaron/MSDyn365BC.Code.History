@@ -104,6 +104,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Employee Payment - NamedType AmountErrorMessageMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3654155218 - NamedType 3905048205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. must not increase when New Doc. No. Per Line is not enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Employee Payment - NamedType DocumentNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3654155218 - NamedType 256742881" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No of payment is incorrect.]]></Val>

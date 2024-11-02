@@ -335,16 +335,17 @@ codeunit 8800 "Custom Layout Reporting"
                     // Run the report only for those objects that have this layout
                     GetLayoutIteratorKeyFilter(TempRecordRef, TempRecordKeyFieldRef, CustomReportLayoutCode); // set view based on intersection of lists
 
-                    // Run the report on the data record, using the above filter
-                    RunReportWithCustomReportSelection(TempRecordRef, ReportSelections."Report ID", CustomReportSelection, PrintIfEmailIsMissing);
+                    if TempRecordRef.FindFirst() then begin
+                        // Run the report on the data record, using the above filter
+                        RunReportWithCustomReportSelection(TempRecordRef, ReportSelections."Report ID", CustomReportSelection, PrintIfEmailIsMissing);
 
-                    // Save this list of objects reported on, using the 'iterator field', they will not get the default report layout later
-                    if TempRecordRef.FindFirst() then
+                        // Save this list of objects reported on, using the 'iterator field', they will not get the default report layout later
                         repeat
                             ReportedRecordKeyVal := Format(TempRecordKeyFieldRef.Value);
                             if not ReportedObjects.Contains(ReportedRecordKeyVal) then
                                 ReportedObjects.Add(ReportedRecordKeyVal);
                         until TempRecordRef.Next() = 0;
+                    end;
                 end;
             until CustomReportSelection.Next() = 0;
 
@@ -1493,7 +1494,7 @@ codeunit 8800 "Custom Layout Reporting"
         exit(XMLTxt);
     end;
 
-    procedure SaveReportRequestPageParameters(ReportID: Integer; XMLText: Text)
+    procedure SaveReportRequestPageParameters(ReportID: Integer; XMLText: Text; OptionDataEncoding: TextEncoding)
     var
         ObjectOptions: Record "Object Options";
         OutStr: OutStream;
@@ -1516,9 +1517,14 @@ codeunit 8800 "Custom Layout Reporting"
         ObjectOptions."User Name" := UserId();
         ObjectOptions."Company Name" := CompanyName;
         ObjectOptions."Created By" := UserId();
-        ObjectOptions."Option Data".CreateOutStream(OutStr);
+        ObjectOptions."Option Data".CreateOutStream(OutStr, OptionDataEncoding);
         OutStr.WriteText(XMLText);
         ObjectOptions.Insert();
+    end;
+
+    procedure SaveReportRequestPageParameters(ReportID: Integer; XMLText: Text)
+    begin
+        SaveReportRequestPageParameters(ReportID, XMLText, TextEncoding::MSDos);
     end;
 
     procedure CheckForCustomLayoutReportingJob()

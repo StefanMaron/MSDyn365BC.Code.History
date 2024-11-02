@@ -114,7 +114,7 @@ table 213 "Alt. Cust. VAT Reg."
     var
         AltCustVATRegFacade: Codeunit "Alt. Cust. VAT. Reg. Facade";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        FeatureNameTxt: Label 'Alternative Customer VAT Registration';
+        FeatureNameTxt: Label 'Alternative Customer VAT Registration', Locked = true;
 
     trigger OnInsert()
     begin

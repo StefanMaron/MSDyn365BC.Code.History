@@ -370,6 +370,21 @@ codeunit 30176 "Shpfy Product API"
         until not JsonHelper.GetValueAsBoolean(JResponse, 'data.products.pageInfo.hasNextPage');
     end;
 
+    internal procedure CheckShopifyProductImageExists(ProductId: BigInteger; ImageId: BigInteger): Boolean
+    var
+        Parameters: Dictionary of [Text, Text];
+        GraphQLType: Enum "Shpfy GraphQL Type";
+        JMedias: JsonArray;
+        JResponse: JsonToken;
+    begin
+        Parameters.Add('ProductId', Format(ProductId));
+        Parameters.add('ImageId', Format(ImageId));
+        JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType::GetProductImage, Parameters);
+        if JsonHelper.GetJsonArray(JResponse, JMedias, 'data.product.media.edges') then
+            if JMedias.Count = 1 then
+                exit(true);
+    end;
+
     /// <summary> 
     ///  Set Shop.
     /// </summary>

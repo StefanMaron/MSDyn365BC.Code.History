@@ -30,7 +30,7 @@ codeunit 1304 "Sales-Quote to Invoice Yes/No"
             if OfficeManagement.AttachAvailable() then
                 ShowInvoice(InvoiceSalesHeader)
             else
-                if Confirm(StrSubstNo(OpenNewInvoiceQst, InvoiceSalesHeader."No."), true) then
+                if ConfirmOpenNewInvoice(Rec, InvoiceSalesHeader) then
                     ShowInvoice(InvoiceSalesHeader);
     end;
 
@@ -50,8 +50,25 @@ codeunit 1304 "Sales-Quote to Invoice Yes/No"
         PAGE.Run(PAGE::"Sales Invoice", InvoiceSalesHeader);
     end;
 
+    local procedure ConfirmOpenNewInvoice(var SalesHeader: Record "Sales Header"; var InvoiceSalesHeader: Record "Sales Header") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmOpenNewInvoice(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(Confirm(StrSubstNo(OpenNewInvoiceQst, InvoiceSalesHeader."No."), true));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowInvoice(var InvoiceSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmOpenNewInvoice(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

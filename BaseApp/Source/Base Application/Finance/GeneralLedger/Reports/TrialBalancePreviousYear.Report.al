@@ -224,6 +224,9 @@ report 7 "Trial Balance/Previous Year"
     requestpage
     {
 
+        AboutTitle = 'About Trial Balance/Previous Year';
+        AboutText = 'View a snapshot of your chart of accounts to check the debit and credit net change and closing balance compared to the same period last year. Shows the percentage of actual vs. last year.';
+
         layout
         {
             area(content)

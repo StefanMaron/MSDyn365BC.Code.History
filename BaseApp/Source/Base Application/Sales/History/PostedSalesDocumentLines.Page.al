@@ -171,6 +171,8 @@ page 5850 "Posted Sales Document Lines"
     trigger OnOpenPage()
     begin
         CurrentMenuType := 1;
+        OnOpenPageOnAfterSetCurrentMenuType(Rec, CurrentMenuType);
+
         ChangeSubMenu(CurrentMenuType);
         Rec.SetRange("No.", Rec."No.");
     end;
@@ -379,6 +381,11 @@ page 5850 "Posted Sales Document Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyLineToDocOnBeforeMessage(ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnAfterSetCurrentMenuType(var Customer: Record Customer; var CurrentMenuType: Integer)
     begin
     end;
 }

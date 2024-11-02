@@ -203,10 +203,16 @@ codeunit 22 "Item Jnl.-Post Line"
     /// <param name="ItemJnlLine2">Item journal line to post.</param>
     /// <param name="ReservationEntry">Return value: Get the set of reservation entries used in posting.</param>
     /// <returns>True if item journal line was posted, otherwise false.</returns>
-    procedure RunPostWithReservation(var ItemJnlLine2: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry"): Boolean
+    procedure RunPostWithReservation(var ItemJnlLine2: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry") ItemJournalLinePosted: Boolean
     var
         TrackingSpecExists: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunPostWithReservation(ItemJnlLine2, ReservationEntry, ItemJournalLinePosted, IsHandled);
+        if IsHandled then
+            exit(ItemJournalLinePosted);
+
         PrepareItem(ItemJnlLine2);
 
         ReservationEntry.Reset();
@@ -1807,7 +1813,13 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry: Record "Value Entry";
         InventoryPeriod: Record "Inventory Period";
         CostApplication: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReApply(ItemLedgEntry, ApplyWith, IsHandled);
+        if IsHandled then
+            exit;
+
         GetItem(ItemLedgEntry."Item No.", true);
 
         if not InventoryPeriod.IsValidDate(ItemLedgEntry."Posting Date") then
@@ -4499,8 +4511,15 @@ codeunit 22 "Item Jnl.-Post Line"
     /// <param name="TargetValueEntryRelation">Return value: Copied value entry relations lines.</param>
     /// <param name="RowId">Unique identifier text of a line that will be used in source rowId field.</param>
     /// <returns>True if any value entry relations were transferred, otherwise false.</returns>
-    procedure CollectValueEntryRelation(var TargetValueEntryRelation: Record "Value Entry Relation" temporary; RowId: Text[250]): Boolean
+    procedure CollectValueEntryRelation(var TargetValueEntryRelation: Record "Value Entry Relation" temporary; RowId: Text[250]) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCollectValueEntryRelation(TempValueEntryRelation, TargetValueEntryRelation, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TempValueEntryRelation.Reset();
         TargetValueEntryRelation.Reset();
 
@@ -4527,8 +4546,15 @@ codeunit 22 "Item Jnl.-Post Line"
     /// </remakrs>
     /// <param name="TargetItemEntryRelation">Return value: Copied item entry relation lines.</param>
     /// <returns>True if any item entry relation lines were transferred, otherwise false.</returns>
-    procedure CollectItemEntryRelation(var TargetItemEntryRelation: Record "Item Entry Relation" temporary): Boolean
+    procedure CollectItemEntryRelation(var TargetItemEntryRelation: Record "Item Entry Relation" temporary) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCollectItemEntryRelation(TempItemEntryRelation, TargetItemEntryRelation, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TempItemEntryRelation.Reset();
         TargetItemEntryRelation.Reset();
 
@@ -4823,7 +4849,13 @@ codeunit 22 "Item Jnl.-Post Line"
         NewItemLedgEntry: Record "Item Ledger Entry";
         OldValueEntry: Record "Value Entry";
         NewValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUndoValuePostingWithJob(OldItemLedgEntryNo, NewItemLedgEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         OldItemLedgEntry.Get(OldItemLedgEntryNo);
         NewItemLedgEntry.Get(NewItemLedgEntryNo);
         InitValueEntryNo();
@@ -5346,6 +5378,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 InventoryAdjmtEntryOrder."Order Type"::Assembly:
                     begin
                         if OrderLineNo = 0 then begin
+                            AssemblyHeader.SetLoadFields("Item No.");
                             AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, OrderNo);
                             InventoryAdjmtEntryOrder.SetAsmOrder(AssemblyHeader);
                         end;
@@ -5980,8 +6013,9 @@ codeunit 22 "Item Jnl.-Post Line"
         if IsHandled then
             exit(Result);
 
-        if ItemJnlLine."Invoice-to Source No." <> '' then
-            exit(ItemJnlLine."Invoice-to Source No.");
+        if ItemJnlLine."Job No." = '' then
+            if ItemJnlLine."Invoice-to Source No." <> '' then
+                exit(ItemJnlLine."Invoice-to Source No.");
         exit(ItemJnlLine."Source No.");
     end;
 
@@ -8257,6 +8291,31 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOutputForProdOrderOnAfterApplyCapNeed(var ItemJnlLine: Record "Item Journal Line"; var ValuedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReApply(ItemLedgerEntry: Record "Item Ledger Entry"; ApplyWith: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPostWithReservation(var ItemJournalLine: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry"; var ItemJournalLinePosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCollectItemEntryRelation(var TempItemEntryRelation: Record "Item Entry Relation" temporary; var TargetItemEntryRelation: Record "Item Entry Relation" temporary; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCollectValueEntryRelation(var TempValueEntryRelation: Record "Value Entry Relation" temporary; var TargetValueEntryRelation: Record "Value Entry Relation" temporary; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUndoValuePostingWithJob(OldItemLedgEntryNo: Integer; NewItemLedgEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }
