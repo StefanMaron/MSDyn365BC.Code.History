@@ -5461,7 +5461,7 @@ table 37 "Sales Line"
         if CurrFieldNo = FieldNo("Requested Delivery Date") then
             exit("Requested Delivery Date");
 
-        if "Shipment Date" = 0D then
+        if ("Shipment Date" = 0D) and (CurrFieldNo <> FieldNo("Planned Delivery Date")) then
             exit("Planned Delivery Date");
 
         CustomCalendarChange[1].SetSource(CalChange."Source Type"::"Shipping Agent", "Shipping Agent Code", "Shipping Agent Service Code", '');
@@ -6223,7 +6223,7 @@ table 37 "Sales Line"
         CurrencyFactor: Decimal;
     begin
         GetGLSetup();
-        CurrencyFactor := GetCurrencyFactorACY(AddCurrency);
+        CurrencyFactor := GetCurrencyFactorACY(AddCurrency, SalesHeader);
 
         if IsUpdateVATOnLinesHandled(SalesHeader, SalesLine, VATAmountLine, QtyType, LineWasModified) then
             exit(LineWasModified);
@@ -8477,7 +8477,7 @@ table 37 "Sales Line"
 
     local procedure CheckWMS()
     begin
-        if CurrFieldNo <> 0 then
+        if (CurrFieldNo <> 0) or (SalesHeader."VAT Bus. Posting Group" <> Rec."VAT Bus. Posting Group") then
             CheckLocationOnWMS();
     end;
 
@@ -9446,6 +9446,22 @@ table 37 "Sales Line"
             CurrExchRate.ExchangeRate(
             GetDate(), GLSetup."Additional Reporting Currency"));
     end;
+    local procedure GetCurrencyFactorACY(var AddCurrency: Record Currency; CurrSalesHeader: Record "Sales Header"): Decimal
+    begin
+        GetGLSetup();
+        if GLSetup."Additional Reporting Currency" = '' then
+            exit;
+
+        if Rec."Document No." = '' then begin
+            Rec."Document Type" := CurrSalesHeader."Document Type";
+            Rec."Document No." := CurrSalesHeader."No.";
+        end;
+        AddCurrency.Get(GLSetup."Additional Reporting Currency");
+        exit(
+            CurrExchRate.ExchangeRate(
+            GetDate(), GLSetup."Additional Reporting Currency"));
+    end;
+
     procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
         OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);

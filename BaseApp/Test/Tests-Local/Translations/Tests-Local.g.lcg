@@ -140,13 +140,22 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit ERM - Miscellaneous APAC - NamedType ValueMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1576777842 - Method 1650518175 - NamedType 3172109490" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1576777842 - Method 1847894728 - NamedType 3172109490" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT Amount (ACY) is not updated]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM - Miscellaneous APAC - Method SalesStatisticsHandler - NamedType VATAmountACYNotUpdatedLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM - Miscellaneous APAC - Method ChangeVATAmtCheckSameVATAmtACYSalesStatisticsHandler - NamedType VATAmountACYNotUpdatedLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1576777842 - Method 835881010 - NamedType 3172109490" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Amount (ACY) is not updated]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM - Miscellaneous APAC - Method ChangeVATAmtCheckVATAmtACYSalesStatisticsHandler - NamedType VATAmountACYNotUpdatedLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2676392714 - NamedType 2278453161" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
