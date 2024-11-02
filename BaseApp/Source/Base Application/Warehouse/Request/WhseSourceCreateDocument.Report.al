@@ -1375,6 +1375,8 @@ report 7305 "Whse.-Source - Create Document"
                 exit(ProdOrderHeader."Location Code");
             WhseDoc::Assembly:
                 exit(AssemblyHeader."Location Code");
+            WhseDoc::Job:
+                exit(JobHeader."Location Code");
         end;
     end;
 

@@ -719,6 +719,7 @@ table 5970 "Filed Service Contract Header"
             repeat
                 FiledContractLine.Init();
                 FiledContractLine."Entry No." := FiledServiceContractHeader."Entry No.";
+                OnFileContractOnBeforeFiledContractLineTransferFields(ServiceContractLine);
                 FiledContractLine.TransferFields(ServiceContractLine);
                 RecordLinkManagement.CopyLinks(ServiceContractLine, FiledContractLine);
                 FiledContractLine.Insert();
@@ -834,6 +835,11 @@ table 5970 "Filed Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnFileContractOnBeforeFiledServContractHeaderInsert(var ServiceContractHeader: Record "Service Contract Header"; var FiledServiceContractHeader: Record "Filed Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFileContractOnBeforeFiledContractLineTransferFields(var ServiceContractLine: Record "Service Contract Line")
     begin
     end;
 }

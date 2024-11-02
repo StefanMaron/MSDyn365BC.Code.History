@@ -132,7 +132,7 @@ table 1513 "Notification Schedule"
     end;
 
     var
-        NotifyNowDescriptionTxt: Label 'Instant Notification Job';
+        NotifyNowDescriptionTxt: Label 'Instant Notification Job', MaxLength = 30;
         NoPermissionsErr: Label 'You are not allowed to send notifications, but your system administrator can give you permission to do so. Specifically, ask for the %1 for the %2 table.', Comment = '%1 Permission Type; %2 Table Name';
         NotifyNowLbl: Label 'NOTIFYNOW', Locked = true;
         WritePermissionTok: Label 'Insert, Modify, and Delete permissions';
@@ -374,7 +374,7 @@ table 1513 "Notification Schedule"
         if AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk() then // can't use JQ
             SendNotificationInForeground()
         else begin
-            JobQueueCategory.InsertRec(NotifyNowLbl, NotifyNowDescriptionTxt);
+            JobQueueCategory.InsertRec(NotifyNowLbl, CopyStr(NotifyNowDescriptionTxt, 1, 30));
             JobQueueEntry.ScheduleJobQueueEntryForLater(
               CODEUNIT::"Notification Entry Dispatcher", OneMinuteFromNow(), NotifyNowLbl, '');
         end;

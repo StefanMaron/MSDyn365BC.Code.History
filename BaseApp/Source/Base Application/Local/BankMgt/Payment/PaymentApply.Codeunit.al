@@ -28,6 +28,7 @@ codeunit 10861 "Payment-Apply"
     var
         PaymentHeader: Record "Payment Header";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
+        IsHandled: Boolean;
     begin
         PaymentHeader.Get(PaymentLine."No.");
 
@@ -60,10 +61,14 @@ codeunit 10861 "Payment-Apply"
                         if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
                             exit;
                 end;
-            else
-                Error(
-                    Text005,
-                    GenJnlLine.FieldCaption("Account Type"), GenJnlLine.FieldCaption("Bal. Account Type"));
+            else begin
+                IsHandled := false;
+                OnApplyOnElseCase(PaymentLine, GenJnlLine, IsHandled);
+                if not IsHandled then
+                    Error(
+                        Text005,
+                        GenJnlLine.FieldCaption("Account Type"), GenJnlLine.FieldCaption("Bal. Account Type"));
+            end;
         end;
 
         PaymentLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type";
@@ -424,6 +429,11 @@ codeunit 10861 "Payment-Apply"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteApplyOnBeforeVendLedgEntryModifyAll(PaymentLine: Record "Payment Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyOnElseCase(var PaymentLine: Record "Payment Line"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -2389,6 +2389,68 @@ codeunit 137065 "SCM Reservation II"
         Assert.RecordIsEmpty(ReservationEntry);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoInconsistencyErrorWhenPostPartialPickforProductionOrder()
+    var
+        Item: Record Item;
+        CompItem: array[2] of Record Item;
+        ProductionOrder: Record "Production Order";
+        RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ComponentsAtLocation: Code[10];
+        PurchaseQuantity: Integer;
+        Quantity: Integer;
+    begin
+        // [SCENARIO 542272] Stan Post the Warehouse Pick partial and than complete the warehouse pick without any failure
+        Initialize();
+
+        // [GIVEN] Set Location to WHITE
+        ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
+
+        // [GIVEN] Set quantity and PurchaseQuantity
+        PurchaseQuantity := LibraryRandom.RandInt(100);
+        Quantity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create component items and produce item
+        CreateItemSetupWithSameLotTracking(Item, CompItem);
+
+        // [GIVEN] Update Inventory and assign tracking in whse item journal
+        UpdateInventoryAndAssignTrackingInWhseItemJournal(LocationWhite, CompItem[1], CompItem[2], PurchaseQuantity);
+
+        // [GIVEN] Create and refresh Production Order
+        CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", Quantity, LocationWhite.Code, LocationWhite."To-Production Bin Code");
+
+        // [GIVEN] Create Warehouse pick
+        CreateWarehousePickfromProductionOrderSetup(CompItem, ProductionOrder, Quantity / 2);
+
+        // [GIVEN] Register the Warehouse pick with partial quantity
+        RegisterWarehouseActivity(
+          ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Consumption", WarehouseActivityLine."Action Type"::Take);
+
+        // [GIVEN] Delete the Warehouse Pick
+        DeleteOldWareHousePickandCreateNew(ProductionOrder);
+
+        // [GIVEN] Again create the Warehouse Pick
+        CreateWarehousePickfromProductionOrderSetup(CompItem, ProductionOrder, Quantity / 2);
+
+        // [WHEN] Register the Warehouse Pick with rest of the quantity
+        RegisterWarehouseActivity(
+          ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Consumption", WarehouseActivityLine."Action Type"::Take);
+
+        // [THEN] Verify the Registered Whse Activity Lines created with correct details
+        VerifyRegisteredWhseActivityLines(
+          RegisteredWhseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.", CompItem[1]."No.", Quantity / 2,
+          RegisteredWhseActivityLine."Action Type"::Take);
+        VerifyRegisteredWhseActivityLines(
+          RegisteredWhseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.", CompItem[1]."No.", Quantity / 2,
+          RegisteredWhseActivityLine."Action Type"::Place);
+
+        // Tear Down.
+        UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -3879,6 +3941,75 @@ codeunit 137065 "SCM Reservation II"
     local procedure AreSameMessages(Message: Text[1024]; Message2: Text[1024]): Boolean
     begin
         exit(StrPos(Message, Message2) > 0);
+    end;
+
+    local procedure CreateItemSetupWithSameLotTracking(var MainItem: Record Item; var CompItem: array[2] of Record Item)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemTrackingCode: Code[10];
+    begin
+        ItemTrackingCode := CreateItemTrackingCode();
+        LibraryInventory.CreateItem(MainItem);
+        CreateItemWithItemTrackingCode(CompItem[1], ItemTrackingCode);
+        CreateItemWithItemTrackingCode(CompItem[2], ItemTrackingCode);
+
+        CreateCertifiedProductionBOMwithComponentItem(ProductionBOMHeader, MainItem, CompItem);
+        UpdateProductionBOMNoOnItem(MainItem, ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateCertifiedProductionBOMWithComponentItem(
+        var ProductionBOMHeader: Record "Production BOM Header";
+        MainItem: Record Item;
+        CompItem: array[2] of Record Item)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, MainItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[1]."No.", LibraryRandom.RandInt(1));
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[1]."No.", LibraryRandom.RandInt(2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure CreateWarehousePickfromProductionOrderSetup(var CompItem: array[2] of Record Item; var ProductionOrder: Record "Production Order"; Quantity: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+
+        UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
+          CompItem[1]."No.", ProductionOrder."No.", WarehouseActivityLine."Action Type"::Place, Quantity);
+        UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
+          CompItem[1]."No.", ProductionOrder."No.", WarehouseActivityLine."Action Type"::Take, Quantity);
+        UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
+          CompItem[2]."No.", ProductionOrder."No.", WarehouseActivityLine."Action Type"::Place, Quantity);
+        UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
+          CompItem[2]."No.", ProductionOrder."No.", WarehouseActivityLine."Action Type"::Take, Quantity);
+    end;
+
+    local procedure DeleteOldWareHousePickandCreateNew(ProductionOrder: Record "Production Order")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        SourceDocument: Enum "Warehouse Activity Source Document";
+        ActionType: Enum "Warehouse Action Type";
+    begin
+        FindWarehouseActivityHeader(WarehouseActivityHeader, ProductionOrder."No.", SourceDocument::"Prod. Consumption", ActionType::Place);
+        WarehouseActivityHeader.Delete(true);
+    end;
+
+    local procedure VerifyRegisteredWhseActivityLines(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; ActionType: Enum "Warehouse Action Type")
+    var
+        RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
+    begin
+        RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
+        RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
+        RegisteredWhseActivityLine.SetRange("Action Type", ActionType);
+        RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
+        RegisteredWhseActivityLine.FindSet();
+        repeat
+            RegisteredWhseActivityLine.TestField("Lot No.");
+            RegisteredWhseActivityLine.TestField(Quantity, Quantity);
+        until RegisteredWhseActivityLine.Next() = 0;
     end;
 
     [PageHandler]

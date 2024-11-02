@@ -71,6 +71,7 @@ codeunit 5605 "Calculate Disposal"
         Clear(EntryAmounts);
         FADeprBook.Get(FANo, DeprBookCode);
         FADeprBook.CalcFields("Gain/Loss");
+        OnCalcSecondGainLossAfterCalcFieldGainLoss(FADeprBook);
         NewGainLoss := LastDisposalPrice + FADeprBook."Gain/Loss";
         if IdenticalSign(NewGainLoss, FADeprBook."Gain/Loss") then begin
             if FADeprBook."Gain/Loss" <= 0 then
@@ -93,10 +94,16 @@ codeunit 5605 "Calculate Disposal"
         FADeprBook: Record "FA Depreciation Book";
         BookValueAmounts: array[4] of Decimal;
         i: Integer;
+        IsHandled: Boolean;
     begin
         Clear(EntryAmounts);
         FADeprBook.Get(FANo, DeprBookCode);
         DepreciationCalc.CalcEntryAmounts(FANo, DeprBookCode, 0D, 0D, BookValueAmounts);
+        IsHandled := false;
+        OnCalcReverseAmountsBeforeSetEntryAmounts(FANo, DeprBookCode, EntryAmounts, BookValueAmounts, IsHandled);
+        if IsHandled then
+            exit;
+
         for i := 1 to 4 do begin
             FAPostingTypeSetup.Get(DeprBookCode, i - 1);
             if FAPostingTypeSetup."Part of Book Value" and
@@ -301,6 +308,16 @@ codeunit 5605 "Calculate Disposal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDisposalMethod(var DisposalMethod: Option " ",Net,Gross)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcSecondGainLossAfterCalcFieldGainLoss(var FADeprBook: Record "FA Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcReverseAmountsBeforeSetEntryAmounts(FANo: Code[20]; DeprBookCode: Code[10]; var EntryAmounts: array[4] of Decimal; BookValueAmounts: array[4] of Decimal; var IsHandled: Boolean)
     begin
     end;
 

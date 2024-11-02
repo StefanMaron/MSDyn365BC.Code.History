@@ -264,7 +264,7 @@ page 99000822 "Order Tracking"
         SuppliedByIndent: Integer;
 
 #if not CLEAN25
-    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    [Obsolete('Replaced by SetVariantRec()', '25.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record Microsoft.Sales.Document."Sales Line")
     begin
         OrderTrackingMgt.SetSalesLine(CurrentSalesLine);
@@ -291,7 +291,7 @@ page 99000822 "Order Tracking"
     end;
 
 #if not CLEAN25
-    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    [Obsolete('Replaced by SetVariantRec()', '25.0')]
     procedure SetPurchLine(var CurrentPurchLine: Record Microsoft.Purchases.Document."Purchase Line")
     begin
         OrderTrackingMgt.SetPurchLine(CurrentPurchLine);
@@ -304,7 +304,7 @@ page 99000822 "Order Tracking"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    [Obsolete('Replaced by SetVariantRec()', '25.0')]
     procedure SetProdOrderLine(var CurrentProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
         OrderTrackingMgt.SetProdOrderLine(CurrentProdOrderLine);
@@ -317,7 +317,7 @@ page 99000822 "Order Tracking"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    [Obsolete('Replaced by SetVariantRec()', '25.0')]
     procedure SetProdOrderComponent(var CurrentProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
         OrderTrackingMgt.SetProdOrderComp(CurrentProdOrderComp);
@@ -330,7 +330,7 @@ page 99000822 "Order Tracking"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    [Obsolete('Replaced by SetVariantRec()', '25.0')]
     procedure SetAsmHeader(var CurrentAsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
         OrderTrackingMgt.SetAsmHeader(CurrentAsmHeader);
@@ -343,7 +343,7 @@ page 99000822 "Order Tracking"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    [Obsolete('Replaced by SetVariantRec()', '25.0')]
     procedure SetAsmLine(var CurrentAsmLine: Record Microsoft.Assembly.Document."Assembly Line")
     begin
         OrderTrackingMgt.SetAsmLine(CurrentAsmLine);
@@ -392,7 +392,7 @@ page 99000822 "Order Tracking"
     end;
 
 #if not CLEAN25
-    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    [Obsolete('Replaced by SetVariantRec()', '25.0')]
     procedure SetServLine(var CurrentServLine: Record Microsoft.Service.Document."Service Line")
     begin
         OrderTrackingMgt.SetServLine(CurrentServLine);
@@ -405,7 +405,7 @@ page 99000822 "Order Tracking"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    [Obsolete('Replaced by SetVariantRec()', '25.0')]
     procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
     begin
         OrderTrackingMgt.SetJobPlanningLine(CurrentJobPlanningLine);

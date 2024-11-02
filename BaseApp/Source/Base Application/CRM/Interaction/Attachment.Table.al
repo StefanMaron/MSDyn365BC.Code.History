@@ -498,7 +498,9 @@ table 5062 Attachment
 
     procedure ConstDiskFileName() DiskFileName: Text
     begin
-        DiskFileName := "Storage Pointer" + '\' + Format("No.") + '.' + "File Extension";
+        OnBeforeConstDiskFileName(Rec, DiskFileName);
+        if DiskFileName = '' then
+            DiskFileName := "Storage Pointer" + '\' + Format("No.") + '.' + "File Extension";
     end;
 
 #if not CLEAN23
@@ -840,6 +842,11 @@ table 5062 Attachment
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWizEmbeddAttachment(var Attachment: Record Attachment; FromAttachment: Record Attachment; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConstDiskFileName(var Attachment: Record Attachment; var DiskFileName: Text)
     begin
     end;
 }

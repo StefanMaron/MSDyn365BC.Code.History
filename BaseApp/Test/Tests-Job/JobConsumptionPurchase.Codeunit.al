@@ -3313,6 +3313,55 @@ codeunit 136302 "Job Consumption Purchase"
             StrSubstNo(ValueMustMatchErr, JobTask.FieldCaption("Schedule (Total Cost)"), PurchLine.Quantity * JobPlanningLine."Unit Cost"));
     end;
 
+    [Test]
+    procedure ValueEntryOfSourceTypeCustomerEqualsCustomerNoOfProject()
+    var
+        JobTask: Record "Job Task";
+        Job: Record Job;
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ValueEntry: Record "Value Entry";
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        // [SCENARIO 551633] Source No. field is populated with Customer No of Project when Source Type is Customer.
+        Initialize();
+
+        // [GIVEN] Create a Job with Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Get a Project.
+        Job.Get(JobTask."Job No.");
+
+        // [GIVEN] Create an Item .
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Purchase invoice.
+        CreatePurchaseHeader(PurchaseHeader."Document Type"::Invoice, Vendor."No.", PurchaseHeader);
+        CreatePurchaseLineWithJob(
+            PurchaseLine, PurchaseHeader,
+            JobTask, Item."No.",
+            LibraryRandom.RandInt(0), LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Purchase Invoice is Posted.
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Value Entry is Retrieved.
+        GetValueEntry(PurchInvHeader."No.", ValueEntry);
+
+        // [THEN] Verify Value Entry line of Source Type Customer is equals to Customer No of Project.
+        Assert.AreEqual(
+            Job."Bill-to Customer No.",
+            ValueEntry."Source No.",
+            StrSubstNo(
+                FieldErr, ValueEntry.FieldCaption("Source No."),
+                Job."Bill-to Customer No.", ValueEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
 #if not CLEAN25
@@ -5623,6 +5672,16 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [WHEN] Run cost adjustment for item "I"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+    end;
+
+    local procedure GetValueEntry(DocumentNo: Code[20]; var ValueEntry: Record "Value Entry")
+    var
+        ItemLedgerDocumentType: Enum "Item Ledger Document Type";
+    begin
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.SetRange("Document Type", ItemLedgerDocumentType::"Purchase Invoice");
+        ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Customer);
+        ValueEntry.FindFirst();
     end;
 }
 
