@@ -660,6 +660,8 @@ report 27 "Dimensions - Total"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Dimensions - Total';
+        AboutText = 'Build a group of dimensions for combinations of dimension values. Define a hierarchy of dimension levels from an analysis view, and list all G/L entries for each group. Compare G/L actual vs. budget total, or cash flow actual vs. forecast total.';
 
         layout
         {

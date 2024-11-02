@@ -394,12 +394,15 @@ table 39 "Purchase Line"
                     if "Location Code" <> xRec."Location Code" then
                         PlanPriceCalcByField(FieldNo("Location Code"));
 
-                if "Location Code" = '' then begin
-                    if InvtSetup.Get() then
-                        "Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
-                end else
-                    if Location.Get("Location Code") then
-                        "Inbound Whse. Handling Time" := Location."Inbound Whse. Handling Time";
+                IsHandled := false;
+                OnValidateLocationCodeOnBeforeSetInboundWhseHandlingTime(CurrFieldNo, Rec, xRec, IsHandled);
+                if not IsHandled then
+                    if "Location Code" = '' then begin
+                        if InvtSetup.Get() then
+                            "Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
+                    end else
+                        if Location.Get("Location Code") then
+                            "Inbound Whse. Handling Time" := Location."Inbound Whse. Handling Time";
 
                 UpdateLeadTimeFields();
                 UpdateDates();
@@ -1126,6 +1129,9 @@ table 39 "Purchase Line"
                 CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
 
                 UpdateDirectUnitCostByField(FieldNo("Job No."));
+
+                if (xRec."Line Discount %" <> "Line Discount %") and ("Line Discount Amount" <> 0) then
+                    UpdateLineDiscPct();
             end;
         }
         field(54; "Indirect Cost %"; Decimal)
@@ -3291,8 +3297,12 @@ table 39 "Purchase Line"
                 end else
                     "Expected Receipt Date" := "Planned Receipt Date";
 
-                if not TrackingBlocked then
-                    CheckDateConflict.PurchLineCheck(Rec, CurrFieldNo <> 0);
+                if not TrackingBlocked then begin
+                    IsHandled := false;
+                    OnValidateOrderDateOnBeforeCheckDateConflict(Rec, CurrFieldNo, IsHandled);
+                    if not IsHandled then
+                        CheckDateConflict.PurchLineCheck(Rec, CurrFieldNo <> 0);
+                end;
 
                 OnAfterValidateOrderDate(Rec, xRec, CurrFieldNo);
             end;
@@ -5560,6 +5570,7 @@ table 39 "Purchase Line"
                 NonDeductibleVAT.CheckPrepmtVATPostingSetup(VATPostingSetup);
             end else
                 Clear(VATPostingSetup);
+            OnAfterGetPostingSetup(Rec, VATPostingSetup);
             if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
                 Error(CannotChangePrepmtAmtDiffVAtPctErr);
             "Prepayment VAT %" := VATPostingSetup."VAT %";
@@ -8015,7 +8026,7 @@ table 39 "Purchase Line"
         end else
             if PurchOrderLine.Get(PurchOrderLine."Document Type"::Order, ReceiptLine."Order No.", ReceiptLine."Order Line No.") then begin
                 if ("Prepayment %" = 100) and (Quantity <> PurchOrderLine.Quantity - PurchOrderLine."Quantity Invoiced") then
-                    "Prepmt Amt to Deduct" := "Line Amount"
+                    "Prepmt Amt to Deduct" := GetLineAmountToHandle(Quantity) - "Inv. Disc. Amount to Invoice"
                 else
                     "Prepmt Amt to Deduct" :=
                       Round((PurchOrderLine."Prepmt. Amt. Inv." - PurchOrderLine."Prepmt Amt Deducted") *
@@ -9284,6 +9295,7 @@ table 39 "Purchase Line"
             NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
             LineAmountChanged := true;
         end;
+        OnAfterUpdateLineAmount(Rec, xRec, Currency, LineAmountChanged);
     end;
 
     local procedure CheckLocationRequireReceive();
@@ -11663,5 +11675,24 @@ table 39 "Purchase Line"
     local procedure OnAfterReversedInternalLeadTimeDays(PurchaseLine: Record "Purchase Line"; PurchDate: Date; ReversedWhseHandlingTime: DateFormula; var TotalDays: DateFormula)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPostingSetup(var PurchaseLine: Record "Purchase Line"; var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateLineAmount(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; Currency: Record Currency; var LineAmountChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnBeforeSetInboundWhseHandlingTime(CurrFieldNo: Integer; PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateOrderDateOnBeforeCheckDateConflict(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+}

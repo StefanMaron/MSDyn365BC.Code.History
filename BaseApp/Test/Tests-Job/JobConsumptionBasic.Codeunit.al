@@ -43,6 +43,7 @@ codeunit 136300 "Job Consumption Basic"
         IsServiceTypeItemErr: Label 'Is Service Type item';
         IsNonInventoryTypeItemErr: Label 'Is Non-inventory Type item';
         IsInventoryTypeItemErr: Label 'Is Inventory Type item';
+        TotalCostErr: Label '%1 must be %2 in %3', Comment = '%1 Total Cost, %2 = Unit Cost * Quanity of Job Ledger Entry, %3 = Job Ledger Entry';
 
     local procedure Initialize()
     var
@@ -634,6 +635,93 @@ codeunit 136300 "Job Consumption Basic"
         Assert.IsTrue(JobPlanningLine.IsNonInventoriableItem(), IsNonInventoryTypeItemErr);
     end;
 
+    [Test]
+    procedure TotalCostInProjectLedgerEntryHavingCurrencyCodeIsCalculatedWithUnitOfMeasureCode()
+    var
+        Currency: Record Currency;
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        UnitOfMeasure: Record "Unit of Measure";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 551005] Total Unit Cost in Job Ledger Entry having Currency Code is calculated based on Unit of Measure Code selected.
+        Initialize();
+
+        // [GIVEN] Create a Currency.
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Create a Random Currency Exchange Rate.
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+
+        // [GIVEN] Create an Item and Validate Unit Cost.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Unit of Measure Code.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create an Item Unit of Measure.
+        LibraryInventory.CreateItemUnitOfMeasure(
+            ItemUnitOfMeasure,
+            Item."No.",
+            UnitOfMeasure.Code,
+            LibraryRandom.RandIntInRange(100, 100));
+
+        // [GIVEN] Create a Job and a Job task.
+        CreateJobAndJobTask(Job, JobTask, false, Currency.Code);
+
+        // [GIVEN] Create a Vendor and Validate Currency Code.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create a Job Planning Line and Validate Type and No.
+        CreateSimpleJobPlanningLine(JobPlanningLine, JobTask);
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(5, 5));
+
+        // [GIVEN] Validate Job No., Job Task No., Unit of Measure Code and Direct Unit Cost in Purchase Line.
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Unit of Measure Code", UnitOfMeasure.Code);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [WHEN] Find Job Ledger Entry.
+        JobLedgerEntry.SetRange("Job No.", Job."No.");
+        JobLedgerEntry.FindFirst();
+
+        // [THEN] Total Cost in Job Ledger Entry is equal to Unit Cost * Quantity of Job Ledger Entry.
+        Assert.AreEqual(
+            JobLedgerEntry."Unit Cost" * JobLedgerEntry.Quantity,
+            JobLedgerEntry."Total Cost",
+            StrSubstNo(
+                TotalCostErr,
+                JobLedgerEntry.FieldCaption("Total Cost"),
+                JobLedgerEntry."Unit Cost" * JobLedgerEntry.Quantity,
+                JobLedgerEntry.TableCaption()));
+    end;
+
     local procedure CreateSingleLinePurchaseDoc(PurchaseDocumentType: Enum "Purchase Document Type"; var PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
@@ -874,6 +962,25 @@ codeunit 136300 "Job Consumption Basic"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Allow VAT Difference", true);
         GenJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateSimpleJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task")
+    begin
+        JobPlanningLine.Init();
+        JobPlanningLine.Validate("Job No.", JobTask."Job No.");
+        JobPlanningLine.Validate("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
+        JobPlanningLine.Insert(true);
+    end;
+
+    local procedure CreateJobAndJobTask(var Job: Record Job; var JobTask: Record "Job Task"; ApplyUsageLink: Boolean; CurrencyCode: Code[10])
+    begin
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Apply Usage Link", ApplyUsageLink);
+        Job.Validate("Currency Code", CurrencyCode);
+        Job.Modify(true);
+
+        LibraryJob.CreateJobTask(Job, JobTask);
     end;
 
     [ConfirmHandler]

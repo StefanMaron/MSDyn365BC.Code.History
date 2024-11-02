@@ -622,10 +622,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
         RunOnTempRec: Boolean;
         MATRIX_NoOfMatrixColumns: Integer;
         MATRIX_CellData: array[32] of Text[80];
-        MATRIX_ColumnCaptions: array[32] of Text[80];
         MATRIX_CurrentColumnOrdinal: Integer;
-        MATRIX_PKFirstCaptionInSet: Text;
-        MATRIX_CurrSetLength: Integer;
         Field1Visible: Boolean;
         Field2Visible: Boolean;
         Field3Visible: Boolean;
@@ -658,6 +655,11 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
         Field30Visible: Boolean;
         Field31Visible: Boolean;
         Field32Visible: Boolean;
+
+    protected var
+        MATRIX_ColumnCaptions: array[32] of Text[80];
+        MATRIX_PKFirstCaptionInSet: Text;
+        MATRIX_CurrSetLength: Integer;
 
     local procedure GetCaption(): Text[250]
     begin

@@ -17,7 +17,12 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         SupportingAttachmentsTxt: Label 'Supporting Attachments';
+        IncomingDocMustBeFoundErr: Label 'Incoming Document must be found.';
+        ViewIncoDocIsNotEnabledErr: Label 'View Incoming Document action is not enabled';
+        RemoveIncoDocIsEnabledErr: Label 'Remove Incoming Document action must be Disable';
         Initialized: Boolean;
 
     local procedure Initialize()
@@ -409,6 +414,137 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFactBox.Next(), 'There should not be any records');
     end;
 
+    [Test]
+    [HandlerFunctions('IncomingDocumentsPageHandler')]
+    [Scope('OnPrem')]
+    procedure SelectIncomingDocOnPurchReturnOrderShowsUploadedIncomingDocs()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [SCENARIO 545860] Select Incoming Document action under Incoming Document action 
+        // On Purchase Return Order page shows the uploaded Incoming Documents.
+        Initialize();
+
+        // [GIVEN] Create an Incoming Document.
+        CreateIncomingDocument(IncomingDocument, LibraryRandom.RandText(4));
+
+        // [GIVEN] Create an Incoming Document Attachment.
+        CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
+
+        // [GIVEN] Create a Purchase Return Order.
+        CreatePurchaseReturnOrder(PurchaseHeader, IncomingDocument);
+
+        // [WHEN] Run Select Incoming Document action.
+        LibraryVariableStorage.Enqueue(IncomingDocument."Entry No.");
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.GotoRecord(PurchaseHeader);
+        PurchaseReturnOrder.SelectIncomingDoc.Invoke();
+
+        // [THEN] Incoming Document is found in IncomingDocumentsPageHandler.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ViewIncomingDocOnPurchReturnOrderIsEnabled()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [SCENARIO 545860]  View Incoming Document action is enable on Purchase Return Order  
+        // page when incoming document is uploded on Purchase Return Order page.
+        Initialize();
+
+        // [GIVEN] Create an Incoming Document.
+        CreateIncomingDocument(IncomingDocument, LibraryRandom.RandText(4));
+
+        // [GIVEN] Create an Incoming Document Attachment.
+        CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
+
+        // [WHEN] Create a Purchase Return Order with Incoming Document.
+        CreatePurchaseReturnOrder(PurchaseHeader, IncomingDocument);
+
+        // [THEN] View Incoming Document action is enable on Purchase Return Order Page.
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.GotoRecord(PurchaseHeader);
+        Assert.IsTrue(PurchaseReturnOrder.IncomingDocCard.Enabled(), ViewIncoDocIsNotEnabledErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemoveIncomingDocOnPurchReturnOrderIsDisabled()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [SCENARIO 545860] Remove Incoming Document action is disable on Purchase Return Order  
+        // page when incoming document is removed from Purchase Return Order page.
+        Initialize();
+
+        // [GIVEN] Create an Incoming Document.
+        CreateIncomingDocument(IncomingDocument, LibraryRandom.RandText(4));
+
+        // [GIVEN] Create an Incoming Document Attachment.
+        CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
+
+        // [GIVEN] Create a Purchase Return Order.
+        CreatePurchaseReturnOrder(PurchaseHeader, IncomingDocument);
+
+        // [WHEN] Run Remove Incoming Document action.
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.GotoRecord(PurchaseHeader);
+        PurchaseReturnOrder.RemoveIncomingDoc.Invoke();
+
+        // [THEN] Remove Incoming Document action is disable on Purchase Return Order Page.
+        Assert.IsFalse(PurchaseReturnOrder.RemoveIncomingDoc.Enabled(), RemoveIncoDocIsEnabledErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ViewIncoDocActionEnableOnPurchReturnOrderArchive()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeaderArchive: Record "Purchase Header Archive";
+        ArchiveManagement: Codeunit ArchiveManagement;
+        PurchaseReturnOrderArchive: TestPage "Purchase Return Order Archive";
+    begin
+        // [SCENARIO 545860] View Incoming Document action is enable on Purchase Return Order Archive 
+        // page when Purchase Return Order with incoming Document is archived.
+        Initialize();
+
+        // [GIVEN] Create an Incoming Document.
+        CreateIncomingDocument(IncomingDocument, LibraryRandom.RandText(4));
+
+        // [GIVEN] Create an Incoming Document Attachment.
+        CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
+
+        // [GIVEN] Create a Purchase Return Order.
+        CreatePurchaseReturnOrder(PurchaseHeader, IncomingDocument);
+
+        // [GIVEN] Set Archive Order True.
+        LibraryPurchase.SetArchiveOrders(true);
+
+        // [GIVEN] Archive Purchase Order.
+        ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
+
+        // [WHEN] Find Purchase Document Archive.
+        FindPurchDocumentArchive(PurchaseHeaderArchive, PurchaseHeader);
+
+        // [THEN] View Incoming Document action is enable on Purchase Return Order Archive Page.
+        PurchaseReturnOrderArchive.OpenEdit();
+        PurchaseReturnOrderArchive.GoToRecord(PurchaseHeaderArchive);
+        Assert.IsTrue(PurchaseReturnOrderArchive.IncomingDocCard.Enabled(), ViewIncoDocIsNotEnabledErr);
+    end;
+
     local procedure GetCommonFields(var FieldRefArray: array[7] of FieldRef)
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -606,6 +742,32 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
             FieldRef1.Record().Name() + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record().Name() + '.' + FieldRef2.Name + ' do not match.'));
     end;
 
+    local procedure CreatePurchaseReturnOrder(var PurchHeader: Record "Purchase Header"; var IncomingDocument: Record "Incoming Document")
+    var
+        PurchLine: Record "Purchase Line";
+        Item: Record Item;
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::"Return Order", Vendor."No.");
+        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateRandomText(10));
+        PurchHeader.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
+        PurchHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        PurchHeader.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchLine.Modify(true);
+    end;
+
+    local procedure FindPurchDocumentArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
+        PurchaseHeaderArchive.FindFirst();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DeleteIncomingDocumentHandler(var IncomingDocumentCard: Page "Incoming Document"; var Response: Action)
@@ -616,6 +778,28 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         IncomingDocumentCard.GetRecord(IncomingDocument);
         IncomingDocument.Delete(true);
         Response := ACTION::OK;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure IncomingDocumentsPageHandler(var IncomingDocuments: TestPage "Incoming Documents")
+    begin
+        IncomingDocuments.Filter.SetFilter("Entry No.", Format(LibraryVariableStorage.DequeueInteger()));
+        Assert.IsTrue(IncomingDocuments.First(), IncomingDocMustBeFoundErr);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        // Just to Handle the Message.
     end;
 }
 

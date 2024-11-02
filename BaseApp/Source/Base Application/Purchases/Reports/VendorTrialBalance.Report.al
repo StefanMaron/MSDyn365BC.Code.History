@@ -138,6 +138,8 @@ report 329 "Vendor - Trial Balance"
 
     requestpage
     {
+        AboutTitle = 'About Vendor - Trial Balance';
+        AboutText = 'View the closing balances of vendors at the end of a period to reconcile the vendor subledger against payables accounts in the general ledger. View beginning balances and net changes by vendor for the period and fiscal year to date.';
 
         layout
         {
