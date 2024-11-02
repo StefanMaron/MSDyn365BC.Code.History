@@ -1231,6 +1231,7 @@ table 1001 "Job Task"
             exit(false);
 
         SalesLine.SetRange("Job No.", "Job No.");
+        SalesLine.SetRange("Job Task No.", "Job Task No.");
         Result := not SalesLine.IsEmpty();
     end;
 
@@ -1278,6 +1279,8 @@ table 1001 "Job Task"
     var
         BillToCustomer: Record Customer;
     begin
+        OnBeforeBillToCustomerNoUpdated(JobTask, xJobTask, CurrFieldNo);
+
         CheckBillToCustomerAssosEntriesExist(JobTask, xJobTask);
 
         if (xJobTask."Bill-to Customer No." <> '') and (not GetHideValidationDialog()) and GuiAllowed() then
@@ -1311,6 +1314,9 @@ table 1001 "Job Task"
                 "Invoice Currency Code" := BillToCustomer."Currency Code";
 
             JobTask."Language Code" := BillToCustomer."Language Code";
+
+            OnBillToCustomerNoUpdatedOnAfterCopyFieldsFromBillToCustomer(JobTask, xJobTask, Job, BillToCustomer);
+
             GetCustomerContact(JobTask."Bill-to Customer No.", JobTask."Bill-to Contact No.", JobTask."Bill-to Contact");
             CreateDefaultJobTaskDimensionsFromCustomer(JobTask."Bill-to Customer No.");
         end else begin
@@ -1331,6 +1337,8 @@ table 1001 "Job Task"
 
         if (xJobTask."Bill-to Customer No." <> '') and (JobTask."Bill-to Customer No." <> xJobTask."Bill-to Customer No.") then
             UpdateCostPricesOnRelatedJobPlanningLines(JobTask);
+
+        OnAfterBillToCustomerNoUpdated(JobTask, xJobTask, BillToCustomer, CurrFieldNo);
     end;
 
     local procedure UpdateCostPricesOnRelatedJobPlanningLines(var JobTask: Record "Job Task")
@@ -1405,6 +1413,8 @@ table 1001 "Job Task"
     var
         SellToCustomer: Record Customer;
     begin
+        OnBeforeSellToCustomerNoUpdated(JobTask, xJobTask, CurrFieldNo);
+
         if JobTask."Sell-to Customer No." <> '' then begin
             SellToCustomer.Get(JobTask."Sell-to Customer No.");
             SellToCustomer.CheckBlockedCustOnDocs(SellToCustomer, Enum::"Sales Document Type"::Order, false, false);
@@ -1453,6 +1463,8 @@ table 1001 "Job Task"
             ((xJobTask."Ship-to Code" <> '') and (xJobTask."Sell-to Customer No." <> JobTask."Sell-to Customer No."))
         then
             JobTask.SyncShipToWithSellTo();
+
+        OnAfterSellToCustomerNoUpdated(JobTask, xJobTask, SellToCustomer);
     end;
 
     protected procedure UpdateSellToContact(CustomerNo: Code[20])
@@ -1480,7 +1492,14 @@ table 1001 "Job Task"
     end;
 
     local procedure CheckBillToCustomerAssosEntriesExist(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBillToCustomerAssosEntriesExist(JobTask, xJobTask, IsHandled);
+        if IsHandled then
+            exit;
+
         if (JobTask."Bill-to Customer No." = '') or (JobTask."Bill-to Customer No." <> xJobTask."Bill-to Customer No.") then begin
             if JobTask.SalesJobLedgEntryExist() then
                 Error(AssociatedEntriesExistErr, JobTask.FieldCaption("Bill-to Customer No."), JobTask.TableCaption);
@@ -1490,7 +1509,14 @@ table 1001 "Job Task"
     end;
 
     local procedure CheckSellToCustomerAssosEntriesExist(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSellToCustomerAssosEntriesExist(JobTask, xJobTask, IsHandled);
+        if IsHandled then
+            exit;
+
         if (JobTask."Sell-to Customer No." = '') or (JobTask."Sell-to Customer No." <> xJobTask."Sell-to Customer No.") then
             if JobTask.SalesJobLedgEntryExist() then
                 Error(AssociatedEntriesExistErr, JobTask.FieldCaption("Sell-to Customer No."), JobTask.TableCaption);
@@ -1599,6 +1625,8 @@ table 1001 "Job Task"
         Rec."Ship-to Post Code" := ShipToAddress."Post Code";
         Rec."Ship-to Country/Region Code" := ShipToAddress."Country/Region Code";
         Rec."Ship-to Contact" := ShipToAddress.Contact;
+
+        OnAfterShipToCodeValidate(Rec, ShipToAddress);
     end;
 
     local procedure UpdateSellToCust(ContactNo: Code[20])
@@ -1833,6 +1861,46 @@ table 1001 "Job Task"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCostPricesOnRelatedJobPlanningLinesOnBeforeConfirmUpdate(var JobTask: Record "Job Task"; var ConfirmResult: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSellToCustomerAssosEntriesExist(var JobTask: Record "Job Task"; xJobTask: Record "Job Task"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBillToCustomerAssosEntriesExist(var JobTask: Record "Job Task"; xJobTask: Record "Job Task"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSellToCustomerNoUpdated(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSellToCustomerNoUpdated(var JobTask: Record "Job Task"; xJobTask: Record "Job Task"; var SellToCustomer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShipToCodeValidate(var JobTask: Record "Job Task"; var ShipToAddress: Record "Ship-to Address")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBillToCustomerNoUpdated(var JobTask: Record "Job Task"; xJobTask: Record "Job Task"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBillToCustomerNoUpdatedOnAfterCopyFieldsFromBillToCustomer(var JobTask: Record "Job Task"; xJobTask: Record "Job Task"; var Job: Record Job; var BillToCustomer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBillToCustomerNoUpdated(var JobTask: Record "Job Task"; xJobTask: Record "Job Task"; var BillToCustomer: Record Customer; CallingFieldNo: Integer)
     begin
     end;
 }

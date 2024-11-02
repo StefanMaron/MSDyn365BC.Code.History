@@ -279,6 +279,7 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
             if VendorRemainingAmount <= 0 then begin
                 SetOnHold(VendLedgEntry);
                 VendLedgEntry.CalcFields("Remaining Amount");
+                OnNetBalancesBeforeSetVendorRemainingAmount(VendLedgEntry);
                 VendorRemainingAmount := -VendLedgEntry."Remaining Amount";
                 InsertGenJnlLine(VendorGenJnlLine, VendLedgEntry, CustLedgEntry, true);
             end;
@@ -286,6 +287,7 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
                 if CustomerRemainingAmount <= 0 then begin
                     SetOnHold(CustLedgEntry);
                     CustLedgEntry.CalcFields("Remaining Amount");
+                    OnNetBalancesBeforeSetCustomerRemainingAmount(CustLedgEntry);
                     CustomerRemainingAmount := CustLedgEntry."Remaining Amount";
                 end;
 
@@ -326,9 +328,16 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
     end;
 
     local procedure CalcPartNetAmount(var VendLedgEntry: Record "Vendor Ledger Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; var VendNetAmount: Decimal; var CustNetAmount: Decimal; DocType: Enum "Gen. Journal Document Type");
+    var
+        IsHandled: Boolean;
     begin
         GlobalVendLedgEntry.SetFilter("Document Type", '<>%1', DocType);
         GlobalCustLedgEntry.SetFilter("Document Type", '<>%1', DocType);
+
+        IsHandled := false;
+        OnCalcPartNetAmountAfterSetDocumentType(VendLedgEntry, CustLedgEntry, VendNetAmount, CustNetAmount, DocType, IsHandled);
+        if IsHandled then
+            exit;
 
         VendLedgEntry.SetRange("Document Type", DocType);
         VendLedgEntry.SetAutoCalcFields("Remaining Amount");
@@ -358,6 +367,7 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
         GenJnlLine.Validate("Bal. Account No.");
         GenJnlLine.Validate("Currency Code", VendLedgEntry."Currency Code");
         VendLedgEntry.CalcFields("Remaining Amount");
+        OnFillGenJnlLineFromVendLedgEntryBeforeValidateAmount(VendLedgEntry);
         GenJnlLine.Validate(Amount, -VendLedgEntry."Remaining Amount");
         GenJnlLine."Posting Group" := VendLedgEntry."Vendor Posting Group";
         GenJnlLine."Applies-to Doc. Type" := VendLedgEntry."Document Type";
@@ -380,6 +390,7 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
         GenJnlLine.Validate("Bal. Account No.");
         GenJnlLine.Validate("Currency Code", CustLedgEntry."Currency Code");
         CustLedgEntry.CalcFields("Remaining Amount");
+        OnFillGenJnlLineFromCustledgEntryBeforeValidateAmount(CustLedgEntry);
         GenJnlLine.Validate(Amount, -CustLedgEntry."Remaining Amount");
         GenJnlLine."Posting Group" := CustLedgEntry."Customer Posting Group";
         GenJnlLine."Applies-to Doc. Type" := CustLedgEntry."Document Type";
@@ -434,6 +445,8 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
     end;
 
     local procedure SumCustomerRemainingAmount(CustomerNo: Code[20]; CurrencyCode: Code[10]) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
         GlobalCustLedgEntry.Reset();
         GlobalCustLedgEntry.SetLoadFields("Remaining Amount", "On Hold");
@@ -442,6 +455,12 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
         GlobalCustLedgEntry.SetRange("Currency Code", CurrencyCode);
         GlobalCustLedgEntry.SetRange("Posting Date", 0D, NetBalancesParameters."Posting Date");
         GlobalCustLedgEntry.SetFilter("On Hold", '%1|%2', '', NetBalancesParameters."On Hold");
+
+        IsHandled := false;
+        OnSumCustomerRemainingAmountBeforeCalcResult(GlobalCustLedgEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GlobalCustLedgEntry.SetAutoCalcFields("Remaining Amount");
         if GlobalCustLedgEntry.FindSet() then
             repeat
@@ -450,6 +469,8 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
     end;
 
     local procedure SumVendorRemainingAmount(VendorNo: Code[20]; CurrencyCode: Code[10]) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
         GlobalVendLedgEntry.Reset();
         GlobalVendLedgEntry.SetLoadFields("Remaining Amount", "On Hold");
@@ -458,6 +479,12 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
         GlobalVendLedgEntry.SetRange("Currency Code", CurrencyCode);
         GlobalVendLedgEntry.SetRange("Posting Date", 0D, NetBalancesParameters."Posting Date");
         GlobalVendLedgEntry.SetFilter("On Hold", '%1|%2', '', NetBalancesParameters."On Hold");
+
+        IsHandled := false;
+        OnSumVendorRemainingAmountBeforeCalcResult(GlobalVendLedgEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GlobalVendLedgEntry.SetAutoCalcFields("Remaining Amount");
         if GlobalVendLedgEntry.FindSet() then
             repeat
@@ -489,6 +516,41 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillGenJnlLineFromVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPartNetAmountAfterSetDocumentType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var VendNetAmount: Decimal; var CustNetAmount: Decimal; DocType: Enum "Gen. Journal Document Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillGenJnlLineFromCustledgEntryBeforeValidateAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillGenJnlLineFromVendLedgEntryBeforeValidateAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNetBalancesBeforeSetCustomerRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNetBalancesBeforeSetVendorRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumCustomerRemainingAmountBeforeCalcResult(var CustLedgerEntry: Record "Cust. Ledger Entry"; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumVendorRemainingAmountBeforeCalcResult(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

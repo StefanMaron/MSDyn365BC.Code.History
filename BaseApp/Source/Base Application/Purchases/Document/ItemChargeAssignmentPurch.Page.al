@@ -558,7 +558,9 @@ page 5805 "Item Charge Assignment (Purch)"
     local procedure UpdateQty()
     begin
         case Rec."Applies-to Doc. Type" of
-            Rec."Applies-to Doc. Type"::Order, Rec."Applies-to Doc. Type"::Invoice:
+            Rec."Applies-to Doc. Type"::Quote,
+            Rec."Applies-to Doc. Type"::Order,
+            Rec."Applies-to Doc. Type"::Invoice:
                 begin
                     PurchLine.Get(Rec."Applies-to Doc. Type", Rec."Applies-to Doc. No.", Rec."Applies-to Doc. Line No.");
                     QtyToReceiveBase := PurchLine."Qty. to Receive (Base)";

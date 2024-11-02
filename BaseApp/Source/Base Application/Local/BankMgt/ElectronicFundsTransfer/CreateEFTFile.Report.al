@@ -126,18 +126,14 @@ report 11608 "Create EFT File"
     }
 
     var
-        EFTRegister: Record "EFT Register";
         Vendor: Record Vendor;
         VendLedgEntry: Record "Vendor Ledger Entry";
-        GenJnlLine: Record "Gen. Journal Line";
         VendBankAcc: Record "Vendor Bank Account";
-        BankAcc: Record "Bank Account";
         GenJnlLine1: Record "Gen. Journal Line";
         EFTManagement: Codeunit "EFT Management";
         ProcessWindow: Dialog;
         Counter: Integer;
         NoOfRec: Integer;
-        EFTFileDescription: Text[12];
         PrevBankAcctNo: Code[20];
         Text11001: Label '%1 %2 already exist in %3 %4.';
         Text11003: Label 'EFT Type must not be blank for Vendor No. %1.';
@@ -146,6 +142,11 @@ report 11608 "Create EFT File"
         BankAccountNotTheSameErr: Label 'The file can be created for one bank account only. Balancing bank account number %1 for line %2 does not match bank account number %3.', Comment = '%1 and %3 - bank account number, %2 - journal line number.';
         NothingToExportErr: Label 'There is nothing to export.';
         PaymentAlreadyExportedErr: Label 'Line number %3 in journal template name %1, journal batch name %2 has been already exported.', Comment = '%1 - journal template name, %2 - journal batch name, %3 - line number';
+    protected var
+        EFTRegister: Record "EFT Register";
+        GenJnlLine: Record "Gen. Journal Line";    
+        BankAcc: Record "Bank Account";
+        EFTFileDescription: Text[12];
 
     procedure SetGenJnlLine(NewGLJnlLine: Record "Gen. Journal Line")
     begin

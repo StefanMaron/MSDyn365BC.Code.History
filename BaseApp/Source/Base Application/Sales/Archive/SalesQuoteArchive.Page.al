@@ -405,7 +405,7 @@ page 5162 "Sales Quote Archive"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
+                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. Location code for individual lines can differ from it.';
                 }
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {

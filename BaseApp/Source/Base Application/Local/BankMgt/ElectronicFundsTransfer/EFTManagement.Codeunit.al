@@ -383,6 +383,7 @@ codeunit 11603 "EFT Management"
                     repeat
                         UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, TempVendorLedgerEntry, true);
                     until TempVendorLedgerEntry.Next() = 0;
+                    OnFillBufferFromPostedPaymentsBeforeInsertPaymentBufferGenJournalLine(PaymentBufferGenJournalLine, VendorLedgerEntry);
                     PaymentBufferGenJournalLine.Insert();
                 end;
             until VendorLedgerEntry.Next() = 0;
@@ -404,6 +405,7 @@ codeunit 11603 "EFT Management"
             GenJournalLine.Amount,
             GenJournalLine."Skip WHT");
         UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, VendorLedgerEntry, false);
+        OnFillBufferFromAppliedDocBeforeInsertPaymentBufferGenJournalLine(PaymentBufferGenJournalLine, VendorLedgerEntry, GenJournalLine);        
         PaymentBufferGenJournalLine.Insert();
     end;
 
@@ -428,6 +430,7 @@ codeunit 11603 "EFT Management"
             repeat
                 UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, VendorLedgerEntry, false);
             until VendorLedgerEntry.Next() = 0;
+            OnFillBufferFromAppliedEntriesBeforeInsertPaymentBufferGenJournalLine(PaymentBufferGenJournalLine, VendorLedgerEntry, GenJournalLine);            
             PaymentBufferGenJournalLine.Insert();
         end;
     end;
@@ -446,6 +449,7 @@ codeunit 11603 "EFT Management"
             GenJournalLine.Amount,
             GenJournalLine."Skip WHT");
         PaymentBufferGenJournalLine."WHT Absorb Base" := 0;
+        OnFillBufferFromPaymentLineBeforeInsertPaymentBufferGenJournalLine(PaymentBufferGenJournalLine, GenJournalLine);
         PaymentBufferGenJournalLine.Insert();
     end;
 
@@ -595,5 +599,25 @@ codeunit 11603 "EFT Management"
     local procedure OnCloseFileBeforeDownloadFile(EFTRegister: Record "EFT Register"; var EFTFileName: Text; var EFTFileExtension: Text)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillBufferFromPostedPaymentsBeforeInsertPaymentBufferGenJournalLine(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillBufferFromAppliedDocBeforeInsertPaymentBufferGenJournalLine(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillBufferFromAppliedEntriesBeforeInsertPaymentBufferGenJournalLine(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillBufferFromPaymentLineBeforeInsertPaymentBufferGenJournalLine(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;    
 }
 

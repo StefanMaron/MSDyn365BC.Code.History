@@ -4483,6 +4483,231 @@
         Assert.AreEqual(-LineAmount2, SalesInvoiceLine2."Line Amount", LineAmountMustMatchErr);
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesOrderConfRequestPageHandler')]
+    procedure OrderConfirmationPrintsPrepaymentsCorrectly()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        AutoFormat: Codeunit "Auto Format";
+        AutoFormatType: Enum "Auto Format";
+        FormattedAmount: Text;
+        SalesHeaderNo: Code[20];
+    begin
+        // [SCENARIO 542293] Standard Sales Order Report does Print Amount without deducting Prepayment Amount.
+        Initialize();
+
+        // [GIVEN] Find VAT Posting Setup.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        // [GIVEN] Create a Customer and Validate VAT Bus. Posting Group.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        // [GIVEN] Create a Sales Header and Validate Prepayment Percentage.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(100, 100));
+        SalesHeader.Modify(true);
+
+        SalesHeaderNo := SalesHeader."No.";
+
+        // [GIVEN] Create a Sales Line.
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item,
+            LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(10, 15));
+
+        //[GIVEN] Validate Unit Price in Sales Line.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Update Sales Prepayment Account Vat Group.
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group",
+            SalesLine."Gen. Prod. Posting Group",
+            SalesLine."VAT Prod. Posting Group");
+
+        //[GIVEN] Post Sales Prepayment Invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        //[GIVEN] Reopen Sales Document and decrease Qty. to Ship.
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandIntInRange(5, 7));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Calculate Formatted Amount from Line Amount of Sales Line.
+        FormattedAmount := Format(
+            SalesLine."Line Amount", 0,
+            AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, SalesLine."Currency Code"));
+
+        //[WHEN] Run Standard Sales Order Confirmation Report.
+        Commit();
+        SalesHeader.SetRange("No.", SalesHeaderNo);
+        REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, false, SalesHeader);
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [THEN] Amount in Report must be equal to Formatted Amount.
+        LibraryReportDataset.AssertElementWithValueExists('LineAmount_Line', FormattedAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchOrderWithPrepmt100PctAndWithInvDiscShouldPostPartialReceiptAndInvWithCorrectLineAmounts()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Vendor: Record Vendor;
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ItemNo: Code[20];
+        Quantity: Decimal;
+        DiscountAmount: array[4] of Decimal;
+        SumPrePmtAmttoDeducted: Decimal;
+        QtytoReceive: Decimal;
+        DirectUnitCost: Decimal;
+    begin
+        // [SCENARIO 52558] Post Purchase Order partially with Prepayment % = 100 and Invoice Discount Amount
+        // And Post Purchase Invoice with Prepayment % = 100 and Invoice Discount Amount with GetReceiptLines from posted receipts linked with prepayment Purchase Order.
+        Initialize();
+
+        // [GIVEN] Create a VAT Posting Setup.
+        CreateVATPostingSetup(VATPostingSetup, 10);
+
+        // [GIVEN] Create a General Posting Setup.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Create a Vendor and Assign "Prepayment %".
+        CreateVendorWithPostingGroup(Vendor, GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create a Invoice Discount for Vendor.
+        CreateVendorInvDiscount(VendorInvoiceDisc, Vendor);
+
+        // [GIVEN] Generate Quantity and save it in a Variable.
+        Quantity := LibraryRandom.RandIntInRange(12, 12);
+
+        // [GIVEN] Create a Item No with Posting Setup.
+        ItemNo := LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Generate Direct Unit Cost and save it in a Variable.
+        DirectUnitCost := LibraryRandom.RandIntInRange(1000, 1000);
+
+        // [GIVEN] Update General Posting Setup for Prepayment Account.
+        UpdatePurchasePrepmtAccount(
+            CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+            GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineOrder,
+            PurchaseHeaderOrder,
+            PurchaseLineOrder.Type::Item,
+            ItemNo,
+            Quantity);
+        PurchaseLineOrder.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLineOrder.Modify(true);
+
+        // [WHEN] Run Codeunit "Purch.-Calc.Discount".         
+        Codeunit.Run(Codeunit::"Purch.-Calc.Discount", PurchaseLineOrder);
+
+        // [THEN] Calculate Discount Amount and save it in a Variable.
+        DiscountAmount[1] := (PurchaseLineOrder.Quantity * PurchaseLineOrder."Direct Unit Cost") * VendorInvoiceDisc."Discount %" / 100;
+
+        // [THEN] Verify "Invoice Discount Amount" with Calulated Discount Amount.
+        Assert.AreEqual(
+            PurchaseLineOrder."Inv. Discount Amount", DiscountAmount[1],
+            StrSubstNo(AmountError, PurchaseLineOrder.FieldCaption("Inv. Discount Amount"), DiscountAmount[1], PurchaseLineOrder.TableCaption()));
+
+        // [GIVEN] Update "Vendor Invoice No.".
+        UpdatePurchInvoiceNo(PurchaseHeaderOrder);
+
+        // [WHEN] Posted the Prepayment Invoice.
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeaderOrder);
+        PurchaseLineOrder.Find();
+
+        // [THEN] "Prepmt. Amt. Inv." is equal to Line Amount" - Discount Amount.
+        Assert.AreEqual(
+            PurchaseLineOrder."Prepmt. Amt. Inv.", (PurchaseLineOrder."Line Amount" - DiscountAmount[1]),
+            StrSubstNo(
+                AmountError,
+                PurchaseLineOrder.FieldCaption("Prepmt. Amt. Inv."),
+                (PurchaseLineOrder."Line Amount" - DiscountAmount[1]),
+                PurchaseLineOrder.TableCaption()));
+
+        // [GIVEN] Generate Qty to Receive and save it in a Variable.
+        QtytoReceive := LibraryRandom.RandIntInRange(5, 5);
+
+        // [WHEN] Partially Receive Purchase Order and Post Invoice.
+        PostPurchaseOrderReceivePartiallyAndPostInvoice(
+            QtytoReceive,
+            PurchaseHeaderOrder,
+            VendorInvoiceDisc,
+            PurchaseLineOrder,
+            PurchInvHeader,
+            SumPrePmtAmttoDeducted,
+            DiscountAmount[2]);
+
+        // [THEN] Verify "Line Amount" of First "Purch. Invoice Line" is equal to Line Amount
+        // And "Line Amount" of Second "Purch. Invoice Line" is equal to -Line Amount.
+        VerifyAmounts(
+            PurchaseLineOrder,
+            PurchInvHeader,
+            QtytoReceive,
+            DirectUnitCost,
+            DiscountAmount[2]);
+
+        // [GIVEN] Generate Qty to Receive and save it in a Variable.
+        QtytoReceive := LibraryRandom.RandIntInRange(6, 6);
+
+        // [WHEN] Partially Receive Purchase Order and Post Invoice.
+        PostPurchaseOrderReceivePartiallyAndPostInvoice(
+            QtytoReceive,
+            PurchaseHeaderOrder,
+            VendorInvoiceDisc,
+            PurchaseLineOrder,
+            PurchInvHeader,
+            SumPrePmtAmttoDeducted,
+            DiscountAmount[3]);
+
+        // [THEN] Verify "Line Amount" of First "Purch. Invoice Line" is equal to LineAmount
+        // And "Line Amount" of Second "Purch. Invoice Line" is equal to -LineAmount.
+        VerifyAmounts(
+            PurchaseLineOrder,
+            PurchInvHeader,
+            QtytoReceive,
+            DirectUnitCost,
+            DiscountAmount[3]);
+
+        // [GIVEN] Generate Qty to Receive and save it in a Variable.
+        QtytoReceive := LibraryRandom.RandInt(0);
+
+        // [WHEN] Fully Receive Purchase Order and Post Invoice.
+        PostPurchaseOrderReceivePartiallyAndPostInvoice(
+            QtytoReceive,
+            PurchaseHeaderOrder,
+            VendorInvoiceDisc,
+            PurchaseLineOrder,
+            PurchInvHeader,
+            SumPrePmtAmttoDeducted,
+            DiscountAmount[4]);
+
+        // [THEN] Verify "Line Amount" of First "Purch. Invoice Line" is equal to LineAmount
+        // And "Line Amount" of Second "Purch. Invoice Line" is equal to -LineAmount.
+        VerifyAmounts(
+            PurchaseLineOrder,
+            PurchInvHeader,
+            QtytoReceive,
+            DirectUnitCost,
+            DiscountAmount[4]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5912,6 +6137,113 @@
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
         SalesGetShpt.SetSalesHeader(SalesHeader2);
         SalesGetShpt.CreateInvLines(SalesShipmentLine);
+    end;
+
+    local procedure CreateVendorWithPostingGroup(
+        var Vendor: Record Vendor;
+        var GeneralPostingSetup: Record "General Posting Setup";
+        var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        Vendor.Get(
+            LibraryPurchase.CreateVendorWithBusPostingGroups(
+                GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        Vendor.Validate("Prepayment %", 100);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateVendorInvDiscount(var VendorInvoiceDisc: Record "Vendor Invoice Disc."; var Vendor: Record Vendor)
+    begin
+        LibraryERM.CreateInvDiscForVendor(VendorInvoiceDisc, Vendor."No.", '', 0);
+        VendorInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
+        VendorInvoiceDisc.Modify(true);
+    end;
+
+    local procedure PostPurchaseOrderReceivePartiallyAndPostInvoice(
+        QtytoRecieve: Decimal;
+        var PurchaseHeaderOrder: Record "Purchase Header";
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+        var PurchaseLineOrder: Record "Purchase Line";
+        var PurchInvHeader: Record "Purch. Inv. Header";
+        var SumPrePmtAmttoDeducted: Decimal;
+        var DiscountAmount: Decimal)
+    begin
+        PostPurchaseOrderReceipt(PurchaseHeaderOrder, QtytoRecieve);
+        CreatePurchaseInvoicefromGetReceiptLinesWithPrepayment(
+            PurchaseHeaderOrder,
+            VendorInvoiceDisc,
+            PurchaseLineOrder,
+            PurchInvHeader,
+            SumPrePmtAmttoDeducted,
+            DiscountAmount);
+    end;
+
+    local procedure CreatePurchaseInvoicefromGetReceiptLinesWithPrepayment(
+        var PurchaseHeaderOrder: Record "Purchase Header";
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+        var PurchaseLineOrder: Record "Purchase Line";
+        var PurchInvHeader: Record "Purch. Inv. Header";
+        var SumPrePmtAmttoDeducted: Decimal;
+        var DiscountAmount: Decimal)
+    var
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineInvoice: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeaderInvoice,
+            PurchaseHeaderInvoice."Document Type"::Invoice,
+            PurchaseHeaderOrder."Buy-from Vendor No.");
+        UpdatePurchInvoiceNo(PurchaseHeaderInvoice);
+        GetPurchaseReceiptLines(PurchaseHeaderInvoice);
+        FindPurchaseLine(PurchaseLineInvoice, PurchaseHeaderInvoice, PurchaseLineOrder."No.");
+
+        DiscountAmount := (PurchaseLineInvoice.Quantity * PurchaseLineInvoice."Direct Unit Cost") * VendorInvoiceDisc."Discount %" / 100;
+        SumPrePmtAmttoDeducted += PurchaseLineInvoice."Prepmt Amt to Deduct";
+
+        Assert.AreEqual(
+            PurchaseLineInvoice."Inv. Discount Amount", DiscountAmount,
+            StrSubstNo(
+                AmountError, PurchaseLineInvoice.FieldCaption("Inv. Discount Amount"),
+                DiscountAmount, PurchaseLineInvoice.TableCaption()));
+        Assert.AreEqual(
+            PurchaseLineInvoice."Prepmt Amt to Deduct", (PurchaseLineInvoice."Line Amount" - DiscountAmount),
+            StrSubstNo(
+                AmountError, PurchaseLineInvoice.FieldCaption("Prepmt Amt to Deduct"),
+                (PurchaseLineInvoice."Line Amount" - DiscountAmount), PurchaseLineInvoice.TableCaption()));
+
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true));
+        PurchaseLineOrder.Find();
+
+        Assert.AreEqual(
+            PurchaseLineOrder."Prepmt Amt Deducted", SumPrePmtAmttoDeducted,
+            StrSubstNo(
+                AmountError, PurchaseLineOrder.FieldCaption("Prepmt Amt Deducted"),
+                SumPrePmtAmttoDeducted, PurchaseLineOrder.TableCaption()));
+    end;
+
+    local procedure VerifyAmounts(
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        QtytoReceive: Decimal;
+        DirectUnitCost: Decimal;
+        DiscountAmount: Decimal)
+    var
+        PurchInvLine: array[2] of Record "Purch. Inv. Line";
+        LineAmount: array[2] of Decimal;
+    begin
+        LineAmount[1] := QtytoReceive * DirectUnitCost;
+        LineAmount[2] := (QtytoReceive * DirectUnitCost - DiscountAmount);
+
+        PurchInvLine[1].SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine[1].SetRange("No.", PurchaseLineOrder."No.");
+        PurchInvLine[1].FindFirst();
+
+        Assert.AreEqual(LineAmount[1], PurchInvLine[1]."Line Amount", LineAmountMustMatchErr);
+
+        PurchInvLine[2].SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine[2].SetRange(Type, PurchInvLine[2].Type::"G/L Account");
+        PurchInvLine[2].FindFirst();
+
+        Assert.AreEqual(-LineAmount[2], PurchInvLine[2]."Line Amount", LineAmountMustMatchErr);
     end;
 
     [PageHandler]

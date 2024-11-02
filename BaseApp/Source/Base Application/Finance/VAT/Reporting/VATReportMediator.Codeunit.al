@@ -24,10 +24,7 @@ codeunit 740 "VAT Report Mediator"
         VATReportsConfiguration: Record "VAT Reports Configuration";
     begin
         VATReportHeader.TestField(Status, VATReportHeader.Status::Open);
-        if (VATReportHeader."VAT Report Type" = VATReportHeader."VAT Report Type"::Corrective) or
-           (VATReportHeader."VAT Report Type" = VATReportHeader."VAT Report Type"::Supplementary)
-        then
-            VATReportHeader.TestField("Original Report No.");
+        VATReportHeader.TestOriginalReportNo();
 
         GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
 

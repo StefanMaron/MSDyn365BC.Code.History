@@ -287,7 +287,7 @@ page 740 "VAT Report"
 
                     trigger OnAction()
                     begin
-                        VATReportMediator.Export(Rec);
+                        VATReportMediator.Generate(Rec);
                         if not CheckForErrors() then
                             Message(ReportGeneratedMsg);
                     end;

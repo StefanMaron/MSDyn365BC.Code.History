@@ -63,6 +63,37 @@ codeunit 136322 "Jobs - Assemble-to Order"
     end;
 
     [Test]
+    procedure AssemblyOrderIsNotCreatedIfApplyUsageLinkIsNotChecked()
+    var
+        ParentItem, CompItem1, CompItem2 : Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 539741] Verify assembly order is not created if Apply Usage Link is not checked
+        Initialize();
+
+        // [GIVEN] Create an assembly item with 2 components.
+        CreateAssemblyItemWithBOM(ParentItem, CompItem1, CompItem2);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask);
+
+        // [GIVEN] Set Apply Usage Link to false
+        Job.Validate("Apply Usage Link", false);
+        Job.Modify(true);
+
+        // [GIVEN] Create Job Planning Line
+        CreateSimpleJobPlanningLineWithAssemblyItem(JobPlanningLine, JobTask, ParentItem."No.");
+
+        // [WHEN] Validate Quantity on Job Planning Line
+        asserterror JobPlanningLine.Validate("Quantity", LibraryRandom.RandInt(10));
+
+        // [THEN] Verify results
+        Assert.ExpectedTestFieldError(JobPlanningLine.FieldCaption("Usage Link"), '');
+    end;
+
+    [Test]
     procedure AssemblyQuoteIsCreatedForQuoteJobStatus()
     var
         ParentItem, CompItem1, CompItem2 : Record Item;

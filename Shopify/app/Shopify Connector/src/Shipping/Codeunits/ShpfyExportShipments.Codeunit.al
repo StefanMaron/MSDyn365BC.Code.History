@@ -112,7 +112,7 @@ codeunit 30190 "Shpfy Export Shipments"
                     GraphQuery.Append('trackingInfo: {');
                     if SalesShipmentHeader."Shipping Agent Code" <> '' then begin
                         GraphQuery.Append('company: \"');
-                        if ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code") then begin
+                        if ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code") then
                             if ShippingAgent."Shpfy Tracking Company" = ShippingAgent."Shpfy Tracking Company"::" " then begin
                                 if ShippingAgent.Name = '' then
                                     GraphQuery.Append(ShippingAgent.Code)
@@ -120,8 +120,6 @@ codeunit 30190 "Shpfy Export Shipments"
                                     GraphQuery.Append(ShippingAgent.Name)
                             end else
                                 GraphQuery.Append(TrackingCompany.Names.Get(TrackingCompany.Ordinals.IndexOf(ShippingAgent."Shpfy Tracking Company".AsInteger())));
-                        end else
-                            GraphQuery.Append('""');
                         GraphQuery.Append('\",');
                     end;
 
