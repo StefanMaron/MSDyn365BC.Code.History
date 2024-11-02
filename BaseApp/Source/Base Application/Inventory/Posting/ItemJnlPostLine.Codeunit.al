@@ -5703,8 +5703,9 @@ codeunit 22 "Item Jnl.-Post Line"
         if IsHandled then
             exit(Result);
 
-        if ItemJnlLine."Invoice-to Source No." <> '' then
-            exit(ItemJnlLine."Invoice-to Source No.");
+        if ItemJnlLine."Job No." = '' then
+            if ItemJnlLine."Invoice-to Source No." <> '' then
+                exit(ItemJnlLine."Invoice-to Source No.");
         exit(ItemJnlLine."Source No.");
     end;
 
