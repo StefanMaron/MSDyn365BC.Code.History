@@ -787,7 +787,9 @@ codeunit 1294 "OCR Service Mgt."
         IncomingDocumentAttachment.FindFirst();
 
         IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
-        if IncomingDocument."OCR Status" <> IncomingDocument."OCR Status"::Sent then
+        if (IncomingDocument."OCR Status" <> IncomingDocument."OCR Status"::Sent) and
+           (IncomingDocument."OCR Status" <> IncomingDocument."OCR Status"::"Awaiting Verification")
+        then
             exit;
 
         TempIncomingDocumentAttachment := IncomingDocumentAttachment;
@@ -1176,7 +1178,7 @@ codeunit 1294 "OCR Service Mgt."
             35: // 'BATCHEXPORTFAILED'
                 exit(IncomingDocument."OCR Status"::Error);
             40: // 'BATCHSUCCESSFULLYPROCESSED'
-                exit(IncomingDocument."OCR Status"::Sent);
+                exit(IncomingDocument."OCR Status"::Success);
             50: // 'BATCHREJECTED'
                 exit(IncomingDocument."OCR Status"::Error);
             100: // 'BATCHDELETED'

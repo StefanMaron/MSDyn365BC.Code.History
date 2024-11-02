@@ -253,6 +253,7 @@ table 7504 "Item Attribute Value Selection"
                     ItemAttributeValue.Validate("Date Value", ValDate);
                 end;
         end;
+        OnInsertItemAttributeValueOnBeforeInsertItemAttributeValue(ItemAttributeValue, TempItemAttributeValueSelection);
         ItemAttributeValue.Insert();
     end;
 
@@ -404,6 +405,7 @@ table 7504 "Item Attribute Value Selection"
                 ItemAttributeValue.SetRange("Date Value", ValDate);
             end else
                 ItemAttributeValue.SetRange(Value, ItemAttributeValueSelection.Value);
+        OnFindAttributeValueFromRecordOnBeforeFindAttributeValueFromRecord(ItemAttributeValue, ItemAttributeValueSelection);
         exit(ItemAttributeValue.FindFirst());
     end;
 
@@ -441,6 +443,7 @@ table 7504 "Item Attribute Value Selection"
             ItemAttributeValue.Insert();
         end;
         TempItemAttributeValueToInsert.TransferFields(ItemAttributeValue);
+        OnGetAttributeValueIDOnBeforeInsertTempItemAttributeValue(TempItemAttributeValueToInsert, ItemAttributeValue);
         TempItemAttributeValueToInsert.Insert();
         exit(ItemAttributeValue.ID);
     end;
@@ -493,6 +496,21 @@ table 7504 "Item Attribute Value Selection"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateChangedAttributeOnBeforeValidateValue(ItemAttribute: Record "Item Attribute"; var ItemAttributeValueSelection: Record "Item Attribute Value Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemAttributeValueOnBeforeInsertItemAttributeValue(var ItemAttributeValue: Record "Item Attribute Value"; var TempItemAttributeValueSelection: Record "Item Attribute Value Selection" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindAttributeValueFromRecordOnBeforeFindAttributeValueFromRecord(var ItemAttributeValue: Record "Item Attribute Value"; ItemAttributeValueSelection: Record "Item Attribute Value Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAttributeValueIDOnBeforeInsertTempItemAttributeValue(var TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary; var ItemAttributeValue: Record "Item Attribute Value")
     begin
     end;
 }

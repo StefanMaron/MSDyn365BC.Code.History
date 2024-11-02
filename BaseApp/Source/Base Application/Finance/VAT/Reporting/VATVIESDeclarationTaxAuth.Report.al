@@ -60,6 +60,9 @@ report 19 "VAT- VIES Declaration Tax Auth"
             column(VATRegNo; VATEntriesBaseAmtSum.VAT_Registration_No)
             {
             }
+            column(EU_Service; VATEntriesBaseAmtSum.EU_Service)
+            {
+            }
             column(TotalValueofItemSupplies; -TotalValueofItemSupplies)
             {
             }

@@ -835,6 +835,42 @@ codeunit 144005 "ERM Annual Listing"
         VerifyAnnualListingReportData(Customer."No.", Customer."Country/Region Code" + ' ' + Customer."Enterprise No.");
     end;
 
+    [Test]
+    [HandlerFunctions('VATAnnualListingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportAnnualListingForSameEnterpriseNoWithDiffCustomer()
+    var
+        Customer: array[2] of Record Customer;
+        SalesHeader: Record "Sales Header";
+        IncludeCountry: Option All,Specific;
+    begin
+        // [SCENARIO 555304] Same Enterprise No. customers VAT Base and amount will be added in xml
+        Initialize();
+
+        // [GIVEN] Create a Customer[1] with "Enterprise No." 
+        LibraryBEHelper.CreateDomesticCustomer(Customer[1]);
+        Customer[1].Validate("Enterprise No.", LibraryBEHelper.CreateMOD97CompliantCode());
+        Customer[1].Modify(true);
+
+        // [GIVEN] Create a Customer[2] with same "Enterprise No."
+        LibraryBEHelper.CreateDomesticCustomer(Customer[2]);
+        Customer[2].Validate("Enterprise No.", Customer[1]."Enterprise No.");
+        Customer[2].Modify(true);
+
+        // [GIVEN] Posted Invoice for Customer1 and Customer2.
+        CreateAndPostSalesDocumentInPeriod(Customer[1]."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate()));
+        CreateAndPostSalesDocumentInPeriod(Customer[2]."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate()));
+
+        // [WHEN] Run report Annual Listing.
+        ExportAnnualListing(false, Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3), 0.01, IncludeCountry::Specific, Customer[1]."Country/Region Code");
+
+        // [THEN] Verify VAT Amount Base and VAT Amount in report
+        VerifyAnnualListingReportDataforMultipleCustomer(
+            Customer[1],
+            Customer[1]."Country/Region Code" + ' ' + Customer[1]."Enterprise No.",
+            Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Annual Listing");
@@ -1120,6 +1156,19 @@ codeunit 144005 "ERM Annual Listing"
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDecInRange(12, 14, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure VerifyAnnualListingReportDataforMultipleCustomer(Customer: Record Customer; VATRegistrationNo: Code[71]; Year: Integer)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Posting Date", DMY2Date(01, 01, Year), DMY2Date(31, 12, Year));
+        VATEntry.SetRange("Enterprise No.", Customer."Enterprise No.");
+        VATEntry.CalcSums(Amount, Base);
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BufferVATRegistrationNo', VATRegistrationNo);
+        LibraryReportDataset.AssertElementWithValueExists('BufferAmount', -VATEntry.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('BufferBase', -VATEntry.Base);
     end;
 
     [MessageHandler]

@@ -1720,7 +1720,14 @@ table 18 Customer
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateEnterpriseNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;   
+
                 if "Enterprise No." <> DelChr("Enterprise No.", '=', '0123456789') then begin
                     if not Country.DetermineCountry("Country/Region Code") then
                         Error(Text11302, FieldCaption("Enterprise No.") + ' ' + "No.");
@@ -3740,6 +3747,11 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTotalAmountLCYCommon(var Customer: Record Customer; var TotalAmountLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEnterpriseNo(var Customer: Record Customer; xCustomer: Record Customer; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -381,6 +381,7 @@ codeunit 137150 "SCM Warehouse UOM"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure QuantityToPlaceExceedsAvailableCapacityError()
     var
@@ -411,7 +412,7 @@ codeunit 137150 "SCM Warehouse UOM"
           StrSubstNo(
             ExceedsAvailableCapacity, WarehouseActivityLine.FieldCaption("Qty. (Base)"),
             Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure",
-            BinContent."Max. Qty." * ItemUnitOfMeasure."Qty. per Unit of Measure", BinContent.TableCaption(), BinContent."Bin Code"));
+            BinContent."Max. Qty.", BinContent.TableCaption(), BinContent."Bin Code"));
     end;
 
     [Test]
@@ -4517,6 +4518,73 @@ codeunit 137150 "SCM Warehouse UOM"
 
         // [THEN] Verify Warehouse Movement can be register
         RegisterWarehouseMovement(Item."No.", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure WarningMessageWhenMaxQuantityExceedsForBin()
+    var
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 542681] Warning message when max. quantity is exceeded for a Bin when register a put-away.
+        Initialize();
+
+        // [GIVEN] Create Full Warehouse Location and Validate Bin Capacity Policy.
+        LibraryWarehouse.CreateFullWMSLocation(Location, LibraryRandom.RandInt(2));
+        Location.Validate("Bin Capacity Policy", Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.");
+        Location.Modify(true);
+
+        // [GIVEN] Create an Item.
+        CreateItem(Item, '');
+
+        // [GIVEN] Create Unit Of Measure.
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandInt(5) + 1);
+
+        // [GIVEN] Find Reciving Bin.
+        FindBin(Bin, Location.Code, true, false, false);
+
+        // [GIVEN] Create two Bin Content.
+        CreateBinContent(BinContent, Bin, Item."No.", Item."Base Unit of Measure", LibraryRandom.RandDec(100, 2));
+        CreateBinContent(BinContent, Bin, Item."No.", ItemUnitOfMeasure.Code, BinContent."Max. Qty.");
+
+        // [GIVEN] Calculate and Store Quantity.
+        Quantity := BinContent."Max. Qty." + LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create and Release Purchase Order.
+        CreateAndReleasePurchaseOrderWithMultipleUOM(
+            PurchaseHeader, Item."No.", ItemUnitOfMeasure.Code, '',
+            Location.Code, Quantity, false);
+
+        // [GIVEN] Create Warehouse Receipt From Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Find Warehouse Receipt Line of Purchase Order.
+        FindWarehouseReceiptLine(
+            WarehouseReceiptLine,
+            WarehouseReceiptLine."Source Document"::"Purchase Order",
+            PurchaseHeader."No.");
+
+        // [WHEN] Post Warehouse Receipt From Purchase Order.
+        asserterror PostWarehouseReceipt(WarehouseReceiptLine."No.");
+
+        // [THEN] Error should occour when Maximum Quantity Exceeds for a Bin.
+        Assert.ExpectedError(
+            StrSubstNo(
+                ExceedsAvailableCapacity,
+                WarehouseActivityLine.FieldCaption("Qty. (Base)"),
+                Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure",
+                BinContent."Max. Qty.",
+                BinContent.TableCaption(),
+                BinContent."Bin Code"));
     end;
 
     local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10])

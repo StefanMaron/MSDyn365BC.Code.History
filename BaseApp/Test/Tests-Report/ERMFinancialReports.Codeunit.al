@@ -1432,6 +1432,36 @@ codeunit 134982 "ERM Financial Reports"
         FileManagement.DeleteServerFile(FileName);
     end;
 
+    [Test]
+    [HandlerFunctions('RHVATVIESDeclarationTaxAuth')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclarationResultsContainsEUService()
+    var
+        Customer: Record Customer;
+        VATEntry: Record "VAT Entry";
+    begin
+        // [SCENARIO 547242] Adjusting the VAT- VIES Declaration Tax Auth for Belgium and verify VIES result contains EU Service 
+        Initialize();
+
+        // [GIVEN] Create Customers "C1" with Country Codes "CN1"
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+
+        // [GIVEN] "CN1" is set as "EU Country/Region".
+        UpdateEUCountryRegion(Customer."Country/Region Code");
+
+        // [GIVEN] Mock VAT entry for "C1"
+        MockVATEntryForCustomer(Customer);
+
+        // [WHEN] VAT VIES Declaration report "VIES" executed for all Customers entries.
+        VATVIESDeclarationTaxReport('', false);
+
+        // [THEN] Verify "VIES" results contains entries for EU Service
+        VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
+        VATEntry.FindFirst();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('EU_Service', VATEntry."EU Service");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

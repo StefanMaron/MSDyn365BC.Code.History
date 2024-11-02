@@ -370,7 +370,7 @@ report 12 "VAT Statement"
                                 VATEntry.CalcSums(Base, "Additional-Currency Base", Amount, "Additional-Currency Amount");
                                 Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                                 Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
-                                if VATStmtLine2."Incl. Non Deductible VAT" then begin
+                                if not VATStmtLine2."Incl. Non Deductible VAT" then begin
                                     VATEntry.CalcSums("Non Ded. VAT Amount", "Non Ded. Source Curr. VAT Amt.");
                                     Amount := ConditionalAdd(Amount, VATEntry."Non Ded. VAT Amount", VATEntry."Non Ded. Source Curr. VAT Amt.");
                                 end;
@@ -380,7 +380,7 @@ report 12 "VAT Statement"
                             begin
                                 VATEntry.CalcSums(Base, "Additional-Currency Base", "Base Before Pmt. Disc.");
                                 Amount := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
-                                if VATStmtLine2."Incl. Non Deductible VAT" then begin
+                                if not VATStmtLine2."Incl. Non Deductible VAT" then begin
                                     VATEntry.CalcSums("Non Ded. VAT Amount", "Non Ded. Source Curr. VAT Amt.");
                                     Amount := ConditionalAdd(Amount, -VATEntry."Non Ded. VAT Amount", -VATEntry."Non Ded. Source Curr. VAT Amt.");
                                 end;

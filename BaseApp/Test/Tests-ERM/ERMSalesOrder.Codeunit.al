@@ -31,6 +31,7 @@ codeunit 134378 "ERM Sales Order"
         WorkflowSetup: Codeunit "Workflow Setup";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         isInitialized: Boolean;
         VATAmountErr: Label 'VAT Amount must be %1 in %2.', Comment = '%1 = value, %2 = field';
         FieldErr: Label 'Number of Lines for %1 and %2  must be Equal.', Comment = '%1,%2 = table name';
@@ -68,6 +69,7 @@ codeunit 134378 "ERM Sales Order"
         DimensionSetIdHasChangedMsg: Label 'Dimension Set ID has changed on Sales Order';
         CustomerBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
         UnitPriceMustMatchErr: Label 'Unit Price must match.';
+        PlannedShipmentDateErr: Label 'Planned Shipment Date must be %1 in %2.', Comment = '%1= Value ,%2=Table Name.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5345,6 +5347,96 @@ codeunit 134378 "ERM Sales Order"
         asserterror LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemSubstitutionEntriesOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyReserveQtyAfterAddingATOItemSubstitutionOnSalesLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemSubstitution: Record "Item Substitution";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
+        LibraryAssembly: Codeunit "Library - Assembly";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        //[Scenario - 546745] In Sales Order page, After adding ATO Item Substitution in the Sales Line Item
+        //Reserved Qty should Calculate.
+        Initialize();
+
+        // [GIVEN] Disable the Item Availability Notification
+        LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId());
+
+        // [GIVEN] Create Sales Order and Validate the 'Due Date' Field
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader.Validate("Due Date", CalcDate('2D', WorkDate()));
+        SalesHeader.Modify(true);
+
+        // [WHEN] Finding the Sales Line
+        SalesLine.SetRange(SalesLine."Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange(SalesLine."Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+
+        // [WHEN] Substitution Item Created and assigned to the Main Item
+        LibraryAssembly.CreateItemSubstitution(ItemSubstitution, SalesLine."No.");
+
+        // [WHEN] Assiging and Validating the 'Replenishment System' and 'Assembly Policy' field in the Sustitution Item
+        Item.Get(ItemSubstitution."Substitute No.");
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+
+        //[WHEN] Making Inventory Quantity to 100 for the Main Item and Substitution Item
+        UpdateItemInventoryNoLocation(SalesLine."No.", 100);
+        UpdateItemInventoryNoLocation(ItemSubstitution."Substitute No.", 100);
+
+        //[WHEN] Opening the Sales Order Page and Assigning the ATO Item Substitution for the Sales Order Line Item
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.SelectItemSubstitution.Invoke();
+
+        //[THEN] Verifying that the ATO Item is changed in the SO Lines and the Reserved Qty should be calculated.
+        SalesOrder.SalesLines."Reserved Quantity".AssertEquals(SalesLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure PlannedShippingDateMustBeUpdatedWhenShippingTimeExists()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 537460] When Validating "Planned Delivery Date" in Sales Line with blank "Shipment Date", it is correctly calculated.
+        Initialize();
+
+        // [GIVEN] Create Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine);
+
+        // [GIVEN] Create a Shipping Time.
+        Evaluate(ShippingTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(5)));
+
+        // [GIVEN] Validate Shipping Time, Planned Delivery Date, Planned Shipment Date and Shipment Date.
+        SalesLine.Validate("Shipping Time", ShippingTime);
+        SalesLine.Validate("Planned Delivery Date", 0D);
+        SalesLine.Validate("Planned Shipment Date", 0D);
+        SalesLine.Validate("Shipment Date", 0D);
+
+        // [WHEN] Validate Requested Delivery Date.
+        SalesLine.Validate("Requested Delivery Date", Today());
+        SalesLine.Modify(true);
+
+        // [THEN] Planned Shipment Date is calculated from Shipping Time.
+        Assert.AreEqual(
+            SalesLine.CalcPlannedDate(),
+            SalesLine."Planned Shipment Date",
+            StrSubstNo(
+                PlannedShipmentDateErr,
+                SalesLine.CalcPlannedDate(),
+                SalesLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -7110,6 +7202,14 @@ codeunit 134378 "ERM Sales Order"
         WhseActivityPost.Run(WarehouseActivityLine);
     end;
 
+    local procedure UpdateItemInventoryNoLocation(ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, '', '', Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure NavigatePageHandler(var Navigate: Page Navigate)
@@ -7559,5 +7659,11 @@ codeunit 134378 "ERM Sales Order"
     procedure DummyMessageHandler(Message: Text[1024])
     begin
     end;
-}
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemSubstitutionEntriesOKModalPageHandler(var ItemSubstitution: TestPage "Item Substitution Entries")
+    begin
+        ItemSubstitution.OK().Invoke();
+    end;
+}

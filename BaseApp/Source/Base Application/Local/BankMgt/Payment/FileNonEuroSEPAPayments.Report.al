@@ -213,6 +213,9 @@ report 2000006 "File Non Euro SEPA Payments"
         FinishGroupHeader();
         XMLDomDoc.Save(SaveToFileName);
 
+        if SaveToFileName = '' then
+            SaveToFileName := NonEuroSEPAPaymentsTxt;
+
         Download(SaveToFileName, '', '', AllFilesDescriptionTxt, FileName);
 
         Clear(XMLDomDoc);
@@ -222,7 +225,7 @@ report 2000006 "File Non Euro SEPA Payments"
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
         XMLRootElement: DotNet XmlElement;
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -293,6 +296,7 @@ report 2000006 "File Non Euro SEPA Payments"
         ControlSum: Decimal;
         IncludeDimTextEnable: Boolean;
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
+        NonEuroSEPAPaymentsTxt: Label 'NonEuroSEPAPayments.txt';
 
     protected var
         GenJnlLine: Record "Gen. Journal Line";

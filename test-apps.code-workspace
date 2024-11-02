@@ -1,11 +1,11 @@
 {
   "settings": {
-    "allint.enabled": false,
     "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false,
     "search.exclude": {
       "**.xlf": true
-    }
+    },
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false
   },
   "folders": [
     {
@@ -129,7 +129,13 @@
       "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
     },
     {
+      "path": "./EDocumentsConnector/Test/E-Documents Connector Tests"
+    },
+    {
       "path": "./ServiceDeclaration/Test/Service Declaration Tests"
+    },
+    {
+      "path": "./EDocumentConnectors/Avalara/Test/E-Document Connector - Avalara Tests"
     },
     {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"

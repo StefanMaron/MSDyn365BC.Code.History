@@ -219,7 +219,7 @@ table 1173 "Document Attachment"
         IncomingFileName: Text;
         NoDocumentAttachedErr: Label 'Please attach a document first.';
         EmptyFileNameErr: Label 'Please choose a file to attach.';
-        NoContentErr: Label 'The selected file has no content. Please choose another file.';
+        NoContentErr: Label 'The selected file ''%1'' has no content. Please choose another file.', Comment = '%1=FileName';
         DuplicateErr: Label 'This file is already attached to the document. Please choose another file.';
 
     procedure ImportAttachment(DocumentInStream: InStream; FileName: Text)
@@ -306,7 +306,7 @@ table 1173 "Document Attachment"
             Error(EmptyFileNameErr);
         // Validate file/media is not empty
         if not TempBlob.HasValue() then
-            Error(NoContentErr);
+            Error(NoContentErr, FileName);
 
         TempBlob.CreateInStream(DocStream);
         InsertAttachment(DocStream, RecRef, FileName, AllowDuplicateFileName);
@@ -530,6 +530,9 @@ table 1173 "Document Attachment"
         OnBeforeImportFromStream(Rec, AttachmentInStream, FileName, IsHandled);
         if IsHandled then
             exit;
+
+        if AttachmentInStream.Length = 0 then
+            Error(NoContentErr, FileName);
 
         Rec."Document Reference ID".ImportStream(AttachmentInStream, '', '', FileName);
     end;

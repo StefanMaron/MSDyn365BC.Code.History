@@ -179,14 +179,11 @@ codeunit 5051 SegManagement
         InteractionTemplate: Record "Interaction Template";
         InteractionLogEntry: Record "Interaction Log Entry";
         Attachment: Record Attachment;
-        MarketingSetup: Record "Marketing Setup";
         TempDeliverySorter: Record "Delivery Sorter" temporary;
         InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
         AttachmentManagement: Codeunit AttachmentManagement;
-        FileManagement: Codeunit "File Management";
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         WizardAction: Enum "Interaction Template Wizard Action";
-        FileName: Text;
         FileExported: Boolean;
         IsHandled: Boolean;
     begin
@@ -210,19 +207,13 @@ codeunit 5051 SegManagement
 
             Attachment.Copy(AttachmentTemp);
             Attachment."Read Only" := true;
+            OnLogInteractionOnBeforeWizSaveAttachment(SegmentLine, AttachmentTemp, Attachment);
             Attachment.WizSaveAttachment();
             OnBeforeAttachmentInsert(SegmentLine, AttachmentTemp, Attachment);
             Attachment.Insert(true);
 
-            MarketingSetup.Get();
-            if MarketingSetup."Attachment Storage Type" = MarketingSetup."Attachment Storage Type"::"Disk File" then
-                if Attachment."No." <> 0 then begin
-                    FileName := Attachment.ConstDiskFileName();
-                    if FileName <> '' then begin
-                        FileManagement.DeleteServerFile(FileName);
-                        FileExported := AttachmentTemp.ExportAttachmentToServerFile(FileName);
-                    end;
-                end;
+            ExportAttachmentFile(SegmentLine, Attachment, AttachmentTemp, FileExported);
+
             SegmentLine."Attachment No." := Attachment."No.";
             OnAfterHandleAttachmentFile(SegmentLine, Attachment, FileExported);
         end;
@@ -756,6 +747,30 @@ codeunit 5051 SegManagement
         exit(CampaignEntry."Entry No.");
     end;
 
+    local procedure ExportAttachmentFile(SegmentLine: Record "Segment Line"; var Attachment: Record Attachment; var AttachmentTemp: Record Attachment; var FileExported: Boolean)
+    var
+        MarketingSetup: Record "Marketing Setup";
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeExportAttachmentFile(SegmentLine, Attachment, AttachmentTemp, FileExported, IsHandled);
+        if IsHandled then
+            exit;
+
+        MarketingSetup.SetLoadFields("Attachment Storage Type");
+        MarketingSetup.Get();
+        if MarketingSetup."Attachment Storage Type" = MarketingSetup."Attachment Storage Type"::"Disk File" then
+            if Attachment."No." <> 0 then begin
+                FileName := Attachment.ConstDiskFileName();
+                if FileName <> '' then begin
+                    FileManagement.DeleteServerFile(FileName);
+                    FileExported := AttachmentTemp.ExportAttachmentToServerFile(FileName);
+                end;
+            end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindInteractTemplateCode(DocumentType: Enum "Interaction Log Entry Document Type"; InteractionTemplateSetup: Record "Interaction Template Setup"; var InteractionTemplateCode: Code[10])
     begin
@@ -953,6 +968,16 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLogInteractionOnBeforeInteractLogEntryGet(var NextInteractLogEntryNo: Integer; SegmentLine: Record "Segment Line"; Postponed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogInteractionOnBeforeWizSaveAttachment(SegmentLine: Record "Segment Line"; var AttachmentTemp: Record Attachment; var Attachment: Record Attachment)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportAttachmentFile(var SegmentLine: Record "Segment Line"; Attachment: Record Attachment; var AttachmentTemp: Record Attachment; var FileExported: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

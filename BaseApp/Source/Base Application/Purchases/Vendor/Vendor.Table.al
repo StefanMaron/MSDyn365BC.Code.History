@@ -1558,7 +1558,14 @@ table 23 Vendor
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateEnterpriseNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Enterprise No." <> '' then begin
                     if not Country.DetermineCountry("Country/Region Code") then
                         Error(Text11302, FieldCaption("Enterprise No."));
@@ -2331,15 +2338,19 @@ table 23 Vendor
     procedure SelectVendor(var Vendor: Record Vendor): Boolean
     var
         VendorLookup: Page "Vendor Lookup";
+        PreviousVendorCode: Code[20];
         Result: Boolean;
     begin
         VendorLookup.SetTableView(Vendor);
         VendorLookup.SetRecord(Vendor);
         VendorLookup.LookupMode := true;
-        Result := VendorLookup.RunModal() = ACTION::LookupOK;
-        if Result then
-            VendorLookup.GetRecord(Vendor)
-        else
+        PreviousVendorCode := Vendor."No.";
+
+        VendorLookup.RunModal();
+        VendorLookup.GetRecord(Vendor);
+        Result := Vendor."No." <> PreviousVendorCode;
+
+        if not Result then
             Clear(Vendor);
 
         exit(Result);
@@ -2913,5 +2924,10 @@ table 23 Vendor
     local procedure OnOpenVendorLedgerEntriesOnBeforeDrillDownEntries(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; FilterOnDueEntries: Boolean; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEnterpriseNo(var Vendor: Record Vendor; xVendor: Record Vendor; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;    
 }
 

@@ -5,6 +5,7 @@ using System.Telemetry;
 using System.Utilities;
 using System.Environment.Configuration;
 using System.Integration;
+using System.Reflection;
 
 page 6325 "Power BI Embedded Report Part"
 {
@@ -737,6 +738,7 @@ page 6325 "Power BI Embedded Report Part"
     local procedure SetReport()
     var
         PowerBIContextSettings: Record "Power BI Context Settings";
+        TypeHelper: Codeunit "Type Helper";
         DashboardId: Guid;
         ReportId: Guid;
         TileId: Guid;
@@ -751,6 +753,7 @@ page 6325 "Power BI Embedded Report Part"
 
         CurrPage.PowerBIAddin.SetSettings(false, PowerBIDisplayedElement.ShowPanesInNormalMode, PowerBIDisplayedElement.ShowPanesInNormalMode,
             false, true, false, false);
+        CurrPage.PowerBIAddin.SetLocale(TypeHelper.GetCultureName());
         PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIAddin);
 
         case PowerBIDisplayedElement.ElementType of
@@ -783,6 +786,7 @@ page 6325 "Power BI Embedded Report Part"
 
         CurrPage.PowerBIAddin.SetSettings(false, Rec.ShowPanesInNormalMode, Rec.ShowPanesInNormalMode,
             false, true, false, false);
+        CurrPage.PowerBIAddin.SetLocale(TypeHelper.GetCultureName());
         PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIAddin);
 
         case Rec.ElementType of

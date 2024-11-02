@@ -5,7 +5,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
 using Microsoft.Purchases.Vendor;
 
-codeunit 139898 "Extend Contract Test"
+codeunit 148152 "Extend Contract Test"
 {
     Subtype = Test;
     Access = Internal;

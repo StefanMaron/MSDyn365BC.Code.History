@@ -41,7 +41,6 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         Code(GenJnlLine);
         Rec := GenJnlLine;
         FinishDateTime := CurrentDateTime();
-        LogSuccessPostTelemetry(Rec, StartDateTime, FinishDateTime, NoOfRecords);
     end;
 
     var
@@ -143,8 +142,6 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         TwoPlaceHoldersTok: Label '%1%2', Locked = true;
         ServiceSessionTok: Label '#%1#%2#', Locked = true;
         GlblDimNoInconsistErr: Label 'A setting for one or more global or shortcut dimensions is incorrect. To fix it, choose the link in the Source column. For more information, choose the link in the Support URL column.';
-        TelemetryCategoryTxt: Label 'GenJournal', Locked = true;
-        GenJournalPostedTxt: Label 'General journal posted successfully. Journal Template: %1, Journal Batch: %2', Locked = true;
 
     local procedure "Code"(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -459,6 +456,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                   ((GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"G/L Account") and (GenJnlLine."Bal. Account No." <> '') and
                    (GenJnlLine."Bal. Gen. Posting Type" in [GenJnlLine."Bal. Gen. Posting Type"::Purchase, GenJnlLine."Bal. Gen. Posting Type"::Sale]) and
                    (BalVATPostingSetup."VAT %" <> 0));
+                OnProcessBalanceOfLinesOnAfterSetVATEntryCreated(GenJnlLine, VATEntryCreated);
                 if TempGenJnlLine3.IsCustVendICAdded(GenJnlLine) then begin
                     GenJnlLineVATInfoSource := GenJnlLine;
                     VATInfoSourceLineIsInserted := true;
@@ -684,7 +682,12 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     local procedure CheckAllocations(var GenJnlLine2: Record "Gen. Journal Line")
     var
         ShowAllocationsRecurringError: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAllocations(GenJnlLine2, IsHandled);
+        if IsHandled then
+            exit;
         if GenJnlLine2."Account No." <> '' then begin
             if GenJnlLine2."Recurring Method" in
                [GenJnlLine2."Recurring Method"::"B  Balance",
@@ -816,6 +819,10 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             GenJnlLine2."VAT Amount (LCY)" := GenJnlLine2."VAT Amount (LCY)" * Factor;
             GenJnlLine2."VAT Base Amount (LCY)" := GenJnlLine2."VAT Base Amount (LCY)" * Factor;
             GenJnlLine2."Source Currency Amount" := GenJnlLine2."Source Currency Amount" * Factor;
+            GenJnlLine2."Non-Deductible VAT Amount" := GenJnlLine2."Non-Deductible VAT Amount" * Factor;
+            GenJnlLine2."Non-Deductible VAT Base" := GenJnlLine2."Non-Deductible VAT Base" * Factor;
+            GenJnlLine2."Non-Deductible VAT Amount LCY" := GenJnlLine2."Non-Deductible VAT Amount LCY" * Factor;
+            GenJnlLine2."Non-Deductible VAT Base LCY" := GenJnlLine2."Non-Deductible VAT Base LCY" * Factor;
             if GenJnlLine2."Job No." <> '' then
                 MultiplyJobAmounts(GenJnlLine2, Factor);
         end;
@@ -1238,6 +1245,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         if not GenJournalLine.Find() then
             GenJournalLine.FindSet();
         GenJournalLine.SetRange("Posting Date", 0D, WorkDate());
+        OnCheckGenJnlLineOnAfterSetPostingDateFilter(GenJournalLine);
         if GenJournalLine.FindSet() then begin
             StartLineNo := GenJournalLine."Line No.";
             StartBatchName := GenJournalLine."Journal Batch Name";
@@ -1839,19 +1847,6 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         end;
     end;
 
-    local procedure LogSuccessPostTelemetry(GenJournalLine: Record "Gen. Journal Line"; StartDateTime: DateTime; FinishDateTime: DateTime; NumberOfRecords: Integer)
-    var
-        Dimensions: Dictionary of [Text, Text];
-        PostingDuration: BigInteger;
-    begin
-        PostingDuration := FinishDateTime - StartDateTime;
-        Dimensions.Add('Category', TelemetryCategoryTxt);
-        Dimensions.Add('PostingStartTime', Format(StartDateTime, 0, 9));
-        Dimensions.Add('PostingFinishTime', Format(FinishDateTime, 0, 9));
-        Dimensions.Add('PostingDuration', Format(PostingDuration));
-        Dimensions.Add('NumberOfLines', Format(NumberOfRecords));
-        Session.LogMessage('0000F9I', StrSubstNo(GenJournalPostedTxt, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
-    end;
 
     local procedure RemoveRecordLink(GenJournalLine: Record "Gen. Journal Line")
     var
@@ -1867,7 +1862,13 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     local procedure AssignVATDateIfEmpty(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssignVATDateIfEmpty(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
         if GenJnlLine."VAT Reporting Date" = 0D then begin
             GLSetup.Get();
             if (GenJnlLine."Document Date" = 0D) and (GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Document Date") then
@@ -2246,6 +2247,26 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; var LastDocumentNo: code[20]; var LastPostedDocumentNo: code[20]; var NoSeriesBatch: Codeunit "No. Series - Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessBalanceOfLinesOnAfterSetVATEntryCreated(GenJournalLine: Record "Gen. Journal Line"; var VATEntryCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAllocations(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckGenJnlLineOnAfterSetPostingDateFilter(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignVATDateIfEmpty(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

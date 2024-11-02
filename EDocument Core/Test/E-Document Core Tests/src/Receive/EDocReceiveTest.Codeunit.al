@@ -1481,6 +1481,7 @@ codeunit 139628 "E-Doc. Receive Test"
     local procedure Initialize()
     var
         DocumentAttachment: Record "Document Attachment";
+        EDocument: Record "E-Document";
     begin
         Clear(EDocImplState);
         Clear(PurchaseHeader);
@@ -1490,6 +1491,7 @@ codeunit 139628 "E-Doc. Receive Test"
 
         Vendor.SetRange("VAT Registration No.", 'GB123456789');
         Vendor.DeleteAll();
+        EDocument.DeleteAll();
     end;
 
     local procedure CheckPurchaseHeadersAreEqual(var PurchHeader1: Record "Purchase Header"; var PurchHeader2: Record "Purchase Header")

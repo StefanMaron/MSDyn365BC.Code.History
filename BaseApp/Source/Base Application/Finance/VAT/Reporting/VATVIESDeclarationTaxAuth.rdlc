@@ -19,30 +19,30 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>0.62492in</Width>
+                  <Width>1.5873cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.62519in</Width>
+                  <Width>4.12798cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.87489in</Width>
+                  <Width>2.22222cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.87489in</Width>
+                  <Width>2.22222cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.62492in</Width>
+                  <Width>1.5873cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.87489in</Width>
+                  <Width>2.22222cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.87489in</Width>
+                  <Width>2.22222cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>0.27559in</Height>
+                  <Height>0.7cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -259,7 +259,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.16654in</Height>
+                  <Height>0.42301cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -287,6 +287,7 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -471,7 +472,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.16654in</Height>
+                  <Height>0.42301cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -501,6 +502,7 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -568,7 +570,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.03937in</Height>
+                  <Height>0.1cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -788,6 +790,7 @@
                     <GroupExpressions>
                       <GroupExpression>=Fields!CountryCode.Value</GroupExpression>
                       <GroupExpression>=Fields!VATRegNo.Value</GroupExpression>
+                      <GroupExpression>=Fields!EU_Service.Value</GroupExpression>
                     </GroupExpressions>
                   </Group>
                   <TablixMembers>
@@ -4098,6 +4101,9 @@ End Function
         </Field>
         <Field Name="VATRegNo">
           <DataField>VATRegNo</DataField>
+        </Field>
+        <Field Name="EU_Service">
+          <DataField>EU_Service</DataField>
         </Field>
         <Field Name="TotalValueofItemSupplies">
           <DataField>TotalValueofItemSupplies</DataField>

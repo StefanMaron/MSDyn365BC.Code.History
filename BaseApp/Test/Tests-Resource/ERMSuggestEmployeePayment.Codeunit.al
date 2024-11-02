@@ -25,6 +25,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         ValidateErrorErr: Label '%1 must be %2 in %3 %4 = %5.';
         SuggestEmployeeAmountErr: Label 'The available amount of suggest Employee payment is always greater then gen. journal line amount.';
         NoOfPaymentErr: Label 'No of payment is incorrect.';
+        DocumentNoErr: Label 'Document No. must not increase when New Doc. No. Per Line is not enabled.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -851,7 +852,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryVariableStorage.Enqueue(-EmployeeAmount);
         LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
         LibraryVariableStorage.Enqueue(true); // Summarize - TRUE
-        LibraryVariableStorage.Enqueue(false); // New Doc. No. per Line - FALSE
+        LibraryVariableStorage.Enqueue(true); // New Doc. No. per Line - TRUE
 
         Commit();
 
@@ -927,6 +928,52 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine.TestField("Document No.", 'A0031');
         GenJournalLine.TestField("Account No.", Employee[2]."No.");
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestEmployeePaymentsWithStartingNo')]
+    procedure SuggestEmployeePaymentsEmployeesNoSeriesShouldHaveCorrectSeries()
+    var
+        Employee: array[2] of Record Employee;
+        NoSeriesLine: Record "No. Series Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        EmployeeIndex: Integer;
+    begin
+        // [SCENARIO 342243] "Suggest Employee Payments" report considers "Increment by No." setup in number series of general journal batch when "New Doc. No. per Line" = TRUE
+        Initialize();
+
+        // [GIVEN] Create Employee with Bank Account, Create and Post General Journal.
+        for EmployeeIndex := 1 to ArrayLen(Employee) do begin
+            LibraryHumanResource.CreateEmployeeWithBankAccount(Employee[EmployeeIndex]);
+            Clear(GenJournalLine);
+            LibraryJournals.CreateGenJournalLineWithBatch(
+                GenJournalLine, GenJournalLine."Document Type"::" ",
+               GenJournalLine."Account Type"::Employee, Employee[EmployeeIndex]."No.",
+               -LibraryRandom.RandDec(100, 2));
+
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+
+        // [GIVEN] Create No. Series and Increment No. Series.
+        CreateNoSeriesWithIncrementByNo(NoSeriesLine, LibraryRandom.RandInt(1), LibraryERM.CreateNoSeriesCode(), LibraryERM.CreateNoSeriesCode());
+
+        // [GIVEN] Setup General Journal to Suggest Employee payments.
+        SetupGenJournalLineForSuggestEmployeePayments(GenJournalLine, NoSeriesLine);
+
+        // [GIVEN] Enqueue Employee Filter, Starting No. Summarize and New Doc. No. Per Line.
+        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', Employee[1]."No.", Employee[2]."No."));
+        LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Run Suggest Employee Payment Report.
+        Commit();
+        RunSuggestEmployeePaymentsWithRequestPage(GenJournalLine);
+
+        // [THEN] No. Series should not increase on new line when New Doc. No. Per Line is disabled.
+        GenJournalLine.SetFilter("Account No.", '%1|%2', Employee[1]."No.", Employee[2]."No.");
+        GenJournalLine.FindLast();
+        Assert.AreEqual(NoSeriesLine."Starting No.", GenJournalLine."Document No.", DocumentNoErr);
     end;
 
     local procedure Initialize()
@@ -1730,6 +1777,17 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestEmployeePayments."Available Amount (LCY)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryVariableStorage.DequeueText());
+        SuggestEmployeePayments.SummarizePerEmployee.SetValue(LibraryVariableStorage.DequeueBoolean());
+        SuggestEmployeePayments.NewDocNoPerLine.SetValue(LibraryVariableStorage.DequeueBoolean());
+        SuggestEmployeePayments.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestEmployeePaymentsWithStartingNo(var SuggestEmployeePayments: TestRequestPage "Suggest Employee Payments")
+    begin
+        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryVariableStorage.DequeueText());
         SuggestEmployeePayments.SummarizePerEmployee.SetValue(LibraryVariableStorage.DequeueBoolean());
         SuggestEmployeePayments.NewDocNoPerLine.SetValue(LibraryVariableStorage.DequeueBoolean());

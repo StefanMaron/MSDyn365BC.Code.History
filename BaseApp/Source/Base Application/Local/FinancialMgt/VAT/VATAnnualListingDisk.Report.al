@@ -109,25 +109,39 @@ report 11309 "VAT Annual Listing - Disk"
                 var
                     Country2: Record "Country/Region";
                     i: Integer;
+                    EnterpriseNo: Text[50];
                 begin
                     i := Buffer.Count + 1;
-                    if (IsCustBalanceGreaterThanMinimum() and IsCustVATAmountNotZero()) or IsCreditMemoWithAppliedInvoice then begin
+                    EnterpriseNo := DelChr(Customer."Enterprise No.", '=', DelChr(Customer."Enterprise No.", '=', '0123456789'));
+                    EnterpriseNoExistInBuffer := IsEnterpriseNoExistInBuffer(EnterpriseNo);
+
+                    if ((IsCustBalanceGreaterThanMinimum() and IsCustVATAmountNotZero()) or IsCreditMemoWithAppliedInvoice) and
+                       not EnterpriseNoExistInBuffer then begin
                         Buffer.Init();
                         Buffer."Entry No." := i;
-                        Buffer."Enterprise No." := DelChr(Customer."Enterprise No.", '=', DelChr(Customer."Enterprise No.", '=', '0123456789'));
+                        Buffer."Enterprise No." := EnterpriseNo;
                         Country2.Get(Customer."Country/Region Code");
                         Buffer."Country/Region Code" := Country2."ISO Code";
                         Buffer.Base := -WBase;
                         Buffer.Amount := -WAmount;
                         Buffer.Insert();
                     end;
+                    if EnterpriseNoExistInBuffer then
+                        AddVatAmountToSimilarEnterpriseNo();
+
+                    Buffer.Reset();
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if (IsCustBalanceGreaterThanMinimum() and IsCustVATAmountNotZero()) or IsCreditMemoWithAppliedInvoice then begin
+                    if ((IsCustBalanceGreaterThanMinimum() and IsCustVATAmountNotZero()) or IsCreditMemoWithAppliedInvoice) and
+                       not EnterpriseNoExistInBuffer then begin
                         WTotBase2 := WTotBase2 + Buffer.Base;
                         WTotAmount2 := WTotAmount2 + Buffer.Amount;
+                    end;
+                    if EnterpriseNoExistInBuffer then begin
+                        WTotBase2 := WTotBase2 - WBase;
+                        WTotAmount2 := WTotAmount2 - WAmount;
                     end;
                 end;
             }
@@ -348,6 +362,7 @@ report 11309 "VAT Annual Listing - Disk"
         ClientFileNameTxt: Label 'Intervat.xml', Locked = true;
         IsCreditMemoWithAppliedInvoice: Boolean;
         PreviousYear: Integer;
+        EnterpriseNoExistInBuffer: Boolean;
 
     local procedure InitializeXMLFile()
     begin
@@ -508,6 +523,24 @@ report 11309 "VAT Annual Listing - Disk"
     local procedure IsCustVATAmountNotZero(): Boolean
     begin
         exit(WBase <> 0);
+    end;
+
+    local procedure IsEnterpriseNoExistInBuffer(EnterpriseNo: Text[50]): Boolean
+    begin
+        Buffer.Reset();
+        Buffer.SetRange("Enterprise No.", EnterpriseNo);
+        if Buffer.IsEmpty then
+            exit(false);
+
+        exit(true);
+    end;
+
+    local procedure AddVatAmountToSimilarEnterpriseNo()
+    begin
+        Buffer.FindFirst();
+        Buffer.Base := Buffer.Base - WBase;
+        Buffer.Amount := Buffer.Amount - WAmount;
+        Buffer.Modify();
     end;
 }
 

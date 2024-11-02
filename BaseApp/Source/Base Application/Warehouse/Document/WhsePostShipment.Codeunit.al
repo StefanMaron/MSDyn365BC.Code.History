@@ -1403,6 +1403,11 @@ codeunit 5763 "Whse.-Post Shipment"
 #endif
 
 #if not CLEAN25
+    internal procedure RunOnPostSourceDocumentOnBeforePrintTransferShipment(var TransferShipmentHeader: Record Microsoft.Inventory.Transfer."Transfer Shipment Header"; var IsHandled: Boolean; var TransHeader: Record Microsoft.Inventory.Transfer."Transfer Header")
+    begin
+        OnPostSourceDocumentOnBeforePrintTransferShipment(TransferShipmentHeader, IsHandled, TransHeader);
+    end;
+
     [Obsolete('Moved to codeunit Trans. Whse. Post Shipment', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforePrintTransferShipment(var Transfer: Record Microsoft.Inventory.Transfer."Transfer Shipment Header"; var IsHandled: Boolean; var TransHeader: Record Microsoft.Inventory.Transfer."Transfer Header")

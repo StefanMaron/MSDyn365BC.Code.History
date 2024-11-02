@@ -419,6 +419,9 @@ report 2000002 "File International Payments"
             FullFileName := FileName;
         end;
 
+        if FullFileName = '' then
+            FullFileName := InternationalPaymentsFileNameTxt;
+
         for RecordCounter := 1 to ArrayLen(DataRecord) do
             DataRecord[RecordCounter] := (CopyStr('111111100110', RecordCounter, 1) = '1');
         RecordCounter := 0;
@@ -497,6 +500,7 @@ report 2000002 "File International Payments"
         NonSalariesCaptionLbl: Label 'Non-Salaries';
         PmtTypeSpecificationCaptionLbl: Label '(*) Please specify payment type ("Salaries" or "Non-Salaries") in the upper right corner of the issue voucher.';
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
+        InternationalPaymentsFileNameTxt: Label 'InternationalPayments.txt';
 
     [Scope('OnPrem')]
     procedure FillCustomerData(PaymentJnlLine: Record "Payment Journal Line")
