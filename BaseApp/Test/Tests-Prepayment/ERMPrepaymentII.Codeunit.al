@@ -666,6 +666,7 @@ codeunit 134101 "ERM Prepayment II"
 
         // [THEN] Verify GL Entry and Posted Purchase Line with Partial PrePayment Amount and Quantity.
         PurchInvHeader.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchInvHeader.SetRange("Prepayment Invoice", false);
         PurchInvHeader.FindFirst();
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.FindFirst();
