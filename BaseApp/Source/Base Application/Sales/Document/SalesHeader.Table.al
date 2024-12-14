@@ -6476,7 +6476,28 @@ table 36 "Sales Header"
         end;
         Commit();
     end;
+    procedure BatchConfirmUpdatePostingDate(ReplacePostingDate: Boolean; PostingDateReq: Date; ReplaceVATDate: Boolean; VATDateReq: Date; ReplaceDocDate: Boolean)
+    begin
+        if not ReplacePostingDate then
+            exit;
+        if (PostingDateReq = "Posting Date") then
+            exit;
+        if DeferralHeadersExist() then
+            exit;
 
+        "Posting Date" := PostingDateReq;
+        Validate("Currency Code");
+
+        if ReplaceVATDate then
+            "VAT Reporting Date" := VATDateReq;
+
+        if ReplaceDocDate and ("Document Date" <> PostingDateReq) then begin
+            UpdateDocumentDate := true;
+            Validate("Document Date", PostingDateReq);
+        end;
+
+        Commit();
+    end;
     procedure GetSelectedPaymentServicesText(): Text
     var
         PaymentServiceSetup: Record "Payment Service Setup";
