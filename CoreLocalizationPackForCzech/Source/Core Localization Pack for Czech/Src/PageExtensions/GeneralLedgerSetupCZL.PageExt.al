@@ -189,7 +189,7 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
         ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
 #endif
         IsVATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
+        NonDeductibleVATVisible := NonDeductibleVATCZL.IsNonDeductibleVATEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -199,11 +199,13 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
 
     var
         VATSetup: Record "VAT Setup";
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
 #if not CLEAN22
 #pragma warning disable AL0432
         ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
 #pragma warning restore AL0432
+#endif
+        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
+#if not CLEAN22
         ReplaceVATDateEnabled: Boolean;
 #endif
         IsVATDateEnabled: Boolean;

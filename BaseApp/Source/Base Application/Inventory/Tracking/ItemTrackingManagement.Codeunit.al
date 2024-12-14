@@ -977,7 +977,7 @@ codeunit 6500 "Item Tracking Management"
                     TempWhseJnlLine2."Qty. (Base)" := -TempWhseJnlLine2."Qty. (Absolute, Base)";
                     TempWhseJnlLine2.Quantity := -TempWhseJnlLine2."Qty. (Absolute)";
                 end;
-                SplitFactor := TempWhseSplitTrackingSpec."Quantity (Base)" / NonDistrQtyBase;
+                SplitFactor := Abs(TempWhseSplitTrackingSpec."Quantity (Base)") / NonDistrQtyBase;
                 if SplitFactor < 1 then begin
                     TempWhseJnlLine2.Cubage := Round(NonDistrCubage * SplitFactor, UOMMgt.QtyRndPrecision());
                     TempWhseJnlLine2.Weight := Round(NonDistrWeight * SplitFactor, UOMMgt.QtyRndPrecision());

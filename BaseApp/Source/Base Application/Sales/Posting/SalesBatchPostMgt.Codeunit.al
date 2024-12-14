@@ -139,7 +139,7 @@ codeunit 1371 "Sales Batch Post Mgt."
     local procedure PrepareSalesHeader(var SalesHeader: Record "Sales Header"; var BatchConfirm: Option)
     var
         CalcInvoiceDiscont: Boolean;
-        ReplacePostingDate, ReplaceVATDate : Boolean;
+        ReplacePostingDate, ReplaceVATDate, ReplaceDocumentDate : Boolean;
         PostingDate, VATDate : Date;
     begin
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Calculate Invoice Discount", CalcInvoiceDiscont);
@@ -147,12 +147,13 @@ codeunit 1371 "Sales Batch Post Mgt."
         BatchProcessingMgt.GetDateParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Posting Date", PostingDate);
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDate);
         BatchProcessingMgt.GetDateParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"VAT Date", VATDate);
-
+        BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace Document Date", ReplaceDocumentDate);
 
         if CalcInvoiceDiscont then
             CalculateInvoiceDiscount(SalesHeader);
 
         SalesHeader.BatchConfirmUpdateDeferralDate(BatchConfirm, ReplacePostingDate, PostingDate, ReplaceVATDate, VATDate);
+        SalesHeader.BatchConfirmUpdatePostingDate(ReplacePostingDate, PostingDate, ReplaceVATDate, VATDate, ReplaceDocumentDate);
         OnPrepareSalesHeaderOnAfterBatchConfirmUpdateDeferralDate(SalesHeader, BatchProcessingMgt);
 
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::Ship, SalesHeader.Ship);

@@ -280,6 +280,7 @@ page 31025 "VAT LCY Correction CZL"
         SourceCodeSetup: Record "Source Code Setup";
         DocumentNo: Code[20];
         PostingDate: Date;
+        DimensionSetID: Integer;
         TransactionNo: Integer;
         CorrectedVATAmountEditable: Boolean;
         TotalVATBase: Decimal;
@@ -297,7 +298,7 @@ page 31025 "VAT LCY Correction CZL"
         DocRecordRef: RecordRef;
         IsHandled: Boolean;
     begin
-        SetDocumentGlobals('', 0D, 0);
+        SetDocumentGlobals('', 0D, 0, 0);
         DocRecordRef.GetTable(Variant);
         case DocRecordRef.Number of
             Database::"Purch. Inv. Header":
@@ -307,7 +308,8 @@ page 31025 "VAT LCY Correction CZL"
                         Error(NotAllowedCorrectErr, PurchInvHeader.TableCaption(), PurchInvHeader."No.");
                     SetDocumentGlobals(PurchInvHeader."No.",
                         PurchInvHeader."Posting Date",
-                        VendorLedgerEntry.GetTransactionNoCZL(PurchInvHeader."Vendor Ledger Entry No."));
+                        VendorLedgerEntry.GetTransactionNoCZL(PurchInvHeader."Vendor Ledger Entry No."),
+                        PurchInvHeader."Dimension Set ID");
                 end;
             Database::"Purch. Cr. Memo Hdr.":
                 begin
@@ -316,7 +318,8 @@ page 31025 "VAT LCY Correction CZL"
                         Error(NotAllowedCorrectErr, PurchCrMemoHdr.TableCaption(), PurchCrMemoHdr."No.");
                     SetDocumentGlobals(PurchCrMemoHdr."No.",
                         PurchCrMemoHdr."Posting Date",
-                        VendorLedgerEntry.GetTransactionNoCZL(PurchCrMemoHdr."Vendor Ledger Entry No."));
+                        VendorLedgerEntry.GetTransactionNoCZL(PurchCrMemoHdr."Vendor Ledger Entry No."),
+                        PurchCrMemoHdr."Dimension Set ID");
                 end;
             else begin
                 IsHandled := false;
@@ -325,11 +328,12 @@ page 31025 "VAT LCY Correction CZL"
         end;
     end;
 
-    local procedure SetDocumentGlobals(NewDocumentNo: Code[20]; NewPostingDate: Date; NewTransactionNo: Integer)
+    local procedure SetDocumentGlobals(NewDocumentNo: Code[20]; NewPostingDate: Date; NewTransactionNo: Integer; NewDimensionSetID: Integer)
     begin
         DocumentNo := NewDocumentNo;
         PostingDate := NewPostingDate;
         TransactionNo := NewTransactionNo;
+        DimensionSetID := NewDimensionSetID;
     end;
 
     local procedure GetDocumentVATEntries()
@@ -344,6 +348,8 @@ page 31025 "VAT LCY Correction CZL"
         if VATEntry.FindSet() then
             repeat
                 Rec.InsertFromVATEntry(VATEntry);
+                Rec."Dimension Set ID" := DimensionSetID;
+                Rec.Modify();
             until VATEntry.Next() = 0;
 
         VATEntry.Reset();
@@ -354,6 +360,8 @@ page 31025 "VAT LCY Correction CZL"
         if VATEntry.FindSet() then
             repeat
                 Rec.InsertFromVATEntry(VATEntry);
+                Rec."Dimension Set ID" := DimensionSetID;
+                Rec.Modify();
             until VATEntry.Next() = 0;
     end;
 

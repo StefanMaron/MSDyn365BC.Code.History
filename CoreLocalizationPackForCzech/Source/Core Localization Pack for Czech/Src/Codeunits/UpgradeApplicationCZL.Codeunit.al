@@ -12,6 +12,7 @@ using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
@@ -276,6 +277,8 @@ codeunit 31017 "Upgrade Application CZL"
         UpgradeAllowVATPosting();
         UpgradeOriginalVATAmountsInVATEntries();
         UpgradeFunctionalCurrency();
+        UpgradeEnableNonDeductibleVATCZ();
+        UpgradeSetEnableNonDeductibleVATCZ();
     end;
 
     local procedure UpgradeGeneralLedgerSetup();
@@ -2708,6 +2711,44 @@ codeunit 31017 "Upgrade Application CZL"
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetFunctionalCurrencyUpgradeTag());
+    end;
+
+    local procedure UpgradeEnableNonDeductibleVATCZ()
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetEnableNonDeductibleVATCZUpgradeTag()) then
+            exit;
+
+        VATEntry.SetFilter("Non-Deductible VAT %", '<>%1', 0);
+        VATEntry.SetLoadFields("Entry No.", Base, Amount, "Non-Deductible VAT Base", "Non-Deductible VAT Amount");
+        if VATEntry.FindSet() then
+            repeat
+                VATEntry."Original VAT Base CZL" := VATEntry.CalcOriginalVATBaseCZL();
+                VATEntry."Original VAT Amount CZL" := VATEntry.CalcOriginalVATAmountCZL();
+                VATEntry."Original VAT Entry No. CZL" := VATEntry."Entry No.";
+                if VATEntry.Modify() then;
+            until VATEntry.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetEnableNonDeductibleVATCZUpgradeTag());
+    end;
+
+    local procedure UpgradeSetEnableNonDeductibleVATCZ()
+    var
+        NonDeductibleVATSetupCZL: Record "Non-Deductible VAT Setup CZL";
+        VATSetup: Record "VAT Setup";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.SetEnableNonDeductibleVATCZUpgradeTag()) then
+            exit;
+
+        if not NonDeductibleVATSetupCZL.IsEmpty() then
+            if VATSetup.Get() then
+                if VATSetup."Enable Non-Deductible VAT" then begin
+                    VATSetup."Enable Non-Deductible VAT CZL" := true;
+                    VATSetup.Modify();
+                end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.SetEnableNonDeductibleVATCZUpgradeTag());
     end;
 
     local procedure InsertRepSelection(ReportUsage: Enum "Report Selection Usage"; Sequence: Code[10]; ReportID: Integer)

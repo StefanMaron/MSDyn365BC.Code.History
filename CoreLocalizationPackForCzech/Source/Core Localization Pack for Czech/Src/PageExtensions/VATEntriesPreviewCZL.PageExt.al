@@ -134,14 +134,14 @@ pageextension 11759 "VAT Entries Preview CZL" extends "VAT Entries Preview"
     trigger OnOpenPage()
     begin
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
+        NonDeductibleVATVisible := NonDeductibleVATCZL.IsNonDeductibleVATEnabled();
 #if not CLEAN22
         ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
 #endif
     end;
 
     var
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
 #if not CLEAN22
 #pragma warning disable AL0432

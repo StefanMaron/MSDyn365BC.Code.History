@@ -133,16 +133,18 @@ pageextension 11755 "VAT Entries CZL" extends "VAT Entries"
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
         ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
 #endif
-        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
+        NonDeductibleVATVisible := NonDeductibleVATCZL.IsNonDeductibleVATEnabled();
     end;
 
     var
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
 #if not CLEAN22
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
 #pragma warning disable AL0432
         ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
 #pragma warning restore AL0432
+#endif
+        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
+#if not CLEAN22
         ReplaceVATDateEnabled: Boolean;
         VATDateEnabled: Boolean;
 #endif

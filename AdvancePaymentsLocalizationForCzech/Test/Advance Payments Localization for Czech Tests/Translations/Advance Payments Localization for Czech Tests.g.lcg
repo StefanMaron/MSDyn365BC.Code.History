@@ -41,6 +41,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Incoming Documents CZZ - NamedType SalesAdvanceTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1939749323 - NamedType 765374426" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Apply Advance Letter?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purch. Adv. Payments FCY CZZ - NamedType ApplyAdvanceLetterQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1939749323 - NamedType 1976749591" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The field Advance Letter No. of table Gen. Journal Line contains a value (%1) that cannot be found in the related table (%2).]]></Val>
@@ -147,6 +156,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Advance Payments CZZ - NamedType UsageNoPossibleQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1479755613 - NamedType 765374426" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Apply Advance Letter?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Adv. Payments FCY CZZ - NamedType ApplyAdvanceLetterQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1479755613 - NamedType 1976749591" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
