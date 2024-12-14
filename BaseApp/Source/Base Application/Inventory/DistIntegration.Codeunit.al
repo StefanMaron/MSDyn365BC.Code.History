@@ -106,7 +106,7 @@ codeunit 5702 "Dist. Integration"
         else
             Error(ItemsNotFoundErr, SalesHeader."No.");
 
-        OnGetSpecialOrdersOnBeforeModifyPurchaseHeader(PurchHeader);
+        OnGetSpecialOrdersOnBeforeModifyPurchaseHeader(PurchHeader, SalesHeader);
         PurchHeader.Modify();
         // Only version check
         SalesHeader.Modify(); // Only version check
@@ -286,7 +286,7 @@ codeunit 5702 "Dist. Integration"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetSpecialOrdersOnBeforeModifyPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnGetSpecialOrdersOnBeforeModifyPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header")
     begin
     end;
 }

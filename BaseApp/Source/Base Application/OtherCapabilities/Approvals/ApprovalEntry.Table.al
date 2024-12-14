@@ -268,6 +268,7 @@ table 454 "Approval Entry"
     procedure RecordCaption() Result: Text
     var
         AllObjWithCaption: Record AllObjWithCaption;
+        [SecurityFiltering(SecurityFilter::Filtered)]
         RecRef: RecordRef;
         PageNo: Integer;
         IsHandled: Boolean;
@@ -278,7 +279,7 @@ table 454 "Approval Entry"
             exit(Result);
 
         if not RecRef.Get("Record ID to Approve") then
-            exit;
+            exit(RecNotExistTxt);
         PageNo := PageManagement.GetPageID(RecRef);
         if PageNo = 0 then
             exit;
@@ -290,6 +291,7 @@ table 454 "Approval Entry"
     var
         SalesHeader: Record "Sales Header";
         PurchHeader: Record "Purchase Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         RecRef: RecordRef;
         ChangeRecordDetails: Text;
         IsHandled: Boolean;

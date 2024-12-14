@@ -36,6 +36,7 @@
         DimBalanceErr: Label 'Wrong balance by Dimension.';
         SelectionFilterErr: Label 'Problem with selection filter: Original selection: %1. Returned selection: %2.', Comment = '%1: original selection filter;%2: returned selection filter';
         NoEntriesAppliedErr: Label 'Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.';
+        VATEntryCntLbl: Label 'Wrong count of VAT Entries created.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2222,6 +2223,86 @@
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesPageHandlerWithDocumentNo,GenJnlTemplateModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATEntriesAreSameUnppliedWhenUnapplicationWithPayment()
+    var
+        Customer: Record Customer;
+        GeneralJournalLine: array[9] of Record "Gen. Journal Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PaymentTerms: Record "Payment Terms";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Amount: array[8] of Decimal;
+        DocumentNo: array[8] of Code[20];
+        PaymentDocumentNo: Code[20];
+        PostingDate: array[2] of Date;
+        VATEntryCountAtPmtApplication: Integer;
+        VATEntryCountAtPmtUnApplication: Integer;
+        TaxCalculationType: Enum "Tax Calculation Type";
+    begin
+        // [SCENARIO 554723] VAT Entry Lines gets completely unapplied as same they were during applied. 
+        Initialize();
+
+        // [GIVEN] Setup payment tolerance on payment discount.
+        SetAdjustForPaymentDiscAndPmtTolerancePostings();
+
+        // [GIVEN] Create General Posting Setup.
+        CreateGeneralPostingSetupWithPmtDiscount(GeneralPostingSetup);
+
+        // [GIVEN] Create VAT Posting Setup.
+        CreateVATPostingSetupWithPmtDiscount(VATPostingSetup, TaxCalculationType::"Normal VAT");
+
+        // [GIVEN] Create Payment Terms Discount.
+        CreatePaymentTermsDiscount(PaymentTerms, LibraryRandom.RandIntInRange(2, 2));
+
+        // [GIVEN] Create Customer with Posting Setup.
+        Customer.Get(
+            CreateCustomerWithPostingSetup(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Generate Amount.
+        GenerateAmounts(Amount);
+
+        // [GIVEN] Generate Posting Date.
+        GeneratePostingDate(PostingDate);
+
+        // [GIVEN] Select General Journal Batch and delete General Journal Lines before creating new General Journal Lines.
+        SelectGenJournalBatch(GenJournalBatch, false);
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+
+        // [GIVEN] Create Sales Journal with Eight Invoices.
+        CreateSalesJournal(
+            GeneralJournalLine, GenJournalBatch, Customer."No.", GeneralPostingSetup."Sales Account",
+            GeneralPostingSetup, VATPostingSetup, PostingDate, Amount, DocumentNo, PaymentTerms.Code);
+
+        // [GIVEN] Create Payment Line.
+        CreatePayment(GeneralJournalLine[9], GenJournalBatch, Customer."No.", PostingDate[2], PaymentDocumentNo);
+
+        // [GIVEN] Choice is Set to applies id.
+        IsSetAppliesToID(true, DocumentNo);
+
+        // [GIVEN] Open Apply Entries Page for Application.
+        OpenGeneralJournalPage(GeneralJournalLine[9]."Document No.", GeneralJournalLine[9]."Document Type");
+
+        // [GIVEN] Post General Journal Line for Payment.
+        LibraryERM.PostGeneralJnlLine(GeneralJournalLine[9]);
+
+        // [GIVEN] Get VAT Entries Count Post Payment Application.       
+        VATEntryCountAtPmtApplication := GetVATEntry(GeneralJournalLine[9]."Document Type"::Payment, PaymentDocumentNo, PostingDate[2], false);
+
+        // [WHEN] Unapply Payment.
+        UnapplyCustLedgerEntry(GeneralJournalLine[9]."Document Type"::Payment, PaymentDocumentNo);
+
+        // [THEN] Get VAT Entries Count after Unapplication of Payment.
+        VATEntryCountAtPmtUnApplication := GetVATEntry(
+            GeneralJournalLine[9]."Document Type"::Payment,
+            PaymentDocumentNo, PostingDate[2], true);
+
+        // [THEN] Verify VAT Entries counts are same after Unapplication.
+        Assert.AreEqual(VATEntryCountAtPmtApplication, VATEntryCountAtPmtUnApplication, VATEntryCntLbl);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3254,6 +3335,160 @@
         exit(GenJournalLine."Document No.");
     end;
 
+    local procedure SetAdjustForPaymentDiscAndPmtTolerancePostings()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Adjust for Payment Disc.", true);
+        GeneralLedgerSetup.Validate("Pmt. Disc. Tolerance Posting", GeneralLedgerSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts");
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure CreateGeneralPostingSetupWithPmtDiscount(var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        LibraryERM.CreateGeneralPostingSetupInvt(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupSalesPmtDiscAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetupWithPmtDiscount(var VATPostingSetup: Record "VAT Posting Setup"; TaxCalculationType: Enum "Tax Calculation Type")
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, TaxCalculationType::"Normal VAT", LibraryRandom.RandIntInRange(20, 20));
+        VATPostingSetup.Validate("Adjust for Payment Discount", true);
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreatePaymentTermsDiscount(var PaymentTerms: Record "Payment Terms"; DiscountPct: Decimal)
+    begin
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        PaymentTerms.Validate("Discount %", DiscountPct);
+        PaymentTerms.Modify(true);
+    end;
+
+    local procedure GenerateAmounts(var Amount: array[8] of Decimal)
+    var
+        i: Integer;
+        InitialAmount: Decimal;
+    begin
+        for i := 1 to ArrayLen(Amount) do begin
+            Amount[i] := InitialAmount + LibraryRandom.RandIntInRange(100, 100);
+            InitialAmount := Amount[i]
+        end;
+    end;
+
+    local procedure GeneratePostingDate(var PostingDate: array[2] of Date)
+    begin
+        PostingDate[1] := WorkDate();
+        PostingDate[2] := CalcDate('<+10D>', PostingDate[1]);
+    end;
+
+    local procedure CreateSalesJournal(
+        GeneralJournalLine: array[8] of Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch";
+        CustomerNo: Code[20]; GLAccountNo: Code[20];
+        GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup";
+        PostingDate: array[2] of Date; Amount: array[8] of Decimal;
+        var DocumentNo: array[8] of Code[20]; PaymentTermsCode: Code[20])
+    var
+        i: Integer;
+        DocumentNoCode: Code[20];
+    begin
+        for i := 1 to 4 do begin
+            CreateSalesJournalLines(
+                GeneralJournalLine[i], GenJournalBatch, CustomerNo, GLAccountNo, GeneralPostingSetup,
+                VATPostingSetup, PostingDate[1], Amount[i], PaymentTermsCode, DocumentNoCode);
+            DocumentNo[i] := DocumentNoCode;
+        end;
+
+        for i := 5 to 8 do begin
+            CreateSalesJournalLines(
+                GeneralJournalLine[i], GenJournalBatch, CustomerNo, GLAccountNo,
+                GeneralPostingSetup, VATPostingSetup, PostingDate[2], Amount[i], PaymentTermsCode, DocumentNoCode);
+            DocumentNo[i] := DocumentNoCode;
+        end;
+
+        PostJournalBatch(GenJournalBatch);
+    end;
+
+    local procedure CreateSalesJournalLines(
+        var GeneralJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch";
+        CustomerNo: Code[20]; GLAccountNo: Code[20];
+        GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup";
+        PostingDate: Date; Amount: Decimal;
+        PaymentTermsCode: Code[20]; var DocumentNo: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GeneralJournalLine, GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name, GeneralJournalLine."Document Type"::Invoice,
+            GeneralJournalLine."Account Type"::Customer, CustomerNo,
+            GeneralJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo, Amount);
+        if DocumentNo <> '' then
+            GeneralJournalLine.Validate("Document No.", IncStr(DocumentNo));
+        GeneralJournalLine.Validate("Posting Date", PostingDate);
+        GeneralJournalLine.Validate("Payment Terms Code", PaymentTermsCode);
+        GeneralJournalLine.Validate("Bal. Gen. Posting Type", GeneralJournalLine."Bal. Gen. Posting Type"::Sale);
+        GeneralJournalLine.Validate("Bal. Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GeneralJournalLine.Validate("Bal. Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GeneralJournalLine.Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GeneralJournalLine.Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GeneralJournalLine.Modify(true);
+        DocumentNo := GeneralJournalLine."Document No.";
+    end;
+
+    local procedure PostJournalBatch(GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetFilter("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreatePayment(
+        var GeneralJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        var PaymentDocumentNo: Code[20])
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryERM.FindBankAccount(BankAccount);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GeneralJournalLine, GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name, GeneralJournalLine."Document Type"::Payment,
+            GeneralJournalLine."Account Type"::Customer, CustomerNo,
+            GeneralJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", -LibraryRandom.RandIntInRange(3528, 3528));
+        GeneralJournalLine.Validate("Posting Date", PostingDate);
+        GeneralJournalLine.Modify(true);
+        PaymentDocumentNo := GeneralJournalLine."Document No.";
+    end;
+
+    local procedure IsSetAppliesToID(SetAppliesToIDValue: Boolean; DocumentNo: array[8] of Code[20])
+    var
+        i: Integer;
+    begin
+        LibraryVariableStorage.Enqueue(SetAppliesToIDValue);
+        for i := 1 to 8 do
+            LibraryVariableStorage.Enqueue(DocumentNo[i]);
+    end;
+
+    local procedure GetVATEntry(
+        DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; UnapplyDate: Date; CheckForUnapp: Boolean): Integer;
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        if CheckForUnapp then begin
+            VATEntry.SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocumentType, DocumentNo));
+            VATEntry.SetRange("Posting Date", UnapplyDate);
+        end;
+        exit(VATEntry.Count());
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -3265,6 +3500,34 @@
         SetAppliesToID := SetAppliesToIDValue;  // Assign Variant to Boolean.
         if SetAppliesToID then
             ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GenJnlTemplateModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesPageHandlerWithDocumentNo(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    var
+        SetAppliesToIDValue: Variant;
+        SetAppliesToID: Boolean;
+        DocumentNo: array[8] of Variant;
+        i: Integer;
+    begin
+        LibraryVariableStorage.Dequeue(SetAppliesToIDValue);
+        SetAppliesToID := SetAppliesToIDValue;
+        if SetAppliesToID then
+            for i := 1 to 8 do begin
+                LibraryVariableStorage.Dequeue(DocumentNo[i]);
+                ApplyCustomerEntries.Filter.SetFilter("Document No.", DocumentNo[i]);
+                ApplyCustomerEntries."Set Applies-to ID".Invoke();
+            end;
         ApplyCustomerEntries.OK().Invoke();
     end;
 

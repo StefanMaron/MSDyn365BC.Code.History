@@ -885,7 +885,7 @@ table 5870 "BOM Buffer"
 
         "Unit Cost" := Item."Unit Cost";
         "Single-Level Material Cost" :=
-          RoundUnitAmt(Item."Unit Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
+          RoundUnitAmt(Item."Single-Level Material Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
         "Rolled-up Material Cost" :=
           RoundUnitAmt(Item."Unit Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
     end;

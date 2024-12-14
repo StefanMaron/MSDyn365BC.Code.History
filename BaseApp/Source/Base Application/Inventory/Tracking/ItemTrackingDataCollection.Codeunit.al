@@ -482,6 +482,7 @@ codeunit 6501 "Item Tracking Data Collection"
         ItemLedgEntry.SetLoadFields(
           "Entry No.", "Item No.", "Variant Code", Positive, "Location Code", "Serial No.", "Lot No.", "Package No.",
           "Remaining Quantity", "Warranty Date", "Expiration Date");
+        OnTransferItemLedgToTempRecOnBeforeFindSetItemLedgerEntry(ItemLedgEntry);
         if ItemLedgEntry.FindSet() then
             repeat
                 if ItemLedgEntry.TrackingExists() and
@@ -1769,6 +1770,11 @@ codeunit 6501 "Item Tracking Data Collection"
 
     [IntegrationEvent(false, false)]
     local procedure OnSelectMultipleTrackingNoOnBeforeAddSelectedTrackingToDataSet(var TempEntrySummary: Record "Entry Summary" temporary; var TempTrackingSpecification: Record "Tracking Specification" temporary; CurrentSignFactor: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferItemLedgToTempRecOnBeforeFindSetItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

@@ -606,138 +606,148 @@ table 6651 "Return Shipment Line"
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowItemTrackingLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemTrackingDocMgt.ShowItemTrackingForShptRcptLine(DATABASE::"Return Shipment Line", 0, "Document No.", '', 0, "Line No.");
     end;
 
-    procedure InsertInvLineFromRetShptLine(var PurchLine: Record "Purchase Line")
+    procedure InsertInvLineFromRetShptLine(var PurchaseLine: Record "Purchase Line")
     var
-        PurchHeader: Record "Purchase Header";
-        PurchHeader2: Record "Purchase Header";
-        PurchOrderLine: Record "Purchase Line";
-        TempPurchLine: Record "Purchase Line" temporary;
-        PurchSetup: Record "Purchases & Payables Setup";
-        TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        PurchaseHeader: Record "Purchase Header";
+        ReturnOrderPurchaseHeader: Record "Purchase Header";
+        ReturnOrderPurchaseLine: Record "Purchase Line";
+        TempPurchaseLine: Record "Purchase Line" temporary;
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        TransferOldExtTextLines: Codeunit "Transfer Old Ext. Text Lines";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
         NextLineNo: Integer;
         ExtTextLine: Boolean;
         IsHandled: Boolean;
     begin
         SetRange("Document No.", "Document No.");
 
-        TempPurchLine := PurchLine;
-        if PurchLine.Find('+') then
-            NextLineNo := PurchLine."Line No." + 10000
+        TempPurchaseLine := PurchaseLine;
+        if PurchaseLine.Find('+') then
+            NextLineNo := PurchaseLine."Line No." + 10000
         else
             NextLineNo := 10000;
 
-        if PurchHeader."No." <> TempPurchLine."Document No." then
-            PurchHeader.Get(TempPurchLine."Document Type", TempPurchLine."Document No.");
+        if PurchaseHeader."No." <> TempPurchaseLine."Document No." then
+            PurchaseHeader.Get(TempPurchaseLine."Document Type", TempPurchaseLine."Document No.");
 
-        if PurchLine."Return Shipment No." <> "Document No." then begin
-            PurchLine.Init();
-            PurchLine."Line No." := NextLineNo;
-            PurchLine."Document Type" := TempPurchLine."Document Type";
-            PurchLine."Document No." := TempPurchLine."Document No.";
-            PurchLine.Description := StrSubstNo(Text000, "Document No.");
+        if PurchaseLine."Return Shipment No." <> "Document No." then begin
+            PurchaseLine.Init();
+            PurchaseLine."Line No." := NextLineNo;
+            PurchaseLine."Document Type" := TempPurchaseLine."Document Type";
+            PurchaseLine."Document No." := TempPurchaseLine."Document No.";
+            PurchaseLine.Description := StrSubstNo(Text000, "Document No.");
             IsHandled := false;
-            OnInsertInvLineFromRetShptLineOnBeforePurchLineInsert(Rec, PurchLine, NextLineNo, IsHandled);
+            OnInsertInvLineFromRetShptLineOnBeforePurchLineInsert(Rec, PurchaseLine, NextLineNo, IsHandled);
             if not IsHandled then begin
-                PurchLine.Insert();
+                PurchaseLine.Insert();
                 NextLineNo := NextLineNo + 10000;
             end;
         end;
 
-        OnInsertInvLineFromRetShptLineOnBeforeClearLineNumbers(Rec, PurchLine, NextLineNo, TempPurchLine);
-        TransferOldExtLines.ClearLineNumbers();
-        PurchSetup.Get();
+        OnInsertInvLineFromRetShptLineOnBeforeClearLineNumbers(Rec, PurchaseLine, NextLineNo, TempPurchaseLine);
+        TransferOldExtTextLines.ClearLineNumbers();
+        PurchasesPayablesSetup.Get();
         repeat
             ExtTextLine := (Type = Type::" ") and ("Attached to Line No." <> 0) and (Quantity = 0);
             if ExtTextLine then
-                TransferOldExtLines.GetNewLineNumber("Attached to Line No.")
+                TransferOldExtTextLines.GetNewLineNumber("Attached to Line No.")
             else
                 "Attached to Line No." := 0;
 
-            if not PurchOrderLine.Get(
-                 PurchOrderLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.")
+            if not ReturnOrderPurchaseLine.Get(
+                 ReturnOrderPurchaseLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.")
             then begin
                 if ExtTextLine then begin
-                    PurchOrderLine.Init();
-                    PurchOrderLine."Line No." := "Return Order Line No.";
-                    PurchOrderLine.Description := Description;
-                    PurchOrderLine."Description 2" := "Description 2";
+                    ReturnOrderPurchaseLine.Init();
+                    ReturnOrderPurchaseLine."Line No." := "Return Order Line No.";
+                    ReturnOrderPurchaseLine.Description := Description;
+                    ReturnOrderPurchaseLine."Description 2" := "Description 2";
                 end else
                     Error(Text001);
             end else begin
-                if (PurchHeader2."Document Type" <> PurchOrderLine."Document Type"::"Return Order") or
-                   (PurchHeader2."No." <> PurchOrderLine."Document No.")
+                if (ReturnOrderPurchaseHeader."Document Type" <> ReturnOrderPurchaseLine."Document Type"::"Return Order") or
+                   (ReturnOrderPurchaseHeader."No." <> ReturnOrderPurchaseLine."Document No.")
                 then
-                    PurchHeader2.Get(PurchOrderLine."Document Type"::"Return Order", "Return Order No.");
+                    ReturnOrderPurchaseHeader.Get(ReturnOrderPurchaseLine."Document Type"::"Return Order", "Return Order No.");
 
-                InitCurrency("Currency Code");
+                IsHandled := false;
+                OnInsertInvLineFromRetShptLineOnBeforeCalculateDirectCost(Rec, PurchaseHeader, PurchaseLine, PurchasesPayablesSetup, IsHandled);
+                if not IsHandled then begin
+                    InitCurrency("Currency Code");
 
-                if PurchHeader."Prices Including VAT" then begin
-                    if not PurchHeader2."Prices Including VAT" then
-                        PurchOrderLine."Direct Unit Cost" :=
-                          Round(
-                            PurchOrderLine."Direct Unit Cost" * (1 + PurchOrderLine."VAT %" / 100),
-                            Currency."Unit-Amount Rounding Precision");
-                end else
-                    if PurchHeader2."Prices Including VAT" then
-                        PurchOrderLine."Direct Unit Cost" :=
-                          Round(
-                            PurchOrderLine."Direct Unit Cost" / (1 + PurchOrderLine."VAT %" / 100),
-                            Currency."Unit-Amount Rounding Precision");
+                    if PurchaseHeader."Prices Including VAT" then begin
+                        if not ReturnOrderPurchaseHeader."Prices Including VAT" then
+                            ReturnOrderPurchaseLine."Direct Unit Cost" :=
+                              Round(
+                                ReturnOrderPurchaseLine."Direct Unit Cost" * (1 + ReturnOrderPurchaseLine."VAT %" / 100),
+                                Currency."Unit-Amount Rounding Precision");
+                    end else
+                        if ReturnOrderPurchaseHeader."Prices Including VAT" then
+                            ReturnOrderPurchaseLine."Direct Unit Cost" :=
+                              Round(
+                                ReturnOrderPurchaseLine."Direct Unit Cost" / (1 + ReturnOrderPurchaseLine."VAT %" / 100),
+                                Currency."Unit-Amount Rounding Precision");
+                end;
             end;
-            PurchLine := PurchOrderLine;
-            PurchLine."Line No." := NextLineNo;
-            PurchLine."Document Type" := TempPurchLine."Document Type";
-            PurchLine."Document No." := TempPurchLine."Document No.";
-            PurchLine."Variant Code" := "Variant Code";
-            PurchLine."Location Code" := "Location Code";
-            PurchLine."Return Reason Code" := "Return Reason Code";
-            PurchLine."Quantity (Base)" := 0;
-            PurchLine.Quantity := 0;
-            PurchLine."Outstanding Qty. (Base)" := 0;
-            PurchLine."Outstanding Quantity" := 0;
-            PurchLine."Return Qty. Shipped" := 0;
-            PurchLine."Return Qty. Shipped (Base)" := 0;
-            PurchLine."Quantity Invoiced" := 0;
-            PurchLine."Qty. Invoiced (Base)" := 0;
-            PurchLine."Sales Order No." := '';
-            PurchLine."Sales Order Line No." := 0;
-            PurchLine."Drop Shipment" := false;
-            PurchLine."Return Shipment No." := "Document No.";
-            PurchLine."Return Shipment Line No." := "Line No.";
-            PurchLine."Appl.-to Item Entry" := 0;
-            OnAfterCopyFieldsFromReturnShipmentLine(Rec, PurchLine);
+            PurchaseLine := ReturnOrderPurchaseLine;
+            PurchaseLine."Line No." := NextLineNo;
+            PurchaseLine."Document Type" := TempPurchaseLine."Document Type";
+            PurchaseLine."Document No." := TempPurchaseLine."Document No.";
+            PurchaseLine."Variant Code" := "Variant Code";
+            PurchaseLine."Location Code" := "Location Code";
+            PurchaseLine."Return Reason Code" := "Return Reason Code";
+            PurchaseLine."Quantity (Base)" := 0;
+            PurchaseLine.Quantity := 0;
+            PurchaseLine."Outstanding Qty. (Base)" := 0;
+            PurchaseLine."Outstanding Quantity" := 0;
+            PurchaseLine."Return Qty. Shipped" := 0;
+            PurchaseLine."Return Qty. Shipped (Base)" := 0;
+            PurchaseLine."Quantity Invoiced" := 0;
+            PurchaseLine."Qty. Invoiced (Base)" := 0;
+            PurchaseLine."Sales Order No." := '';
+            PurchaseLine."Sales Order Line No." := 0;
+            PurchaseLine."Drop Shipment" := false;
+            PurchaseLine."Return Shipment No." := "Document No.";
+            PurchaseLine."Return Shipment Line No." := "Line No.";
+            PurchaseLine."Appl.-to Item Entry" := 0;
+            OnAfterCopyFieldsFromReturnShipmentLine(Rec, PurchaseLine);
 
             if not ExtTextLine then begin
                 IsHandled := false;
-                OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(Rec, PurchLine, IsHandled, PurchHeader);
+                OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(Rec, PurchaseLine, IsHandled, PurchaseHeader);
                 if not IsHandled then
-                    PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
+                    PurchaseLine.Validate(Quantity, Quantity - "Quantity Invoiced");
 
-                CopyPurchLineCostAndDiscountFromPurchOrderLine(PurchLine, PurchOrderLine);
+                CopyPurchLineCostAndDiscountFromPurchOrderLine(PurchaseLine, ReturnOrderPurchaseLine);
             end;
-            PurchLine."Attached to Line No." :=
-              TransferOldExtLines.TransferExtendedText(
+            PurchaseLine."Attached to Line No." :=
+              TransferOldExtTextLines.TransferExtendedText(
                 "Line No.",
                 NextLineNo,
                 "Attached to Line No.");
-            PurchLine."Shortcut Dimension 1 Code" := PurchOrderLine."Shortcut Dimension 1 Code";
-            PurchLine."Shortcut Dimension 2 Code" := PurchOrderLine."Shortcut Dimension 2 Code";
-            PurchLine."Dimension Set ID" := PurchOrderLine."Dimension Set ID";
+            PurchaseLine."Shortcut Dimension 1 Code" := ReturnOrderPurchaseLine."Shortcut Dimension 1 Code";
+            PurchaseLine."Shortcut Dimension 2 Code" := ReturnOrderPurchaseLine."Shortcut Dimension 2 Code";
+            PurchaseLine."Dimension Set ID" := ReturnOrderPurchaseLine."Dimension Set ID";
 
             IsHandled := false;
-            OnBeforeInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec, IsHandled, NextLineNo);
+            OnBeforeInsertInvLineFromRetShptLine(PurchaseLine, ReturnOrderPurchaseLine, Rec, IsHandled, NextLineNo);
             if not IsHandled then begin
-                PurchLine.Insert();
+                PurchaseLine.Insert();
                 NextLineNo := NextLineNo + 10000;
             end;
-            OnAfterInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec);
+            OnAfterInsertInvLineFromRetShptLine(PurchaseLine, ReturnOrderPurchaseLine, Rec);
 
-            ItemTrackingMgt.CopyHandledItemTrkgToInvLine(PurchOrderLine, PurchLine);
+            ItemTrackingManagement.CopyHandledItemTrkgToInvLine(ReturnOrderPurchaseLine, PurchaseLine);
 
             if "Attached to Line No." = 0 then begin
                 SetRange("Attached to Line No.", "Line No.");
@@ -839,14 +849,14 @@ table 6651 "Return Shipment Line"
             PurchCommentLine."Document Type"::"Posted Return Shipment".AsInteger(), "Document No.", "Line No.");
     end;
 
-    procedure InitFromPurchLine(ReturnShptHeader: Record "Return Shipment Header"; PurchLine: Record "Purchase Line")
+    procedure InitFromPurchLine(ReturnShipmentHeader: Record "Return Shipment Header"; PurchLine: Record "Purchase Line")
     begin
         Init();
         TransferFields(PurchLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
-        "Posting Date" := ReturnShptHeader."Posting Date";
-        "Document No." := ReturnShptHeader."No.";
+        "Posting Date" := ReturnShipmentHeader."Posting Date";
+        "Document No." := ReturnShipmentHeader."No.";
         Quantity := PurchLine."Return Qty. to Ship";
         "Quantity (Base)" := PurchLine."Return Qty. to Ship (Base)";
         if Abs(PurchLine."Qty. to Invoice") > Abs(PurchLine."Return Qty. to Ship") then begin
@@ -862,7 +872,7 @@ table 6651 "Return Shipment Line"
             "Return Order Line No." := PurchLine."Line No.";
         end;
 
-        OnAfterInitFromPurchLine(ReturnShptHeader, PurchLine, Rec);
+        OnAfterInitFromPurchLine(ReturnShipmentHeader, PurchLine, Rec);
     end;
 
     procedure HasTypeToFillMandatoryFields(): Boolean
@@ -929,6 +939,16 @@ table 6651 "Return Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemTrackingLines(var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetShptLineOnBeforeCalculateDirectCost(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var PurchasesPayablesSetup: Record "Purchases & Payables Setup"; var IsHandled: Boolean)
     begin
     end;
 }
