@@ -1180,6 +1180,9 @@ table 181 "Posted Gen. Journal Line"
         key(Key3; "G/L Register No.")
         {
         }
+        key(Key4; "Document No.", "Posting Date")
+        {
+        }
     }
 
     fieldgroups

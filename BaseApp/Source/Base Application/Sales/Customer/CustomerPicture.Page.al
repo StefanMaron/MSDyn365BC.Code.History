@@ -74,6 +74,7 @@ page 785 "Customer Picture"
 
                     Clear(Rec.Image);
                     Rec.Image.ImportFile(FileName, ClientFileName);
+                    Rec.SetForceUpdateContact(true);
                     if not Rec.Modify(true) then
                         Rec.Insert(true);
 

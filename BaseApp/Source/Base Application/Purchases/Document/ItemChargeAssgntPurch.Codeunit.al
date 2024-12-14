@@ -301,6 +301,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         SuggestItemChargeMessageTxt: Text;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSuggestAssgnt(PurchLine, ItemChargeAssgntPurch, TotalQtyToAssign, TotalAmtToAssign, TotalQtyToHandle, TotalAmtToHandle, Selection, SelectionTxt, SuggestItemChargeMenuTxt, SuggestItemChargeMessageTxt, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchLine.TestField("Qty. to Invoice");
         ItemChargeAssgntPurch.SetRange("Document Type", PurchLine."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchLine."Document No.");
@@ -1090,6 +1095,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckFromPurchRcptLineWorkCenter(FromPurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSuggestAssgnt(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal; var Selection: Integer; var SelectionTxt: Text; var SuggestItemChargeMenuTxt: Text; var SuggestItemChargeMessageTxt: Text; var IsHandled: Boolean)
     begin
     end;
 }

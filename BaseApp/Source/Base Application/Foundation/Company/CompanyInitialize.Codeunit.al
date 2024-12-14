@@ -283,11 +283,11 @@ codeunit 2 "Company-Initialize"
         SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral';
         SwissSEPACTCodeTxt: Label 'SEPACT SWISS', Comment = 'No need to translate - but can be translated at will.';
         SwissSEPACTNameTxt: Label 'Swiss SEPA Credit Transfer';
-        SwissSEPACTCode09Txt: Label 'SEPACTSWISS 00100109', Comment = 'No need to translate - but can be translated at will.';
+        SwissSEPACTCode09Txt: Label 'SEPACTSWISS 00100109', Locked = true;
         SwissSEPACTName09Txt: Label 'Swiss SEPA Credit Transfer pain.001.001.09';
         SwissSEPADDCodeTxt: Label 'SEPADD SWISS', Comment = 'No need to translate - but can be translated at will.';
         SwissSEPADDNameTxt: Label 'Swiss SEPA Direct Debit';
-        SwissSEPADDCode08Txt: Label 'SEPADDSWISS 00800108', Comment = 'No need to translate - but can be translated at will.';
+        SwissSEPADDCode08Txt: Label 'SEPADDSWISS 00800108', Locked = true;
         SwissSEPADDName08Txt: Label 'Swiss SEPA Direct Debit pain.008.001.08';
         ProductionOrderLbl: Label 'PRODUCTION';
         ProductionOrderTxt: Label 'Production Order';
