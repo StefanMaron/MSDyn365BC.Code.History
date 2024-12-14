@@ -195,6 +195,7 @@ codeunit 99000809 "Planning Line Management"
                             PlanningRtngLine2.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
                             PlanningRtngLine2.SetRange("Worksheet Line No.", ReqLine."Line No.");
                             PlanningRtngLine2.SetRange("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
+                            OnTransferBOMOnBeforePlanningRtngLineFind(PlanningRtngLine2, ProdBOMLine[Level], ReqLine);
                             PlanningRtngLine2.FindFirst();
                             ReqQty :=
                               ProdBOMLine[Level].Quantity *
@@ -1173,6 +1174,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; RequisitionLine: Record "Requisition Line"; RoutingLine: Record "Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferBOMOnBeforePlanningRtngLineFind(var PlanningRoutingLine: Record "Planning Routing Line"; ProductionBOMLine: Record "Production BOM Line"; RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

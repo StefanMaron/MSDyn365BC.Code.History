@@ -116,7 +116,7 @@ codeunit 360 "Accounting Period Mgt."
         end;
     end;
 
-    local procedure AccPeriodEndDate(StartDate: Date): Date
+    procedure AccPeriodEndDate(StartDate: Date): Date
     var
         AccountingPeriod: Record "Accounting Period";
     begin
@@ -128,7 +128,7 @@ codeunit 360 "Accounting Period Mgt."
         exit(DMY2Date(31, 12, 9999));
     end;
 
-    local procedure AccPeriodStartOrEnd(AccountingPeriod: Record "Accounting Period"; CurrentPeriodNo: Integer; RangeType: Option Int,CP,LP; RangeInt: Integer; EndDate: Boolean; var Date: Date)
+    procedure AccPeriodStartOrEnd(AccountingPeriod: Record "Accounting Period"; CurrentPeriodNo: Integer; RangeType: Option Int,CP,LP; RangeInt: Integer; EndDate: Boolean; var Date: Date)
     begin
         case RangeType of
             RangeType::CP:

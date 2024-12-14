@@ -27,6 +27,7 @@ codeunit 134325 "ERM Purchase Quote"
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
         MakeOrderQst: Label 'Do you want to convert the quote to an order?';
         OpenNewOrderTxt: Label 'The quote has been converted to order', Comment = '%1 - No. of new purchase order.';
+        QuoteNoErr: Label 'Quote No. %1 must be in %2.', Comment = '%1= Quote No. Value, %2= Table Name.';
 
     [Test]
     [Scope('OnPrem')]
@@ -522,6 +523,53 @@ codeunit 134325 "ERM Purchase Quote"
 
         // [VERIFY] Purchase Quote released succesfully
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MakeOrderFromPurchaseQuoteWithEmptyItemLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+        QuoteNo: Code[20];
+    begin
+        // [SCENARIO 557530] Purchase Quotes converts to Purchase Order if we have Item lines without any No. specified.
+        Initialize();
+
+        // [GIVEN] Create a Purchase Quote.
+        CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor());
+
+        // [GIVEN] Get Purchase Header and Purchase Line.
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Quote, PurchaseHeader."No.");
+        PurchaseLine.Get(PurchaseLine."Document Type"::Quote, PurchaseLine."Document No.", PurchaseLine."Line No.");
+
+        // [GIVEN] Store Vendor No and Quote No.
+        VendorNo := PurchaseHeader."Buy-from Vendor No.";
+        QuoteNo := PurchaseHeader."No.";
+
+        // [GIVEN] Insert a Item line with empty No. value.
+        PurchaseLine.Init();
+        PurchaseLine.Validate("Document Type", PurchaseLine."Document Type"::Quote);
+        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
+        PurchaseLine.Validate("Line No.", PurchaseLine."Line No." + 10000);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+        PurchaseLine.Insert(true);
+
+        // [WHEN] Create Purch Order from Purch Quote.
+        Codeunit.Run(Codeunit::"Purch.-Quote to Order", PurchaseHeader);
+
+        // [THEN] Purchase Order should be created from Purchase Quote.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchaseHeader.FindFirst();
+        Assert.AreEqual(
+            QuoteNo,
+            PurchaseHeader."Quote No.",
+            StrSubstNo(
+                QuoteNoErr,
+                QuoteNo,
+                PurchaseHeader.TableCaption()));
     end;
 
     local procedure Initialize()

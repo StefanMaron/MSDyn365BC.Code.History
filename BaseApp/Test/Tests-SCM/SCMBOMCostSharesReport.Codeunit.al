@@ -18,6 +18,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         LibraryTrees: Codeunit "Library - Trees";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryPurchase: Codeunit "Library - Purchase";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
@@ -691,6 +692,69 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShares.Close();
     end;
 
+    [Test]
+    procedure BOMCostSharePageCorrectlyPopulateMaterialandTotalCosts()
+    var
+        Item: array[2] of Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        Vendor: Record Vendor;
+        WorkCenter: Record "Work Center";
+        RoutingNo: Code[20];
+        StandardCost: Decimal;
+        UnitCostPer: Integer;
+        BOMCostShares: TestPage "BOM Cost Shares";
+    begin
+        // [SCENARIO 533684] When Stan runs BOM Cost Share Page for Parent Item then Rolled-up Material Cost,
+        // Total Cost are correctly populated for Parent and Component Item.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Work Center with Calendar.
+        CreateWorkCenterWithSpecificUnitCostWithCalendar(WorkCenter, Vendor."No.");
+
+        // [GIVEN] Generate a Unit Cost Per and save it in a Variable.
+        UnitCostPer := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create a Routing for Work Center and Update Unit Cost Per.
+        RoutingNo := CreateRoutingWithWorkCenter(WorkCenter."No.", 0, 0, 0);
+        UpdateUnitCostPerOnRoutingLine(RoutingNo, UnitCostPer);
+
+        // [GIVEN] Generate a Standard Cost and save it in a Variable.
+        StandardCost := LibraryRandom.RandDecInDecimalRange(100, 100, 2);
+
+        // [GIVEN] Create a Component Item.
+        CreateItem(Item[1], StandardCost);
+        Item[1].Validate(Item[1]."Routing No.", RoutingNo);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create a Production BOM.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandInt(0));
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Create a Parent Item.
+        CreateItem(Item[2], 0);
+        Item[2].Validate(Item[1]."Production BOM No.", ProductionBOMHeader."No.");
+        Item[1].Modify(true);
+
+        // [WHEN] Run BOM Cost Share Page from Parent Item.
+        BOMCostShares.Trap();
+        RunBOMCostSharesPage(Item[2]);
+        BOMCostShares.Expand(true);
+
+        // [THEN] Verify Rolled-up Material Cost, Total Cost for Component Item.
+        VerifyBOMCost(BOMCostShares, Item[1]."No.", StandardCost, (StandardCost + UnitCostPer));
+
+        // [THEN] Verify Rolled-up Material Cost, Total Cost for Parent Item.
+        VerifyBOMCost(BOMCostShares, Item[2]."No.", StandardCost, (StandardCost + UnitCostPer));
+
+        BOMCostShares.Close();
+    end;
+
     local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
     var
         RoutingHeader: Record "Routing Header";
@@ -861,6 +925,62 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     begin
         BOMStructure.InitItem(Item);
         BOMStructure.Run();
+    end;
+
+    local procedure CreateWorkCenterWithSpecificUnitCostWithCalendar(var WorkCenter: Record "Work Center"; SubContractorNo: Code[20])
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Work Center Group Code", '1');
+        WorkCenter.Validate("Specific Unit Cost", true);
+        WorkCenter.Validate("Unit Cost Calculation", WorkCenter."Unit Cost Calculation"::Units);
+        WorkCenter.Validate("Unit of Measure Code", 'MINUTES');
+        WorkCenter.Validate(Capacity, 1);
+        WorkCenter.Validate(Efficiency, 100);
+        WorkCenter.Validate("Shop Calendar Code", '1');
+        WorkCenter.Validate("Subcontractor No.", SubContractorNo);
+        WorkCenter.Modify(true);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', Today()), CalcDate('<1M>', Today()));
+    end;
+
+    local procedure UpdateUnitCostPerOnRoutingLine(RoutingNo: Code[20]; UnitCostPer: Decimal)
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        RoutingHeader.Get(RoutingNo);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::"Under Development");
+        RoutingHeader.Modify(true);
+
+        RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
+        RoutingLine.FindFirst();
+        RoutingLine.Validate("Unit Cost per", UnitCostPer);
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateItem(var Item: Record Item; StandardCost: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Standard Cost", StandardCost);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Modify(true);
+    end;
+
+    local procedure VerifyBOMCost(
+        var BOMCostShares: TestPage "BOM Cost Shares"; ItemNo: Code[20];
+        ExpectedRolledUpMatCost: Decimal; ExpectedTotalCost: Decimal)
+    var
+        BOMBuffer: Record "BOM Buffer";
+    begin
+        BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
+        BOMCostShares.FILTER.SetFilter("No.", ItemNo);
+        BOMCostShares.First();
+        BOMCostShares."Rolled-up Material Cost".AssertEquals(ExpectedRolledUpMatCost);
+        BOMCostShares."Total Cost".AssertEquals(ExpectedTotalCost);
     end;
 
     [StrMenuHandler]

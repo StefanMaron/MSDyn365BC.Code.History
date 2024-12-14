@@ -876,6 +876,59 @@ codeunit 137045 "SCM Bugfixes"
         PurchaseHeader.TestField("Inbound Whse. Handling Time", Location."Inbound Whse. Handling Time");
     end;
 
+    [Test]
+    [HandlerFunctions('OrderPromisingHandler')]
+    [Scope('OnPrem')]
+    procedure CapableToPromiseExecutedWithQuantityPerIsOneInFirmProdOrderAndBOMQuantityPerisZero()
+    var
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        WorkCenter: Record "Work Center";
+        LocationCode: Code[10];
+        RoutingNo: Code[20];
+    begin
+        // [SCENARIO 548457] Capable to Promise is executed at Sales Order where a component with 0 quantity is setup in the BOM and
+        // Firm planned order exists with 1 quantity for that component.
+        Initialize();
+
+        // [GIVEN] Create Parent Item.
+        CreateItem(Item[1], Item[1]."Replenishment System"::Purchase, '', '');
+
+        // [GIVEN] Create Routing with Work Center.
+        RoutingNo := CreateRoutingWithWorkCenter(WorkCenter, 0, 0, 0);
+
+        // [GIVEN] Create Production BOM.
+        CreateCertifiedProductionBOMWithComponentStartingDate(ProductionBOMHeader, Item[1]."Base Unit of Measure", Item[1]."No.", 0, 0D);
+
+        // [GIVEN] Create Component Item.
+        CreateItem(Item[2], Item[2]."Replenishment System"::"Prod. Order", RoutingNo, ProductionBOMHeader."No.");
+
+        // [GIVEN] Create Location.
+        LocationCode := LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Firm Planned Production Order.    
+        CreateFirmPlannedProductionOrder(ProductionOrder, Item[2]."No.", LibraryRandom.RandIntInRange(50, 50), LocationCode);
+
+        // [GIVEN] Find Production Order Line.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder);
+
+        // [GIVEN] Find Production Order Component Line and Update "Quantity per".
+        UpdateProductionOrderComponentLine(ProdOrderLine);
+
+        // [GIVEN] Update Component at Location in Manufacturing Setup.
+        UpdateComponentAtLocation(LocationCode);
+
+        // [WHEN]  Create Sales Order.
+        CreateSalesOrder(SalesHeader, Item[2]."No.", LocationCode, LibraryRandom.RandIntInRange(80, 80), SalesHeader."Document Type"::Order);
+
+        // [THEN] Verify Capable to Promise action is executed and Verification done in OrderPromising Handler.
+        OpenOrderPromisingPage(SalesHeader."No.")
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1416,6 +1469,84 @@ codeunit 137045 "SCM Bugfixes"
         ReservEntry.TestField(Quantity, TrackedQuantity);
     end;
 
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; RoutingNo: Code[20]; ProdBOMNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Critical, true);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Validate("Production BOM No.", ProdBOMNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateRoutingWithWorkCenter(WorkCenter: Record "Work Center"; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', Today()), CalcDate('<1M>', Today()));
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+            RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Lot Size", LotSize);
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        exit(RoutingHeader."No.");
+    end;
+
+    local procedure CreateFirmPlannedProductionOrder(
+        var ProductionOrder: Record "Production Order"; SourceNo: Code[20];
+        Quantity: Decimal; LocationCode: Code[10])
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, SourceNo, Quantity);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Modify(true);
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure UpdateProductionOrderComponentLine(ProdOrderLine: Record "Prod. Order Line")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        ProdOrderComponent.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.FindFirst();
+        ProdOrderComponent.Validate("Quantity per", 1);
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure UpdateComponentAtLocation(LocationCode: Code[10])
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", LocationCode);
+        ManufacturingSetup.Modify(true);
+    end;
+
+    local procedure OpenOrderPromisingPage(SalesHeaderNo: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenView();
+        SalesOrder.Filter.SetFilter("No.", SalesHeaderNo);
+        SalesOrder.SalesLines.OrderPromising.Invoke();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContactListModalPageHandler(var ContactLookup: Page "Contact List"; var Response: Action)
@@ -1467,6 +1598,13 @@ codeunit 137045 "SCM Bugfixes"
     procedure OrderTrackingHandler(var OrderTracking: TestPage "Order Tracking")
     begin
         OrderTracking.Show.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderPromisingHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
+    begin
+        OrderPromisingLines.CapableToPromise.Invoke()
     end;
 
     [MessageHandler]

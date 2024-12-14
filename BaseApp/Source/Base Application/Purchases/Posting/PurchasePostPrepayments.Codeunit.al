@@ -1536,6 +1536,7 @@ codeunit 444 "Purchase-Post Prepayments"
         PurchInvHeader."Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
         PurchInvHeader."Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
         PurchInvHeader."No." := GenJnlLineDocNo;
+        PurchInvHeader."Order No." := PurchHeader."No.";
         PurchInvHeader."Pre-Assigned No. Series" := '';
         PurchInvHeader."Source Code" := SrcCode;
         PurchInvHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchInvHeader."User ID"));
@@ -1593,6 +1594,7 @@ codeunit 444 "Purchase-Post Prepayments"
     begin
         PurchInvLine.Init();
         PurchInvLine."Document No." := PurchInvHeader."No.";
+        PurchInvLine."Order No." := PurchInvHeader."Order No.";
         PurchInvLine."Line No." := LineNo;
         PurchInvLine."Buy-from Vendor No." := PurchInvHeader."Buy-from Vendor No.";
         PurchInvLine."Pay-to Vendor No." := PurchInvHeader."Pay-to Vendor No.";

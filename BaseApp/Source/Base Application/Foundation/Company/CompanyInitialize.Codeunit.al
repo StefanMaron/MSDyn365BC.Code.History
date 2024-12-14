@@ -145,7 +145,7 @@ codeunit 2 "Company-Initialize"
         SEPADDNameTxt: Label 'SEPA Direct Debit';
         SEPA_CT_APCCodeTxt: Label 'SEPACTAPC', Comment = 'No need to translate - but can be translated at will.';
         SEPA_CT_APCNameTxt: Label 'SEPA Credit Transfer APC';
-        SEPA_CT_APCCode09Txt: Label 'SEPACTAPC09', Comment = 'No need to translate - but can be translated at will.';
+        SEPA_CT_APCCode09Txt: Label 'SEPACTAPC09', Locked = true;
         SEPA_CT_APCName09Txt: Label 'SEPA Credit Transfer APC 09';
         SEPACTCode09Txt: Label 'SEPACTPAIN00100109', Locked = true;
         SEPACTName09Txt: Label 'SEPA Credit Transfer pain.001.001.09';

@@ -2417,6 +2417,8 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(8886, 8); // External Message Id
         SetFieldToPersonal(8886, 11); // Received DateTime
         SetFieldToPersonal(8886, 12); // Sent DateTime
+        SetFieldToPersonal(8886, 13); // Is Read
+        SetFieldToPersonal(8886, 14); // Is Draft
     end;
 
     local procedure ClassifySentEmail()
@@ -3768,6 +3770,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(4308); // "SOA Instruction Task/Policy"
         SetTableFieldsToNormal(4309); // "SOA Instruction Prompt"
         SetFieldToCompanyConfidential(4309, 2); // Prompt
+        SetTableFieldsToNormal(4592); // SOA KPI Entry
+        SetFieldToPersonal(4592, 5); // Created by User ID
+        SetTableFieldsToNormal(4593); // SOA KPI
     end;
 
     local procedure ClassifyAgents()
@@ -3780,6 +3785,7 @@ codeunit 1751 "Data Classification Eval. Data"
         DummyAgentTaskFile: Record "Agent Task File";
         DummyAgentTaskTimelineEntry: Record "Agent Task Timeline Entry";
         DummyAgentTaskTimelineEntryStep: Record "Agent Task Timeline Entry Step";
+        DummyAgentTaskPaneEntry: Record "Agent Task Pane Entry";
         TableNo: Integer;
     begin
         TableNo := DATABASE::"Agent";
@@ -3825,8 +3831,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyAgentTaskTimelineEntryStep.FieldNo("User Security ID"));
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntryStep.FieldNo("Client Context"));
 
-        // following tables are internal but still require classification
+        TableNo := DATABASE::"Agent Task Pane Entry";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyAgentTaskPaneEntry.FieldNo("Created By"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Summary));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Title));
 
+        // following tables are internal but still require classification
         SetTableFieldsToNormal(2000000258); // Agent Data table
         SetFieldToPersonal(2000000258, 1); // User Security Id
         SetFieldToCompanyConfidential(2000000258, 3); // Instructions

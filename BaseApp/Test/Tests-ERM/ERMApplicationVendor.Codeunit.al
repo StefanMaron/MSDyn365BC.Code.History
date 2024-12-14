@@ -433,53 +433,6 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure ApplyPaymentToInvoiceCreditMemoWithPaymentDisc()
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-        Amount: Decimal;
-        RemainingAmount: Decimal;
-    begin
-        // [FEATURE] [Payment Discount]
-        // [SCENARIO 364591] Application of Payment to Invoice and Credit Memo with Payment Discount
-        Initialize();
-        GetGLBalancedBatch(GenJournalBatch);
-
-        // [GIVEN] Posted Purchase Invoice with Amount "X", Payment Discount Amount = "D".
-        Amount := LibraryRandom.RandDec(1000, 2);
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithPaymentTermsDiscount(), -Amount);
-
-        // [GIVEN] Posted Purchase Credit Memo with Amount "Y" < "X"
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", LibraryRandom.RandDecInDecimalRange(1, Amount, 2));
-
-        // [GIVEN] Posted Payment with Amount "Z" = "X" - "Y"
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", Amount - GenJournalLine.Amount);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        // [WHEN] Payment is applied to both Invoice and Credit Memo
-        ApplyAndPostMultipleVendorEntries(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.", GenJournalLine.Amount);
-        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
-
-        // [THEN] Vendor Ledger Entries for Invoice and Credit Memo are closed and "Remaining Pmt. Disc. Possible" = 0
-        VerifyVLEPaymentDisc(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, false, 0, 0);
-        RemainingAmount := -VendorLedgerEntry."Original Pmt. Disc. Possible";
-
-        asserterror VerifyVLEPaymentDisc(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", false, 0, 0);
-        Assert.KnownFailure('Open', 252156);
-
-        // [THEN] Vendor Ledger Entries for Payment is Opened. "Remaining Amount" = "D".
-        VerifyVLEPaymentDisc(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, true, 0, RemainingAmount);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ApplyRefundToCreditMemoInvoiceWithPaymentDisc()
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -517,9 +470,6 @@
         // [THEN] Vendor Ledger Entries for Credit Memo and Invoice are closed and "Remaining Pmt. Disc. Possible" = 0
         VerifyVLEPaymentDisc(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", false, 0, 0);
         RemainingAmount := -VendorLedgerEntry."Original Pmt. Disc. Possible";
-
-        asserterror VerifyVLEPaymentDisc(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, false, 0, 0);
-        Assert.KnownFailure('Open', 252156);
 
         // [THEN] Vendor Ledger Entries for Refund is Opened. "Remaining Amount" = "D".
         VerifyVLEPaymentDisc(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Refund, true, 0, RemainingAmount);

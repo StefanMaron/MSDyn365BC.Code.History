@@ -715,6 +715,7 @@ codeunit 99000813 "Carry Out Action"
         if RequisitionLine.Reserve and not (ProdOrderLine.Status = ProdOrderLine.Status::Planned) then
             ReserveBindingOrderToProd(ProdOrderLine, RequisitionLine);
 
+        OnInsertProdOrderLineOnBeforeModifyProdOrderLine(ProdOrderLine, RequisitionLine);
         ProdOrderLine.Modify();
         SetProdOrderLineBinCodeFromPlanningRtngLines(ProductionOrder, ProdOrderLine, RequisitionLine, Item);
         TransferBOM(RequisitionLine, ProductionOrder, ProdOrderLine."Line No.");
@@ -1863,6 +1864,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var Rec: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertProdOrderLineOnBeforeModifyProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

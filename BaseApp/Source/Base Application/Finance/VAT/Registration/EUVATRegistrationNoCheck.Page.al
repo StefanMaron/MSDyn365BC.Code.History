@@ -24,6 +24,7 @@ page 1339 "EU VAT Registration No Check"
                 field("Region Country"; Region)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Country/region';
                     Lookup = true;
                     TableRelation = "Country/Region" where("EU Country/Region Code" = filter(<> ''));
                     ToolTip = 'Specifies the country/region.';
