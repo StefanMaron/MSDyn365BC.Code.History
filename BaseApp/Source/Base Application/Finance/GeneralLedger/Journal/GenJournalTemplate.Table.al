@@ -344,6 +344,10 @@ table 80 "Gen. Journal Template"
         {
             Caption = 'Archive';
         }
+        field(34; "Unlink Inc. Doc On Posting"; Boolean)
+        {
+            Caption = 'Unlink Incoming Documents On Posting';
+        }
     }
 
     keys

@@ -216,8 +216,10 @@ codeunit 7302 "WMS Management"
                                 GetBin(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
                                 Bin.CheckIncreaseBin(Bin.Code, WarehouseJournalLine."Item No.", WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, true, false);
                             end;
-                        end else
+                        end else begin
                             CheckWarehouseClass(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code", WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code");
+                            CheckBinAndBinContentMovement(WarehouseJournalLine);
+                        end;
                 SourceJnl::OutputJnl, SourceJnl::ConsumpJnl:
                     if WarehouseJournalLine."To Bin Code" <> '' then
                         if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then
@@ -1819,7 +1821,7 @@ codeunit 7302 "WMS Management"
         OnBeforeCheckBlockedBin(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode, CheckInbound, IsHandled);
         if not IsHandled then begin
             GetLocation(LocationCode);
-            if Location."Directed Put-away and Pick" then
+            if (Location."Directed Put-away and Pick") or ((BinCode <> '') and (Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Never Check Capacity")) then
                 if BinContent.Get(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode) then begin
                     if (CheckInbound and
                         (BinContent."Block Movement" in [BinContent."Block Movement"::Inbound, BinContent."Block Movement"::All])) or
@@ -1866,6 +1868,19 @@ codeunit 7302 "WMS Management"
     begin
         if Bin2.Get(LocationCode, BinCode) then
             exit(Bin2."Bin Type Code");
+    end;
+
+    local procedure CheckBinAndBinContentMovement(WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+        if WarehouseJournalLine.Quantity = 0 then
+            exit;
+
+        case WarehouseJournalLine."Entry Type" of
+            WarehouseJournalLine."Entry Type"::"Positive Adjmt.":
+                CheckBlockedBin(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code", WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code", WarehouseJournalLine.Quantity > 0);
+            WarehouseJournalLine."Entry Type"::"Negative Adjmt.":
+                CheckBlockedBin(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code", WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code", WarehouseJournalLine.Quantity < 0);
+        end;
     end;
 
 #if not CLEAN23
