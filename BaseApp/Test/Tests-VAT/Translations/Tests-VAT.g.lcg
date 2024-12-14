@@ -797,6 +797,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non Ded. VAT Misc. - NamedType IncorrectGLEntryAmtErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2188954535 - NamedType 2465520783" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect amount in Project Ledger Entry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non Ded. VAT Misc. - NamedType InCorrectProjLedgEntryAmtErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2320631175 - NamedType 648351519" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount must be equal.]]></Val>

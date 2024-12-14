@@ -180,7 +180,11 @@ codeunit 333 "Req. Wksh.-Make Order"
         OrderCounter := 0;
         OrderLineCounter := 0;
         Clear(PurchOrderHeader);
-        SetPurchOrderHeader();
+
+        IsHandled := false;
+        OnCodeOnBeforeSetPurchOrderHeader(ReqLine, IsHandled);
+        if not IsHandled then
+            SetPurchOrderHeader();
         SetReqLineSortingKey(ReqLine);
 
         ProcessReqLineActions(ReqLine);
@@ -207,6 +211,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 if ReqLine2.FindFirst() then;
                 // Remember the last line
                 IsHandled := false;
+                ReqLine.BlockDynamicTracking(true);
                 OnBeforeDeleteReqLines(ReqLine, TempFailedReqLine, IsHandled, ReqLine2);
                 if not IsHandled then
                     if ReqLine.Find('-') then
@@ -709,41 +714,44 @@ codeunit 333 "Req. Wksh.-Make Order"
         if ReqLine2.Reserve then
             ReserveBindingOrderToPurch(PurchOrderLine, ReqLine2);
 
-        if PurchOrderLine."Drop Shipment" or PurchOrderLine."Special Order" then begin
-            SalesOrderLine.LockTable();
-            SalesOrderHeader.LockTable();
-            SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, ReqLine2."Sales Order No.");
-            CheckPurchOrderLineShipToCode(ReqLine2);
-            SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, ReqLine2."Sales Order No.", ReqLine2."Sales Order Line No.");
-            SalesOrderLine.TestField(Type, SalesOrderLine.Type::Item);
-            if SalesOrderLine."Purch. Order Line No." <> 0 then
-                Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Purchase Order No.");
-            if SalesOrderLine."Special Order Purchase No." <> '' then
-                Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Special Order Purchase No.");
-            if not PurchOrderLine."Special Order" then
-                ReqLine2.TestField("Sell-to Customer No.", SalesOrderLine."Sell-to Customer No.");
-            ReqLine2.TestField(Type, SalesOrderLine.Type);
-            if PurchOrderLine."Drop Shipment" then
-                CheckRequsitionLineQuantity(ReqLine2);
-            ReqLine2.TestField("No.", SalesOrderLine."No.");
-            ReqLine2.TestField("Location Code", SalesOrderLine."Location Code");
-            ReqLine2.TestField("Variant Code", SalesOrderLine."Variant Code");
-            ReqLine2.TestField("Bin Code", SalesOrderLine."Bin Code");
-            ReqLine2.TestField("Prod. Order No.", '');
-            ReqLine2.TestField("Qty. per Unit of Measure", ReqLine2."Qty. per Unit of Measure");
-            OnInsertPurchOrderLineOnBeforeSalesOrderLineValidateUnitCostLCY(PurchOrderLine, SalesOrderLine);
-            SalesOrderLine.Validate("Unit Cost (LCY)");
+        IsHandled := false;
+        OnInsertPurchOrderLineOnBeforeUpdateAssociatedSalesLine(PurchOrderLine, ReqLine2, IsHandled);
+        if not IsHandled then
+            if PurchOrderLine."Drop Shipment" or PurchOrderLine."Special Order" then begin
+                SalesOrderLine.LockTable();
+                SalesOrderHeader.LockTable();
+                SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, ReqLine2."Sales Order No.");
+                CheckPurchOrderLineShipToCode(ReqLine2);
+                SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, ReqLine2."Sales Order No.", ReqLine2."Sales Order Line No.");
+                SalesOrderLine.TestField(Type, SalesOrderLine.Type::Item);
+                if SalesOrderLine."Purch. Order Line No." <> 0 then
+                    Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Purchase Order No.");
+                if SalesOrderLine."Special Order Purchase No." <> '' then
+                    Error(Text006, SalesOrderLine."No.", SalesOrderLine."Document No.", SalesOrderLine."Special Order Purchase No.");
+                if not PurchOrderLine."Special Order" then
+                    ReqLine2.TestField("Sell-to Customer No.", SalesOrderLine."Sell-to Customer No.");
+                ReqLine2.TestField(Type, SalesOrderLine.Type);
+                if PurchOrderLine."Drop Shipment" then
+                    CheckRequsitionLineQuantity(ReqLine2);
+                ReqLine2.TestField("No.", SalesOrderLine."No.");
+                ReqLine2.TestField("Location Code", SalesOrderLine."Location Code");
+                ReqLine2.TestField("Variant Code", SalesOrderLine."Variant Code");
+                ReqLine2.TestField("Bin Code", SalesOrderLine."Bin Code");
+                ReqLine2.TestField("Prod. Order No.", '');
+                ReqLine2.TestField("Qty. per Unit of Measure", ReqLine2."Qty. per Unit of Measure");
+                OnInsertPurchOrderLineOnBeforeSalesOrderLineValidateUnitCostLCY(PurchOrderLine, SalesOrderLine);
+                SalesOrderLine.Validate("Unit Cost (LCY)");
 
-            if SalesOrderLine."Special Order" then begin
-                SalesOrderLine."Special Order Purchase No." := PurchOrderLine."Document No.";
-                SalesOrderLine."Special Order Purch. Line No." := PurchOrderLine."Line No.";
-            end else begin
-                SalesOrderLine."Purchase Order No." := PurchOrderLine."Document No.";
-                SalesOrderLine."Purch. Order Line No." := PurchOrderLine."Line No.";
+                if SalesOrderLine."Special Order" then begin
+                    SalesOrderLine."Special Order Purchase No." := PurchOrderLine."Document No.";
+                    SalesOrderLine."Special Order Purch. Line No." := PurchOrderLine."Line No.";
+                end else begin
+                    SalesOrderLine."Purchase Order No." := PurchOrderLine."Document No.";
+                    SalesOrderLine."Purch. Order Line No." := PurchOrderLine."Line No.";
+                end;
+                OnInsertPurchOrderLineOnBeforeSalesOrderLineModify(SalesOrderLine, ReqLine2, PurchOrderLine);
+                SalesOrderLine.Modify();
             end;
-            OnInsertPurchOrderLineOnBeforeSalesOrderLineModify(SalesOrderLine, ReqLine2, PurchOrderLine);
-            SalesOrderLine.Modify();
-        end;
 
         if TransferExtendedText.PurchCheckIfAnyExtText(PurchOrderLine, false) then begin
             TransferExtendedText.InsertPurchExtText(PurchOrderLine);
@@ -793,7 +801,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         ShouldValidateSellToCustNo: Boolean;
         ShouldSetShipToForSpecOrder: Boolean;
     begin
-        OnBeforeInsertHeader(ReqLine2, PurchOrderHeader, OrderDateReq, PostingDateReq, ReceiveDateReq, ReferenceReq);
+        OnBeforeInsertHeader(ReqLine2, PurchOrderHeader, OrderDateReq, PostingDateReq, ReceiveDateReq, ReferenceReq, NameAddressDetails);
 
         OrderCounter := OrderCounter + 1;
         if not PlanningResiliency then
@@ -1298,8 +1306,12 @@ codeunit 333 "Req. Wksh.-Make Order"
     var
         CheckInsert: Boolean;
         CheckAddressDetailsResult: Boolean;
+        IsHandled: Boolean;
     begin
-        CheckAddressDetailsResult := CheckAddressDetails(RequisitionLine."Sales Order No.", RequisitionLine."Sales Order Line No.", UpdateAddressDetails);
+        IsHandled := false;
+        OnCheckInsertFinalizePurchaseOrderHeaderOnBeforeCheckAddressDetails(RequisitionLine, CheckAddressDetailsResult, IsHandled);
+        if not IsHandled then
+            CheckAddressDetailsResult := CheckAddressDetails(RequisitionLine."Sales Order No.", RequisitionLine."Sales Order Line No.", UpdateAddressDetails);
         CheckInsert :=
               (PurchOrderHeader."Buy-from Vendor No." <> RequisitionLine."Vendor No.") or
               (PurchOrderHeader."Sell-to Customer No." <> RequisitionLine."Sell-to Customer No.") or
@@ -1491,7 +1503,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertHeader(RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var OrderDateReq: Date; var PostingDateReq: Date; var ReceiveDateReq: Date; var ReferenceReq: Text[35])
+    local procedure OnBeforeInsertHeader(RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var OrderDateReq: Date; var PostingDateReq: Date; var ReceiveDateReq: Date; var ReferenceReq: Text[35]; var NameAddressDetails: Text)
     begin
     end;
 
@@ -1827,6 +1839,21 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnReserveBindingOrderToPurch(var RequisitionLine: Record "Requisition Line"; var PurchaseLine: Record "Purchase Line"; ReservQty: Decimal; ReservQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPurchOrderLineOnBeforeUpdateAssociatedSalesLine(var PurchaseLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCheckInsertFinalizePurchaseOrderHeaderOnBeforeCheckAddressDetails(var RequisitionLine: Record "Requisition Line"; var CheckAddressDetailsResult: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCodeOnBeforeSetPurchOrderHeader(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

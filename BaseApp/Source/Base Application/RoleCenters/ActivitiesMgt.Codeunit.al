@@ -232,7 +232,13 @@ codeunit 1311 "Activities Mgt."
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
         ReservationEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcNoOfReservedFromStockSalesOrders(SalesHeader, Number, IsHandled);
+        if IsHandled then
+            exit;
+
         Number := 0;
 
         ReservationEntry.SetRange(Positive, true);
@@ -255,6 +261,8 @@ codeunit 1311 "Activities Mgt."
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
     begin
+        OnBeforeDrillDownNoOfReservedFromStockSalesOrders(SalesHeader);
+
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         if SalesHeader.FindSet() then
             repeat
@@ -491,6 +499,16 @@ codeunit 1311 "Activities Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnRefreshActivitiesCueDataOnBeforeModify(var ActivitiesCue: Record "Activities Cue")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDownNoOfReservedFromStockSalesOrders(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcNoOfReservedFromStockSalesOrders(var SalesHeader: Record "Sales Header"; var Number: Integer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -97,7 +97,7 @@ page 12166 "Posted Service Shpt. - Update"
 
     trigger OnOpenPage()
     begin
-        xServiceShptHeader := Rec;
+        xServiceShipmentHeader := Rec;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -110,19 +110,21 @@ page 12166 "Posted Service Shpt. - Update"
     end;
 
     var
-        xServiceShptHeader: Record "Service Shipment Header";
+        xServiceShipmentHeader: Record "Service Shipment Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(
-          (Rec."Additional Information" <> xServiceShptHeader."Additional Information") or
-          (Rec."Additional Notes" <> xServiceShptHeader."Additional Notes") or
-          (Rec."Additional Instructions" <> xServiceShptHeader."Additional Instructions") or
-          (Rec."TDD Prepared By" <> xServiceShptHeader."TDD Prepared By") or
-          (Rec."Shipment Method Code" <> xServiceShptHeader."Shipment Method Code") or
-          (Rec."Shipping Agent Code" <> xServiceShptHeader."Shipping Agent Code") or
-          (Rec."3rd Party Loader Type" <> xServiceShptHeader."3rd Party Loader Type") or
-          (Rec."3rd Party Loader No." <> xServiceShptHeader."3rd Party Loader No."));
+        IsChanged :=
+          (Rec."Additional Information" <> xServiceShipmentHeader."Additional Information") or
+          (Rec."Additional Notes" <> xServiceShipmentHeader."Additional Notes") or
+          (Rec."Additional Instructions" <> xServiceShipmentHeader."Additional Instructions") or
+          (Rec."TDD Prepared By" <> xServiceShipmentHeader."TDD Prepared By") or
+          (Rec."Shipment Method Code" <> xServiceShipmentHeader."Shipment Method Code") or
+          (Rec."Shipping Agent Code" <> xServiceShipmentHeader."Shipping Agent Code") or
+          (Rec."3rd Party Loader Type" <> xServiceShipmentHeader."3rd Party Loader Type") or
+          (Rec."3rd Party Loader No." <> xServiceShipmentHeader."3rd Party Loader No.");
+
+		  OnAfterRecordChanged(Rec, xServiceShipmentHeader, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -130,6 +132,11 @@ page 12166 "Posted Service Shpt. - Update"
     begin
         Rec := ServiceShptHeader;
         Rec.Insert();
+    end;
+	
+	[IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var ServiceShipmentHeader: Record "Service Shipment Header"; xServiceShipmentHeader: Record "Service Shipment Header"; var IsChanged: Boolean)
+    begin
     end;
 }
 

@@ -75,10 +75,7 @@ report 295 "Combine Shipments"
                                     SalesLine."Document Type" := SalesHeader."Document Type";
                                     SalesLine."Document No." := SalesHeader."No.";
                                 end;
-                                SalesShptLine := "Sales Shipment Line";
-                                HasAmount := HasAmount or ("Qty. Shipped Not Invoiced" <> 0);
-                                OnSalesShipmentLineOnAfterGetRecordOnBeforeInsertInvLineFromShptLine(SalesLine, SalesShptLine);
-                                SalesShptLine.InsertInvLineFromShptLine(SalesLine);
+                                InsertInventoryLineFromShipmentLine("Sales Shipment Line");
                             end else
                                 NoOfSalesInvErrors := NoOfSalesInvErrors + 1;
                         end;
@@ -488,6 +485,21 @@ report 295 "Combine Shipments"
         OnAfterInsertSalesInvHeader(SalesHeader, "Sales Shipment Header");
     end;
 
+    local procedure InsertInventoryLineFromShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertInventoryLineFromShipmentLine(SalesShipmentLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesShptLine := SalesShipmentLine;
+        HasAmount := HasAmount or (SalesShipmentLine."Qty. Shipped Not Invoiced" <> 0);
+        OnSalesShipmentLineOnAfterGetRecordOnBeforeInsertInvLineFromShptLine(SalesLine, SalesShptLine);
+        SalesShptLine.InsertInvLineFromShptLine(SalesLine);
+    end;
+
     procedure InitializeRequest(NewPostingDate: Date; NewDocDate: Date; NewCalcInvDisc: Boolean; NewPostInv: Boolean; NewOnlyStdPmtTerms: Boolean; NewCopyTextLines: Boolean)
     begin
         PostingDateReq := NewPostingDate;
@@ -674,6 +686,11 @@ report 295 "Combine Shipments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustIsBlockedOnAfterGetRecord(OrderSalesHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; SalesShipmentLine: Record "Sales Shipment Line"; Customer: Record Customer; var CustIsBlocked: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertInventoryLineFromShipmentLine(SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

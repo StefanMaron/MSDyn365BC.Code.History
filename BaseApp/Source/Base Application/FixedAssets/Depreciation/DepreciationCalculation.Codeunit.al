@@ -368,7 +368,7 @@ codeunit 5616 "Depreciation Calculation"
         DeprBook.Get(DeprBookCode);
 
         IsHandled := false;
-        OnBeforeCalcRounding(DeprBook, DeprAmount, IsHandled);
+        OnBeforeCalcRounding(DeprBook, DeprAmount, DeprAmount, IsHandled);
         if IsHandled then
             exit(DeprAmount);
 
@@ -625,7 +625,7 @@ codeunit 5616 "Depreciation Calculation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcRounding(DeprBook: Record "Depreciation Book"; var DeprAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalcRounding(DeprBook: Record "Depreciation Book"; OrigDeprAmount: Decimal; var DeprAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 

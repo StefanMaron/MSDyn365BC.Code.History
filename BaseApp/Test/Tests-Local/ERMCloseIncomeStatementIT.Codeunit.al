@@ -469,6 +469,68 @@ codeunit 144113 "ERM Close Income Statement IT"
         LibraryReportDataSet.AssertElementWithValueExists(GLAccountNoCap, GenJournalLine."Account No.");
     end;
 
+    [Test]
+    [HandlerFunctions('CloseOpenBalanceSheetReqPageHandler,DimensionSelectionMultipleModalPageHandler,GeneralJournalBatchesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure DocNoOfCloseBalanceEntriesOnCloseOpenBalanceSheetReportStaysWhenReRun()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueEntryCard: TestPage "Job Queue Entry Card";
+        ClosingPostingDate: Date;
+        DocNo: Code[10];
+    begin
+        // [SCENARIO 557759] When Stan runs Report Request Page action from Job Queue Entry Card page 
+        // Then Document No. of Close Balance Entries is not empty once entered before.
+        Initialize();
+
+        // [GIVEN] Create a Job Queue Entry.
+        JobQueueEntry.Init();
+        JobQueueEntry.Validate("Object Type to Run", JobQueueEntry."Object Type to Run"::Report);
+        JobQueueEntry.Validate("Object ID to Run", Report::"Close/Open Balance Sheet");
+        JobQueueEntry.Insert(true);
+
+        // [GIVEN] Close and Create Fiscal Year and save it in a Variable.
+        LibraryFiscalYear.CloseFiscalYear();
+        LibraryFiscalYear.CreateFiscalYear();
+        ClosingPostingDate := CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true));
+
+        // [GIVEN] Create a GL Account and Validate Account Type and Income/Balance in GL Account.
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.Validate("Income/Balance", IncomeBalanceType::"Balance Sheet");
+        GLAccount.Modify();
+
+        // [GIVEN] Create a Gen. Journal Template.
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+
+        // [GIVEN] Create a Gen. Journal Batch.
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        // [GIVEN] Create a Gen. Journal Line.
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Run Report Request Page action from Job Queue Entry Card page.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandText(4));
+        RunReportRequestPageFromJobQueueEntryCard(GenJournalLine, JobQueueEntry, ClosingPostingDate);
+
+        // [WHEN] Save Document No. in a Variable.
+        DocNo := Format(LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(DocNo);
+        Commit();
+
+        // [THEN] Open Job Queue Entry Card page and run Report Request Page action.
+        JobQueueEntryCard.OpenEdit();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        JobQueueEntryCard.ReportRequestPage.Invoke();
+        JobQueueEntryCard.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -714,6 +776,28 @@ codeunit 144113 "ERM Close Income Statement IT"
         Assert.AreEqual(DimSetId, GenJournalLine."Dimension Set ID", IncorrectDimSetIDErr);
     end;
 
+    local procedure RunReportRequestPageFromJobQueueEntryCard(GenJournalLine: Record "Gen. Journal Line"; JobQueueEntry: Record "Job Queue Entry"; ClosingPostingDate: Date)
+    var
+        JobQueueEntryCard: TestPage "Job Queue Entry Card";
+    begin
+        LibraryVariableStorage.Enqueue(ClosingPostingDate);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+        LibraryVariableStorage.Enqueue(IncStr(GenJournalLine."Document No."));
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo());
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+        LibraryVariableStorage.Enqueue(IncStr(GenJournalLine."Document No."));
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo());
+        LibraryVariableStorage.Enqueue(true);
+        Commit();
+
+        JobQueueEntryCard.OpenEdit();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        JobQueueEntryCard.ReportRequestPage.Invoke();
+        JobQueueEntryCard.Close();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CloseIncomeStatementRequestPageHandler(var CloseIncomeStatement: TestRequestPage "Close Income Statement")
@@ -766,6 +850,50 @@ codeunit 144113 "ERM Close Income Statement IT"
         LibraryVariableStorage.Dequeue(FieldValue);
         CloseOpenBalanceSheet.BusinessUnitCode.SetValue(FieldValue);
         CloseOpenBalanceSheet.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CloseOpenBalanceSheetReqPageHandler(var CloseOpenBalanceSheet: TestRequestPage "Close/Open Balance Sheet")
+    var
+        FieldValue: Variant;
+        ReOpen: Boolean;
+    begin
+        ReOpen := LibraryVariableStorage.DequeueBoolean();
+        if not ReOpen then begin
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.DocumentNo_CloseBalanceEntries.SetValue(FieldValue);
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.FiscalYearEndingDate.SetValue(FieldValue);
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.GenJournalTemplate_CloseBalanceEntries.SetValue(FieldValue);
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.GenJournalBatch_CloseBalanceEntries.Lookup();
+            CloseOpenBalanceSheet.GenJournalBatch_CloseBalanceEntries.SetValue(FieldValue);
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.DocumentNo_CloseBalanceEntries.SetValue(FieldValue);
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.ClosingAccountNo.SetValue(FieldValue);
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.GenJournalTemplate_OpenBalanceEntries.SetValue(FieldValue);
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.GenJournalBatch_OpenBalanceEntries.Lookup();
+            CloseOpenBalanceSheet.GenJournalBatch_OpenBalanceEntries.SetValue(FieldValue);
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.DocumentNo_OpenBalanceEntries.SetValue(FieldValue);
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.OpeningAccountNo.SetValue(FieldValue);
+            CloseOpenBalanceSheet.Dimensions.AssistEdit();
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.BusinessUnitCode.SetValue(FieldValue);
+            LibraryVariableStorage.Enqueue(Format(CloseOpenBalanceSheet.DocumentNo_CloseBalanceEntries));
+            CloseOpenBalanceSheet.OK().Invoke();
+        end
+        else begin
+            LibraryVariableStorage.Dequeue(FieldValue);
+            CloseOpenBalanceSheet.DocumentNo_CloseBalanceEntries.AssertEquals(FieldValue);
+            CloseOpenBalanceSheet.OK().Invoke();
+        end
     end;
 
     [ModalPageHandler]

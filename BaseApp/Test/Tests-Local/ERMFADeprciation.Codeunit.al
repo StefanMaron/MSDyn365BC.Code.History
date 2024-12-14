@@ -215,6 +215,65 @@ codeunit 144143 "ERM FA Deprciation"
     end;
 
     [Test]
+    [HandlerFunctions('CalculateDepreciationRequestPageHandler,DepreciationCalcConfirmHandler,MessageHandler,DepreciationBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DepreciationBookTotalDepreciationPercentAfterReclassify()
+    var
+        FALedgerEntry: Record "FA Ledger Entry";
+        FADepreciationBook: array[2] of Record "FA Depreciation Book";
+        GenJournalLine: Record "Gen. Journal Line";
+        Amount: Decimal;
+        DepreciationAmount: Decimal;
+        DepreciationPerc: Decimal;
+    begin
+        // [SCENARIO 542307] Depreciation Book Report shows wrong values in Total Depreciation %
+        Initialize();
+
+        // [GIVEN]  Create 2 FA and one Depreciation book
+        CreateMultipleFADepreciationBookSetups(FADepreciationBook, CalcDate('<1Y>', WorkDate()));
+
+        // [GIVEN] Post Acquisition and Depreciation of 1st FA
+        Amount := LibraryRandom.RandDec(1000, 2);
+        CreateAndPostGenJournalLine(FADepreciationBook[1], GenJournalLine."FA Posting Type"::"Acquisition Cost", Amount, WorkDate());
+        EnqueueValuesInRequestPageHandler(
+            FADepreciationBook[1]."Depreciation Book Code",
+            FADepreciationBook[1]."FA No.", CalcDate('<CY>', WorkDate()), '');
+        PostGenJournalLineAfterCalculateDepreciation(true);
+
+        // [GIVEN] Post Reclassification of 1st FA to 2nd FA
+        ReclassifyAndPostFAReclassJournal(
+            CreateFAReclassJournalLine(
+                FADepreciationBook, Amount, CalcDate('<1Y>', WorkDate())),
+                FADepreciationBook[1]."Depreciation Book Code");
+
+        // [GIVEN] Depreciate reclassified 2nd FA
+        Commit();
+        EnqueueValuesInRequestPageHandler(
+            FADepreciationBook[2]."Depreciation Book Code",
+            FADepreciationBook[2]."FA No.", CalcDate('<2Y>', WorkDate()), '');
+        PostGenJournalLineAfterCalculateDepreciation(true);
+
+        // [WHEN] Executing Depreciation Book Report
+        Commit();
+        RunDepreciationBookReport(
+            FADepreciationBook[1]."Depreciation Book Code",
+            FADepreciationBook[1]."FA No.", FADepreciationBook[2]."FA No.",
+            true, CalcDate('<2Y>', WorkDate()));
+
+        // [GIVEN] Calculate FA Ledger Entry Depreciation %
+        FALedgerEntry.SetRange("FA No.", FADepreciationBook[2]."FA No.");
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
+        FALedgerEntry.FindSet();
+        FALedgerEntry.CalcSums(Amount);
+        DepreciationAmount := FALedgerEntry.Amount;
+        DepreciationPerc := (DepreciationAmount * 100) / Amount;
+
+        // [THEN] Total Depreciation Percent of the report for 2nd FA should be equal to be percent calculated based on depreciated amount in FA Ledger Entry.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BasicDepreciationPerc', Abs(DepreciationPerc));
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TotalDepreciationPercentageOnDepreciationTableCard()
     var
@@ -1085,6 +1144,72 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler,DepreciationBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckReclassAmtinDepreciationBook()
+    var
+        FADepreciationBook: array[2] of Record "FA Depreciation Book";
+        GenJournalLine: Record "Gen. Journal Line";
+        DepreciationTableCode: Code[10];
+        DepreciationBookCode: Code[10];
+        FAPostingGroupCode: Code[20];
+        ReclassAmountTxt: Label 'ReclassAmount_4_';
+        AcqAmount: Decimal;
+    begin
+        // [SCENARIO 555392] Check Reclass amount is correct in the Depreciation Book report when Reclassification is the first Ledger Entry for a Fixed Asset in the Italian version.
+        Initialize();
+
+        // [GIVEN] Modify Company Info
+        UpdateCompanyInfo();
+
+        // [GIVEN] Created a Depreciation Book and table code, FA Posting Group.
+        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
+        DepreciationTableCode := CreateDepreciationTableWithMultipleLines();
+        CreateFAPostingGroup(FAPostingGroupCode);
+
+        // [GIVEN] Generate a random Depreciation Amount and Acquisition Cost Percentage and save them in a variable.
+        AcqAmount := LibraryRandom.RandIntInRange(100, 20000);
+
+        // [GIVEN] Created a Fixed Asset "FA1".
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[1], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+
+        // [GIVEN] Create and Post a Gen Journal Line with FA Posting Type "Aquisition Cost".
+        CreateAndPostGenJournalLine(
+            FADepreciationBook[1],
+            GenJournalLine."FA Posting Type"::"Acquisition Cost",
+            AcqAmount,
+            WorkDate());
+
+        // [GIVEN] "FA1" reclassified to "FA2".
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[2], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+        ReclassifyAndPostFAReclassJournal(
+            CreateFAReclassJournalLine(
+                FADepreciationBook,
+                AcqAmount,
+                WorkDate()),
+                DepreciationBookCode);
+
+        // [GIVEN] Create and Post a Gen Journal Line with FA Posting Type "Aquisition Cost" for "FA2".
+        CreateAndPostGenJournalLine(
+            FADepreciationBook[2],
+            GenJournalLine."FA Posting Type"::"Acquisition Cost",
+            LibraryRandom.RandIntInRange(100, 20000),
+            WorkDate());
+
+        // [WHEN] Run report "Depreciation Book" for "FA1" and "FA2".
+        RunDepreciationBookReport(
+            DepreciationBookCode,
+            FADepreciationBook[2]."FA No.",
+            '',
+            true,
+            CalcDate('<-CY>', WorkDate()));
+
+        // [THEN] Verify the Reclass Amount in the Depreciation Book report.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(ReclassAmountTxt, AcqAmount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1715,6 +1840,23 @@ codeunit 144143 "ERM FA Deprciation"
         FAReclassJournalLine.Modify(true);
 
         exit(FAReclassJournalBatch.Name);
+    end;
+
+    local procedure UpdateCompanyInfo()
+    var
+        CompanyInfo: Record "Company Information";
+    begin
+        CompanyInfo.get();
+        CompanyInfo."Fiscal Code" := CopyStr(
+            LibraryUtility.GenerateRandomCode(CompanyInfo.FieldNo("Fiscal Code"), Database::"Company Information"),
+            1,
+            LibraryUtility.GetFieldLength(Database::"Company Information", CompanyInfo.FieldNo("Fiscal Code")));
+
+        CompanyInfo."Register Company No." := CopyStr(
+            LibraryUtility.GenerateRandomCode(CompanyInfo.FieldNo("Register Company No."), Database::"Company Information"),
+            1,
+            LibraryUtility.GetFieldLength(Database::"Company Information", CompanyInfo.FieldNo("Register Company No.")));
+        CompanyInfo.Modify();
     end;
 
     [RequestPageHandler]

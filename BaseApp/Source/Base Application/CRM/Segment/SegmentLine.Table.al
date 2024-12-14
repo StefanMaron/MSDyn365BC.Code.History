@@ -1289,7 +1289,10 @@ table 5077 "Segment Line"
                 OnFinishSegLineWizardBeforeLogInteraction(Rec, IsHandled);
                 if not IsHandled then
                     SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, send, not IsFinish);
-                InteractionLogEntry.FindLast();
+                if Rec."Line No." <> 0 then
+                    InteractionLogEntry.Get(Rec."Line No.")
+                else
+                    InteractionLogEntry.FindLast();
                 if Send and (InteractionLogEntry."Delivery Status" = InteractionLogEntry."Delivery Status"::Error) then
                     if HTMLAttachment then begin
                         Clear(TempAttachment);

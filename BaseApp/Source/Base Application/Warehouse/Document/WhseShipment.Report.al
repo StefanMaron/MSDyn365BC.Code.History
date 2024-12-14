@@ -106,14 +106,14 @@ report 7317 "Whse. - Shipment"
 
                     trigger OnAfterGetRecord()
                     begin
-                        GetLocation("Location Code");
+                        this.GetLocation("Location Code");
                     end;
                 }
             }
 
             trigger OnAfterGetRecord()
             begin
-                GetLocation("Location Code");
+                this.GetLocation("Location Code");
             end;
         }
     }

@@ -47,6 +47,7 @@ codeunit 393 "Reminder-Issue"
         GlobalReminderHeader.TestField("Document Date");
         GlobalReminderHeader.TestField("Due Date");
         GlobalReminderHeader.TestField("Customer Posting Group");
+        OnRunOnAfterGlobalReminderHeaderChecks(GlobalReminderHeader);
 
         if ErrorMessageHandler.HasErrors() then
             if ErrorMessageHandler.ShowErrors() then
@@ -80,32 +81,36 @@ codeunit 393 "Reminder-Issue"
         else
             DocNo := GlobalReminderHeader."No.";
 
-        ProcessReminderLines(GlobalReminderHeader, ReminderLine);
+        ProcessReminderLines(GlobalReminderHeader, ReminderLine, DocNo);
 
-        if (ReminderInterestAmount <> 0) and GlobalReminderHeader."Post Interest" then begin
-            if ReminderInterestAmount < 0 then
-                Error(InterestsMustBePositiveLbl);
-            InitGenJnlLine(TempGenJnlLine."Account Type"::"G/L Account", CustPostingGr.GetInterestAccount(), true);
-            OnRunOnAfterInitGenJnlLinePostInterest(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
-            TempGenJnlLine.Validate("VAT Bus. Posting Group", GlobalReminderHeader."VAT Bus. Posting Group");
-            TempGenJnlLine.Validate(Amount, -ReminderInterestAmount - ReminderInterestVATAmount);
-            OnRunOnBeforeGenJnlLineUpdateLineBalance(TempGenJnlLine, ReminderInterestVATAmount, TotalAmount);
-            TempGenJnlLine.UpdateLineBalance();
-            TotalAmount := TotalAmount - TempGenJnlLine.Amount;
-            TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
-            TempGenJnlLine."Bill-to/Pay-to No." := GlobalReminderHeader."Customer No.";
-            OnRunOnBeforeGenJnlLineInsertPostInterest(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
-            TempGenJnlLine.Insert();
-            OnRunOnAfterGenJnlLineInsertPostInterest(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
-        end;
+        IsHandled := false;
+        OnRunOnBeforePostInterestCheck(GlobalReminderHeader, ReminderLine, TempGenJnlLine, GenJnlBatch, ReminderInterestAmount, IsHandled);
+        if not IsHandled then begin
+            if (ReminderInterestAmount <> 0) and GlobalReminderHeader."Post Interest" then begin
+                if ReminderInterestAmount < 0 then
+                    Error(InterestsMustBePositiveLbl);
+                InitGenJnlLine(TempGenJnlLine."Account Type"::"G/L Account", CustPostingGr.GetInterestAccount(), true);
+                OnRunOnAfterInitGenJnlLinePostInterest(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
+                TempGenJnlLine.Validate("VAT Bus. Posting Group", GlobalReminderHeader."VAT Bus. Posting Group");
+                TempGenJnlLine.Validate(Amount, -ReminderInterestAmount - ReminderInterestVATAmount);
+                OnRunOnBeforeGenJnlLineUpdateLineBalance(TempGenJnlLine, ReminderInterestVATAmount, TotalAmount);
+                TempGenJnlLine.UpdateLineBalance();
+                TotalAmount := TotalAmount - TempGenJnlLine.Amount;
+                TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
+                TempGenJnlLine."Bill-to/Pay-to No." := GlobalReminderHeader."Customer No.";
+                OnRunOnBeforeGenJnlLineInsertPostInterest(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
+                TempGenJnlLine.Insert();
+                OnRunOnAfterGenJnlLineInsertPostInterest(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
+            end;
 
-        if (TotalAmount <> 0) or (TotalAmountLCY <> 0) then begin
-            InitGenJnlLine(TempGenJnlLine."Account Type"::Customer, GlobalReminderHeader."Customer No.", true);
-            TempGenJnlLine.Validate(Amount, TotalAmount);
-            TempGenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
-            OnRunOnBeforeGenJnlLineInsertTotalAmount(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
-            TempGenJnlLine.Insert();
-            OnRunOnAfterGenJnlLineInsertTotalAmount(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
+            if (TotalAmount <> 0) or (TotalAmountLCY <> 0) then begin
+                InitGenJnlLine(TempGenJnlLine."Account Type"::Customer, GlobalReminderHeader."Customer No.", true);
+                TempGenJnlLine.Validate(Amount, TotalAmount);
+                TempGenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
+                OnRunOnBeforeGenJnlLineInsertTotalAmount(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
+                TempGenJnlLine.Insert();
+                OnRunOnAfterGenJnlLineInsertTotalAmount(TempGenJnlLine, GlobalReminderHeader, ReminderLine);
+            end;
         end;
 
         Clear(GenJnlPostLine);
@@ -128,13 +133,16 @@ codeunit 393 "Reminder-Issue"
                 FinChrgTerms."Interest Calculation"::"All Entries"]
             then begin
                 ReminderLine.SetRange(Type, ReminderLine.Type::"Customer Ledger Entry");
+                OnRunOnAfterSetReminderLineFilter(ReminderLine);
                 if ReminderLine.FindSet() then
                     repeat
                         UpdateCustLedgEntriesCalculateInterest(ReminderLine."Entry No.", GlobalReminderHeader."Currency Code");
                     until ReminderLine.Next() = 0;
                 ReminderLine.SetRange(Type);
+                OnRunOnAfterRemoveReminderLineFilter(ReminderLine);
             end;
         end;
+        OnRunOnAfterUpdateCustLedgEntriesCalculateInterestLoops(GlobalReminderHeader, ReminderLine);
 
         InsertIssuedReminderHeader(GlobalReminderHeader, GlobalIssuedReminderHeader);
 
@@ -321,7 +329,7 @@ codeunit 393 "Reminder-Issue"
         TempGenJnlLine."Country/Region Code" := GlobalReminderHeader."Country/Region Code";
         TempGenJnlLine."VAT Registration No." := GlobalReminderHeader."VAT Registration No.";
 
-        OnAfterInitGenJnlLine(TempGenJnlLine, GlobalReminderHeader, SrcCode);
+        OnAfterInitGenJnlLine(TempGenJnlLine, GlobalReminderHeader, SrcCode, AccNo);
     end;
 
     procedure DeleteIssuedReminderLines(ParentIssuedReminderHeader: Record "Issued Reminder Header")
@@ -486,6 +494,7 @@ codeunit 393 "Reminder-Issue"
         ReminderFinChargeEntry.Insert();
         if ReminderLine."Line Type" <> ReminderLine."Line Type"::"Not Due" then
             UpdateCustLedgEntryLastIssuedReminderLevel(ReminderFinChargeEntry);
+        OnAfterInsertReminderEntry(ReminderFinChargeEntry, ReminderHeader, ReminderLine, NextEntryNo);
     end;
 
     local procedure CheckLineFee(var ReminderLine: Record "Reminder Line"; var ReminderHeader: Record "Reminder Header")
@@ -525,8 +534,10 @@ codeunit 393 "Reminder-Issue"
             Error(MultipleLineFeesSameDocErr, ReminderLine."Applies-to Document Type", ReminderLine."Applies-to Document No.");
     end;
 
-    local procedure ProcessReminderLines(ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
+    local procedure ProcessReminderLines(ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; DocNo: Code[20])
     begin
+        OnBeforeProcessReminderLines(GlobalReminderHeader, ReminderLine, DocNo);
+
         ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
         ReminderLine.SetRange("Detailed Interest Rates Entry", false);
         if ReminderLine.FindSet() then
@@ -542,6 +553,7 @@ codeunit 393 "Reminder-Issue"
                             ReminderLine.TestField("Entry No.");
                             ReminderInterestAmount := ReminderInterestAmount + ReminderLine.Amount;
                             ReminderInterestVATAmount := ReminderInterestVATAmount + ReminderLine."VAT Amount";
+                            OnProcessReminderLinesOnAfterCalcInterestAmounts(ReminderHeader, ReminderLine, ReminderInterestAmount, ReminderInterestVATAmount);
                         end;
                     ReminderLine.Type::"Line Fee":
                         if ReminderHeader."Post Add. Fee per Line" then begin
@@ -573,6 +585,7 @@ codeunit 393 "Reminder-Issue"
         CustLedgerEntry.Get(EntryNo);
         CustLedgerEntry.TestField("Currency Code", CurrencyCode);
         CustLedgerEntry.CalcFields("Remaining Amount");
+        OnUpdateCustLedgEntriesCalculateInterestOnBeforeCustLedgerEntryModify(CustLedgerEntry);
         if CustLedgerEntry."Remaining Amount" = 0 then begin
             CustLedgerEntry."Calculate Interest" := false;
             CustLedgerEntry.Modify();
@@ -585,7 +598,7 @@ codeunit 393 "Reminder-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; ReminderHeader: Record "Reminder Header"; var SrcCode: Code[10])
+    local procedure OnAfterInitGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; ReminderHeader: Record "Reminder Header"; var SrcCode: Code[10]; AccNo: Code[20])
     begin
     end;
 
@@ -674,7 +687,17 @@ codeunit 393 "Reminder-Issue"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertReminderEntry(var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry"; ReminderHeader: Record "Reminder Header"; ReminderLine: Record "Reminder Line"; NextEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateCustLedgEntryLastIssuedReminderLevelOnBeforeModify(var CustLedgEntry: Record "Cust. Ledger Entry"; ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustLedgEntriesCalculateInterestOnBeforeCustLedgerEntryModify(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -695,6 +718,16 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnIncrNoPrintedOnBeforeModify(var IssuedReminderHeader: Record "Issued Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessReminderLines(ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; DocumentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessReminderLinesOnAfterCalcInterestAmounts(ReminderHeader: Record "Reminder Header"; ReminderLine: Record "Reminder Line"; var ReminderInterestAmount: Decimal; var ReminderInterestVATAmount: Decimal)
     begin
     end;
 
@@ -740,6 +773,31 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeGenJnlLineUpdateLineBalance(var GenJnlLine: Record "Gen. Journal Line"; ReminderInterestVATAmount: Decimal; var TotalAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforePostInterestCheck(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; GenJnlBatch: Record "Gen. Journal Batch"; var ReminderInterestAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterGlobalReminderHeaderChecks(var ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterRemoveReminderLineFilter(var ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSetReminderLineFilter(var ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterUpdateCustLedgEntriesCalculateInterestLoops(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
     begin
     end;
 

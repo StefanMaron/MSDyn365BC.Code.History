@@ -50,6 +50,7 @@ codeunit 134987 "ERM Financial Reports III"
         AmountToApplyDiscTolPurchTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance__Control3036';
         AmountTotalDiscTolAppliedTxt: Label 'Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied';
         FormatTok: Label '<Precision,%1:%2><Standard Format,1>', Locked = true;
+        TotalAmountDiscountedMustBeAvailableErr: Label 'TotalAmountDiscounted must be available';
 
     [Test]
     [HandlerFunctions('BalanceCompPrevYearReqPageHandler')]
@@ -1202,6 +1203,84 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.AssertElementWithValueExists('Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied', GenJournalLine[1].Amount);
         LibraryReportDataset.AssertElementWithValueExists('Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied', GenJournalLine[1].Amount + (GenJournalLine[4].Amount + VendorLedgerEntry[2]."Amount to Apply") + (GenJournalLine[5].Amount + VendorLedgerEntry[3]."Amount to Apply"));
         LibraryReportDataset.AssertElementWithValueExists('Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied', GenJournalLine[2].Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorPrePaymentJournalHandler')]
+    [Scope('OnPrem')]
+    procedure PrintVendorPrePaymentJournalTwoPurchaseInvoiceandCrMemoWithSameVendorWithApplications()
+    var
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        RemainingPmtDiscPossible: Decimal;
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        RowNo: Integer;
+    begin
+        // Test to verify values on the Report - Vendor Pre-Payment Journal Report.
+        // [SCENARIO 547685] [All-E] [IT] Vendor Pre-Payment Journal Report does not show values in Payment Discount.
+        Initialize();
+
+        // [GIVEN] Create Payment Term with Dicount % 2
+        libraryerm.CreatePaymentTerms(PaymentTerms);
+        Evaluate(PaymentTerms."Due Date Calculation", '<1M>');
+        Evaluate(PaymentTerms."Discount Date Calculation", '<8D>');
+        PaymentTerms.Validate("Due Date Calculation", PaymentTerms."Due Date Calculation");
+        PaymentTerms.Validate("Discount Date Calculation", PaymentTerms."Discount Date Calculation");
+        PaymentTerms.Validate("Discount %", 2);
+        PaymentTerms.Modify(true);
+
+        // [GIVEN] Create New Vendor with that Payment Term
+        VendorNo := CreateVendorWithPaymentTerms(PaymentTerms.Code);
+
+        // [GIVEN] Create New G/L Account
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
+
+        // [GIVEN] Posted Invoice for Vendor for G/L Account with Amount = 10
+        PostPurchaseDocumentWithAmount(
+          PurchaseHeader."Document Type"::Invoice, VendorNo,
+          GLAccountNo, 10, 1);
+
+        // [GIVEN] Posted Invoice 2 for Vendor for G/L Account with Amount = 10
+        PostPurchaseDocumentWithAmount(
+          PurchaseHeader."Document Type"::Invoice, VendorNo,
+          GLAccountNo, 10, 1);
+
+        // [GIVEN] Posted Credit Memo for Vendor for G/L Account with Amount = 15
+        PostPurchaseDocumentWithAmount(
+          PurchaseHeader."Document Type"::"Credit Memo", VendorNo,
+          GLAccountNo, 15, 1);
+
+        // [GIVEN] Create Payment Journal line for Vendor with Amount= 4.6 as it should be less than Remaining Amount
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, VendorNo, 4.6,
+          GenJournalLine."Bank Payment Type"::"Computer Check");
+        GenJournalLine."Applies-to ID" := UserId;
+        GenJournalLine.Modify();
+
+        // [GIVEN] Set Applied to ID to Vendor Ledger Entries
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+
+        // [WHEN] Run report 317 "Vendor Pre-Payment Journal"
+        Clear(LibraryReportDataset);
+        RunVendorPrePaymentJournal(GenJournalLine);
+
+        // Verify: Verify the Payment Discount amount
+        VendorLedgerEntry.Reset();
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                RemainingPmtDiscPossible += VendorLedgerEntry."Remaining Pmt. Disc. Possible";
+            until VendorLedgerEntry.Next() = 0;
+
+        LibraryReportDataset.LoadDataSetFile();
+        RowNo := LibraryReportDataset.FindRow('TotalAmountDiscounted', abs(RemainingPmtDiscPossible));
+
+        Assert.IsTrue(RowNo >= 0, TotalAmountDiscountedMustBeAvailableErr);
     end;
 
     local procedure Initialize()

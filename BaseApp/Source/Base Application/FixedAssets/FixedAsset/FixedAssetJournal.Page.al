@@ -556,11 +556,11 @@ page 5629 "Fixed Asset Journal"
         FAJnlManagement: Codeunit FAJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
-        CurrentJnlBatchName: Code[10];
-        FADescription: Text[100];
         IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
+        CurrentJnlBatchName: Code[10];
+        FADescription: Text[100];
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

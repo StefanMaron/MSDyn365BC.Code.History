@@ -1286,7 +1286,7 @@ report 12119 "Depreciation Book"
                 BasicDepreciationPerc := 0;
                 AntAccDepreciationPerc := 0;
             end else
-                BasicDepreciationPerc := Abs(Round((ReclassDeprAmount / ReclassAmount[4]) * 100, 0.01))
+                BasicDepreciationPerc := Abs(Round(((ReclassDeprAmount + TotalEndingAmounts[2]) / ReclassAmount[4]) * 100, 0.01))
         else begin
             if IsReclassifiedFA("Fixed Asset"."No.", DeprBookCode, true) then
                 BasicDepreciationPerc :=

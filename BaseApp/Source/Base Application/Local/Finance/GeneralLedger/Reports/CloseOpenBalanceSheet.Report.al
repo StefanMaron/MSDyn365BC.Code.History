@@ -424,7 +424,8 @@ report 12113 "Close/Open Balance Sheet"
                 if not ValidateEndDate(false) then
                     EndDateReq := 0D;
             end;
-            ValidateJnl();
+            if ClDocNo = '' then
+                ValidateJnl();
             ColumnDim := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Close Income Statement", '');
         end;
     }

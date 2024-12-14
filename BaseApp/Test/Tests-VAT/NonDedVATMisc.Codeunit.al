@@ -19,9 +19,11 @@ codeunit 134284 "Non Ded. VAT Misc."
         LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
         LibraryNonDeductibleVAT: Codeunit "Library - NonDeductible VAT";
+        LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IncorrectGLEntryAmtErr: Label 'Incorect amount in G/L Entry.';
+        InCorrectProjLedgEntryAmtErr: Label 'Incorrect amount in Project Ledger Entry';
         IsInitialized: Boolean;
 
     [Test]
@@ -949,6 +951,121 @@ codeunit 134284 "Non Ded. VAT Misc."
         VATPostingSetup.Delete();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ProjectLedgerEntryShowsCorrectAmountWithNonDeductibleVATWhenPostFromPurchaseInvoice()
+    var
+        GLAccount: Record "G/L Account";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        JobTask: Record "Job Task";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Cost: array[3] of Decimal;
+        Quantity: array[3] of Decimal;
+        GenPostingType: Enum "General Posting Type";
+    begin
+        // [SCENARIO 540694] Project Ledger Entry shows correct Amounts
+        // When Purchase Invoice is posted with Non-Deductible VAT and Project No.
+        Initialize();
+
+        // [GIVEN] Setup NonDeductibleVAT.
+        LibraryNonDeductibleVAT.SetUseForJobCost();
+
+        // [GIVEN] Create VAT Posting Setup with Non-deductible VAT.
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 19, 100);
+
+        // [GIVEN] Create G/L Account.
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType::Purchase));
+
+        // [GIVEN] Create Job and Job Task.
+        CreateJobWithJobsUtil(JobTask);
+
+        // [GIVEN] Generate Cost.
+        GenerateCost(Cost);
+
+        // [GIVEN] Generate Quantities.
+        GenerateQuantites(Quantity);
+
+        // [GIVEN] Create Purchase Invoice and Post it.
+        PurchInvHeader.Get(CreatePurchaseInvoiceWithProject(VATPostingSetup, GLAccount."No.", Cost, Quantity, JobTask));
+
+        // [GIVEN] Find Purchase Invoice Line.    
+        FindPurchaseInvoiceLine(PurchInvLine, PurchInvHeader."No.");
+
+        // [WHEN] Find Job Ledger Entry.
+        FindJobLedgerEntry(JobLedgerEntry, PurchInvHeader."No.");
+
+        // [THEN] Verify Job Ledger Entry Total Cost Field equals to Purchase Invoice Line Field Amount Including VAT.
+        Assert.AreEqual(JobLedgerEntry."Total Cost", PurchInvLine."Amount Including VAT", InCorrectProjLedgEntryAmtErr);
+
+        // [THEN] Verify Job Ledger Entry Unit Cost Field equals to Purchase Invoice Line Field Amount Including VAT.
+        Assert.AreEqual(JobLedgerEntry."Unit Cost", PurchInvLine."Amount Including VAT", InCorrectProjLedgEntryAmtErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ProjectLedgerEntryShowsCorrectAmountWithNonDeductibleVATWhenPostFromGenJnlLine()
+    var
+        GLAccount: Record "G/L Account";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        JobTask: Record "Job Task";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        Cost: array[4] of Decimal;
+        Quantity: array[3] of Decimal;
+        DocumentNo: Code[20];
+        GenPostingType: Enum "General Posting Type";
+    begin
+        // [SCENARIO 540694] Project Ledger Entry shows correct Amounts
+        // When Job G/L Journal is posted with Non-Deductible VAT and Project No.
+        Initialize();
+
+        // [GIVEN] Setup NonDeductibleVAT.
+        LibraryNonDeductibleVAT.SetUseForJobCost();
+
+        // [GIVEN] Create VAT Posting Setup with Non-deductible VAT.
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 19, 100);
+
+        // [GIVEN] Create G/L Account.
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType::Purchase));
+
+        // [GIVEN] Create Job and Job Task.
+        CreateJobWithJobsUtil(JobTask);
+
+        // [GIVEN] Generate Cost.
+        GenerateCost(Cost);
+
+        // [GIVEN] Generate Quantities.
+        GenerateQuantites(Quantity);
+
+        // [GIVEN] Create Vendor.
+        CreateVendor(Vendor, VATPostingSetup);
+
+        // [GIVEN] Generate Document No. and save it in a Variable.
+        DocumentNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create General Journal Lines and Post it.
+        CreateGeneralJournalLines(
+            GLAccount."No.", Cost,
+            Quantity,
+            JobTask."Job No.",
+            JobTask."Job Task No.",
+            DocumentNo,
+            Vendor."No.");
+
+        // [WHEN] Find Job Ledger Entry.
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo);
+
+        // [THEN] Verify Job Ledger Entry Total Cost Field equals to Purchase Invoice Line Field Amount Including VAT.
+        Assert.AreEqual(JobLedgerEntry."Total Cost", Quantity[2] * Cost[2], InCorrectProjLedgEntryAmtErr);
+
+        // [THEN] Verify Job Ledger Entry Unit Cost Field equals to Purchase Invoice Line Field Amount Including VAT.
+        Assert.AreEqual(JobLedgerEntry."Unit Cost", Cost[2], InCorrectProjLedgEntryAmtErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1490,6 +1607,120 @@ codeunit 134284 "Non Ded. VAT Misc."
     local procedure GetDeductibleVATPctFromVATAmountLine(VATAmountLine: Record "VAT Amount Line"): Decimal
     begin
         exit(100 - VATAmountLine."Non-Deductible VAT %");
+    end;
+
+    local procedure FindPurchaseInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; PurchaseInvoiceNo: Code[20])
+    begin
+        PurchInvLine.SetRange("Document No.", PurchaseInvoiceNo);
+        PurchInvLine.SetFilter("Direct Unit Cost", '<%1', 0);
+        PurchInvLine.FindFirst();
+    end;
+
+    local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; PurchaseInvoiceNo: Code[20])
+    begin
+        JobLedgerEntry.SetRange("Document No.", PurchaseInvoiceNo);
+        JobLedgerEntry.SetFilter("Unit Cost", '<%1', 0);
+        JobLedgerEntry.FindFirst();
+    end;
+
+    local procedure GenerateCost(var DirectUnitCost: array[3] of Decimal)
+    begin
+        DirectUnitCost[1] := LibraryRandom.RandIntInRange(1000, 100);
+        DirectUnitCost[2] := -LibraryRandom.RandIntInRange(100, 100);
+        DirectUnitCost[3] := LibraryRandom.RandIntInRange(100, 100);
+    end;
+
+    local procedure GenerateQuantites(var Quantity: array[3] of Decimal)
+    begin
+        Quantity[1] := LibraryRandom.RandInt(0);
+        Quantity[2] := LibraryRandom.RandInt(0);
+        Quantity[3] := -LibraryRandom.RandInt(0);
+    end;
+
+    local procedure CreatePurchaseInvoiceWithProject(
+        VATPostingSetup: Record "VAT Posting Setup"; GLAccountNo: Code[20];
+        Cost: array[3] of Decimal; Quantity: array[3] of Decimal; JobTask: Record "Job Task"): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GeneralPostingSetup: Record "General Posting Setup";
+        i: Integer;
+    begin
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        LibraryPurchase.CreatePurchHeader(
+             PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+             CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+
+        for i := 1 to 3 do
+            CreatePurchaseLines(PurchaseHeader, GLAccountNo, Cost[i], Quantity[i], JobTask);
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreatePurchaseLines(
+        var PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20];
+        DirectUnitCost: Decimal; Quantity: Decimal; JobTask: Record "Job Task")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateVendor(var Vendor: Record Vendor; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        Vendor.Get(CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+    end;
+
+    local procedure CreateGeneralJournalLines(
+        GLAccountNo: Code[20]; Cost: array[3] of Decimal; Quantity: array[3] of Decimal;
+        JobNo: Code[20]; JobTaskNo: Code[20]; DocumentNo: Code[20]; VendorNo: Code[20])
+    var
+        GenJournalLine: array[4] of Record "Gen. Journal Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        i: Integer;
+        TotalCost: Decimal;
+    begin
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+
+        for i := 1 to 3 do begin
+            CreateGenJournalLinesWithJobNo(
+                GenJournalLine[i], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GLAccountNo, Cost[i],
+                Quantity[i], JobNo, JobTaskNo, DocumentNo, GenJournalLine[i]."Account Type"::"G/L Account");
+            TotalCost := TotalCost + Cost[i];
+        end;
+
+        CreateGenJournalLinesWithJobNo(
+               GenJournalLine[4], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, VendorNo, -TotalCost,
+                0, '', '', DocumentNo, GenJournalLine[i]."Account Type"::Vendor);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[4]);
+    end;
+
+    local procedure CreateGenJournalLinesWithJobNo(
+        var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10];
+        JournalBatchName: Code[10]; GLAccountNo: Code[20];
+        Amount: Decimal; Quantity: Decimal;
+        JobNo: Code[20]; JobTaskNo: Code[20];
+        DocumentNo: Code[20]; GenJournalAccountType: Enum "Gen. Journal Account Type")
+    var
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+    begin
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, JournalTemplateName, JournalBatchName, GenJournalDocumentType::Invoice,
+            GenJournalAccountType, GLAccountNo, GenJournalAccountType::"G/L Account", '', Amount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Job No.", JobNo);
+        GenJournalLine.Validate("Job Task No.", JobTaskNo);
+        GenJournalLine.Validate("Job Quantity", Quantity);
+        GenJournalLine.Modify(true);
     end;
 
     [ConfirmHandler]

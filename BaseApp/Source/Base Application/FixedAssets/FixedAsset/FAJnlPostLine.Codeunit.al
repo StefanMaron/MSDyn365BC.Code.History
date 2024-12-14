@@ -563,6 +563,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         FADeprBook."FA No." := FALedgEntry."FA No.";
         FADeprBook."Depreciation Book Code" := FALedgEntry."Depreciation Book Code";
         FADeprBook.CalcFields("Gain/Loss");
+        OnSetResultOnDisposalOnAfterCalcGainLoss(FADeprBook);
         if FADeprBook."Gain/Loss" <= 0 then
             FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::Gain
         else
@@ -577,6 +578,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         FADeprBook."FA No." := FANo;
         FADeprBook."Depreciation Book Code" := DeprBookCode;
         FADeprBook.CalcFields("Gain/Loss");
+        OnCalcResultOnDisposalOnAfterCalcGainLoss(FADeprBook);
         if FADeprBook."Gain/Loss" <= 0 then
             exit(FALedgEntry."Result on Disposal"::Gain);
 
@@ -746,6 +748,16 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDisposalEntryOnAfterPostDisposalType(var FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry"; var FALedgerEntry: Record "FA Ledger Entry"; DisposalType: Option; EntryAmounts: array[14] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetResultOnDisposalOnAfterCalcGainLoss(var FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcResultOnDisposalOnAfterCalcGainLoss(var FADepreciationBook: Record "FA Depreciation Book")
     begin
     end;
 }

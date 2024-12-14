@@ -953,25 +953,32 @@ codeunit 7110 "Analysis Report Management"
         exit(DimTotaling);
     end;
 
-    local procedure CalcSalesAmount(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean): Decimal
+    local procedure CalcSalesAmount(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; Invoiced: Boolean) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
-        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
-            ItemStatisticsBuf.SetRange("Source Type Filter");
+        IsHandled := false;
+        OnBeforeCalcSalesAmount(ItemStatisticsBuffer, Invoiced, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
+        if ItemStatisticsBuffer.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuffer.SetRange("Source Type Filter");
 
         if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
             if Invoiced then begin
-                ItemStatisticsBuf.CalcFields("Sales Amount (Actual)");
-                exit(ItemStatisticsBuf."Sales Amount (Actual)");
+                ItemStatisticsBuffer.CalcFields("Sales Amount (Actual)");
+                exit(ItemStatisticsBuffer."Sales Amount (Actual)");
             end;
-            ItemStatisticsBuf.CalcFields("Sales Amount (Expected)");
-            exit(ItemStatisticsBuf."Sales Amount (Expected)");
+            ItemStatisticsBuffer.CalcFields("Sales Amount (Expected)");
+            exit(ItemStatisticsBuffer."Sales Amount (Expected)");
         end;
         if Invoiced then begin
-            ItemStatisticsBuf.CalcFields("Analysis - Sales Amt. (Actual)");
-            exit(ItemStatisticsBuf."Analysis - Sales Amt. (Actual)");
+            ItemStatisticsBuffer.CalcFields("Analysis - Sales Amt. (Actual)");
+            exit(ItemStatisticsBuffer."Analysis - Sales Amt. (Actual)");
         end;
-        ItemStatisticsBuf.CalcFields("Analysis - Sales Amt. (Exp)");
-        exit(ItemStatisticsBuf."Analysis - Sales Amt. (Exp)");
+        ItemStatisticsBuffer.CalcFields("Analysis - Sales Amt. (Exp)");
+        exit(ItemStatisticsBuffer."Analysis - Sales Amt. (Exp)");
     end;
 
     local procedure CalcCostAmount(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean): Decimal
@@ -1826,6 +1833,11 @@ codeunit 7110 "Analysis Report Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnDoLookupSourceNoOnElseCurrentSourceTypeFilter(CurrentSourceTypeFilter: Enum "Analysis Source Type"; var CurrentSourceTypeNoFilter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcSalesAmount(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; Invoiced: Boolean; var IsHandled: Boolean; var Result: Decimal)
     begin
     end;
 }

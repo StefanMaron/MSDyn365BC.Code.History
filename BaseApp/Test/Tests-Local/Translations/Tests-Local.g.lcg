@@ -770,6 +770,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM FA Deprciation - NamedType CompletionStatsTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 45030859 - Method 4094070516 - NamedType 3927008871" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ReclassAmount_4_]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM FA Deprciation - Method CheckReclassAmtinDepreciationBook - NamedType ReclassAmountTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3810444955 - NamedType 2964215133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Field %1 must be Editable.]]></Val>
@@ -903,6 +912,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IT Prepayment II - NamedType ConfirmSalesChangeVATBusPostingGroupTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1880347326 - NamedType 2454288812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Operation Type must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 =Operation Type Value, %2=Table Name.]D;]A;(LookupHint=Codeunit ERM IT Prepayment II - NamedType OperationTypeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 731320485 - NamedType 719961404" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

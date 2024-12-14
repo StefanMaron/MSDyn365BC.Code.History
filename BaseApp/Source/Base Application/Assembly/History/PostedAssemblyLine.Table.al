@@ -216,7 +216,13 @@ table 911 "Posted Assembly Line"
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowItemTrackingLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemTrackingDocMgt.ShowItemTrackingForShptRcptLine(DATABASE::"Posted Assembly Line", 0, "Document No.", '', 0, "Line No.");
     end;
 
@@ -277,6 +283,11 @@ table 911 "Posted Assembly Line"
             until TempItemLedgerEntry.Next() = 0;
 
         TempPostedAssemblyLine.Reset();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemTrackingLines(var PostedAssemblyLine: Record "Posted Assembly Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

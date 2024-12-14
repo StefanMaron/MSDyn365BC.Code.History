@@ -590,7 +590,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     end;
 
     [Test]
-    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler,PurchaseCreditMemoPageHandler')]
     procedure PossibleToCorrectInvoiceWithAmountRoundedToZero()
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -1447,6 +1447,12 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.OK().Invoke();
+    end;
+
+    [PageHandler]
+    procedure PurchaseCreditMemoPageHandler(var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
+    begin
+        PurchaseCreditMemo.Close();
     end;
 }
 

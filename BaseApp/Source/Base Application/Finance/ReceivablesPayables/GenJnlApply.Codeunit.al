@@ -744,6 +744,7 @@ codeunit 225 "Gen. Jnl.-Apply"
     local procedure CalcAppliedAmountOnCustLedgerEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var AppliedAmount: Decimal)
     begin
         CustLedgEntry.CalcFields("Remaining Amount");
+        OnCalcAppliedAmountOnCustLedgerEntryOnAfterCalcRemainingAmount(CustLedgEntry);
         if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlCust(GenJnlLine, CustLedgEntry, 0, false) and
             (Abs(CustLedgEntry."Amount to Apply") >=
             Abs(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible"))
@@ -961,6 +962,11 @@ codeunit 225 "Gen. Jnl.-Apply"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetVendApplIdAPIOnBeforeCheckPostingDate(var TempApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAppliedAmountOnCustLedgerEntryOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

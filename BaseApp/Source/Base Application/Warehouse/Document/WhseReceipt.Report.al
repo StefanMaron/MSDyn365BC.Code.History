@@ -106,14 +106,14 @@ report 7316 "Whse. - Receipt"
 
                     trigger OnAfterGetRecord()
                     begin
-                        GetLocation("Location Code");
+                        this.GetLocation("Location Code");
                     end;
                 }
             }
 
             trigger OnAfterGetRecord()
             begin
-                GetLocation("Location Code");
+                this.GetLocation("Location Code");
             end;
         }
     }

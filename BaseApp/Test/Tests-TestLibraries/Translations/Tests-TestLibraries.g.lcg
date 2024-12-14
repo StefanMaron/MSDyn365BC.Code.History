@@ -3425,15 +3425,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Assert - NamedType IsTrueFailedMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3132006006 - NamedType 2616365470" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Known failure: see VSTF Bug #%1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Assert - NamedType KnownFailureMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3132006006 - NamedType 3024963281" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[NCLCSRTS:TableErrorStr]]></Val>

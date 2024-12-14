@@ -388,6 +388,8 @@ codeunit 1380 "Batch Processing Mgt."
             end;
         end;
 
+        OnSetParametersForPageIDOnAfterCalcDoInvoice(PageID, DoInvoicePurchase, DoInvoiceSales);
+
         case PageID of
             Page::"Purchase Order List", Page::"Sales Return Order List":
                 begin
@@ -665,5 +667,9 @@ codeunit 1380 "Batch Processing Mgt."
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnSetParametersForPageIDOnAfterCalcDoInvoice(var PageID: Integer; var DoInvoicePurchase: Boolean; var DoInvoiceSales: Boolean)
+    begin
+    end;
 }
 
