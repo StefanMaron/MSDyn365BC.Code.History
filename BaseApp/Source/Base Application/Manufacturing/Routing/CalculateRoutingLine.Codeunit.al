@@ -116,7 +116,7 @@ codeunit 99000774 "Calculate Routing Line"
 
         ProdOrderCapNeed.UpdateDatetime();
 
-        OnBeforeProdOrderCapNeedInsert(ProdOrderCapNeed, ProdOrderRoutingLine, ProdOrder);
+        OnBeforeProdOrderCapNeedInsert(ProdOrderCapNeed, ProdOrderRoutingLine, ProdOrder, CalendarEntry);
         ProdOrderCapNeed.Insert();
 
         NextCapNeedLineNo := NextCapNeedLineNo + 1;
@@ -131,6 +131,8 @@ codeunit 99000774 "Calculate Routing Line"
         ActuallyPostedTime: Decimal;
         DistributedCapNeed: Decimal;
     begin
+        OnBeforeInitProdOrderCapNeed(ProdOrder, ProdOrderRoutingLine, ProdOrderCapNeed, TimeType, NeedDate, StartingTime, EndingTime, NeedQty, LotSize);
+
         ProdOrderCapNeed.Init();
         ProdOrderCapNeed.Status := ProdOrder.Status;
         ProdOrderCapNeed."Prod. Order No." := ProdOrder."No.";
@@ -161,7 +163,7 @@ codeunit 99000774 "Calculate Routing Line"
               ProdOrderRoutingLine."Expected Capacity Need" + ProdOrderCapNeed."Needed Time (ms)";
         end;
 
-        OnAfterInitProdOrderCapNeed(ProdOrder, ProdOrderRoutingLine, ProdOrderCapNeed, NeedQty);
+        OnAfterInitProdOrderCapNeed(ProdOrder, ProdOrderRoutingLine, ProdOrderCapNeed, NeedQty, TimeType, ActuallyPostedTime, DistributedCapNeed);
     end;
 
     local procedure CreateLoadBack(TimeType: Enum "Routing Time Type"; Write: Boolean)
@@ -208,7 +210,7 @@ codeunit 99000774 "Calculate Routing Line"
                     CalendarEntry."Ending Time",
                     Round(AvQtyBase * 100 / RelevantEfficiency / ConCurrCap, 1, '>'));
                 RemainNeedQtyBase := RemainNeedQtyBase - AvQtyBase;
-                OnCreateLoadBackOnBeforeCheckWrite(ProdOrderRoutingLine, TimeType, RelevantEfficiency, RemainNeedQtyBase, RemainNeedQty, CurrentRounding, Write);
+                OnCreateLoadBackOnBeforeCheckWrite(ProdOrderRoutingLine, TimeType, RelevantEfficiency, RemainNeedQtyBase, RemainNeedQty, CurrentRounding, Write, StartingTime, AvQtyBase, CalendarEntry);
                 if Write then begin
                     RemainNeedQty := Round(RemainNeedQtyBase / CurrentTimeFactor, CurrentRounding);
                     CreateCapNeed(
@@ -1299,6 +1301,8 @@ codeunit 99000774 "Calculate Routing Line"
           (1 + TotalScrap / 100) +
           ProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)";
 
+        OnCalculateRoutingLineOnAfterCalcMaxLotSize(ProdOrderQty, ProdOrderRoutingLine, TotalScrap, MaxLotSize);
+
         ProdOrderRoutingLine."Input Quantity" := MaxLotSize;
 
         if ActualOperOutput > 0 then
@@ -2105,7 +2109,7 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitProdOrderCapNeed(ProdOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; var NeedQty: Decimal)
+    local procedure OnAfterInitProdOrderCapNeed(ProdOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; var NeedQty: Decimal; TimeType: Enum "Routing Time Type"; var ActuallyPostedTime: Decimal; var DistributedCapNeed: Decimal)
     begin
     end;
 
@@ -2175,7 +2179,7 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProdOrderCapNeedInsert(var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrder: Record "Production Order");
+    local procedure OnBeforeProdOrderCapNeedInsert(var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrder: Record "Production Order"; var CalendarEntry: Record "Calendar Entry")
     begin
     end;
 
@@ -2245,7 +2249,7 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateLoadBackOnBeforeCheckWrite(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"; var RelevantEfficiency: Decimal; var RemainNeedQtyBase: Decimal; var RemainNeedQty: Decimal; CurrentRounding: Decimal; Write: Boolean)
+    local procedure OnCreateLoadBackOnBeforeCheckWrite(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"; var RelevantEfficiency: Decimal; var RemainNeedQtyBase: Decimal; var RemainNeedQty: Decimal; CurrentRounding: Decimal; Write: Boolean; var StartingTime: Time; AvQtyBase: Decimal; var CalendarEntry: Record "Calendar Entry")
     begin
     end;
 
@@ -2331,6 +2335,16 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnLoadCapBackOnAfterSetCalendarEntryFilters(var CalendarEntry: Record "Calendar Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineOnAfterCalcMaxLotSize(ProdOrderQty: Decimal; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TotalScrap: Decimal; var MaxLotSize: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitProdOrderCapNeed(ProductionOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; RoutingTimeType: Enum "Routing Time Type"; NeedDate: Date; StartingTime: Time; EndingTime: Time; NeedQty: Decimal; LotSize: Decimal)
     begin
     end;
 }

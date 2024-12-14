@@ -282,7 +282,7 @@ report 7301 "Movement List"
 
             trigger OnAfterGetRecord()
             begin
-                GetLocation("Location Code");
+                this.GetLocation("Location Code");
                 InvtMovement := Type = Type::"Invt. Movement";
                 if InvtMovement then
                     BreakbulkFilter := false

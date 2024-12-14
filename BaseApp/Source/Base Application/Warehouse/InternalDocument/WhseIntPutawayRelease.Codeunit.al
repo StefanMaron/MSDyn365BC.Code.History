@@ -83,6 +83,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
         WhseActivLine.SetRange("Whse. Document No.", WhseInternalPutAwayHeader."No.");
         WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::"Internal Put-away");
         WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Put-away");
+        OnReopenOnBeforeWhseActivLineIsEmpty(WhseInternalPutAwayHeader, WhseActivLine);
         if not WhseActivLine.IsEmpty() then
             Error(Text002);
 
@@ -114,6 +115,11 @@ codeunit 7316 "Whse. Int. Put-away Release"
           WhseInternalPutAwayHeader."Document Status" = WhseInternalPutAwayHeader."Document Status"::"Completely Put Away";
         if not WhsePutawayRqst.Insert() then
             WhsePutawayRqst.Modify();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReopenOnBeforeWhseActivLineIsEmpty(WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
     end;
 }
 

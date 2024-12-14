@@ -649,7 +649,13 @@ table 274 "Bank Acc. Reconciliation Line"
     end;
 
     procedure ShowDimensions()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDimensions(Rec, IsHandled);
+        if IsHandled then
+            exit;
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Statement No.", "Statement Line No."));
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -1052,7 +1058,13 @@ table 274 "Bank Acc. Reconciliation Line"
     local procedure GetCustomerLedgerEntriesInAmountRange(var CustLedgerEntry: Record "Cust. Ledger Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
     var
         BankAccount: Record "Bank Account";
+        Result: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustomerLedgerEntriesInAmountRange(Rec, CustLedgerEntry, AccountNo, AmountFilter, MinAmount, MaxAmount, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount", "Remaining Amt. (LCY)");
         BankAccount.Get("Bank Account No.");
         GetApplicableCustomerLedgerEntries(CustLedgerEntry, BankAccount."Currency Code", AccountNo);
@@ -1068,7 +1080,13 @@ table 274 "Bank Acc. Reconciliation Line"
     local procedure GetVendorLedgerEntriesInAmountRange(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
     var
         BankAccount: Record "Bank Account";
+        Result: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetVendorLedgerEntriesInAmountRange(Rec, VendorLedgerEntry, AccountNo, AmountFilter, MinAmount, MaxAmount, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amount", "Remaining Amt. (LCY)");
 
         BankAccount.Get("Bank Account No.");
@@ -1658,4 +1676,18 @@ table 274 "Bank Acc. Reconciliation Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomerLedgerEntriesInAmountRange(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetVendorLedgerEntriesInAmountRange(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDimensions(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var IsHandled: Boolean)
+    begin
+    end;
 }
