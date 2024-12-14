@@ -2426,6 +2426,38 @@ codeunit 134400 "ERM Incoming Documents"
         end;
     end;
 
+    [Test]
+    procedure IncDocEntryNoClearedInGenJnlLinePostedFromTemplateWithUnlinkInDocOption()
+    var
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        IncomingDocument: Record "Incoming Document";
+    begin
+        // [SCENARIO 556017] Incoming Document Entry No. is cleared in Gen. Journal Line posted from template with "Unlink Inc. Doc On Posting" option
+
+        // [GIVEN] Gen. Journal Template with "Unlink Inc. Doc On Posting" option
+        InsertGenJnlTemplateWithUnlinkIncDocOption(GenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        // [GIVEN] General journal line with template
+        LibraryERM.CreateGeneralJnlLine2WithBalAcc(
+            GenJournalLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo(), GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
+        CreateIncomingDocumentWithoutAttachments(IncomingDocument);
+        // [GIVEN] Incoming document is assigned to general journal line through the "Incoming Document Entry No." field
+        GenJournalLine.Validate("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Post general journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Incoming Document Entry No. is blank in Gen. Journal Line
+        GenJournalLine.Find();
+        GenJournalLine.TestField("Incoming Document Entry No.", 0);
+    end;
+
     local procedure InsertIncomingDocumentAttachment(IncomingDocument: Record "Incoming Document"): Integer
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -2442,6 +2474,13 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID();
         IncomingDocumentAttachment.Insert(true);
         exit(LineNo);
+    end;
+
+    local procedure InsertGenJnlTemplateWithUnlinkIncDocOption(var GenJnlTemplate: Record "Gen. Journal Template")
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
+        GenJnlTemplate.Validate("Unlink Inc. Doc On Posting", true);
+        GenJnlTemplate.Modify(true);
     end;
 
     [ModalPageHandler]

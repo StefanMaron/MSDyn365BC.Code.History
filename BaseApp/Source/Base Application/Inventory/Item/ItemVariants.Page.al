@@ -133,5 +133,26 @@ page 5401 "Item Variants"
         CurrPage.SetSelectionFilter(ItemVariant);
         exit(SelectionFilterManagement.GetSelectionFilterForItemVariant(ItemVariant));
     end;
+    
+    trigger OnFindRecord(Which: Text): Boolean
+    var
+        Found: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindRecord(Rec, Which, CrossColumnSearchFilter, Found, IsHandled);
+        if IsHandled then
+            exit(Found);
+
+        exit(Rec.Find(Which));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindRecord(var Rec: Record "Item Variant"; Which: Text; var CrossColumnSearchFilter: Text; var Found: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    var
+        CrossColumnSearchFilter: Text;
 }
 

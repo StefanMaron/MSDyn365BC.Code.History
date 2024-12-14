@@ -342,7 +342,13 @@ codeunit 1005 "Job Calculate Batches"
     end;
 
     procedure EndCreateInvoice(NoOfInvoices: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeEndCreateInvoice(NoOfInvoices, IsHandled);
+        if IsHandled then
+            exit;
+
         Commit();
         if NoOfInvoices <= 0 then
             Message(Text005);
@@ -543,6 +549,11 @@ codeunit 1005 "Job Calculate Batches"
 
     [IntegrationEvent(false, false)]
     local procedure OnChangeCurrencyDatesOnBeforeChangeCurrencyDate(var JobPlanningLine: Record "Job Planning Line"; var ForceDateUpdate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEndCreateInvoice(var NoOfInvoices: Integer; var IsHandled: Boolean)
     begin
     end;
 }

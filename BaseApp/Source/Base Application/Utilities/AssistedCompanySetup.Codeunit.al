@@ -90,7 +90,9 @@ codeunit 1800 "Assisted Company Setup"
         SetupCompanyBankAccount(BankAccount);
     end;
 
+#pragma warning disable AS0072
     [Scope('OnPrem')]
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     procedure GetConfigurationPackageFile(ConfigurationPackageFile: Record "Configuration Package File") ServerTempFileName: Text
     var
         FileManagement: Codeunit "File Management";
@@ -106,6 +108,7 @@ codeunit 1800 "Assisted Company Setup"
         CopyStream(OutStream, InStream);
         TempFile.Close();
     end;
+#pragma warning restore AS0072
 
     procedure CreateAccountingPeriod(StartDate: Date)
     var
@@ -202,6 +205,8 @@ codeunit 1800 "Assisted Company Setup"
                 exit(ActiveSession.Get(AssistedCompanySetupStatus."Server Instance ID", AssistedCompanySetupStatus."Company Setup Session ID"));
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     procedure WaitForPackageImportToComplete()
     var
         Window: Dialog;
@@ -214,6 +219,7 @@ codeunit 1800 "Assisted Company Setup"
         end;
     end;
 
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     procedure FillCompanyData(NewCompanyName: Text[30]; NewCompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data")
     var
         Company: Record Company;
@@ -234,6 +240,7 @@ codeunit 1800 "Assisted Company Setup"
         if FindConfigurationPackageFile(ConfigurationPackageFile, NewCompanyData) then
             ScheduleConfigPackageImport(ConfigurationPackageFile, NewCompanyName);
     end;
+#pragma warning restore AS0072
 
     local procedure FilterConfigurationPackageFile(var ConfigurationPackageFile: Record "Configuration Package File"; CompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data"): Boolean
     begin
@@ -254,6 +261,8 @@ codeunit 1800 "Assisted Company Setup"
         exit(true);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     procedure ExistsConfigurationPackageFile(CompanyData: Option): Boolean
     var
         ConfigurationPackageFile: Record "Configuration Package File";
@@ -263,6 +272,7 @@ codeunit 1800 "Assisted Company Setup"
         exit(false);
     end;
 
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     procedure FindConfigurationPackageFile(var ConfigurationPackageFile: Record "Configuration Package File"; CompanyData: Option): Boolean
     begin
         if FilterConfigurationPackageFile(ConfigurationPackageFile, CompanyData) then
@@ -270,6 +280,7 @@ codeunit 1800 "Assisted Company Setup"
         exit(false);
     end;
 
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     procedure ScheduleConfigPackageImport(ConfigurationPackageFile: Record "Configuration Package File"; Name: Text)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
@@ -294,6 +305,7 @@ codeunit 1800 "Assisted Company Setup"
         AssistedCompanySetupStatus.Modify();
         Commit();
     end;
+#pragma warning restore AS0072
 
     local procedure SetApplicationArea(NewCompanyName: Text[30])
     var
@@ -307,11 +319,14 @@ codeunit 1800 "Assisted Company Setup"
         ApplicationAreaMgmt.SetExperienceTierOtherCompany(ExperienceTierSetup, NewCompanyName);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     procedure SetUpNewCompany(NewCompanyName: Text[30]; NewCompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data")
     begin
         SetUpNewCompany(NewCompanyName, NewCompanyData, false);
     end;
 
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     procedure SetUpNewCompany(NewCompanyName: Text[30]; NewCompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data"; InstallAdditionalDemoData: Boolean)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
@@ -329,6 +344,7 @@ codeunit 1800 "Assisted Company Setup"
         if not (NewCompanyData in [NewCompanyData::None, NewCompanyData::"Full No Data"]) then
             FillCompanyData(NewCompanyName, NewCompanyData)
     end;
+#pragma warning restore AS0072
 
     procedure CreateNewCompany(NewCompanyName: Text[30])
     var
@@ -414,10 +430,13 @@ codeunit 1800 "Assisted Company Setup"
         exit(false);
     end;
 
-    [IntegrationEvent(false, false)]
+#pragma warning disable AS0072
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
+    [IntegrationEvent(false, false)]   
     local procedure OnBeforeScheduleTask(var DoNotScheduleTask: Boolean; var TaskID: Guid; var SessionID: Integer)
     begin
     end;
+#pragma warning restore AS0072
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure OnCompanyInitialize()
@@ -450,17 +469,21 @@ codeunit 1800 "Assisted Company Setup"
         PAGE.RunModal(PAGE::"Company Creation Wizard");
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnAfterValidateEvent', 'Package Imported', false, false)]
     local procedure OnAfterPackageImportedValidate(var Rec: Record "Assisted Company Setup Status"; var xRec: Record "Assisted Company Setup Status"; CurrFieldNo: Integer)
     begin
         // Send global notification that the new company is ready for use
     end;
 
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnAfterValidateEvent', 'Import Failed', false, false)]
     local procedure OnAfterImportFailedValidate(var Rec: Record "Assisted Company Setup Status"; var xRec: Record "Assisted Company Setup Status"; CurrFieldNo: Integer)
     begin
         // Send global notification that the company set up failed
     end;
+#pragma warning restore AS0072
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"User Settings", 'OnCompanyChange', '', false, false)]
     local procedure OnCompanyChangeCheckForSetupCompletion(NewCompanyName: Text; var IsSetupInProgress: Boolean)
@@ -485,10 +508,13 @@ codeunit 1800 "Assisted Company Setup"
             PAGE.RunModal(PAGE::"Job Queue Log Entries", JobQueueLogEntry);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssistedCompanySetupStatusEnabled(NewCompanyName: Text[30]; InstallAdditionalDemoData: Boolean)
     begin
     end;
+#pragma warning restore AS0072
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateAccountingPeriod(StartDate: Date; var IsHandled: Boolean)

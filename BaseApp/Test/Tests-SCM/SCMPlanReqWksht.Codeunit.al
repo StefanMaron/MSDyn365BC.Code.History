@@ -4825,6 +4825,86 @@
         Assert.IsTrue(PlanningComponent.IsEmpty(), PlanningComponentMustNotBeFoundErr);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler2')]
+    [Scope('OnPrem')]
+    procedure CalcRegPlanCreatesReqLineForItemWithQtyEqualToOrderMultipleOfSKU()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: array[3] of Record Location;
+        RequisitionLine: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        StockkeepingUnit: array[2] of Record "Stockkeeping Unit";
+        TransferRoute: Record "Transfer Route";
+        CalulatedDate: Date;
+    begin
+        // [SCENARIO 556937] When Stan runs Calculate Regenerative Planning action from Planning Worksheet 
+        // For an Item having Stockkeeping Units with Locations having Transfer Route then a Requition Line 
+        // Is created for that Item with Quanity eqal to Order Multiple of Stockkeeping Unit.
+        Initialize();
+
+        // [GIVEN] Create three Locations with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+        LibraryWarehouse.CreateInTransitLocation(Location[3]);
+
+        // [GIVEN] Create a Transfer Route and Validate In-Transit code.
+        LibraryWarehouse.CreateTransferRoute(TransferRoute, Location[1].Code, Location[2].Code);
+        TransferRoute.Validate("In-Transit Code", Location[3].Code);
+        TransferRoute.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Stockkepping Unit [1].
+        CreateStockkeepingUnit(StockkeepingUnit[1], Item, Location[1], Item."Replenishment System"::Purchase);
+
+        // [GIVEN] Create Stockkepping Unit [2] and Validate Transfer-from Code and Order Multiple.
+        CreateStockkeepingUnit(StockkeepingUnit[2], Item, Location[2], Item."Replenishment System"::Transfer);
+        StockkeepingUnit[2].Validate("Transfer-from Code", Location[1].Code);
+        StockkeepingUnit[2].Validate("Order Multiple", LibraryRandom.RandIntInRange(80, 80));
+        StockkeepingUnit[2].Modify(true);
+
+        // [GIVEN] Create an Item Journal Line and Validate Location Code.
+        CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1000);
+        ItemJournalLine.Validate("Location Code", Location[1].Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Generate and save Date in a Variable.
+        CalulatedDate := CalcDate('<-10D>', WorkDate());
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create a Sales Line and Validate Location Code and Shipment Date.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(36, 36));
+        SalesLine.Validate("Location Code", Location[2].Code);
+        SalesLine.Validate("Shipment Date", CalulatedDate);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Release Sales Document.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Run Calculate Regenerative Plan.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(
+            Item,
+            CalulatedDate,
+            WorkDate());
+
+        // [WHEN] Find Requisition Line.
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+
+        // [THEN] Quantity of Requisition Line is equal to Order Multiple of Stockkeeping Unit [2].
+        Assert.AreEqual(StockkeepingUnit[2]."Order Multiple", RequisitionLine.Quantity, '');
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6555,6 +6635,21 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         Item.Modify(true);
     end;
 
+    local procedure CreateStockkeepingUnit(
+        var StockkeepingUnit: Record "Stockkeeping Unit";
+        Item: Record Item;
+        Location: Record Location;
+        ReplenishmentSystem: Enum "Replenishment System")
+    begin
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", '');
+        StockkeepingUnit.Validate("Replenishment System", ReplenishmentSystem);
+        StockkeepingUnit.Validate("Reordering Policy", StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
+        StockkeepingUnit.Validate("Manufacturing Policy", StockkeepingUnit."Manufacturing Policy"::"Make-to-Stock");
+        StockkeepingUnit.Validate("Assembly Policy", StockkeepingUnit."Assembly Policy"::"Assemble-to-Stock");
+        StockkeepingUnit.Validate("Flushing Method", StockkeepingUnit."Flushing Method"::Manual);
+        StockkeepingUnit.Modify(true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculatePlanPlanWkshRequestPageHandler(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
@@ -6635,6 +6730,12 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
     begin
         LibraryVariableStorage.Dequeue(QueuedMsg);
         Assert.IsTrue(AreSameMessages(Message, QueuedMsg), Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler2(Message: Text)
+    begin
     end;
 
     [ReportHandler]

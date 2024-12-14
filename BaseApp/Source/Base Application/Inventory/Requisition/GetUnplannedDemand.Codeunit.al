@@ -432,6 +432,9 @@ codeunit 5520 "Get Unplanned Demand"
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
         HeaderExists: Boolean;
         ForceIncludeDemand: Boolean;
+        NeededQtyBase: Decimal;
+        TotalNeedQuantityBase: Decimal;
+        ReducedJobQtyReceivedNotInvoiced: Decimal;
     begin
         UnplannedDemand.Reset();
         MoveUnplannedDemand(UnplannedDemand, TempUnplannedDemand);
@@ -454,8 +457,15 @@ codeunit 5520 "Get Unplanned Demand"
 
                 if UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Job then begin
                     GetJobTask(UnplannedDemand, JobPlanningLine);
+                    NeededQtyBase := UnplannedDemand."Needed Qty. (Base)";
+                    ReducedJobQtyReceivedNotInvoiced := ReduceJobRealtedQtyReceivedNotInvoiced(UnplannedDemand."Demand Order No.", JobPlanningLine."Job Task No.", TempUnplannedDemand."Item No.", TempUnplannedDemand."Variant Code", TempUnplannedDemand."Location Code", TempUnplannedDemand."Demand Date");
+                    UnplannedDemand."Needed Qty. (Base)" -= ReducedJobQtyReceivedNotInvoiced;
+                    TotalNeedQuantityBase += NeededQtyBase;
+
+                    if (UnplannedDemand."Needed Qty. (Base)" < 0) and ((ReducedJobQtyReceivedNotInvoiced - TotalNeedQuantityBase) < 0) then
+                        UnplannedDemand."Needed Qty. (Base)" := NeededQtyBase;
+
                     UnplannedDemand."Quantity (Base)" := JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)";
-                    UnplannedDemand."Needed Qty. (Base)" -= ReduceJobRealtedQtyReceivedNotInvoiced(UnplannedDemand."Demand Order No.", JobPlanningLine."Job Task No.", TempUnplannedDemand."Item No.", TempUnplannedDemand."Variant Code", TempUnplannedDemand."Location Code", TempUnplannedDemand."Demand Date");
                 end;
 
                 ForceIncludeDemand :=
