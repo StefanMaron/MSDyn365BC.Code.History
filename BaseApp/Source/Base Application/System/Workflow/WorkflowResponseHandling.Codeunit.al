@@ -86,7 +86,6 @@ codeunit 1521 "Workflow Response Handling"
         ApplyNewValuesTxt: Label 'Apply the new values.';
         DiscardNewValuesTxt: Label 'Discard the new values.';
         EnableJobQueueEntryResponseDescTxt: Label 'Enable the job queue entry.';
-        UnknownRecordErr: Label 'Unknown record type.';
         // Telemetry strings
         WorkflowResponseStartTelemetryTxt: Label 'Workflow response: Start Scope', Locked = true;
         WorkflowResponseEndTelemetryTxt: Label 'Workflow response: End Scope', Locked = true;
@@ -641,28 +640,19 @@ codeunit 1521 "Workflow Response Handling"
                     OnBeforeCreateNotificationEntry(WorkflowStepInstance, ApprovalEntry, IsHandled);
                     if IsHandled then
                         exit;
-
-                    if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
-                        NotificationEntry.CreateNotificationEntry(WorkflowStepArgument."Notification Entry Type", WorkflowStepArgument.GetNotificationUserID(ApprovalEntry), ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
                 end;
-            Database::"Incoming Document",
-            Database::"Gen. Journal Line",
-            Database::"Purchase Header",
-            Database::"Purch. Inv. Header":
-                if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
-                    if WorkflowStepArgument."Notify Sender" then
-                        NotificationEntry.CreateNotificationEntry(WorkflowStepArgument."Notification Entry Type", CopyStr(UserId(), 1, 50), Variant, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50))
-                    else
-                        NotificationEntry.CreateNotificationEntry(WorkflowStepArgument."Notification Entry Type", WorkflowStepArgument."Notification User ID", Variant, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
             else begin
                 ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
                 if ApprovalEntry.FindFirst() then begin
                     Variant := ApprovalEntry;
                     CreateNotificationEntry(WorkflowStepInstance, Variant);
-                end else
-                    Error(UnknownRecordErr);
+                    exit;
+                end;
             end;
         end;
+
+        if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
+            NotificationEntry.CreateNotificationEntry(WorkflowStepArgument."Notification Entry Type", WorkflowStepArgument.GetNotificationUserID(Variant), Variant, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
     end;
 
     local procedure ReleaseDocument(var Variant: Variant)

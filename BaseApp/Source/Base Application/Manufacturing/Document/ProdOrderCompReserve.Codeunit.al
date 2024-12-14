@@ -983,7 +983,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        if ReservationEntry."Source Type" = Database::"Prod. Order Line" then
+        if ReservationEntry."Source Type" = Database::"Prod. Order Component" then
             Description :=
                 StrSubstNo(SourceDoc3Txt, ProdOrderComponent.TableCaption(),
                 Enum::"Production Order Status".FromInteger(ReservationEntry."Source Subtype"), ReservationEntry."Source ID");

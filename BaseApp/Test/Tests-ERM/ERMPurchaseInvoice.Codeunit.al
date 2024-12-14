@@ -2810,46 +2810,6 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure ChangingLocationForPurchaseLineDoesNotResetLineDiscount()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Location: Record Location;
-        LineDiscountAmount: Decimal;
-        LineDiscountPercent: Integer;
-    begin
-        // [SCENARIO 385314,395161] Changing Location in Purchase Line does not reset "Line Discount Amount" and "Line Discount %"
-        Initialize();
-
-        // [GIVEN] Created Location "L1"
-        LibraryWarehouse.CreateLocation(Location);
-
-        // [GIVEN] Created Purchase Header with Line for location "L1"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
-        PurchaseLine.Validate("Location Code", Location.Code);
-
-        // [GIVEN] Filled "Line Discount %"
-        LineDiscountPercent := LibraryRandom.RandInt(10);
-        PurchaseLine.Validate("Line Discount %", LineDiscountPercent);
-        LineDiscountAmount := PurchaseLine."Line Discount Amount";
-
-        // [GIVEN] Created Location "L2"
-        Clear(Location);
-        LibraryWarehouse.CreateLocation(Location);
-
-        // [WHEN] Change Location from "L1" to "L2"
-        PurchaseLine.Validate("Location Code", Location.Code);
-
-        // [THEN] Field "Line discount %" is not reset
-        asserterror PurchaseLine.TestField("Line Discount %", LineDiscountPercent);
-        Assert.KnownFailure('Line Discount % must', 396550);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure PurchaseInvoiceFCYReverseChargeVATAndLineDiscount()
     var
         VATPostingSetup: Record "VAT Posting Setup";

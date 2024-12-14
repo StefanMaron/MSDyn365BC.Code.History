@@ -124,6 +124,18 @@ table 5401 "Item Variant"
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
+        BOMComponent: Record "BOM Component";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        BinContent: Record "Bin Content";
+        RequisitionLine: Record "Requisition Line";
+        TransferLine: Record "Transfer Line";
+        ItemJournalLine: Record "Item Journal Line";
+        ValueEntry: Record "Value Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProdOrderLine: Record "Prod. Order Line";
     begin
         if xRec."Item No." <> "Item No." then begin
             SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -137,6 +149,69 @@ table 5401 "Item Variant"
             PurchaseLine.SetRange("Variant Code", xRec.Code);
             if not PurchaseLine.IsEmpty() then
                 Error(CannotRenameItemUsedInPurchaseLinesErr, FieldCaption("Item No."), TableCaption());
+
+            ProdOrderLine.SetRange("Item No.", xRec."Item No.");
+            ProdOrderLine.SetRange("Variant Code", xRec.Code);
+            if not ProdOrderLine.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), ProdOrderLine.TableCaption());
+
+            BOMComponent.SetRange(Type, BOMComponent.Type::Item);
+            BOMComponent.SetRange("No.", xRec."Item No.");
+            BOMComponent.SetRange("Variant Code", xRec.Code);
+            if not BOMComponent.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), BOMComponent.TableCaption());
+
+            ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
+            ProductionBOMLine.SetRange("No.", xRec."Item No.");
+            ProductionBOMLine.SetRange("Variant Code", xRec.Code);
+            if not ProductionBOMLine.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), ProductionBOMLine.TableCaption());
+
+            ProdOrderComponent.SetRange("Item No.", xRec."Item No.");
+            ProdOrderComponent.SetRange("Variant Code", xRec.Code);
+            if not ProdOrderComponent.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), ProdOrderComponent.TableCaption());
+
+            AssemblyHeader.SetRange("Item No.", xRec."Item No.");
+            AssemblyHeader.SetRange("Variant Code", xRec.Code);
+            if not AssemblyHeader.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), AssemblyHeader.TableCaption());
+
+            AssemblyLine.SetRange("No.", xRec."Item No.");
+            AssemblyLine.SetRange("Variant Code", xRec.Code);
+            if not AssemblyLine.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), AssemblyLine.TableCaption());
+
+            BinContent.SetRange("Item No.", xRec."Item No.");
+            BinContent.SetRange("Variant Code", xRec.Code);
+            if not BinContent.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), BinContent.TableCaption());
+
+            TransferLine.SetRange("Item No.", xRec."Item No.");
+            TransferLine.SetRange("Variant Code", xRec.Code);
+            if not TransferLine.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), TransferLine.TableCaption());
+
+            RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+            RequisitionLine.SetRange("No.", xRec."Item No.");
+            RequisitionLine.SetRange("Variant Code", xRec.Code);
+            if not RequisitionLine.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), RequisitionLine.TableCaption());
+
+            ItemJournalLine.SetRange("Item No.", xRec."Item No.");
+            ItemJournalLine.SetRange("Variant Code", xRec.Code);
+            if not ItemJournalLine.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), ItemJournalLine.TableCaption());
+
+            ItemLedgerEntry.SetRange("Item No.", xRec."Item No.");
+            ItemLedgerEntry.SetRange("Variant Code", xRec.Code);
+            if not ItemLedgerEntry.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), ItemLedgerEntry.TableCaption());
+
+            ValueEntry.SetRange("Item No.", xRec."Item No.");
+            ValueEntry.SetRange("Variant Code", xRec.Code);
+            if not ValueEntry.IsEmpty() then
+                Error(CannotRenameItemErr, FieldCaption("Item No."), TableCaption(), ValueEntry.TableCaption());
         end;
     end;
 
@@ -293,6 +368,7 @@ table 5401 "Item Variant"
 #pragma warning restore AA0074
         CannotRenameItemUsedInSalesLinesErr: Label 'You cannot rename %1 in a %2, because it is used in sales document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
         CannotRenameItemUsedInPurchaseLinesErr: Label 'You cannot rename %1 in a %2, because it is used in purchase document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
+        CannotRenameItemErr: Label 'You cannot rename %1 in a %2, because it is used in %3.', Comment = '%1 = Item No. caption, %2 = Table caption, %3 = Reference Table caption';
 
     local procedure ProdOrderExist(): Boolean
     var

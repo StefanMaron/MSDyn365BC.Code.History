@@ -1296,7 +1296,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnModifyOnBeforeTestCheckPrinted', '', false, false)]
-    local procedure CancelTestOnModifyOnBeforeTestCheckPrinted(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    local procedure CancelTestOnModifyOnBeforeTestCheckPrinted(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
         IsHandled := true;  // to avoid bug in report "Bank Payment Order"
     end;

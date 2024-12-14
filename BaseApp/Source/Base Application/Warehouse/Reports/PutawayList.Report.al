@@ -260,7 +260,7 @@ report 5751 "Put-away List"
 
             trigger OnAfterGetRecord()
             begin
-                GetLocation("Location Code");
+                this.GetLocation("Location Code");
                 InvtPutAway := Type = Type::"Invt. Put-away";
                 if InvtPutAway then
                     BreakbulkFilter := false

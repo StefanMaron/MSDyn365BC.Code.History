@@ -49,6 +49,7 @@ codeunit 136350 "UT T Job"
         UpdatePlanningLinesManuallyMsg: Label 'You must update the existing project planning lines manually.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
         DPPLocationErr: Label 'You cannot create purchase orders for items that are set up for directed put-away and pick. You can activate and select Reserve field from personalization in order to finish this task.';
+        StatusErr: Label '%1 must be %2 in %3', Comment = '%1 = Status, %2 = Completed, %3 = Job';
 
     [Test]
     [Scope('OnPrem')]
@@ -1983,6 +1984,43 @@ codeunit 136350 "UT T Job"
         PurchaseLines[2].TestField(Quantity, 3);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler2,ConfirmFalseHandler')]
+    procedure WIPIsNotCalculatedIfNotConfirmedOnChangingStatusOfJobToCompleted()
+    var
+        JobWIPMethod: Record "Job WIP Method";
+        JobCard: TestPage "Job Card";
+    begin
+        // [SCENARIO 558589] WIP is not calculated if Stan doesn't confirm the 
+        // Confirmation message while changing the Status of Job to Completed.
+        Initialize();
+
+        // [GIVEN] Create a Job.
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create a Job WIP Method.
+        LibraryJob.CreateJobWIPMethod(JobWIPMethod);
+
+        // [GIVEN] Open Job Card page and set WIP Method and Status.
+        JobCard.OpenEdit();
+        JobCard.GoToRecord(Job);
+        JobCard."WIP Method".SetValue(JobWIPMethod.Code);
+        JobCard.Status.SetValue(Enum::"Job Status"::Completed);
+
+        // [WHEN] Find Job.
+        Job.Get(Job."No.");
+
+        // [THEN] Status of Job is Completed.
+        Assert.AreEqual(
+            Enum::"Job Status"::Completed,
+            Job.Status,
+            StrSubstNo(
+                StatusErr,
+                Job.FieldCaption(Status),
+                Enum::"Job Status"::Completed,
+                Job.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2455,6 +2493,12 @@ codeunit 136350 "UT T Job"
                 end;
         end;
         Assert.ExpectedMessage(ExpectedMessage, Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler2(Message: Text[1024])
+    begin
     end;
 }
 

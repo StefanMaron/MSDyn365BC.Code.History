@@ -36,7 +36,7 @@ report 790 "Calculate Inventory"
                     InsertTempSKU: Boolean;
                     IsHandled: Boolean;
                 begin
-                    if not GetLocation("Location Code") then
+                    if not this.GetLocation("Location Code") then
                         CurrReport.Skip();
 
                     if ("Location Code" <> '') and Location."Use As In-Transit" then
@@ -151,7 +151,7 @@ report 790 "Calculate Inventory"
                     TempQuantityOnHandBuffer."Location Code" := "Location Code";
                     TempQuantityOnHandBuffer."Variant Code" := "Variant Code";
 
-                    GetLocation("Location Code");
+                    this.GetLocation("Location Code");
                     if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
                         TempQuantityOnHandBuffer."Bin Code" := "Bin Code";
 

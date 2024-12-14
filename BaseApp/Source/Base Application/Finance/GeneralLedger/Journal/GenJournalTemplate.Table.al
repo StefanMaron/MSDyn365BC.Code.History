@@ -5,6 +5,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Journal;
+using Microsoft.Intercompany.Partner;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Intercompany.Journal;
@@ -217,7 +218,9 @@ table 80 "Gen. Journal Template"
             else
             if ("Bal. Account Type" = const("Bank Account")) "Bank Account"
             else
-            if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
+            if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset"
+            else
+            if ("Bal. Account Type" = const("IC Partner")) "IC Partner";
 
             trigger OnValidate()
             begin
@@ -343,6 +346,10 @@ table 80 "Gen. Journal Template"
         field(12400; Archive; Boolean)
         {
             Caption = 'Archive';
+        }
+        field(34; "Unlink Inc. Doc On Posting"; Boolean)
+        {
+            Caption = 'Unlink Incoming Documents On Posting';
         }
     }
 

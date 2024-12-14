@@ -16,6 +16,7 @@ codeunit 136210 "Contact Employee"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         PrivactBlockedTestFieldErr: Label 'they are marked as blocked due to privacy';
         ShownEmployeeCardErr: Label 'Wrong employee card is shown';
@@ -419,18 +420,21 @@ codeunit 136210 "Contact Employee"
     var
         EmployeeTempl: Record "Employee Templ.";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Contact Employee");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         EmployeeTempl.DeleteAll(true);
 
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Contact Employee");
 
         LibraryTemplates.EnableTemplatesFeature();
         LibrarySetupStorage.Save(Database::"Marketing Setup");
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Contact Employee");
     end;
 
     local procedure ReplaceBusRelationCode(ContactNo: Code[20])
