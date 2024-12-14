@@ -865,6 +865,9 @@ codeunit 378 "Transfer Extended Text"
                 ToJobPlanningLine."Job Task No." := JobPlanningLine."Job Task No.";
                 ToJobPlanningLine."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + LineSpacing;
+                ToJobPlanningLine."Planning Date" := JobPlanningLine."Planning Date";
+                ToJobPlanningLine."Planned Delivery Date" := JobPlanningLine."Planned Delivery Date";
+                ToJobPlanningLine."Document No." := JobPlanningLine."Document No.";
                 ToJobPlanningLine.Description := TempExtTextLine.Text;
                 ToJobPlanningLine."Attached to Line No." := JobPlanningLine."Line No.";
 

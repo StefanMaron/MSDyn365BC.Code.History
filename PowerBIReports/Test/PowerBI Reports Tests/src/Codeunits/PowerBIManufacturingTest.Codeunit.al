@@ -9,13 +9,13 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Journal;
 using Microsoft.PowerBIReports;
-using Microsoft.Manufacturing.PowerBIReports;
 using Microsoft.Inventory.Journal;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using System.Text;
 using Microsoft.Inventory.Location;
 using System.TestLibraries.Security.AccessControl;
+using Microsoft.PowerBIReports.Test;
 
 codeunit 139878 "PowerBI Manufacturing Test"
 {
@@ -33,6 +33,9 @@ codeunit 139878 "PowerBI Manufacturing Test"
         UriBuilder: Codeunit "Uri Builder";
         PermissionsMock: Codeunit "Permissions Mock";
         PowerBICoreTest: Codeunit "PowerBI Core Test";
+        PowerBIAPIRequests: Codeunit "PowerBI API Requests";
+        PowerBIAPIEndpoints: Enum "PowerBI API Endpoints";
+        PowerBIFilterScenarios: Enum "PowerBI Filter Scenarios";
         ResponseEmptyErr: Label 'Response should not be empty.';
 
     [Test]
@@ -51,7 +54,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for calendar entries is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Calendar Entries", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Calendar Entries");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'no eq ''' + Format(WorkCenter."No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -98,7 +101,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for machine centers is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Machine Centers", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Machine Centers");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'workCenterNo eq ''' + Format(WorkCenter."No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -140,7 +143,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for work centers is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Work Centers", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Work Centers");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'no eq ''' + Format(WorkCenter."No.") + ''' or no eq ''' + Format(WorkCenter2."No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -201,7 +204,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for production order lines is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Prod. Order Lines - Manuf.", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Prod. Order Lines - Manuf.");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'itemNo eq ''' + Format(Item."No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -273,7 +276,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for production order component lines is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Prod. Order Comp. - Manuf.", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Prod. Order Comp. - Manuf.");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'itemNo eq ''' + Format(ItemComp."No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -338,7 +341,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for production order routing lines is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Prod. Order Routing Lines", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Prod. Order Routing Lines");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'no eq ''' + Format(WorkCenter."No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -417,7 +420,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for production item ledger entries is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Item Ledger Entries - Prod.", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Item Ledger Entries - Prod.");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'orderNo eq ''' + Format(ProdOrder."No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -480,7 +483,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for the item ledger entries outside of the query filter is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Item Ledger Entries - Prod.", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Item Ledger Entries - Prod.");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'itemNo eq ''' + Format(ItemLedgerEntry."Item No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -529,7 +532,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for production item ledger entries is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Capacity Ledger Entries", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Capacity Ledger Entries");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'orderNo eq ''' + Format(ProdOrder."No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -613,7 +616,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         Commit();
 
         // [WHEN] Get request for production order capacity needed is made
-        TargetURL := LibGraphMgt.CreateQueryTargetURL(Query::"Prod. Order Capacity Needs", '');
+        TargetURL := PowerBIAPIRequests.GetEndpointURL(PowerBIAPIEndpoints::"Prod. Order Capacity Needs");
         UriBuilder.Init(TargetURL);
         UriBuilder.AddODataQueryParameter('$filter', 'prodOrderNo eq ''' + Format(ProdOrder."No.") + ''' or prodOrderNo eq ''' + Format(ProdOrder2."No.") + '''');
         UriBuilder.GetUri(Uri);
@@ -714,7 +717,6 @@ codeunit 139878 "PowerBI Manufacturing Test"
     procedure TestGenerateManufacturingReportDateFilter_StartEndDate()
     var
         PBISetup: Record "PowerBI Reports Setup";
-        PBIMgt: Codeunit "Manuf. Filter Helper";
         ExpectedFilterTxt: Text;
         ActualFilterTxt: Text;
     begin
@@ -733,7 +735,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         ExpectedFilterTxt := Format(Today()) + '..' + Format(Today() + 10);
 
         // [WHEN] GenerateManufacturingReportDateFilter executes 
-        ActualFilterTxt := PBIMgt.GenerateManufacturingReportDateFilter();
+        ActualFilterTxt := PowerBIAPIRequests.GetFilterForQueryScenario(PowerBIFilterScenarios::"Manufacturing Date");
 
         // [THEN] A filter text of format "%1..%2" should be created 
         Assert.AreEqual(ExpectedFilterTxt, ActualFilterTxt, 'The expected & actual filter text did not match.');
@@ -743,7 +745,6 @@ codeunit 139878 "PowerBI Manufacturing Test"
     procedure TestGenerateManufacturingReportDateFilter_RelativeDate()
     var
         PBISetup: Record "PowerBI Reports Setup";
-        PBIMgt: Codeunit "Manuf. Filter Helper";
         ExpectedFilterTxt: Text;
         ActualFilterTxt: Text;
     begin
@@ -761,7 +762,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         ExpectedFilterTxt := Format(CalcDate(PBISetup."Manufacturing Date Formula")) + '..';
 
         // [WHEN] GenerateManufacturingReportDateFilter executes 
-        ActualFilterTxt := PBIMgt.GenerateManufacturingReportDateFilter();
+        ActualFilterTxt := PowerBIAPIRequests.GetFilterForQueryScenario(PowerBIFilterScenarios::"Manufacturing Date");
 
         // [THEN] A filter text of format "%1.." should be created 
         Assert.AreEqual(ExpectedFilterTxt, ActualFilterTxt, 'The expected & actual filter text did not match.');
@@ -771,7 +772,6 @@ codeunit 139878 "PowerBI Manufacturing Test"
     procedure TestGenerateManufacturingReportDateFilter_Blank()
     var
         PBISetup: Record "PowerBI Reports Setup";
-        PBIMgt: Codeunit "Manuf. Filter Helper";
         ActualFilterTxt: Text;
     begin
         // [SCENARIO] Test GenerateManufacturingReportDateFilter
@@ -783,7 +783,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         PermissionsMock.ClearAssignments();
 
         // [WHEN] GenerateManufacturingReportDateFilter executes 
-        ActualFilterTxt := PBIMgt.GenerateManufacturingReportDateFilter();
+        ActualFilterTxt := PowerBIAPIRequests.GetFilterForQueryScenario(PowerBIFilterScenarios::"Manufacturing Date");
 
         // [THEN] A blank filter text should be created 
         Assert.AreEqual('', ActualFilterTxt, 'The expected & actual filter text did not match.');
@@ -793,7 +793,6 @@ codeunit 139878 "PowerBI Manufacturing Test"
     procedure TestGenerateManufacturingReportDateTimeFilter_StartEndDate()
     var
         PBISetup: Record "PowerBI Reports Setup";
-        PBIMgt: Codeunit "Manuf. Filter Helper";
         ExpectedFilterTxt: Text;
         ActualFilterTxt: Text;
     begin
@@ -812,7 +811,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         ExpectedFilterTxt := Format(CreateDateTime(Today(), 0T)) + '..' + Format(CreateDateTime(Today() + 10, 0T));
 
         // [WHEN] GenerateManufacturingReportDateTimeFilter executes 
-        ActualFilterTxt := PBIMgt.GenerateManufacturingReportDateTimeFilter();
+        ActualFilterTxt := PowerBIAPIRequests.GetFilterForQueryScenario(PowerBIFilterScenarios::"Manufacturing Date Time");
 
         // [THEN] A filter text of format "%1..%2" should be created 
         Assert.AreEqual(ExpectedFilterTxt, ActualFilterTxt, 'The expected & actual filter text did not match.');
@@ -822,7 +821,6 @@ codeunit 139878 "PowerBI Manufacturing Test"
     procedure TestGenerateManufacturingReportDateTimeFilter_RelativeDate()
     var
         PBISetup: Record "PowerBI Reports Setup";
-        PBIMgt: Codeunit "Manuf. Filter Helper";
         ExpectedFilterTxt: Text;
         ActualFilterTxt: Text;
     begin
@@ -840,7 +838,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         ExpectedFilterTxt := Format(CreateDateTime(CalcDate(PBISetup."Manufacturing Date Formula"), 0T)) + '..';
 
         // [WHEN] GenerateManufacturingReportDateTimeFilter executes 
-        ActualFilterTxt := PBIMgt.GenerateManufacturingReportDateTimeFilter();
+        ActualFilterTxt := PowerBIAPIRequests.GetFilterForQueryScenario(PowerBIFilterScenarios::"Manufacturing Date Time");
 
         // [THEN] A filter text of format "%1.." should be created 
         Assert.AreEqual(ExpectedFilterTxt, ActualFilterTxt, 'The expected & actual filter text did not match.');
@@ -850,7 +848,6 @@ codeunit 139878 "PowerBI Manufacturing Test"
     procedure TestGenerateManufacturingReportDateTimeFilter_Blank()
     var
         PBISetup: Record "PowerBI Reports Setup";
-        PBIMgt: Codeunit "Manuf. Filter Helper";
         ActualFilterTxt: Text;
     begin
         // [SCENARIO] Test GenerateManufacturingReportDateTimeFilter
@@ -862,7 +859,7 @@ codeunit 139878 "PowerBI Manufacturing Test"
         PermissionsMock.ClearAssignments();
 
         // [WHEN] GenerateManufacturingReportDateTimeFilter executes 
-        ActualFilterTxt := PBIMgt.GenerateManufacturingReportDateTimeFilter();
+        ActualFilterTxt := PowerBIAPIRequests.GetFilterForQueryScenario(PowerBIFilterScenarios::"Manufacturing Date Time");
 
         // [THEN] A blank filter text should be created 
         Assert.AreEqual('', ActualFilterTxt, 'The expected & actual filter text did not match.');

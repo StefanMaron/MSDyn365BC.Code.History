@@ -1455,8 +1455,7 @@ table 5767 "Warehouse Activity Line"
           WarehouseActivityLine."Qty. Outstanding (Base)" - WarehouseActivityLine."Qty. to Handle (Base)";
         NewWarehouseActivityLine."Qty. Outstanding" := NewWarehouseActivityLine.Quantity;
         NewWarehouseActivityLine."Qty. Outstanding (Base)" := NewWarehouseActivityLine."Qty. (Base)";
-        NewWarehouseActivityLine."Qty. to Handle" := NewWarehouseActivityLine.Quantity;
-        NewWarehouseActivityLine."Qty. to Handle (Base)" := NewWarehouseActivityLine."Qty. (Base)";
+        UpdateQtyToHandleOnSplitLine(NewWarehouseActivityLine);
         NewWarehouseActivityLine."Qty. Handled" := 0;
         NewWarehouseActivityLine."Qty. Handled (Base)" := 0;
         OnSplitLineOnAfterInitNewWhseActivLine(NewWarehouseActivityLine);
@@ -1596,6 +1595,19 @@ table 5767 "Warehouse Activity Line"
             WarehouseActivityLine."Qty. to Handle", WarehouseActivityLine.Cubage, WarehouseActivityLine.Weight);
         OnUpdateQtyToHandleOnBeforeWhseActivLineModify(WarehouseActivityLine);
         WarehouseActivityLine.Modify();
+    end;
+
+    local procedure UpdateQtyToHandleOnSplitLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateQtyToHandleOnSplitLine(WarehouseActivityLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        WarehouseActivityLine."Qty. to Handle" := WarehouseActivityLine.Quantity;
+        WarehouseActivityLine."Qty. to Handle (Base)" := WarehouseActivityLine."Qty. (Base)";
     end;
 
     procedure ShowWhseDoc()
@@ -3674,6 +3686,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckSplitLineOnBeforeTestFieldActionType(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateQtyToHandleOnSplitLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 }

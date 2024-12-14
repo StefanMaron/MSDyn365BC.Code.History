@@ -792,6 +792,7 @@ page 9203 "Budget Matrix"
     local procedure BudgetDrillDown()
     var
         GLBudgetEntry: Record "G/L Budget Entry";
+        IsHandled: Boolean;
     begin
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
         if GLAccBudgetBuf.GetFilter("G/L Account Filter") <> '' then
@@ -820,7 +821,10 @@ page 9203 "Budget Matrix"
             GLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code")
         else
             GLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", Date);
-        OnBudgetDrillDownOnBeforePageRun(GLAccBudgetBuf, GLBudgetEntry);
+        IsHandled := false;
+        OnBudgetDrillDownOnBeforePageRun(GLAccBudgetBuf, GLBudgetEntry, IsHandled);
+        if IsHandled then
+            exit;
         PAGE.Run(0, GLBudgetEntry);
     end;
 
@@ -1053,7 +1057,7 @@ page 9203 "Budget Matrix"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBudgetDrillDownOnBeforePageRun(var GLAccBudgetBuffer: Record "G/L Acc. Budget Buffer"; var GLBudgetEntry: Record "G/L Budget Entry")
+    local procedure OnBudgetDrillDownOnBeforePageRun(var GLAccBudgetBuffer: Record "G/L Acc. Budget Buffer"; var GLBudgetEntry: Record "G/L Budget Entry"; var IsHandled: Boolean)
     begin
     end;
 }

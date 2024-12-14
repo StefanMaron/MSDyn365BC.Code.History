@@ -17,7 +17,7 @@ permissionset 7372 "Security - Baseapp"
     Assignable = false;
     Caption = 'Assign permissions to users';
 
-    IncludedPermissionSets = "BaseApp Objects - Exec";
+    IncludedPermissionSets = "Agent - Admin", "BaseApp Objects - Exec";
 
     Permissions = tabledata "AAD Application" = RIMD,
                   tabledata "Activity Log" = RIMD,

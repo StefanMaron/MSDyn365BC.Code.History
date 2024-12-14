@@ -32,7 +32,7 @@ xmlport 5801 "Export Item Data"
                   tabledata "Item Application Entry" = rimd,
                   tabledata "Production Order" = rimd,
                   tabledata "Prod. Order Line" = rimd,
-                  tabledata "Value entry" = rimd,
+                  tabledata "Value Entry" = rimd,
                   tabledata "Item Application Entry History" = rimd,
                   tabledata "Capacity Ledger Entry" = rimd,
                   tabledata "Avg. Cost Adjmt. Entry Point" = rimd,
@@ -1044,6 +1044,14 @@ xmlport 5801 "Export Item Data"
                 }
                 fieldelement(ValueEntry_Type; ValueEntry.Type)
                 {
+                    trigger OnAfterAssignField()
+                    begin
+                        if ValueEntry.Type = ValueEntry.Type::"Work Center" then
+                            if not (ValueEntry."Item Ledger Entry Type" in [ValueEntry."Item Ledger Entry Type"::Output,
+                                                                            ValueEntry."Item Ledger Entry Type"::" "])
+                            then
+                                ValueEntry.Type := ValueEntry.Type::" ";
+                    end;
                 }
                 fieldelement(ValueEntry_No; ValueEntry."No.")
                 {
