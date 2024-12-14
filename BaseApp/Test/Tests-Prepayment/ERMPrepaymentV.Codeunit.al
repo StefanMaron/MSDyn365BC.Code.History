@@ -4708,6 +4708,65 @@
             DiscountAmount[4]);
     end;
 
+    [Test]
+    procedure SalesInvoiceIsPostedWithPrepaymentShipments()
+    var
+        Customer: Record Customer;
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: array[3] of Record Item;
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PrepaymentPct: array[3] of Decimal;
+        Price: array[3] of Decimal;
+        Quantity: array[3] of Decimal;
+    begin
+        // [SCENARIO 558544] Sales Invoice gets posted when created from multiple shipment in case of prepayment.
+        Initialize();
+
+        // [GIVEN] Create a VAT Posting Setup.
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandIntInRange(8, 8));
+
+        // [GIVEN] Create a General Posting Setup and update Sales Prepayment Account.
+        CreateGeneralPostingSetupforSalesPrePayment(GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create a Customer and enable Price Including VAT.
+        CreateCustomerWithPriceIncludingVAT(GeneralPostingSetup, VATPostingSetup, Customer);
+
+        // [GIVEN] Create a Item No with Posting Setup.
+        CreateThreeItems(GeneralPostingSetup, VATPostingSetup, Item);
+
+        // [GIVEN] Generate Quantity.
+        GenerateQuantity(Quantity);
+
+        // [GIVEN] Generate Price.
+        GeneratePrice(Price);
+
+        // [GIVEN] Generate Prepayment Percentage.
+        GeneratePrepaymentPercent(PrepaymentPct);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create Sales Lines with three Items.
+        CreateThreeSalesLines(SalesLine, SalesHeader[1], Item, Price, Quantity, PrepaymentPct);
+
+        // [GIVEN] Sales Prepayment Invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader[1]);
+
+        // [GIVEN] Create Multiple Shipments step wise.
+        CreateMultipleShipments(SalesLine, Item, SalesHeader[1]);
+
+        // [GIVEN] Cretae Sales Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, Customer."No.");
+
+        // [WHEN] Get Shipment Lines for Sales Invoice;
+        GetSalesShipmentLines(SalesHeader[2]);
+
+        // [THEN] Verify Sales Invoice gets posted without an error.
+        LibrarySales.PostSalesDocument(SalesHeader[2], true, true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6244,6 +6303,156 @@
         PurchInvLine[2].FindFirst();
 
         Assert.AreEqual(-LineAmount[2], PurchInvLine[2]."Line Amount", LineAmountMustMatchErr);
+    end;
+
+    local procedure CreateGeneralPostingSetupforSalesPrePayment(var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GLAccount: Record "G/L Account";
+        GenPostingType: Enum "General Posting Type";
+    begin
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify(true);
+
+        GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        LibraryERM.UpdateGLAccountWithPostingSetup(GLAccount, GenPostingType::Sale, GeneralPostingSetup, VATPostingSetup);
+    end;
+
+    local procedure CreateCustomerWithPriceIncludingVAT(GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"; var Customer: Record Customer)
+    begin
+        Customer.Get(LibrarySales.CreateCustomerWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        Customer.Validate("Prices Including VAT", true);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateThreeItems(GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"; var Item: array[3] of Record Item)
+    var
+        i: Integer;
+    begin
+        for i := 1 to 3 do
+            Item[i].Get(LibraryInventory.CreateItemNoWithPostingSetup(
+                GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
+    end;
+
+    local procedure GenerateQuantity(var Quantity: array[3] of Decimal)
+    begin
+        Quantity[1] := LibraryRandom.RandIntInRange(66746, 66746);
+        Quantity[2] := LibraryRandom.RandIntInRange(34000, 34000);
+        Quantity[3] := LibraryRandom.RandIntInRange(1320, 1320);
+    end;
+
+    local procedure GeneratePrice(var Price: array[3] of Decimal)
+    begin
+        Price[1] := LibraryRandom.RandDecInDecimalRange(12.64, 12.64, 2);
+        Price[2] := LibraryRandom.RandDecInDecimalRange(13.50, 13.50, 2);
+        Price[3] := LibraryRandom.RandDecInDecimalRange(14.04, 14.04, 2);
+    end;
+
+    local procedure GeneratePrepaymentPercent(var PrepaymentPct: array[3] of Decimal)
+    begin
+        PrepaymentPct[1] := LibraryRandom.RandDecInDecimalRange(47.94, 47.94, 2);
+        PrepaymentPct[2] := LibraryRandom.RandDecInDecimalRange(47.94, 47.94, 2);
+        PrepaymentPct[3] := LibraryRandom.RandDecInDecimalRange(48.6301, 48.6301, 4);
+    end;
+
+    local procedure CreateThreeSalesLines(
+        var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header";
+        Item: array[3] of Record Item; Price: array[3] of Decimal;
+        Quantity: array[3] of Decimal; PrepaymentPct: array[3] of Decimal)
+    var
+        i: Integer;
+    begin
+        for i := 1 to 3 do begin
+            LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, Item[i]."No.", Price[i], Quantity[i]);
+            SalesLine.Validate("Prepayment %", PrepaymentPct[i]);
+            SalesLine.Modify(true);
+        end;
+    end;
+
+    local procedure CreateMultipleShipments(var SalesLine: Record "Sales Line"; Item: array[3] of Record Item; SalesHeader: Record "Sales Header")
+    begin
+        ResetQtyToShip(SalesLine."Document No.");
+        UpdateQtyToShip(SalesLine, Item[1]."No.", LibraryRandom.RandIntInRange(4500, 4500));
+        UpdateQtyToShip(SalesLine, Item[3]."No.", LibraryRandom.RandIntInRange(1320, 1320));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[1]."No.", LibraryRandom.RandIntInRange(8640, 8640));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[1]."No.", LibraryRandom.RandIntInRange(8640, 8640));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[1]."No.", LibraryRandom.RandIntInRange(8640, 8640));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[2]."No.", LibraryRandom.RandIntInRange(5760, 5760));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[2]."No.", LibraryRandom.RandIntInRange(5760, 5760));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[1]."No.", LibraryRandom.RandIntInRange(8640, 8640));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[1]."No.", LibraryRandom.RandIntInRange(8640, 8640));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[1]."No.", LibraryRandom.RandIntInRange(8640, 8640));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[1]."No.", LibraryRandom.RandIntInRange(7740, 7740));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[1]."No.", LibraryRandom.RandIntInRange(2666, 2666));
+        UpdateQtyToShip(SalesLine, Item[2]."No.", LibraryRandom.RandIntInRange(2640, 2640));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[2]."No.", LibraryRandom.RandIntInRange(5760, 5760));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[2]."No.", LibraryRandom.RandIntInRange(5760, 5760));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[2]."No.", LibraryRandom.RandIntInRange(5760, 5760));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ResetQtyToShip(SalesLine."Document No.");
+
+        UpdateQtyToShip(SalesLine, Item[2]."No.", LibraryRandom.RandIntInRange(2560, 2560));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure ResetQtyToShip(DocumentNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document No.", DocumentNo);
+        if SalesLine.FindSet() then
+            repeat
+                SalesLine.Validate("Qty. to Ship", 0);
+                SalesLine.Modify(true);
+            until SalesLine.Next() = 0;
+    end;
+
+    local procedure UpdateQtyToShip(var SalesLine: Record "Sales Line"; ItemNo: Code[20]; QtyToShip: Decimal)
+    begin
+        SalesLine.SetRange("No.", ItemNo);
+        SalesLine.FindFirst();
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);
     end;
 
     [PageHandler]

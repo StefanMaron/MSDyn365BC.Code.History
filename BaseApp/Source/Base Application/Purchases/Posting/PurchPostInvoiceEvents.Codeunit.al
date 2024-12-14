@@ -246,13 +246,32 @@ codeunit 826 "Purch. Post Invoice Events"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by procedure that also receives PurchHeader and TempInvoicePostingBuffer', '26.0')]
     procedure RunOnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        PurchHeader: Record "Purchase Header";
+        TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary;
     begin
-        OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup);
+        OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup, PurchHeader, TempInvoicePostingBuffer);
+    end;
+
+    [Obsolete('Replaced by procedure that also receives TempInvoicePostingBuffer', '26.0')]
+    procedure RunOnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; PurchHeader: Record "Purchase Header")
+    var
+        TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary;
+    begin
+        OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup, PurchHeader, TempInvoicePostingBuffer);
+    end;
+#endif
+
+    procedure RunOnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; PurchHeader: Record "Purchase Header"; var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary)
+    begin
+        OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup, PurchHeader, TempInvoicePostingBuffer);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; PurchHeader: Record "Purchase Header"; var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary)
     begin
     end;
 
@@ -607,6 +626,26 @@ codeunit 826 "Purch. Post Invoice Events"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrepareInvoicePostingBuffer(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+    end;
+
+    procedure RunOnCalculateVATAmountsOnAfterVatCalculationType(var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; var PurchHeader: Record "Purchase Header"; VatPostingSetup: Record "VAT Posting Setup")
+    begin
+        OnCalculateVATAmountsOnAfterVatCalculationType(TempInvoicePostingBuffer, PurchHeader, VatPostingSetup);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateVATAmountsOnAfterVatCalculationType(var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; var PurchHeader: Record "Purchase Header"; VatPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    procedure RunOnBeforePrepareDeferralLine(var TempDeferralHeader: Record "Deferral Header" temporary; var TempDeferralLine: Record "Deferral Line" temporary; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; AmountLCY: Decimal; AmountACY: Decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; PurchAccount: Code[20]; DocNo: Code[20]; InvDefLineNo: Integer; var IsHandled: Boolean)
+    begin
+        OnBeforePrepareDeferralLine(TempDeferralHeader, TempDeferralLine, PurchHeader, PurchLine, AmountLCY, AmountACY, RemainAmtToDefer, RemainAmtToDeferACY, DeferralAccount, PurchAccount, DocNo, InvDefLineNo, IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepareDeferralLine(var TempDeferralHeader: Record "Deferral Header" temporary; var TempDeferralLine: Record "Deferral Line" temporary; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; AmountLCY: Decimal; AmountACY: Decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; PurchAccount: Code[20]; DocNo: Code[20]; InvDefLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

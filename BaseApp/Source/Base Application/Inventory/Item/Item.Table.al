@@ -422,6 +422,9 @@ table 27 Item
             begin
                 if "Indirect Cost %" > 0 then
                     TestField(Type, Type::Inventory);
+                if Rec."Indirect Cost %" <> xRec."Indirect Cost %" then
+                    AdjustCostIfRequired(Rec.FieldCaption("Indirect Cost %"));
+
                 ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Indirect Cost %"));
                 if ItemCostMgt.IsItemUnitCostUpdated() then
                     ItemCostMgt.UpdateCostPlusPrices("No.");
@@ -2293,6 +2296,8 @@ table 27 Item
             begin
                 if "Overhead Rate" <> 0 then
                     TestField(Type, Type::Inventory);
+                if Rec."Overhead Rate" <> xRec."Overhead Rate" then
+                    AdjustCostIfRequired(Rec.FieldCaption("Overhead Rate"));
             end;
         }
         field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
@@ -2839,6 +2844,7 @@ table 27 Item
         ItemTrackingCodeIgnoresExpirationDateErr: Label 'The settings for expiration dates do not match on the item tracking code and the item. Both must either use, or not use, expiration dates.', Comment = '%1 is the Item number';
         ReplenishmentSystemTransferErr: Label 'The Replenishment System Transfer cannot be used for item.';
         WhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for this item.', Comment = '%1: Changed field name';
+        CostAdjustmentRequiredQst: Label 'You must complete the cost adjustment for the item before you can modify %1.\Do you want to run the cost adjustment now?', Comment = '%1: Field Caption';
 
     protected var
         ItemTrackingCode: Record "Item Tracking Code";
@@ -2988,6 +2994,7 @@ table 27 Item
                 ItemVend."Vendor Item No." := StockkeepingUnit."Vendor Item No.";
             ItemVend."Lead Time Calculation" := StockkeepingUnit."Lead Time Calculation";
         end;
+        OnFindItemVendOnAfterFindItemVend(ItemVend, Rec, StockkeepingUnit, LocationCode);
         ItemVend.FindLeadTimeCalculation(Rec, StockkeepingUnit, LocationCode);
         ItemVend.Reset();
 
@@ -3977,6 +3984,57 @@ table 27 Item
         end
     end;
 
+    local procedure AdjustCostIfRequired(CheckFieldCaption: Text)
+    var
+        Item: Record Item;
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if Rec."Cost is Adjusted" then
+            exit;
+
+        if not NonAdjustedProdOrAsmOrderExists() then
+            exit;
+
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CostAdjustmentRequiredQst, CheckFieldCaption)) then
+            Error(Text7381);
+
+        Item.Copy(Rec);
+
+        RunCostAdjustment(Item);
+
+        Rec.Get(Item."No.");
+        Rec."Overhead Rate" := Item."Overhead Rate";
+        Rec."Indirect Cost %" := Item."Indirect Cost %";
+    end;
+
+    local procedure NonAdjustedProdOrAsmOrderExists(): Boolean
+    var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+    begin
+        InventoryAdjmtEntryOrder.SetRange("Item No.", Rec."No.");
+        InventoryAdjmtEntryOrder.SetRange("Cost is Adjusted", false);
+        InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Assembly);
+        if not InventoryAdjmtEntryOrder.IsEmpty() then
+            exit(true);
+
+        InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Production);
+        InventoryAdjmtEntryOrder.SetRange("Is Finished", true);
+        if not InventoryAdjmtEntryOrder.IsEmpty() then
+            exit(true);
+
+        exit(false);
+    end;
+
+    local procedure RunCostAdjustment(var Item: Record Item)
+    var
+        CostAdjustmentItemRunner: Codeunit "Cost Adjustment Item Runner";
+    begin
+        GetInvtSetup();
+        Item.SetRecFilter();
+        CostAdjustmentItemRunner.SetPostToGL(InventorySetup."Automatic Cost Posting");
+        CostAdjustmentItemRunner.Run(Item);
+    end;
+
     local procedure DeleteItemUnitGroup()
     var
         UnitGroup: Record "Unit Group";
@@ -4452,6 +4510,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateItemCategoryId(var Item: Record Item; var ItemCategory: Record "Item Category")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindItemVendOnAfterFindItemVend(var ItemVendor: Record "Item Vendor"; Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10])
     begin
     end;
 }

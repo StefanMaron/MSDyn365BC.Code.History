@@ -1,4 +1,4 @@
-namespace Microsoft.Utilities;
+﻿namespace Microsoft.Utilities;
 
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Calendar;
@@ -113,11 +113,14 @@ codeunit 6450 "Serv. Integration Mgt."
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterShowPostedDocAttachment', '', false, false)]
-    local procedure CustLedgerEntryOnAfterShowPostedDocAttachment(CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure CustLedgerEntryOnAfterShowPostedDocAttachment(CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentFound: Boolean)
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
+        if DocumentFound then
+            exit;
+
         case CustLedgerEntry."Document Type" of
             CustLedgerEntry."Document Type"::Invoice:
                 if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
@@ -149,11 +152,13 @@ codeunit 6450 "Serv. Integration Mgt."
     begin
         case CustLedgerEntry."Document Type" of
             CustLedgerEntry."Document Type"::Invoice:
-                if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
-                    HasPostedDocumentAttachment := DocumentAttachment.HasPostedDocumentAttachment(ServiceInvoiceHeader);
+                if ServiceInvoiceHeader.ReadPermission() then
+                    if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
+                        HasPostedDocumentAttachment := DocumentAttachment.HasPostedDocumentAttachment(ServiceInvoiceHeader);
             CustLedgerEntry."Document Type"::"Credit Memo":
-                if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
-                    HasPostedDocumentAttachment := DocumentAttachment.HasPostedDocumentAttachment(ServiceCrMemoHeader);
+                if ServiceCrMemoHeader.ReadPermission() then
+                    if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
+                        HasPostedDocumentAttachment := DocumentAttachment.HasPostedDocumentAttachment(ServiceCrMemoHeader);
         end;
     end;
 
@@ -185,10 +190,13 @@ codeunit 6450 "Serv. Integration Mgt."
     // Table Sales Shipment Line
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Shipment Line", 'OnAfterDeleteEvent', '', false, false)]
-    local procedure SalesShipmentLineOnAfterDelete(Rec: Record "Sales Shipment Line")
+    local procedure SalesShipmentLineOnAfterDelete(Rec: Record "Sales Shipment Line"; RunTrigger: Boolean)
     var
         ServiceItem: Record "Service Item";
     begin
+        if Rec.IsTemporary() or (not RunTrigger) then
+            exit;
+
         ServiceItem.Reset();
         ServiceItem.SetCurrentKey("Sales/Serv. Shpt. Document No.", "Sales/Serv. Shpt. Line No.");
         ServiceItem.SetRange("Sales/Serv. Shpt. Document No.", Rec."Document No.");
@@ -221,12 +229,15 @@ codeunit 6450 "Serv. Integration Mgt."
     // Table Resource
 
     [EventSubscriber(ObjectType::Table, Database::Resource, 'OnAfterDeleteEvent', '', false, false)]
-    local procedure ResourceOnAfterDelete(var Rec: Record Resource)
+    local procedure ResourceOnAfterDelete(var Rec: Record Resource; RunTrigger: Boolean)
     var
         ResourceSkill: Record "Resource Skill";
         ResourceLocation: Record "Resource Location";
         ResourceServiceZone: Record "Resource Service Zone";
     begin
+        if Rec.IsTemporary() or (not RunTrigger) then
+            exit;
+
         ResourceSkill.Reset();
         ResourceSkill.SetRange(Type, "Resource Skill Type"::Resource);
         ResourceSkill.SetRange("No.", Rec."No.");

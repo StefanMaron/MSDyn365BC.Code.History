@@ -108,6 +108,7 @@ page 9153 "My Accounts"
         Clear(GLAccount);
         if GLAccount.Get(Rec."Account No.") then begin
             GLAccount.CalcFields(Balance);
+            OnSyncFieldsWithGLAccountOnAfterCalcFields(GLAccount);
             if (Rec."Account Balance" <> GLAccount.Balance) or (Rec.Name <> GLAccount.Name) then begin
                 Rec."Account Balance" := GLAccount.Balance;
                 Rec.Name := GLAccount.Name;
@@ -119,6 +120,11 @@ page 9153 "My Accounts"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSyncFieldsWithGLAccount(var MyAccount: Record "My Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSyncFieldsWithGLAccountOnAfterCalcFields(var GLAccount: Record "G/L Account")
     begin
     end;
 }
