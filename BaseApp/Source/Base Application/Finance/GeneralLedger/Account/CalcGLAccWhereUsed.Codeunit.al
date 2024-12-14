@@ -291,6 +291,8 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     end;
 
     local procedure FillTableBuffer(var TableBuffer: Record "Integer"): Boolean
+    var
+        ServiceContractAccountGroup: Record "Service Contract Account Group";
     begin
         AddTable(TableBuffer, Database::Currency);
         AddTable(TableBuffer, Database::"Gen. Journal Template");
@@ -305,7 +307,8 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         AddTable(TableBuffer, Database::"FA Posting Group");
         AddTable(TableBuffer, Database::"FA Allocation");
         AddTable(TableBuffer, Database::"Inventory Posting Setup");
-        AddTable(TableBuffer, Database::"Service Contract Account Group");
+        if ServiceContractAccountGroup.ReadPermission() and ServiceContractAccountGroup.WritePermission() then
+            AddTable(TableBuffer, Database::"Service Contract Account Group");
         AddTable(TableBuffer, Database::"IC Partner");
         AddTable(TableBuffer, Database::"Payment Method");
         AddTable(TableBuffer, Database::"Sales & Receivables Setup");
