@@ -210,7 +210,7 @@ codeunit 137160 "SCM Prepayment Orders"
             PurchaseHeader, PurchaseLine, Vendor."No.", Item."No.", LibraryRandom.RandInt(50), '');
 
         VerifyGLEntry(
-          FindPostedPurchaseInvoice(Vendor."No.", '', VendorInvoiceNo), PaymentMethod."Bal. Account No.",
+          FindPostedPurchaseInvoice(Vendor."No.", PurchaseHeader."No.", VendorInvoiceNo), PaymentMethod."Bal. Account No.",
           -Round(PurchaseLine."Line Amount" * PurchaseLine."Prepayment %" * 0.01 * (1 + VATPostingSetup."VAT %" / 100),
             LibraryERM.GetAmountRoundingPrecision()) / CurrencyFactor); // Value required for the test.
     end;
