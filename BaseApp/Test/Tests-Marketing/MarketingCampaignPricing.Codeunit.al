@@ -601,7 +601,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SalesLineDiscounts: TestPage "Sales Line Discounts";
     begin
         SalesLineDiscounts.OpenEdit();
-        SalesLineDiscounts.FILTER.SetFilter("Sales Type", SalesLineDiscounts.SalesType.GetOption(4));  // Take Index 4 for Campaign option.
+        SalesLineDiscounts.FILTER.SetFilter("Sales Type", SalesLineDiscounts."Sales Type".GetOption(4));  // Take Index 4 for Campaign option.
         SalesLineDiscounts.FILTER.SetFilter("Sales Code", CampaignNo);
         SalesLineDiscounts."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use RandInt to change Date.
     end;

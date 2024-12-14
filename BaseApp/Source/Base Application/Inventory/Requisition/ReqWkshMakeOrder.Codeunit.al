@@ -209,6 +209,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 if ReqLine2.FindFirst() then;
                 // Remember the last line
                 IsHandled := false;
+                ReqLine.BlockDynamicTracking(true);
                 OnBeforeDeleteReqLines(ReqLine, TempFailedReqLine, IsHandled, ReqLine2);
                 if not IsHandled then
                     if ReqLine.Find('-') then

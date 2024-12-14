@@ -212,6 +212,10 @@ page 7004 "Sales Line Discounts"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales type of the sales line discount. The sales type defines whether the sales price is for an individual customer, customer discount group, all customers, or for a campaign.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use now the Column Sales Type';
+                    ObsoleteTag = '25.0';
 
                     trigger OnValidate()
                     begin
@@ -219,6 +223,26 @@ page 7004 "Sales Line Discounts"
                     end;
                 }
                 field(SalesCode; Rec."Sales Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = SalesCodeEditable;
+                    ToolTip = 'Specifies one of the following values, depending on the value in the Sales Type field.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use now the Column Sales Code';
+                    ObsoleteTag = '25.0';
+                }
+                field("Sales Type"; Rec."Sales Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the sales type of the sales line discount. The sales type defines whether the sales price is for an individual customer, customer discount group, all customers, or for a campaign.';
+
+                    trigger OnValidate()
+                    begin
+                        SetEditableFields();
+                    end;
+                }
+                field("Sales Code"; Rec."Sales Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SalesCodeEditable;
