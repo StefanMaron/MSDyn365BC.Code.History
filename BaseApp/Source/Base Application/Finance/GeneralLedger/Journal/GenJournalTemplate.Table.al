@@ -319,6 +319,10 @@ table 80 "Gen. Journal Template"
         {
             Caption = 'Allow Posting Date To';
         }
+        field(34; "Unlink Inc. Doc On Posting"; Boolean)
+        {
+            Caption = 'Unlink Incoming Documents On Posting';
+        }
         field(11300; "Allow Posting From"; Date)
         {
             Caption = 'Allow Posting From (Obsoleted)';

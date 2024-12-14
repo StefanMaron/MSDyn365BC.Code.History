@@ -119,7 +119,7 @@ report 2000030 "Import CODA Statement"
             CodBankStmtSrcLine.ID::"Old Balance":
                 begin
                     CodaMgmt.CheckOldBalance(CodBankStmtSrcLine);
-                    if FirstTime then begin
+                    if (FirstTime) and (CodBankStmtSrcLine."Statement No." <> TempStatementNo) then begin
                         TempStatementNo :=
                           CodaMgmt.UpdateStatementNo(CodBankStmtSrcLine, TempStatementNo, CodBankStmtSrcLine."Statement No.");
                         AccountType := CopyStr(CodBankStmtSrcLine.Data, 2, 1);
@@ -148,6 +148,7 @@ report 2000030 "Import CODA Statement"
                     REPORT.RunModal(REPORT::"Initialise CODA Stmt. Lines", false, false, CodBankStmtSrcLine2);
                     CodBankStmtSrcLine2.DeleteAll();
                     TempStatementNo := IncStr(TempStatementNo);
+                    FirstTime := true;
                 end;
         end;
     end;

@@ -831,6 +831,68 @@ codeunit 136322 "Jobs - Assemble-to Order"
         Assert.RecordIsNotEmpty(PostedATOLink);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    procedure PostInventoryPickForAssemblyItemWithAutomaticCostAdjustment()
+    var
+        ParentItem, CompItem1, CompItem2 : Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        Location: Record Location;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        PostedATOLink: Record "Posted Assemble-to-Order Link";
+        InventorySetup: Record "Inventory Setup";
+        InventoryPickPage: TestPage "Inventory Pick";
+    begin
+        // [SCENARIO 556206] Verify post inventory pick for assembly item with automatic cost adjustment
+        Initialize();
+
+        // [GIVEN] Set Automatic Cost Adjustment on Inventory Setup
+        UpdateCostFieldsInInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
+
+        // [GIVEN] Create an assembly item with 2 components.
+        CreateAssemblyItemWithBOM(ParentItem, CompItem1, CompItem2);
+
+        // [GIVEN] Create Location with required pick
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        // [GIVEN] Create Warehouse Employee with default location
+        CreateDefaultWarehouseEmployee(Location);
+
+        // [GIVEN] Add components to inventory
+        CreateAndPostInvtAdjustmentWithUnitCost(CompItem1."No.", Location.Code, '', 100, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithUnitCost(CompItem1."No.", Location.Code, '', 100, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithUnitCost(CompItem2."No.", Location.Code, '', 100, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithUnitCost(CompItem2."No.", Location.Code, '', 100, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask);
+
+        // [GIVEN] Create Job Planning Line
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item,
+            ParentItem."No.", Location.Code, '', 1);
+
+        // [GIVEN] Create Inventory Pick for the Job
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Job Usage", Job."No.", false, true, false);
+
+        // [GIVEN] Find Warehouse Activity Header 
+        WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Job Usage");
+        WarehouseActivityHeader.SetRange("Source No.", Job."No.");
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [WHEN] Inventory Pick is posted
+        InventoryPickPage.OpenEdit();
+        InventoryPickPage.GoToRecord(WarehouseActivityHeader);
+        InventoryPickPage.AutofillQtyToHandle.Invoke();
+        InventoryPickPage."P&ost".Invoke();
+
+        // [THEN] Verify results
+        SetFiltersToPostedATOLink(JobTask, JobPlanningLine, PostedATOLink);
+        Assert.RecordIsNotEmpty(PostedATOLink);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Jobs - Assemble-to Order");
@@ -896,6 +958,16 @@ codeunit 136322 "Jobs - Assemble-to Order"
         end
         else
             LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
+    end;
+
+    local procedure UpdateCostFieldsInInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
+        InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
+        InventorySetup.Modify(true);
     end;
 
     local procedure CreateAndPostInvtAdjustmentWithUnitCost(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; UnitCost: Decimal)

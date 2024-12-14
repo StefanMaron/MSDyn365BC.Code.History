@@ -168,7 +168,7 @@ codeunit 137156 "SCM Orders IV"
         SalesLineDiscounts.SalesTypeFilter.SetValue(SalesTypeFilter);
 
         // [THEN] The page field "Sales Type" = "Customer"
-        SalesLineDiscounts.SalesType.AssertEquals(SalesTypeFilter);
+        SalesLineDiscounts."Sales Type".AssertEquals(SalesTypeFilter);
     end;
 
     [Test]
@@ -215,7 +215,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] The page field "Sales Type" = "Campaign"
         // [THEN] The page field "Sales Type Filter" = "Campaign"
-        SalesLineDiscounts.SalesType.AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
+        SalesLineDiscounts."Sales Type".AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
         SalesLineDiscounts.SalesTypeFilter.AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
     end;
 #endif
@@ -815,19 +815,19 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] "Sales Line Discounts" page
         CreateCustomerAndOpenSalesLineDiscountsPageFromCustomerCard(SalesLineDiscounts);
         // [WHEN] Set "Sales Type" = "All Customers"
-        SalesLineDiscounts.SalesType.SetValue(SalesType::"All Customers");
+        SalesLineDiscounts."Sales Type".SetValue(SalesType::"All Customers");
         // [THEN] Page field "Sales Code" is not editable
-        Assert.IsFalse(SalesLineDiscounts.SalesCode.Editable(), '');
+        Assert.IsFalse(SalesLineDiscounts."Sales Code".Editable(), '');
 
         // Verify "Sales Code" is editable for other "Sales Type" options
-        SalesLineDiscounts.SalesType.SetValue(SalesType::Campaign);
-        Assert.IsTrue(SalesLineDiscounts.SalesCode.Editable(), '');
+        SalesLineDiscounts."Sales Type".SetValue(SalesType::Campaign);
+        Assert.IsTrue(SalesLineDiscounts."Sales Code".Editable(), '');
 
-        SalesLineDiscounts.SalesType.SetValue(SalesType::Customer);
-        Assert.IsTrue(SalesLineDiscounts.SalesCode.Editable(), '');
+        SalesLineDiscounts."Sales Type".SetValue(SalesType::Customer);
+        Assert.IsTrue(SalesLineDiscounts."Sales Code".Editable(), '');
 
-        SalesLineDiscounts.SalesType.SetValue(SalesType::"Customer Disc. Group");
-        Assert.IsTrue(SalesLineDiscounts.SalesCode.Editable(), '');
+        SalesLineDiscounts."Sales Type".SetValue(SalesType::"Customer Disc. Group");
+        Assert.IsTrue(SalesLineDiscounts."Sales Code".Editable(), '');
     end;
 
     [Test]

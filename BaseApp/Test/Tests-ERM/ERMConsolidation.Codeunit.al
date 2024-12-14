@@ -745,6 +745,22 @@ codeunit 134092 "ERM Consolidation"
                 ConsolidateWizard.Caption()));
     end;
 
+    [Test]
+    procedure ASingleDateCanBeSpecifiedInConsolidateWizardWithoutError()
+    var
+        ConsolidateWizard: TestPage "Consolidate Wizard";
+    begin
+        // [SCENARIO 556939] A single date can be specified in Consolidate Wizard without any error.
+        Initialize();
+        // [GIVEN] Someone opening the Consolidate Wizard.
+        ConsolidateWizard.Trap();
+        // [WHEN] They set a date in the Starting Date field and nothing in the Ending Date field.
+        Page.Run(Page::"Consolidate Wizard");
+        ConsolidateWizard.StartingDate.SetValue(Format(WorkDate()));
+        // [THEN] They face no error can can proceed.
+        ConsolidateWizard.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
