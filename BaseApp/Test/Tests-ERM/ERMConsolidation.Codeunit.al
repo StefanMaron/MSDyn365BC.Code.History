@@ -682,15 +682,12 @@ codeunit 134092 "ERM Consolidation"
     begin
         // [SCENARIO 550614] Starting Date and Ending Date in Consolidate Wizard can be changed without any error.
         Initialize();
-
         // [GIVEN] Find Company Information.
         CompanyInformation.Get();
-
         // [GIVEN] Create a Business Unit and Validate Company Name.
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Company Name", CompanyInformation.Name);
         BusinessUnit.Modify(true);
-
         // [GIVEN] Open Consolidate Wizard and set Starting Date, Ending Date and Document No.
         ConsolidateWizard.Trap();
         Page.Run(Page::"Consolidate Wizard");
@@ -698,10 +695,8 @@ codeunit 134092 "ERM Consolidation"
         ConsolidateWizard.StartingDate.SetValue('C' + Format(WorkDate()));
         ConsolidateWizard.EndingDate.SetValue('C' + Format(WorkDate()));
         ConsolidateWizard.DocumentNo.SetValue(LibraryRandom.RandText(4));
-
         // [WHEN] Change Starting Date.
         ConsolidateWizard.StartingDate.SetValue(WorkDate());
-
         // [THEN] Starting Date in Consolidate Wizard is equal to WorkDate.
         Assert.AreEqual(
             WorkDate(),
@@ -711,6 +706,22 @@ codeunit 134092 "ERM Consolidation"
                 ConsolidateWizard.StartingDate.Caption(),
                 WorkDate(),
                 ConsolidateWizard.Caption()));
+    end;
+
+    [Test]
+    procedure ASingleDateCanBeSpecifiedInConsolidateWizardWithoutError()
+    var
+        ConsolidateWizard: TestPage "Consolidate Wizard";
+    begin
+        // [SCENARIO 556939] A single date can be specified in Consolidate Wizard without any error.
+        Initialize();
+        // [GIVEN] Someone opening the Consolidate Wizard.
+        ConsolidateWizard.Trap();
+        // [WHEN] They set a date in the Starting Date field and nothing in the Ending Date field.
+        Page.Run(Page::"Consolidate Wizard");
+        ConsolidateWizard.StartingDate.SetValue(Format(WorkDate()));
+        // [THEN] They face no error can can proceed.
+        ConsolidateWizard.Close();
     end;
 
     local procedure Initialize()
