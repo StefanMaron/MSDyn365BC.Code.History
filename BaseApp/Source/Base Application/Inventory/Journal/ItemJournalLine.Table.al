@@ -1716,6 +1716,7 @@ table 83 "Item Journal Line"
         {
             AccessByPermission = TableData "Machine Center" = R;
             Caption = 'Type';
+            InitValue = " ";
 
             trigger OnValidate()
             begin
