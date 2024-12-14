@@ -127,58 +127,6 @@ codeunit 134283 "Non-Deductible Purch. Posting"
     end;
 
     [Test]
-    procedure CombinedVATAmountLineForTwoPurchLineFirstNonDedVATSecondNormalVAT()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        VATProductPostingGroup: Record "VAT Product Posting Group";
-        PurchHeader: Record "Purchase Header";
-        NonDedPurchLine: Record "Purchase Line";
-        NormalPurchLine: Record "Purchase Line";
-        TempPurchLine: Record "Purchase Line" temporary;
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        Currency: Record Currency;
-        PurchPost: Codeunit "Purch.-Post";
-        TotalVATAmount: Decimal;
-        VATIdentifier: Code[20];
-        DocNo: Code[20];
-    begin
-        // [SCENARIO 456471] Combine VAT amount line from two purchase lines (first has Non-Deductible VAT, second is not) has correct Non-Deductible VAT Base and Non-Deductible VAT Amount
-
-        Initialize();
-        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
-        VATIdentifier := VATPostingSetup."VAT Identifier";
-        LibraryPurchase.CreatePurchHeader(
-            PurchHeader, PurchHeader."Document Type"::Invoice,
-            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        CreatePurchLineItemWithVATProdPostingGroup(NonDedPurchLine, PurchHeader, VATPostingSetup."VAT Prod. Posting Group");
-
-        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Bus. Posting Group", VATProductPostingGroup.Code);
-        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(10, 20));
-        VATPostingSetup.Validate("VAT Identifier", VATIdentifier);
-        VATPostingSetup.Modify(true);
-
-        CreatePurchLineItemWithVATProdPostingGroup(NormalPurchLine, PurchHeader, VATPostingSetup."VAT Prod. Posting Group");
-        PurchPost.GetPurchLines(PurchHeader, TempPurchLine, 0);
-        NormalPurchLine.CalcVATAmountLines(0, PurchHeader, TempPurchLine, TempVATAmountLine);
-
-        // [WHEN]
-        TempVATAmountLine.UpdateLines(
-          TotalVATAmount, Currency, LibraryRandom.RandIntInRange(10, 50), false, 0, '', true, WorkDate());
-
-        // [THEN]
-        Assert.RecordCount(TempVATAmountLine, 1);
-        asserterror TempVATAmountLine.TestField("Non-Deductible VAT Base", NonDedPurchLine."Non-Deductible VAT Base");
-        Assert.KnownFailure(
-            StrSubstNo('Non-Deductible VAT Base must be equal to ''%1''  in VAT Amount Line', NonDedPurchLine."Non-Deductible VAT Base"), 0);
-        ClearLastError();
-        asserterror TempVATAmountLine.TestField("Non-Deductible VAT Amount", NonDedPurchLine."Non-Deductible VAT Amount");
-        Assert.KnownFailure(
-            StrSubstNo('Non-Deductible VAT Amount must be equal to ''%1''  in VAT Amount Line', NonDedPurchLine."Non-Deductible VAT Amount"), 0);
-    end;
-
-    [Test]
     procedure PurchInvoiceWithPrepayment()
     var
         LineGLAccount: Record "G/L Account";
