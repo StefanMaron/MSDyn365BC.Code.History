@@ -2931,6 +2931,29 @@ codeunit 134103 "ERM Prepayment IV"
         VerifyGLEntry(DocumentNo, -(PurchaseLine.Amount / 100 * PurchaseLine."Prepayment %"), GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedPrepaymentInvoiceContainsOrderNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PrepmtInvoiceNo: Code[20];
+    begin
+        // [SCENARIO 556205] The Order No. field is not being transferred to the Prepayment Invoices as it gets transferred to the Posted Invoices.
+        Initialize();
+
+        // [GIVEN] Create Purchase Order
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [WHEN] Post Prepayment Invoice
+        PrepmtInvoiceNo := PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Oreder No. should be filled on posted prepayment invoice.
+        PurchInvHeader.Get(PrepmtInvoiceNo);
+        Assert.AreEqual(PurchaseHeader."No.", PurchInvHeader."Order No.", PurchInvHeader.FieldName("Order No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

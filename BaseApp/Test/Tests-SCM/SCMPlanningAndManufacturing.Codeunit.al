@@ -2468,6 +2468,58 @@ codeunit 137080 "SCM Planning And Manufacturing"
         VerifyRequisitionLineCountAndQty(Item."No.", '', 1, Qty);
     end;
 
+    [Test]
+    procedure OrderTrackDataIsCorrectlyRebuiltWhenChangeQuantityActionIsCarriedOut()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: array[2] of Record "Sales Line";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        Vendor: Record Vendor;
+        ReplenishmentSystem: Enum "Replenishment System";
+        i: Integer;
+        Quantity: array[2] of Decimal;
+    begin
+        // [SCENARIO 549590] Order Tracking Page shows correct number of tracked lines as in sequence of action
+        // When Change Quantity Action is carried out.
+        Initialize();
+
+        // [GIVEN] Location is mandatory.
+        LibraryInventory.SetLocationMandatory(true);
+
+        // [GIVEN] Generate Quantities and save it in a Variable.
+        Quantity[1] := LibraryRandom.RandInt(0);
+        Quantity[2] := LibraryRandom.RandIntInRange(1, 5);
+
+        // [GIVEN] Create Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Item and Validate Vendor No.
+        CreateItemWithReplenishmentSystem(Item, ReplenishmentSystem::Purchase);
+        Item.Validate("Vendor No.", Vendor."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Create Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Stock Keeping Unit.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", '');
+
+        // [GIVEN] Create Sales Order and Calculate Regenerative Plan.
+        for i := 1 to 2 do begin
+            CreateSalesOrderWithQuantityAndLocation(SalesLine[i], Item."No.", Location.Code, Quantity[i]);
+            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+            CarryOutActionMessageOnPlanningWorksheet(Item."No.");
+        end;
+
+        // [WHEN] Find Purchase Line for the Item
+        FindPurchaseLine(PurchaseLine, Item."No.");
+
+        // [THEN] Verify Fields "Total Quantity", "Item No.", "Quantity" of Order Tracking.
+        VerifyOrderTracking(PurchaseLine, Quantity[1] + Quantity[2], Quantity, Item."No.")
+    end;
+
     local procedure Initialize()
     var
         PlanningErrorLog: Record "Planning Error Log";
@@ -3837,6 +3889,36 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CalculatePlanReqWksh.SetTableView(TmpItem);
         CalculatePlanReqWksh.UseRequestPage(false);
         CalculatePlanReqWksh.RunModal();
+    end;
+
+    local procedure CreateSalesOrderWithQuantityAndLocation(
+        var SalesLine: Record "Sales Line"; ItemNo: Code[20];
+        LocationCode: Code[10]; Quantity: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure VerifyOrderTracking(
+        PurchaseLine: Record "Purchase Line"; TotalQuantity: Decimal;
+        Quantity: array[2] of Decimal; ItemNo: Code[20])
+    var
+        OrderTracking2: Page "Order Tracking";
+        OrderTracking: TestPage "Order Tracking";
+    begin
+        OrderTracking.Trap();
+        OrderTracking2.SetVariantRec(PurchaseLine, PurchaseLine."No.", PurchaseLine."Outstanding Qty. (Base)", PurchaseLine."Expected Receipt Date", PurchaseLine."Expected Receipt Date");
+        OrderTracking2.Run();
+        OrderTracking.CurrItemNo.AssertEquals(ItemNo);
+        OrderTracking."Total Quantity".AssertEquals(TotalQuantity);
+        OrderTracking."Item No.".AssertEquals(ItemNo);
+        OrderTracking.Quantity.AssertEquals(Quantity[1]);
+        OrderTracking.Next();
+        OrderTracking.Quantity.AssertEquals(Quantity[2]);
     end;
 
     [ConfirmHandler]

@@ -294,6 +294,11 @@ codeunit 9001 "Permission Pages Mgt."
         AccessControl.DeleteAll();
     end;
 
+    [EventSubscriber(ObjectType::Page, Page::"User Subform", 'OnPermissionSetNotFound', '', false, false)]
+    local procedure ShowNotificationOnPermissionSetNotFound()
+    begin
+        CreateAndSendResolvePermissionNotification();
+    end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Permission Set Relation", 'OnShowSecurityFilterForTenantPermission', '', false, false)]
     local procedure ShowSecurityFilterForTenantPermissionSystem(var OutputSecurityFilter: Text; TenantPermission: Record "Tenant Permission")

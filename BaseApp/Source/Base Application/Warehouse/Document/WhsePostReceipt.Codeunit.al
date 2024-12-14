@@ -568,13 +568,19 @@ codeunit 5760 "Whse.-Post Receipt"
         exit(true);
     end;
 
-    local procedure UpdateAttachedLine(var SalesLine: Record "Sales Line"; var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean): Boolean
+    local procedure UpdateAttachedLine(var SalesLine: Record "Sales Line"; var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean) Result: Boolean
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         WhseRcptLine2: Record "Warehouse Receipt Line";
         ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
         QtyToHandle: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAttachedLine(SalesLine, WarehouseReceiptLine, ModifyLine, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Auto Post Non-Invt. via Whse." <> SalesReceivablesSetup."Auto Post Non-Invt. via Whse."::"Attached/Assigned" then
             exit(false);
@@ -604,6 +610,7 @@ codeunit 5760 "Whse.-Post Receipt"
             QtyToHandle := SalesLine."Outstanding Quantity";
         end;
 
+        OnUpdateAttachedLineOnBeforeModifyLine(SalesLine, WarehouseReceiptLine, ModifyLine, QtyToHandle);
         if SalesLine."Document Type" = SalesLine."Document Type"::Order then begin
             ModifyLine := SalesLine."Qty. to Ship" <> QtyToHandle;
             if ModifyLine then
@@ -962,7 +969,7 @@ codeunit 5760 "Whse.-Post Receipt"
         if WhseRcptHeader."Receiving No." <> '' then
             if PostedWhseRcptHeader.Get(WhseRcptHeader."Receiving No.") then
                 exit;
-            
+
         PostedWhseRcptHeader.Init();
         PostedWhseRcptHeader.TransferFields(WhseRcptHeader);
         PostedWhseRcptHeader."No." := WhseRcptHeader."Receiving No.";
@@ -1920,6 +1927,16 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterRemoveSourceFilterFromWhseRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAttachedLine(var SalesLine: Record "Sales Line"; var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAttachedLineOnBeforeModifyLine(var SalesLine: Record "Sales Line"; var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean; var QtyToHandle: Decimal)
     begin
     end;
 }

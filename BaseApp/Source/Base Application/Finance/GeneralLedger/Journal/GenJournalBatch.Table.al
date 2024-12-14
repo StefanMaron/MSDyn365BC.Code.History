@@ -9,6 +9,7 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.Automation;
+using Microsoft.Intercompany.Partner;
 
 table 232 "Gen. Journal Batch"
 {
@@ -70,7 +71,9 @@ table 232 "Gen. Journal Batch"
             else
             if ("Bal. Account Type" = const("Bank Account")) "Bank Account"
             else
-            if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
+            if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset"
+            else
+            if ("Bal. Account Type" = const("IC Partner")) "IC Partner";
 
             trigger OnValidate()
             begin

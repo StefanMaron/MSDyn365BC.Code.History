@@ -122,10 +122,16 @@ page 9192 "Company Creation Wizard"
                                 end;
                             }
                         }
+#pragma warning disable AS0032
+#pragma warning disable AS0072
                         group(Control27)
                         {
                             ShowCaption = false;
                             Visible = IsSandbox;
+                            ObsoleteTag = '25.2';
+                            ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
+                            ObsoleteState = Pending;
+
                             field(CompanyFullData; NewCompanyDataSandbox)
                             {
                                 ApplicationArea = Basic, Suite;
@@ -139,6 +145,8 @@ page 9192 "Company Creation Wizard"
                                 end;
                             }
                         }
+#pragma warning restore AS0032
+#pragma warning restore AS0072
                         field(NewCompanyDataDescription; NewCompanyDataDescription)
                         {
                             ApplicationArea = Basic, Suite;
@@ -147,10 +155,15 @@ page 9192 "Company Creation Wizard"
                             ShowCaption = false;
                         }
                     }
+#pragma warning disable AS0032
+#pragma warning disable AS0072
                     group("Additional Demo Data")
                     {
                         Visible = (AdditionalDemoDataVisible)
                             and ((NewCompanyData = NewCompanyData::"Evaluation Data") or (NewCompanyData = NewCompanyData::"Standard Data"));
+                        ObsoleteTag = '25.2';
+                        ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
+                        ObsoleteState = Pending;
 
                         field("Install Contoso Coffee Demo Data"; InstallAdditionalDemoData)
                         {
@@ -159,6 +172,8 @@ page 9192 "Company Creation Wizard"
                             Caption = 'Install the Contoso Demo Data app on top of the default sample data.';
                         }
                     }
+#pragma warning restore AS0032
+#pragma warning restore AS0072
                 }
             }
             group(Control32)
@@ -543,34 +558,43 @@ page 9192 "Company Creation Wizard"
         end;
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [IntegrationEvent(false, false)]
     local procedure OnOpenPageCheckAdditionalDemoData(var AdditionalDemoDataVisible: Boolean)
     begin
     end;
 
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateNewCompany(NewCompanyData: Option; NewCompanyName: Text[30])
     begin
     end;
+#pragma warning restore AS0072
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateCompanyName(var NewCompanyName: Text[30])
     begin
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCompanyType(NewCompanyData: Enum "Company Data Type (Internal)"; var ConfigurationPackageExists: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [IntegrationEvent(false, false)]
     local procedure OnFinishActionOnBeforeCurrPageClose(NewCompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data"; NewCompanyName: Text[30])
     begin
     end;
 
+    [Obsolete('Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084', '25.2')]
     [IntegrationEvent(false, false)]
     local procedure OnUpdateDataDescriptionCaseElse(NewCompanyData: Option; var NewCompanyDataDescription: Text)
     begin
     end;
+#pragma warning restore AS0072
 }
 
