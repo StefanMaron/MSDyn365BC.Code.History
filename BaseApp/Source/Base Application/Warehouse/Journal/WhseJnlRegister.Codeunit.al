@@ -45,16 +45,19 @@ codeunit 7303 "Whse. Jnl.-Register"
 
         CODEUNIT.Run(CODEUNIT::"Whse. Jnl.-Register Batch", WhseJnlLine);
 
-        if WhseJnlLine."Line No." = 0 then
-            Message(Text002)
-        else
-            if TempJnlBatchName = WhseJnlLine."Journal Batch Name" then
-                Message(Text003)
+        IsHandled := false;
+        OnCodeOnBeforeRegisterWarehouseJournalLine(WhseJnlLine, TempJnlBatchName, IsHandled);
+        if not IsHandled then
+            if WhseJnlLine."Line No." = 0 then
+                Message(Text002)
             else
-                Message(
-                  Text003 +
-                  Text004,
-                  WhseJnlLine."Journal Batch Name");
+                if TempJnlBatchName = WhseJnlLine."Journal Batch Name" then
+                    Message(Text003)
+                else
+                    Message(
+                      Text003 +
+                      Text004,
+                      WhseJnlLine."Journal Batch Name");
 
         if not WhseJnlLine.Find('=><') or (TempJnlBatchName <> WhseJnlLine."Journal Batch Name") then begin
             WhseJnlLine.Reset();
@@ -93,6 +96,11 @@ codeunit 7303 "Whse. Jnl.-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmRegisterLines(var WhseJnlLine: Record "Warehouse Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCodeOnBeforeRegisterWarehouseJournalLine(var WarehouseJnlLine: Record "Warehouse Journal Line"; var TempJnlBatchName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -2554,6 +2554,323 @@ codeunit 137621 "SCM Costing Bugs II"
         AdjustCostAndVerify(Item."No.", 8.0);
     end;
 
+    [Test]
+    procedure UpdateOverheadRateOnItemWithAdjustedCost()
+    var
+        Item: Record Item;
+    begin
+        // [SCENARIO 557883] Update overhead rate does not trigger cost adjustment when "Cost is Adjusted" = true.
+        // [SCENARIO 557883] Update indirect cost % does not trigger cost adjustment when "Cost is Adjusted" = true.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        Item."Cost is Adjusted" := true;
+        Item.Modify(true);
+
+        Item.Validate("Overhead Rate", LibraryRandom.RandInt(10));
+        Item.Validate("Indirect Cost %", LibraryRandom.RandInt(10));
+    end;
+
+    [Test]
+    procedure UpdateOverheadRateOnItemNoOrdersExist()
+    var
+        Item: Record Item;
+    begin
+        // [SCENARIO 557883] Update overhead rate does not trigger cost adjustment when no production or assembly orders exist.
+        // [SCENARIO 557883] Update indirect cost % does not trigger cost adjustment when no production or assembly orders exist.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        Item."Cost is Adjusted" := false;
+        Item.Modify(true);
+
+        Item.Validate("Overhead Rate", LibraryRandom.RandInt(10));
+        Item.Validate("Indirect Cost %", LibraryRandom.RandInt(10));
+        Item.Modify(true);
+
+        Item.TestField("Cost is Adjusted", false);
+    end;
+
+    [Test]
+    procedure UpdateOverheadRateOnItemAllOrdersAdjusted()
+    var
+        Item: Record Item;
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+    begin
+        // [SCENARIO 557883] Update overhead rate does not trigger cost adjustment when all production or assembly orders are adjusted.
+        // [SCENARIO 557883] Update indirect cost % does not trigger cost adjustment when all production or assembly orders are adjusted.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        Item."Cost is Adjusted" := false;
+        Item.Modify(true);
+
+        InventoryAdjmtEntryOrder.Init();
+        InventoryAdjmtEntryOrder."Item No." := Item."No.";
+        InventoryAdjmtEntryOrder."Order Type" := InventoryAdjmtEntryOrder."Order Type"::Assembly;
+        InventoryAdjmtEntryOrder."Order No." := LibraryUtility.GenerateGUID();
+        InventoryAdjmtEntryOrder."Cost is Adjusted" := true;
+        InventoryAdjmtEntryOrder.Insert();
+
+        InventoryAdjmtEntryOrder.Init();
+        InventoryAdjmtEntryOrder."Item No." := Item."No.";
+        InventoryAdjmtEntryOrder."Order Type" := InventoryAdjmtEntryOrder."Order Type"::Production;
+        InventoryAdjmtEntryOrder."Order No." := LibraryUtility.GenerateGUID();
+        InventoryAdjmtEntryOrder."Is Finished" := true;
+        InventoryAdjmtEntryOrder."Cost is Adjusted" := true;
+        InventoryAdjmtEntryOrder.Insert();
+
+        InventoryAdjmtEntryOrder.Init();
+        InventoryAdjmtEntryOrder."Item No." := Item."No.";
+        InventoryAdjmtEntryOrder."Order Type" := InventoryAdjmtEntryOrder."Order Type"::Production;
+        InventoryAdjmtEntryOrder."Order No." := LibraryUtility.GenerateGUID();
+        InventoryAdjmtEntryOrder."Is Finished" := false;
+        InventoryAdjmtEntryOrder."Cost is Adjusted" := false;
+        InventoryAdjmtEntryOrder.Insert();
+
+        Item.Validate("Overhead Rate", LibraryRandom.RandInt(10));
+        Item.Validate("Indirect Cost %", LibraryRandom.RandInt(10));
+        Item.Modify(true);
+
+        Item.TestField("Cost is Adjusted", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure UpdateOverheadRateOnItemAsmOrderExists()
+    var
+        AsmItem, CompItem, UnrelatedItem : Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+    begin
+        // [SCENARIO 557883] Update overhead rate triggers cost adjustment when non-adjusted assembly orders exist.
+        Initialize();
+
+        // [GIVEN] Set "Automatic Cost Adjustment" = "Never" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtNever();
+
+        // [GIVEN] Create assembly item, component item, and an item unrelated to the assembly.
+        LibraryInventory.CreateItem(AsmItem);
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(UnrelatedItem);
+        UnrelatedItem."Cost is Adjusted" := false;
+        UnrelatedItem.Modify(true);
+
+        // [GIVEN] Create assembly BOM.
+        LibraryAssembly.CreateAssemblyListComponent("BOM Component Type"::Item, CompItem."No.", AsmItem."No.", '', 0, 1, true);
+
+        // [GIVEN] Post positive inventory adjustment for the component item.
+        PostPositiveAdjustment(CompItem, '', 1, 1.0, 0);
+
+        // [GIVEN] Create and post assembly order.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate() + 10, AsmItem."No.", '', 1, '');
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [GIVEN] Check the cost is not adjusted for the assembly order, Overhead Rate = 0.
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Assembly, AssemblyHeader."No.", 0);
+        InventoryAdjmtEntryOrder.TestField("Overhead Rate", 0);
+        InventoryAdjmtEntryOrder.TestField("Cost is Adjusted", false);
+        AsmItem.Find();
+        AsmItem.TestField("Cost is Adjusted", false);
+
+        // [WHEN] Update the overhead rate for the assembly item.
+        AsmItem.Validate("Overhead Rate", 10);
+        AsmItem.Modify(true);
+
+        // [THEN] The cost of the assembly item is adjusted.
+        AsmItem.TestField("Cost is Adjusted", true);
+
+        // [THEN] New Overhead Rate is saved for the assembly item.
+        AsmItem.TestField("Overhead Rate", 10);
+
+        // [THEN] The cost of the component item is adjusted, Overhead Rate is not changed and remains 0.
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Assembly, AssemblyHeader."No.", 0);
+        InventoryAdjmtEntryOrder.TestField("Overhead Rate", 0);
+        InventoryAdjmtEntryOrder.TestField("Cost is Adjusted", true);
+
+        // [THEN] The cost of the component item and the unrelated item is not adjusted.
+        CompItem.Find();
+        CompItem.TestField("Cost is Adjusted", false);
+        UnrelatedItem.Find();
+        UnrelatedItem.TestField("Cost is Adjusted", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure UpdateOverheadRateOnItemFinishedProdOrderExists()
+    var
+        ProdItem, UnrelatedItem : Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+    begin
+        // [SCENARIO 557883] Update overhead rate triggers cost adjustment when non-adjusted finished production orders exist.
+        Initialize();
+
+        // [GIVEN] Set "Automatic Cost Adjustment" = "Never" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtNever();
+
+        // [GIVEN] Create production item and one more item unrelated to the production.
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateItem(UnrelatedItem);
+        UnrelatedItem."Cost is Adjusted" := false;
+        UnrelatedItem.Modify(true);
+
+        // [GIVEN] Create released production order and post the output.
+        LibraryManufacturing.CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 1);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder);
+        PostOutput(ProductionOrder."No.", ProdItem."No.", ProductionOrder.Quantity, 0);
+
+        // [GIVEN] Finish the production order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Check the cost is not adjusted for the production order, Overhead Rate = 0.
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        InventoryAdjmtEntryOrder.TestField("Overhead Rate", 0);
+        InventoryAdjmtEntryOrder.TestField("Is Finished", true);
+        InventoryAdjmtEntryOrder.TestField("Cost is Adjusted", false);
+        ProdItem.Find();
+        ProdItem.TestField("Cost is Adjusted", false);
+
+        // [WHEN] Update the overhead rate for the production item.
+        ProdItem.Validate("Overhead Rate", 10);
+        ProdItem.Modify(true);
+
+        // [THEN] The cost of the production item is adjusted.
+        ProdItem.TestField("Cost is Adjusted", true);
+
+        // [THEN] New Overhead Rate is saved for the production item.
+        ProdItem.TestField("Overhead Rate", 10);
+
+        // [THEN] The cost of the component item is adjusted, Overhead Rate is not changed and remains 0.
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        InventoryAdjmtEntryOrder.TestField("Overhead Rate", 0);
+        InventoryAdjmtEntryOrder.TestField("Cost is Adjusted", true);
+
+        // [THEN] The cost of the unrelated item is not adjusted.
+        UnrelatedItem.Find();
+        UnrelatedItem.TestField("Cost is Adjusted", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure UpdateIndirectCostPercOnItemAsmOrderExists()
+    var
+        AsmItem, CompItem, UnrelatedItem : Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+    begin
+        // [SCENARIO 557883] Update Indirect Cost % triggers cost adjustment when non-adjusted assembly orders exist.
+        Initialize();
+
+        // [GIVEN] Set "Automatic Cost Adjustment" = "Never" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtNever();
+
+        // [GIVEN] Create assembly item, component item, and an item unrelated to the assembly.
+        LibraryInventory.CreateItem(AsmItem);
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(UnrelatedItem);
+        UnrelatedItem."Cost is Adjusted" := false;
+        UnrelatedItem.Modify(true);
+
+        // [GIVEN] Create assembly BOM.
+        LibraryAssembly.CreateAssemblyListComponent("BOM Component Type"::Item, CompItem."No.", AsmItem."No.", '', 0, 1, true);
+
+        // [GIVEN] Post positive inventory adjustment for the component item.
+        PostPositiveAdjustment(CompItem, '', 1, 1.0, 0);
+
+        // [GIVEN] Create and post assembly order.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate() + 10, AsmItem."No.", '', 1, '');
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [GIVEN] Check the cost is not adjusted for the assembly order, Indirect Cost % = 0.
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Assembly, AssemblyHeader."No.", 0);
+        InventoryAdjmtEntryOrder.TestField("Indirect Cost %", 0);
+        InventoryAdjmtEntryOrder.TestField("Cost is Adjusted", false);
+        AsmItem.Find();
+        AsmItem.TestField("Cost is Adjusted", false);
+
+        // [WHEN] Update the indirect cost % for the assembly item.
+        AsmItem.Validate("Indirect Cost %", 10);
+        AsmItem.Modify(true);
+
+        // [THEN] The cost of the assembly item is adjusted.
+        AsmItem.TestField("Cost is Adjusted", true);
+
+        // [THEN] New Indirect Cost % is saved for the assembly item.
+        AsmItem.TestField("Indirect Cost %", 10);
+
+        // [THEN] The cost of the component item is adjusted, Indirect Cost % is not changed and remains 0.
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Assembly, AssemblyHeader."No.", 0);
+        InventoryAdjmtEntryOrder.TestField("Indirect Cost %", 0);
+        InventoryAdjmtEntryOrder.TestField("Cost is Adjusted", true);
+
+        // [THEN] The cost of the component item and the unrelated item is not adjusted.
+        CompItem.Find();
+        CompItem.TestField("Cost is Adjusted", false);
+        UnrelatedItem.Find();
+        UnrelatedItem.TestField("Cost is Adjusted", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure UpdateIndirectCostPercOnItemFinishedProdOrderExists()
+    var
+        ProdItem, UnrelatedItem : Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+    begin
+        // [SCENARIO 557883] Update Indirect Cost % triggers cost adjustment when non-adjusted finished production orders exist.
+        Initialize();
+
+        // [GIVEN] Set "Automatic Cost Adjustment" = "Never" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtNever();
+
+        // [GIVEN] Create production item and one more item unrelated to the production.
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateItem(UnrelatedItem);
+        UnrelatedItem."Cost is Adjusted" := false;
+        UnrelatedItem.Modify(true);
+
+        // [GIVEN] Create released production order and post the output.
+        LibraryManufacturing.CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 1);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder);
+        PostOutput(ProductionOrder."No.", ProdItem."No.", ProductionOrder.Quantity, 0);
+
+        // [GIVEN] Finish the production order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Check the cost is not adjusted for the production order, Indirect Cost % = 0.
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        InventoryAdjmtEntryOrder.TestField("Indirect Cost %", 0);
+        InventoryAdjmtEntryOrder.TestField("Is Finished", true);
+        InventoryAdjmtEntryOrder.TestField("Cost is Adjusted", false);
+        ProdItem.Find();
+        ProdItem.TestField("Cost is Adjusted", false);
+
+        // [WHEN] Update the Indirect Cost % for the production item.
+        ProdItem.Validate("Indirect Cost %", 10);
+        ProdItem.Modify(true);
+
+        // [THEN] The cost of the production item is adjusted.
+        ProdItem.TestField("Cost is Adjusted", true);
+
+        // [THEN] New Indirect Cost % is saved for the production item.
+        ProdItem.TestField("Indirect Cost %", 10);
+
+        // [THEN] The cost of the component item is adjusted, Indirect Cost % is not changed and remains 0.
+        InventoryAdjmtEntryOrder.Get(InventoryAdjmtEntryOrder."Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        InventoryAdjmtEntryOrder.TestField("Indirect Cost %", 0);
+        InventoryAdjmtEntryOrder.TestField("Cost is Adjusted", true);
+
+        // [THEN] The cost of the unrelated item is not adjusted.
+        UnrelatedItem.Find();
+        UnrelatedItem.TestField("Cost is Adjusted", false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

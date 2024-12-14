@@ -26,16 +26,28 @@ page 1702 "Deferral Schedule"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount to defer per period.';
+                    trigger OnValidate()
+                    begin
+                        ShowAllocationWarning(Rec.FieldCaption("Amount to Defer"));
+                    end;
                 }
                 field("Calc. Method"; Rec."Calc. Method")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how the Amount field for each period is calculated. Straight-Line: Calculated per the number of periods, distributed by period length. Equal Per Period: Calculated per the number of periods, distributed evenly on periods. Days Per Period: Calculated per the number of days in the period. User-Defined: Not calculated. You must manually fill the Amount field for each period.';
+                    trigger OnValidate()
+                    begin
+                        ShowAllocationWarning(Rec.FieldCaption("Calc. Method"));
+                    end;
                 }
                 field("No. of Periods"; Rec."No. of Periods")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how many accounting periods the total amounts will be deferred to.';
+                    trigger OnValidate()
+                    begin
+                        ShowAllocationWarning(Rec.FieldCaption("No. of Periods"));
+                    end;
                 }
                 field(PostingDate; PostingDate)
                 {
@@ -55,6 +67,10 @@ page 1702 "Deferral Schedule"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when to start calculating deferral amounts.';
+                    trigger OnValidate()
+                    begin
+                        ShowAllocationWarning(Rec.FieldCaption("Start Date"));
+                    end;
                 }
             }
             part(DeferralSheduleSubform; "Deferral Schedule Subform")
@@ -231,6 +247,31 @@ page 1702 "Deferral Schedule"
                     PurchaseHeader.Get(DisplayDocumentType, DisplayDocumentNo);
                     PostingDate := PurchaseHeader."Posting Date";
                 end;
+        end;
+    end;
+
+    local procedure ShowAllocationWarning(FieldName: Text)
+    var
+        SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        ChangeDeferralScheduleErr: Label 'You can''t change the %1 for the %2 because the document line has the %3 type.', Comment = '%1 = Field Name, %2 = Page Caption, %3 = Line Type';
+    begin
+        case Rec."Deferral Doc. Type" of
+            Rec."Deferral Doc. Type"::Sales:
+                if SalesLine.Get(Rec."Document Type", Rec."Document No.", Rec."Line No.") then
+                    if SalesLine.Type = SalesLine.Type::"Allocation Account" then
+                        Error(ChangeDeferralScheduleErr, FieldName, CurrPage.Caption, Format(SalesLine.Type));
+            Rec."Deferral Doc. Type"::Purchase:
+                if PurchaseLine.Get(Rec."Document Type", Rec."Document No.", Rec."Line No.") then
+                    if PurchaseLine.Type = PurchaseLine.Type::"Allocation Account" then
+                        Error(ChangeDeferralScheduleErr, FieldName, CurrPage.Caption, Format(PurchaseLine.Type));
+            Rec."Deferral Doc. Type"::"G/L":
+                if GenJournalLine.Get(Rec."Gen. Jnl. Template Name", Rec."Gen. Jnl. Batch Name", Rec."Line No.") then
+                    if (GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Allocation Account") or
+                    (GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::"Allocation Account") then
+                        Error(ChangeDeferralScheduleErr, FieldName, CurrPage.Caption, Format(GenJournalLine."Account Type"));
+
         end;
     end;
 

@@ -56,8 +56,10 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
             exit;
         if FindLines(AmountType::Discount, TempPriceListLine, PriceCalculationBufferMgt, false) then
             FoundPrice := CalcBestAmount(AmountType::Discount, PriceCalculationBufferMgt, TempPriceListLine);
-        if not FoundPrice then
+        if not FoundPrice then begin
+            OnApplyDiscountOnBeforeFillBestLine(TempPriceListLine, PriceCalculationBufferMgt);
             PriceCalculationBufferMgt.FillBestLine(AmountType::Discount, TempPriceListLine);
+        end;
         CurrLineWithPrice.SetPrice(AmountType::Discount, TempPriceListLine);
     end;
 
@@ -505,6 +507,11 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPrices(var TempPriceListLine: Record "Price List Line"; LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyDiscountOnBeforeFillBestLine(var TempPriceListLine: Record "Price List Line" temporary; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.")
     begin
     end;
 }

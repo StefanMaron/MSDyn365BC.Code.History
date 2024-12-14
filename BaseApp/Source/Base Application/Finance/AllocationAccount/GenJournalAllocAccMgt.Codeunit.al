@@ -576,7 +576,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
             VerifySelectedAllocationAccountNo(GenJournalLine);
     end;
 
-    internal procedure VerifySelectedAllocationAccountNo(var GenJournalLine: Record "Gen. Journal Line")
+    procedure VerifySelectedAllocationAccountNo(var GenJournalLine: Record "Gen. Journal Line")
     begin
         if GenJournalLine."Selected Alloc. Account No." = '' then
             exit;
