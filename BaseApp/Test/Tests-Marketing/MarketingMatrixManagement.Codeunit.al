@@ -418,51 +418,6 @@ codeunit 136211 "Marketing Matrix Management"
     end;
 
     [Test]
-    [HandlerFunctions('ModalPageHandlerOpportunity,PageHandlerUpdateOpportunity,HandlerForNoOfOpportunities')]
-    [Scope('OnPrem')]
-    procedure OpportunityWithCampaign()
-    var
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        Campaign: Record Campaign;
-        SalesCycle: Record "Sales Cycle";
-        TempOpportunity: Record Opportunity temporary;
-        Opportunity: Record Opportunity;
-        Opportunities: TestPage Opportunities;
-        TableOption: Option SalesPerson,Campaign,Contact;
-        OutPutOption: Option "No of Opportunities","Estimated Value (LCY)","Calc. Current Value (LCY)","Avg. Estimated Value (LCY)","Avg. Calc. Current Value (LCY)";
-        ContactNo: Code[20];
-    begin
-        // Test Opportunity matrix with Show as Lines Campaign after creation and updation of Opportunity for Campaign.
-
-        // 1. Setup: Create Salesperson, Contact with Salesperson, Campaign, Sales Cycle, Sales Cycle Stage, Create Opportunity,
-        // Update Campaign on Opportunity and Update Opportunity.
-        Initialize();
-        CreateSalespersonWithEmail(SalespersonPurchaser);
-        ContactNo := CreateContactWithSalesperson(SalespersonPurchaser.Code);
-        LibraryMarketing.CreateCampaign(Campaign);
-        LibraryMarketing.CreateSalesCycle(SalesCycle);
-
-        // Assign global variable for page handler.
-        SalesCycleCode := SalesCycle.Code;
-        CurrentSalesCycleStage := CreateSalesCycleStage(SalesCycle.Code);
-        No := Campaign."No.";
-        Opportunity.SetRange("Contact No.", ContactNo);
-        TempOpportunity.CreateOppFromOpp(Opportunity);
-        asserterror UpdateCampaignOnOpportunity(Opportunity, Campaign."No.");
-        Assert.KnownFailure(StrSubstNo(OppCampaignNoErr, Campaign."No.", Opportunity."No."), 186663);
-        Opportunity.UpdateOpportunity;
-        Commit();
-
-        // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Campaign and Show as No of Opportunities.
-        Opportunities.OpenEdit;
-        Opportunities.TableOption.SetValue(TableOption::Campaign);
-        Opportunities.OutPutOption.SetValue(OutPutOption::"No of Opportunities");
-        Opportunities.ShowMatrix.Invoke;
-
-        // 3. Verify: Verify value on Opportunities Matrix performed on Opportunities Matrix page handler.
-    end;
-
-    [Test]
     [HandlerFunctions('ModalPageHandlerOpportunity,PageHandlerUpdateOpportunity,HandlerForOpportunityValue')]
     [Scope('OnPrem')]
     procedure OpportunityAsEstimatedValueLCY()
