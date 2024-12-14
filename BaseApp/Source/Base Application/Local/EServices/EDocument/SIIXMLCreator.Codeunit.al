@@ -773,7 +773,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'Ejercicio', GetYear(NewPostingDate), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'Periodo', Format(NewPostingDate, 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+          XMLNode, 'Periodo', SIIManagement.GetTaxPeriod(NewPostingDate), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDEmisorFactura', '', 'sii', SiiTxt, XMLNode);
@@ -818,7 +818,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'Ejercicio', GetYear(PostingDate), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'Periodo', Format(PostingDate, 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+          XMLNode, 'Periodo', SIIManagement.GetTaxPeriod(PostingDate), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDEmisorFactura', '', 'sii', SiiTxt, XMLNode);
@@ -841,7 +841,7 @@ codeunit 10750 "SII XML Creator"
             XMLDOMManagement.AddElementWithPrefix(
             XMLNode, 'Ejercicio', GetYear(VendorLedgerEntry."VAT Reporting Date"), 'sii', SiiTxt, TempXMLNode);
             XMLDOMManagement.AddElementWithPrefix(
-            XMLNode, 'Periodo', Format(VendorLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+            XMLNode, 'Periodo', SIIManagement.GetTaxPeriod(VendorLedgerEntry."VAT Reporting Date"), 'sii', SiiTxt, TempXMLNode);
         end;
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);

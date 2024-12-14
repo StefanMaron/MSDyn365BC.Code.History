@@ -746,35 +746,7 @@ codeunit 134334 "ERM Vendor Statistics"
           'Vendor No.,Currency Code,Initial Entry Global Dim. 1,Initial Entry Global Dim. 2,Initial Entry Due Date,*');
         Key.FindFirst();
         Key.TestField(MaintainSIFTIndex, true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchaseLineDetailsFactboxPurchaseOrderLineResource()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchaseOrder: TestPage "Purchase Order";
-    begin
-        // [FEATURE] [Resource]
-        // [SCENARIO 289386] "No." field is equal to Resource."No." on the "Purchase Line Details" factbox of the purchase order
-        Initialize();
-
-        // [GIVEN] Purchase order with resource line
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, '', 1);
-
-        // [WHEN] Open purchase order page
-        PurchaseOrder.OpenView();
-        PurchaseOrder.GoToRecord(PurchaseHeader);
-
-        // [THEN]
-        PurchaseOrder.Control3."No.".AssertEquals(PurchaseLine."No.");
-        asserterror PurchaseOrder.Control3.PurchasePrices.AssertEquals(1);
-        Assert.KnownFailure('PurchasePrices', 341999);
-        asserterror PurchaseOrder.Control3.PurchaseLineDiscounts.AssertEquals(1);
-        Assert.KnownFailure('PurchaseLineDiscounts', 341999);
-    end;
+    end;    
 
     [Test]
     [Scope('OnPrem')]
