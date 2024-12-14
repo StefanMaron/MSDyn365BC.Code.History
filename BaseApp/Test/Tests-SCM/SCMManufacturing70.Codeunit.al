@@ -3124,6 +3124,92 @@ codeunit 137063 "SCM Manufacturing 7.0"
             VerifyProdOrderComponentQuantities(ParentItem."No.", ChildItemCode[i], QuantityPer[i]);
     end;
 
+    [Test]
+    procedure RefreshProdOrderReportForFamilyCreatesProdOrderLinesAsPerUOMOfItems()
+    var
+        Family: Record Family;
+        FamilyLine: Record "Family Line";
+        Item: array[2] of Record Item;
+        ItemUnitOfMeasure: array[4] of Record "Item Unit of Measure";
+        UnitOfMeasure: array[4] of Record "Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [SCENARIO 556431] When Stan runs Refresh Production Order action from a 
+        // Released Production Order having Source Type as Family then Prod. Order Lines 
+        // are created as per Unit of Measure Codes of Items.
+        Initialize();
+
+        // [GIVEN] Create Item [1].
+        LibraryInventory.CreateItem(Item[1]);
+
+        // [GIVEN] Create Item [2].
+        LibraryInventory.CreateItem(Item[2]);
+
+        // [GIVEN] Create Unit of Measure Code [1] and Item Unit of Measure [1].
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[1], Item[1]."No.",
+            UnitOfMeasure[1].Code, LibraryRandom.RandIntInRange(50, 50));
+
+        // [GIVEN] Create Unit of Measure Code [2] and Item Unit of Measure [2].
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[2]);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[2], Item[1]."No.",
+            UnitOfMeasure[2].Code, LibraryRandom.RandInt(0));
+
+        // [GIVEN] Create Unit of Measure Code [3] and Item Unit of Measure [3].
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[3]);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[3], Item[1]."No.",
+            UnitOfMeasure[3].Code, LibraryRandom.RandDecInDecimalRange(0.2, 0.2, 1));
+
+        // [GIVEN] Create Unit of Measure Code [4] and Item Unit of Measure [4].
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[4]);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[4], Item[2]."No.",
+            UnitOfMeasure[4].Code, LibraryRandom.RandIntInRange(3, 3));
+
+        // [GIVEN] Create a Family.
+        LibraryManufacturing.CreateFamily(Family);
+
+        // [GIVEN] Create Family Lines.
+        CreateFamilyLines(
+            Family,
+            Item[1],
+            Item[2],
+            UnitOfMeasure[1],
+            UnitOfMeasure[2],
+            UnitOfMeasure[3],
+            UnitOfMeasure[4]);
+
+        // [GIVEN] Create and Refresh Production Order.
+        LibraryManufacturing.CreateAndRefreshProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Family,
+            Family."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Find Family Line.
+        FamilyLine.SetRange("Family No.", Family."No.");
+        FamilyLine.SetRange("Item No.", Item[1]."No.");
+        FamilyLine.SetRange("Unit of Measure Code", UnitOfMeasure[2].Code);
+        FamilyLine.FindFirst();
+
+        // [WHEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item[1]."No.");
+        ProdOrderLine.SetRange("Unit of Measure Code", UnitOfMeasure[2].Code);
+        ProdOrderLine.FindFirst();
+
+        // [THEN] Quantity of Prod. Order Line is equal to Quanity of Production Order * Quantity of Family Line.
+        Assert.AreEqual(
+            ProductionOrder.Quantity * FamilyLine.Quantity,
+            ProdOrderLine.Quantity,
+            StrSubstNo(
+                QuanityPerErrorLbl,
+                FamilyLine.FieldCaption(Quantity),
+                ProductionOrder.Quantity * FamilyLine.Quantity,
+                FamilyLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5492,6 +5578,34 @@ codeunit 137063 "SCM Manufacturing 7.0"
                 ProdOrderComponent.FieldCaption("Quantity per"),
                 ExpectedQuantity,
                 ProdOrderComponent.TableCaption()));
+    end;
+
+    local procedure CreateFamilyLines(
+        Family: Record Family;
+        Item: Record Item;
+        Item2: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        UnitOfMeasure2: Record "Unit of Measure";
+        UnitOfMeasure3: Record "Unit of Measure";
+        UnitOfMeasure4: Record "Unit of Measure")
+    var
+        FamilyLine: array[5] of Record "Family Line";
+    begin
+        LibraryManufacturing.CreateFamilyLine(FamilyLine[1], Family."No.", Item."No.", LibraryRandom.RandIntInRange(6, 6));
+        FamilyLine[1].Validate("Unit of Measure Code", UnitOfMeasure2.Code);
+        FamilyLine[1].Modify(true);
+
+        LibraryManufacturing.CreateFamilyLine(FamilyLine[2], Family."No.", Item2."No.", LibraryRandom.RandIntInRange(3, 3));
+        FamilyLine[2].Validate("Unit of Measure Code", UnitOfMeasure4.Code);
+        FamilyLine[2].Modify(true);
+
+        LibraryManufacturing.CreateFamilyLine(FamilyLine[3], Family."No.", Item."No.", LibraryRandom.RandIntInRange(4, 4));
+        FamilyLine[3].Validate("Unit of Measure Code", UnitOfMeasure.Code);
+        FamilyLine[3].Modify(true);
+
+        LibraryManufacturing.CreateFamilyLine(FamilyLine[4], Family."No.", Item."No.", LibraryRandom.RandIntInRange(6, 6));
+        FamilyLine[4].Validate("Unit of Measure Code", UnitOfMeasure3.Code);
+        FamilyLine[4].Modify(true);
     end;
 }
 

@@ -3275,9 +3275,9 @@ codeunit 104000 "Upgrade - BaseApp"
                 (ServiceMgtSetup."Jnl. Templ. Serv. Contr. Inv." <> '') or (ServiceMgtSetup."Jnl. Templ. Serv. Contr. CM" <> '')
             then begin
                 ServiceMgtSetup."Serv. Inv. Template Name" := ServiceMgtSetup."Jnl. Templ. Serv. Inv.";
-                ServiceMgtSetup."Serv. Cr. Memo Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. Contr. Inv.";
-                ServiceMgtSetup."Serv. Contr. Inv. Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. Contr. CM";
-                ServiceMgtSetup."Serv. Contr. Cr.M. Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. CM";
+                ServiceMgtSetup."Serv. Cr. Memo Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. CM";
+                ServiceMgtSetup."Serv. Contr. Inv. Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. Contr. Inv.";
+                ServiceMgtSetup."Serv. Contr. Cr.M. Templ. Name" := ServiceMgtSetup."Jnl. Templ. Serv. Contr. CM";
                 ServiceMgtSetup.Modify();
             end;
 
@@ -4395,6 +4395,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag());
     end;
 
+    [Obsolete('This function is obsolete as the "Customer Template" table has been removed in version 23.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
     begin

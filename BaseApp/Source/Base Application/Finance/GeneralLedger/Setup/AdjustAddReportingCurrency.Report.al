@@ -424,7 +424,6 @@ report 86 "Adjust Add. Reporting Currency"
     var
         GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
-        GLSetup: Record "General Ledger Setup";
         GLSetup2: Record "General Ledger Setup";
         SourceCodeSetup: Record "Source Code Setup";
         OldGLEntry: Record "G/L Entry";
@@ -433,7 +432,6 @@ report 86 "Adjust Add. Reporting Currency"
         OldProdOrderLine: Record "Prod. Order Line";
         OldCostEntry: Record "Cost Entry";
         CurrExchRate: Record "Currency Exchange Rate";
-        Currency: Record Currency;
         GLEntry2: Record "G/L Entry";
         GLReg: Record "G/L Register";
         TempCloseIncomeStatementBuffer: Record "Close Income Statement Buffer" temporary;
@@ -483,6 +481,10 @@ report 86 "Adjust Add. Reporting Currency"
 #pragma warning restore AA0470
         Text99000004Txt: Label 'Processing Finished Prod. Order Lines...\\';
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
+
+    protected var
+        GLSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
 
     procedure SetAddCurr(AddCurr: Code[10])
     begin

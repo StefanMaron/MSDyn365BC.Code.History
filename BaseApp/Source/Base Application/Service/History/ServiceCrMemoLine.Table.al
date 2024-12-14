@@ -740,7 +740,7 @@ table 5995 "Service Cr.Memo Line"
 
         if UserSetupMgt.GetServiceFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
+            SetRange("Responsibility Center", UserSetupMgt.GetServiceFilter());
             FilterGroup(0);
         end;
     end;

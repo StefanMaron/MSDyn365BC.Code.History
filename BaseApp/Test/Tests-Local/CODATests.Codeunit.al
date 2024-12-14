@@ -23,6 +23,9 @@ codeunit 144006 "CODA Tests"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
+        VersionCodeTxt: Label '2';
+        ProtocolNo300Txt: Label '300';
+        SWIFTCodeBBRUBEBBTxt: Label 'BBRUBEBB';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -916,6 +919,76 @@ codeunit 144006 "CODA Tests"
           CODAStatementLine."Application Status"::"Partly applied", CustLedgerEntry[2].Amount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ApplyCustomerEntriesModalPageHandler,ConfirmHandler')]
+    procedure CODAStatementCannotTransferredToGeneralLedgerWhenCustomerBlocked()
+    var
+        BankAccount: Record "Bank Account";
+        CodaStatement: Record "CODA Statement";
+        CODAStatementLine: Record "CODA Statement Line";
+        Customer: array[3] of Record Customer;
+        CustomerLedgerEntry: Record "Cust. Ledger Entry";
+        GenJnlLine: Record "Gen. Journal Line";
+        TransactionCoding: Record "Transaction Coding";
+        CODAWriteStatements: Codeunit "CODA Write Statements";
+        CODAStatementPage: TestPage "CODA Statement";
+        DocumentNo: array[5] of Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 555809] Data Cannot be insert in Financial Journal when Customer was Blocked.
+        Initialize();
+
+        // [GIVEN] Create Bank Account And Financial Journal Template.
+        CreateBankAccounInformation(BankAccount);
+
+        // [GIVEN] Create Multiple Customers.
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+        LibrarySales.CreateCustomer(Customer[3]);
+
+        // [GIVEN] Create Customer Ledger Entry.
+        DocumentNo[1] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[1]."No.");
+        DocumentNo[2] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[2]."No.");
+        DocumentNo[3] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[2]."No.");
+        DocumentNo[4] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[2]."No.");
+        DocumentNo[5] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[3]."No.");
+
+        // [GIVEN] Create CODA Statement Header.
+        CreateCODAStament(CodaStatement, BankAccount, TransactionCoding);
+
+        // [GIVEN] Create CODA Statement Line And Apply Posted Sales Invoice.
+        for i := 1 to LibraryRandom.RandIntInRange(5, 5) do begin
+            CreateCODAStamentLines(CodaStatement, TransactionCoding, CODAStatementLine, BankAccount, DocumentNo[i]);
+            CODAWriteStatements.Apply(CODAStatementLine);
+        end;
+
+        // [GIVEN] Open CODA Statement Page.
+        CODAStatementPage.OpenEdit();
+        CODAStatementPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
+
+        // [WHEN] Customer Blocked.
+        Customer[2].Validate(Blocked, Customer[2].Blocked::All);
+        Customer[2].Modify(true);
+
+        // [THEN] Line Not inserted from CODA Statement Line to Financial Journal.
+        asserterror CODAStatementPage."Transfer to General Ledger".Invoke(); // Transfer to general ledger
+
+        // [WHEN] Unblocked the Customer.
+        Customer[2].Get(Customer[2]."No.");
+        Customer[2].Validate(Blocked, Customer[2].Blocked::" ");
+        Customer[2].Modify(true);
+
+        // [WHEN] Invoke the "Transfer to General Ledger" action.
+        CODAStatementPage."Transfer to General Ledger".Invoke();
+        CODAStatementPage.Close();
+
+        // [THEN] Verify that General journal line created with Customer = "X"
+        GenJnlLine.SetRange("Account No.", Customer[2]."No.");
+        GenJnlLine.SetRange("Bal. Account No.", BankAccount."No.");
+        Assert.IsFalse(GenJnlLine.IsEmpty, IncorrectNoOfRecordsErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"CODA Tests");
@@ -1099,6 +1172,107 @@ codeunit 144006 "CODA Tests"
         CODAStatementLine.TestField("Application Status", ApplicationStatus);
         CODAStatementLine.TestField("Unapplied Amount", UnappliedAmount);
     end;
+   
+    local procedure CreateCODAStament(var CodaStatement: Record "CODA Statement"; BankAccount: Record "Bank Account"; var TransactionCoding: Record "Transaction Coding")
+    begin
+        CODAStatement.Init();
+        CODAStatement."Bank Account No." := BankAccount."No.";
+        CODAStatement."Statement No." := Format(LibraryRandom.RandInt(10));
+        CODAStatement."Statement Date" := WorkDate();
+        CODAStatement.Insert();
+
+        CreateTransactionCoding(TransactionCoding, TransactionCoding."Account Type"::Customer);
+    end;
+
+    local procedure CreateCODAStamentLines(var CodaStatement: Record "CODA Statement"; var TransactionCoding: Record "Transaction Coding"; var CODAStatementLine: Record "CODA Statement Line"; BankAccount: Record "Bank Account"; DocumentNo: Code[20])
+    begin
+        CODAStatementLine.Validate("Bank Account No.", BankAccount."No.");
+        CODAStatementLine.Validate("Statement No.", CODAStatement."Statement No.");
+        CODAStatementLine.Validate("Statement Line No.", LibraryRandom.RandInt(1000));
+        CODAStatementLine.Validate("Transaction Family", TransactionCoding."Transaction Family");
+        CODAStatementLine.Validate(Transaction, TransactionCoding.Transaction);
+        CODAStatementLine.Validate("Transaction Category", TransactionCoding."Transaction Category");
+        CODAStatementLine.Validate(ID, CODAStatementLine.ID::Movement);
+        CODAStatementLine.Validate("Posting Date", WorkDate());
+        CODAStatementLine.Validate("Document No.", LibraryRandom.RandText(10));
+        CODAStatementLine.Insert(true);
+
+        UpdateCODAStmtLine(CODAStatementLine, DocumentNo);
+    end;
+
+    local procedure UpdateCODAStmtLine(var CODAStatementLine: Record "CODA Statement Line"; DocumentNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields(Amount);
+
+        CODAStatementLine.Validate("Application Status", CODAStatementLine."Application Status"::"Partly applied");
+        CODAStatementLine.Validate("Account Type", CODAStatementLine."Account Type"::Customer);
+        CODAStatementLine.Validate("Account No.", CustLedgerEntry."Customer No.");
+        CODAStatementLine.Validate("Statement Amount", CustLedgerEntry.Amount);
+        CODAStatementLine.Validate("Bank Account No. Other Party", CustLedgerEntry."External Document No.");
+        CODAStatementLine.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalTemplate(Name: Text; Type: Text; BalanceAccountType: Text)
+    var
+        GeneralJournalTemplate: TestPage "General Journal Templates";
+    begin
+        GeneralJournalTemplate.OpenView();
+        if GeneralJournalTemplate.GotoKey(Name) then
+            GeneralJournalTemplate.Edit().Invoke()
+        else
+            GeneralJournalTemplate.New();
+
+        GeneralJournalTemplate.Name.SetValue := Name;
+        GeneralJournalTemplate.Description.SetValue := Name;
+        GeneralJournalTemplate.Type.SetValue := Type;
+        GeneralJournalTemplate."Bal. Account Type".SetValue := BalanceAccountType;
+        GeneralJournalTemplate."Bal. Account No.".SetValue := Name;
+        GeneralJournalTemplate.OK().Invoke();
+    end;
+
+    local procedure CreateBankAccounInformation(var BankAccount: Record "Bank Account")
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        BankAccount.Validate("Version Code", VersionCodeTxt);
+        BankAccount.Validate("Protocol No.", ProtocolNo300Txt);
+        BankAccount.Validate(IBAN, 'BE75363216340251');
+        BankAccount.Validate("SWIFT Code", SWIFTCodeBBRUBEBBTxt);
+        BankAccount.Modify(true);
+
+        CreateGeneralJournalTemplate(BankAccount."No.", 'Financial', BankAccount.TableCaption());
+    end;
+
+    [Normal]
+    local procedure CreateCODACustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]): Code[20]
+    var
+        LastEntryNo: Integer;
+    begin
+        CustLedgerEntry.FindLast();
+        LastEntryNo := CustLedgerEntry."Entry No.";
+
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Entry No." := LastEntryNo + 1;
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Validate(
+           "External Document No.",
+           CopyStr(LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("External Document No."), Database::"Cust. Ledger Entry"), 1, 20));
+        CustLedgerEntry.Validate(
+            "Document No.",
+            CopyStr(LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("Document No."), Database::"Cust. Ledger Entry"), 1, 20));
+
+        MockDtldCustLedgerEntry(CustLedgerEntry."Entry No.");
+
+        CustLedgerEntry.Insert();
+
+        exit(CustLedgerEntry."Document No.");
+    end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -1144,6 +1318,13 @@ codeunit 144006 "CODA Tests"
             ApplyVendorEntries.OK().Invoke();
         end else
             ApplyVendorEntries.Cancel().Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var ReturnValue: Boolean)
+    begin
+        ReturnValue := true;
     end;
 }
 

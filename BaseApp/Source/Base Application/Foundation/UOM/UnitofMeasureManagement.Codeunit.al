@@ -210,6 +210,18 @@ codeunit 5402 "Unit of Measure Management"
         exit(RoundingPrecision);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Item Unit of Measure", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure ClearItemUnitOfMeasureRec()
+    begin
+        Clear(ItemUnitOfMeasure);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Resource Unit of Measure", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure ClearResourceUnitOfMeasureRec()
+    begin
+        Clear(ResourceUnitOfMeasure);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcBaseQtyPerUnitOfMeasure(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal; var QtyRounded: Decimal)
     begin

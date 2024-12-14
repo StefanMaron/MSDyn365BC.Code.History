@@ -441,13 +441,20 @@ report 2000005 "File SEPA Payments"
         AddElement(XMLNodeCurr, 'FinInstnId', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(BankAcc."SWIFT Code"), 1, 11), '', XMLNewChild);
+        if AddBICTag(BankAcc."SWIFT Code") then
+            AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(BankAcc."SWIFT Code"), 1, 11), '', XMLNewChild);
         XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
         AddElement(XMLNodeCurr, 'ChrgBr', 'SLEV', '', XMLNewChild);
 
         XMLNodeCurr := XMLNodeCurr.ParentNode;
+    end;
+
+    local procedure AddBICTag(SwiftCode: Code [20]) AddTag: Boolean
+    begin
+        AddTag := true;
+        OnAddBICTag(SwiftCode, AddTag);
     end;
 
     local procedure ExportTransactionInformation(XMLNodeCurr: DotNet XmlNode; PmtJnlLine: Record "Payment Journal Line"; PaymentMessage: Text[140])
@@ -909,6 +916,11 @@ report 2000005 "File SEPA Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport(var PaymentJournalLine: Record "Payment Journal Line"; var GenJournalLine: Record "Gen. Journal Line"; var AutomaticPosting: Boolean; var IncludeDimText: Text[250]; var ExecutionDate: Date; var FileName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddBICTag(SwiftCode: Code [20]; var AddTag: Boolean)
     begin
     end;
 }

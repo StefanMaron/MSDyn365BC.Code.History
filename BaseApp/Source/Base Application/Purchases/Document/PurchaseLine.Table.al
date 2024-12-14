@@ -5692,12 +5692,16 @@ table 39 "Purchase Line"
                     LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount());
             end;
 
-        LocalGLAcc.CheckGLAcc();
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
-            LocalGLAcc.TestField("Gen. Prod. Posting Group");
-        "Posting Group" := FADeprBook."FA Posting Group";
-        "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
-        "Tax Group Code" := LocalGLAcc."Tax Group Code";
+        IsHandled := false;
+        OnGetFAPostingGroupOnBeforeCheckGLAcc(Rec, LocalGLAcc, FADeprBook, IsHandled);
+        if not IsHandled then begin
+            LocalGLAcc.CheckGLAcc();
+            if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+                LocalGLAcc.TestField("Gen. Prod. Posting Group");
+            "Posting Group" := FADeprBook."FA Posting Group";
+            "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
+            "Tax Group Code" := LocalGLAcc."Tax Group Code";
+        end;
         ValidateVATProdPostingGroupFromGLAcc(LocalGLAcc);
         "Non Deductible VAT %" := LocalGLAcc."% Non deductible VAT";
 
@@ -10945,12 +10949,12 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLocationCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; xPurchaseLine: Record "Purchase Line")
+    local procedure OnValidateLocationCodeOnBeforeDropShipmentError(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLocationCodeOnBeforeSpecialOrderError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; CurrFieldNo: Integer; xPurchaseLine: Record "Purchase Line")
+    local procedure OnValidateLocationCodeOnBeforeSpecialOrderError(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; CurrFieldNo: Integer; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -11792,6 +11796,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnValidateOrderDateOnBeforeCheckDateConflict(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetFAPostingGroupOnBeforeCheckGLAcc(var PurchaseLine: Record "Purchase Line"; var GLAccount: Record "G/L Account"; FADeprBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 }

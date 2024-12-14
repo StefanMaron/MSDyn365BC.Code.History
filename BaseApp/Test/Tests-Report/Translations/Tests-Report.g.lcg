@@ -653,6 +653,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Reports - NamedType BatchJobError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 879150460 - NamedType 2533921420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to create the contract using a contract template?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Reports - NamedType CreateContrUsingTemplateQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 879150460 - NamedType 1492067933" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The posting date is later than the work date.\\Confirm that this is the correct date.]]></Val>
@@ -725,6 +734,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Reports - NamedType InvoiceToDateError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 879150460 - NamedType 1952535578" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Next Planned Service Date field is empty on one or more service contract lines, and service orders cannot be created automatically. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Reports - NamedType NextPlannedServiceDateConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 879150460 - NamedType 4048758464" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must fill in the Posting Date field.]]></Val>
@@ -786,6 +804,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Reports - NamedType ServiceTaxInvoiceTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 879150460 - NamedType 4142841911" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to sign service contract %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Contract No.]D;]A;(LookupHint=Codeunit Service Reports - NamedType SignServContractQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 879150460 - NamedType 3098962420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -26,6 +26,9 @@ codeunit 144015 "CODA Import Tests"
         InformationErr: Label 'Information must not be equal to Zero';
         ImportCodaFileErr: Label '%1 %2 of %3 %4 does not match %5 of %6 record.';
         ParseIdTxt: Label 'Header';
+        EnterpriseNoLbl: Label '0058315707';
+        ProtocolNo300Txt: Label '300';
+        SWIFTCodeBBRUBEBBTxt: Label 'BBRUBEBB';
 
     [Test]
     [HandlerFunctions('RequestPageHandlerPostCODAStatementLines,CODAStatementLineRequestPageHandler')]
@@ -700,6 +703,43 @@ codeunit 144015 "CODA Import Tests"
                 VersionCodeTxt, ParseIdTxt));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ImportCODAFileWithMoreThanOneStatement()
+    var
+        BankAccount: Record "Bank Account";
+        CODAStatement: Record "CODA Statement";
+        ImportCODAStatement: Report "Import CODA Statement";
+    begin
+        // [SCENARIO 557240] Import Coda File with more than one statement
+
+        // [GIVEN] Update Enterprise No. in Company Information.
+        UpdateCompanyInformation(EnterpriseNoLbl);
+
+        // [GIVEN] Create Bank Account with Version Code 2 and Protocol No. 300.
+        CreateBankAccounInformation(BankAccount);
+
+        // [THEN] Delete the Existing CODA Statements.
+        DeleteAllCODALines();
+
+        // [GIVEN] Run the Processing only report to import the sample data files.
+        ImportCODAStatement.SetBankAcc(BankAccount);
+        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.OnCODAScenario557240DataFile());
+        ImportCODAStatement.Run();
+
+        Commit();
+
+        // [THEN] Find the CODA Statement. 
+        CODAStatement.FindFirst();
+
+        // [THEN] CODA Statement file sucessfully Import with 2 CODA Statement and Information must not be equal to zero.
+        Assert.AreNotEqual(
+            ExpectedValueAsZero,
+            GetInformationFromCODAStatement(CODAStatement."Bank Account No.", CODAStatement."Statement No."),
+            InformationErr);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerPostCODAStatementLines(var PostCODAStatementLines: TestRequestPage "Post CODA Stmt. Lines")
@@ -1024,6 +1064,17 @@ codeunit 144015 "CODA Import Tests"
     begin
         BankAccount.Validate("Version Code", Format(LibraryRandom.RandIntInRange(3, 9)));
         BankAccount.Modify(true)
+    end;
+
+    local procedure CreateBankAccounInformation(var BankAccount: Record "Bank Account")
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        BankAccount.Validate("Version Code", VersionCodeTxt);
+        BankAccount.Validate("Protocol No.", ProtocolNo300Txt);
+        BankAccount.Validate(IBAN, 'BE75363216340251');
+        BankAccount.Validate("SWIFT Code", SWIFTCodeBBRUBEBBTxt);
+        BankAccount.Modify(true);
     end;
 
     [RequestPageHandler]

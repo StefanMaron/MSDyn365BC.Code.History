@@ -35,6 +35,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         DeletionNotPossibleErr: Label 'The %1 cannot be deleted when a related %2 exists.';
         IsInitialized: Boolean;
         ReInitializeJobSetup: Boolean;
+        ItemReclassificationErr: Label '%1 Item must be in Reclassification Journal.', Comment = '%1=Item No.';
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
@@ -1757,6 +1758,171 @@ codeunit 136317 "Inv. Pick On Job Planning"
         Assert.RecordCount(JobLedgerEntry, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreate,MessageHandler')]
+    procedure GetBinContentInItemReclassificationForSerialSameLot()
+    var
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ItemJournalTemplate: Record "Item Journal Template";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        BinCode: array[2] of Code[20];
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 548400] Get Bin Content in Item Reclassification runs for both Serial Number Specific Tracking and FreeEntry Lot Number exists.
+        Initialize();
+
+        // [GIVEN] Create Item Tracking Code,
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
+
+        // [GIVEN] Create Item with Tracking Code.
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), ItemTrackingCode.Code);
+
+        // [GIVEN] Create Warehouse Location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+
+        // [GIVEN] Update Warehouse No Series in Warehouse Setup.
+        UpdateWarehouseNoSeries();
+
+        // [GIVEN] Create Number of Bins in a Location.
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', LibraryRandom.RandIntInRange(5, 10), false);
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Find and store two Bins.
+        Bin.SetRange("Location Code", Location.Code);
+        Bin.FindFirst();
+        BinCode[1] := Bin.Code;
+        Bin.FindLast();
+        BinCode[2] := Bin.Code;
+
+        // [GIVEN] Create and Store Lot No.
+        LotNo := LibraryERM.CreateNoSeriesCode();
+        LibraryVariableStorage.Enqueue(LotNo);
+
+        // [GIVEN] Create Item Journal Line and Validate Location, Bin Code, Unit Cost.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(2, 2));
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", BinCode[1]);
+        ItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Open Item Tracking Code and assign Serial No. and Lot No.
+        ItemJournalLine.OpenItemTrackingLines(false);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create Sales Line and Validate Location.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(2, 2));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Release Sales Document.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Warehouse Shipment from Sales Order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Find Warehouse Shipment Line.
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
+        WarehouseShipmentLine.SetRange("Source Subtype", SalesHeader."Document Type".AsInteger());
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.Validate("Bin Code", BinCode[2]);
+        WarehouseShipmentLine.Modify(true);
+
+        // [GIVEN] Find Warehouse Shipment Header and Validate Bin Code.
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        WarehouseShipmentHeader.Validate("Bin Code", BinCode[2]);
+        WarehouseShipmentHeader.Modify(true);
+
+        // [GIVEN] Release Warehouse Shipment.
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [GIVEN] Create Warehouse Pick.
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Find Warehouse Activity Line.
+        WarehouseActivityLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        WarehouseActivityLine.FindLast();
+
+        // [GIVEN] Find Warehouse Activity Header and update Registering No. Series.
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.FindFirst();
+        WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
+        WarehouseActivityHeader.Modify(true);
+
+        // [GIVEN] Register Warehouse Activity.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Create Item Journal Line and Validate Location, Bin Code, and Unit Cost.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(2, 2));
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", BinCode[1]);
+        ItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Store Lot No.
+        LibraryVariableStorage.Enqueue(LotNo);
+
+        // [GIVEN] Open Item Tracking Lines and assign Serial No. and Lot No.
+        ItemJournalLine.OpenItemTrackingLines(false);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Select Item Journal Template.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+
+        // [GIVEN] Select Item Journal Batch.
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Transfer, ItemJournalTemplate.Name);
+
+        // [GIVEN] Create Item Journal Line and Validate Posting Date.
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
+
+        // [GIVEN] Find Bin Content.
+        BinContent.SetRange("Location Code", Location.Code);
+        BinContent.SetRange("Bin Code", BinCode[1]);
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.FindFirst();
+
+        // [WHEN] Get Bin Content in Item Journal Line is executed.
+        LibraryWarehouse.WhseGetBinContentFromItemJournalLine(BinContent, ItemJournalLine);
+
+        // [THEN] Item Journal Line should have Item we created.
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Location Code", Location.Code);
+        ItemJournalLine.FindLast();
+
+        Assert.AreEqual(
+            ItemJournalLine."Item No.",
+            Item."No.",
+            StrSubstNo(
+                ItemReclassificationErr,
+                Item."No."));
+    end;
+
     local procedure CreateDefaultWarehouseEmployee(var NewDefaultLocation: Record Location)
     var
         WarehouseEmployee: Record "Warehouse Employee";
@@ -2123,6 +2289,22 @@ codeunit 136317 "Inv. Pick On Job Planning"
         Commit();
     end;
 
+    local procedure UpdateWarehouseNoSeries()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+    begin
+        if WarehouseSetup.Get() then begin
+            WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+            WarehouseSetup."Whse. Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+            WarehouseSetup.Modify(true);
+        end else begin
+            WarehouseSetup.Init();
+            WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+            WarehouseSetup."Whse. Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+            WarehouseSetup.Insert(true);
+        end;
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -2214,6 +2396,22 @@ codeunit 136317 "Inv. Pick On Job Planning"
     procedure JobTransferJobPlanningLineModalPageHandler(var JobTransferJobPlanningLine: TestPage "Job Transfer Job Planning Line")
     begin
         JobTransferJobPlanningLine.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        Lot: Variant;
+    begin
+        Lot := LibraryVariableStorage.DequeueText();
+        ItemTrackingLines."Assign Serial No.".Invoke();
+        ItemTrackingLines."Lot No.".SetValue(Lot);
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryRandom.RandIntInRange(2, 2));
+    end;
+
+    [ModalPageHandler]
+    procedure EnterQuantityToCreate(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
     end;
 }
 

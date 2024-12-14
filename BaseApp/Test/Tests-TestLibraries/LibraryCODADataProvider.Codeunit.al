@@ -100,6 +100,21 @@ codeunit 144016 "Library CODA Data Provider"
         tempFile.Close();
     end;
 
+    [Normal]
+    [Scope('OnPrem')]
+    procedure OnCODAScenario557240DataFile() FileName: Text
+    var
+        tempFile: File;
+    begin
+        tempFile.CreateTempFile(TextEncoding::Windows);
+        FileName := tempFile.Name;
+        tempFile.Close();
+        tempFile.TextMode := true;
+        tempFile.Create(FileName, TextEncoding::Windows);
+        WriteOnCODAScenario557240(tempFile);
+        tempFile.Close();
+    end;
+
     [Scope('OnPrem')]
     procedure InsertSampleCODAStatement(var CODAStatement: Record "CODA Statement"; BankAccountNo: Code[20])
     begin
@@ -4307,6 +4322,97 @@ codeunit 144016 "Library CODA Data Provider"
           '                                                                ');
         tempFile.Write('9               000010000000017382990000000000307520            ' +
           '                                                               2');
+    end;
+
+    local procedure WriteOnCODAScenario557240(var TempFile: File)
+    begin
+        TempFile.Write('0000016092430005        33610135  MY AMERICAN SHOP SRL      BBRUBEBB   00058315707 00000                                       2');
+        TempFile.Write('12157BE75363216340251                  EUR0000000026688480150924MY AMERICAN SHOP SRL      Compte à vue                       157');
+        TempFile.Write('2100010000CAL/F/1322404000639  1000000033671370160924030030000Mouvement lié à la transaction FXForward             16092415701 0');
+        TempFile.Write('2200010000       - 33.671,37FXN71322404  (ING Trade : DI1242640                                                              1 0');
+        TempFile.Write('2300010000                                                                        0P00106)                                   0 1');
+        TempFile.Write('3100010001CAL/F/1322404000639  030030000Transaction FX Forward avec la référence 71322404 Conclue avec ING Belgiu            0 1');
+        TempFile.Write('3100010002CAL/F/1322404000639  030030000m SA/NV le 16/09/2024 ING vous a acheté 33.671,37 EUR ING vous a vendu 37            0 1');
+        TempFile.Write('3100010003CAL/F/1322404000639  030030000.400,00 USD Taux de change: 1,110736                                                 0 1');
+        TempFile.Write('3100010004CAL/F/1322404000639  030030000MAMERICBAS                                                                           0 0');
+        TempFile.Write('2100020000I160733008384000637  0000000009058060160924001500000YYW1036909217794/PAYPAL                              16092415701 0');
+        TempFile.Write('2200020000                                                     YYW1036909217794                   PPLXLUL2                   1 0');
+        TempFile.Write('2300020000LU89751000135104200E                 PayPal Europe S.a.r.l. et Cie S.C.A                                           0 1');
+        TempFile.Write('3100020001I160733008384000637  001500001001PayPal Europe S.a.r.l. et Cie S.C.A                                               1 0');
+        TempFile.Write('320002000122-24 Boulevard Royal, 2449 Luxembo                                                                                0 1');
+        TempFile.Write('3100020002I160733008384000637  001500000Virement en euros (SEPA) De: PayPal Europe S.a.r.l. et Cie S.C.A 22-24 Bo            0 1');
+        TempFile.Write('3100020003I160733008384000637  001500000ulevard Royal, 2449 Luxembourg Luxembourg IBAN: LU89751000135104200E Comm            0 1');
+        TempFile.Write('3100020004I160733008384000637  001500000unication : YYW1036909217794/PAYPAL Info personnelle: YYW1036909217794               0 1');
+        TempFile.Write('3100020005I160733008384000637  001500000Communication: YYW1036909217794/PAYPAL Info personnelle: YYW1036909217794            0 1');
+        TempFile.Write('3100020006I160733008384000637  001500000                                                                                     0 0');
+        TempFile.Write('2100030000I160918319904000640  0000000000018350160924001500000MYAMERICANSHOP                                       16092415701 0');
+        TempFile.Write('2200030000                                                     MYAMERICA-MG1ZLB5GSYHFLPSAGKTRGPXDICITINL2X                   1 0');
+        TempFile.Write('2300030000NL41CITI2032304805                   STRIPE                                                                        0 1');
+        TempFile.Write('3100030001I160918319904000640  001500001001STRIPE                                                                            1 0');
+        TempFile.Write('3200030001CO A L GOODBODY IFSC NORTH WALL QUA                                                                                0 1');
+        TempFile.Write('3100030002I160918319904000640  001500000Virement en euros (SEPA) De: STRIPE CO A L GOODBODY IFSC NORTH WALL QUADU            0 1');
+        TempFile.Write('3100030003I160918319904000640  001500000BLIN,DUBLIN 1,D01H104 Irlande (Eire) IBAN: NL41CITI2032304805 Communicati            0 1');
+        TempFile.Write('3100030004I160918319904000640  001500000on : MYAMERICANSHOP Info personnelle: MYAMERICA-MG1ZLB5GSYHFLPSAGKTRGPXDI            0 1');
+        TempFile.Write('3100030005I160918319904000640  001500000                                                                                     0 1');
+        TempFile.Write('3100030006I160918319904000640  001500000Communication: MYAMERICANSHOP Info personnelle: MYAMERICA-MG1ZLB5GSYHFLPS            0 1');
+        TempFile.Write('3100030007I160918319904000640  001500000AGKTRGPXDI                                                                           0 0');
+        TempFile.Write('2100040000I161133458289000641  0000000017105830160924001500000REF T08123471.2409.11                                16092415701 0');
+        TempFile.Write('2200040000                                                     T08123471.2409.11                  CITINL2X                   1 0');
+        TempFile.Write('2300040000NL70CITI2032329018                   Stichting Mollie Payments                                                     0 1');
+        TempFile.Write('3100040001I161133458289000641  001500001001Stichting Mollie Payments                                                         1 0');
+        TempFile.Write('3200040001126Keizersgracht                   Amsterdam,1015 CW                                                               0 1');
+        TempFile.Write('3100040002I161133458289000641  001500000Virement en euros (SEPA) De: Stichting Mollie Payments 126Keizersgracht A            0 1');
+        TempFile.Write('3100040003I161133458289000641  001500000msterdam,1015 CW Pays-Bas IBAN: NL70CITI2032329018 Communication : REF T0            0 1');
+        TempFile.Write('3100040004I161133458289000641  0015000008123471.2409.11 Info personnelle: T08123471.2409.11                                  0 1');
+        TempFile.Write('3100040005I161133458289000641  001500000Communication: REF T08123471.2409.11 Info personnelle: T08123471.2409.11             0 1');
+        TempFile.Write('3100040006I161133458289000641  001500000                                                                                     0 0');
+        TempFile.Write('2100050000I161432508450000646  0000000006090410160924001500000YYW1036965172577/PAYPAL                              16092415701 0');
+        TempFile.Write('2200050000                                                     YYW1036965172577                   PPLXLUL2                   1 0');
+        TempFile.Write('2300050000LU89751000135104200E                 PayPal Europe S.a.r.l. et Cie S.C.A                                           0 1');
+        TempFile.Write('3100050001I161432508450000646  001500001001PayPal Europe S.a.r.l. et Cie S.C.A                                               1 0');
+        TempFile.Write('320005000122-24 Boulevard Royal, 2449 Luxembo                                                                                0 1');
+        TempFile.Write('3100050002I161432508450000646  001500000Virement en euros (SEPA) De: PayPal Europe S.a.r.l. et Cie S.C.A 22-24 Bo            0 1');
+        TempFile.Write('3100050003I161432508450000646  001500000ulevard Royal, 2449 Luxembourg Luxembourg IBAN: LU89751000135104200E Comm            0 1');
+        TempFile.Write('3100050004I161432508450000646  001500000unication : YYW1036965172577/PAYPAL Info personnelle: YYW1036965172577               0 1');
+        TempFile.Write('3100050005I161432508450000646  001500000Communication: YYW1036965172577/PAYPAL Info personnelle: YYW1036965172577            0 1');
+        TempFile.Write('3100050006I161432508450000646  001500000                                                                                     0 0');
+        TempFile.Write('21000600003506629111036000642  00000000005900001609240045300002024/PF/5889                                         16092415700 0');
+        TempFile.Write('21000700003506629111037000643  00000000004100001609240045300002024/PF/5889                                         16092415700 0');
+        TempFile.Write('21000800003506629111038000644  00000000047500001609240045300002024/PF/6201 +2K                                     16092415700 0');
+        TempFile.Write('21000900003506629111039000645  00000000022900001609240045300002024/PF/6410                                         16092415700 0');
+        TempFile.Write('21001000006667113656701000638  1000000011116800160924004030000ING : MASTERCARD  251     71136567-01/073 R.77113656716092415701 0');
+        TempFile.Write('2200100000116                                                                                                                0 0');
+        TempFile.Write('8157BE75363216340251                  EUR0000000022212960160924                                                                0');
+        TempFile.Write('9               000056000000044788170000000040312650                                                                           1');
+        TempFile.Write('0000016092430005        33610135  MY AMERICAN SHOP SRL      BBRUBEBB   00058315707 00000                                       2');
+        TempFile.Write('12026BE75363216340251                  USD0000000022640040110924MY AMERICAN SHOP SRL      Compte à vue                       026');
+        TempFile.Write('2100010000CAL/F/1322404000050  0000000037400000160924030520000Mouvement lié à la transaction FXForward             16092402601 0');
+        TempFile.Write('2200010000       + 37.400,00FXN71322404  (ING Trade : DI1242640                                                              1 0');
+        TempFile.Write('2300010000                                                                        0P00106)                                   0 1');
+        TempFile.Write('3100010001CAL/F/1322404000050  030520000Transaction FX Forward avec la référence 71322404 Conclue avec ING Belgiu            0 1');
+        TempFile.Write('3100010002CAL/F/1322404000050  030520000m SA/NV le 16/09/2024 ING vous a acheté 33.671,37 EUR ING vous a vendu 37            0 1');
+        TempFile.Write('3100010003CAL/F/1322404000050  030520000.400,00 USD Taux de change: 1,110736                                                 0 1');
+        TempFile.Write('3100010004CAL/F/1322404000050  030520000MAMERICBAS                                                                           0 0');
+        TempFile.Write('21000200003771655794909000051  1000000059678000160924041010000Euroboisson 20248003                                 16092402601 0');
+        TempFile.Write('2200020000                                                                                        NOSCCATT                   1 0');
+        TempFile.Write('2300020000301710036013                      USDLaugin Solutions Inc                                                          0 1');
+        TempFile.Write('31000200013771655794909000051  041010001001Laugin Solutions Inc                                                              1 0');
+        TempFile.Write('3200020001 516 1ere Avenue Montreal CA                                                                                       0 1');
+        TempFile.Write('31000200023771655794909000051  001500000Virement en euros (SEPA) De: PayPal Europe S.a.r.l. et Cie S.C.A 22-24 Bo            0 1');
+        TempFile.Write('31000200033771655794909000051  04101000016H779456 Date valeur 16/09/2024 Lordre spécifie Tous frais à charge du              0 1');
+        TempFile.Write('31000200043771655794909000051  041010000 bénéficiaire.Compte bénéf. 301710036013 Bénéficiaire : Laugin Solution              0 1');
+        TempFile.Write('31000200053771655794909000051  041010000s Inc 516 1ere Avenue Montreal CA Communication Euroboisson 20248003 Corr            0 1');
+        TempFile.Write('31000200063771655794909000051  041010000espondant : NOSCCATT BANK OF NOVA SCOTIA international banking division 4            0 1');
+        TempFile.Write('31000200073771655794909000051  0410100004 KING STREET WEST Canada toronto ont m5h 1h1                                        0 1');
+        TempFile.Write('31000200083771655794909000051  041010001004301710036013                                                                      0 1');
+        TempFile.Write('31000200093771655794909000051  041010001001Laugin Solutions Inc                516 1ere Avenue Montreal CA                   0 1');
+        TempFile.Write('31000200103771655794909000051  041010001002Euroboisson 20248003                                                              0 1');
+        TempFile.Write('31000200113771655794909000051  041010001005NOSCCATT                                                                          0 1');
+        TempFile.Write('31000200123771655794909000051  041010001105000000059678000000000059678000000100000000USD            CA00000005381            1 0');
+        TempFile.Write('32000200127300                                                                                                               0 1');
+        TempFile.Write('31000200133771655794909000051  041010000Pièce justificative en annexe                                                        0 0');
+        TempFile.Write('8026BE75363216340251                  USD0000000000362040160924                                                                0');
+        TempFile.Write('9               000027000000059678000000000037400000                                                                           2');
     end;
 
     [Scope('OnPrem')]

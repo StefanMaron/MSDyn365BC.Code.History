@@ -544,6 +544,7 @@ report 1316 "Standard Statement"
                                 repeat
                                     StartBalance += CustLedgerEntryBalance."Remaining Amount";
                                 until CustLedgerEntryBalance.Next() = 0;
+                            OnCurrencyLoopOnAfterGetRecordOnAfterCalculateStartBalanceStatementTypeOpenItems(Customer, CustLedgerEntryBalance, StartDate, EndDate, TempCurrency2.Code, StartBalance);
                             CustBalance := StartBalance;
                         end
                         else begin
@@ -552,6 +553,7 @@ report 1316 "Standard Statement"
                             Cust2.SetRange("Currency Filter", TempCurrency2.Code);
                             Cust2.CalcFields("Net Change");
                             StartBalance := Cust2."Net Change";
+                            OnCurrencyLoopOnAfterGetRecordOnAfterCalculateStartBalanceStatementTypeBalance(Customer, StartDate, EndDate, TempCurrency2.Code, StartBalance);
                             CustBalance := Cust2."Net Change";
                         end;
                         CustBalance2 := 0;
@@ -1073,8 +1075,6 @@ report 1316 "Standard Statement"
         CompanyAddr: array[8] of Text[100];
         StartBalance: Decimal;
         CurrencyCode3: Code[10];
-        DateChoice: Option "Due Date","Posting Date";
-        StatementStyle: Option "Balance","Open Item";
         AgingDate: array[5] of Date;
         AgingBandEndingDate: Date;
         AgingBandCurrencyCode: Code[20];
@@ -1159,6 +1159,8 @@ report 1316 "Standard Statement"
         PrintEntriesDue: Boolean;
         PrintUnappliedEntries: Boolean;
         PrintReversedEntries: Boolean;
+        DateChoice: Option "Due Date","Posting Date";
+        StatementStyle: Option "Balance","Open Item";
 
     local procedure GetDate(PostingDate: Date; DueDate: Date): Date
     begin
@@ -1394,6 +1396,16 @@ report 1316 "Standard Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitReportForGlobalVariable(var IsHandled: Boolean; var LegalOfficeTxt: Text; var LegalOfficeLbl: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCurrencyLoopOnAfterGetRecordOnAfterCalculateStartBalanceStatementTypeOpenItems(Customer: Record Customer; var CustLedgerEntryBalance: Record "Cust. Ledger Entry"; StartDate: Date; EndDate: Date; CurrencyCode: Code[10]; var StartBalance: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCurrencyLoopOnAfterGetRecordOnAfterCalculateStartBalanceStatementTypeBalance(Customer: Record Customer; StartDate: Date; EndDate: Date; CurrencyCode: Code[10]; var StartBalance: Decimal)
     begin
     end;
 }

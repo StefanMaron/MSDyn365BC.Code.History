@@ -450,7 +450,8 @@ table 37 "Sales Line"
             trigger OnValidate()
             var
                 CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
-                IsHandled: boolean;
+                DoCheckReceiptOrderStatus: Boolean;
+                IsHandled: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateShipmentDate(IsHandled, Rec, xRec);
@@ -459,8 +460,9 @@ table 37 "Sales Line"
 
                 TestStatusOpen();
                 SalesWarehouseMgt.SalesLineVerifyChange(Rec, xRec);
-                OnValidateShipmentDateOnAfterSalesLineVerifyChange(Rec, CurrFieldNo);
-                if CurrFieldNo <> 0 then
+                DoCheckReceiptOrderStatus := CurrFieldNo <> 0;
+                OnValidateShipmentDateOnAfterSalesLineVerifyChange(Rec, CurrFieldNo, DoCheckReceiptOrderStatus);
+                if DoCheckReceiptOrderStatus then
                     AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
 
                 if "Shipment Date" <> 0D then begin
@@ -936,8 +938,13 @@ table 37 "Sales Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                DropInvoiceDiscountAmount: Boolean;
             begin
-                ValidateLineDiscountPercent(true);
+                DropInvoiceDiscountAmount := true;
+                OnValidateLineDiscountPercentOnBeforeValidateLineDiscountPercent(Rec, xRec, DropInvoiceDiscountAmount);
+                ValidateLineDiscountPercent(DropInvoiceDiscountAmount);
+
                 NotifyOnMissingSetup(FieldNo("Line Discount Amount"));
             end;
         }
@@ -2393,6 +2400,8 @@ table 37 "Sales Line"
 
                 if Type = Type::Item then begin
                     GetUnitCost();
+                    if "Document Type" = "Document Type"::"Return Order" then
+                        ValidateReturnReasonCode(FieldNo("Variant Code"));
                     if "Variant Code" <> xRec."Variant Code" then
                         PlanPriceCalcByField(FieldNo("Variant Code"));
                 end;
@@ -9193,8 +9202,10 @@ table 37 "Sales Line"
         Currency2: Record Currency;
     begin
         Currency2.InitRoundingPrecision();
-        "Shipped Not Inv. (LCY) No VAT" :=
-          Round("Shipped Not Invoiced (LCY)" / (1 + "VAT %" / 100), Currency2."Amount Rounding Precision");
+        if Rec."VAT Calculation Type" = Rec."VAT Calculation Type"::"Full VAT" then
+            Rec."Shipped Not Inv. (LCY) No VAT" := 0
+        else
+            Rec."Shipped Not Inv. (LCY) No VAT" := Round("Shipped Not Invoiced (LCY)" / (1 + "VAT %" / 100), Currency2."Amount Rounding Precision");
     end;
 
     /// <summary>
@@ -10056,6 +10067,8 @@ table 37 "Sales Line"
             exit;
 
         "Unit Price" := ("Qty. per Unit of Measure" * SalesInvoiceLine."Unit Price") / SalesInvoiceLine."Qty. per Unit of Measure";
+
+        OnAfterCalcUnitPriceUsingUOMCoef(Rec, SalesInvoiceLine);
     end;
 
     local procedure GetSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line")
@@ -11118,7 +11131,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateShipmentDateOnAfterSalesLineVerifyChange(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
+    local procedure OnValidateShipmentDateOnAfterSalesLineVerifyChange(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var DoCheckReceiptOrderStatus: Boolean)
     begin
     end;
 
@@ -12074,6 +12087,16 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestQuantityFieldsOnValidateUnitOfMeasure(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLineDiscountPercentOnBeforeValidateLineDiscountPercent(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var DropInvoiceDiscountAmount: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcUnitPriceUsingUOMCoef(var SalesLine: Record "Sales Line"; SalesInvoiceLine: Record "Sales Invoice Line")
     begin
     end;
 }

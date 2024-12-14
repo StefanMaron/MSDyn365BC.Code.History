@@ -460,6 +460,7 @@ table 296 "Reminder Line"
                     "No. of Reminders" := NextLineFeeLevel;
 
                     CustLedgEntry.CalcFields("Remaining Amount");
+                    OnValidateAppliesToDocumentNoOnAfterCalcRemainingAmount(CustLedgEntry);
                     Validate(Amount, ReminderLevel.GetAdditionalFee(
                         CustLedgEntry."Remaining Amount",
                         ReminderHeader."Currency Code",
@@ -1103,5 +1104,10 @@ table 296 "Reminder Line"
     local procedure OnCalcFinChrgOnAfterCalcInterest(var FinanceChargeTerms: Record "Finance Charge Terms"; var Amount: Decimal)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAppliesToDocumentNoOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;    
 }
 

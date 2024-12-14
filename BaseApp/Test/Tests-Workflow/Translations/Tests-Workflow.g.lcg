@@ -1973,7 +1973,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType CreateNotificationForUserTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = User Id]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType CreateNotificationForUserTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 3167015850" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2009,7 +2009,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[You cannot use Customer 10000 for this action.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType RecordRestrictedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Record ID. You cannot use Customer 10000 for this action.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType RecordRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 1073114573" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2036,7 +2036,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Record type Item is not supported by this workflow response.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType UnsupportedRecordTypeErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Table Caption. Record type Item is not supported by this workflow response.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType UnsupportedRecordTypeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 2138144800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2045,7 +2045,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[User ID NAVUser does not exist in the Approval User Setup window.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType UserIdNotInSetupErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = UserID. User ID NAVUser does not exist in the Approval User Setup window.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType UserIdNotInSetupErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1587177108 - NamedType 1255299956" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

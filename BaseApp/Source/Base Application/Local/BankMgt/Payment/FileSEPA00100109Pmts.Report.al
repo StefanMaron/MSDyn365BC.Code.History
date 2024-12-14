@@ -440,13 +440,20 @@ report 2000007 "File SEPA 001.001.09 Pmts"
         AddElement(XMLNodeCurr, 'FinInstnId', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        AddElement(XMLNodeCurr, 'BICFI', CopyStr(DelChr(BankAcc."SWIFT Code"), 1, 11), '', XMLNewChild);
+        if AddBICFITag(BankAcc."SWIFT Code") then
+            AddElement(XMLNodeCurr, 'BICFI', CopyStr(DelChr(BankAcc."SWIFT Code"), 1, 11), '', XMLNewChild);
         XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
         AddElement(XMLNodeCurr, 'ChrgBr', 'SLEV', '', XMLNewChild);
 
         XMLNodeCurr := XMLNodeCurr.ParentNode;
+    end;
+
+    local procedure AddBICFITag(SwiftCode: Code [20]) AddTag: Boolean
+    begin
+        AddTag := true;
+        OnAddBICFITag(SwiftCode, AddTag);
     end;
 
     local procedure ExportTransactionInformation(XMLNodeCurr: DotNet XmlNode; PmtJnlLine: Record "Payment Journal Line"; PaymentMessage: Text[140])
@@ -908,6 +915,11 @@ report 2000007 "File SEPA 001.001.09 Pmts"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport(var PaymentJournalLine: Record "Payment Journal Line"; var GenJournalLine: Record "Gen. Journal Line"; var AutomaticPosting: Boolean; var IncludeDimText: Text[250]; var ExecutionDate: Date; var FileName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddBICFITag(SwiftCode: Code [20]; var AddTag: Boolean)
     begin
     end;
 }
