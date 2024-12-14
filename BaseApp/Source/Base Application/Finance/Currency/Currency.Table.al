@@ -668,6 +668,9 @@ table 4 Currency
     end;
 
     procedure GetGainLossAccount(DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"): Code[20]
+    var
+        ReturnValue: Code[20];
+        IsHandled: Boolean;
     begin
         OnBeforeGetGainLossAccount(Rec, DtldCVLedgEntryBuf);
 
@@ -680,8 +683,14 @@ table 4 Currency
                 exit(GetRealizedLossesAccount());
             DtldCVLedgEntryBuf."Entry Type"::"Realized Gain":
                 exit(GetRealizedGainsAccount());
-            else
-                Error(IncorrectEntryTypeErr, DtldCVLedgEntryBuf."Entry Type");
+            else begin
+                IsHandled := false;
+                OnGetGainLossAccountOnOtherEntryType(Rec, DtldCVLedgEntryBuf, IsHandled, ReturnValue);
+                if IsHandled then
+                    exit(ReturnValue)
+                else
+                    Error(IncorrectEntryTypeErr, DtldCVLedgEntryBuf."Entry Type");
+            end;
         end;
     end;
 
@@ -911,6 +920,11 @@ table 4 Currency
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResolveCurrencySymbol(var Currency: Record Currency; var CurrencyCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetGainLossAccountOnOtherEntryType(var Currency: Record Currency; DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var IsHandled: Boolean; var ReturnValue: Code[20])
     begin
     end;
 }

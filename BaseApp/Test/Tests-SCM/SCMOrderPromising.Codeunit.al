@@ -1421,6 +1421,89 @@ codeunit 137044 "SCM Order Promising"
         LibraryERM.SetEnableDataCheck(true);
     end;
 
+    [Test]
+    [HandlerFunctions('ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure EarliestShipmentDateIncorrectOnOrderPromising()
+    var
+        Item: Record Item;
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempOrderPromisingLine: Record "Order Promising Line" temporary;
+        TransferHeader: array[2] of Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemInventory: array[2] of Decimal;
+    begin
+        // [SCENARIO 549431] Check Earliest Shipment Date on Order Promising.
+        Initialize();
+
+        // [GIVEN] Created a Item and Locations.
+        LibraryInventory.CreateItem(Item);
+        CreateUpdateLocations();
+
+        // [GIVEN] Generate a random inventory and save them in variable.
+        ItemInventory[1] := LibraryRandom.RandDec(100, 2);
+        ItemInventory[2] := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create Inventory for generating Demand and Suply.
+        CreateAndPostItemJournalLine(Item."No.", LocationCode[1], ItemInventory[1]);
+        CreateAndPostItemJournalLine(Item."No.", LocationCode[2], ItemInventory[2]);
+
+        // [GIVEN] Create and Release Transfer Order 1.
+        CreateAndReleaseTransferOrder(
+            TransferHeader[1],
+            TransferLine,
+            CalcDate('<-1M>', WorkDate()),
+            LocationCode[1],
+            LocationCode[3],
+            LocationCode[4],
+            Item."No.",
+            ItemInventory[1]);
+
+        // [GIVEN] Auto Reserve and Post Shipment for Transfer Order 1.
+        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date");
+        ShipTransferOrder(TransferHeader[1]."No.");
+
+        // [GIVEN] Create and Release Transfer Order 2.
+        CreateAndReleaseTransferOrder(
+            TransferHeader[2],
+            TransferLine,
+            WorkDate(),
+            LocationCode[2],
+            LocationCode[3],
+            LocationCode[4],
+            Item."No.",
+            ItemInventory[2]);
+
+        // [GIVEN] Create and Release Sales Order 1.
+        CreateSalesOrderWithLocAndShipmentDate(
+            SalesHeader[1],
+            LocationCode[3],
+            Item."No.",
+            ItemInventory[1],
+            CalcDate('<-10D>', WorkDate()));
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+
+        // [GIVEN] Auto Reserve Sales Order 1.
+        GetSalesLine(SalesHeader[1], SalesLine);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Create and Release Sales Order 2.
+        CreateSalesOrderWithLocAndShipmentDate(
+            SalesHeader[2],
+            LocationCode[3],
+            Item."No.",
+            ItemInventory[2],
+            CalcDate('<-10D>', WorkDate()));
+        LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
+
+        // [WHEN] Calculate order promising line for the sales order
+        CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader[2]);
+
+        // [THEN] Earliest shipment date = 'Shipment Date' of Transfer Order 2
+        TempOrderPromisingLine.TestField("Earliest Shipment Date", WorkDate());
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2073,6 +2156,50 @@ codeunit 137044 "SCM Order Promising"
         ReservationEntry.TestField("Shipment Date", ShipmentDate);
     end;
 
+    local procedure GetSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        SalesHeader.Find();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+    end;
+
+    local procedure CreateSalesOrderWithLocAndShipmentDate(var SalesHeader: Record "Sales Header"; LocCode: Code[10]; ItemNo: Code[20]; Qty: Decimal; ShipmentDate: Date)
+    begin
+        CreateSalesOrder(SalesHeader, WorkDate(), LocCode, ItemNo, Qty);
+        SalesHeader.Validate("Shipment Date", ShipmentDate);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure AutoReserveTransferLine(var TransferLine: Record "Transfer Line"; AvailabilityDate: Date)
+    var
+        ReservationManagement: Codeunit "Reservation Management";
+        FullAutoReservation: Boolean;
+    begin
+        ReservationManagement.SetReservSource(TransferLine, Enum::"Transfer Direction"::Outbound);
+        ReservationManagement.AutoReserve(FullAutoReservation, TransferLine.Description, AvailabilityDate, TransferLine.Quantity, TransferLine."Quantity (Base)");
+    end;
+
+    local procedure CreateAndReleaseTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; ShipmentDate: Date; FromLocationCode: Code[10]; ToLocationCode: Code[10]; InTransitCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
+    var
+    begin
+        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, InTransitCode);
+        TransferHeader.Validate("Shipment Date", ShipmentDate);
+        TransferHeader.Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Qty);
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+    end;
+
+    local procedure ShipTransferOrder(TransferOrderNo: Code[20])
+    var
+        TransferOrder: TestPage "Transfer Order";
+    begin
+        TransferOrder.OpenEdit();
+        TransferOrder.GotoKey(TransferOrderNo);
+        LibraryVariableStorage.Enqueue(1);
+        TransferOrder.Post.Invoke();
+    end;
+
     [ModalPageHandler]
     procedure ServiceLinesModalPageHandler(var ServiceLines: TestPage "Service Lines")
     var
@@ -2190,6 +2317,13 @@ codeunit 137044 "SCM Order Promising"
         ItemAvailabilityCheck.AvailabilityCheckDetails.Description.AssertEquals(Item.Description);
         ItemAvailabilityCheck.InventoryQty.AssertEquals(Item.Inventory);
         ItemAvailabilityCheck.TotalQuantity.AssertEquals(Item.Inventory - TotalQuantity);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure ShipOrReceiveTransferOrderStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 }
 

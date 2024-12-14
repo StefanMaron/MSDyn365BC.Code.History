@@ -1199,6 +1199,7 @@ page 5905 "Service Lines"
                             repeat
                                 TempServiceLine.Init();
                                 TempServiceLine := ServiceLine;
+                                OnPostOnBeforeInsertTempServiceLine(ServiceLine, TempServiceLine);
                                 TempServiceLine.Insert();
                             until ServiceLine.Next() = 0
                         else
@@ -1601,6 +1602,11 @@ page 5905 "Service Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenPageOnBeforeSetSelectionFilter(var SelectionFilter: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOnBeforeInsertTempServiceLine(var ServiceLine: Record "Service Line"; var TempServiceLine: Record "Service Line" temporary)
     begin
     end;
 }

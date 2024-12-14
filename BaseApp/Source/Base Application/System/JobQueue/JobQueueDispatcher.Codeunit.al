@@ -213,12 +213,28 @@ codeunit 448 "Job Queue Dispatcher"
             JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
             JobQueueEntry."Object ID to Run" := Codeunit::"Job Queue Cleanup Tasks";
             JobQueueEntry.Description := CopyStr(JobDescrLbl, MaxStrLen(JobQueueEntry.Description));
+            JobQueueEntry.Validate("Run on Mondays", true);
+            JobQueueEntry.Validate("Run on Tuesdays", true);
+            JobQueueEntry.Validate("Run on Wednesdays", true);
+            JobQueueEntry.Validate("Run on Thursdays", true);
+            JobQueueEntry.Validate("Run on Fridays", true);
+            JobQueueEntry.Validate("Run on Saturdays", true);
             JobQueueEntry.Validate("Run on Sundays", true);
+            JobQueueEntry.Validate("Starting Time", DT2Time(CurrentDateTime())); // to spread the load for all tenants
             JobQueueEntry."Earliest Start Date/Time" := CalcInitialRunTime(JobQueueEntry, CurrentDateTime());
             Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
         end else
             if not JobQueueEntry.Scheduled or (JobQueueEntry.Status = JobQueueEntry.Status::Error) then
-                JobQueueEntry.Restart();
+                JobQueueEntry.Restart()
+            else
+                if (JobQueueEntry."Starting Time" = 0T) and (DT2Time(JobQueueEntry."Earliest Start Date/Time") = 000000T) then begin
+                    JobQueueEntry.GetRecLockedExtendedTimeout();
+                    JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold");
+                    JobQueueEntry.Validate("Starting Time", DT2Time(CurrentDateTime())); // to spread the load for all tenants
+                    JobQueueEntry."Earliest Start Date/Time" := CalcInitialRunTime(JobQueueEntry, CurrentDateTime());
+                    JobQueueEntry.Modify();
+                    JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
+                end;
     end;
 
     [Scope('OnPrem')]

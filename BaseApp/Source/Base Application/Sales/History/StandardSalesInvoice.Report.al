@@ -1145,6 +1145,8 @@ report 1306 "Standard Sales - Invoice"
 
                 OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(IsReportInPreviewMode(), Header);
 
+                LegalStatementLbl := SalesSetup.GetLegalStatement();
+
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
 
@@ -1322,7 +1324,6 @@ report 1306 "Standard Sales - Invoice"
 
     trigger OnInitReport()
     var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
         IsHandled: Boolean;
     begin
         GLSetup.Get();
@@ -1330,9 +1331,6 @@ report 1306 "Standard Sales - Invoice"
         CompanyInfo.Get();
         SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo();
-
-        if SalesInvoiceHeader.GetLegalStatement() <> '' then
-            LegalStatementLbl := SalesInvoiceHeader.GetLegalStatement();
 
         IsHandled := false;
         OnInitReportForGlobalVariable(IsHandled, LegalOfficeTxt, LegalOfficeLbl, CustomGiroTxt, CustomGiroLbl, LegalStatementLbl);

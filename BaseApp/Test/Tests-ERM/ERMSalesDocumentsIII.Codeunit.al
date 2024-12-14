@@ -74,6 +74,7 @@
         PostingPreviewNoTok: Label '***', Locked = true;
         ReturnQtyToReceiveMustBeZeroErr: Label ' Return Qty. to Receive must be zero.';
         QtyToAssignErr: Label '%1 must be %2 in %3', Comment = '%1 = Qty. to Assign, %2 = Quantity, %3 = Sales Return Order Subform';
+        UniCostLCYErr: Label 'Unit Cost (LCY) must be zero.';
 
     [Test]
     [Scope('OnPrem')]
@@ -6046,6 +6047,57 @@
         // [THEN] The City is not changed
         Assert.AreEqual(PostCodeA.City, CityTxt[1], 'The City should not be changed');
         Assert.AreEqual(PostCodeB.City, CityTxt[2], 'The City should not be changed');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyUnitCostLCYZeroWhenItemVariantCodeValidated()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        Location: Record Location;
+        ReturnReason: Record "Return Reason";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 547101] Verify Inventory Value Zero is behaving on a Return if a Variant is added or changed and the cost is 0
+        Initialize();
+
+        // [GIVEN] Create Location with posting setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Customer with Location Code
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Location Code", Location.Code);
+        Customer.Modify();
+
+        // [GIVEN] Create Item
+        ItemNo := LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Return Reason Code with Inventory Value zero
+        LibraryERM.CreateReturnReasonCode(ReturnReason);
+        ReturnReason.Validate("Inventory Value Zero", true);
+        ReturnReason.Modify();
+
+        // [GIVEN] Add unit cost
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(1, 2));
+        Item.Modify();
+
+        // [GIVEN] Create Item Variant
+        LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
+
+        // [WHEN] Validate the Return Reason code, Location Code, Quanitity and Variant Code
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Customer."No.", SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Return Reason Code", ReturnReason.Code);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate(Quantity, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        Salesline.Modify();
+
+        // [THEN] Verify the Unit Cost (LCY) is zero when Return Reason Code is validated
+        Assert.AreEqual(0, SalesLine."Unit Cost (LCY)", UniCostLCYErr);
     end;
 
     local procedure Initialize()

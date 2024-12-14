@@ -201,7 +201,7 @@ codeunit 10675 "SAF-T Export Mgt."
         if not SAFTExportHeader."Parallel Processing" then
             exit;
 
-        NoOfJobs := GetNoOfJobsInProgress();
+        NoOfJobs := GetNoOfJobsInProgress(SAFTExportHeader);
         LogState(SAFTExportLine, StrSubstNo(NoOfJobsInProgressTxt, NoOfJobs), false);
         if NoOfJobs > SAFTExportHeader."Max No. Of Jobs" then
             exit;
@@ -325,7 +325,7 @@ codeunit 10675 "SAF-T Export Mgt."
             else
                 SAFTExportLine."Task ID" :=
                     TaskScheduler.CreateTask(
-                        codeunit::"Generate SAF-T File", Codeunit::"SAF-T Export Error Handler", true, CompanyName(),
+                        GetContentCodeunit(SAFTExportHeader), Codeunit::"SAF-T Export Error Handler", true, CompanyName(),
                         NotBefore, SAFTExportLine.RecordId());
             SAFTExportLine.Modify(true);
             Commit();
@@ -337,7 +337,7 @@ codeunit 10675 "SAF-T Export Mgt."
         Commit();
 
         ClearLastError();
-        if not codeunit.Run(codeunit::"Generate SAF-T File", SAFTExportLine) then
+        if not codeunit.Run(GetContentCodeunit(SAFTExportHeader), SAFTExportLine) then
             codeunit.Run(codeunit::"SAF-T Export Error Handler", SAFTExportLine);
         Commit();
     end;
@@ -823,11 +823,11 @@ codeunit 10675 "SAF-T Export Mgt."
         exit(not SessionEvent.IsEmpty());
     end;
 
-    local procedure GetNoOfJobsInProgress(): Integer
+    local procedure GetNoOfJobsInProgress(SAFTExportHeader: Record "SAF-T Export Header"): Integer
     var
         ScheduledTask: Record "Scheduled Task";
     begin
-        ScheduledTask.SetRange("Run Codeunit", Codeunit::"Generate SAF-T File");
+        ScheduledTask.SetRange("Run Codeunit", GetContentCodeunit(SAFTExportHeader));
         exit(ScheduledTask.Count());
     end;
 
@@ -860,6 +860,18 @@ codeunit 10675 "SAF-T Export Mgt."
         exit(true);
     end;
 
+    local procedure GetContentCodeunit(SAFTExportHeader: Record "SAF-T Export Header") CodeunitId: Integer
+    begin
+        case SAFTExportHeader.Version of
+            SAFTExportHeader.Version::"1.20":
+                exit(Codeunit::"Generate SAF-T File");
+            SAFTExportHeader.Version::"1.30":
+                exit(Codeunit::"Generate SAF-T 1.3 File");
+            else
+                OnGetContentCodeunitOnElse(CodeunitId, SAFTExportHeader);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeScheduleTask(var DoNotScheduleTask: Boolean; var TaskID: Guid)
     begin
@@ -867,6 +879,11 @@ codeunit 10675 "SAF-T Export Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCancelTask(var DoNotCancelTask: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetContentCodeunitOnElse(var CodeunitID: Integer; SAFTExportHeader: Record "SAF-T Export Header")
     begin
     end;
 }

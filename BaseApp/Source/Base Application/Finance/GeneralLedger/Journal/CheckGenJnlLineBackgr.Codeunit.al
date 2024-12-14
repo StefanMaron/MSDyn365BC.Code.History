@@ -104,7 +104,13 @@ codeunit 9081 "Check Gen. Jnl. Line. Backgr."
         TempLineErrorMessage: Record "Error Message" temporary;
         DocumentBalance: Decimal;
         Description: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckGenJnlLineDocBalance(GenJnlLine, TempErrorMessage, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         DocumentBalance := GenJnlLine.GetDocumentBalance(GenJnlLine);
@@ -172,6 +178,11 @@ codeunit 9081 "Check Gen. Jnl. Line. Backgr."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGenJnlLineDocBalance(GenJnlLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message"; var IsHandled: Boolean)
     begin
     end;
 }

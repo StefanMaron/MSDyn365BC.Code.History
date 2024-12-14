@@ -3978,6 +3978,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag());
     end;
 
+    [Obsolete('This function is obsolete as the "Customer Template" table has been removed in version 23.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
     begin

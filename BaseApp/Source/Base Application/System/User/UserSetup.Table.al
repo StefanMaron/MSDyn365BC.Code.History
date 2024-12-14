@@ -351,16 +351,8 @@ table 91 "User Setup"
     end;
 
     trigger OnInsert()
-    var
-        User: Record User;
     begin
-        if "E-Mail" <> '' then
-            exit;
-        if "User ID" <> '' then
-            exit;
-        User.SetRange("User Name", "User ID");
-        if User.FindFirst() then
-            "E-Mail" := CopyStr(User."Contact Email", 1, MaxStrLen("E-Mail"));
+        SetEmailOnRecord();
     end;
 
     var
@@ -494,6 +486,30 @@ table 91 "User Setup"
             if SalesPersonPurchaser.Get(UserSetup2."Salespers./Purch. Code") then
                 if SalesPersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalesPersonPurchaser) then
                     Error(PrivacyBlockedGenericErr, UserSetup2."Salespers./Purch. Code")
+    end;
+
+    local procedure SetEmailOnRecord()
+    var
+        User: Record User;
+        MailManagement: Codeunit "Mail Management";
+        UserSetupEmail: Text[100];
+    begin
+        if "E-Mail" <> '' then
+            exit;
+
+        if "User ID" = '' then
+            exit;
+
+        User.SetRange("User Name", "User ID");
+        if not User.FindFirst() then
+            exit;
+
+        UserSetupEmail := CopyStr(User."Contact Email", 1, MaxStrLen("E-Mail"));
+
+        if not MailManagement.CheckValidEmailAddress(UserSetupEmail) then
+            exit;
+
+        "E-Mail" := UserSetupEmail;
     end;
 
     procedure CheckAllowedVATDates(NotificationType: Option Error,Notification)
