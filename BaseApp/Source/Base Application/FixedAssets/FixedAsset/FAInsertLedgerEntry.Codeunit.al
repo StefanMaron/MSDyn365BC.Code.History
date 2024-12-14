@@ -370,7 +370,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         FAReg.Modify();
     end;
 
-    local procedure FAName(DeprBookCode: Code[10]): Text[200]
+    procedure FAName(DeprBookCode: Code[10]): Text[200]
     var
         DepreciationCalc: Codeunit "Depreciation Calculation";
     begin

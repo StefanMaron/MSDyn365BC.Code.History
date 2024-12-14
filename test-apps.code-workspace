@@ -1,8 +1,8 @@
 {
   "settings": {
     "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false,
     "allint.enabled": false,
+    "al.enableCodeAnalysis": false,
     "search.exclude": {
       "**.xlf": true
     }
@@ -298,6 +298,9 @@
     },
     {
       "path": "./RecommendedApps/Test/Recommended Apps Tests"
+    },
+    {
+      "path": "./PowerBIReports/Test Library/PowerBI Reports Test Library"
     },
     {
       "path": "./PowerBIReports/Test/PowerBI Reports Tests"

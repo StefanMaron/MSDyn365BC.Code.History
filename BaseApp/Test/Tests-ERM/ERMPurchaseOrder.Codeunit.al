@@ -96,6 +96,7 @@ codeunit 134327 "ERM Purchase Order"
         InteractionLogErr: Label 'Interaction log must be enabled.';
         ItemRefrenceNoErr: Label 'Item Reference No. should be %1.', Comment = '%1 - old reference no.';
         GrossWeightErr: Label '%1 must be calculated in %2.', Comment = '%1=Field Caption; %2 Page Caption.';
+        QuantityMustBeZeroLbl: Label '%1 must be 0', Comment = '%1=Field Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -8320,6 +8321,94 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseQuote.PurchLines.ItemChargeAssignment.Invoke();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentModalPageHandler,ItemChargeAssignMenuHandler')]
+    procedure QtyToAssignAndQtyToHandleUpdateCorrectInPurchOrderWhenTotalItemChargeIsUsedByPurchaseInvoice()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: array[4] of Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        Quantity: Integer;
+        DirectUnitCost: Decimal;
+    begin
+        // [SCENARIO 547910] Item Charge fields 'Qty to Assign' and 'Item Charge Qty. to Handle' are not updated correctly by 
+        // Purchase Invoice in Purchase Order when total Item Charge has already been accounted for in the Purchase Invoice.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Charge Item.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Generate Quantity.
+        Quantity := LibraryRandom.RandInt(0);
+
+        // [GIVEN] Generate Direct Unit Cost
+        DirectUnitCost := LibraryRandom.RandDecInRange(10, 50, 2);
+
+        // [GIVEN] Create a Purchase Header with Document Type Order.
+        CreatePurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order);
+
+        // [GIVEN] Create Purchase Lines one with an Item.
+        CreatePurchaseLinesAndUpdateQtytoReceive(
+            PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item,
+            Item."No.", Quantity, Quantity, DirectUnitCost);
+
+        // [GIVEN] Create Purchase Lines two with an Item.
+        CreatePurchaseLinesAndUpdateQtytoReceive(
+            PurchaseLine[2], PurchaseHeader[1], PurchaseLine[2].Type::Item,
+            Item."No.", Quantity, 0, DirectUnitCost);
+
+        // [GIVEN] Create Purchase Lines three with an Charge Item.    
+        CreatePurchaseLinesAndUpdateQtytoReceive(
+            PurchaseLine[3], PurchaseHeader[1], PurchaseLine[3].Type::"Charge (Item)",
+            ItemCharge."No.", Quantity, Quantity, LibraryRandom.RandDecInRange(20, 20, 2));
+
+        // [GIVEN] Choice is Equally for Item Charge Assignment Page Handler.
+        LibraryVariableStorage.Enqueue(1);
+
+        // [GIVEN] Choice is to invoke Suggest Item Charge Assignment.
+        LibraryVariableStorage.Enqueue(true);
+
+        // [GIVEN] Open Item Charge Assignment.
+        PurchaseLine[3].ShowItemChargeAssgnt();
+
+        // [GIVEN] Posts Receipt of Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
+
+        // [GIVEN] Create Purchase Invoice with the help of "Get Receipt Lines".
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, PurchaseHeader[1]."Buy-from Vendor No.");
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader[1]."No.");
+        PurchGetReceipt.SetPurchHeader(PurchaseHeader[2]);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        // [GIVEN] Find Charge Item Purchase Line.
+        FindItemChargePurchaseLine(PurchaseLine[4], PurchaseHeader[2]."No.", PurchaseHeader[2]."Document Type");
+
+        // [GIVEN] Choice is Equally for Item Charge Assignment Page Handler.
+        LibraryVariableStorage.Enqueue(1);
+
+        // [GIVEN] Assign Item Charge
+        PurchaseLine[4].ShowItemChargeAssgnt();
+
+        // [WHEN] Posts Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], false, true);
+
+        // [GIVEN] Choice is not to Invoke Suggest Item Charge.
+        LibraryVariableStorage.Enqueue(false);
+
+        // [GIVEN] Open Item Charge Assignment.
+        PurchaseLine[3].ShowItemChargeAssgnt();
+
+        // [THEN] Verify Fields Qty.to Assign and Qty. to Handle of Item Charge Assignment .   
+        VerifyItemChargeQty(PurchaseLine[2]);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11620,6 +11709,42 @@ codeunit 134327 "ERM Purchase Order"
         ItemChargeAssignmentPurch.TestField("Qty. Assigned", ItemChargeAssignmentPurch."Qty. Assigned");
     end;
 
+    local procedure CreatePurchaseLinesAndUpdateQtytoReceive(
+        var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type";
+        ItemNo: Code[20]; Quantity: Decimal; Qtytoreceive: Decimal; DirectUnitCost: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        ModifyPurchaseLineQtyToReceive(PurchaseLine, Qtytoreceive);
+    end;
+
+    local procedure FindItemChargePurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type")
+    begin
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        PurchaseLine.FindLast();
+    end;
+
+    local procedure VerifyItemChargeQty(PurchaseLine: Record "Purchase Line")
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        ItemChargeAssignmentPurch.SetRange("Document Type", ItemChargeAssignmentPurch."Document Type"::Order);
+        ItemChargeAssignmentPurch.SetRange("Document No.", PurchaseLine."Document No.");
+        ItemChargeAssignmentPurch.SetRange("Applies-to Doc. No.", PurchaseLine."Document No.");
+        ItemChargeAssignmentPurch.SetRange("Applies-to Doc. Line No.", PurchaseLine."Line No.");
+        ItemChargeAssignmentPurch.FindFirst();
+        Assert.AreEqual(
+            ItemChargeAssignmentPurch."Qty. to Assign",
+            0,
+            StrSubstNo(QuantityMustBeZeroLbl, ItemChargeAssignmentPurch.FieldCaption("Qty. to Assign")));
+        Assert.AreEqual(
+            ItemChargeAssignmentPurch."Qty. to Handle",
+            0,
+            StrSubstNo(QuantityMustBeZeroLbl, ItemChargeAssignmentPurch.FieldCaption("Qty. to Handle")));
+    end;
+
 #if not CLEAN25
     local procedure CreateStandardCostWorksheet(var StandardCostWorksheetPage: TestPage "Standard Cost Worksheet"; ResourceNo: Code[20]; StandardCost: Decimal; NewStandardCost: Decimal)
     var
@@ -12047,6 +12172,14 @@ codeunit 134327 "ERM Purchase Order"
     begin
         VendorLookup.GotoKey(LibraryVariableStorage.DequeueText());
         VendorLookup.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemChargeAssignmentModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        if LibraryVariableStorage.DequeueBoolean() then
+            ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [RequestPageHandler]

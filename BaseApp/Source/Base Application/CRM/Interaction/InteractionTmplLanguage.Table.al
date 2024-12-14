@@ -264,7 +264,7 @@ table 5103 "Interaction Tmpl. Language"
         MarketingSetup: Record "Marketing Setup";
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
-        FileName: Text[1024];
+        FileName: Text;
         FileFilter: Text;
         ExportToFile: Text;
     begin
@@ -295,6 +295,8 @@ table 5103 "Interaction Tmpl. Language"
                       AttachmentRecord."Storage Pointer" + '\' + Format(AttachmentRecord."No.") + '.' + AttachmentRecord."File Extension",
                       Text005, '', FileFilter, ExportToFile);
                 end;
+            else
+                OnExportAttachmentOnStorageTypeCaseElse(Rec, xRec, AttachmentRecord, MarketingSetup, ExportToFile, FileFilter, FileName);
         end;
     end;
 
@@ -331,6 +333,11 @@ table 5103 "Interaction Tmpl. Language"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenAttachment(var InteractionTmplLanguage: Record "Interaction Tmpl. Language"; var Attachment: Record Attachment)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportAttachmentOnStorageTypeCaseElse(var InteractionTmplLanguage: Record "Interaction Tmpl. Language"; xInteractionTmplLanguage: Record "Interaction Tmpl. Language"; var AttachmentRecord: Record Attachment; var MarketingSetup: Record "Marketing Setup"; var ExportToFile: Text; var FileFilter: Text; var FileName: Text)
     begin
     end;
 }

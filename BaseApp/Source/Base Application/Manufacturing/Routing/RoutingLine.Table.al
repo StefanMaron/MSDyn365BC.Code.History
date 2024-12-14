@@ -223,7 +223,13 @@ table 99000764 "Routing Line"
             trigger OnValidate()
             var
                 StandardTask: Record "Standard Task";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateStandardTaskCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Standard Task Code" = '' then
                     if "Standard Task Code" <> xRec."Standard Task Code" then begin
                         DeleteRelations();
@@ -606,6 +612,11 @@ table 99000764 "Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWorkCenterTransferFields(var RoutingLine: Record "Routing Line"; xRoutingLine: Record "Routing Line"; WorkCenter: Record "Work Center"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateStandardTaskCode(var RoutingLine: Record "Routing Line"; xRoutingLine: Record "Routing Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -212,6 +212,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets - Local - NamedType WrongJournalUsedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1970047989 - NamedType 422284693" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies-to ID must be blank in Vendor Ledger Entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Management - NamedType AppliesToIDMustBeBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1970047989 - NamedType 1390641737" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A dimension used in %1 has caused an error. Dimension %2 is blocked.]]></Val>

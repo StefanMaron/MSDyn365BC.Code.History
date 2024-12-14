@@ -26,6 +26,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryResource: Codeunit "Library - Resource";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -2589,6 +2590,49 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [THEN] Run and Select Show Non Stock Item to ensure no error.
         SalesLine.ShowNonstock();
+    end;
+
+    [Test]
+    procedure ModifyingItemUnitOfMeasureResetsUoMMgtCodeunit()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
+    begin
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 2);
+
+        Assert.AreEqual(2, UnitOfMeasureManagement.GetQtyPerUnitOfMeasure(Item, ItemUnitOfMeasure.Code), '');
+
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := 4;
+        ItemUnitOfMeasure.Modify();
+
+        Assert.AreEqual(4, UnitOfMeasureManagement.GetQtyPerUnitOfMeasure(Item, ItemUnitOfMeasure.Code), '');
+    end;
+
+    [Test]
+    procedure ModifyingResourceUnitOfMeasureResetsUoMMgtCodeunit()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        Resource: Record Resource;
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
+    begin
+        Initialize();
+
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        LibraryResource.CreateResource(Resource, '');
+        LibraryResource.CreateResourceUnitOfMeasure(ResourceUnitOfMeasure, Resource."No.", UnitOfMeasure.Code, 2);
+
+        Assert.AreEqual(2, UnitOfMeasureManagement.GetResQtyPerUnitOfMeasure(Resource, ResourceUnitOfMeasure.Code), '');
+
+        ResourceUnitOfMeasure."Qty. per Unit of Measure" := 4;
+        ResourceUnitOfMeasure.Modify();
+
+        Assert.AreEqual(4, UnitOfMeasureManagement.GetResQtyPerUnitOfMeasure(Resource, ResourceUnitOfMeasure.Code), '');
     end;
 
     local procedure Initialize()

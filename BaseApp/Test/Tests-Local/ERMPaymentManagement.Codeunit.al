@@ -106,6 +106,7 @@ codeunit 144049 "ERM Payment Management"
         CheckDimValuePostingLineErr: Label 'A dimension used in %1 %2 %3 has caused an error. Select a Dimension Value Code for the Dimension Code %4 for Vendor %5.';
         CheckDimValuePostingHeaderErr: Label 'A dimension used in %1 has caused an error. Dimension %2 is blocked.';
         PaymentSlipErr: Label 'Payment Slip must be posted without error of Document No.';
+        AppliesToIDMustBeBlankErr: Label 'Applies-to ID must be blank in Vendor Ledger Entry.';
 
     [Test]
     [HandlerFunctions('GLCustLedgerReconciliationRequestPageHandler')]
@@ -1840,6 +1841,80 @@ codeunit 144049 "ERM Payment Management"
         Assert.AreEqual(PaymentLine.Amount, Abs(GLEntry.Amount), PaymentSlipErr);
     end;
 
+    [Test]
+    [HandlerFunctions('PaymentClassListModalPageHandler,SuggestVendorPmtsFRRequestPageHandler')]
+    procedure AppliesToIDIsNotFilledIfNoPaymentLineIsCreatedBySugVendPmt()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentClass: Record "Payment Class";
+        PaymentStatus: Record "Payment Status";
+        PaymentHeader: Record "Payment Header";
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SuggestVendorPaymentsFR: Report "Suggest Vendor Payments FR";
+    begin
+        // [SCENARIO 558277] Suggest Vendor Payment Summarize per Vendor doesn't fill 
+        // Applies-to ID of Vendor Ledger Entries if no Payment Line in the Payment Slip.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Gen. Journal Line.
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Account Type"::Vendor, Vendor."No.", GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [GIVEN] Validate Debit Amount in Gen. Journal Line.
+        GenJournalLine.Validate("Debit Amount", LibraryRandom.RandIntInRange(100, 100));
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Post Gen. Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create a Gen. Journal Line.
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Account Type"::Vendor, Vendor."No.", GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [GIVEN] Validate Credit Amount in Gen. Journal Line.
+        GenJournalLine.Validate("Credit Amount", LibraryRandom.RandIntInRange(100, 100));
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Post Gen. Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create a Payment Class.
+        CreatePaymentClassWithNoSeries(PaymentClass);
+
+        // [GIVEN] Create a Payment Status.
+        LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
+
+        // [GIVEN] Create a Payment Header.
+        LibraryVariableStorage.Enqueue(PaymentClass.Code);
+        LibraryVariableStorage.Enqueue(Format(Vendor."No."));
+        LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
+        Commit();
+
+        // [GIVEN] Run Suggest Vendor Payments FR Report.
+        SuggestVendorPaymentsFR.SetGenPayLine(PaymentHeader);
+        SuggestVendorPaymentsFR.RunModal();
+
+        // [WHEN] Find Vendor Ledger Entry.
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindFirst();
+
+        // [THEN] Applies-to ID must be blank in Vendor Ledger Entry.
+        Assert.AreEqual('', VendorLedgerEntry."Applies-to ID", AppliesToIDMustBeBlankErr);
+
+        // [WHEN] Find Vendor Ledger Entry.
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindLast();
+
+        // [THEN] Applies-to ID must be blank in Vendor Ledger Entry.
+        Assert.AreEqual('', VendorLedgerEntry."Applies-to ID", AppliesToIDMustBeBlankErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Management");
@@ -3096,6 +3171,17 @@ codeunit 144049 "ERM Payment Management"
         NoSeriesLine.TestField("Last No. Used", LastNoUsed);
     end;
 
+    local procedure CreatePaymentClassWithNoSeries(var PaymentClass: Record "Payment Class")
+    begin
+        LibraryFRLocalization.CreatePaymentClass(PaymentClass);
+        PaymentClass.Validate("Header No. Series", LibraryERM.CreateNoSeriesCode());
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
+        PaymentClass.Validate(Suggestions, PaymentClass.Suggestions::Vendor);
+        PaymentClass.Validate("Unrealized VAT Reversal", PaymentClass."Unrealized VAT Reversal"::Application);
+        PaymentClass.Validate("SEPA Transfer Type", PaymentClass."SEPA Transfer Type"::"Credit Transfer");
+        PaymentClass.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -3286,6 +3372,18 @@ codeunit 144049 "ERM Payment Management"
     begin
         SuggestVendorPaymentsFR.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPaymentsFR.SummarizePer.SetValue(SummarizePer::Vendor);
+        SuggestVendorPaymentsFR.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPmtsFRRequestPageHandler(var SuggestVendorPaymentsFR: TestRequestPage "Suggest Vendor Payments FR")
+    var
+        SummarizePer: Option " ",Vendor,"Due date";
+    begin
+        SuggestVendorPaymentsFR.LastPaymentDate.SetValue(WorkDate());
+        SuggestVendorPaymentsFR.SummarizePer.SetValue(SummarizePer::Vendor);
+        SuggestVendorPaymentsFR.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestVendorPaymentsFR.OK().Invoke();
     end;
 

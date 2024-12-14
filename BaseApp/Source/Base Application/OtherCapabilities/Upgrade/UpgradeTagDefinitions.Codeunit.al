@@ -167,6 +167,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetCountryVATSchemeDKTag());
         PerCompanyUpgradeTags.Add(GetUpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetIntegrationTableMappingTemplatesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPopulateUserSetupEmailUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -1200,5 +1201,10 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetIntegrationTableMappingTemplatesUpgradeTag(): Code[250]
     begin
         exit('MS-527500-IntegrationTableMappingTemplatesUpgradeTag-20240710');
+    end;
+
+    internal procedure GetPopulateUserSetupEmailUpgradeTag(): Code[250]
+    begin
+        exit('MS-GIT-736-PopulateUserSetupEmailUpgradeTag-20241117');
     end;
 }

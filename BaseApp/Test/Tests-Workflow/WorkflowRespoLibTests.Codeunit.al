@@ -13,7 +13,6 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
     var
         Assert: Codeunit Assert;
-        UnsupportedRecordTypeErr: Label 'Record type %1 is not supported by this workflow response.', Comment = 'Record type Item is not supported by this workflow response.';
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -23,23 +22,61 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
-        CannotReleaseErr: Label 'This document can only be released when the approval process is complete.';
         LibraryWorkflow: Codeunit "Library - Workflow";
         WorkflowMgt: Codeunit "Workflow Management";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         CreateAppReqrespDescForApproverChainTxt: Label 'Create an approval request for the record using approver type Approver and approver limit type Approver Chain.';
         CreateAppReqrespDescForUserGrpTxt: Label 'Create an approval request for the record using approver type Workflow User Group and workflow user group code %1.', Comment = '%1 is a code. Example: GU00001';
-        CreateNotificationForUserTxt: Label 'Create a notification for %1.';
+        CreateNotificationForUserTxt: Label 'Create a notification for %1.', Comment = '%1 = User Id';
         ShowMessageTestMsg: Label 'This is just a test message.';
-        RecordRestrictedErr: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
+        RecordRestrictedErr: Label 'You cannot use %1 for this action.', Comment = '%1 = Record ID. You cannot use Customer 10000 for this action.';
         RecHasBeenApprovedMsg: Label 'has been approved.';
         PendingApprovalMsg: Label 'An approval request has been sent.';
         SenderTok: Label '<Sender>';
         ApplyNewValuesTestMsg: Label 'The current value of the field is different from the value before the change.';
         NoRecordChangesFoundMsg: Label 'No record changes exist to apply the saved values to using the current options.';
-        LibraryJobQueue: Codeunit "Library - Job Queue";
-        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        UserIdNotInSetupErr: Label 'User ID %1 does not exist in the Approval User Setup window.', Comment = 'User ID NAVUser does not exist in the Approval User Setup window.';
+        UserIdNotInSetupErr: Label 'User ID %1 does not exist in the Approval User Setup window.', Comment = '%1 = UserID. User ID NAVUser does not exist in the Approval User Setup window.';
+        UnsupportedRecordTypeErr: Label 'Record type %1 is not supported by this workflow response.', Comment = '%1 = Table Caption. Record type Item is not supported by this workflow response.';
+        CannotReleaseErr: Label 'This document can only be released when the approval process is complete.';
+
+    [Test]
+    procedure SendNotificationEntryWithoutApprovalStep()
+    var
+        Item: Record Item;
+        NotificationEntry: Record "Notification Entry";
+        WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
+        ItemCard: TestPage "Item Card";
+    begin
+        // A notification entry can be created even when no approval step is present.
+        Initialize();
+        NotificationEntry.DeleteAll();
+        LibraryWorkflow.DisableAllWorkflows();
+
+        // [GIVEN] a user setup for the current user
+        CreateOrFindCurrentUserSetup();
+
+
+        // [Given] An Item
+        LibraryInventory.CreateItem(Item); // inserts an item and modifies it twice so the WF runs twice
+
+        // [GIVEN] An enabled workflow that sends a notification when an item is edited.
+        CreateNotifyOnItemChangeWorkflow();
+
+        // [WHEN] The item is modified
+        ItemCard.OpenEdit();
+        ItemCard.GoToRecord(Item);
+        ItemCard.Description.SetValue('Test');
+        ItemCard.OK().Invoke();
+
+        // [THEN] A notification entry is created (no error is thrown)
+        Assert.RecordIsNotEmpty(WorkflowStepInstanceArchive);
+#pragma warning disable AA0233, AA0181
+        NotificationEntry.FindLast();
+        Assert.AreEqual(Item.RecordId, NotificationEntry."Triggered By Record", 'Notification entry not created');
+#pragma warning restore AA0233, AA0181
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -3766,7 +3803,6 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header") DocumentNo: Code[20]
     var
         PurchaseLine: Record "Purchase Line";
-        LibraryRandom: Codeunit "Library - Random";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         DocumentNo := PurchaseHeader."No.";
@@ -3875,6 +3911,22 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowRecordChange."Record ID" := Customer.RecordId;
         WorkflowRecordChange."Workflow Step Instance ID" := InstanceId;
         WorkflowRecordChange.Insert(true)
+    end;
+
+    local procedure CreateNotifyOnItemChangeWorkflow();
+    var
+        Workflow: Record Workflow;
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        CurrStep: Integer;
+    begin
+        LibraryWorkflow.CreateWorkflow(Workflow);
+        CurrStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnItemChangedCode());
+        CurrStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), CurrStep);
+#pragma warning disable AA0139
+        LibraryWorkflow.InsertNotificationArgument(CurrStep, UserId(), 0, '');
+#pragma warning restore AA0139
+        LibraryWorkflow.EnableWorkflow(Workflow);
     end;
 
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")

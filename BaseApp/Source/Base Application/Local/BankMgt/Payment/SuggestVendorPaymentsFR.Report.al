@@ -476,6 +476,8 @@ report 10862 "Suggest Vendor Payments FR"
                         GenPayLine."Due Date" := VendLedgEntry."Due Date";
                     SummarizePer::Vendor:
                         begin
+                            if GenPayLine.Amount = 0 then
+                                SetAppliesToIDBlank(VendLedgEntry, PayableVendLedgEntry, TempPaymentPostBuffer);
                             PayableVendLedgEntry.SetCurrentKey("Vendor No.", "Due Date");
                             PayableVendLedgEntry.SetRange("Vendor No.", TempPaymentPostBuffer."Account No.");
                             PayableVendLedgEntry.Find('-');
@@ -505,6 +507,18 @@ report 10862 "Suggest Vendor Payments FR"
     begin
         if AmountAvailable <> 0 then
             UsePriority := true;
+    end;
+
+    local procedure SetAppliesToIDBlank(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempPayableVendLedgEntry: Record "Payable Vendor Ledger Entry" temporary; TempPmtPostBuffer: Record "Payment Post. Buffer" temporary)
+    begin
+        TempPayableVendLedgEntry.SetRange("Vendor No.", TempPmtPostBuffer."Account No.");
+        if TempPayableVendLedgEntry.FindSet() then
+            repeat
+                VendorLedgerEntry.Get(TempPayableVendLedgEntry."Vendor Ledg. Entry No.");
+                VendorLedgerEntry."Applies-to ID" := '';
+                VendorLedgerEntry.Modify();
+            until TempPayableVendLedgEntry.Next() = 0;
+        TempPayableVendLedgEntry.SetRange("Vendor No.");
     end;
 }
 

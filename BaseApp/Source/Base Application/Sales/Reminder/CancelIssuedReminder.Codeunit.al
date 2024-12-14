@@ -156,6 +156,7 @@ codeunit 1393 "Cancel Issued Reminder"
                 IssuedReminderLine2.SetRange("Document No.", IssuedReminderLine."Document No.");
                 IssuedReminderLine2.SetRange(Canceled, false);
                 IssuedReminderLine2.SetFilter("No. of Reminders", '>%1', IssuedReminderLine."No. of Reminders");
+                OnCheckNextReminderLevelOnAfterFilterIssuedReminderLine2(IssuedReminderHeader, IssuedReminderLine, IssuedReminderLine2);
                 if IssuedReminderLine2.FindFirst() then begin
                     TempErrorMessage.LogMessage(
                       IssuedReminderHeader,
@@ -180,6 +181,7 @@ codeunit 1393 "Cancel Issued Reminder"
         CustLedgerEntry.SetRange("Document No.", IssuedReminderHeader."No.");
         if CustLedgerEntry.FindFirst() then begin
             CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
+            OnCheckAppliedReminderCustLedgerEntryOnAfterCalcFields(CustLedgerEntry);
             if CustLedgerEntry.Amount <> CustLedgerEntry."Remaining Amount" then begin
                 TempErrorMessage.LogMessage(
                   IssuedReminderHeader,
@@ -198,7 +200,13 @@ codeunit 1393 "Cancel Issued Reminder"
     local procedure SetReminderEntryCancelled(IssuedReminderLine: Record "Issued Reminder Line")
     var
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
+        IsHandled: boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetReminderEntryCancelled(ReminderFinChargeEntry, IssuedReminderLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ReminderFinChargeEntry.SetRange("No.", IssuedReminderLine."Reminder No.");
         ReminderFinChargeEntry.SetRange("Customer Entry No.", IssuedReminderLine."Entry No.");
         if ReminderFinChargeEntry.FindFirst() then begin
@@ -469,7 +477,22 @@ codeunit 1393 "Cancel Issued Reminder"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckAppliedReminderCustLedgerEntryOnAfterCalcFields(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckNextReminderLevelOnAfterFilterIssuedReminderLine2(IssuedReminderHeader: Record "Issued Reminder Header"; var IssuedReminderLine: Record "Issued Reminder Line"; var IssuedReminderLine2: Record "Issued Reminder Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDecreaseCustomerLedgerEntryLastIssuedReminderLevelOnBeforeModify(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetReminderEntryCancelled(var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry"; IssuedReminderLine: Record "Issued Reminder Line"; var IsHandled: boolean)
     begin
     end;
 }

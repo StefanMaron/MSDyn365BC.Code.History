@@ -643,7 +643,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         until AllocationAccountSalesLine.Next() = 0;
     end;
 
-    internal procedure VerifySelectedAllocationAccountNo(var SalesLine: Record "Sales Line")
+    procedure VerifySelectedAllocationAccountNo(var SalesLine: Record "Sales Line")
     var
         AllocationAccount: Record "Allocation Account";
     begin
