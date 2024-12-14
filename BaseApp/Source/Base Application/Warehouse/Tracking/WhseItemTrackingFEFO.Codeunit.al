@@ -84,7 +84,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                     NonReservedQtyLotSN -= QtyReservedFromItemLedger.Quantity__Base_;
 
                 if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
-                      ItemNo, VariantCode, Location.Code, ItemTrackingSetup, HasExpirationDate) > 0
+                        ItemNo, VariantCode, Location.Code, ItemTrackingSetup, HasExpirationDate) > 0
                 then
                     InsertEntrySummaryFEFO(ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date);
             end;

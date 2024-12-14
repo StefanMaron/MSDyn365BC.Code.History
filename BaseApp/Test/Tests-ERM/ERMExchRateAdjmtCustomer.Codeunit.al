@@ -399,7 +399,9 @@
         // [GIVEN] Create Currency, Vendor, Apply Payment on Invoice using Gen. Journal Line.
         Initialize();
         CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         GeneralLedgerSetup.Get();
+
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify();
         CreatePostPaymentWithAppln(

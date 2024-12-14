@@ -85,6 +85,8 @@ codeunit 28000 "Post Code Check"
                     TableNo, TableKey, AddressType, 2,
                     Name, Name2, Contact, Address, Address2, City, PostCode, County, CountryCode);
         end;
+
+        OnAfterVerifyCity(PostCodeRec, City, PostCode, County, CountryCode);
     end;
 
     procedure VerifyPostCode(CurrentFieldNo: Integer; TableNo: Integer; TableKey: Text; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[50]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[30]; var PostCode: Code[20]; var County: Text[30]; var CountryCode: Code[10])
@@ -129,6 +131,8 @@ codeunit 28000 "Post Code Check"
                   TableNo, TableKey, AddressType, 2,
                   Name, Name2, Contact, Address, Address2, City, PostCode, County, CountryCode);
         end;
+
+        OnAfterVerifyPostCode(PostCodeRec, City, PostCode, County, CountryCode);
     end;
 
     procedure LookUpCity(CurrFieldNumber: Integer; TableNo: Integer; TableKey: Text[1024]; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[90]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; ReturnValues: Boolean)
@@ -2624,5 +2628,15 @@ codeunit 28000 "Post Code Check"
     begin
         MoveAddressIDRecord(
           DATABASE::"Work Center", xRec.GetPosition(), 0, DATABASE::"Work Center", Rec.GetPosition(), 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterVerifyCity(var PostCodeRec: Record "Post Code"; var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterVerifyPostCode(var PostCodeRec: Record "Post Code"; var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10])
+    begin
     end;
 }

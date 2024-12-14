@@ -287,7 +287,7 @@ codeunit 456 "Job Queue Management"
         // Find all in process job queue entries
         JobQueueEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         JobQueueEntry.SetLoadFields(ID, "System Task ID", "User Service Instance ID", "User Session ID", Status, "User Session Started");
-        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
+        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process");
         JobQueueEntry.SetRange(Scheduled, false);
         JobQueueEntry.SetFilter(SystemModifiedAt, '<%1', CurrentDateTime() - GetCheckDelayInMilliseconds());  // Not modified in the last 10 minutes
         JobQueueEntry2.ReadIsolation(IsolationLevel::UpdLock);
@@ -316,12 +316,16 @@ codeunit 456 "Job Queue Management"
         JobQueueLogEntry.SetRange(Status, JobQueueLogEntry.Status::"In Process");
         JobQueueLogEntry.SetFilter(SystemModifiedAt, '<%1', CurrentDateTime() - GetCheckDelayInMilliseconds());  // Not modified in the last 10 minutes
         JobQueueLogEntry2.ReadIsolation(IsolationLevel::UpdLock);
+        JobQueueEntry.SetAutoCalcFields(Scheduled);
+        JobQueueEntry.SetLoadFields(ID, Status, Scheduled);
         if JobQueueLogEntry.FindSet() then
             repeat
-                if not JobQueueEntry.Get(JobQueueLogEntry.ID) or (JobQueueEntry.Status = JobQueueEntry.Status::Error) then begin
+                if not JobQueueEntry.Get(JobQueueLogEntry.ID) or (JobQueueEntry.Status = JobQueueEntry.Status::Error) or not JobQueueEntry.Scheduled then begin
                     JobQueueLogEntry2.Get(JobQueueLogEntry."Entry No.");
                     JobQueueLogEntry2.Status := JobQueueLogEntry2.Status::Error;
                     JobQueueLogEntry2."Error Message" := JobSomethingWentWrongMsg;
+                    if JobQueueLogEntry2."End Date/Time" = 0DT then
+                        JobQueueLogEntry2."End Date/Time" := JobQueueLogEntry2."Start Date/Time";
                     JobQueueLogEntry2.Modify();
 
                     StaleJobQueueLogEntryTelemetry(JobQueueLogEntry2);

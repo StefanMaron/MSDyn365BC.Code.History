@@ -679,7 +679,13 @@ table 111 "Sales Shipment Line"
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowItemTrackingLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemTrackingDocMgt.ShowItemTrackingForShptRcptLine(DATABASE::"Sales Shipment Line", 0, "Document No.", '', 0, "Line No.");
     end;
 
@@ -1171,7 +1177,7 @@ table 111 "Sales Shipment Line"
 
         if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;
@@ -1273,6 +1279,11 @@ table 111 "Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSalesInvLinesOnBeforeGetSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemTrackingLines(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

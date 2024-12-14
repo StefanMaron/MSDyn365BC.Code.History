@@ -1142,7 +1142,13 @@ table 15 "G/L Account"
     local procedure CheckSalesOrdersPrepmtToDeduct(FldCaption: Text)
     var
         GeneralPostingSetup: Record "General Posting Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSalesOrdersPrepmtToDeduct(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GeneralPostingSetup.SetLoadFields("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
         GeneralPostingSetup.SetRange("Sales Prepayments Account", "No.");
         if GeneralPostingSetup.FindSet() then
@@ -1197,6 +1203,11 @@ table 15 "G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesOrdersPrepmtToDeduct(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 }

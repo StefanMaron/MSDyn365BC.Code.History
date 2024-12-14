@@ -473,6 +473,7 @@ codeunit 367 CheckManagement
         GenJournalLine1: Record "Gen. Journal Line";
         GenJnlPostReverse: Codeunit "Gen. Jnl.-Post Reverse";
         AppliesID: Code[50];
+        IsHandled: Boolean;
     begin
         // first, find first original payment line, if any
         BankAccountLedgerEntry.Get(CheckLedgEntry."Bank Account Ledger Entry No.");
@@ -513,8 +514,12 @@ codeunit 367 CheckManagement
             PayDetailedVendorLedgEntry.SetRange(Unapplied, false);
             PayDetailedVendorLedgEntry.SetFilter("Applied Vend. Ledger Entry No.", '<>%1', 0);
             PayDetailedVendorLedgEntry.SetRange("Entry Type", PayDetailedVendorLedgEntry."Entry Type"::Application);
-            if not PayDetailedVendorLedgEntry.FindSet() then
-                Error(NoAppliedEntryErr);
+            if not PayDetailedVendorLedgEntry.FindSet() then begin
+                IsHandled := false;
+                OnUnApplyVendInvoicesOnBeforeErrorNoAppliedEntry(BankAccountLedgerEntry, GenJnlLine2, IsHandled);
+                if not IsHandled then
+                    Error(NoAppliedEntryErr);
+            end;
             repeat
                 GenJournalLine3.CopyFromPaymentVendLedgEntry(OrigPaymentVendorLedgerEntry);
                 GenJournalLine3."Posting Date" := VoidDate;
@@ -532,6 +537,7 @@ codeunit 367 CheckManagement
             MakeAppliesID(AppliesID, CheckLedgEntry."Document No.");
             OrigPaymentVendorLedgerEntry."Applies-to ID" := AppliesID;
             OrigPaymentVendorLedgerEntry.CalcFields("Remaining Amount");
+            OnUnApplyVendInvoicesOnAfterCalcRemainingAmount(OrigPaymentVendorLedgerEntry);
             OrigPaymentVendorLedgerEntry."Amount to Apply" := OrigPaymentVendorLedgerEntry."Remaining Amount";
             OrigPaymentVendorLedgerEntry."Accepted Pmt. Disc. Tolerance" := false;
             OrigPaymentVendorLedgerEntry."Accepted Payment Tolerance" := 0;
@@ -586,6 +592,7 @@ codeunit 367 CheckManagement
             MakeAppliesID(AppliesID, CheckLedgEntry."Document No.");
             OrigPaymentCustLedgerEntry."Applies-to ID" := AppliesID;
             OrigPaymentCustLedgerEntry.CalcFields("Remaining Amount");
+            OnUnApplyCustInvoicesOnAfterCalcRemainingAmount(OrigPaymentCustLedgerEntry);
             OrigPaymentCustLedgerEntry."Amount to Apply" := OrigPaymentCustLedgerEntry."Remaining Amount";
             OrigPaymentCustLedgerEntry."Accepted Pmt. Disc. Tolerance" := false;
             OrigPaymentCustLedgerEntry."Accepted Payment Tolerance" := 0;
@@ -1101,5 +1108,19 @@ codeunit 367 CheckManagement
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnUnApplyCustInvoicesOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnApplyVendInvoicesOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnApplyVendInvoicesOnBeforeErrorNoAppliedEntry(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
 }
 

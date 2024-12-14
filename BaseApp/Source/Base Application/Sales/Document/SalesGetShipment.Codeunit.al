@@ -48,6 +48,7 @@ codeunit 64 "Sales-Get Shipment"
         SalesLine: Record "Sales Line";
         SalesShptHeader: Record "Sales Shipment Header";
         SalesShptLine: Record "Sales Shipment Line";
+        TempSalesLine: Record "Sales Line" temporary;
         UOMMgt: Codeunit "Unit of Measure Management";
         GetShipments: Page "Get Shipment Lines";
         LineListHasAttachments: Dictionary of [Code[20], Boolean];
@@ -74,6 +75,8 @@ codeunit 64 "Sales-Get Shipment"
         OnBeforeCreateInvLines(SalesShptLine2, SalesHeader, SalesLine, SalesShptHeader, IsHandled);
         if IsHandled then
             exit;
+
+        TempSalesLine.DeleteAll();
 
         SalesShptLine2.SetFilter("Qty. Shipped Not Invoiced", '<>0');
         OnCreateInvLinesOnBeforeFind(SalesShptLine2, SalesHeader);
@@ -119,6 +122,8 @@ codeunit 64 "Sales-Get Shipment"
             until SalesShptLine2.Next() = 0;
 
             UpdateItemChargeLines();
+
+            AdjustPrepmtAmtToDeductRoundingOrderLineWise(PrepmtAmtToDeductRounding, SalesHeader);
 
             if SalesLine.Find() then;
 
@@ -354,6 +359,8 @@ codeunit 64 "Sales-Get Shipment"
                 Fraction := (SalesShptLine.Quantity - SalesShptLine."Quantity Invoiced") / (SalesOrderLine.Quantity - SalesOrderLine."Quantity Invoiced");
                 FractionAmount := Fraction * (SalesOrderLine."Prepmt. Amt. Inv." - SalesOrderLine."Prepmt Amt Deducted");
                 RoundingAmount += SalesLine."Prepmt Amt to Deduct" - FractionAmount;
+                if (SalesLine."Prepmt Amt to Deduct" - FractionAmount) <> 0 then
+                    InsertTempSalesLine(SalesShptLine, SalesOrderLine, SalesLine, FractionAmount);
             end else
                 RoundingAmount := 0;
         end;
@@ -452,6 +459,40 @@ codeunit 64 "Sales-Get Shipment"
         DocumentAttachment.SetRange("Document Type", DocumentAttachment."Document Type"::Order);
         DocumentAttachment.SetRange("No.", DocNo);
         exit(not DocumentAttachment.IsEmpty());
+    end;
+
+    local procedure InsertTempSalesLine(SalesShptLine: Record "Sales Shipment Line"; SalesOrderLine: Record "Sales Line"; SalesLine: Record "Sales Line"; FractionAmount: Decimal)
+    begin
+        if not TempSalesLine.Get(TempSalesLine."Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.") then begin
+            TempSalesLine := SalesOrderLine;
+            TempSalesLine.Amount := SalesLine."Prepmt Amt to Deduct" - FractionAmount;
+            TempSalesLine."Shipment No." := SalesShptLine."Document No.";
+            TempSalesLine."Shipment Line No." := SalesShptLine."Line No.";
+            TempSalesLine.Insert();
+        end else begin
+            TempSalesLine.Amount += SalesLine."Prepmt Amt to Deduct" - FractionAmount;
+            TempSalesLine."Shipment No." := SalesShptLine."Document No.";
+            TempSalesLine."Shipment Line No." := SalesShptLine."Line No.";
+            TempSalesLine.Modify();
+        end;
+    end;
+
+    local procedure AdjustPrepmtAmtToDeductRoundingOrderLineWise(var PrepmtAmtToDeductRounding: Decimal; SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        TempSalesLine.Reset();
+        if TempSalesLine.FindSet() then
+            repeat
+                SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+                SalesLine.SetRange("Document No.", SalesHeader."No.");
+                SalesLine.SetRange("Shipment No.", TempSalesLine."Shipment No.");
+                SalesLine.SetRange("Shipment Line No.", TempSalesLine."Shipment Line No.");
+                if SalesLine.FindFirst() then begin
+                    AdjustPrepmtAmtToDeductRounding(SalesLine, TempSalesLine.Amount);
+                    PrepmtAmtToDeductRounding -= TempSalesLine.Amount;
+                end;
+            until TempSalesLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
