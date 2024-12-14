@@ -199,18 +199,18 @@ table 11401 "CBG Statement Line"
                             if JrnlTemplate."Copy VAT Setup to Jnl. Lines" then begin
                                 "VAT Bus. Posting Group" := GLAccount."VAT Bus. Posting Group";
                                 "VAT Prod. Posting Group" := GLAccount."VAT Prod. Posting Group";
+                                case GLAccount."Gen. Posting Type" of
+                                    GLAccount."Gen. Posting Type"::" ":
+                                        "VAT Type" := "VAT Type"::" ";
+                                    GLAccount."Gen. Posting Type"::Purchase:
+                                        "VAT Type" := "VAT Type"::Purchase;
+                                    GLAccount."Gen. Posting Type"::Sale:
+                                        "VAT Type" := "VAT Type"::Sale;
+                                    else
+                                        GLAccount.FieldError("Gen. Posting Type", Text1000000);
+                                end;
+                                Validate("VAT Prod. Posting Group");
                             end;
-                            case GLAccount."Gen. Posting Type" of
-                                GLAccount."Gen. Posting Type"::" ":
-                                    "VAT Type" := "VAT Type"::" ";
-                                GLAccount."Gen. Posting Type"::Purchase:
-                                    "VAT Type" := "VAT Type"::Purchase;
-                                GLAccount."Gen. Posting Type"::Sale:
-                                    "VAT Type" := "VAT Type"::Sale;
-                                else
-                                    GLAccount.FieldError("Gen. Posting Type", Text1000000);
-                            end;
-                            Validate("VAT Prod. Posting Group");
                         end;
                     "Account Type"::Customer:
                         begin

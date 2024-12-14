@@ -703,7 +703,6 @@ table 179 "Reversal Entry"
             DetailedCustLedgEntry.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
             DetailedCustLedgEntry.SetRange("Transaction No.", CustLedgerEntry."Transaction No.");
             DetailedCustLedgEntry.SetRange("Customer No.", CustLedgerEntry."Customer No.");
-            DetailedCustLedgEntry.SetRange("Currency Code", GLSetup."Additional Reporting Currency");
             DetailedCustLedgEntry.SetFilter("Entry Type", '%1|%2',
               DetailedCustLedgEntry."Entry Type"::"Realized Gain", DetailedCustLedgEntry."Entry Type"::"Realized Loss");
             if not DetailedCustLedgEntry.IsEmpty() then
@@ -736,7 +735,6 @@ table 179 "Reversal Entry"
             DetailedVendorLedgEntry.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");
             DetailedVendorLedgEntry.SetRange("Transaction No.", VendorLedgerEntry."Transaction No.");
             DetailedVendorLedgEntry.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
-            DetailedVendorLedgEntry.SetRange("Currency Code", GLSetup."Additional Reporting Currency");
             DetailedVendorLedgEntry.SetFilter("Entry Type", '%1|%2',
               DetailedVendorLedgEntry."Entry Type"::"Realized Gain", DetailedVendorLedgEntry."Entry Type"::"Realized Loss");
             if not DetailedVendorLedgEntry.IsEmpty() then

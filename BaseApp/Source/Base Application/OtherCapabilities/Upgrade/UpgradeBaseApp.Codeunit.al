@@ -118,7 +118,7 @@ codeunit 104000 "Upgrade - BaseApp"
         SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral', Locked = true;
         ProductionOrderLbl: Label 'PRODUCTION', Locked = true;
         ProductionOrderTxt: Label 'Production Order', Locked = true;
-        XGenericSEPA09Txt: Label 'Generic SEPA00100109';
+        XGenericSEPA09Txt: Label 'SEPA00100109', Locked = true;
         XGenericSEPADesc09Txt: Label 'SEPA CT pain.001.001.09', Locked = true;
         JobConsumpWhseHandlingUnexpectedValueLbl: Label 'UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation skipped. %1 set to different value than %2 for at least one record in table %3 with %4 enabled.', Comment = '%1 = "Job Consump. Whse. Handling" field caption, %2 = "Job Consump. Whse. Handling" expected value, %3 = "Location" table caption, %4 = "Directed Put-away and Pick" field caption', Locked = true;
 
@@ -3945,6 +3945,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag());
     end;
 
+    [Obsolete('This function is obsolete as the "Customer Template" table has been removed in version 23.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
     begin

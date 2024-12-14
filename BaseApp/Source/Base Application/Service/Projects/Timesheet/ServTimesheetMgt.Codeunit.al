@@ -53,10 +53,13 @@ codeunit 6451 "Serv. Time Sheet Mgt."
         CheckLinkedServiceDoc(TimeSheetLine);
     end;
 
-    local procedure CheckLinkedServiceDoc(TimeSheetLine: Record "Time Sheet Line")
+    local procedure CheckLinkedServiceDoc(var TimeSheetLine: Record "Time Sheet Line")
     var
         ServiceLine: Record "Service Line";
     begin
+        if TimeSheetLine."Service Order No." = '' then
+            exit;
+
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", TimeSheetLine."Service Order No.");
         ServiceLine.SetRange("Time Sheet No.", TimeSheetLine."Time Sheet No.");
@@ -76,6 +79,9 @@ codeunit 6451 "Serv. Time Sheet Mgt."
         ServiceHeader: Record "Service Header";
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
+        if TimeSheetLine.Type <> TimeSheetLine.Type::Service then
+            exit;
+
         if ServiceMgtSetup.Get() and ServiceMgtSetup."Copy Time Sheet to Order" then begin
             ServiceHeader.Get(ServiceHeader."Document Type"::Order, TimeSheetLine."Service Order No.");
             CreateServDocLinesFromTSLine(ServiceHeader, TimeSheetLine);

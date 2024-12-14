@@ -189,7 +189,8 @@ codeunit 96 "Purch.-Quote to Order"
                         PurchOrderLine."Prepayment %" := Vend."Prepayment %";
                     PrepmtMgt.SetPurchPrepaymentPct(PurchOrderLine, PurchOrderHeader."Posting Date");
                     ValidatePurchOrderLinePrepaymentPct(PurchOrderLine);
-                    PurchOrderLine.DefaultDeferralCode();
+                    if PurchOrderLine."No." <> '' then
+                        PurchOrderLine.DefaultDeferralCode();
                     OnBeforeInsertPurchOrderLine(PurchOrderLine, PurchOrderHeader, PurchQuoteLine, PurchQuoteHeader);
                     PurchOrderLine.Insert();
                     OnAfterInsertPurchOrderLine(PurchQuoteLine, PurchOrderLine);

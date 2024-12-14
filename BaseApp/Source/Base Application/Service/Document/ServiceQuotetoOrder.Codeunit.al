@@ -258,10 +258,8 @@ codeunit 5923 "Service-Quote to Order"
 
         SkipDelete := false;
         OnBeforeServLineDeleteAll(ServiceHeader, ServOrderHeader, SkipDelete);
-        if not SkipDelete then begin
+        if not SkipDelete then
             ApprovalsMgmt.DeleteApprovalEntries(ServiceHeader.RecordId);
-            ServOrderLine.DeleteAll(true);
-        end;
     end;
 
     local procedure TransferQuoteToOrderLines(var ServiceQuoteLine: Record "Service Line"; var ServiceQuoteHeader: Record "Service Header"; var ServiceOrderLine: Record "Service Line"; var ServiceOrderHeader: Record "Service Header")

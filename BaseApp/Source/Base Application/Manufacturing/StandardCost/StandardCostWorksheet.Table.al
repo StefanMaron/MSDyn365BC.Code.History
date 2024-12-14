@@ -77,7 +77,7 @@ table 5841 "Standard Cost Worksheet"
                         begin
                             Res.Get("No.");
                             Description := Res.Name;
-                            GetResCosts();
+                            GetResourceCosts();
                         end;
                 end;
             end;
@@ -336,8 +336,10 @@ table 5841 "Standard Cost Worksheet"
         "New Indirect Cost %" := MachCtr."Indirect Cost %";
     end;
 
-    local procedure GetResCosts()
+    local procedure GetResourceCosts()
     begin
+        OnBeforeGetResourceCosts(Rec, Res);
+
         "Standard Cost" := Res."Unit Cost";
         "New Standard Cost" := Res."Unit Cost";
         "Overhead Rate" := 0;
@@ -472,5 +474,9 @@ table 5841 "Standard Cost Worksheet"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetResourceCosts(var StandardCostWorksheet: Record "Standard Cost Worksheet"; var Resource: Record Resource)
+    begin
+    end;
 }
 

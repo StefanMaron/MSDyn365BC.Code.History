@@ -343,6 +343,7 @@ codeunit 11000001 "Financial Interface Telebank"
                 case DetailLine."Account Type" of
                     DetailLine."Account Type"::Customer:
                         begin
+                            CustLedgerEntry.SetAutoCalcFields("Payments in Process");
                             CustLedgerEntry.Get(DetailLine."Serial No. (Entry)");
                             if Check then begin
                                 if not CustLedgerEntry.Open then
@@ -358,7 +359,6 @@ codeunit 11000001 "Financial Interface Telebank"
                                         CustLedgerEntry.SetRange("Connect Batches Filter", DetailLine."Connect Batches");
                                         CustLedgerEntry.SetRange("Connect Lines Filter", DetailLine."Connect Lines");
                                         CustLedgerEntry.SetRange("Our Bank Filter", DetailLine."Our Bank");
-                                        CustLedgerEntry.CalcFields("Payments in Process");
                                         CustLedgerEntry.Validate("Amount to Apply", -CustLedgerEntry."Payments in Process");
                                     end;
                                     OnSetApplyCVLedgerEntriesOnBeforeCustLedgerEntryModify(CustLedgerEntry, DetailLine);
@@ -367,6 +367,7 @@ codeunit 11000001 "Financial Interface Telebank"
                         end;
                     DetailLine."Account Type"::Vendor:
                         begin
+                            VendorLedgerEntry.SetAutoCalcFields("Payments in Process");
                             VendorLedgerEntry.Get(DetailLine."Serial No. (Entry)");
                             if Check then begin
                                 if not VendorLedgerEntry.Open then
@@ -382,7 +383,6 @@ codeunit 11000001 "Financial Interface Telebank"
                                         VendorLedgerEntry.SetRange("Connect Batches Filter", DetailLine."Connect Batches");
                                         VendorLedgerEntry.SetRange("Connect Lines Filter", DetailLine."Connect Lines");
                                         VendorLedgerEntry.SetRange("Our Bank Filter", DetailLine."Our Bank");
-                                        VendorLedgerEntry.CalcFields("Payments in Process");
                                         VendorLedgerEntry.Validate("Amount to Apply", -VendorLedgerEntry."Payments in Process")
                                     end;
                                     OnSetApplyCVLedgerEntriesOnBeforeVendorLedgerEntryModify(VendorLedgerEntry, DetailLine);
@@ -391,6 +391,7 @@ codeunit 11000001 "Financial Interface Telebank"
                         end;
                     DetailLine."Account Type"::Employee:
                         begin
+                            EmployeeLedgerEntry.SetAutoCalcFields("Payments in Process");
                             EmployeeLedgerEntry.Get(DetailLine."Serial No. (Entry)");
                             if Check then begin
                                 if not EmployeeLedgerEntry.Open then
@@ -406,7 +407,6 @@ codeunit 11000001 "Financial Interface Telebank"
                                         EmployeeLedgerEntry.SetRange("Connect Batches Filter", DetailLine."Connect Batches");
                                         EmployeeLedgerEntry.SetRange("Connect Lines Filter", DetailLine."Connect Lines");
                                         EmployeeLedgerEntry.SetRange("Our Bank Filter", DetailLine."Our Bank");
-                                        EmployeeLedgerEntry.CalcFields("Payments in Process");
                                         if EmployeeLedgerEntry.Open or Post then
                                             EmployeeLedgerEntry.Validate("Amount to Apply", -EmployeeLedgerEntry."Payments in Process");
                                     end;

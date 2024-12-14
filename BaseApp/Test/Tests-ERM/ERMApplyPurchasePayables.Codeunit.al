@@ -36,6 +36,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         DimensionUsedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error.';
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.';
         DifferentCurrenciesErr: Label 'All entries in one application must be in the same currency.';
+        SourceCurrAmtErr: Label '%1 must be %2 in %3', Comment = '%1 = Source Currency Amount, %2 = Amount, %3 = G/L Entry';
 
     [Test]
     [Scope('OnPrem')]
@@ -1217,6 +1218,92 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ReverseTransactionEntriesPageHandler,VoidCheckPageHandler')]
+    procedure SourceCurrAmtIsPopulatedInGLEntryWhenVoidCheck()
+    var
+        BankAccount: Record "Bank Account";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        GLEntry: Record "G/L Entry";
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        Amount: Decimal;
+        DocumentNo: Code[20];
+        VoidType: Option "Unapply and void check","Void check only";
+    begin
+        // [SCENARIO 559194] Source Currency Amount is populated in G/L Entries which 
+        // Are created when Stan runs Void Check action from a Check Ledger Entry.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Bank Account and Validate Currency Code.
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", CreateCurrencyCode());
+        BankAccount.Modify(true);
+
+        // [GIVEN] Generate and save Amount in a Variable.
+        Amount := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create and Post Gen. Journal Line.
+        CreateAndPostGenJournalLine(Vendor, BankAccount, Amount);
+
+        // [GIVEN] Find Vendor ledger Entry.
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindFirst();
+
+        // [GIVEN] Run Reverse Transaction action from Vendor Ledger Entries page.
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.GoToRecord(VendorLedgerEntry);
+        VendorLedgerEntries.ReverseTransaction.Invoke();
+
+        // [GIVEN] Find Check Ledger Entry.
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        CheckLedgerEntry.FindFirst();
+
+        // [GIVEN] Void Check.
+        LibraryVariableStorage.Enqueue(VoidType::"Void check only");
+        VoidCheck(CheckLedgerEntry."Document No.");
+
+        // [GIVEN] Find GL Entry and save Document No. in a Variable.
+        GLEntry.SetRange("Source Currency Code", BankAccount."Currency Code");
+        GLEntry.FindFirst();
+        DocumentNo := GLEntry."Document No.";
+
+        // [WHEN] Find GL Entry.
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"G/L Account");
+        GLEntry.FindFirst();
+
+        // [THEN] Source Currency Amount of GL Entry is equal to Amount.
+        Assert.AreEqual(
+            Amount,
+            GLEntry."Source Currency Amount",
+            StrSubstNo(
+                SourceCurrAmtErr,
+                GLEntry.FieldCaption("Source Currency Amount"),
+                Amount,
+                GLEntry.TableCaption()));
+
+        // [WHEN] Find GL Entry.
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"G/L Account");
+        GLEntry.FindLast();
+
+        // [THEN] Source Currency Amount of GL Entry is equal to -Amount.
+        Assert.AreEqual(
+            -Amount,
+            GLEntry."Source Currency Amount",
+            StrSubstNo(
+                SourceCurrAmtErr,
+                GLEntry.FieldCaption("Source Currency Amount"),
+                -Amount,
+                GLEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -2046,6 +2133,63 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         Assert.RecordCount(DetailedVendorLedgEntry, AppliedEntries2);
     end;
 
+    local procedure CreateAndPostGenJournalLine(Vendor: Record Vendor; BankAccount: Record "Bank Account"; Amount: Decimal)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine,
+            GenJournalTemplate.Name,
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor,
+            Vendor."No.",
+            Amount);
+
+        GenJournalLine.Validate("Currency Code", BankAccount."Currency Code");
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure VoidCheck(DocumentNo: Code[20])
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        CheckManagement: Codeunit CheckManagement;
+        ConfirmFinancialVoid: Page "Confirm Financial Void";
+    begin
+        CheckLedgerEntry.SetRange("Document No.", DocumentNo);
+        CheckLedgerEntry.FindFirst();
+        CheckManagement.FinancialVoidCheck(CheckLedgerEntry);
+        ConfirmFinancialVoid.SetCheckLedgerEntry(CheckLedgerEntry);
+    end;
+
+    local procedure CreateCurrencyCode(): Code[10]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
+    begin
+        GeneralLedgerSetup.Get();
+
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
+        Currency.Validate("EMU Currency", true);
+        Currency.Modify(true);
+
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+
+        exit(Currency.Code);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
@@ -2170,6 +2314,23 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         VendorLedgerEntry.SetRange("Document No.", DocNo);
         VendorLedgerEntry.FindFirst();
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Entry No.");
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReverseTransactionEntriesPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
+    begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VoidCheckPageHandler(var ConfirmFinancialVoid: Page "Confirm Financial Void"; var Response: Action)
+    var
+        VoidTypeVariant: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VoidTypeVariant);
+        ConfirmFinancialVoid.InitializeRequest(WorkDate(), VoidTypeVariant);
+        Response := ACTION::Yes
     end;
 }
 

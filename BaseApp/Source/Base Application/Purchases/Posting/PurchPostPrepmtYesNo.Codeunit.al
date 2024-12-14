@@ -94,7 +94,7 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         GenJnlPostPreview.Preview(PurchPostPrepmtYesNo, PurchHeader);
     end;
 
-    local procedure GetReport(var PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo")
+    procedure GetReport(var PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo")
     var
         IsHandled: Boolean;
     begin
