@@ -118,7 +118,7 @@ report 7313 "Whse. Shipment Status"
 
                 trigger OnAfterGetRecord()
                 begin
-                    GetLocation("Location Code");
+                    this.GetLocation("Location Code");
                 end;
             }
         }

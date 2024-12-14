@@ -104,6 +104,12 @@ page 250 "General Journal Template List"
                     ToolTip = 'Specifies whether a report is printed automatically when you post.';
                     Visible = false;
                 }
+                field("Unlink Inc. Doc On Posting"; Rec."Unlink Inc. Doc On Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the the incoming document will be unlinked from the journal when it is posted.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)

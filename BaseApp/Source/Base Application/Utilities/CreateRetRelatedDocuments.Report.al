@@ -94,6 +94,8 @@ report 6697 "Create Ret.-Related Documents"
     }
 
     trigger OnPreReport()
+    var
+        IsHandled: Boolean;
     begin
         TempRetRelDoc.DeleteAll();
 
@@ -114,13 +116,16 @@ report 6697 "Create Ret.-Related Documents"
             PROPurchHeader."Document Type" := PROPurchHeader."Document Type"::"Return Order";
             Clear(CopyDocMgt);
             CopyDocMgt.SetProperties(true, false, false, false, true, false, false);
-            OnPreReportOnBeforeCopyPurchReturnDoc(CopyDocMgt, SROSalesHeader, PROPurchHeader);
-            CopyDocMgt.CopyFromSalesToPurchDoc(VendorNo, SROSalesHeader, PROPurchHeader);
-            OnPreReportOnAfterCopyPurchReturnDoc(SROSalesHeader, PROPurchHeader);
-            TempRetRelDoc."Entry No." := 1;
-            TempRetRelDoc."Document Type" := TempRetRelDoc."Document Type"::"Purchase Return Order";
-            TempRetRelDoc."No." := PROPurchHeader."No.";
-            TempRetRelDoc.Insert();
+            IsHandled := false;
+            OnPreReportOnBeforeCopyPurchReturnDoc(CopyDocMgt, SROSalesHeader, PROPurchHeader, TempRetRelDoc, IsHandled);
+            if not IsHandled then begin
+                CopyDocMgt.CopyFromSalesToPurchDoc(VendorNo, SROSalesHeader, PROPurchHeader);
+                OnPreReportOnAfterCopyPurchReturnDoc(SROSalesHeader, PROPurchHeader);
+                TempRetRelDoc."Entry No." := 1;
+                TempRetRelDoc."Document Type" := TempRetRelDoc."Document Type"::"Purchase Return Order";
+                TempRetRelDoc."No." := PROPurchHeader."No.";
+                TempRetRelDoc.Insert();
+            end;
         end;
 
         if CreatePO then begin
@@ -184,7 +189,7 @@ report 6697 "Create Ret.-Related Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPreReportOnBeforeCopyPurchReturnDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; var SROSalesHeader: Record "Sales Header"; var PROPurchHeader: Record "Purchase Header")
+    local procedure OnPreReportOnBeforeCopyPurchReturnDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; var SROSalesHeader: Record "Sales Header"; var PROPurchHeader: Record "Purchase Header"; var TempReturnsRelatedDocument: Record "Returns-Related Document" temporary; var IsHandled: Boolean)
     begin
     end;
 

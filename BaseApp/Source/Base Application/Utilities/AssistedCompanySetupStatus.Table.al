@@ -34,14 +34,22 @@ table 1802 "Assisted Company Setup Status"
                 OnEnabled("Company Name", Enabled);
             end;
         }
+#pragma warning disable AS0072
         field(3; "Package Imported"; Boolean)
         {
             Caption = 'Package Imported';
+            ObsoleteTag = '25.2';
+            ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
+            ObsoleteState = Pending;
         }
         field(4; "Import Failed"; Boolean)
         {
             Caption = 'Import Failed';
+            ObsoleteTag = '25.2';
+            ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
+            ObsoleteState = Pending;
         }
+#pragma warning restore AS0072
         field(5; "Company Setup Session ID"; Integer)
         {
             Caption = 'Company Setup Session ID';

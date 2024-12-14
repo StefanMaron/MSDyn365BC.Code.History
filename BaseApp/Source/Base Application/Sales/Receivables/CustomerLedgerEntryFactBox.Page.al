@@ -147,7 +147,14 @@ page 9106 "Customer Ledger Entry FactBox"
     end;
 
     local procedure GetNoOfAppliedEntries(CustLedgerEntry: Record "Cust. Ledger Entry"): Integer
+    var
+        IsHandled: Boolean;
+        ReturnedValue: Integer;
     begin
+        IsHandled := false;
+        OnBeforeGetNoOfAppliedEntries(CustLedgerEntry, ReturnedValue, IsHandled);
+        if IsHandled then
+            exit(ReturnedValue);
         GetAppliedEntries(CustLedgerEntry);
         exit(CustLedgerEntry.Count);
     end;
@@ -224,6 +231,11 @@ page 9106 "Customer Ledger Entry FactBox"
             Heading := Format(CustLedgerEntry."Document Type");
         Heading := Heading + ' ' + CustLedgerEntry."Document No.";
         exit(Heading);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNoOfAppliedEntries(CustLedgerEntry: Record "Cust. Ledger Entry"; var ReturnedValue: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

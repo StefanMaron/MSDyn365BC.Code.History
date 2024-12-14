@@ -25,6 +25,8 @@ codeunit 137140 "SCM Inventory Documents"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         isInitialized: Boolean;
         ItemTrackingAction: Option AssignSerialNo,SelectEntries;
         RoundingTo0Err: Label 'Rounding of the field';
@@ -37,6 +39,7 @@ codeunit 137140 "SCM Inventory Documents"
         DimensionValueErr: Label 'Dimension Value must match with %1', Comment = '%1= Dimension Value';
         ReorderingPolicyShouldBeVisibleErr: Label 'Reordering Policy should be visible.';
         SpecialEquipmentCodeShouldBeVisibleErr: Label 'Special Equipment Code should be visible.';
+        DueDateBeforeWorkDateMsg: Label 'is before work date';
 
     [Test]
     [Scope('OnPrem')]
@@ -1789,6 +1792,391 @@ codeunit 137140 "SCM Inventory Documents"
         Assert.IsTrue(
             StocKkeepingUnitCard."Special Equipment Code".Visible(),
             SpecialEquipmentCodeShouldBeVisibleErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('PickRegisteredMsgHandler')]
+    procedure PostDirectTransferWithAssemblyOrder()
+    var
+        Item: Record Item;
+        WhseSetup: Record "Warehouse Setup";
+        NonWhseLocation: Record Location;
+        WhseLocation: Record Location;
+        PutAndPickBin: Record Bin;
+        ShipBin: Record Bin;
+        RcptBin: Record Bin;
+        PutAndPickZone: Record Zone;
+        ShipZone: Record Zone;
+        RcptZone: Record Zone;
+        CheckBinType: Record "Bin Type";
+        PutAndPickBinType: Record "Bin Type";
+        ShipBinType: Record "Bin Type";
+        RcptBinType: Record "Bin Type";
+        PutAndPickBinContent: Record "Bin Content";
+        ShipBinContent: Record "Bin Content";
+        RcptBinContent: Record "Bin Content";
+        WarehouseEmployee: Record "Warehouse Employee";
+        AssemblyHeader: Record "Assembly Header";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        AssemblyItem: Record Item;
+        InventorySetup: Record "Inventory Setup";
+        PutAwayTemplateHeader: Record "Put-away Template Header";
+        PutAwayTemplateLine: Record "Put-away Template Line";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        // [Scenario 542854] When a Component of an Assembly Order is reserved against an inbound Transfer with Direct Posting
+        Initialize();
+
+        //[GIVEN] UpdateInventory setup with Direct Transfer Posting as Direct Transfer
+        InventorySetup.Get();
+
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+        LibraryWarehouse.NoSeriesSetup(WhseSetup);
+
+        // [GIVEN] Two locations: "A" without warehouse setup, and "B" with "Directed Put-Away and Pick" enabled
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(NonWhseLocation);
+        LibraryWarehouse.CreateLocationWMS(WhseLocation, true, true, true, true, true);
+        WhseLocation."Directed Put-away and Pick" := true;
+        WhseLocation."Use Cross-Docking" := true;
+        WhseLocation.Modify();
+
+        // [GIVEN] Create Bin Types
+        if FoundBinTypeWithCombination(false, false, true, true, CheckBinType) then
+            PutAndPickBinType := CheckBinType
+        else
+            LibraryWarehouse.CreateBinType(PutAndPickBinType, false, false, true, true);
+
+        if FoundBinTypeWithCombination(false, true, false, false, CheckBinType) then
+            ShipBinType := CheckBinType
+        else
+            LibraryWarehouse.CreateBinType(ShipBinType, false, true, false, false);
+
+        if FoundBinTypeWithCombination(true, false, false, false, CheckBinType) then
+            RcptBinType := CheckBinType
+        else
+            LibraryWarehouse.CreateBinType(RcptBinType, true, false, false, false);
+
+        //[GIVEN] Create Zones
+        LibraryWarehouse.CreateZone(PutAndPickZone, PutAndPickBinType.Code, WhseLocation.Code, PutAndPickBinType.Code, '', '', 0, false);
+        LibraryWarehouse.CreateZone(ShipZone, ShipBinType.Code, WhseLocation.Code, ShipBinType.Code, '', '', 0, false);
+        LibraryWarehouse.CreateZone(RcptZone, RcptBinType.Code, WhseLocation.Code, RcptBinType.Code, '', '', 0, false);
+
+        //[GIVEN] Create Bins
+        LibraryWarehouse.CreateBin(
+            PutAndPickBin,
+            WhseLocation.Code,
+            CopyStr(LibraryUtility.GenerateRandomCode(PutAndPickBin.FieldNo(Code), DATABASE::Bin), 1, LibraryUtility.GetFieldLength(DATABASE::Bin, PutAndPickBin.FieldNo(Code))),
+            PutAndPickZone.Code,
+            PutAndPickBinType.Code);
+
+        LibraryWarehouse.CreateBin(
+            ShipBin,
+            WhseLocation.Code,
+            CopyStr(LibraryUtility.GenerateRandomCode(ShipBin.FieldNo(Code), DATABASE::Bin), 1, LibraryUtility.GetFieldLength(DATABASE::Bin, ShipBin.FieldNo(Code))),
+            ShipZone.Code,
+            ShipBinType.Code);
+
+        LibraryWarehouse.CreateBin(
+            RcptBin,
+            WhseLocation.Code,
+            CopyStr(LibraryUtility.GenerateRandomCode(RcptBin.FieldNo(Code), DATABASE::Bin), 1, LibraryUtility.GetFieldLength(DATABASE::Bin, RcptBin.FieldNo(Code))),
+            RcptZone.Code,
+            RcptBinType.Code);
+
+        //[GIVEN] Update Receipt and Ship Bin on Whse Location
+        LibraryWarehouse.CreatePutAwayTemplateHeader(PutAwayTemplateHeader);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, true, false, true, true, true, false);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, true, false, true, true, false, false);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, false, true, true, true, false, false);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, false, true, true, false, false, false);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, false, true, false, false, false, true);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, false, true, false, false, false, false);
+
+        WhseLocation.Validate("Receipt Bin Code", RcptBin.Code);
+        WhseLocation.Validate("Shipment Bin Code", ShipBin.Code);
+        WhseLocation.Validate("Put-away Bin Policy", WhseLocation."Put-away Bin Policy"::"Put-away Template");
+        WhseLocation."Put-away Template Code" := PutAwayTemplateHeader.Code;
+        WhseLocation."Always Create Put-away Line" := true;
+        WhseLocation."Always Create Pick Line" := true;
+        WhseLocation.Modify();
+
+        //[GIVEN] Create Warehouse Employee with Default Location
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, WhseLocation.Code, true);
+
+        //[GIVEN] Create and register Put Away from Warehouse Receipt Using Purchase Order
+        LibraryInventory.CreateItem(Item);
+        Item."Put-away Template Code" := PutAwayTemplateHeader.Code;
+        Item."Put-away Unit of Measure Code" := Item."Put-away Unit of Measure Code";
+        item.Modify();
+
+        //[GIVEN] Create Bin Content
+        LibraryWarehouse.CreateBinContent(PutAndPickBinContent, PutAndPickBin."Location Code", PutAndPickZone.code, PutAndPickBin.Code, Item."No.", '', Item."Base Unit of Measure");
+        PutAndPickBinContent."Cross-Dock Bin" := true;
+        PutAndPickBinContent.Modify();
+        LibraryWarehouse.CreateBinContent(ShipBinContent, ShipBin."Location Code", ShipZone.Code, ShipBin.Code, Item."No.", '', Item."Base Unit of Measure");
+        ShipBinContent."Cross-Dock Bin" := true;
+        ShipBinContent.Modify();
+        LibraryWarehouse.CreateBinContent(RcptBinContent, RcptBin."Location Code", RcptZone.Code, RcptBin.code, Item."No.", '', Item."Base Unit of Measure");
+        RcptBinContent."Cross-Dock Bin" := true;
+        RcptBinContent.Modify();
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", 10, WhseLocation.Code, false);
+
+        //[GIVEN] Create Assembly Item with BOM Component
+        CreateAssemblyItemWithBOM(AssemblyItem, Item);
+        //[GIVEM] Create Assembly Order
+        CreateAssemblyOrder(AssemblyHeader, AssemblyLine, AssemblyItem, Item, WorkDate(), 1, NonWhseLocation.Code);
+
+        // [GIVEN] Create a direct transfer order from location "B" to location "A"
+        CreateDirectTransferHeader(TransferHeader, WhseLocation.Code, NonWhseLocation.code);
+        TransferHeader.Validate("Posting Date", WorkDate());
+        TransferHeader.Modify(true);
+
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, item."No.", 10);
+        TransferHeader.PerformManualRelease();
+        AssemblyLine.AutoReserve();
+
+        //[GIVEN] Post Direct Transfer Order Shipment
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+
+        //[GIVEN] Create and register pick
+        FindWhseShptLine(
+            WarehouseShipmentLine, TransferLine."Document No.");
+        CreateRegisterWhsePick(WhseActivityHeader, WarehouseShipmentLine, TransferLine.Quantity);
+        PostWhseShipmentFromTO(TransferHeader."No.");
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
+        //[WHEN] Post created assembly order    
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        //[THEN] Assembly Order should be posted successfully.
+
+    end;
+
+    local procedure PostWhseShipmentFromTO(DocumentNo: Code[20])
+    var
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Outbound Transfer");
+        WhseShipmentLine.SetRange("Source No.", DocumentNo);
+        WhseShipmentLine.FindFirst();
+
+        WarehouseShipmentHeader.Get(WhseShipmentLine."No.");
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
+    end;
+
+    local procedure FindWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20])
+    begin
+        WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Outbound Transfer");
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        WarehouseShipmentLine.FindFirst();
+    end;
+
+    [ModalPageHandler]
+    procedure ReservationFromCurrentLineHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
+    end;
+
+    local procedure CreateAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; ParentItem: Record Item; ChildItem: Record Item; DueDate: Date; Qty: Decimal; LocationCode: Code[10])
+    begin
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, DueDate, ParentItem."No.", LocationCode, Qty, '');
+        AssemblyHeader.Validate("Due Date", WorkDate());
+        AssemblyHeader."Starting Date" := WorkDate();
+        AssemblyHeader."Ending Date" := WorkDate();
+        AssemblyHeader.Modify(true);
+
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", ChildItem."Base Unit of Measure", Qty, 1, '');
+        AssemblyLine.Validate(Reserve, AssemblyLine.Reserve::Always);
+        AssemblyLine.Modify(true);
+    end;
+
+    local procedure FoundBinTypeWithCombination(IsReceive: Boolean; IsShip: Boolean; IsPutAway: Boolean; IsPick: Boolean; var NewBinType: Record "Bin Type"): Boolean
+    var
+        BinType: Record "Bin Type";
+    begin
+        Clear(NewBinType);
+
+        BinType.SetRange(Receive, IsReceive);
+        BinType.SetRange(Ship, IsShip);
+        BinType.SetRange("Put Away", IsPutAway);
+        BinType.SetRange(Pick, IsPick);
+        if BinType.FindFirst() then begin
+            NewBinType := BinType;
+            exit(true);
+        end;
+    end;
+
+    local procedure CreateAssemblyItemWithBOM(var AssemblyItem: Record Item; var BomComponentItem: Record Item)
+    begin
+        LibraryInventory.CreateItem(AssemblyItem);
+        AssemblyItem.Validate("Replenishment System", AssemblyItem."Replenishment System"::Assembly);
+        AssemblyItem.Validate("Assembly Policy", Enum::"Assembly Policy"::"Assemble-to-Order");
+        AssemblyItem.Modify(true);
+
+        // Create Component Item and set as Assembly BOM
+        CreateAssemblyBomComponent(BomComponentItem, AssemblyItem."No.");
+        Commit();
+    end;
+
+    local procedure CreateAssemblyBomComponent(var Item: Record Item; ParentItemNo: Code[20])
+    var
+        BomComponent: Record "BOM Component";
+        BomRecordRef: RecordRef;
+    begin
+        BomComponent.Init();
+        BomComponent.Validate(BomComponent."Parent Item No.", ParentItemNo);
+        BomRecordRef.GetTable(BomComponent);
+        BomComponent.Validate(BomComponent."Line No.", LibraryUtility.GetNewLineNo(BomRecordRef, BomComponent.FieldNo(BomComponent."Line No.")));
+        BomComponent.Validate(BomComponent.Type, BomComponent.Type::Item);
+        BomComponent.Validate(BomComponent."No.", Item."No.");
+        BomComponent.Validate(BomComponent."Quantity per", LibraryRandom.RandInt(10));
+        BomComponent.Insert(true);
+    end;
+
+    local procedure CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UseItemTracking: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, ItemNo, Quantity, LocationCode, UseItemTracking);
+        RegisterWarehouseActivity(
+          WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Put-away");
+
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+    end;
+
+    local procedure CreateAndPostWarehouseReceiptFromPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UseItemTracking: Boolean)
+    var
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", ItemNo, Quantity, LocationCode, UseItemTracking);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        PostWarehouseReceipt(PurchaseHeader."No.", ItemNo);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ItemTracking: Boolean)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        PurchaseHeader."Location Code" := LocationCode;
+        PurchaseHeader.Modify();
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, ItemNo, Quantity, LocationCode, ItemTracking);
+    end;
+
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UseTracking: Boolean)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+        if UseTracking then
+            PurchaseLine.OpenItemTrackingLines();
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindSet();
+    end;
+
+    local procedure PostWarehouseReceipt(SourceNo: Code[20]; ItemNo: Code[20])
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        FindWarehouseReceiptLine(WarehouseReceiptLine, SourceNo, ItemNo);
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+    end;
+
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; ItemNo: Code[20])
+    begin
+        WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
+        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
+        WarehouseReceiptLine.SetRange("Item No.", ItemNo);
+        WarehouseReceiptLine.FindFirst();
+    end;
+
+    local procedure CreateRegisterWhsePick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseShipmentLine: Record "Warehouse Shipment Line"; QtyToPost: Decimal)
+    var
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+        ModifyWhsePick(WarehouseActivityLine, WarehouseShipmentHeader, QtyToPost);
+        RegisterWhsePick(WarehouseActivityHeader, WarehouseActivityLine);
+    end;
+
+    local procedure ModifyWhsePick(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; QtyToSet: Decimal)
+    begin
+        FindWhseActivityLine(WarehouseActivityLine, WarehouseShipmentHeader);
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToSet);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
+        WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Shipment);
+        WarehouseActivityLine.SetRange("Whse. Document No.", WarehouseShipmentHeader."No.");
+        WarehouseActivityLine.FindSet();
+    end;
+
+    local procedure RegisterWhsePick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    [RequestPageHandler]
+    procedure CreatePickFromWhseShowCalcSummaryShptReqHandler(var CreatePickFromWhseShptReqPage: TestRequestPage "Whse.-Shipment - Create Pick")
+    begin
+        CreatePickFromWhseShptReqPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReservationHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure DueDateBeforeWorkDateMsgHandler(Message: Text)
+    begin
+        Assert.IsTrue(StrPos(Message, DueDateBeforeWorkDateMsg) > 0, DueDateBeforeWorkDateMsg);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure PickRegisteredMsgHandler(Message: Text)
+    begin
+        exit;
     end;
 
     local procedure Initialize()

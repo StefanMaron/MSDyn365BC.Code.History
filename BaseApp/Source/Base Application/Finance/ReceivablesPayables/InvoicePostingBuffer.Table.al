@@ -417,6 +417,7 @@ table 55 "Invoice Posting Buffer"
         TotalAmount := TotalAmount - Amount;
         TotalAmountACY := TotalAmountACY - "Amount (ACY)";
         "G/L Account" := AccountNo;
+        OnAfterSetAccount(Rec, "G/L Account");
     end;
 
     procedure SetAmounts(TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal; TotalVATBase: Decimal; TotalVATBaseACY: Decimal)
@@ -486,6 +487,7 @@ table 55 "Invoice Posting Buffer"
         "VAT Amount" := -"VAT Amount";
         "VAT Amount (ACY)" := -"VAT Amount (ACY)";
         NonDeductibleVAT.Reverse(Rec);
+        OnAfterReverseAmounts(Rec);
     end;
 
     procedure SetAmountsNoVAT(TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal)
@@ -680,7 +682,14 @@ table 55 "Invoice Posting Buffer"
     end;
 
     procedure ClearVATFields()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeClearVATFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "VAT Amount" := 0;
         "VAT Base Amount" := 0;
         "VAT Amount (ACY)" := 0;
@@ -858,6 +867,21 @@ table 55 "Invoice Posting Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcDiscountOnAfterUpdateVATAmount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; PricesInclVAT: Boolean; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearVATFields(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAccount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; AccountNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReverseAmounts(var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
     end;
 }

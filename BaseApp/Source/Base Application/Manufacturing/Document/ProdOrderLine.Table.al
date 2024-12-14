@@ -135,6 +135,7 @@ table 5406 "Prod. Order Line"
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
                 ProdOrderWarehouseMgt.ProdOrderLineVerifyChange(Rec, xRec);
+                OnValidateVariantCodeOnAfterVerifyChange(Rec, xRec, CurrFieldNo);
 
                 ItemVariant.SetLoadFields(Blocked, Description, "Description 2");
                 if ItemVariant.Get("Item No.", "Variant Code") then begin
@@ -1801,6 +1802,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowDimensionsOnAfterEditDimensionSet(var ProdOrderLine: Record "Prod. Order Line"; OldDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnAfterVerifyChange(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line"; CurrFieldNo: Integer)
     begin
     end;
 }
