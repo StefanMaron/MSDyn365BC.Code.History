@@ -304,6 +304,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         ProdOrderLine3.SetRange(Status, ProdOrderLine.Status);
         ProdOrderLine3.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderLine3.SetRange("Item No.", ProdOrderLine."Item No.");
+        ProdOrderLine3.SetRange("Unit of Measure Code", ProdOrderLine."Unit of Measure Code");
         ProdOrderLine3.SetRange("Variant Code", ProdOrderLine."Variant Code");
         ProdOrderLine3.SetRange("Location Code", ProdOrderLine."Location Code");
         ProdOrderLine3.SetRange("Planning Level Code", ProdOrderLine."Planning Level Code");
