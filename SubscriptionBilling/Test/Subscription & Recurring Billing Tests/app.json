@@ -2,7 +2,7 @@
   "id": "2ac317ef-11a5-4753-92f4-31c84b520c7b",
   "name": "Subscription & Recurring Billing Test",
   "publisher": "Microsoft",
-  "version": "25.1.25873.25900",
+  "version": "25.2.27733.27999",
   "brief": "Test for Subscription & Recurring Billing",
   "description": "The app enables the selling of recurring services and provides accurate billing for a wide range of pricing models.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -16,24 +16,66 @@
       "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
       "name": "Tests-TestLibraries",
       "publisher": "Microsoft",
-      "version": "25.1.0.0"
+      "version": "25.2.0.0"
     },
     {
       "id": "5095f467-0a01-4b99-99d1-9ff1237d286f",
       "publisher": "Microsoft",
       "name": "Library Variable Storage",
-      "version": "25.1.0.0"
+      "version": "25.2.0.0"
     },
     {
       "id": "3099ffc7-4cf7-4df6-9b96-7e4bc2bb587c",
       "publisher": "Microsoft",
       "name": "Subscription & Recurring Billing",
-      "version": "25.1.0.0"
+      "version": "25.2.0.0"
+    }
+  ],
+  "internalsVisibleTo": [
+    {
+      "id": "018ff6a2-4cf8-4945-b60f-2b40878ef5c4",
+      "name": "Subscription & Recurring Billing Plus Test",
+      "publisher": "Singhammer IT Consulting AG"
+    },
+    {
+      "id": "41bf6cc7-7891-4a8c-827c-fe23266c5a98",
+      "name": "DYCE Essentials Test",
+      "publisher": "Singhammer IT Consulting AG"
+    },
+    {
+      "id": "eb59fb9f-b1b0-47ba-963d-80f38ad130b4",
+      "name": "DYCE Subscription & Recurring Billing Test",
+      "publisher": "Singhammer IT Consulting AG"
+    },
+    {
+      "id": "d8d8a26c-5f2b-41a0-9e06-2b351aee1767",
+      "name": "DYCE Usage Based Billing Test",
+      "publisher": "Singhammer IT Consulting AG"
+    },
+    {
+      "id": "ab5fc040-94a7-4428-9280-66342c6ab703",
+      "name": "DYCE Easy Bundle Seller Test",
+      "publisher": "Singhammer IT Consulting AG"
+    },
+    {
+      "id": "e953ddb9-6c2f-46ce-9c93-e4004244ca28",
+      "name": "DYCE Managed Service Providers Test",
+      "publisher": "Singhammer IT Consulting AG"
+    },
+    {
+      "id": "945dc7a5-c8e5-4206-b82a-16da146c026e",
+      "name": "DYCE Recurring Prepaid Services Test",
+      "publisher": "Singhammer IT Consulting AG"
+    },
+    {
+      "id": "6f4cbb6d-236a-4715-a95c-f04e167a85e6",
+      "name": "DYCE Happy Texts Test",
+      "publisher": "Singhammer IT Consulting AG"
     }
   ],
   "screenshots": [],
-  "platform": "25.0.0.0",
-  "application": "25.1.0.0",
+  "platform": "25.2.0.0",
+  "application": "25.2.0.0",
   "idRanges": [
     {
       "from": 139684,

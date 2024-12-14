@@ -26,6 +26,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 #if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
+        LibraryNonDeductibleVAT: Codeunit "Library - NonDeductible VAT";
         DocumentNo2: Code[20];
         IsInitialized: Boolean;
         FieldErr: Label '%1 must be equal in %2.', Comment = '%1 = Field Name, %2 = Table Name';
@@ -40,6 +41,8 @@ codeunit 134330 "ERM Purchase Credit Memo"
         WrongErrorReturnedErr: Label 'Wrong error returned: %1.', Comment = '%1 = Error Text';
         ContactShouldNotBeEditableErr: Label 'Contact should not be editable when vendor is not selected.';
         ContactShouldBeEditableErr: Label 'Contact should be editable when vendorr is selected.';
+        NonDeducVATEntryMustExistMsgLbl: Label 'VAT Entry must have Non-Deductible VAT amount';
+        FieldErrDetLbl: Label '%1 must be equal to %2 in %3.', Comment = '%1 = Field Name,  %2 = Expected Value, %3 = Table Name';
         PostedDocType: Option PostedReturnShipments,PostedInvoices;
 
     [Test]
@@ -1361,6 +1364,138 @@ codeunit 134330 "ERM Purchase Credit Memo"
     end;
 #endif
 
+    [Test]
+    [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
+    [Scope('OnPrem')]
+    procedure ValueEntryCostAmountActualIsCorrectWhenPostPurchaseCreditMemoUsingNonDeductibleVAT()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLEntry: Record "G/L Entry";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VATEntry: array[2] of Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        DocumentType: Enum "Item Ledger Document Type";
+        PurchaseDocumentType: Enum "Purchase Document Type";
+        ActualAmount: array[4] of Decimal;
+        CostAmountActual: array[2] of Decimal;
+    begin
+        // [SCENARIO 540329] When Stans Posts Purchase Credit Memo using Non-Deductible VAT 
+        // Then Non-Deductible Amount is added in item costs in G/L Entry and Value Entry.
+        Initialize();
+
+        // [GIVEN] Create a Non Deductible VAT Posting Setup.
+        CreateVATSetupForNonDeductible(VATPostingSetup);
+
+        // [GIVEN] Create a General Posting Setup.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Create a Vendor.
+        CreateVendorWithPostingGroup(Vendor, GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create a Inventory Posting Setup.
+        CreateInventoryPostingSetup(Location, InventoryPostingGroup);
+
+        // [GIVEN] Create a Item No with Posting Setup and Validate Inventory Posting Group.
+        CreateItemWithPostingSetup(
+            Item,
+            GeneralPostingSetup."Gen. Prod. Posting Group",
+            VATPostingSetup."VAT Prod. Posting Group",
+            InventoryPostingGroup.Code);
+
+        // [GIVEN] Create a Purchase Header Document Type of Invoice and Validate Location Code.        
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseDocumentType::Invoice, Vendor."No.", Location.Code);
+
+        // [GIVEN] Create a Purchase Line and Validate "Direct Unit Cost".
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine[1],
+            PurchaseHeader[1],
+            PurchaseLine[1].Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine[1].Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10000, 10000));
+        PurchaseLine[1].Modify(true);
+
+        // [WHEN] Posts a Purchase Invoice. 
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, true));
+
+        // [THEN] Retrieve VAT Entry.
+        GetVATEntry(VATEntry[1], PurchInvHeader."No.");
+
+        // [THEN] Verify "Non-Deductible VAT Amount" of VAT Entry exists.
+        Assert.AreNotEqual(0, VATEntry[1]."Non-Deductible VAT Amount", NonDeducVATEntryMustExistMsgLbl);
+
+        // [GIVEN] Get Direct Cost Applied Amount for Document Type Purchase Invoice.
+        ActualAmount[1] := GetGLEntryAmount(GLEntry, PurchInvHeader."No.", GeneralPostingSetup."Direct Cost Applied Account");
+
+        // [GIVEN] Get Amount Posted to Inventory Account for Document Type Purchase Invoice.
+        ActualAmount[2] := GetGLEntryAmount(GLEntry, PurchInvHeader."No.", GetInventoryAccount(Location.Code, InventoryPostingGroup.Code));
+
+        // [WHEN] Calculate Cost Amount Actual.
+        CostAmountActual[1] := VATEntry[1]."Non-Deductible VAT Base" + VATEntry[1]."Non-Deductible VAT Amount";
+
+        // [THEN] Verify Cost Amount (Actual) of Value Entry for Purchase Invoice.
+        VerifyValueEntry(PurchInvHeader."No.", CostAmountActual[1], DocumentType::"Purchase Invoice");
+
+        // [THEN] Verify Direct Cost Applied Amount of GL Entry.
+        Assert.AreEqual(
+            -CostAmountActual[1],
+            ActualAmount[1],
+            StrSubstNo(FieldErrDetLbl, GLEntry.FieldCaption(Amount), -CostAmountActual[1], GLEntry.TableCaption()));
+
+        // [THEN] Verify Amount Posted to Inventory Account of GL Entry.
+        Assert.AreEqual(
+            CostAmountActual[1],
+            ActualAmount[2],
+            StrSubstNo(FieldErrDetLbl, GLEntry.FieldCaption(Amount), CostAmountActual[1], GLEntry.TableCaption()));
+
+        // [GIVEN] Create a Purchase Header for Document Type Credit Memo. 
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseDocumentType::"Credit Memo", Vendor."No.", Location.Code);
+
+        // [GIVEN] Run Get Document Lines to Reverse and copy from Posted Purchase Invoices.
+        GetPostedDocumentLines(PurchaseHeader[2]."No.", PostedDocType::PostedInvoices);
+
+        // [GIVEN] Posts a Purchase Credit Memo.
+        PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], true, true));
+
+        // [WHEN] Retrieve VAT Entry.
+        GetVATEntry(VATEntry[2], PurchCrMemoHdr."No.");
+
+        // [THEN] Verify "Non-Deductible VAT Amount" of VAT Entry exists.
+        Assert.AreNotEqual(0, VATEntry[2]."Non-Deductible VAT Amount", NonDeducVATEntryMustExistMsgLbl);
+
+        // [GIVEN] Get Direct Cost Applied Amount for Document Type Purchase Credit Memo.
+        ActualAmount[3] := GetGLEntryAmount(GLEntry, PurchCrMemoHdr."No.", GeneralPostingSetup."Direct Cost Applied Account");
+
+        // [GIVEN] Get Amount Posted to Inventory Account for Document Type Purchase Credit Memo.
+        ActualAmount[4] := GetGLEntryAmount(GLEntry, PurchCrMemoHdr."No.", GetInventoryAccount(Location.Code, InventoryPostingGroup.Code));
+
+        // [WHEN] Calculate Cost Amount Actual.
+        CostAmountActual[2] := VATEntry[2]."Non-Deductible VAT Base" + VATEntry[2]."Non-Deductible VAT Amount";
+
+        // [THEN] Verify Field "Cost Amount (Actual)" of Value Entry for Purchase Invoice.
+        VerifyValueEntry(PurchCrMemoHdr."No.", CostAmountActual[2], DocumentType::"Purchase Credit Memo");
+
+        // [THEN] Verify Direct Cost Applied Amount of GL Entry.
+        Assert.AreEqual(
+            -CostAmountActual[2],
+            ActualAmount[3],
+            StrSubstNo(FieldErrDetLbl, GLEntry.FieldCaption(Amount), CostAmountActual[2], GLEntry.TableCaption()));
+
+        // [THEN] Verify Amount Posted to Inventory Account of GL Entry.
+        Assert.AreEqual(
+            CostAmountActual[2],
+            ActualAmount[4],
+            StrSubstNo(FieldErrDetLbl, GLEntry.FieldCaption(Amount), -CostAmountActual[2], GLEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1773,6 +1908,96 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // EXECUTE:
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(100);
         // VERIFY: In the test method
+    end;
+
+    local procedure CreateVATSetupForNonDeductible(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibraryNonDeductibleVAT.EnableNonDeductibleVAT();
+        LibraryNonDeductibleVAT.SetUseForItemCost();
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 19, 100);
+    end;
+
+    local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        LibraryERM.CreateGeneralPostingSetupInvt(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupPurchAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateVendorWithPostingGroup(var Vendor: Record Vendor; var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        Vendor.Get(LibraryPurchase.CreateVendorWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+    end;
+
+    local procedure CreateInventoryPostingSetup(Location: Record Location; var InventoryPostingGroup: Record "Inventory Posting Group")
+    begin
+        LibraryInventory.SetAutomaticCostPosting(true);
+        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+        LibraryInventory.UpdateInventoryPostingSetup(Location, InventoryPostingGroup.Code);
+    end;
+
+    local procedure CreateItemWithPostingSetup(
+        var Item: Record Item;
+        GenProdPostingGroupCode: Code[20];
+        VATProdPostingGroupCode: Code[20];
+        InventoryPostingGroupCode: Code[20])
+    begin
+        Item.Get(LibraryInventory.CreateItemNoWithPostingSetup(GenProdPostingGroupCode, VATProdPostingGroupCode));
+        Item.Validate("Inventory Posting Group", InventoryPostingGroupCode);
+        Item.Modify(true);
+    end;
+
+    local procedure GetInventoryAccount(LocationCode: Code[20]; InvtPostingGroupCode: Code[20]): Code[20]
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        InventoryPostingSetup.SetRange("Location Code", LocationCode);
+        InventoryPostingSetup.SetRange("Invt. Posting Group Code", InvtPostingGroupCode);
+        if InventoryPostingSetup.FindFirst() then
+            exit(InventoryPostingSetup."Inventory Account");
+    end;
+
+    local procedure CreatePurchaseDocument(
+        var PurchaseHeader: Record "Purchase Header";
+        PurchaseDocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; LocationCode: Code[20])
+    begin
+        CreatePurchaseHeader(PurchaseHeader, PurchaseDocumentType, VendorNo);
+        PurchaseHeader.Validate(PurchaseHeader."Location Code", LocationCode);
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure GetVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.CalcSums("Non-Deductible VAT Base", "Non-Deductible VAT Amount");
+    end;
+
+    local procedure VerifyValueEntry(DocumentNo: Code[20]; ExpectedAmount: Decimal; DocumentType: Enum "Item Ledger Document Type")
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.SetRange("Document Type", DocumentType);
+        ValueEntry.FindFirst();
+
+        Assert.AreEqual(
+            ExpectedAmount,
+            ValueEntry."Cost Amount (Actual)",
+            StrSubstNo(
+                FieldErrDetLbl,
+                ValueEntry.FieldCaption("Cost Amount (Actual)"),
+                ExpectedAmount,
+                ValueEntry.TableCaption()));
+    end;
+
+    local procedure GetGLEntryAmount(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20]): Decimal
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        exit(GLEntry.Amount);
     end;
 
     [ConfirmHandler]

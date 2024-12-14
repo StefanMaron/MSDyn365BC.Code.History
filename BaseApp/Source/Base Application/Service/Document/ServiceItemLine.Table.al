@@ -1893,6 +1893,8 @@ table 5901 "Service Item Line"
                 end;
                 ServLine.Modify();
             until ServLine.Next() = 0;
+
+        OnAfterCheckWarranty(Rec, xRec, Date);
     end;
 
     local procedure CheckIfLoanerOnServOrder()
@@ -3221,6 +3223,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var ServiceItemLine: Record "Service Item Line"; CallingFieldNo: Integer; xServiceItemLine: Record "Service Item Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckWarranty(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; Date: Date)
     begin
     end;
 }

@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "allint.enabled": false,
+    "al.enableCodeActions": false,
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeAnalysis": false
+  },
   "folders": [
     {
       "path": "./System Application/Test/System Application Test Library"
@@ -274,6 +282,9 @@
       "path": "./RecommendedApps/Test/Recommended Apps Tests"
     },
     {
+      "path": "./PowerBIReports/Test Library/PowerBI Reports Test Library"
+    },
+    {
       "path": "./PowerBIReports/Test/PowerBI Reports Tests"
     },
     {
@@ -291,13 +302,5 @@
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
     }
-  ],
-  "settings": {
-    "allint.enabled": false,
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false
-  }
+  ]
 }

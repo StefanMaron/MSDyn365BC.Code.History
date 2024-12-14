@@ -191,18 +191,22 @@ codeunit 10090 "Export Payments (ACH)"
         TraceNo := 0;
         BatchHeaderRec := '';
 
-        AddNumToPrnString(BatchHeaderRec, 5, 1, 1);                                               // Record Type
-        AddToPrnString(BatchHeaderRec, ServiceClassCode, 2, 3, Justification::Right, '0');          // Service Class Code
-        AddToPrnString(BatchHeaderRec, CompanyInformation.Name, 5, 36, Justification::Left, ' ');   // Company Name (+ Discretionary Data)
-        AddFedIDToPrnString(BatchHeaderRec, CompanyInformation."Federal ID No.", 41, 10);         // Company ID
-        AddToPrnString(BatchHeaderRec, EntryClassCode, 51, 3, Justification::Left, ' ');            // Entry Class Code
-        AddToPrnString(BatchHeaderRec, SourceCode, 54, 10, Justification::Left, ' ');               // Entry Description
-        AddToPrnString(BatchHeaderRec, Format(WorkDate(), 0, '<Year><Month,2><Day,2>'), 64, 6, Justification::Left, ' ');   // Descriptive Date
-        AddToPrnString(BatchHeaderRec, Format(SettleDate, 0, '<Year><Month,2><Day,2>'), 70, 6, Justification::Left, ' ');
-        // Effective Entry Date
-        AddNumToPrnString(BatchHeaderRec, 1, 79, 1);                                              // Originator Status Code
-        AddToPrnString(BatchHeaderRec, BankAccount."Transit No.", 80, 8, Justification::Left, ' '); // Originating DFI ID
-        AddNumToPrnString(BatchHeaderRec, BatchNo, 88, 7);                                        // Batch Number
+        IsHandled := false;
+        OnBeforeStartExportBatchOnBeforeAddDataToPrnString(BatchHeaderRec, ServiceClassCode, EntryClassCode, SourceCode, SettleDate, IsHandled);
+        if not IsHandled then begin
+            AddNumToPrnString(BatchHeaderRec, 5, 1, 1);                                               // Record Type
+            AddToPrnString(BatchHeaderRec, ServiceClassCode, 2, 3, Justification::Right, '0');          // Service Class Code
+            AddToPrnString(BatchHeaderRec, CompanyInformation.Name, 5, 36, Justification::Left, ' ');   // Company Name (+ Discretionary Data)
+            AddFedIDToPrnString(BatchHeaderRec, CompanyInformation."Federal ID No.", 41, 10);         // Company ID
+            AddToPrnString(BatchHeaderRec, EntryClassCode, 51, 3, Justification::Left, ' ');            // Entry Class Code
+            AddToPrnString(BatchHeaderRec, SourceCode, 54, 10, Justification::Left, ' ');               // Entry Description
+            AddToPrnString(BatchHeaderRec, Format(WorkDate(), 0, '<Year><Month,2><Day,2>'), 64, 6, Justification::Left, ' ');   // Descriptive Date
+            AddToPrnString(BatchHeaderRec, Format(SettleDate, 0, '<Year><Month,2><Day,2>'), 70, 6, Justification::Left, ' ');
+            // Effective Entry Date
+            AddNumToPrnString(BatchHeaderRec, 1, 79, 1);                                              // Originator Status Code
+            AddToPrnString(BatchHeaderRec, BankAccount."Transit No.", 80, 8, Justification::Left, ' '); // Originating DFI ID
+            AddNumToPrnString(BatchHeaderRec, BatchNo, 88, 7);                                        // Batch Number
+        end;
         ExportPrnString(BatchHeaderRec);
     end;
 
@@ -751,6 +755,11 @@ codeunit 10090 "Export Payments (ACH)"
 
     [IntegrationEvent(false, false)]
     local procedure OnStartExportFileOnBeforeBankAccountModify(var BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStartExportBatchOnBeforeAddDataToPrnString(var BatchHeaderRec: Text[250]; ServiceClassCode: Code[10]; EntryClassCode: Code[10]; SourceCode: Code[10]; SettleDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

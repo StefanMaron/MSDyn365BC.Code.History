@@ -23,6 +23,7 @@
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
         ErrorWarning: Label 'Warning!';
         ErrorText: Label 'You must enter the customer''s %1.';
@@ -41,6 +42,9 @@
         FindElemWithServiceNoMsg: Label 'find element with the service no';
         ServiceInvoiceTxt: Label 'Service - Invoice %1';
         ServiceTaxInvoiceTxt: Label 'Service - Tax Invoice %1';
+        CreateContrUsingTemplateQst: Label 'Do you want to create the contract using a contract template?';
+        NextPlannedServiceDateConfirmQst: Label 'The Next Planned Service Date field is empty on one or more service contract lines, and service orders cannot be created automatically. Do you want to continue?';
+        SignServContractQst: Label 'Do you want to sign service contract %1?', Comment = '%1 = Contract No.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerFalse,ServiceContractCustomerReportHandler')]
@@ -2133,6 +2137,79 @@
         VerifySerialNoInServiceInvoiceReport(SerialNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ServiceContractConfirmHandler,SelectServiceContractTemplateListHandler,ContractInvoicingReportHandler')]
+    procedure CreateServContractInvReportPrintsLineAmountOfNonPrepaidServContractInExpectedInvAmt()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ServiceItem: Record "Service Item";
+        ServiceContractAccountGroup: Record "Service Contract Account Group";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceContractTemplate: Record "Service Contract Template";
+        SignServContractDoc: Codeunit SignServContractDoc;
+    begin
+        // [SCENARIO 555819] Expected Invoice Amount in Create Service Contracts Invoice Report 
+        // Opened with Print Only is equal to the total of Line Value in non prepaid Service Contract.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Service Item and Validate Item No.
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        ServiceItem.Validate("Item No.", Item."No.");
+        ServiceItem.Modify(true);
+
+        // [GIVEN] Create a Service Contract Template.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(CreateContrUsingTemplateQst);
+        CreateServiceContractTemplate(ServiceContractTemplate, '<1Y>', ServiceContractHeader."Invoice Period"::Year, true, true, true);
+
+        // [GIVEN] Create a Service Contract Header.
+        LibraryVariableStorage.Enqueue(ServiceContractTemplate."No.");
+        CreateServiceContractHeader(ServiceContractHeader, Customer);
+
+        // [GIVEN] Create a Service Contract Line and Validate Line Cost and Line Value.
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+        ServiceContractLine.Validate("Line Cost", 0);
+        ServiceContractLine.Validate("Line Value", LibraryRandom.RandIntInRange(100, 100));
+        ServiceContractLine.Modify(true);
+
+        // [GIVEN] Create a Service Contract Account Group.
+        LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
+
+        // [GIVEN] Validate Annual Amount, Serv. Contract Acc. Gr. Code, 
+        // Invoice Period and Prepaid in Service Contract Header.
+        ServiceContractHeader.Validate("Annual Amount", LibraryRandom.RandIntInRange(100, 100));
+        ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
+        ServiceContractHeader.Validate("Invoice Period", ServiceContractHeader."Invoice Period"::Year);
+        ServiceContractHeader.Validate(Prepaid, false);
+        ServiceContractHeader.Modify(true);
+
+        // [GIVEN] Sign Contract.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        SignServContractDoc.SignContract(ServiceContractHeader);
+        Commit();
+
+        // [WHEN] Run Create Service Contract Invoices Report.
+        RunCreateContractInvoices(ServiceContractHeader);
+
+        // [THEN] Expected Invoice Amount in Create Service Contract Invoices Report 
+        // Is equal to Line Value of Service Contract Line.
+        VerifyContractInvoicingExpectedInvAmount(ServiceContractHeader, ServiceContractLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3041,6 +3118,60 @@
           0, LibraryReportValidation.FindRowNoFromColumnNoAndValueInsideArea(ColumnNo, SerialNo, StrSubstNo('>%1', RowNo)), '');
     end;
 
+    local procedure RunCreateContractInvoices(ServiceContractHeader: Record "Service Contract Header")
+    var
+        CreateContractInvoices: Report "Create Contract Invoices";
+        CreateInvoices: Option "Create Invoices","Print Only";
+    begin
+        ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Contract);
+        ServiceContractHeader.SetRange("Customer No.", ServiceContractHeader."Customer No.");
+
+        Clear(CreateContractInvoices);
+        CreateContractInvoices.SetTableView(ServiceContractHeader);
+        CreateContractInvoices.SetOptions(CalcDate('<-2Y-CY+5M+CM>', WorkDate()), CalcDate('<-1Y-CY+5M+CM>', WorkDate()), CreateInvoices::"Print Only");
+        CreateContractInvoices.UseRequestPage(false);
+        CreateContractInvoices.Run();
+    end;
+
+    local procedure UpdateTemplateNoOnServiceContract(var ServiceContractTemplateList: TestPage "Service Contract Template List"; No: Text)
+    begin
+        ServiceContractTemplateList.Filter.SetFilter("No.", No);
+        ServiceContractTemplateList.OK().Invoke();
+    end;
+
+    local procedure CreateServiceContractTemplate(var ServiceContractTemplate: Record "Service Contract Template"; ServicePeriodTxt: Text; InvoicePeriod: Enum "Service Contract Header Invoice Period"; CombineInvoices: Boolean; ContractLinesOnInvoice: Boolean; IsPrepaid: Boolean)
+    var
+        DefaultServicePeriod: DateFormula;
+    begin
+        Evaluate(DefaultServicePeriod, ServicePeriodTxt);
+
+        LibraryService.CreateServiceContractTemplate(ServiceContractTemplate, DefaultServicePeriod);
+        ServiceContractTemplate.Validate("Invoice Period", InvoicePeriod);
+        ServiceContractTemplate.Validate(Prepaid, IsPrepaid);
+        ServiceContractTemplate.Validate("Combine Invoices", CombineInvoices);
+        ServiceContractTemplate.Validate("Contract Lines on Invoice", ContractLinesOnInvoice);
+        ServiceContractTemplate.Modify(true);
+    end;
+
+    local procedure CreateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; Customer: Record Customer)
+    begin
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
+        Evaluate(ServiceContractHeader."Service Period", '<4D>');
+        ServiceContractHeader.Validate("Starting Date", CalcDate('<-2Y-CY+5M+CM>', WorkDate()));
+        ServiceContractHeader.Validate("Allow Unbalanced Amounts", false);
+        ServiceContractHeader.Validate("Combine Invoices", false);
+        ServiceContractHeader.Validate("Contract Lines on Invoice", false);
+        ServiceContractHeader.Modify(true);
+    end;
+
+    local procedure VerifyContractInvoicingExpectedInvAmount(ServiceContractHeader: Record "Service Contract Header"; ServiceContractLine: Record "Service Contract Line")
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('ContractInvPeriod', Format(ServiceContractHeader."Next Invoice Period Start") + '..' + Format(ServiceContractHeader."Next Invoice Period End"));
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('ServLedgEntryAmt', ServiceContractLine."Line Value");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
@@ -3069,11 +3200,37 @@
         Reply := not (Question = ErrorInPostingDate);
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ServiceContractConfirmHandler(SignContractMessage: Text[1024]; var Result: Boolean)
+    var
+        CreateServiceInvoiceWithinPeriod: Boolean;
+    begin
+        CreateServiceInvoiceWithinPeriod := LibraryVariableStorage.DequeueBoolean();
+        case true of
+            SignContractMessage = Format(LibraryVariableStorage.DequeueText()):
+                Result := true;
+            SignContractMessage = Format(NextPlannedServiceDateConfirmQst):
+                Result := true;
+            CreateServiceInvoiceWithinPeriod = true:
+                Result := true;
+            else
+                Result := false;
+        end;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContractTemplateListHandler(var ServiceContractTemplateList: Page "Service Contract Template List"; var Response: Action)
     begin
         Response := ACTION::LookupOK;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectServiceContractTemplateListHandler(var ServiceContractTemplateList: TestPage "Service Contract Template List")
+    begin
+        UpdateTemplateNoOnServiceContract(ServiceContractTemplateList, LibraryVariableStorage.DequeueText());
     end;
 
     [MessageHandler]
