@@ -2225,7 +2225,13 @@ codeunit 427 ICInboxOutboxMgt
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
         ICDataExchange: Interface "IC Data Exchange";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOutboxJnlLineToInbox(ICInboxTrans, ICOutboxJnlLine, ICInboxJnlLine, LocalICPartner, IsHandled);
+        if IsHandled then
+            exit;
+
         FeatureTelemetry.LogUptake('0000IJM', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKD', ICMapping.GetFeatureTelemetryName(), 'Outbox Journal Line to Inbox');
 
@@ -3818,6 +3824,11 @@ codeunit 427 ICInboxOutboxMgt
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRejectAcceptedSalesHeader(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOutboxJnlLineToInbox(var ICInboxTransaction: Record "IC Inbox Transaction"; var ICOutboxJnlLine: Record "IC Outbox Jnl. Line"; var ICInboxJnlLine: Record "IC Inbox Jnl. Line"; var ICPartner: Record "IC Partner"; var IsHandled: Boolean)
     begin
     end;
 }

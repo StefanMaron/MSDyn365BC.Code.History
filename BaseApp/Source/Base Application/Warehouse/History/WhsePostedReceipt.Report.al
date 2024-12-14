@@ -103,14 +103,14 @@ report 7308 "Whse. - Posted Receipt"
 
                     trigger OnAfterGetRecord()
                     begin
-                        GetLocation("Location Code");
+                        this.GetLocation("Location Code");
                     end;
                 }
             }
 
             trigger OnAfterGetRecord()
             begin
-                GetLocation("Location Code");
+                this.GetLocation("Location Code");
             end;
         }
     }

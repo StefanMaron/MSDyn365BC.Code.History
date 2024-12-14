@@ -164,6 +164,7 @@ report 511 "Complete IC Inbox Action"
                 HandledInboxTransaction2: Record "Handled IC Inbox Trans.";
                 ICCommentLine: Record "IC Comment Line";
                 ICPartner: Record "IC Partner";
+                IsHandled: Boolean;
             begin
                 if "Line Action" = "Line Action"::"No Action" then
                     CurrReport.Skip();
@@ -188,8 +189,9 @@ report 511 "Complete IC Inbox Action"
                     InboxTransaction2."Line Action"::Cancel:
                         HandledInboxTransaction2.Status := HandledInboxTransaction2.Status::Cancelled;
                 end;
-                OnBeforeHandledInboxTransactionInsert(HandledInboxTransaction2, InboxTransaction2);
-                if not HandledInboxTransaction2.Insert() then
+                IsHandled := false;
+                OnBeforeHandledInboxTransactionInsert(HandledInboxTransaction2, InboxTransaction2, IsHandled);
+                if not HandledInboxTransaction2.Insert() and (not IsHandled) then
                     Error(
                       Text001, InboxTransaction2.FieldCaption("Transaction No."),
                       InboxTransaction2."Transaction No.", InboxTransaction2."IC Partner Code",
@@ -485,7 +487,7 @@ report 511 "Complete IC Inbox Action"
 
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeHandledInboxTransactionInsert(var HandledICInboxTrans: Record "Handled IC Inbox Trans."; InboxTransaction: Record "IC Inbox Transaction")
+    local procedure OnBeforeHandledInboxTransactionInsert(var HandledICInboxTrans: Record "Handled IC Inbox Trans."; InboxTransaction: Record "IC Inbox Transaction"; var IsHandled: Boolean)
     begin
     end;
 

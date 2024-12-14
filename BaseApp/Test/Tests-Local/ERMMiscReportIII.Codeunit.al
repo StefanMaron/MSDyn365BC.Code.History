@@ -1967,6 +1967,61 @@ codeunit 142062 "ERM Misc. Report III"
         Assert.IsTrue(LibraryReportDataset.GetNextRow(), RowMustExist);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentRequestPageHandler,PrintCheckStubStubReqPageHandlerRemitCode,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckStubInfoWhenMultipleRemitToCodesUsedForSingleVendor()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PurchaseHeader: Record "Purchase Header";
+        RemitToAddress: array[2] of Record "Remit Address";
+        ReportSelections: Record "Report Selections";
+        Vendor: Record Vendor;
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 556064] Check Stub info is correct when Multiple Remit-to Codes are used on multiple Posted Invoices for a single Vendor and Print Check is completed after Summarize Per Vendor groups.
+        Initialize();
+
+        // [GIVEN] Create Vendor with multiple Remit To Address.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateRemitToAddress(RemitToAddress[1], Vendor."No.");
+        LibraryPurchase.CreateRemitToAddress(RemitToAddress[2], Vendor."No.");
+
+        // [GIVEN] Create Purchase Invoice and Post.
+        CreatePurchaseInvoiceForVendorNoWithRemitAddressAndPost(PurchaseHeader, Vendor."No.", '');
+        CreatePurchaseInvoiceForVendorNoWithRemitAddressAndPost(PurchaseHeader, Vendor."No.", RemitToAddress[1].Code);
+        CreatePurchaseInvoiceForVendorNoWithRemitAddressAndPost(PurchaseHeader, Vendor."No.", RemitToAddress[2].Code);
+        CreatePurchaseInvoiceForVendorNoWithRemitAddressAndPost(PurchaseHeader, Vendor."No.", '');
+        CreatePurchaseInvoiceForVendorNoWithRemitAddressAndPost(PurchaseHeader, Vendor."No.", RemitToAddress[1].Code);
+        CreatePurchaseInvoiceForVendorNoWithRemitAddressAndPost(PurchaseHeader, Vendor."No.", RemitToAddress[2].Code);
+
+        // [GIVEN] Report 10411 is set as report for Check.
+        ReportSelections.Get(ReportSelections.Usage::"B.Check", 1);
+        ReportSelections.Validate("Report ID", Report::"Check (Stub/Check/Stub)");
+        ReportSelections.Modify(true);
+
+        // [GIVEN] Create General Journal Batch.
+        CreateGeneralJournalBatchWithTemplate(GenJournalBatch);
+
+        // [GIVEN] Create Bank Account and update Last Check No.
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Last Check No.", Format(LibraryRandom.RandInt(10000)));
+        BankAccount.Modify(true);
+
+        // [GIVEN] Open Payment Journal.
+        PaymentJournal.OpenEdit();
+
+        // [WHEN] Suggest vendor Payment action invoke with Summarize Per Vendor and Bank Payment Type as Computer Check.
+        SuggestVendorPayment(PaymentJournal, GenJournalBatch.Name, Vendor."No.", BankAccount."No.");
+
+        // [WHEN] Print the Check.
+        PrintCheck(PaymentJournal, BankAccount."No.");
+
+        //  [THEN] Verify that the Line amount does not contain 0 value.
+        VerifyCheckReportLineAmount();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2662,11 +2717,11 @@ codeunit 142062 "ERM Misc. Report III"
     local procedure CreateGenJournalLineWithWithExportImportBankAccount(
         var GenJournalLine: Record "Gen. Journal Line";
         DocumentType: Enum "Gen. Journal Document Type";
-        AccountType: Enum "Gen. Journal Account Type";
-        AccountNo: Code[20];
-        Amount: Decimal;
-        BankPaymentType: Enum "Bank Payment Type";
-        BankAccountNo: Code[20])
+                          AccountType: Enum "Gen. Journal Account Type";
+                          AccountNo: Code[20];
+                          Amount: Decimal;
+                          BankPaymentType: Enum "Bank Payment Type";
+                          BankAccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2803,8 +2858,8 @@ codeunit 142062 "ERM Misc. Report III"
     local procedure CreateSalesCommentLine(
         var SalesCommentLine: Record "Sales Comment Line";
         DocumentType: Enum "Sales Comment Document Type";
-        DocumentNo: Code[20];
-        DocumentLineNo: Integer)
+                          DocumentNo: Code[20];
+                          DocumentLineNo: Integer)
     begin
         LibrarySales.CreateSalesCommentLine(
             SalesCommentLine,
@@ -2832,6 +2887,56 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
 
         exit(Item."No.");
+    end;
+
+    local procedure CreatePurchaseInvoiceForVendorNoWithRemitAddressAndPost(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; RemittoCode: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        if RemittoCode <> '' then begin
+            PurchaseHeader.Validate("Remit-to Code", RemittoCode);
+            PurchaseHeader.Modify(true);
+        end;
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+    end;
+
+    local procedure CreateGeneralJournalBatchWithTemplate(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+    end;
+
+    local procedure SuggestVendorPayment(var PaymentJournal: TestPage "Payment Journal"; JournalBatchName: Code[10]; VendorNo: Code[20]; BankAccountNo: Code[20])
+    begin
+        Commit();  // Commit required for open Payment Journal.
+        LibraryVariableStorage.Enqueue(VendorNo);
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        PaymentJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
+        PaymentJournal.SuggestVendorPayments.Invoke();  // Opens handler - SuggestVendorPaymentRequestPageHandler.
+    end;
+
+    local procedure PrintCheck(var PaymentJournal: TestPage "Payment Journal"; BankAccountNo: Code[20])
+    begin
+        Commit();  // Commit required for open Payment Journal.
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        PaymentJournal.PrintCheck.Invoke();
+    end;
+
+    local procedure VerifyCheckReportLineAmount()
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist('LineAmount___LineDiscount', 0);
     end;
 
     [RequestPageHandler]
@@ -3287,6 +3392,38 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryVariableStorage.Dequeue(DocumentNo);
         SalesInvoicePrePrinted."Sales Invoice Header".SetFilter("No.", DocumentNo);
         SalesInvoicePrePrinted.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccountNo: Variant;
+        VendorNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VendorNo);
+        LibraryVariableStorage.Dequeue(BankAccountNo);
+        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate(Format(LibraryRandom.RandInt(3)) + 'M', WorkDate()));  // Using Random for Months.
+        SuggestVendorPayments.SummarizePerVendor.SetValue(true);
+        SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
+        SuggestVendorPayments.BalAccountType.SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
+        SuggestVendorPayments.BankPaymentType.SetValue(GenJournalLine."Bank Payment Type"::"Computer Check");
+        SuggestVendorPayments.BalAccountNo.SetValue(BankAccountNo);
+        SuggestVendorPayments.Vendor.SetFilter("No.", VendorNo);
+        SuggestVendorPayments.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PrintCheckStubStubReqPageHandlerRemitCode(var Check: TestRequestPage "Check (Stub/Check/Stub)")
+    var
+        Value: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(Value);
+        Check.BankAccount.SetValue(Value);
+
+        Check.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

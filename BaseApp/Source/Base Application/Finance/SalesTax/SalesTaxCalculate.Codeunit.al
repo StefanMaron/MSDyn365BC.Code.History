@@ -727,6 +727,7 @@ codeunit 398 "Sales Tax Calculate"
                             TempSalesTaxAmountLine.Positive := TotalPositive;
                         end;
 
+                OnAddSalesLineOnAfterSetSalesTaxAmountLineFilter(TempSalesTaxAmountLine, SalesLine, TaxAreaLine);
                 if not TempSalesTaxAmountLine.FindFirst() then begin
                     TempSalesTaxAmountLine.Init();
                     TempSalesTaxAmountLine."Tax Group Code" := SalesLine."Tax Group Code";
@@ -754,6 +755,7 @@ codeunit 398 "Sales Tax Calculate"
                     TempSalesTaxAmountLine."Tax Amount" := 0;
                     TempSalesTaxAmountLine.Quantity := TempSalesTaxAmountLine.Quantity + SalesLine."Quantity (Base)";
                     TempSalesTaxAmountLine."Invoice Discount Amount" := TempSalesTaxAmountLine."Invoice Discount Amount" + SalesLine."Inv. Discount Amount";
+                    OnAddSalesLineOnBeforeModifySalesTaxAmountLine(TempSalesTaxAmountLine, SalesLine);
                     TempSalesTaxAmountLine.Modify();
                 end;
             until TaxAreaLine.Next() = 0;
@@ -1262,6 +1264,7 @@ codeunit 398 "Sales Tax Calculate"
                       Text000,
                       TempSalesTaxAmountLine.FieldCaption("Calculation Order"), TaxArea.TableCaption(), TempSalesTaxAmountLine."Tax Area Code",
                       TaxDetail.FieldCaption("Calculate Tax on Tax"), CalculationOrderViolation);
+                OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Copy(TempSalesTaxAmountLine, TaxBaseAmt, AddedTaxAmount, TotalTaxAmount);
                 SalesTaxAmountLine2.Copy(TempSalesTaxAmountLine);
                 if (TempSalesTaxAmountLine."Tax Type" = TempSalesTaxAmountLine."Tax Type"::"Excise Tax") and not TaxDetail."Calculate Tax on Tax" then
                     SalesTaxAmountLine2."Tax %" := 0
@@ -1469,6 +1472,7 @@ codeunit 398 "Sales Tax Calculate"
                     SalesLine.SetRange("Tax Area Code", TempSalesTaxAmountLine."Tax Area Code");
                 SalesLine.SetRange("Tax Group Code", TempSalesTaxAmountLine."Tax Group Code");
                 SalesLine.SetCurrentKey(Amount);
+                OnDistTaxOverSalesLinesOnAfterSetSalesLineFilters(SalesLine, TempSalesTaxAmountLine);
                 SalesLine.FindSet(true);
                 repeat
                     if ((TaxCountry = TaxCountry::US) or
@@ -2325,6 +2329,26 @@ codeunit 398 "Sales Tax Calculate"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterEndSalesTaxCalulation(var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary; SalesHeaderRead: Boolean; PurchHeaderRead: Boolean; ServHeaderRead: Boolean; ProcessDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddSalesLineOnAfterSetSalesTaxAmountLineFilter(var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary; SalesLine: Record "Sales Line"; TaxAreaLine: Record "Tax Area Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddSalesLineOnBeforeModifySalesTaxAmountLine(var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary; SalesLine: Record "Sales Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Copy(var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary; var TaxBaseAmt: Decimal; var AddedTaxAmount: Decimal; var TotalTaxAmount: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverSalesLinesOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary);
     begin
     end;
 }
