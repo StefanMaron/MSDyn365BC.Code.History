@@ -1229,6 +1229,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IT Prepayment II - NamedType ConfirmSalesChangeVATBusPostingGroupTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1880347326 - NamedType 2454288812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Operation Type must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 =Operation Type Value, %2=Table Name.]D;]A;(LookupHint=Codeunit ERM IT Prepayment II - NamedType OperationTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1880347326 - NamedType 3573412396" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Prepayment Due Date must have a value in %1: Document Type=Order, No.=%2. It cannot be zero or empty.]]></Val>

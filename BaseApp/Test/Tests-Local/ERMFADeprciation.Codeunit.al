@@ -215,6 +215,65 @@ codeunit 144143 "ERM FA Deprciation"
     end;
 
     [Test]
+    [HandlerFunctions('CalculateDepreciationRequestPageHandler,DepreciationCalcConfirmHandler,MessageHandler,DepreciationBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DepreciationBookTotalDepreciationPercentAfterReclassify()
+    var
+        FALedgerEntry: Record "FA Ledger Entry";
+        FADepreciationBook: array[2] of Record "FA Depreciation Book";
+        GenJournalLine: Record "Gen. Journal Line";
+        Amount: Decimal;
+        DepreciationAmount: Decimal;
+        DepreciationPerc: Decimal;
+    begin
+        // [SCENARIO 542307] Depreciation Book Report shows wrong values in Total Depreciation %
+        Initialize();
+
+        // [GIVEN]  Create 2 FA and one Depreciation book
+        CreateMultipleFADepreciationBookSetups(FADepreciationBook, CalcDate('<1Y>', WorkDate()));
+
+        // [GIVEN] Post Acquisition and Depreciation of 1st FA
+        Amount := LibraryRandom.RandDec(1000, 2);
+        CreateAndPostGenJournalLine(FADepreciationBook[1], GenJournalLine."FA Posting Type"::"Acquisition Cost", Amount, WorkDate());
+        EnqueueValuesInRequestPageHandler(
+            FADepreciationBook[1]."Depreciation Book Code",
+            FADepreciationBook[1]."FA No.", CalcDate('<CY>', WorkDate()), '');
+        PostGenJournalLineAfterCalculateDepreciation(true);
+
+        // [GIVEN] Post Reclassification of 1st FA to 2nd FA
+        ReclassifyAndPostFAReclassJournal(
+            CreateFAReclassJournalLine(
+                FADepreciationBook, Amount, CalcDate('<1Y>', WorkDate())),
+                FADepreciationBook[1]."Depreciation Book Code");
+
+        // [GIVEN] Depreciate reclassified 2nd FA
+        Commit();
+        EnqueueValuesInRequestPageHandler(
+            FADepreciationBook[2]."Depreciation Book Code",
+            FADepreciationBook[2]."FA No.", CalcDate('<2Y>', WorkDate()), '');
+        PostGenJournalLineAfterCalculateDepreciation(true);
+
+        // [WHEN] Executing Depreciation Book Report
+        Commit();
+        RunDepreciationBookReport(
+            FADepreciationBook[1]."Depreciation Book Code",
+            FADepreciationBook[1]."FA No.", FADepreciationBook[2]."FA No.",
+            true, CalcDate('<2Y>', WorkDate()));
+
+        // [GIVEN] Calculate FA Ledger Entry Depreciation %
+        FALedgerEntry.SetRange("FA No.", FADepreciationBook[2]."FA No.");
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
+        FALedgerEntry.FindSet();
+        FALedgerEntry.CalcSums(Amount);
+        DepreciationAmount := FALedgerEntry.Amount;
+        DepreciationPerc := (DepreciationAmount * 100) / Amount;
+
+        // [THEN] Total Depreciation Percent of the report for 2nd FA should be equal to be percent calculated based on depreciated amount in FA Ledger Entry.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BasicDepreciationPerc', Abs(DepreciationPerc));
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TotalDepreciationPercentageOnDepreciationTableCard()
     var

@@ -492,12 +492,18 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Total Cost (LCY)" := GenJnlLine."Job Total Cost (LCY)";
         JobJnlLine."Total Cost" := GenJnlLine."Job Total Cost";
 
-        if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then begin
-            JobJnlLine."Unit Cost (LCY)" += Abs(Round(GenJnlLine."Non-Deductible VAT Amount LCY" / JobJnlLine.Quantity));
-            JobJnlLine."Unit Cost" += Abs(Round(GenJnlLine."Non-Deductible VAT Amount" / JobJnlLine.Quantity));
-            JobJnlLine."Total Cost (LCY)" += Abs(GenJnlLine."Non-Deductible VAT Amount LCY");
-            JobJnlLine."Total Cost" += Abs(GenJnlLine."Non-Deductible VAT Amount");
-        end;
+        if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then
+            if JobJnlLine."Unit Cost" > 0 then begin
+                JobJnlLine."Unit Cost (LCY)" += Abs(Round(GenJnlLine."Non-Deductible VAT Amount LCY" / JobJnlLine.Quantity));
+                JobJnlLine."Unit Cost" += Abs(Round(GenJnlLine."Non-Deductible VAT Amount" / JobJnlLine.Quantity));
+                JobJnlLine."Total Cost (LCY)" += Abs(GenJnlLine."Non-Deductible VAT Amount LCY");
+                JobJnlLine."Total Cost" += Abs(GenJnlLine."Non-Deductible VAT Amount");
+            end else begin
+                JobJnlLine."Unit Cost (LCY)" += Round(GenJnlLine."Non-Deductible VAT Amount LCY" / JobJnlLine.Quantity);
+                JobJnlLine."Unit Cost" += Round(GenJnlLine."Non-Deductible VAT Amount" / JobJnlLine.Quantity);
+                JobJnlLine."Total Cost (LCY)" += GenJnlLine."Non-Deductible VAT Amount LCY";
+                JobJnlLine."Total Cost" += GenJnlLine."Non-Deductible VAT Amount";
+            end;
 
         JobJnlLine."Unit Price (LCY)" := GenJnlLine."Job Unit Price (LCY)";
         JobJnlLine."Unit Price" := GenJnlLine."Job Unit Price";
@@ -696,7 +702,10 @@ codeunit 1004 "Job Transfer Line"
 
         JobJnlLine."Unit Cost (LCY)" := PurchLine."Unit Cost (LCY)" / PurchLine."Qty. per Unit of Measure" + Abs(NondeductibleVATAmtPrUnitLCY);
         if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then
-            JobJnlLine."Unit Cost (LCY)" += Abs(NonDeductibleVATAmtPerUnitLCY);
+            if JobJnlLine."Unit Cost" > 0 then
+                JobJnlLine."Unit Cost (LCY)" += Abs(NonDeductibleVATAmtPerUnitLCY)
+            else
+                JobJnlLine."Unit Cost (LCY)" += NonDeductibleVATAmtPerUnitLCY;
         OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(JobJnlLine, PurchLine);
         if PurchLine.Type = PurchLine.Type::Item then begin
             Item.Get(PurchLine."No.");
@@ -899,6 +908,14 @@ codeunit 1004 "Job Transfer Line"
             Round(
                 PurchaseLine.Amount * VATPostingSetup."VAT %" / 100,
                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+    end;
+
+    local procedure GetNonDeductibleVATAmtPerUnitCost(JobJnlLine: Record "Job Journal Line"; var NonDeductibleVATAmtPerUnitLCY: Decimal; var NonDeductibleVATAmtPerUnit: Decimal)
+    begin
+        if JobJnlLine."Unit Cost" > 0 then begin
+            NonDeductibleVATAmtPerUnit := Abs(NonDeductibleVATAmtPerUnit);
+            NonDeductibleVATAmtPerUnitLCY := Abs(NonDeductibleVATAmtPerUnitLCY);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

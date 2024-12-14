@@ -15,14 +15,12 @@ codeunit 136211 "Marketing Matrix Management"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         No: Code[20];
         SalesCycleCode: Code[10];
         CurrentSalesCycleStage: Integer;
         EstimatedValue: Decimal;
-        OppCampaignNoErr: Label 'Campaign No. must not be %1 in Opportunity No.=''%2''';
 
     local procedure Initialize()
     begin
@@ -448,8 +446,7 @@ codeunit 136211 "Marketing Matrix Management"
         No := Campaign."No.";
         Opportunity.SetRange("Contact No.", ContactNo);
         TempOpportunity.CreateOppFromOpp(Opportunity);
-        asserterror UpdateCampaignOnOpportunity(Opportunity, Campaign."No.");
-        Assert.KnownFailure(StrSubstNo(OppCampaignNoErr, Campaign."No.", Opportunity."No."), 186663);
+        UpdateCampaignOnOpportunity(Opportunity, Campaign."No.");
         Opportunity.UpdateOpportunity();
         Commit();
 

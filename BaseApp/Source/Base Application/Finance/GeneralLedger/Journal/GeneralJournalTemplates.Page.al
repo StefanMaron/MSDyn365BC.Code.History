@@ -213,6 +213,11 @@ page 101 "General Journal Templates"
                                 Error(Text002);
                     end;
                 }
+                field("Unlink Inc. Doc On Posting"; Rec."Unlink Inc. Doc On Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the the incoming document will be unlinked from the journal when it is posted.';
+                }
             }
         }
         area(factboxes)

@@ -453,8 +453,10 @@ page 52 "Purchase Credit Memo"
                     var
                         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                     begin
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
+                        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then begin
                             PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
+                            Rec.SetOperationType();
+                        end;
                     end;
                 }
                 field("Vendor Posting Group"; Rec."Vendor Posting Group")

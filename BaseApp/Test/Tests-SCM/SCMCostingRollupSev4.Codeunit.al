@@ -498,33 +498,9 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
     [Test]
     [HandlerFunctions('FiscalYearCloseConfirmHandler')]
     [Scope('OnPrem')]
-    procedure DeletionOfItemAfterClosingFiscalYearPostPositiveFirstNoCostOnNegative()
-    begin
-        asserterror
-        begin
-            DeletionOfItemAfterClosingFiscalYearScenario(true, false);
-            Assert.KnownFailure('There are item entries that have not been adjusted for item', 81); // Bug 81 in SICILY VSTF
-        end
-    end;
-
-    [Test]
-    [HandlerFunctions('FiscalYearCloseConfirmHandler')]
-    [Scope('OnPrem')]
     procedure DeletionOfItemAfterClosingFiscalYearPostNegativeFirstCostOnNegative()
     begin
         DeletionOfItemAfterClosingFiscalYearScenario(false, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('FiscalYearCloseConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure DeletionOfItemAfterClosingFiscalYearPostNegativeFirstNoCostOnNegative()
-    begin
-        asserterror
-        begin
-            DeletionOfItemAfterClosingFiscalYearScenario(false, false);
-            Assert.KnownFailure('There are item entries that have not been adjusted for item', 81); // Bug 81 in SICILY VSTF
-        end
     end;
 
     local procedure DeletionOfItemAfterClosingFiscalYearScenario(PositiveBeforeNegative: Boolean; NegativeHasUnitCost: Boolean)
