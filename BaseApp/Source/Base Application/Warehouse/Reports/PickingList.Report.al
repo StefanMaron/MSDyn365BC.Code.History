@@ -309,7 +309,7 @@ report 5752 "Picking List"
 
             trigger OnAfterGetRecord()
             begin
-                GetLocation("Location Code");
+                this.GetLocation("Location Code");
                 InvtPick := Type = Type::"Invt. Pick";
                 if InvtPick then
                     BreakbulkFilter := false

@@ -373,7 +373,14 @@ page 36 "Assembly BOM"
     end;
 
     local procedure CheckMandatoryRecFields()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckMandatoryRecFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Rec.TestField("Parent Item No.");
         case Rec.Type of
             Rec.Type::" ":
@@ -388,6 +395,11 @@ page 36 "Assembly BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckMandatoryRecFieldsBeforePageInsert(var BOMComponent: Record "BOM Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMandatoryRecFields(var BOMComponent: Record "BOM Component"; var IsHandled: Boolean)
     begin
     end;
 }

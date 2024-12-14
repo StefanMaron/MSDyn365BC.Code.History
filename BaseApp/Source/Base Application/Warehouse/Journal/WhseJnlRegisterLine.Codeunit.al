@@ -379,6 +379,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             WarehouseEntry.CalcSums("Qty. (Base)");
             ModifyBinEmpty(WarehouseEntry."Qty. (Base)" = 0);
         end;
+        OnAfterUpdateBinEmpty(NewWarehouseEntry, Bin);
     end;
 
     local procedure ModifyBinEmpty(NewEmpty: Boolean)
@@ -511,6 +512,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             WhseReg."Journal Batch Name" := WhseJnlLine."Journal Batch Name";
             WhseReg."Source Code" := WhseJnlLine."Source Code";
             WhseReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(WhseJnlLine."User ID"));
+            OnInsertWhseRegOnBeforeInsertRecord(WhseReg, WhseJnlLine, WhseEntryNo);
             WhseReg.InsertRecord(WarehouseSetup.UseLegacyPosting());
         end else begin
             if ((WhseEntryNo < WhseReg."From Entry No.") and (WhseEntryNo <> 0)) or
@@ -519,6 +521,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                 WhseReg."From Entry No." := WhseEntryNo;
             if WhseEntryNo > WhseReg."To Entry No." then
                 WhseReg."To Entry No." := WhseEntryNo;
+            OnInsertWhseRegOnBeforeModifyWarehouseRegister(WhseReg, WhseJnlLine, WhseEntryNo);
             WhseReg.Modify();
         end;
     end;
@@ -751,6 +754,21 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertWhseEntryOnBeforeTestFieldExpirationDate(WhseEntry: Record "Warehouse Entry"; ExistingExpDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateBinEmpty(WarehouseEntry: Record "Warehouse Entry"; Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertWhseRegOnBeforeInsertRecord(var WarehouseReg: Record "Warehouse Register"; var WarehouseJournalLine: Record "Warehouse Journal Line"; WhseEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertWhseRegOnBeforeModifyWarehouseRegister(var WarehouseReg: Record "Warehouse Register"; var WarehouseJournalLine: Record "Warehouse Journal Line"; WhseEntryNo: Integer)
     begin
     end;
 }

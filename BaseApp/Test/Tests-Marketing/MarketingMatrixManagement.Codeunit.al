@@ -15,14 +15,12 @@ codeunit 136211 "Marketing Matrix Management"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         No: Code[20];
         SalesCycleCode: Code[10];
         CurrentSalesCycleStage: Integer;
         EstimatedValue: Decimal;
-        OppCampaignNoErr: Label 'Campaign No. must not be %1 in Opportunity No.=''%2''';
 
     local procedure Initialize()
     begin
@@ -47,7 +45,7 @@ codeunit 136211 "Marketing Matrix Management"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Task: Record "To-do";
         TempTask: Record "To-do" temporary;
-        Tasks: TestPage Tasks;
+        Tasks: TestPage Microsoft.CRM.Analysis.Tasks;
         TableOption: Option Salesperson,Team,Campaign,Contact;
     begin
         // Test Tasks matrix with Show as Lines Salesperson after creation of Task for Salesperson.
@@ -81,7 +79,7 @@ codeunit 136211 "Marketing Matrix Management"
         Team: Record Team;
         Task: Record "To-do";
         TempTask: Record "To-do" temporary;
-        Tasks: TestPage Tasks;
+        Tasks: TestPage Microsoft.CRM.Analysis.Tasks;
         TableOption: Option Salesperson,Team,Campaign,Contact;
     begin
         // Test Tasks matrix with Show as Lines Team after creation of Task for Team.
@@ -115,7 +113,7 @@ codeunit 136211 "Marketing Matrix Management"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Task: Record "To-do";
         TempTask: Record "To-do" temporary;
-        Tasks: TestPage Tasks;
+        Tasks: TestPage Microsoft.CRM.Analysis.Tasks;
         CampaignNo: Code[20];
         TableOption: Option Salesperson,Team,Campaign,Contact;
     begin
@@ -151,7 +149,7 @@ codeunit 136211 "Marketing Matrix Management"
         Contact: Record Contact;
         Task: Record "To-do";
         TempTask: Record "To-do" temporary;
-        Tasks: TestPage Tasks;
+        Tasks: TestPage Microsoft.CRM.Analysis.Tasks;
         TableOption: Option Salesperson,Team,Campaign,Contact;
     begin
         // Test Tasks matrix with Show as Lines Contact after creation of Task for Contact.
@@ -185,7 +183,7 @@ codeunit 136211 "Marketing Matrix Management"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Task: Record "To-do";
         TempTask: Record "To-do" temporary;
-        Tasks: TestPage Tasks;
+        Tasks: TestPage Microsoft.CRM.Analysis.Tasks;
         StatusFilter: Option " ","Not Started","In Progress",Completed,Waiting,Postponed;
         TableOption: Option Salesperson,Team,Campaign,Contact;
     begin
@@ -272,7 +270,7 @@ codeunit 136211 "Marketing Matrix Management"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Task: Record "To-do";
         TempTask: Record "To-do" temporary;
-        Tasks: TestPage Tasks;
+        Tasks: TestPage Microsoft.CRM.Analysis.Tasks;
         TableOption: Option Salesperson,Team,Campaign,Contact;
     begin
         // 1. Setup: Create Salesperson, Task for Salesperson and Change the Status of to-do as per parameter.
@@ -309,7 +307,7 @@ codeunit 136211 "Marketing Matrix Management"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Task: Record "To-do";
         TempTask: Record "To-do" temporary;
-        Tasks: TestPage Tasks;
+        Tasks: TestPage Microsoft.CRM.Analysis.Tasks;
         StatusFilter: Option " ","Not Started","In Progress",Completed,Waiting,Postponed;
         TableOption: Option Salesperson,Team,Campaign,Contact;
     begin
@@ -448,8 +446,7 @@ codeunit 136211 "Marketing Matrix Management"
         No := Campaign."No.";
         Opportunity.SetRange("Contact No.", ContactNo);
         TempOpportunity.CreateOppFromOpp(Opportunity);
-        asserterror UpdateCampaignOnOpportunity(Opportunity, Campaign."No.");
-        Assert.KnownFailure(StrSubstNo(OppCampaignNoErr, Campaign."No.", Opportunity."No."), 186663);
+        UpdateCampaignOnOpportunity(Opportunity, Campaign."No.");
         Opportunity.UpdateOpportunity();
         Commit();
 
@@ -847,7 +844,7 @@ codeunit 136211 "Marketing Matrix Management"
 
     local procedure OpenShowMatrixTask(FilterContactNo: Code[20])
     var
-        Tasks: TestPage Tasks;
+        Tasks: TestPage Microsoft.CRM.Analysis.Tasks;
         OutputOption: Option "No. of To-dos","Contact No.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin

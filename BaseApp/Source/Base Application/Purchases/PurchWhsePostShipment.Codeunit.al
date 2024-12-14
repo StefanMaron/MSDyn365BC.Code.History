@@ -425,6 +425,8 @@ codeunit 5747 "Purch. Whse. Post Shipment"
                     PurchCrMemoHdr.Get(DocumentEntryToPrint."Document No.");
                     PurchCrMemoHdr.Mark(true);
                 until DocumentEntryToPrint.Next() = 0;
+
+            PurchCrMemoHdr.MarkedOnly(true);
             PurchCrMemoHdr.PrintRecords(false);
         end;
 
@@ -435,6 +437,8 @@ codeunit 5747 "Purch. Whse. Post Shipment"
                     ReturnShipmentHeader.Get(DocumentEntryToPrint."Document No.");
                     ReturnShipmentHeader.Mark(true);
                 until DocumentEntryToPrint.Next() = 0;
+
+            ReturnShipmentHeader.MarkedOnly(true);
             ReturnShipmentHeader.PrintRecords(false);
         end;
     end;

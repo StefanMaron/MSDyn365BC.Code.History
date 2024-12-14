@@ -16,7 +16,6 @@ codeunit 130000 Assert
         FailFailedMsg: Label 'Assert.Fail failed. %1';
         TableIsEmptyErr: Label 'Assert.TableIsEmpty failed. Table <%1> with filter <%2> must not contain records.', Locked = true;
         TableIsNotEmptyErr: Label 'Assert.TableIsNotEmpty failed. Table <%1> with filter <%2> must contain records.', Locked = true;
-        KnownFailureMsg: Label 'Known failure: see VSTF Bug #%1.';
         ExpectedErrorFailed: Label 'Assert.ExpectedError failed. Expected: %1. Actual: %2.';
         ExpectedTestFieldFailedErr: Label 'Assert.ExpectedError failed. Could not find the value: %1 in the raised error text: %2.';
         WrongErrorCodeErr: Label 'Assert.ExpectedErrorCode failed. Error code raised: %1. Actual error message: %2.', Comment = '%1 - Error code that was raised. %2 - Error message reported.', Locked = true;
@@ -164,12 +163,6 @@ codeunit 130000 Assert
         if ExpectedCount <> RecRef.Count then
             Error(RecordCountErr, RecRef.Caption, ExpectedCount, RecRef.Count, RecRef.GetFilters);
         RecRef.Close();
-    end;
-
-    procedure KnownFailure(Expected: Text; WorkItemNo: Integer)
-    begin
-        ExpectedError(Expected);
-        Error(KnownFailureMsg, WorkItemNo)
     end;
 
     procedure ExpectedError(Expected: Text)

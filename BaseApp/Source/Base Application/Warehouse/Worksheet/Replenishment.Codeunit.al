@@ -130,6 +130,7 @@ codeunit 7308 Replenishment
         WhseWkshLine2: Record "Whse. Worksheet Line";
         QtyAvailToTakeBase: Decimal;
         MovementQtyBase: Decimal;
+        SkipItemUnitOfMeasure: Boolean;
     begin
         ItemUnitOfMeasure.Reset();
         ItemUnitOfMeasure.SetCurrentKey("Item No.", "Qty. per Unit of Measure");
@@ -150,32 +151,35 @@ codeunit 7308 Replenishment
                   "Qty. per Unit of Measure", ItemUnitOfMeasure."Qty. per Unit of Measure");
                 FromBinContent.SetFilter("Bin Ranking", '<%1', ToBinContent."Bin Ranking");
                 FromBinContent.Ascending(false);
-                if FromBinContent.Find('-') then begin
-                    WhseWkshLine2.Copy(TempWhseWkshLine);
-                    TempWhseWkshLine.SetCurrentKey(
-                      "Item No.", "From Bin Code", "Location Code", "Variant Code", "From Unit of Measure Code");
-                    TempWhseWkshLine.SetRange("Item No.", FromBinContent."Item No.");
-                    TempWhseWkshLine.SetRange("Location Code", FromBinContent."Location Code");
-                    TempWhseWkshLine.SetRange("Variant Code", FromBinContent."Variant Code");
-                    repeat
-                        if UseForReplenishment(FromBinContent) then begin
-                            QtyAvailToTakeBase := FromBinContent.CalcQtyAvailToTake(0);
-                            TempWhseWkshLine.SetRange("From Bin Code", FromBinContent."Bin Code");
-                            TempWhseWkshLine.SetRange("From Unit of Measure Code", FromBinContent."Unit of Measure Code");
-                            TempWhseWkshLine.CalcSums("Qty. (Base)");
-                            QtyAvailToTakeBase := QtyAvailToTakeBase - TempWhseWkshLine."Qty. (Base)";
+                SkipItemUnitOfMeasure := false;
+                OnFindBreakbulkBinOnAfterFromBinContentSetFilters(FromBinContent, ToBinContent, ItemUnitOfMeasure, SkipItemUnitOfMeasure);
+                if not SkipItemUnitOfMeasure then
+                    if FromBinContent.Find('-') then begin
+                        WhseWkshLine2.Copy(TempWhseWkshLine);
+                        TempWhseWkshLine.SetCurrentKey(
+                          "Item No.", "From Bin Code", "Location Code", "Variant Code", "From Unit of Measure Code");
+                        TempWhseWkshLine.SetRange("Item No.", FromBinContent."Item No.");
+                        TempWhseWkshLine.SetRange("Location Code", FromBinContent."Location Code");
+                        TempWhseWkshLine.SetRange("Variant Code", FromBinContent."Variant Code");
+                        repeat
+                            if UseForReplenishment(FromBinContent) then begin
+                                QtyAvailToTakeBase := FromBinContent.CalcQtyAvailToTake(0);
+                                TempWhseWkshLine.SetRange("From Bin Code", FromBinContent."Bin Code");
+                                TempWhseWkshLine.SetRange("From Unit of Measure Code", FromBinContent."Unit of Measure Code");
+                                TempWhseWkshLine.CalcSums("Qty. (Base)");
+                                QtyAvailToTakeBase := QtyAvailToTakeBase - TempWhseWkshLine."Qty. (Base)";
 
-                            if QtyAvailToTakeBase > 0 then begin
-                                MovementQtyBase := QtyAvailToTakeBase;
-                                if RemainQtyToReplenishBase < MovementQtyBase then
-                                    MovementQtyBase := RemainQtyToReplenishBase;
-                                CreateWhseWkshLine(ToBinContent, FromBinContent, MovementQtyBase);
-                                RemainQtyToReplenishBase := RemainQtyToReplenishBase - MovementQtyBase;
+                                if QtyAvailToTakeBase > 0 then begin
+                                    MovementQtyBase := QtyAvailToTakeBase;
+                                    if RemainQtyToReplenishBase < MovementQtyBase then
+                                        MovementQtyBase := RemainQtyToReplenishBase;
+                                    CreateWhseWkshLine(ToBinContent, FromBinContent, MovementQtyBase);
+                                    RemainQtyToReplenishBase := RemainQtyToReplenishBase - MovementQtyBase;
+                                end;
                             end;
-                        end;
-                    until (FromBinContent.Next() = 0) or (RemainQtyToReplenishBase = 0);
-                    TempWhseWkshLine.Copy(WhseWkshLine2);
-                end;
+                        until (FromBinContent.Next() = 0) or (RemainQtyToReplenishBase = 0);
+                        TempWhseWkshLine.Copy(WhseWkshLine2);
+                    end;
             until (ItemUnitOfMeasure.Next() = 0) or (RemainQtyToReplenishBase = 0);
     end;
 
@@ -377,6 +381,11 @@ codeunit 7308 Replenishment
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeReplenishBin(ToBinContent: Record "Bin Content"; var IsHandled: Boolean; RemainQtyToReplenishBase: Decimal; AllowBreakBulk: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBreakbulkBinOnAfterFromBinContentSetFilters(var FromBinContent: Record "Bin Content"; var ToBinContent: Record "Bin Content"; ItemUnitOfMeasure: Record "Item Unit of Measure"; var SkipItemUnitOfMeasure: Boolean)
     begin
     end;
 }

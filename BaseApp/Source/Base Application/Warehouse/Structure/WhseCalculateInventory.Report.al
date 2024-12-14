@@ -83,7 +83,7 @@ report 7390 "Whse. Calculate Inventory"
                 BinContent: Record "Bin Content";
                 SkipRecord: Boolean;
             begin
-                GetLocation("Location Code");
+                this.GetLocation("Location Code");
                 SkipRecord := ("Bin Code" = Location."Adjustment Bin Code") or SkipCycleSKU("Location Code", "Item No.", "Variant Code");
                 OnWarehouseEntryOnAfterGetRecordOnAfterCalcSkipRecord("Warehouse Entry", SkipRecord);
                 if SkipRecord then

@@ -190,6 +190,7 @@ codeunit 1019 "Job-Explode BOM"
     begin
         ToJobPlanningLine := FromJobPlanningLine;
         ToJobPlanningLine.Init();
+        ToJobPlanningLine."Line Type" := FromJobPlanningLine."Line Type";
         ToJobPlanningLine.Type := ToJobPlanningLine.Type::Text;
         ToJobPlanningLine.Description := FromJobPlanningLine.Description;
         ToJobPlanningLine."Description 2" := FromJobPlanningLine."Description 2";
