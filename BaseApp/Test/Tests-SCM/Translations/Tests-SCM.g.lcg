@@ -6008,6 +6008,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Charge Blocked Item - NamedType TestFieldCodeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 167793459 - NamedType 1434876051" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Block Movement must not be All in Bin Content Location Code='%1',Bin Code='%2',Item No.='%3',Variant Code='%4',Unit of Measure Code='%5'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Location Code, %2= Bin Code, %3= Item No., %4= Varient Code, %5= Unit of Measure Code]D;]A;(LookupHint=Codeunit SCM Item Journal - NamedType BlockedBinContentErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 167793459 - NamedType 643940626" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Block Movement must not be All in Bin]]></Val>
