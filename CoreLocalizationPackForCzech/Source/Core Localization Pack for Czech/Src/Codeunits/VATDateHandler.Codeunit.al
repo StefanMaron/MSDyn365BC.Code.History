@@ -8,6 +8,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Inventory.Costing;
@@ -41,10 +42,14 @@ codeunit 11742 "VAT Date Handler CZL"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         UserSetup: Record "User Setup";
+#if not CLEAN22
         ErrorMessageManagement: Codeunit "Error Message Management";
+#endif
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+#if not CLEAN22
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
         VatDateNotAllowedErr: Label '%1 %2 is not within your range of allowed dates.', Comment = '%1 - VAT Date FieldCaption, %2 = VAT Date';
+#endif
 
     [EventSubscriber(ObjectType::Table, Database::"G/L Entry", 'OnAfterCopyGLEntryFromGenJnlLine', '', false, false)]
     local procedure UpdateVatDateOnAfterCopyGenJnlLineFromGLEntry(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line")
@@ -216,9 +221,37 @@ codeunit 11742 "VAT Date Handler CZL"
         exit((VATDate < VATAllowPostingFrom) or (VATDate > VATAllowPostingTo));
     end;
 
+    internal procedure IsVATDateInAllowedPeriod(VATDate: Date; var SetupRecordID: RecordID; var FieldNo: Integer): Boolean
+    var
+#if not CLEAN22
+#pragma warning disable AL0432
+        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
+#pragma warning restore AL0432
+#endif
+        UserSetupManagement: Codeunit "User Setup Management";
+    begin
+#if not CLEAN22
+#pragma warning disable AL0432
+        if not ReplaceVATDateMgtCZL.IsEnabled() then
+            exit(IsVATDateCZLNotAllowed(VATDate, SetupRecordID));
+#pragma warning restore AL0432
+#endif
+        exit(UserSetupManagement.IsVATDateInAllowedPeriod(VATDate, SetupRecordID, FieldNo));
+    end;
+
+    internal procedure IsVATDateInAllowedPeriod(VATDate: Date): Boolean
+    var
+        SetupRecordID: RecordId;
+        FieldNo: Integer;
+    begin
+        exit(IsVATDateInAllowedPeriod(VATDate, SetupRecordID, FieldNo));
+    end;
+
     procedure CheckVATDateCZL(GenJournalLine: Record "Gen. Journal Line")
+#if not CLEAN22
     var
         VATRangeErr: Label ' %1 is not within your range of allowed VAT dates', Comment = '%1 = VAT Date';
+#endif
     begin
 #if not CLEAN22
 #pragma warning disable AL0432
@@ -240,15 +273,15 @@ codeunit 11742 "VAT Date Handler CZL"
             GenJournalLine.TestField("VAT Reporting Date", GenJournalLine."Posting Date")
         else begin
             GenJournalLine.TestField("VAT Reporting Date");
-            if VATDateNotAllowed(GenJournalLine."VAT Reporting Date") then
-                GenJournalLine.FieldError("VAT Reporting Date", StrSubstNo(VATRangeErr, GenJournalLine."VAT Reporting Date"));
             VATPeriodCZLCheck(GenJournalLine."VAT Reporting Date");
         end;
     end;
 
     procedure CheckVATDateCZL(var SalesHeader: Record "Sales Header")
+#if not CLEAN22
     var
         SetupRecID: RecordId;
+#endif
     begin
 #if not CLEAN22
 #pragma warning disable AL0432
@@ -273,18 +306,15 @@ codeunit 11742 "VAT Date Handler CZL"
             SalesHeader.TestField("VAT Reporting Date", SalesHeader."Posting Date")
         else begin
             SalesHeader.TestField("VAT Reporting Date");
-            if IsVATDateCZLNotAllowed(SalesHeader."VAT Reporting Date", SetupRecID) then
-                ErrorMessageManagement.LogContextFieldError(
-                    SalesHeader.FieldNo(SalesHeader."VAT Reporting Date"), StrSubstNo(VatDateNotAllowedErr, SalesHeader.FieldCaption(SalesHeader."VAT Reporting Date"), SalesHeader."VAT Reporting Date"),
-                    SetupRecID, ErrorMessageManagement.GetFieldNo(SetupRecID.TableNo, GeneralLedgerSetup.FieldName("Allow VAT Posting From CZL")),
-                    ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
             VATPeriodCZLCheck(SalesHeader."VAT Reporting Date");
         end;
     end;
 
     procedure CheckVATDateCZL(var PurchaseHeader: Record "Purchase Header")
     var
+#if not CLEAN22
         SetupRecID: RecordId;
+#endif
         MustBeLessOrEqualErr: Label 'must be less or equal to %1', Comment = '%1 = fieldcaption of VAT Date CZL';
     begin
 #if not CLEAN22
@@ -314,11 +344,6 @@ codeunit 11742 "VAT Date Handler CZL"
             PurchaseHeader.TestField("VAT Reporting Date", PurchaseHeader."Posting Date")
         else begin
             PurchaseHeader.TestField("VAT Reporting Date");
-            if IsVATDateCZLNotAllowed(PurchaseHeader."VAT Reporting Date", SetupRecID) then
-                ErrorMessageManagement.LogContextFieldError(
-                    PurchaseHeader.FieldNo(PurchaseHeader."VAT Reporting Date"), StrSubstNo(VatDateNotAllowedErr, PurchaseHeader.FieldCaption(PurchaseHeader."VAT Reporting Date"), PurchaseHeader."VAT Reporting Date"),
-                    SetupRecID, ErrorMessageManagement.GetFieldNo(SetupRecID.TableNo, GeneralLedgerSetup.FieldName("Allow VAT Posting From CZL")),
-                    ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
             VATPeriodCZLCheck(PurchaseHeader."VAT Reporting Date");
             if PurchaseHeader.Invoice then
                 PurchaseHeader.TestField("Original Doc. VAT Date CZL");
@@ -328,8 +353,10 @@ codeunit 11742 "VAT Date Handler CZL"
     end;
 
     procedure CheckVATDateCZL(var ServiceHeader: Record "Service Header")
+#if not CLEAN22
     var
         SetupRecID: RecordId;
+#endif
     begin
 #if not CLEAN22
 #pragma warning disable AL0432
@@ -354,11 +381,6 @@ codeunit 11742 "VAT Date Handler CZL"
             ServiceHeader.TestField("VAT Reporting Date", ServiceHeader."Posting Date")
         else begin
             ServiceHeader.TestField("VAT Reporting Date");
-            if IsVATDateCZLNotAllowed(ServiceHeader."VAT Reporting Date", SetupRecID) then
-                ErrorMessageManagement.LogContextFieldError(
-                    ServiceHeader.FieldNo(ServiceHeader."VAT Reporting Date"), StrSubstNo(VatDateNotAllowedErr, ServiceHeader.FieldCaption(ServiceHeader."VAT Reporting Date"), ServiceHeader."VAT Reporting Date"),
-                    SetupRecID, ErrorMessageManagement.GetFieldNo(SetupRecID.TableNo, GeneralLedgerSetup.FieldName("Allow VAT Posting From CZL")),
-                    ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
             VATPeriodCZLCheck(ServiceHeader."VAT Reporting Date");
         end;
     end;

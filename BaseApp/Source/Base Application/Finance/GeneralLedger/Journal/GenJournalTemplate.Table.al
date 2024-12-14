@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -312,6 +312,10 @@ table 80 "Gen. Journal Template"
         field(33; "Allow Posting Date To"; Date)
         {
             Caption = 'Allow Posting Date To';
+        }
+        field(34; "Unlink Inc. Doc On Posting"; Boolean)
+        {
+            Caption = 'Unlink Incoming Documents On Posting';
         }
         field(11760; "Not Check Doc. Type"; Boolean)
         {

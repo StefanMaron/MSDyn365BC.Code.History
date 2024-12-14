@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Company;
 
-using System.Reflection;
 using Microsoft.Finance.VAT.Reporting;
 
 page 31108 "Statutory Reporting Setup CZL"
@@ -453,7 +452,6 @@ page 31108 "Statutory Reporting Setup CZL"
                 field("VIES Declaration Report No."; Rec."VIES Declaration Report No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    LookupPageId = Objects;
                     ToolTip = 'Specifies the object number for VIES declaration report.';
                 }
                 field("VIES Declaration Report Name"; Rec."VIES Declaration Report Name")
@@ -464,7 +462,6 @@ page 31108 "Statutory Reporting Setup CZL"
                 field("VIES Declaration Export No."; Rec."VIES Declaration Export No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    LookupPageId = Objects;
                     ToolTip = 'Specifies the object number for VIES declaration export.';
                 }
                 field("VIES Declaration Export Name"; Rec."VIES Declaration Export Name")
