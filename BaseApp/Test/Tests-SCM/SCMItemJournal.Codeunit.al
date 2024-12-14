@@ -34,6 +34,8 @@
         OneEntryExpectedErr: Label 'Only one Item Ledger Entry is expected.';
         MultipleEntriesExpectedErr: Label 'Two Item Ledger Entries expected.';
         RoundingTo0Err: Label 'Rounding of the field';
+        BlockedBinContentErr: Label 'Block Movement must not be All in Bin Content Location Code=''%1'',Bin Code=''%2'',Item No.=''%3'',Variant Code=''%4'',Unit of Measure Code=''%5''.',
+                              Comment = '%1= Location Code, %2= Bin Code, %3= Item No., %4= Varient Code, %5= Unit of Measure Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -2098,6 +2100,86 @@
         // [THEN] The record link is deleted
         RecordLink.SetRange("Record ID", ItemJournalLine.RecordId);
         Assert.RecordIsEmpty(RecordLink);
+    end;
+
+    [Test]
+    procedure BinContentMovementBlockedThrowsErrorWhenPostingItemJournal()
+    var
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+    begin
+        // [SCENARIO 538864] Bin Content Block Movement is considered when posting an Item Journal.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Location with require Bin and a Default Bin Code.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create a Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+
+        // [GIVEN] Validate Default Bin Code in Location.
+        Location.Validate("Default Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Select an Item Journal Template of Type Item.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+
+        // [GIVEN] Select an Item Journal Batch.
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+
+        // [GIVEN] Create an Item Journal Line
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine,
+          ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Purchase,
+          Item."No.",
+          LibraryRandom.RandInt(10));
+
+        // [GIVEN] Validate Location Code and Bin Code in Item Journal Line.
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", Bin.Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post an Item Journal.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Find Bin Content and Validate Block Movement to All.
+        BinContent.SetRange("Bin Code", Bin.Code);
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.SetRange("Location Code", Location.Code);
+        BinContent.FindFirst();
+        BinContent.Validate("Block Movement", BinContent."Block Movement"::All);
+        BinContent.Modify(true);
+
+        // [GIVEN] Clear an Item Journal
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+
+        // [GIVEN] Create an Item Journal and Validate Location Code.
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine,
+          ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Purchase,
+          Item."No.",
+          LibraryRandom.RandInt(10));
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Modify(true);
+
+        // [WHEN] Post an Item Journal.
+        asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [THEN] Error of Bin Content Movement blocked is raised.
+        Assert.ExpectedError(StrSubstNo(BlockedBinContentErr, ItemJournalLine."Location Code", ItemJournalLine."Bin Code", ItemJournalLine."Item No.", ItemJournalLine."Variant Code", ItemJournalLine."Unit of Measure Code"));
     end;
 
     local procedure Initialize()
