@@ -701,6 +701,65 @@ codeunit 134195 "ERM Multiple Posting Groups"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CheckFCYPurchInvoiceApplyUnapplyMultiplePostingGroups()
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo, CurrencyCode : Code[20];
+        PaymentNo: Code[20];
+        TotalAmount: Decimal;
+    begin
+        // [SCENARIO 550230] CONSISTENCY error if you try to apply a Payment and a Bill using Multiple Posting Groups with foreign currencies in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Allowed multiple vendor posting groups
+        SetPurchAllowMultiplePostingGroups(true);
+
+        // [WHEN] Posting invoice for a FCY vendor with multiple posting groups
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify();
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        LibraryPurchase.CreateFCYPurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Invoice, Vendor."No.", '', 1, '', 0D, CurrencyCode);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup2);
+        LibraryPurchase.CreateAltVendorPostingGroup(Vendor."Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Modify();
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify();
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        TotalAmount := PurchaseHeader."Amount Including VAT";
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Payment is posted with default vendor posting group
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, Vendor."No.", TotalAmount);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Modify();
+        PaymentNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Applying payment to invoice - should post 2 G/L entries between Payables accounts
+        ApplyAndPostVendorEntry(PaymentNo, InvoiceNo, TotalAmount, "Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice);
+
+        // [THEN] Unapplying payment - should post 2 reversal G/L entries between Payables accounts
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::Payment, PaymentNo);
+        LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CheckPostPurchaseInvoiceWithAnotherVendorPostingGroup()
     var
         Vendor: Record Vendor;
@@ -738,6 +797,187 @@ codeunit 134195 "ERM Multiple Posting Groups"
         Assert.AreEqual(
             PurchInvHeader."Vendor Posting Group", VendorPostingGroup.Code,
             'Vendor Posting Group in Purchase Invoice Header is not correct.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPurchInvoiceApplyUnapplyPmtWithAlternativePostingGroup()
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+        PaymentNo: Code[20];
+        TotalAmount: Decimal;
+    begin
+        // [SCENARIO 550235] [24.x] Unbalanced G/L Entries if you post Invoice and Payment using Multiple Posting Groups in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Allowed multiple vendor posting groups
+        SetPurchAllowMultiplePostingGroups(true);
+
+        // [WHEN] Posting invoice a vendor with multiple posting groups
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Invoice, Vendor."No.", '', 1, '', 0D);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup2);
+        LibraryPurchase.CreateAltVendorPostingGroup(Vendor."Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Modify();
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify();
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        TotalAmount := PurchaseHeader."Amount Including VAT";
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Payment is posted for that vendor with alternative posting group
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, Vendor."No.", TotalAmount);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Validate("Posting Group", VendorPostingGroup2.Code);
+        GenJournalLine.Modify();
+        PaymentNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Applying payment to invoice
+        // [THEN] This should post 2 G/L entries between Payables accounts
+        ApplyAndPostVendorEntry(PaymentNo, InvoiceNo, TotalAmount, "Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice);
+
+        // [WHEN] Unapplying payment from invoice
+        // [THEN] This should post 2 reversal G/L entries between Payables accounts
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::Payment, PaymentNo);
+        LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckMultiplePurchInvoiceApplyUnapplyPmtWithMainPostingGroup()
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PurchaseHeader, PurchaseHeader2 : Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry, VendorLedgerEntry2 : Record "Vendor Ledger Entry";
+        InvoiceNo, Invoice2No : Code[20];
+        PaymentNo, Payment2No : Code[20];
+        TotalAmount, TotalAmount2, SumOfAmountLCY : Decimal;
+        PayablesAccountCodes: List of [Code[20]];
+    begin
+        // [SCENARIO 551376] [24.x] Wrong vendor posting group used when posting payment application to two purchase invoices with multiple posting groups
+        Initialize();
+
+        // [GIVEN] Allowed multiple vendor posting groups
+        SetPurchAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Posting two invoices for a vendor with multiple posting groups (invoices have different posting groups)
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor.Modify();
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Invoice, Vendor."No.", '', 1, '', 0D);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup2);
+        LibraryPurchase.CreateAltVendorPostingGroup(Vendor."Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Modify();
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify();
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        TotalAmount := PurchaseHeader."Amount Including VAT";
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader2, PurchaseLine, "Purchase Document Type"::Invoice, Vendor."No.", '', 1, '', 0D);
+        PurchaseHeader2.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        PurchaseHeader2.Modify();
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify();
+        PurchaseHeader2.CalcFields("Amount Including VAT");
+        TotalAmount2 := PurchaseHeader2."Amount Including VAT";
+        Invoice2No := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
+
+        // [GIVEN] Two payments are entered in journal for that vendor with main posting group, pointing to two invoices with 'Applies-to Doc. No'
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, Vendor."No.", TotalAmount);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Validate("Posting Group", VendorPostingGroup.Code);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
+        GenJournalLine.Modify();
+        PaymentNo := GenJournalLine."Document No.";
+        // [WHEN] Posting of the journal line (it doesn't fail saying that bills account must be specified)
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, Vendor."No.", TotalAmount2);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Validate("Posting Group", VendorPostingGroup.Code);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", Invoice2No);
+        GenJournalLine.Modify();
+        Payment2No := GenJournalLine."Document No.";
+        // [WHEN] Posting of the journal line (it doesn't fail saying that bills account must be specified)
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] The two vendor ledger entries should be closed (applied)
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::Payment, PaymentNo);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, "Gen. Journal Document Type"::Payment, Payment2No);
+        Assert.IsFalse(VendorLedgerEntry.Open, '');
+        Assert.IsFalse(VendorLedgerEntry2.Open, '');
+
+        // [THEN] The Amount on G/L Entries for payables accounts of the two posting groups should balance out
+        PayablesAccountCodes.Add(VendorPostingGroup."Payables Account");
+        PayablesAccountCodes.Add(VendorPostingGroup2."Payables Account");
+        SumOfAmountLCY := SumGLEntryAmountsForPayablesAccounts(PayablesAccountCodes);
+        Assert.AreEqual(0, SumOfAmountLCY, '');
+
+        // [WHEN] Unapplying the ledger entries
+        LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
+        LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry2);
+
+        // [THEN] The two vendor ledger entries should be open (unapplied)
+        VendorLedgerEntry.Get(VendorLedgerEntry."Entry No.");
+        VendorLedgerEntry2.Get(VendorLedgerEntry2."Entry No.");
+        Assert.IsTrue(VendorLedgerEntry.Open, '');
+        Assert.IsTrue(VendorLedgerEntry2.Open, '');
+
+        // [THEN] The Amount on G/L Entries for payables accounts of the two posting groups should balance out
+        SumOfAmountLCY := SumGLEntryAmountsForPayablesAccounts(PayablesAccountCodes);
+        Assert.AreEqual(0, SumOfAmountLCY, '');
+    end;
+
+    local procedure SumGLEntryAmountsForPayablesAccounts(var PayablesAccountCodes: List of [Code[20]]): Decimal
+    var
+        GLEntry: Record "G/L Entry";
+        AccountCode: Code[20];
+        Started: Boolean;
+        FilterString: Text;
+    begin
+        foreach AccountCode in PayablesAccountCodes do begin
+            if Started then
+                FilterString += '|'
+            else
+                Started := true;
+            FilterString += Format(AccountCode);
+        end;
+        GLEntry.SetFilter("G/L Account No.", FilterString);
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"G/L Account");
+        GLEntry.CalcSums(Amount);
+        exit(GLEntry.Amount);
     end;
 
     [Test]

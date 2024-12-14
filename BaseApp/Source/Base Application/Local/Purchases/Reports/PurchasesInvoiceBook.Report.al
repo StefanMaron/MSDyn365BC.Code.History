@@ -661,6 +661,8 @@ report 10705 "Purchases Invoice Book"
                         Clear(PurchCrMemoHeader);
                         Clear(PurchInvHeader);
                         Clear(Vendor);
+                        NonDeductibleVATBaseAmount := 0;
+                        NonDeductibleVATAmount := 0;
 
                         if not PrintAmountsInAddCurrency then
                             GLSetup.Get()
@@ -1384,5 +1386,7 @@ report 10705 "Purchases Invoice Book"
         NoTaxableText: Text;
         NoTaxablePrinted: Boolean;
         OnlyIncludeSIIDocuments: Boolean;
+        NonDeductibleVATBaseAmount: Decimal;
+        NonDeductibleVATAmount: Decimal;
 }
 

@@ -12,6 +12,8 @@ codeunit 136308 "Job Order Tracking"
     var
         PurchaseLine2: Record "Purchase Line";
         JobPlanningLine2: Record "Job Planning Line";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryService: Codeunit "Library - Service";
@@ -25,6 +27,7 @@ codeunit 136308 "Job Order Tracking"
         WrongDocumentError: Label '''Document No is incorrect in Order Tracking: %1 does not contain %2\''.';
         RollBack: Label 'ROLLBACK.';
         ExpectedDate: Date;
+        QuantityErr: Label 'Quantity must be %1 in %2.', Comment = '%1= Value, %2=Table Name.';
 
     local procedure Initialize()
     var
@@ -421,6 +424,95 @@ codeunit 136308 "Job Order Tracking"
         VerifyJobTaskDimensionOnRequisitionLine(Job."No.", JobTaskDim);
     end;
 
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure OrderPlanningCreatesProjectPlanningLineForRecivedItemOnPurchaseOrder()
+    var
+        Location: Record Location;
+        JobPlanningLine: array[2] of Record "Job Planning Line";
+        Item: Record Item;
+        RequisitionLine: array[2] of Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 534037] Order Planning creates additional Project Planning Line if previous Job Planning Line for the Item was Received only on a Purchase Order.
+        Initialize();
+
+        // [GIVEN] Create an Item with Vendor.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] Delete old Manufacturing User Template.
+        DeleteManufacturingUserTemplateIfExists();
+
+        // [GIVEN] Create Job Planning Line.
+        CreateJobPlanningLine(JobPlanningLine[1]);
+
+        // [GIVEN] Modify Job Planning Line with Item, Quantity, Date and Location.
+        ModifyJobPlanningLine(
+            JobPlanningLine[1],
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 15),
+            WorkDate(),
+            LibraryJob.FindLocation(Location));
+
+        // [GIVEN] Create Inventory Posting Setup and Validate Inventory Account.
+        CreateInventoryPostingSetup(Location, Item);
+
+        // [GIVEN] Calculate Order Plan Job.
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine[1]);
+
+        // [GIVEN] Make Order from Order Planning Worksheet.
+        MakeSupplyOrdersActiveOrder(JobPlanningLine[1]."Job No.");
+
+        // [GIVEN] Find the Purchase Order.
+        PurchaseLine.SetRange("No.", JobPlanningLine[1]."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.FindFirst();
+
+        // [GIVEN] Validate Amount Including VAT and Qty. to Receive in Purchase Line.
+        PurchaseLine.Validate(PurchaseLine."Amount Including VAT", LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Find the Purchase Header.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+
+        // [GIVEN] Recive the Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create Job Planning Line.
+        CreateJobPlanningLine(JobPlanningLine[2]);
+
+        // [GIVEN] Modify Job Planning Line with Item, Quantity, Date and Location.
+        ModifyJobPlanningLine(
+            JobPlanningLine[2],
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 15),
+            WorkDate(),
+            LibraryJob.FindLocation(Location));
+
+        // [WHEN] Run Calculate Plan from Order Planning Worksheet.
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine[2]);
+
+        // [GIVEN] Find the Requisition Line of the Job.
+        RequisitionLine[2].SetRange("Demand Order No.", JobPlanningLine[2]."Job No.");
+        RequisitionLine[2].SetRange(Type, RequisitionLine[2].Type::Item);
+        RequisitionLine[2].SetRange("No.", JobPlanningLine[2]."No.");
+        RequisitionLine[2].SetRange("Location Code", JobPlanningLine[2]."Location Code");
+        RequisitionLine[2].FindLast();
+
+        // [THEN] Quantity on Requisition Line must be equal to Quantity on Job Planning Line.
+        Assert.AreEqual(
+            RequisitionLine[2].Quantity,
+            JobPlanningLine[2].Quantity,
+            StrSubstNo(
+                QuantityErr,
+                JobPlanningLine[2].Quantity,
+                RequisitionLine[2].TableCaption()));
+    end;
+
     local procedure CreateItemWithVendorNo(): Code[20]
     var
         Item: Record Item;
@@ -667,6 +759,28 @@ codeunit 136308 "Job Order Tracking"
         Assert.AreEqual(JobTaskDimension."Dimension Value Code", DimensionSetEntry."Dimension Value Code", '');
     end;
 
+    local procedure DeleteManufacturingUserTemplateIfExists()
+    var
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+    begin
+        if ManufacturingUserTemplate.Get(UserId) then
+            ManufacturingUserTemplate.Delete(true);
+    end;
+
+    local procedure CreateInventoryPostingSetup(Location: Record Location; Item: Record Item)
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        if not InventoryPostingSetup.Get(Location.Code, Item."Inventory Posting Group") then begin
+            LibraryInventory.CreateInventoryPostingSetup(
+                InventoryPostingSetup,
+                Location.Code,
+                Item."Inventory Posting Group");
+            InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo());
+            InventoryPostingSetup.Modify(true);
+        end;
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Text: Text[1024])
@@ -731,7 +845,10 @@ codeunit 136308 "Job Order Tracking"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders"; var Response: Action)
+    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders";
+
+    var
+        Response: Action)
     begin
         Response := ACTION::LookupOK;
     end;

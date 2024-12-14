@@ -427,6 +427,7 @@ page 36848 "Bank Cat.Post.Rec.Bills Matrix"
 
         PostedCarteraDoc.SetFilter("Category Code", CategoryFilter);
         PostedCarteraDoc.SetRange(Status, "Cartera Document Status".FromInteger(StatusFilterOption));
+        PostedCarteraDoc.SetRange("Bank Account No.", Rec."No.");
         PostedBills.SetTableView(PostedCarteraDoc);
         PostedBills.RunModal();
     end;

@@ -543,7 +543,7 @@ codeunit 5720 "Item Reference Management"
         case SalesLine.Type of
             SalesLine.Type::Item:
                 begin
-                    SalesLine.GetSalesHeader();
+                    SalesLine.SetSalesHeader(SalesHeader);
                     ItemReference2.SetCurrentKey("Reference Type", "Reference Type No.");
                     ItemReference2.SetFilter("Reference Type", '%1|%2', ItemReference2."Reference Type"::Customer, ItemReference2."Reference Type"::" ");
                     ItemReference2.SetFilter("Reference Type No.", '%1|%2', SalesHeader."Sell-to Customer No.", '');
@@ -562,7 +562,7 @@ codeunit 5720 "Item Reference Management"
                 end;
             SalesLine.Type::"G/L Account", SalesLine.Type::Resource:
                 begin
-                    SalesLine.GetSalesHeader();
+                    SalesLine.SetSalesHeader(SalesHeader);
                     SalesHeader.TestField("Sell-to IC Partner Code");
                     if PAGE.RunModal(PAGE::"IC G/L Account List", ICGLAcc) = ACTION::LookupOK then
                         SalesLine."Item Reference No." := ICGLAcc."No.";

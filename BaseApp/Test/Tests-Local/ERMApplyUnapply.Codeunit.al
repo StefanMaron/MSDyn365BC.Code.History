@@ -1759,6 +1759,327 @@ codeunit 147310 "ERM Apply Unapply"
         Assert.IsFalse(GLEntry.IsEmpty(), GLEntryMustBeFound);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTwoPurchInvoicesApplyPmtWithDifferentVendorsAndPostingGroups()
+    var
+        Vendor1, Vendor2 : Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        GenJournalLine, GenJournalLine2 : Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PurchaseHeader, PurchaseHeader2 : Record "Purchase Header";
+        PaymentMethod: Record "Payment Method";
+        VendorLedgerEntry, VendorLedgerEntry2 : Record "Vendor Ledger Entry";
+        LibraryCarteraCommon: Codeunit "Library - Cartera Common";
+        LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
+        InvoiceNo, Invoice2No : Code[20];
+        PaymentNo, Payment2No : Code[20];
+        TotalAmount, TotalAmount2, SumOfAmountLCY : Decimal;
+        PayablesAccountCodes: List of [Code[20]];
+        CountOfGLEntries: Integer;
+    begin
+        // [SCENARIO 556900][ES] Posting a payment to a Cartera invoice that is not using bills fails - it is looking for a bills account
+        Initialize();
+
+        // [GIVEN] Posting two Cartera invoices for two vendors with different posting groups (vendors don't allow multiple posting groups)
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
+        LibraryCarteraPayables.CreateCarteraVendor(Vendor1, '', PaymentMethod.Code);
+        Vendor1.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor1.Modify();
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor1."No.");
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        TotalAmount := PurchaseHeader."Amount Including VAT";
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryCarteraPayables.CreateCarteraVendor(Vendor2, '', PaymentMethod.Code);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup2);
+        Vendor2.Validate("Vendor Posting Group", VendorPostingGroup2.Code);
+        Vendor2.Modify();
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader2, Vendor2."No.");
+        PurchaseHeader2.CalcFields("Amount Including VAT");
+        TotalAmount2 := PurchaseHeader2."Amount Including VAT";
+        Invoice2No := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
+
+        // [GIVEN] Two payments are entered in journal for that vendor with main posting group, pointing to two invoices with 'Applies-to Doc. No'
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, Vendor1."No.", TotalAmount);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Validate("Posting Group", VendorPostingGroup.Code);
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Modify();
+        ApplyVendEntryToGenJnlLine(InvoiceNo, VendorLedgerEntry."Document Type"::Invoice);
+        PaymentNo := GenJournalLine."Document No.";
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor1."No.");
+        VendorLedgerEntry.SetRange(Open, true);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::Invoice, InvoiceNo);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine2, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine2."Document Type"::Payment,
+            GenJournalLine2."Account Type"::Vendor, Vendor2."No.", TotalAmount2);
+        GenJournalLine2.Validate("Document No.", PaymentNo);
+        GenJournalLine2.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine2.Validate("Posting Group", VendorPostingGroup2.Code);
+        GenJournalLine2.Validate("Applies-to ID", UserId);
+        GenJournalLine2.Modify(true);
+        ApplyVendEntryToGenJnlLine(Invoice2No, VendorLedgerEntry2."Document Type"::Invoice);
+        Payment2No := PaymentNo;
+        VendorLedgerEntry2.SetRange("Vendor No.", Vendor2."No.");
+        VendorLedgerEntry2.SetRange(Open, true);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, "Gen. Journal Document Type"::Invoice, Invoice2No);
+        // [WHEN] Posting of the journal line (it doesn't fail saying that bills account must be specified)
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+
+        // [THEN] The two vendor ledger entries should be closed (applied)
+        VendorLedgerEntry.Get(VendorLedgerEntry."Entry No.");
+        VendorLedgerEntry2.Get(VendorLedgerEntry2."Entry No.");
+        Assert.IsFalse(VendorLedgerEntry.Open, '');
+        Assert.IsFalse(VendorLedgerEntry2.Open, '');
+
+        // [THEN] The Amount on G/L Entries for payables accounts of the two posting groups should balance out
+        PayablesAccountCodes.Add(VendorPostingGroup."Payables Account");
+        PayablesAccountCodes.Add(VendorPostingGroup2."Payables Account");
+        SumOfAmountLCY := SumGLEntryAmountsForPayablesAccounts(PayablesAccountCodes);
+        CountOfGLEntries := CountGLEntryAmountsForPayablesAccounts(PayablesAccountCodes);
+        Assert.AreEqual(0, SumOfAmountLCY, '');
+        Assert.AreEqual(4, CountOfGLEntries, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTwoPurchInvoicesApplyBillPmtsWithDifferentPostingGroups()
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        GenJournalLine, GenJournalLine2 : Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PurchaseHeader, PurchaseHeader2 : Record "Purchase Header";
+        PaymentMethod: Record "Payment Method";
+        VendorLedgerEntry, VendorLedgerEntry2 : Record "Vendor Ledger Entry";
+        LibraryCarteraCommon: Codeunit "Library - Cartera Common";
+        LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
+        InvoiceNo, Invoice2No : Code[20];
+        PaymentNo, Payment2No : Code[20];
+        TotalAmount, TotalAmount2, SumOfAmountLCY : Decimal;
+        PayablesAccountCodes, BillsAccountCodes : List of [Code[20]];
+        CountGLEntries: Integer;
+    begin
+        // [SCENARIO 557674][ES] Issues with applying payments to  Bills
+        Initialize();
+
+        // [GIVEN] Posting two Cartera invoices for one vendor with different posting groups (vendors allow multiple posting groups, payent method is using Bills)
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
+        LibraryCarteraPayables.CreateCarteraVendor(Vendor, '', PaymentMethod.Code);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        TotalAmount := PurchaseHeader."Amount Including VAT";
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup2);
+        LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup.Code, VendorPostingGroup2.Code);
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader2, Vendor."No.");
+        PurchaseHeader2.Validate("Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader2.CalcFields("Amount Including VAT");
+        TotalAmount2 := PurchaseHeader2."Amount Including VAT";
+        Invoice2No := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
+
+        // [GIVEN] Two payments are entered in journal for that vendor with main posting group, pointing to two invoices with 'Applies-to ID'
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, Vendor."No.", TotalAmount);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Validate("Posting Group", VendorPostingGroup.Code);
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Modify();
+        ApplyVendEntryToGenJnlLine(InvoiceNo, VendorLedgerEntry."Document Type"::Bill);
+        PaymentNo := GenJournalLine."Document No.";
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange(Open, true);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::Bill, InvoiceNo);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine2, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine2."Document Type"::Payment,
+            GenJournalLine2."Account Type"::Vendor, Vendor."No.", TotalAmount2);
+        GenJournalLine2.Validate("Document No.", PaymentNo);
+        GenJournalLine2.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine2.Validate("Posting Group", VendorPostingGroup.Code);
+        GenJournalLine2.Validate("Applies-to ID", UserId);
+        GenJournalLine2.Modify(true);
+        ApplyVendEntryToGenJnlLine(Invoice2No, VendorLedgerEntry2."Document Type"::Bill);
+        Payment2No := PaymentNo;
+        VendorLedgerEntry2.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry2.SetRange(Open, true);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, "Gen. Journal Document Type"::Bill, Invoice2No);
+        // [WHEN] Posting of the journal line (it doesn't fail saying that bills account must be specified)
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+
+        // [THEN] The two vendor ledger entries should be closed (applied)
+        VendorLedgerEntry.Get(VendorLedgerEntry."Entry No.");
+        VendorLedgerEntry2.Get(VendorLedgerEntry2."Entry No.");
+        Assert.IsFalse(VendorLedgerEntry.Open, '');
+        Assert.IsFalse(VendorLedgerEntry2.Open, '');
+
+        // [THEN] The Amount on G/L Entries for payables accounts of the two posting groups should balance out
+        PayablesAccountCodes.Add(VendorPostingGroup."Payables Account");
+        PayablesAccountCodes.Add(VendorPostingGroup2."Payables Account");
+        SumOfAmountLCY := SumGLEntryAmountsForPayablesAccounts(PayablesAccountCodes);
+        CountGLEntries := CountGLEntryAmountsForPayablesAccounts(PayablesAccountCodes);
+        Assert.AreEqual(0, SumOfAmountLCY, '');
+        Assert.AreEqual(6, CountGLEntries, '');
+
+        // [THEN] The Amount on G/L Entries for bills accounts of the two posting groups should balance out
+        BillsAccountCodes.Add(VendorPostingGroup."Bills Account");
+        BillsAccountCodes.Add(VendorPostingGroup2."Bills Account");
+        SumOfAmountLCY := SumGLEntryAmountsForPayablesAccounts(BillsAccountCodes);
+        CountGLEntries := CountGLEntryAmountsForPayablesAccounts(BillsAccountCodes);
+        Assert.AreEqual(0, SumOfAmountLCY, '');
+        Assert.AreEqual(4, CountGLEntries, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTwoPurchInvoicesApplyBillPmtsWithDifferentPostingGroupsAppliesToDocNo()
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        GenJournalLine, GenJournalLine2 : Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PurchaseHeader, PurchaseHeader2 : Record "Purchase Header";
+        PaymentMethod: Record "Payment Method";
+        VendorLedgerEntry, VendorLedgerEntry2 : Record "Vendor Ledger Entry";
+        LibraryCarteraCommon: Codeunit "Library - Cartera Common";
+        LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
+        InvoiceNo, Invoice2No : Code[20];
+        PaymentNo, Payment2No : Code[20];
+        TotalAmount, TotalAmount2, SumOfAmountLCY : Decimal;
+        PayablesAccountCodes, BillsAccountCodes : List of [Code[20]];
+        CountGLEntries: Integer;
+    begin
+        // [SCENARIO 557674][ES] Issues with applying payments to Bills
+        Initialize();
+
+        // [GIVEN] Posting two Cartera invoices for one vendor with different posting groups (vendors allow multiple posting groups, payent method is using Bills)
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
+        LibraryCarteraPayables.CreateCarteraVendor(Vendor, '', PaymentMethod.Code);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        TotalAmount := PurchaseHeader."Amount Including VAT";
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup2);
+        LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup.Code, VendorPostingGroup2.Code);
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader2, Vendor."No.");
+        PurchaseHeader2.Validate("Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader2.CalcFields("Amount Including VAT");
+        TotalAmount2 := PurchaseHeader2."Amount Including VAT";
+        Invoice2No := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
+
+        // [GIVEN] Two payments are entered in journal for that vendor with main posting group, pointing to two invoices with 'Applies-to Doc. No.'
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange(Open, true);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::Bill, InvoiceNo);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, Vendor."No.", TotalAmount);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Validate("Posting Group", VendorPostingGroup.Code);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Bill);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
+        GenJournalLine.Validate("Applies-to Bill No.", VendorLedgerEntry."Bill No.");
+        GenJournalLine.Modify();
+        PaymentNo := GenJournalLine."Document No.";
+        VendorLedgerEntry2.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry2.SetRange(Open, true);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, "Gen. Journal Document Type"::Bill, Invoice2No);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine2, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine2."Document Type"::Payment,
+            GenJournalLine2."Account Type"::Vendor, Vendor."No.", TotalAmount2);
+        GenJournalLine2.Validate("Document No.", PaymentNo);
+        GenJournalLine2.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine2.Validate("Posting Group", VendorPostingGroup.Code);
+        GenJournalLine2.Validate("Applies-to Doc. Type", GenJournalLine2."Applies-to Doc. Type"::Bill);
+        GenJournalLine2.Validate("Applies-to Doc. No.", Invoice2No);
+        GenJournalLine2.Validate("Applies-to Bill No.", VendorLedgerEntry2."Bill No.");
+        GenJournalLine2.Modify(true);
+        Payment2No := PaymentNo;
+        // [WHEN] Posting of the journal line (it doesn't fail saying that bills account must be specified)
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+
+        // [THEN] The two vendor ledger entries should be closed (applied)
+        VendorLedgerEntry.Get(VendorLedgerEntry."Entry No.");
+        VendorLedgerEntry2.Get(VendorLedgerEntry2."Entry No.");
+        Assert.IsFalse(VendorLedgerEntry.Open, '');
+        Assert.IsFalse(VendorLedgerEntry2.Open, '');
+
+        // [THEN] The Amount on G/L Entries for payables accounts of the two posting groups should balance out
+        PayablesAccountCodes.Add(VendorPostingGroup."Payables Account");
+        PayablesAccountCodes.Add(VendorPostingGroup2."Payables Account");
+        SumOfAmountLCY := SumGLEntryAmountsForPayablesAccounts(PayablesAccountCodes);
+        CountGLEntries := CountGLEntryAmountsForPayablesAccounts(PayablesAccountCodes);
+        Assert.AreEqual(0, SumOfAmountLCY, '');
+        Assert.AreEqual(6, CountGLEntries, '');
+
+        // [THEN] The Amount on G/L Entries for bills accounts of the two posting groups should balance out
+        BillsAccountCodes.Add(VendorPostingGroup."Bills Account");
+        BillsAccountCodes.Add(VendorPostingGroup2."Bills Account");
+        SumOfAmountLCY := SumGLEntryAmountsForPayablesAccounts(BillsAccountCodes);
+        CountGLEntries := CountGLEntryAmountsForPayablesAccounts(BillsAccountCodes);
+        Assert.AreEqual(0, SumOfAmountLCY, '');
+        Assert.AreEqual(4, CountGLEntries, '');
+    end;
+
+    local procedure SumGLEntryAmountsForPayablesAccounts(var PayablesAccountCodes: List of [Code[20]]): Decimal
+    var
+        GLEntry: Record "G/L Entry";
+        AccountCode: Code[20];
+        Started: Boolean;
+        FilterString: Text;
+    begin
+        foreach AccountCode in PayablesAccountCodes do begin
+            if Started then
+                FilterString += '|'
+            else
+                Started := true;
+            FilterString += Format(AccountCode);
+        end;
+        GLEntry.SetFilter("G/L Account No.", FilterString);
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"G/L Account");
+        GLEntry.CalcSums(Amount);
+        exit(GLEntry.Amount);
+    end;
+
+    local procedure CountGLEntryAmountsForPayablesAccounts(var PayablesAccountCodes: List of [Code[20]]): Integer
+    var
+        GLEntry: Record "G/L Entry";
+        AccountCode: Code[20];
+        Started: Boolean;
+        FilterString: Text;
+    begin
+        foreach AccountCode in PayablesAccountCodes do begin
+            if Started then
+                FilterString += '|'
+            else
+                Started := true;
+            FilterString += Format(AccountCode);
+        end;
+        GLEntry.SetFilter("G/L Account No.", FilterString);
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"G/L Account");
+        exit(GLEntry.Count());
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

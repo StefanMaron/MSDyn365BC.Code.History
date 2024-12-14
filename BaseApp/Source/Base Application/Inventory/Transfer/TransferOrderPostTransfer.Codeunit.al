@@ -220,7 +220,10 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     local procedure PostItemJnlLine(var TransLine3: Record "Transfer Line"; DirectTransHeader2: Record "Direct Trans. Header"; DirectTransLine2: Record "Direct Trans. Line")
     var
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
+        TrackingSpecExists: Boolean;
     begin
         IsHandled := false;
         OnBeforePostItemJnlLine(DirectTransHeader2, TransLine3, DirectTransLine2, WhseShptHeader, ItemJnlPostLine, WhseShip, IsHandled);
@@ -230,6 +233,11 @@ codeunit 5856 "TransferOrder-Post Transfer"
         CreateItemJnlLine(TransLine3, DirectTransHeader2, DirectTransLine2);
         ReserveTransLine.TransferTransferToItemJnlLine(TransLine3,
           ItemJnlLine, ItemJnlLine."Quantity (Base)", Enum::"Transfer Direction"::Outbound, true);
+
+        TrackingSpecExists := ItemTrackingMgt.RetrieveItemTracking(ItemJnlLine, TempTrackingSpecification);
+        if not TrackingSpecExists then
+            ReserveTransLine.TransferTransferToItemJnlLine(TransLine3,
+              ItemJnlLine, ItemJnlLine."Quantity (Base)", Enum::"Transfer Direction"::Inbound, true);
 
         OnPostItemJnlLineBeforeItemJnlPostLineRunWithCheck(ItemJnlLine, Transline3, DirectTransHeader2, DirectTransLine2, SuppressCommit);
 

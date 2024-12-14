@@ -1452,6 +1452,32 @@ codeunit 134391 "ERM Sales Batch Posting"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesOrders,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostSalesOrderReplacePostingDate()
+    var
+        SalesHeader: Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 543504] There is an issue with the “Post with Job Queue” function in the Sales & Receivables Setup. When selecting “Replace Posting Date” the posting date does not update as expected
+        Initialize();
+        LibrarySales.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Create and Release the Sales Order 
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, false);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Run Batch Post Sales Order with Replace Posting Date, Replace Document Date options
+        RunBatchPostsales(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 1, false);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
+
+        // [THEN] Posting Date is replaced with new Posting Date in the Sales Order
+        VerifyPostedSalesOrder(SalesHeader."No.", SalesHeader."Posting Date" + 1, false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

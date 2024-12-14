@@ -976,6 +976,7 @@ codeunit 432 Consolidate
                         // Post adjustment to existing balance to convert that balance to new Closing Rate
                         if SkipAllDimensions then begin
                             ConsolidGLAcc.CalcFields(ConsolidGLAcc."Debit Amount", ConsolidGLAcc."Credit Amount");
+                            OnUpdatePriorPeriodBalancesOnBeforePostBalanceAdjustment(ConsolidGLAcc);
                             if ConsolidGLAcc."Debit Amount" <> 0 then
                                 PostBalanceAdjustment(ConsolidGLAcc."No.", ConsolidGLAcc."Debit Amount");
                             if ConsolidGLAcc."Credit Amount" <> 0 then
@@ -1684,6 +1685,11 @@ codeunit 432 Consolidate
 
     [IntegrationEvent(false, false)]
     local procedure OnImportFromXMLOnBeforeSelectAllImportedDimensions(var ProductVersion: Code[10]; var FormatVersion: Code[10]; var CompanyName: Text[30]; var CurrencyLCY: Code[10]; var CurrencyACY: Code[10]; var CurrencyPCY: Code[10]; var CheckSum: Decimal; var StartingDate: Date; var EndingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePriorPeriodBalancesOnBeforePostBalanceAdjustment(var GLAccount: Record "G/L Account")
     begin
     end;
 }

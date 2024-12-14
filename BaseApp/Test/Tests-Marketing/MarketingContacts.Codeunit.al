@@ -5969,6 +5969,66 @@ codeunit 136201 "Marketing Contacts"
         Assert.AreEqual(MarketingSetup."Bus. Rel. Code for Bank Accs.", BusinessRelation.Code, ValueMustMatch);
     end;
 
+    [Test]
+    [HandlerFunctions('CreateInteractFinishModalFormHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure ResumePostponedInteraction()
+    var
+        Contact: Record Contact;
+        InteractionTemplate: array[2] of Record "Interaction Template";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        VerifyInteractionLogEntry: Record "Interaction Log Entry";
+        PostponedInteraction: TestPage "Postponed Interactions";
+        CostLCY: Decimal;
+        DurationMin: Decimal;
+        FinishInteraction: Boolean;
+    begin
+        // [SCENARIO 554707] If you Resume a Postponed Interaction with Contact the information entered go to a different Postponed Interaction.
+        Initialize();
+
+        // [GIVEN] Create a new Contact, 2 new Interaction Template. Create 2 new Postponed Interaction for Contact.
+        LibraryMarketing.CreateCompanyContact(Contact);
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate[1]);
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate[2]);
+
+        // [GIVEN] Create first Postponed Interaction
+        LibraryVariableStorage.Enqueue(InteractionTemplate[1].Code);
+        LibraryVariableStorage.Enqueue(CostLCY);
+        LibraryVariableStorage.Enqueue(DurationMin);
+        LibraryVariableStorage.Enqueue(FinishInteraction);
+        Contact.CreateInteraction();
+
+        // [GIVEN] Create second Postponed Interaction
+        LibraryVariableStorage.Enqueue(InteractionTemplate[2].Code);
+        LibraryVariableStorage.Enqueue(CostLCY);
+        LibraryVariableStorage.Enqueue(DurationMin);
+        LibraryVariableStorage.Enqueue(FinishInteraction);
+        Contact.CreateInteraction();
+
+        // [GIVEN] Find first postponed inetraction entry
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplate[1].Code);
+        InteractionLogEntry.FindFirst();
+        FinishInteraction := true;
+
+        // [WHEN] For Postponed interaction resume interaction considering random decimal value
+        CostLCY := LibraryRandom.RandDec(100, 2);
+        DurationMin := LibraryRandom.RandDec(100, 2);
+
+        LibraryVariableStorage.Enqueue(InteractionTemplate[1].Code);
+        LibraryVariableStorage.Enqueue(CostLCY);
+        LibraryVariableStorage.Enqueue(DurationMin);
+        LibraryVariableStorage.Enqueue(FinishInteraction);
+        PostponedInteraction.OpenView();
+        PostponedInteraction.GoToRecord(InteractionLogEntry);
+        PostponedInteraction.Resume.Invoke();
+
+        // [THEN] Verify Cost(LCY) and Duration(Min.) field updated on correct interaction log entry
+        VerifyInteractionLogEntry.Get(InteractionLogEntry."Entry No.");
+        Assert.AreEqual(VerifyInteractionLogEntry."Cost (LCY)", CostLCY, ValueMustMatch);
+        Assert.AreEqual(VerifyInteractionLogEntry."Duration (Min.)", DurationMin, ValueMustMatch);
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -6896,6 +6956,32 @@ codeunit 136201 "Marketing Contacts"
         TempSegmentLine."Duration (Min.)" := LibraryVariableStorage.DequeueDecimal();
         TempSegmentLine.Modify(true);
         TempSegmentLine.FinishSegLineWizard(true);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateInteractFinishModalFormHandler(var CreateInteraction: Page "Create Interaction"; var Response: Action)
+    var
+        TempSegmentLine: Record "Segment Line" temporary;
+        InteractionTemplateCode: Code[10];
+        FinishInteraction: Boolean;
+    begin
+        TempSegmentLine.Init();  // Required to initialize the variable.
+        CreateInteraction.GetRecord(TempSegmentLine);
+        TempSegmentLine.Insert();  // Insert temporary Segment Line to modify fields later.
+        InteractionTemplateCode :=
+          CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TempSegmentLine."Interaction Template Code"));
+        TempSegmentLine.Validate("Interaction Template Code", InteractionTemplateCode);
+        TempSegmentLine.Validate(Description, InteractionTemplateCode);
+
+        TempSegmentLine."Cost (LCY)" := LibraryVariableStorage.DequeueDecimal();
+        TempSegmentLine."Duration (Min.)" := LibraryVariableStorage.DequeueDecimal();
+        FinishInteraction := LibraryVariableStorage.DequeueBoolean();
+        TempSegmentLine.Modify(true);
+        if FinishInteraction then
+            TempSegmentLine.FinishSegLineWizard(true)
+        else
+            TempSegmentLine.FinishSegLineWizard(false);
     end;
 
     [ModalPageHandler]

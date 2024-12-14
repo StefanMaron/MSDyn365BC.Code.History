@@ -975,8 +975,28 @@ codeunit 10756 "SII Management"
                 exit(CountryRegion."ISO Code" = '');
     end;
 
+    procedure GetTaxPeriod(PostingDate: Date) TaxPeriod: Text
+    var
+        SIISetup: Record "SII Setup";
+    begin
+        SIISetup.Get();
+        case SIISetup."Tax Period" of
+            SIISetup."Tax Period"::Monthly:
+                exit(Format(PostingDate, 0, '<Month,2>'));
+            SIISetup."Tax Period"::Quarterly:
+                exit(Format((Date2DMY(PostingDate, 2) - 1) div 3 + 1) + 'T');
+            else
+                OnGetTaxPeriodOnElse(TaxPeriod, PostingDate);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNoTaxableSalesAmount(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean; var NoTaxableAmount: Decimal; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTaxPeriodOnElse(var TaxPeriod: Text; PostingDate: Date)
     begin
     end;
 }

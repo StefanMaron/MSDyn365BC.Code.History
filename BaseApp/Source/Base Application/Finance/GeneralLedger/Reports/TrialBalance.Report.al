@@ -255,10 +255,7 @@ report 6 "Trial Balance"
                         Accumulate := true;
                         FirstLevel := StrLen("No.");
                     end else
-                        if (StrLen("No.") <= PreviousLevel) and (StrLen("No.") <= FirstLevel) and ((StrLen("No.") <> FixedLevel) or (StrLen("No.") = FixedLevel)) then
-                            Accumulate := true
-                        else
-                            Accumulate := false;
+                        Accumulate := GetAccumulate();
                     if Accumulate or (GLFilterOption = GLFilterOption::Posting) then begin
                         TotalPeriodDebitAmt := TotalPeriodDebitAmt + "Debit Amount" + CloseDebitAmt;
                         TotalPeriodCreditAmt := TotalPeriodCreditAmt + "Credit Amount" + CloseCreditAmt;
@@ -272,6 +269,7 @@ report 6 "Trial Balance"
                             TotalBalanceAtEnd := TotalBalanceAtEnd + BalanceType
                         else
                             TotalBalanceAtEnd := TotalBalanceAtEnd + PreviousBalance;
+                        AddAccumulatedAccountsFilter();
                     end;
                 end else begin
                     DebitAmtAtEnd := GLAcc2."Add.-Currency Debit Amount";
@@ -297,6 +295,7 @@ report 6 "Trial Balance"
                             TotalBalanceAtEnd := TotalBalanceAtEnd + BalanceType
                         else
                             TotalBalanceAtEnd := TotalBalanceAtEnd + PreviousBalance;
+                        AddAccumulatedAccountsFilter();
                     end;
                 end;
 
@@ -461,6 +460,7 @@ report 6 "Trial Balance"
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         GLAcc2: Record "G/L Account";
+        AccumulateAccountsFilter: TextBuilder;
         HeaderText: Text[30];
         PeriodText: Text[30];
         FromFec: Date;
@@ -525,7 +525,7 @@ report 6 "Trial Balance"
     begin
         AccPeriod.SetRange("New Fiscal Year", true);
         AccPeriod.SetFilter("Starting Date", '<= %1', Date);
-        if AccPeriod.Find('+') then
+        if AccPeriod.FindLast() then
             exit(AccPeriod."Starting Date")
         else
             Error(Text1100008);
@@ -538,10 +538,7 @@ report 6 "Trial Balance"
     begin
         AccPeriod5.SetRange(AccPeriod5."New Fiscal Year", true);
         AccPeriod5.SetRange(AccPeriod5."Starting Date", Date);
-        if AccPeriod5.Find('-') then
-            exit(true)
-        else
-            exit(false);
+        exit(not AccPeriod5.IsEmpty());
     end;
 
     [Scope('OnPrem')]
@@ -564,28 +561,29 @@ report 6 "Trial Balance"
     begin
         AccPeriod3.SetRange(AccPeriod3."New Fiscal Year", true);
         AccPeriod3.SetFilter(AccPeriod3."Starting Date", '<= %1', FromFec);
-        if AccPeriod3.Find('+') then begin
-            GlAccount3.Get("G/L Account"."No.");
-            GlAccount3.SetRange(GlAccount3."Date Filter", 0D, ClosingDate((AccPeriod3."Starting Date" - 1)));
-            if GlobalDim1 <> '' then
-                GlAccount3.SetFilter("Global Dimension 1 Filter", GlobalDim1);
-            if GlobalDim2 <> '' then
-                GlAccount3.SetFilter("Global Dimension 2 Filter", GlobalDim2);
-            GlAccount3.CalcFields("Additional-Currency Net Change", "Net Change");
-            if PrintAmountsInAddCurrency then begin
-                if GlAccount3."Additional-Currency Net Change" > 0 then
-                    OpenDebitAmtEnd := GlAccount3."Additional-Currency Net Change"
-                else
-                    OpenCreditAmtEnd := Abs(GlAccount3."Additional-Currency Net Change");
-            end else
-                if GlAccount3."Net Change" > 0 then
-                    OpenDebitAmtEnd := GlAccount3."Net Change"
-                else
-                    OpenCreditAmtEnd := Abs(GlAccount3."Net Change");
-            if IsOpenDate then begin
-                OpenDebitAmt := OpenDebitAmtEnd;
-                OpenCreditAmt := OpenCreditAmtEnd;
-            end;
+        if not AccPeriod3.FindLast() then
+            exit;
+
+        GlAccount3.Get("G/L Account"."No.");
+        GlAccount3.SetRange(GlAccount3."Date Filter", 0D, ClosingDate((AccPeriod3."Starting Date" - 1)));
+        if GlobalDim1 <> '' then
+            GlAccount3.SetFilter("Global Dimension 1 Filter", GlobalDim1);
+        if GlobalDim2 <> '' then
+            GlAccount3.SetFilter("Global Dimension 2 Filter", GlobalDim2);
+        GlAccount3.CalcFields("Additional-Currency Net Change", "Net Change");
+        if PrintAmountsInAddCurrency then begin
+            if GlAccount3."Additional-Currency Net Change" > 0 then
+                OpenDebitAmtEnd := GlAccount3."Additional-Currency Net Change"
+            else
+                OpenCreditAmtEnd := Abs(GlAccount3."Additional-Currency Net Change");
+        end else
+            if GlAccount3."Net Change" > 0 then
+                OpenDebitAmtEnd := GlAccount3."Net Change"
+            else
+                OpenCreditAmtEnd := Abs(GlAccount3."Net Change");
+        if IsOpenDate then begin
+            OpenDebitAmt := OpenDebitAmtEnd;
+            OpenCreditAmt := OpenCreditAmtEnd;
         end;
     end;
 
@@ -629,9 +627,9 @@ report 6 "Trial Balance"
         if GlobalDim2 <> '' then
             GLAcc.SetFilter("Global Dimension 2 Filter", GlobalDim2);
 
-        if GLAcc.Find('-') then
+        GLAcc.SetAutoCalcFields("Additional-Currency Net Change", "Net Change");
+        if GLAcc.FindSet() then
             repeat
-                GLAcc.CalcFields("Additional-Currency Net Change", "Net Change");
                 if PrintAmountsInAddCurrency then begin
                     if GLAcc."Additional-Currency Net Change" > 0 then
                         CloseCreditAmt := CloseCreditAmt + Abs(GLAcc."Additional-Currency Net Change")
@@ -653,32 +651,33 @@ report 6 "Trial Balance"
     begin
         AccPeriod3.SetRange(AccPeriod3."New Fiscal Year", true);
         AccPeriod3.SetFilter(AccPeriod3."Starting Date", '<= %1', FromFec);
-        if AccPeriod3.Find('+') then begin
-            GLAcc.SetRange("Date Filter", 0D, ClosingDate((AccPeriod3."Starting Date" - 1)));
-            GLAcc.SetFilter("No.", "G/L Account".Totaling);
-            GLAcc.SetRange("Account Type", GLAcc."Account Type"::Posting);
-            if GlobalDim1 <> '' then
-                GLAcc.SetFilter("Global Dimension 1 Filter", GlobalDim1);
-            if GlobalDim2 <> '' then
-                GLAcc.SetFilter("Global Dimension 2 Filter", GlobalDim2);
-            if GLAcc.Find('-') then
-                repeat
-                    GLAcc.CalcFields("Additional-Currency Net Change", "Net Change");
-                    if PrintAmountsInAddCurrency then begin
-                        if GLAcc."Additional-Currency Net Change" > 0 then
-                            OpenDebitAmtEnd := OpenDebitAmtEnd + Abs(GLAcc."Additional-Currency Net Change")
-                        else
-                            OpenCreditAmtEnd := OpenCreditAmtEnd + Abs(GLAcc."Additional-Currency Net Change");
-                    end else
-                        if GLAcc."Net Change" > 0 then
-                            OpenDebitAmtEnd := OpenDebitAmtEnd + Abs(GLAcc."Net Change")
-                        else
-                            OpenCreditAmtEnd := OpenCreditAmtEnd + Abs(GLAcc."Net Change");
-                until GLAcc.Next() = 0;
-            if IsOpenDate then begin
-                OpenDebitAmt := OpenDebitAmtEnd;
-                OpenCreditAmt := OpenCreditAmtEnd;
-            end;
+        if not AccPeriod3.FindLast() then
+            exit;
+
+        GLAcc.SetRange("Date Filter", 0D, ClosingDate((AccPeriod3."Starting Date" - 1)));
+        GLAcc.SetFilter("No.", "G/L Account".Totaling);
+        GLAcc.SetRange("Account Type", GLAcc."Account Type"::Posting);
+        if GlobalDim1 <> '' then
+            GLAcc.SetFilter("Global Dimension 1 Filter", GlobalDim1);
+        if GlobalDim2 <> '' then
+            GLAcc.SetFilter("Global Dimension 2 Filter", GlobalDim2);
+        GLAcc.SetAutoCalcFields("Additional-Currency Net Change", "Net Change");
+        if GLAcc.FindSet() then
+            repeat
+                if PrintAmountsInAddCurrency then begin
+                    if GLAcc."Additional-Currency Net Change" > 0 then
+                        OpenDebitAmtEnd := OpenDebitAmtEnd + Abs(GLAcc."Additional-Currency Net Change")
+                    else
+                        OpenCreditAmtEnd := OpenCreditAmtEnd + Abs(GLAcc."Additional-Currency Net Change");
+                end else
+                    if GLAcc."Net Change" > 0 then
+                        OpenDebitAmtEnd := OpenDebitAmtEnd + Abs(GLAcc."Net Change")
+                    else
+                        OpenCreditAmtEnd := OpenCreditAmtEnd + Abs(GLAcc."Net Change");
+            until GLAcc.Next() = 0;
+        if IsOpenDate then begin
+            OpenDebitAmt := OpenDebitAmtEnd;
+            OpenCreditAmt := OpenCreditAmtEnd;
         end;
     end;
 
@@ -688,6 +687,51 @@ report 6 "Trial Balance"
             GLAcc2.SetRange("Date Filter", 0D, ToFec)
         else
             GLAcc2.SetRange("Date Filter", StartingPeriod(FromFec), ToFec);
+    end;
+
+    local procedure GetAccumulate(): Boolean
+    begin
+        if not GLAccountCalculated() then
+            exit(true);
+
+        if StrLen("G/L Account"."No.") = FixedLevel then
+            exit(true);
+
+        if (StrLen("G/L Account"."No.") <= PreviousLevel) and (StrLen("G/L Account"."No.") <= FirstLevel) and ((StrLen("G/L Account"."No.") <> FixedLevel) or (StrLen("G/L Account"."No.") = FixedLevel)) then
+            exit(true);
+
+        exit(false);
+    end;
+
+    local procedure GLAccountCalculated(): Boolean
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        if CopyStr("G/L Account"."No.", 1, 1) <> PrevAccount then
+            exit(false);
+
+        if AccumulateAccountsFilter.Length = 0 then
+            exit(false);
+
+        GLAccount.SetFilter("No.", AccumulateAccountsFilter.ToText());
+        if GLAccount.FindSet() then
+            repeat
+                if "G/L Account"."No." = GLAccount."No." then
+                    exit(true);
+            until GLAccount.Next() = 0;
+
+        exit(false);
+    end;
+
+    local procedure AddAccumulatedAccountsFilter()
+    begin
+        if "G/L Account".Totaling = '' then
+            exit;
+
+        if AccumulateAccountsFilter.Length = 0 then
+            AccumulateAccountsFilter.Append("G/L Account".Totaling)
+        else
+            AccumulateAccountsFilter.Append(StrSubstNo('|%1', "G/L Account".Totaling));
     end;
 }
 

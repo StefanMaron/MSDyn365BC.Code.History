@@ -725,15 +725,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interactions UI - NamedType CorrTypeNoAtachmentErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1197206240 - NamedType 1459972951" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Campaign No. must not be %1 in Opportunity No.='%2']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Matrix Management - NamedType OppCampaignNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1409019018 - NamedType 1261767055" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Action should be disabled]]></Val>

@@ -18,7 +18,12 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
     procedure SetApplId(var CustLedgEntry: Record "Cust. Ledger Entry"; ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50])
     var
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetApplId(CustLedgEntry, ApplyingCustLedgEntry, AppliesToID, CustEntryApplID, IsHandled);
+        if IsHandled then
+            exit;
         CustLedgEntry.LockTable();
         if CustLedgEntry.FindSet() then begin
             // Make Applies-to ID
@@ -120,6 +125,11 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCustLedgerEntryOnBeforeCustLedgerEntryModify(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetApplId(var CustLedgEntry: Record "Cust. Ledger Entry"; ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; var AppliesToID: Code[50]; var CustEntryApplID: Code[50]; var IsHandled: Boolean);
     begin
     end;
 }

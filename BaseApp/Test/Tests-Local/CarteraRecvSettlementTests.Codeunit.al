@@ -1073,6 +1073,44 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,OpenBankCatPostRecBillsMatrix,OpenPostedBills')]
+    procedure PostBillPaymentMatrixFiltersBankAccountNo()
+    var
+        BankAccount: Record "Bank Account";
+        BillGroup: Record "Bill Group";
+        Customer: Record Customer;
+        BankAccountCard: TestPage "Bank Account Card";
+        BankCatPostedReceivBills: TestPage "Bank Cat. Posted Receiv. Bills";
+        AnalysisPeriodType: Enum "Analysis Period Type";
+    begin
+        // [SCENARIO 554713] The Posted Receivable Bills Matrix show correct information as there is filter to Bank Account.
+        Initialize();
+
+        // [GIVEN] Setup Bill Group Setup with Bank and Customer.
+        PrePostBillGroupSetup(BankAccount, Customer);
+
+        // [GIVEN] Create and Post Bill Group.
+        CreateAndPostBillGroup(Customer."No.", BankAccount."No.", BillGroup);
+
+        // [GIVEN] Store Bank Account.
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+
+        // [GIVEN] Open Bank Account Card and go to Posted Receivable Bills.
+        BankAccountCard.OpenEdit();
+        BankAccountCard.GoToRecord(BankAccount);
+        BankAccountCard."Posted Recei&vable Bills".Invoke();
+
+        // [GIVEN] Store Bank Account.
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+
+        // [THEN] Bank Account filter is added when Matrix is invoked.
+        BankCatPostedReceivBills.OpenEdit();
+        BankCatPostedReceivBills.GoToRecord(BankAccount);
+        BankCatPostedReceivBills.PeriodType.SetValue(AnalysisPeriodType::Year);
+        BankCatPostedReceivBills."&Show Matrix".Invoke();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1919,6 +1957,19 @@
         RedrawReceivableBillsRequestPage.AuxJnlTemplateName.SetValue(TemplateName);
         RedrawReceivableBillsRequestPage.AuxJnlBatchName.SetValue(BatchName);
         RedrawReceivableBillsRequestPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure OpenBankCatPostRecBillsMatrix(var BankCatPostRecBillsMatrix: TestPage "Bank Cat.Post.Rec.Bills Matrix")
+    begin
+        BankCatPostRecBillsMatrix.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        BankCatPostRecBillsMatrix.Field1.Drilldown();
+    end;
+
+    [ModalPageHandler]
+    procedure OpenPostedBills(var PostedBills: TestPage "Posted Bills")
+    begin
+        Assert.AreEqual(PostedBills."Bank Account No.".Value(), LibraryVariableStorage.DequeueText(), '');
     end;
 }
 

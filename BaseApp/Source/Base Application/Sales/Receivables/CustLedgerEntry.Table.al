@@ -489,6 +489,7 @@ table 21 "Cust. Ledger Entry"
             begin
                 TestField(Open, true);
                 CalcFields(Amount, "Remaining Amount");
+                OnValidateMaxPaymentToleranceOnBeforeFieldError(Rec);
 
                 if "Max. Payment Tolerance" * Amount < 0 then
                     FieldError("Max. Payment Tolerance", StrSubstNo(Text000, FieldCaption(Amount)));
@@ -961,17 +962,22 @@ table 21 "Cust. Ledger Entry"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        DocumentFound: Boolean;
     begin
         case "Document Type" of
             "Document Type"::Invoice:
-                if SalesInvoiceHeader.Get("Document No.") then
+                if SalesInvoiceHeader.Get("Document No.") then begin
                     OpenDocumentAttachmentDetails(SalesInvoiceHeader);
+                    DocumentFound := true;
+                end;
             "Document Type"::"Credit Memo":
-                if SalesCrMemoHeader.Get("Document No.") then
+                if SalesCrMemoHeader.Get("Document No.") then begin
                     OpenDocumentAttachmentDetails(SalesCrMemoHeader);
+                    DocumentFound := true;
+                end;
         end;
 
-        OnAfterShowPostedDocAttachment(Rec);
+        OnAfterShowPostedDocAttachment(Rec, DocumentFound);
     end;
 
     procedure GetSIIFirstSummaryDocNo(): Text
@@ -1196,6 +1202,7 @@ table 21 "Cust. Ledger Entry"
             AppliesToBillNo := "Bill No.";
             if "Amount to Apply" = 0 then begin
                 CalcFields("Remaining Amount");
+                OnSetAmountToApplyOnAfterCalcRemainingAmount(Rec);
                 "Amount to Apply" := "Remaining Amount";
             end else
                 "Amount to Apply" := 0;
@@ -1402,7 +1409,7 @@ table 21 "Cust. Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShowPostedDocAttachment(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnAfterShowPostedDocAttachment(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentFound: Boolean)
     begin
     end;
 
@@ -1463,6 +1470,16 @@ table 21 "Cust. Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAmountsForApplication(var CustLedgerEntry: Record "Cust. Ledger Entry"; ApplnDate: Date; ApplnCurrencyCode: Code[10]; RoundAmounts: Boolean; UpdateMaxPaymentTolerance: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAmountToApplyOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateMaxPaymentToleranceOnBeforeFieldError(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

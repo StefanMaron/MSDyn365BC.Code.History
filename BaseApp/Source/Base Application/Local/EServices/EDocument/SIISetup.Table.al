@@ -185,6 +185,11 @@ table 10751 "SII Setup"
                 FeatureTelemetry.LogUsage('0000M84', SIIFeatureNameTok, StrSubstNo(NewAutomaticSendingExperienceEnabledTxt, Rec."New Automatic Sending Exp."));
             end;
         }
+        field(45; "Tax Period"; Enum "SII Tax Period")
+        {
+            Caption = 'Tax Period';
+            Tooltip = 'Specifies the type of the tax period for the SII. It will affect the value in the Periodo xml node.';
+        }
     }
 
     keys

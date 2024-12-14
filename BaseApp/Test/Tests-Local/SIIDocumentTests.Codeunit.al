@@ -3675,6 +3675,15 @@ codeunit 147520 SIIDocumentTests
         SIISetup.Modify(true);
     end;
 
+    local procedure SetTaxPeriod(TaxPeriod: Enum "SII Tax Period")
+    var
+        SIISetup: Record "SII Setup";
+    begin
+        SIISetup.Get();
+        SIISetup.Validate("Tax Period", TaxPeriod);
+        SIISetup.Modify(true);
+    end;
+
     local procedure PostPurchDocWithMultiplesLinesDiffVAT(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrectionType: Option)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";

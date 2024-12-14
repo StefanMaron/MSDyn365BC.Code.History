@@ -129,14 +129,14 @@ report 7309 "Whse. - Posted Shipment"
 
                     trigger OnAfterGetRecord()
                     begin
-                        GetLocation("Location Code");
+                        this.GetLocation("Location Code");
                     end;
                 }
             }
 
             trigger OnAfterGetRecord()
             begin
-                GetLocation("Location Code");
+                this.GetLocation("Location Code");
             end;
         }
     }

@@ -3022,6 +3022,42 @@
         Assert.IsFalse(SalesHeader.Find(), '');
     end;
 
+    [Test]
+    procedure ValueEntryTypeBlankOnPostingPurchase()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [SCENARIO 556628] Field "Type" in Value Entry for purchase is blank on posting.
+        Initialize(false);
+
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, '', LibraryInventory.CreateItemNo(), 1);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        ValueEntry.SetRange("Item No.", PurchaseLine."No.");
+        ValueEntry.FindFirst();
+        ValueEntry.TestField(Type, ValueEntry.Type::" ");
+    end;
+
+    [Test]
+    procedure ValueEntryTypeBlankOnPostingSales()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [SCENARIO 556628] Field "Type" in Value Entry for sales is blank on posting.
+        Initialize(false);
+
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, SalesLine.Type::Item, '', LibraryInventory.CreateItemNo(), 1, '');
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        ValueEntry.SetRange("Item No.", SalesLine."No.");
+        ValueEntry.FindFirst();
+        ValueEntry.TestField(Type, ValueEntry.Type::" ");
+    end;
+
     local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");

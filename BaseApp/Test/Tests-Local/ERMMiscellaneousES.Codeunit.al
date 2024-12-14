@@ -802,6 +802,104 @@ codeunit 144072 "ERM Miscellaneous ES"
         TrialBalanceReportWithIncludeClosingEntries('', Amount, 4 * Amount);  // Using blank value for DepartmentFilter and taking sum of amounts for all the four entries.
     end;
 
+    [Test]
+    [HandlerFunctions('TrialBalanceRequestPageHandler')]
+    procedure TestTotalOnTrialBalanceReportWithAccountNoFilter()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        GLEntry: Record "G/L Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        GLAccountNo: array[4] of Code[20];
+        PostingDate: Date;
+        Amount: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 540482] Test total on Trial Balance report for accounts with different length
+        Initialize();
+
+        GLEntry.SetFilter("G/L Account No.", '4|43|4300|430003');
+        GLEntry.DeleteAll();
+        GLAccount.SetFilter("No.", '4|43|4300|430003');
+        GLAccount.DeleteAll();
+
+        Amount := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create G/L Accounts 4, 43, 4300, 430003 with blank totaling
+        GLAccountNo[1] := CreateGLAccount('4', GLAccount."Account Type"::Posting, '');
+        GLAccountNo[2] := CreateGLAccount('43', GLAccount."Account Type"::Posting, '');
+        GLAccountNo[3] := CreateGLAccount('4300', GLAccount."Account Type"::Posting, '');
+        GLAccountNo[4] := CreateGLAccount('430003', GLAccount."Account Type"::Posting, '');
+
+        // [GIVEN] Post General Journal Lines with Posting Date 1.1.2000. for accounts 4, 43, 4300, 430003 with the same amount 100
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.FindLast();
+        PostingDate := CalcDate('<+1D>', AccountingPeriod."Starting Date");
+        for i := 1 to ArrayLen(GLAccountNo) do
+            CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo[i], Amount, '', PostingDate);
+
+        // [GIVEN] Set request parameters with G/L Account No. filter = '4|43|4300|430003'
+        EnqueueValuesForTrialBalanceRequestPageHandler('', StrSubstNo('%1|%2|%3|%4', GLAccountNo[1], GLAccountNo[2], GLAccountNo[3], GLAccountNo[4]),
+          false, false, false, GLAccount."Account Type"::Posting, PostingDate);
+
+        // [WHEN] Run Trial Balance report
+        REPORT.Run(REPORT::"Trial Balance");
+
+        // [THEN] Total on the report is sum of amounts of all four accounts
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('DebitAmount2_GLAccount', Amount);
+        LibraryReportDataset.AssertElementWithValueExists(TotalDebitAmtCap, 4 * Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('TrialBalanceRequestPageHandler')]
+    procedure TestTotalOnTrialBalanceReportWithAccountNoFilterAndTotaling()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        GLEntry: Record "G/L Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        GLAccountNo: array[4] of Code[20];
+        PostingDate: Date;
+        Amount: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 540482] Test total on Trial Balance report for accounts with different length and totaling
+        Initialize();
+
+        GLEntry.SetFilter("G/L Account No.", '4|43|4300|430003');
+        GLEntry.DeleteAll();
+        GLAccount.SetFilter("No.", '4|43|4300|430003');
+        GLAccount.DeleteAll();
+
+        Amount := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create G/L Accounts 4 with totaling 43, 43 with totaling 4300, 4300 with totaling 430003, 430003 with blank totaling
+        GLAccountNo[1] := CreateGLAccount('4', GLAccount."Account Type"::Posting, '43');
+        GLAccountNo[2] := CreateGLAccount('43', GLAccount."Account Type"::Posting, '4300');
+        GLAccountNo[3] := CreateGLAccount('4300', GLAccount."Account Type"::Posting, '430003');
+        GLAccountNo[4] := CreateGLAccount('430003', GLAccount."Account Type"::Posting, '');
+
+        // [GIVEN] Post General Journal Lines with Posting Date 1.1.2000. for accounts 4, 43, 4300, 430003 with the same amount 100
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.FindLast();
+        PostingDate := CalcDate('<+1D>', AccountingPeriod."Starting Date");
+        for i := 1 to ArrayLen(GLAccountNo) do
+            CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo[i], Amount, '', PostingDate);
+
+        // [GIVEN] Set request parameters with G/L Account No. filter = '4|43|4300|430003'
+        EnqueueValuesForTrialBalanceRequestPageHandler('', StrSubstNo('%1|%2|%3|%4', GLAccountNo[1], GLAccountNo[2], GLAccountNo[3], GLAccountNo[4]),
+          false, false, false, GLAccount."Account Type"::Posting, PostingDate);
+
+        // [WHEN] Run Trial Balance report
+        REPORT.Run(REPORT::"Trial Balance");
+
+        // [THEN] Total on the report is sum of amounts of all four accounts
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('DebitAmount2_GLAccount', Amount);
+        LibraryReportDataset.AssertElementWithValueExists(TotalDebitAmtCap, 4 * Amount);
+    end;
+
     local procedure TrialBalanceReportWithIncludeClosingEntries(DepartmentFilter: Code[20]; Amount: Decimal; ExpectedAmount: Decimal)
     var
         AccountingPeriod: Record "Accounting Period";
@@ -827,7 +925,7 @@ codeunit 144072 "ERM Miscellaneous ES"
           true, false, false, GLAccount."Account Type"::Posting, PostingDate);  // Using TRUE for IncludeClosingEntries.
 
         // Exercise.
-        REPORT.Run(REPORT::"Trial Balance");  // Oepns TrialBalanceRequestPageHandler.
+        REPORT.Run(REPORT::"Trial Balance");  // Opens TrialBalanceRequestPageHandler.
 
         // Verify.
         LibraryReportDataset.LoadDataSetFile();
@@ -2200,6 +2298,17 @@ codeunit 144072 "ERM Miscellaneous ES"
         GLAccount.Validate("Account Type", AccountType);
         GLAccount.Validate(Totaling, Totaling);
         GLAccount.Modify(true);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateGLAccount(GLAccountNo: Code[20]; AccountType: Enum "G/L Account Type"; Totaling: Text): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Validate("No.", GLAccountNo);
+        GLAccount.Validate("Account Type", AccountType);
+        GLAccount.Validate(Totaling, Totaling);
+        GLAccount.Insert(true);
         exit(GLAccount."No.");
     end;
 
