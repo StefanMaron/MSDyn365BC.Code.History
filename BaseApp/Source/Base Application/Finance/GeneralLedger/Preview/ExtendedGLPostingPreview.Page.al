@@ -77,9 +77,11 @@ page 1570 "Extended G/L Posting Preview"
     var
         TempDocumentEntry: Record "Document Entry" temporary;
         PostingPreviewEventHandler: Codeunit "Posting Preview Event Handler";
-        ShowHierarchicalView: Boolean;
         InconsistenceTxt: Label 'The transaction will cause G/L entries to be inconsistent. Typical causes for this are mismatched amounts, including amounts in additional currencies, and posting dates.';
         PostingPreviewTxt: Label 'Posting Preview';
+
+    protected var
+        ShowHierarchicalView: Boolean;
 
     local procedure SendInconsistencyNotification()
     var

@@ -49,6 +49,11 @@ codeunit 10401 "Print Check Helper"
                                     VendLedgEntry.SetRange(Open, true);
                                     VendLedgEntry.SetRange(Positive, true);
                                     VendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+                                    if GenJnlLine."Remit-to Code" <> '' then
+                                        VendLedgEntry.SetRange("Remit-to Code", GenJnlLine."Remit-to Code")
+                                    else
+                                        VendLedgEntry.SetRange("Remit-to Code", '');
+
                                     FoundLast := not VendLedgEntry.Find('-');
                                     if FoundLast then begin
                                         VendLedgEntry.SetRange(Positive, false);

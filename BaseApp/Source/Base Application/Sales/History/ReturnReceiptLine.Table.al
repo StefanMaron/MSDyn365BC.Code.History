@@ -587,7 +587,13 @@ table 6661 "Return Receipt Line"
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowItemTrackingLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemTrackingDocMgt.ShowItemTrackingForShptRcptLine(DATABASE::"Return Receipt Line", 0, "Document No.", '', 0, "Line No.");
     end;
 
@@ -896,7 +902,7 @@ table 6661 "Return Receipt Line"
 
         if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;
@@ -983,6 +989,11 @@ table 6661 "Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRetRcptLineOnBeforeSalesHeaderGet(var SalesHeader: Record "Sales Header"; ReturnReceiptLine: Record "Return Receipt Line"; var TempSalesLine: Record "Sales Line" temporary; var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemTrackingLines(var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 }

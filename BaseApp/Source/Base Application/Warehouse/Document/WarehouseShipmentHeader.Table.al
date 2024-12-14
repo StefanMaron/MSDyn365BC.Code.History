@@ -27,9 +27,9 @@ table 7320 "Warehouse Shipment Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                WhseSetup.Get();
+                WarehouseSetup.Get();
                 if "No." <> xRec."No." then begin
-                    NoSeries.TestManual(WhseSetup."Whse. Ship Nos.");
+                    NoSeries.TestManual(WarehouseSetup."Whse. Ship Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -41,16 +41,17 @@ table 7320 "Warehouse Shipment Header"
 
             trigger OnValidate()
             var
-                WhseShptLine: Record "Warehouse Shipment Line";
+                WarehouseShipmentLine: Record "Warehouse Shipment Line";
+                WMSManagement: Codeunit "WMS Management";
             begin
-                if not WmsManagement.LocationIsAllowed("Location Code") then
+                if not WMSManagement.LocationIsAllowed("Location Code") then
                     Error(Text003, "Location Code");
 
                 if "Location Code" <> xRec."Location Code" then begin
                     "Zone Code" := '';
                     "Bin Code" := '';
-                    WhseShptLine.SetRange("No.", "No.");
-                    if not WhseShptLine.IsEmpty() then
+                    WarehouseShipmentLine.SetRange("No.", "No.");
+                    if not WarehouseShipmentLine.IsEmpty() then
                         Error(
                           Text001,
                           FieldCaption("Location Code"));
@@ -61,7 +62,7 @@ table 7320 "Warehouse Shipment Header"
                 if Location."Bin Mandatory" then
                     Validate("Bin Code", Location."Shipment Bin Code");
 
-                if UserId <> '' then begin
+                if UserId() <> '' then begin
                     FilterGroup := 2;
                     SetRange("Location Code", "Location Code");
                     FilterGroup := 0;
@@ -172,14 +173,14 @@ table 7320 "Warehouse Shipment Header"
 
             trigger OnValidate()
             var
-                WhsePickRqst: Record "Whse. Pick Request";
+                WhsePickRequest: Record "Whse. Pick Request";
             begin
                 CalcFields("Completely Picked");
                 if "Completely Picked" <> xRec."Completely Picked" then begin
-                    WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
-                    WhsePickRqst.SetRange("Document No.", "No.");
-                    if not WhsePickRqst.IsEmpty() then
-                        WhsePickRqst.ModifyAll("Completely Picked", "Completely Picked");
+                    WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+                    WhsePickRequest.SetRange("Document No.", "No.");
+                    if not WhsePickRequest.IsEmpty() then
+                        WhsePickRequest.ModifyAll("Completely Picked", "Completely Picked");
                 end;
             end;
         }
@@ -217,7 +218,7 @@ table 7320 "Warehouse Shipment Header"
 
             trigger OnValidate()
             var
-                WhseShptLine: Record "Warehouse Shipment Line";
+                WarehouseShipmentLine: Record "Warehouse Shipment Line";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -226,10 +227,10 @@ table 7320 "Warehouse Shipment Header"
                     exit;
 
                 if "Shipment Date" <> xRec."Shipment Date" then begin
-                    WhseShptLine.SetRange("No.", "No.");
-                    if not WhseShptLine.IsEmpty() then
+                    WarehouseShipmentLine.SetRange("No.", "No.");
+                    if not WarehouseShipmentLine.IsEmpty() then
                         if ConfirmModification() then
-                            WhseShptLine.ModifyAll("Shipment Date", "Shipment Date");
+                            WarehouseShipmentLine.ModifyAll("Shipment Date", "Shipment Date");
                 end;
             end;
         }
@@ -271,21 +272,23 @@ table 7320 "Warehouse Shipment Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                WarehouseShipmentHeader: Record "Warehouse Shipment Header";
             begin
-                WhseShptHeader := Rec;
-                WhseSetup.Get();
-                WhseSetup.TestField("Posted Whse. Shipment Nos.");
-                if NoSeries.LookupRelatedNoSeries(WhseSetup."Posted Whse. Shipment Nos.", WhseShptHeader."Shipping No. Series") then
-                    WhseShptHeader.Validate(WhseShptHeader."Shipping No. Series");
-                Rec := WhseShptHeader;
+                WarehouseShipmentHeader := Rec;
+                WarehouseSetup.Get();
+                WarehouseSetup.TestField("Posted Whse. Shipment Nos.");
+                if NoSeries.LookupRelatedNoSeries(WarehouseSetup."Posted Whse. Shipment Nos.", WarehouseShipmentHeader."Shipping No. Series") then
+                    WarehouseShipmentHeader.Validate(WarehouseShipmentHeader."Shipping No. Series");
+                Rec := WarehouseShipmentHeader;
             end;
 
             trigger OnValidate()
             begin
                 if "Shipping No. Series" <> '' then begin
-                    WhseSetup.Get();
-                    WhseSetup.TestField("Posted Whse. Shipment Nos.");
-                    NoSeries.TestAreRelated(WhseSetup."Posted Whse. Shipment Nos.", "Shipping No. Series");
+                    WarehouseSetup.Get();
+                    WarehouseSetup.TestField("Posted Whse. Shipment Nos.");
+                    NoSeries.TestAreRelated(WarehouseSetup."Posted Whse. Shipment Nos.", "Shipping No. Series");
                 end;
                 TestField("Shipping No.", '');
             end;
@@ -324,36 +327,36 @@ table 7320 "Warehouse Shipment Header"
     begin
         IsHandled := false;
 #if not CLEAN24
-        OnBeforeOnInsert(Rec, xRec, WhseSetup, NoSeriesMgt, Location, IsHandled);
+        OnBeforeOnInsert(Rec, xRec, WarehouseSetup, NoSeriesMgt, Location, IsHandled);
 #else
-        OnBeforeOnInsert(Rec, xRec, WhseSetup, Location, IsHandled);
+        OnBeforeOnInsert(Rec, xRec, WarehouseSetup, Location, IsHandled);
 #endif
         if IsHandled then
             exit;
 
-        WhseSetup.Get();
+        WarehouseSetup.Get();
         if "No." = '' then begin
-            WhseSetup.TestField("Whse. Ship Nos.");
+            WarehouseSetup.TestField("Whse. Ship Nos.");
 #if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WhseSetup."Whse. Ship Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WarehouseSetup."Whse. Ship Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-                "No. Series" := WhseSetup."Whse. Ship Nos.";
+                "No. Series" := WarehouseSetup."Whse. Ship Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WhseSetup."Whse. Ship Nos.", "Posting Date", "No.");
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WarehouseSetup."Whse. Ship Nos.", "Posting Date", "No.");
             end;
 #endif
         end;
 
 #if CLEAN24
-        if NoSeries.IsAutomatic(WhseSetup."Posted Whse. Shipment Nos.") then
-            "Shipping No. Series" := WhseSetup."Posted Whse. Shipment Nos.";
+        if NoSeries.IsAutomatic(WarehouseSetup."Posted Whse. Shipment Nos.") then
+            "Shipping No. Series" := WarehouseSetup."Posted Whse. Shipment Nos.";
 #else
 #pragma warning disable AL0432
-        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", WhseSetup."Posted Whse. Shipment Nos.");
+        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", WarehouseSetup."Posted Whse. Shipment Nos.");
 #pragma warning restore AL0432
 #endif
 
@@ -372,14 +375,11 @@ table 7320 "Warehouse Shipment Header"
 
     var
         Location: Record Location;
-        WhseSetup: Record "Warehouse Setup";
-        WhseShptHeader: Record "Warehouse Shipment Header";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        WarehouseSetup: Record "Warehouse Setup";
 #if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
 #endif
         NoSeries: Codeunit "No. Series";
-        WmsManagement: Codeunit "WMS Management";
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -398,20 +398,20 @@ table 7320 "Warehouse Shipment Header"
     protected var
         HideValidationDialog: Boolean;
 
-    procedure AssistEdit(OldWhseShptHeader: Record "Warehouse Shipment Header"): Boolean
+    procedure AssistEdit(OldWarehouseShipmentHeader: Record "Warehouse Shipment Header"): Boolean
     var
-        WhseShptHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
-        WhseSetup.Get();
-        WhseShptHeader := Rec;
-        WhseSetup.TestField("Whse. Ship Nos.");
-        if NoSeries.LookupRelatedNoSeries(WhseSetup."Whse. Ship Nos.", OldWhseShptHeader."No. Series", WhseShptHeader."No. Series") then begin
-            WhseShptHeader."No." := NoSeries.GetNextNo(WhseShptHeader."No. Series");
-            Rec := WhseShptHeader;
+        WarehouseSetup.Get();
+        WarehouseShipmentHeader := Rec;
+        WarehouseSetup.TestField("Whse. Ship Nos.");
+        if NoSeries.LookupRelatedNoSeries(WarehouseSetup."Whse. Ship Nos.", OldWarehouseShipmentHeader."No. Series", WarehouseShipmentHeader."No. Series") then begin
+            WarehouseShipmentHeader."No." := NoSeries.GetNextNo(WarehouseShipmentHeader."No. Series");
+            Rec := WarehouseShipmentHeader;
             exit(true);
         end;
 
-        OnAfterAssistEdit(OldWhseShptHeader);
+        OnAfterAssistEdit(OldWarehouseShipmentHeader);
     end;
 
     local procedure ConfirmModification() Result: Boolean
@@ -428,7 +428,7 @@ table 7320 "Warehouse Shipment Header"
 
     procedure SortWhseDoc()
     var
-        WhseShptLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
         SequenceNo: Integer;
         IsHandled: Boolean;
     begin
@@ -437,84 +437,84 @@ table 7320 "Warehouse Shipment Header"
         if IsHandled then
             exit;
 
-        WhseShptLine.SetRange("No.", "No.");
+        WarehouseShipmentLine.SetRange("No.", "No.");
         case "Sorting Method" of
             "Sorting Method"::Item:
-                WhseShptLine.SetCurrentKey("No.", "Item No.");
+                WarehouseShipmentLine.SetCurrentKey("No.", "Item No.");
             "Sorting Method"::Document:
-                WhseShptLine.SetCurrentKey("No.", "Source Document", "Source No.");
+                WarehouseShipmentLine.SetCurrentKey("No.", "Source Document", "Source No.");
             "Sorting Method"::"Shelf or Bin":
                 begin
                     GetLocation("Location Code");
                     if Location."Bin Mandatory" then
-                        WhseShptLine.SetCurrentKey("No.", "Bin Code")
+                        WarehouseShipmentLine.SetCurrentKey("No.", "Bin Code")
                     else
-                        WhseShptLine.SetCurrentKey("No.", "Shelf No.");
+                        WarehouseShipmentLine.SetCurrentKey("No.", "Shelf No.");
                 end;
             "Sorting Method"::"Due Date":
-                WhseShptLine.SetCurrentKey("No.", "Due Date");
+                WarehouseShipmentLine.SetCurrentKey("No.", "Due Date");
             "Sorting Method"::Destination:
-                WhseShptLine.SetCurrentKey("No.", "Destination Type", "Destination No.");
+                WarehouseShipmentLine.SetCurrentKey("No.", "Destination Type", "Destination No.");
             else
-                OnSortWhseDocCaseElse(Rec, WhseShptLine);
+                OnSortWhseDocCaseElse(Rec, WarehouseShipmentLine);
         end;
 
-        if WhseShptLine.Find('-') then begin
+        if WarehouseShipmentLine.Find('-') then begin
             SequenceNo := 10000;
             repeat
-                WhseShptLine."Sorting Sequence No." := SequenceNo;
-                WhseShptLine.Modify();
+                WarehouseShipmentLine."Sorting Sequence No." := SequenceNo;
+                WarehouseShipmentLine.Modify();
                 SequenceNo := SequenceNo + 10000;
-            until WhseShptLine.Next() = 0;
+            until WarehouseShipmentLine.Next() = 0;
         end;
     end;
 
     procedure GetDocumentStatus(LineNo: Integer): Integer
     var
-        WhseShptLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        WhseShptLine.SetRange("No.", "No.");
+        WarehouseShipmentLine.SetRange("No.", "No.");
         if LineNo <> 0 then
-            WhseShptLine.SetFilter("Line No.", '<>%1', LineNo);
-        if not WhseShptLine.FindFirst() then
-            exit(WhseShptLine.Status::" ");
+            WarehouseShipmentLine.SetFilter("Line No.", '<>%1', LineNo);
+        if not WarehouseShipmentLine.FindFirst() then
+            exit(WarehouseShipmentLine.Status::" ");
 
-        OnGetDocumentStatusOnBeforeCheckPartllyShipped(Rec, WhseShptLine);
-        WhseShptLine.SetRange(Status, WhseShptLine.Status::"Partially Shipped");
-        if WhseShptLine.FindFirst() then
-            exit(WhseShptLine.Status);
+        OnGetDocumentStatusOnBeforeCheckPartllyShipped(Rec, WarehouseShipmentLine);
+        WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Partially Shipped");
+        if WarehouseShipmentLine.FindFirst() then
+            exit(WarehouseShipmentLine.Status);
 
-        WhseShptLine.SetRange(Status, WhseShptLine.Status::"Partially Picked");
-        if WhseShptLine.FindFirst() then
-            exit(WhseShptLine.Status);
+        WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Partially Picked");
+        if WarehouseShipmentLine.FindFirst() then
+            exit(WarehouseShipmentLine.Status);
 
-        WhseShptLine.SetRange(Status, WhseShptLine.Status::"Completely Picked");
-        if WhseShptLine.FindFirst() then begin
-            WhseShptLine.SetFilter(Status, '<%1', WhseShptLine.Status::"Completely Picked");
-            if WhseShptLine.FindFirst() then
-                exit(WhseShptLine.Status::"Partially Picked");
+        WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Completely Picked");
+        if WarehouseShipmentLine.FindFirst() then begin
+            WarehouseShipmentLine.SetFilter(Status, '<%1', WarehouseShipmentLine.Status::"Completely Picked");
+            if WarehouseShipmentLine.FindFirst() then
+                exit(WarehouseShipmentLine.Status::"Partially Picked");
 
-            exit(WhseShptLine.Status);
+            exit(WarehouseShipmentLine.Status);
         end;
 
-        WhseShptLine.SetRange(Status, WhseShptLine.Status::"Completely Shipped");
-        if WhseShptLine.FindFirst() then begin
-            WhseShptLine.SetFilter(Status, '<%1', WhseShptLine.Status::"Completely Shipped");
-            if WhseShptLine.FindFirst() then
-                exit(WhseShptLine.Status::"Partially Shipped");
+        WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Completely Shipped");
+        if WarehouseShipmentLine.FindFirst() then begin
+            WarehouseShipmentLine.SetFilter(Status, '<%1', WarehouseShipmentLine.Status::"Completely Shipped");
+            if WarehouseShipmentLine.FindFirst() then
+                exit(WarehouseShipmentLine.Status::"Partially Shipped");
 
-            exit(WhseShptLine.Status);
+            exit(WarehouseShipmentLine.Status);
         end;
 
-        exit(WhseShptLine.Status);
+        exit(WarehouseShipmentLine.Status);
     end;
 
     procedure MessageIfShipmentLinesExist(ChangedFieldName: Text[80])
     var
-        WhseShptLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        WhseShptLine.SetRange("No.", "No.");
-        if not WhseShptLine.IsEmpty() then
+        WarehouseShipmentLine.SetRange("No.", "No.");
+        if not WarehouseShipmentLine.IsEmpty() then
             if not HideValidationDialog then
                 Message(
                   StrSubstNo(
@@ -538,16 +538,16 @@ table 7320 "Warehouse Shipment Header"
         exit(Location);
     end;
 
-    procedure LookupLocation(var WhseShptHeader: Record "Warehouse Shipment Header")
+    procedure LookupLocation(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     var
-        Location: Record Location;
+        LocationForLookup: Record Location;
     begin
         Commit();
-        Location.FilterGroup := 2;
-        Location.SetRange(Code);
-        if PAGE.RunModal(PAGE::"Locations with Warehouse List", Location) = ACTION::LookupOK then
-            WhseShptHeader.Validate("Location Code", Location.Code);
-        Location.FilterGroup := 0;
+        LocationForLookup.FilterGroup := 2;
+        LocationForLookup.SetRange(Code);
+        if Page.RunModal(Page::"Locations with Warehouse List", LocationForLookup) = Action::LookupOK then
+            WarehouseShipmentHeader.Validate("Location Code", LocationForLookup.Code);
+        LocationForLookup.FilterGroup := 0;
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -557,23 +557,27 @@ table 7320 "Warehouse Shipment Header"
 
     procedure DeleteRelatedLines()
     var
-        WhsePickRqst: Record "Whse. Pick Request";
-        WhseComment: Record "Warehouse Comment Line";
+        WhsePickRequest: Record "Whse. Pick Request";
+        WarehouseCommentLine: Record "Warehouse Comment Line";
     begin
-        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
-        WhsePickRqst.SetRange("Document No.", "No.");
-        if not WhsePickRqst.IsEmpty() then
-            WhsePickRqst.DeleteAll();
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+        WhsePickRequest.SetRange("Document No.", "No.");
+        if not WhsePickRequest.IsEmpty() then
+            WhsePickRequest.DeleteAll();
 
-        WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Shipment");
-        WhseComment.SetRange(Type, WhseComment.Type::" ");
-        WhseComment.SetRange("No.", "No.");
-        WhseComment.DeleteAll();
+        WarehouseCommentLine.SetRange("Table Name", WarehouseCommentLine."Table Name"::"Whse. Shipment");
+        WarehouseCommentLine.SetRange(Type, WarehouseCommentLine.Type::" ");
+        WarehouseCommentLine.SetRange("No.", "No.");
+        if not WarehouseCommentLine.IsEmpty() then
+            WarehouseCommentLine.DeleteAll();
+
+        OnAfterDeleteRelatedLines(Rec, xRec);
     end;
 
     procedure DeleteWarehouseShipmentLines()
     var
-        WhseShptLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
         Confirmed: Boolean;
         IsHandled: Boolean;
     begin
@@ -582,48 +586,48 @@ table 7320 "Warehouse Shipment Header"
         if IsHandled then
             exit;
 
-        WhseShptLine.SetRange("No.", "No.");
-        if WhseShptLine.Find('-') then
+        WarehouseShipmentLine.SetRange("No.", "No.");
+        if WarehouseShipmentLine.Find('-') then
             repeat
-                if WhseShptLine."Qty. Shipped" < WhseShptLine."Qty. Picked" then begin
+                if WarehouseShipmentLine."Qty. Shipped" < WarehouseShipmentLine."Qty. Picked" then begin
                     IsHandled := false;
-                    OnDeleteWarehouseShipmentLinesOnBeforeConfirm(WhseShptLine, Confirmed, IsHandled);
+                    OnDeleteWarehouseShipmentLinesOnBeforeConfirm(WarehouseShipmentLine, Confirmed, IsHandled);
                     if not IsHandled then begin
                         if not Confirm(Text009) then
                             Error('');
                         Confirmed := true;
                     end;
                 end;
-            until (WhseShptLine.Next() = 0) or Confirmed;
+            until (WarehouseShipmentLine.Next() = 0) or Confirmed;
 
-        ItemTrackingMgt.SetDeleteReservationEntries(Confirmed);
+        ItemTrackingManagement.SetDeleteReservationEntries(Confirmed);
 
-        if WhseShptLine.Find('-') then
+        if WarehouseShipmentLine.Find('-') then
             repeat
-                if WhseShptLine."Assemble to Order" then
-                    WhseShptLine.Validate("Qty. to Ship", 0);
-                ItemTrackingMgt.DeleteWhseItemTrkgLines(
-                    Database::"Warehouse Shipment Line", 0, WhseShptLine."No.",
-                    '', 0, WhseShptLine."Line No.", WhseShptLine."Location Code", true);
+                if WarehouseShipmentLine."Assemble to Order" then
+                    WarehouseShipmentLine.Validate("Qty. to Ship", 0);
+                ItemTrackingManagement.DeleteWhseItemTrkgLines(
+                    Database::"Warehouse Shipment Line", 0, WarehouseShipmentLine."No.",
+                    '', 0, WarehouseShipmentLine."Line No.", WarehouseShipmentLine."Location Code", true);
 
-                OnBeforeWhseShptLineDelete(WhseShptLine);
-                WhseShptLine.Delete();
-            until WhseShptLine.Next() = 0;
+                OnBeforeWhseShptLineDelete(WarehouseShipmentLine);
+                WarehouseShipmentLine.Delete();
+            until WarehouseShipmentLine.Next() = 0;
     end;
 
     procedure FindFirstAllowedRec(Which: Text[1024]): Boolean
     var
-        WhseShptHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WMSManagement: Codeunit "WMS Management";
     begin
         if Find(Which) then begin
-            WhseShptHeader := Rec;
+            WarehouseShipmentHeader := Rec;
             while true do begin
                 if WMSManagement.LocationIsAllowedToView("Location Code") then
                     exit(true);
 
                 if Next(1) = 0 then begin
-                    Rec := WhseShptHeader;
+                    Rec := WarehouseShipmentHeader;
                     if Find(Which) then
                         while true do begin
                             if WMSManagement.LocationIsAllowedToView("Location Code") then
@@ -640,22 +644,22 @@ table 7320 "Warehouse Shipment Header"
 
     procedure FindNextAllowedRec(Steps: Integer): Integer
     var
-        WhseShptHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WMSManagement: Codeunit "WMS Management";
         RealSteps: Integer;
         NextSteps: Integer;
     begin
         RealSteps := 0;
         if Steps <> 0 then begin
-            WhseShptHeader := Rec;
+            WarehouseShipmentHeader := Rec;
             repeat
                 NextSteps := Next(Steps / Abs(Steps));
                 if WMSManagement.LocationIsAllowedToView("Location Code") then begin
                     RealSteps := RealSteps + NextSteps;
-                    WhseShptHeader := Rec;
+                    WarehouseShipmentHeader := Rec;
                 end;
             until (NextSteps = 0) or (RealSteps = Steps);
-            Rec := WhseShptHeader;
+            Rec := WarehouseShipmentHeader;
             if not Find() then;
         end;
         exit(RealSteps);
@@ -663,6 +667,7 @@ table 7320 "Warehouse Shipment Header"
 
     procedure ErrorIfUserIsNotWhseEmployee()
     var
+        WMSManagement: Codeunit "WMS Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -675,8 +680,8 @@ table 7320 "Warehouse Shipment Header"
 
     procedure ApplyCustomSortingToWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     var
-        TempFirstPriorityWhseShptLine: Record "Warehouse Shipment Line" temporary;
-        TempSecondPriorityWhseShptLine: Record "Warehouse Shipment Line" temporary;
+        TempFirstPriorityWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary;
+        TempSecondPriorityWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary;
         SequenceNo: Integer;
         IsHandled: Boolean;
     begin
@@ -690,32 +695,32 @@ table 7320 "Warehouse Shipment Header"
 
         repeat
             if MeetsCriteria(WarehouseShipmentLine) then begin
-                TempFirstPriorityWhseShptLine := WarehouseShipmentLine;
-                TempFirstPriorityWhseShptLine.Insert();
+                TempFirstPriorityWarehouseShipmentLine := WarehouseShipmentLine;
+                TempFirstPriorityWarehouseShipmentLine.Insert();
             end else begin
-                TempSecondPriorityWhseShptLine := WarehouseShipmentLine;
-                TempSecondPriorityWhseShptLine.Insert();
+                TempSecondPriorityWarehouseShipmentLine := WarehouseShipmentLine;
+                TempSecondPriorityWarehouseShipmentLine.Insert();
             end;
         until WarehouseShipmentLine.Next() = 0;
 
         SequenceNo := 10000;
-        if TempFirstPriorityWhseShptLine.FindSet() then
+        if TempFirstPriorityWarehouseShipmentLine.FindSet() then
             repeat
-                WarehouseShipmentLine := TempFirstPriorityWhseShptLine;
+                WarehouseShipmentLine := TempFirstPriorityWarehouseShipmentLine;
                 WarehouseShipmentLine.Find();
                 WarehouseShipmentLine."Sorting Sequence No." := SequenceNo;
                 WarehouseShipmentLine.Modify();
                 SequenceNo += 10000;
-            until TempFirstPriorityWhseShptLine.Next() = 0;
+            until TempFirstPriorityWarehouseShipmentLine.Next() = 0;
 
-        if TempSecondPriorityWhseShptLine.FindSet() then
+        if TempSecondPriorityWarehouseShipmentLine.FindSet() then
             repeat
-                WarehouseShipmentLine := TempSecondPriorityWhseShptLine;
+                WarehouseShipmentLine := TempSecondPriorityWarehouseShipmentLine;
                 WarehouseShipmentLine.Find();
                 WarehouseShipmentLine."Sorting Sequence No." := SequenceNo;
                 WarehouseShipmentLine.Modify();
                 SequenceNo += 10000;
-            until TempSecondPriorityWhseShptLine.Next() = 0;
+            until TempSecondPriorityWarehouseShipmentLine.Next() = 0;
     end;
 
     local procedure MeetsCriteria(WarehouseShipmentLine: Record "Warehouse Shipment Line") Result: Boolean
@@ -839,6 +844,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentStatusOnBeforeCheckPartllyShipped(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteRelatedLines(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; xWarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 }

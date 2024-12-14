@@ -454,6 +454,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         TempDimSetEntry.Reset();
         TempDimSetEntry.DeleteAll();
         GLAccount.CalcFields("Net Change", "Additional-Currency Net Change");
+        OnProcessGLAccountAdjustmentOnBeforePostGLAccAdjmt(GLAccount);
         case GLAccount."Exchange Rate Adjustment" of
             GLAccount."Exchange Rate Adjustment"::"Adjust Amount":
                 PostGLAccAdjmt(
@@ -1844,6 +1845,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         CustLedgerEntry.CalcFields(
             Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)", "Original Amt. (LCY)",
             "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
+        OnAdjustCustomerLedgerEntryOnAfterCalcFields(CustLedgerEntry);
 
         // Calculate Old Unrealized Gains and Losses
         SetUnrealizedGainLossFilterCust(DtldCustLedgEntry, CustLedgerEntry."Entry No.");
@@ -2027,6 +2029,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         VendLedgerEntry.CalcFields(
             Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)", "Original Amt. (LCY)",
             "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
+        OnAdjustVendorLedgerEntryOnAfterCalcFields(VendLedgerEntry);
 
         // Calculate Old Unrealized GainLoss
         SetUnrealizedGainLossFilterVend(DtldVendLedgEntry, VendLedgerEntry."Entry No.");
@@ -2377,6 +2380,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                 CustLedgerEntry2.Get(TempCustLedgerEntry."Entry No.");
                 CustLedgerEntry2.SetRange("Date Filter", 0D, PostingDate2);
                 CustLedgerEntry2.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+                OnAdjustExchRateCustOnAfterCalcFields(CustLedgerEntry2);
                 if ShouldAdjustEntry(
                         PostingDate2, CustLedgerEntry2."Currency Code", CustLedgerEntry2."Remaining Amount",
                         CustLedgerEntry2."Remaining Amt. (LCY)", CustLedgerEntry2."Adjusted Currency Factor")
@@ -2410,6 +2414,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                 VendLedgerEntry2.Get(TempVendLedgerEntry."Entry No.");
                 VendLedgerEntry2.SetRange("Date Filter", 0D, PostingDate2);
                 VendLedgerEntry2.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+                OnAdjustExchRateVendOnAfterCalcFields(VendLedgerEntry2);
                 if ShouldAdjustEntry(
                     PostingDate2, VendLedgerEntry2."Currency Code",
                     VendLedgerEntry2."Remaining Amount", VendLedgerEntry2."Remaining Amt. (LCY)", VendLedgerEntry2."Adjusted Currency Factor")
@@ -3037,6 +3042,31 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrepareTempVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustExchRateCustOnAfterCalcFields(var CustomerLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustCustomerLedgerEntryOnAfterCalcFields(var CustomerLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustExchRateVendOnAfterCalcFields(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessGLAccountAdjustmentOnBeforePostGLAccAdjmt(var GLAccount: Record "G/L Account");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustVendorLedgerEntryOnAfterCalcFields(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }
