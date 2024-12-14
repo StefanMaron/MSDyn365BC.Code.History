@@ -497,6 +497,8 @@ codeunit 10750 "SII XML Creator"
         TotalNonExemptBase: Decimal;
         TotalVATAmount: Decimal;
         TotalAmount: Decimal;
+        TotalNDBase: Decimal;
+        TotalNDAmount: Decimal;
         InvoiceType: Text;
         DomesticCustomer: Boolean;
         RegimeCodes: array[3] of Code[2];
@@ -551,7 +553,7 @@ codeunit 10750 "SII XML Creator"
                                                                  SIIDocUploadState."Sales Special Scheme Code"::"05 Travel Agencies",
                                                                  SIIDocUploadState."Sales Special Scheme Code"::"09 Travel Agency Services"]);
             DataTypeManagement.GetRecordRef(CustLedgerEntry, CustLedgerEntryRecRef);
-            CalculateTotalVatAndBaseAmounts(CustLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount);
+            CalculateTotalVatAndBaseAmounts(CustLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount, TotalNDBase, TotalNDAmount);
             if AddNodeForTotals then begin
                 TotalAmount := -TotalBase - TotalVATAmount;
                 XMLDOMManagement.AddElementWithPrefix(
@@ -616,6 +618,8 @@ codeunit 10750 "SII XML Creator"
         TotalNonExemptBase: Decimal;
         TotalVATAmount: Decimal;
         TotalAmount: Decimal;
+        TotalNDBase: Decimal;
+        TotalNDAmount: Decimal;
         InvoiceType: Text;
         RegimeCodes: array[3] of Code[2];
         VendNo: Code[20];
@@ -662,9 +666,9 @@ codeunit 10750 "SII XML Creator"
                (TempVATEntryNormalCalculated.Count + TempVATEntryReverseChargeCalculated.Count = 1)) or
               (SIIDocUploadState."Purch. Special Scheme Code" in [SIIDocUploadState."Purch. Special Scheme Code"::"03 Special System",
                                                                   SIIDocUploadState."Purch. Special Scheme Code"::"05 Travel Agencies"]);
-            CalculateTotalVatAndBaseAmounts(VendorLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount);
+            CalculateTotalVatAndBaseAmounts(VendorLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount, TotalNDBase, TotalNDAmount);
             if AddNodeForTotals then begin
-                TotalAmount := TotalBase + TotalVATAmount;
+                TotalAmount := TotalBase + TotalNDBase + TotalVATAmount + TotalNDAmount;
                 XMLDOMManagement.AddElementWithPrefix(
                   XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
             end;
@@ -773,7 +777,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'Ejercicio', GetYear(NewPostingDate), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'Periodo', Format(NewPostingDate, 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+          XMLNode, 'Periodo', SIIManagement.GetTaxPeriod(NewPostingDate), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDEmisorFactura', '', 'sii', SiiTxt, XMLNode);
@@ -818,7 +822,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'Ejercicio', GetYear(PostingDate), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'Periodo', Format(PostingDate, 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+          XMLNode, 'Periodo', SIIManagement.GetTaxPeriod(PostingDate), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDEmisorFactura', '', 'sii', SiiTxt, XMLNode);
@@ -841,7 +845,7 @@ codeunit 10750 "SII XML Creator"
             XMLDOMManagement.AddElementWithPrefix(
             XMLNode, 'Ejercicio', GetYear(VendorLedgerEntry."VAT Reporting Date"), 'sii', SiiTxt, TempXMLNode);
             XMLDOMManagement.AddElementWithPrefix(
-            XMLNode, 'Periodo', Format(VendorLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+            XMLNode, 'Periodo', SIIManagement.GetTaxPeriod(VendorLedgerEntry."VAT Reporting Date"), 'sii', SiiTxt, TempXMLNode);
         end;
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);
@@ -1261,6 +1265,8 @@ codeunit 10750 "SII XML Creator"
         TotalBase: Decimal;
         TotalNonExemptBase: Decimal;
         TotalVATAmount: Decimal;
+        TotalNDBase: Decimal;
+        TotalNDAmount: Decimal;
         CorrectedInvoiceNo: Code[20];
         CorrectionType: Option;
     begin
@@ -1280,7 +1286,7 @@ codeunit 10750 "SII XML Creator"
 
         // calculate totals for current doc
         DataTypeManagement.GetRecordRef(CustLedgerEntry, CustLedgerEntryRecRef);
-        CalculateTotalVatAndBaseAmounts(CustLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount);
+        CalculateTotalVatAndBaseAmounts(CustLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount, TotalNDBase, TotalNDAmount);
 
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'NumSerieFacturaEmisor', Format(CustLedgerEntry."Document No."), 'sii', SiiTxt, TempXMLNode);
@@ -1421,6 +1427,8 @@ codeunit 10750 "SII XML Creator"
         TotalBase: Decimal;
         TotalNonExemptBase: Decimal;
         TotalVATAmount: Decimal;
+        TotalNDBase: Decimal;
+        TotalNDAmount: Decimal;
         CorrectedInvoiceNo: Code[20];
         CorrectionType: Option;
         VendNo: Code[20];
@@ -1442,7 +1450,7 @@ codeunit 10750 "SII XML Creator"
 
         // calculate totals for current doc
         DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
-        CalculateTotalVatAndBaseAmounts(VendorLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount);
+        CalculateTotalVatAndBaseAmounts(VendorLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount, TotalNDBase, TotalNDAmount);
 
         if (CorrectionType = PurchCrMemoHdr."Correction Type"::Replacement) or
            (VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice)
@@ -1451,7 +1459,7 @@ codeunit 10750 "SII XML Creator"
               XMLNode, Vendor, SIIDocUploadState, OldVendorLedgerEntry, VendorLedgerEntry, TotalBase, TotalNonExemptBase, TotalVATAmount)
         else
             HandleNormalPurchCorrectiveInvoice(
-              XMLNode, Vendor, SIIDocUploadState, OldVendorLedgerEntry, VendorLedgerEntry, TotalBase, TotalNonExemptBase, TotalVATAmount);
+              XMLNode, Vendor, SIIDocUploadState, OldVendorLedgerEntry, VendorLedgerEntry, TotalBase + TotalNDBase, TotalNonExemptBase, TotalVATAmount + TotalNDAmount);
         exit(true);
     end;
 
@@ -1470,6 +1478,8 @@ codeunit 10750 "SII XML Creator"
         ECAmountDiff: Decimal;
         CuotaDeducibleDecValue: Decimal;
         TotalAmount: Decimal;
+        TotalNDBase: Decimal;
+        TotalNDAmount: Decimal;
         RegimeCodes: array[3] of Code[2];
         ECVATEntryExists: Boolean;
         InvoiceType: Text;
@@ -1494,7 +1504,7 @@ codeunit 10750 "SII XML Creator"
             GenerateFacturasRectificadasNode(XMLNode, OldVendorLedgerEntry."External Document No.", OldVendorLedgerEntry."Posting Date");
             // calculate totals for old doc
             DataTypeManagement.GetRecordRef(OldVendorLedgerEntry, OldVendorLedgerEntryRecRef);
-            CalculateTotalVatAndBaseAmounts(OldVendorLedgerEntryRecRef, OldTotalBase, OldTotalNonExemptBase, OldTotalVATAmount);
+            CalculateTotalVatAndBaseAmounts(OldVendorLedgerEntryRecRef, OldTotalBase, OldTotalNonExemptBase, OldTotalVATAmount, TotalNDBase, TotalNDAmount);
         end;
 
         // write totals amounts in XML
@@ -1679,6 +1689,8 @@ codeunit 10750 "SII XML Creator"
         OldTotalNonExemptBase: Decimal;
         OldTotalVATAmount: Decimal;
         TotalAmount: Decimal;
+        TotalNDBase: Decimal;
+        TotalNDAmount: Decimal;
         BaseAmountDiff: Decimal;
         VATAmountDiff: Decimal;
         ECPercentDiff: Decimal;
@@ -1697,7 +1709,7 @@ codeunit 10750 "SII XML Creator"
             GenerateFacturasRectificadasNode(XMLNode, OldCustLedgerEntry."Document No.", OldCustLedgerEntry."Posting Date");
             // calculate totals for old doc
             DataTypeManagement.GetRecordRef(OldCustLedgerEntry, OldCustLedgerEntryRecRef);
-            CalculateTotalVatAndBaseAmounts(OldCustLedgerEntryRecRef, OldTotalBase, OldTotalNonExemptBase, OldTotalVATAmount);
+            CalculateTotalVatAndBaseAmounts(OldCustLedgerEntryRecRef, OldTotalBase, OldTotalNonExemptBase, OldTotalVATAmount, TotalNDBase, TotalNDAmount);
         end;
 
         // write totals amounts in XML
@@ -1809,7 +1821,7 @@ codeunit 10750 "SII XML Creator"
           EUXMLNode, false, DomesticCustomer, RegimeCodes);
     end;
 
-    local procedure CalculateTotalVatAndBaseAmounts(LedgerEntryRecRef: RecordRef; var TotalBaseAmount: Decimal; var TotalNonExemptVATBaseAmount: Decimal; var TotalVATAmount: Decimal)
+    local procedure CalculateTotalVatAndBaseAmounts(LedgerEntryRecRef: RecordRef; var TotalBaseAmount: Decimal; var TotalNonExemptVATBaseAmount: Decimal; var TotalVATAmount: Decimal; var TotalNDBase: Decimal; var TotalNDAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
         NoTaxableEntry: Record "No Taxable Entry";
@@ -1822,6 +1834,8 @@ codeunit 10750 "SII XML Creator"
 
         TotalBaseAmount := 0;
         TotalVATAmount := 0;
+        TotalNDBase := 0;
+        TotalNDAmount := 0;
 
         if SIIManagement.FindVatEntriesFromLedger(LedgerEntryRecRef, VATEntry) then begin
             repeat
@@ -1831,6 +1845,8 @@ codeunit 10750 "SII XML Creator"
                     TotalNonExemptVATBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
                 if VATEntry."VAT Calculation Type" <> VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
                     TotalVATAmount += VATEntry.Amount + VATEntry."Unrealized Amount";
+                TotalNDBase += VATEntry."Non-Deductible VAT Base";
+                TotalNDAmount += VATEntry."Non-Deductible VAT Amount";
             until VATEntry.Next() = 0;
         end;
         SIIManagement.FindNoTaxableEntriesFromLedger(LedgerEntryRecRef, NoTaxableEntry);

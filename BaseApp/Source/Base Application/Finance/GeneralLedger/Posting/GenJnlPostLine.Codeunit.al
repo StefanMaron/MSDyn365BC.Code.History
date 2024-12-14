@@ -2527,6 +2527,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         NonDedTotalVATAmount := 0;
         NonDedTotalVATAmountACY := 0;
 
+        VATEntry2.ReadIsolation := IsolationLevel::ReadUncommitted;
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", OldCVLedgEntryBuf."Transaction No.");
@@ -4120,6 +4121,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         PaidAmount := CustLedgEntry2."Amount (LCY)" - CustLedgEntry2."Remaining Amt. (LCY)";
         OnCustUnrealizedVATOnAfterCalcPaidAmount(GenJnlLine, CustLedgEntry2, SettledAmount, PaidAmount);
+        VATEntry2.ReadIsolation := IsolationLevel::ReadUncommitted;
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", CustLedgEntry2."Transaction No.");
@@ -4395,7 +4397,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
             if GLSetup."Unrealized VAT" or
                (GLSetup."Prepayment Unrealized VAT" and NewCVLedgEntryBuf.Prepayment)
             then
-                if IsNotPayment(NewCVLedgEntryBuf."Document Type") and
+                if (IsNotPayment(NewCVLedgEntryBuf."Document Type") or
+                    (NewCVLedgEntryBuf."Document Type" = NewCVLedgEntryBuf."Document Type"::Bill)) and
+                   (not (NewVendLedgEntry."Document Status" = NewVendLedgEntry."Document Status"::Redrawn)) and
+                   (not FromClosedDoc) and
                    (NewRemainingAmtBeforeAppln - NewCVLedgEntryBuf."Remaining Amount" <> 0)
                 then begin
                     NewVendLedgEntry.CopyFromCVLedgEntryBuffer(NewCVLedgEntryBuf);
@@ -4896,7 +4901,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PayableAccAmtLCY: Decimal;
         PayableAccAmtAddCurr: Decimal;
         ExistDtldCVLedgEntryBuf: Boolean;
-        FindBill: Boolean;
+        FindBill, FindInvoice, FindApplication : Boolean;
         IsHandled: Boolean;
     begin
         if GenJournalLine."Account Type" <> GenJournalLine."Account Type"::Vendor then
@@ -4915,6 +4920,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DetailedCVLedgEntryBuffer.SetRange("Initial Document Type", DetailedCVLedgEntryBuffer."Initial Document Type"::Bill);
         if DetailedCVLedgEntryBuffer.FindFirst() then
             FindBill := true;
+
+        DetailedCVLedgEntryBuffer.SetRange("Initial Document Type", DetailedCVLedgEntryBuffer."Initial Document Type"::Invoice);
+        if DetailedCVLedgEntryBuffer.FindFirst() then
+            FindInvoice := true;
+
+        DetailedCVLedgEntryBuffer.Reset();
+        DetailedCVLedgEntryBuffer.SetRange("Entry Type", DetailedCVLedgEntryBuffer."Entry Type"::Application);
+        if DetailedCVLedgEntryBuffer.FindFirst() then
+            FindApplication := true;
+
+        if FindApplication then begin
+            if FindBill then
+                IDBillSettlement := true;
+            if FindInvoice then
+                IDInvoiceSettlement := true;
+        end;
 
         MultiplePostingGroups := CheckVendMultiplePostingGroups(DetailedCVLedgEntryBuffer);
 
@@ -4951,7 +4972,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                         GenJournalLine,
                                         VendPostingGr.GetPayablesAccount(), -DetailedCVLedgEntryBuffer."Amount (LCY)", 0,
                                         DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
-                                end;
+                                end else
+                                    if LedgEntryInserted then
+                                        PostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount);
                             else
                                 PostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount);
                         end;
@@ -4966,24 +4989,29 @@ codeunit 12 "Gen. Jnl.-Post Line"
             CalcPostingBufferTotals(TempDimensionPostingBuffer);
             PayableAccAmtLCY := TempDimensionPostingBuffer.Amount - (DocAmountLCY + CollDocAmountLCY);
             PayableAccAmtAddCurr :=
-              TempDimensionPostingBuffer."Amount (ACY)" -
-              (DocAmtCalcAddCurrency(GenJournalLine, DocAmountLCY) + DocAmtCalcAddCurrency(GenJournalLine, CollDocAmountLCY));
+            TempDimensionPostingBuffer."Amount (ACY)" -
+            (DocAmtCalcAddCurrency(GenJournalLine, DocAmountLCY) + DocAmtCalcAddCurrency(GenJournalLine, CollDocAmountLCY));
             VendLedgEntryInserted2 := LedgEntryInserted;
             if CheckCarteraPostDtldVendLE(GenJournalLine, DtldVendLedgEntry2, PayableAccAmtLCY, PayableAccAmtAddCurr, false) then
                 if (TempDimensionPostingBuffer.Amount <> 0) or ((TempDimensionPostingBuffer."Amount (ACY)" <> 0) and (AddCurrencyCode <> '')) or
-                   (GenJournalLine."Applies-to ID" <> '')
+                (GenJournalLine."Applies-to ID" <> '')
                 then
                     if (PayableAccAmtLCY <> 0) or
-                       ((PayableAccAmtAddCurr <> 0) and (AddCurrencyCode <> ''))
-                    then begin
-                        InitGLEntry(GenJournalLine, GLEntry,
-                          AccNo, PayableAccAmtLCY, PayableAccAmtAddCurr,
-                          true, true);
-                        GLEntry."Bal. Account Type" := GenJournalLine."Bal. Account Type";
-                        GLEntry."Bal. Account No." := GenJournalLine."Bal. Account No.";
-                        UpdateGLEntryNo(GLEntry."Entry No.", SaveEntryNo);
-                        InsertGLEntry(GenJournalLine, GLEntry, true);
-                    end;
+                    ((PayableAccAmtAddCurr <> 0) and (AddCurrencyCode <> ''))
+                    then
+                        if not (LedgEntryInserted and MultiplePostingGroups and (DocAmountLCY <> 0)) then begin
+                            InitGLEntry(GenJournalLine, GLEntry,
+                            AccNo, PayableAccAmtLCY, PayableAccAmtAddCurr,
+                            true, true);
+                            GLEntry."Bal. Account Type" := GenJournalLine."Bal. Account Type";
+                            GLEntry."Bal. Account No." := GenJournalLine."Bal. Account No.";
+                            UpdateGLEntryNo(GLEntry."Entry No.", SaveEntryNo);
+                            InsertGLEntry(GenJournalLine, GLEntry, true);
+                        end else begin
+                            IncrNextEntryNo();
+                            NextEntryNo2 := NextEntryNo + DetailedCVLedgEntryBuffer.Count();
+                            SaveEntryNo := 0;
+                        end;
         end;
 
         IsHandled := false;
@@ -5027,7 +5055,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         AccNo: Code[20];
     begin
         if MultiplePostingGroups and (DetailedCVLedgEntryBuffer."Entry Type" = DetailedCVLedgEntryBuffer."Entry Type"::Application) then
-            AccNo := GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer)
+            if DetailedCVLedgEntryBuffer."Initial Document Type" = DetailedCVLedgEntryBuffer."Initial Document Type"::Bill then
+                AccNo := VendPostingGr."Payables Account"
+            else
+                if (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Payment) and (GenJournalLine."Applies-to Doc. No." <> '') and (DetailedCVLedgEntryBuffer."Document Type" = DetailedCVLedgEntryBuffer."Document Type"::Payment) then
+                    AccNo := VendPostingGr."Payables Account"
+                else
+                    AccNo := GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer)
         else
             AccNo := GetDtldVendLedgEntryAccNo(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, 0, false);
         PostDtldCVLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, AccNo, AdjAmount, false);
@@ -5051,7 +5085,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
             exit;
 
         if MultiplePostingGroups and (DetailedCVLedgEntryBuffer."Entry Type" = DetailedCVLedgEntryBuffer."Entry Type"::Application) then
-            AccNo := GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer)
+            if DetailedCVLedgEntryBuffer."Initial Document Type" = DetailedCVLedgEntryBuffer."Initial Document Type"::Bill then
+                AccNo := VendPostingGr."Payables Account"
+            else
+                if (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Payment) and (GenJournalLine."Applies-to Doc. No." <> '') and (DetailedCVLedgEntryBuffer."Document Type" = DetailedCVLedgEntryBuffer."Document Type"::Payment) then
+                    AccNo := VendPostingGr."Payables Account"
+                else
+                    AccNo := GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer)
         else
             AccNo := GetDtldVendLedgEntryAccNo(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, OriginalTransactionNo, true);
         DetailedCVLedgEntryBuffer."Gen. Posting Type" := DetailedCVLedgEntryBuffer."Gen. Posting Type"::Purchase;
@@ -5298,6 +5338,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     procedure PostDtldCVLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; AccNo: Code[20]; var AdjAmount: array[4] of Decimal; Unapply: Boolean)
     var
+        VendorPostingGroup: Record "Vendor Posting Group";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5323,6 +5364,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     OnPostDtldCVLedgEntryOnBeforeCreateGLEntryGainLoss(GenJournalLine, DetailedCVLedgEntryBuffer, Unapply, AccNo, IsHandled, AdjAmount, AddCurrencyCode, MultiplePostingGroups);
                     if not IsHandled then
                         CreateGLEntryGainLoss(GenJournalLine, AccNo, -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+
+                    if MultiplePostingGroups and (DetailedCVLedgEntryBuffer."Entry Type" in [DetailedCVLedgEntryBuffer."Entry Type"::"Unrealized Loss", DetailedCVLedgEntryBuffer."Entry Type"::"Unrealized Gain"]) then begin
+                        CreateGLEntryGainLoss(GenJournalLine, GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer), DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                        GetVendorPostingGroup(GenJournalLine, VendorPostingGroup);
+                        CreateGLEntryGainLoss(GenJournalLine, GetVendorPayablesAccount(GenJournalLine, VendorPostingGroup), -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                    end;
+
                     if not Unapply then
                         CollectAdjustment(AdjAmount, -DetailedCVLedgEntryBuffer."Amount (LCY)", 0);
                 end;
@@ -5519,6 +5567,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         FromDoc := (Doc.FindFirst() and (not ClosedDoc.FindFirst()));
         FromDocInPostedPmtOrd := PostedDoc.FindFirst();
 
+        VATEntry2.ReadIsolation := IsolationLevel::ReadUncommitted;
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         CheckCarteraVendUnrealizedVAT(
@@ -5911,6 +5960,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
 
         // Look one more time
+        if DetailedCustLedgEntry."Transaction No." = 0 then
+            DetailedCustLedgEntry2.SetCurrentKey("Application No.", "Customer No.", "Entry Type")
+        else
+            DetailedCustLedgEntry2.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
+
         OnOnUnapplyCustLedgEntryOnBeforeSecondLook(DetailedCustLedgEntry2, NextDtldLedgEntryNo);
         DetailedCustLedgEntry2.FindSet();
         TempDimensionPostingBuffer.DeleteAll();
@@ -6704,6 +6758,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
     begin
+        DetailedCustLedgEntry.SetCurrentKey("Entry No.");
         if not DetailedCustLedgEntry.FindSet() then
             exit;
         repeat
@@ -7966,7 +8021,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if (DocAmountLCY = 0) or ((DocAmountLCY <> 0) and (CollDocAmountLCY <> 0)) then
             exit(VendPostingGr.GetBillsInPmtOrderAccount());
 
-        if (IDInvoiceSettlement) and (not IDBillSettlement) and (MultiplePostingGroups) then
+        if (IDInvoiceSettlement) and (not IDBillSettlement) then
             if DocAmountLCY <> 0 then
                 exit(VendPostingGr.GetPayablesAccount());
 
@@ -9030,7 +9085,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                    (VendorLedgerEntry."Document Type" in [VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Bill])
                 then begin
                     VendorPostingGroup.Get(VendorLedgerEntry."Vendor Posting Group");
-                    DocAmountLCY := Abs(DetailedCVLedgEntryBuffer.Amount);
+                    DocAmountLCY := Abs(DetailedCVLedgEntryBuffer."Amount (LCY)");
                     PostPayableDocs(GenJournalLine, VendorPostingGroup);
                 end;
             until DetailedCVLedgEntryBuffer.Next() = 0;

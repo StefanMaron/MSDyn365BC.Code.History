@@ -978,16 +978,18 @@ table 21 "Cust. Ledger Entry"
             "Document Type"::Invoice:
                 begin
                     if SalesInvoiceHeader.Get("Document No.") then
-                        OpenDocumentAttachmentDetails(SalesInvoiceHeader);
-                    if ServiceInvoiceHeader.Get("Document No.") then
-                        OpenDocumentAttachmentDetails(ServiceInvoiceHeader);
+                        OpenDocumentAttachmentDetails(SalesInvoiceHeader)
+                    else
+                        if ServiceInvoiceHeader.Get("Document No.") then
+                            OpenDocumentAttachmentDetails(ServiceInvoiceHeader);
                 end;
             "Document Type"::"Credit Memo":
                 begin
                     if SalesCrMemoHeader.Get("Document No.") then
-                        OpenDocumentAttachmentDetails(SalesCrMemoHeader);
-                    if ServiceCrMemoHeader.Get("Document No.") then
-                        OpenDocumentAttachmentDetails(ServiceCrMemoHeader);
+                        OpenDocumentAttachmentDetails(SalesCrMemoHeader)
+                    else
+                        if ServiceCrMemoHeader.Get("Document No.") then
+                            OpenDocumentAttachmentDetails(ServiceCrMemoHeader);
                 end;
         end;
 
@@ -1062,15 +1064,17 @@ table 21 "Cust. Ledger Entry"
                 begin
                     if SalesInvoiceHeader.Get("Document No.") then
                         exit(DocumentAttachment.HasPostedDocumentAttachment(SalesInvoiceHeader));
-                    if ServiceInvoiceHeader.Get("Document No.") then
-                        exit(DocumentAttachment.HasPostedDocumentAttachment(ServiceInvoiceHeader));
+                    if ServiceInvoiceHeader.ReadPermission() then
+                        if ServiceInvoiceHeader.Get("Document No.") then
+                            exit(DocumentAttachment.HasPostedDocumentAttachment(ServiceInvoiceHeader));
                 end;
             "Document Type"::"Credit Memo":
                 begin
                     if SalesCrMemoHeader.Get("Document No.") then
                         exit(DocumentAttachment.HasPostedDocumentAttachment(SalesCrMemoHeader));
-                    if ServiceCrMemoHeader.Get("Document No.") then
-                        exit(DocumentAttachment.HasPostedDocumentAttachment(ServiceCrMemoHeader));
+                    if SalesCrMemoHeader.ReadPermission() then
+                        if ServiceCrMemoHeader.Get("Document No.") then
+                            exit(DocumentAttachment.HasPostedDocumentAttachment(ServiceCrMemoHeader));
                 end;
         end;
 

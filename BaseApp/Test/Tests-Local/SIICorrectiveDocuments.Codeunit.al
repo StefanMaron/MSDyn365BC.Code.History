@@ -19,6 +19,7 @@ codeunit 147528 "SII Corrective Documents"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySII: Codeunit "Library - SII";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
         XPathPurchBaseImponibleTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:DesgloseFactura/sii:DesgloseIVA/sii:DetalleIVA/';
@@ -26,6 +27,7 @@ codeunit 147528 "SII Corrective Documents"
         XPathSalesFacturaExpedidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/';
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         CorrectedInvoiceNoMustHaveValueErr: Label 'Corrected Invoice No. must have a value in Sales Header';
+        IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
 
     [Test]
     [Scope('OnPrem')]
@@ -441,6 +443,111 @@ codeunit 147528 "SII Corrective Documents"
         Assert.ExpectedError(CorrectedInvoiceNoMustHaveValueErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchInvoiceAndValidateImporteTotalWithNonDeductibleVAT()
+    var
+        VATSetup: Record "VAT Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [SCENARIO 551537] Discrepancies when posting Purchase Invoice with Non-Ded VAT and Exempt VAT lines 
+        // together with "Include ImporteTotal" setting activated in the Spanish version.
+        Initialize();
+
+        // [GIVEN] "Include Importe Total" is enabled in the SII Setup
+        SetIncludeImporteTotalInSIISetup();
+
+        // [GIVEN] Validate Enable Non-Deductible VAT in VAT Setup.
+        VATSetup.Get();
+        VATSetup."Enable Non-Deductible VAT" := true;
+        VATSetup.Modify();
+
+        // [GIVEN] Create VAT Posting Setup with Non-Deductible VAT.
+        CreateVATPostingSetupWithNonDeductibleVAT(VATPostingSetup, LibraryRandom.RandIntInRange(5, 5), LibraryRandom.RandIntInRange(5, 5));
+
+        // [GIVEN] Generate and save Vendor in a Variable.
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create an Item and Validate VAT Prod. Posting Group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Purchase Header, validate Vendor Invoice No. and set Invoice Type to F2
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(2));
+        PurchaseHeader.Validate("Invoice Type", PurchaseHeader."Invoice Type"::"F2 Simplified Invoice");
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice.
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        // [THEN] Create the xml and verify ImporteTotal is available in XML
+        VerifyImporteTotal(PostedDocNo, CalculateImporteTotal(PostedDocNo));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchCreditMemoAndValidateImporteTotalWithNonDeductibleVAT()
+    var
+        VATSetup: Record "VAT Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [SCENARIO 551537] Discrepancies when posting Purchase Credit Memo with Non-Ded VAT and Exempt VAT lines 
+        // together with "Include ImporteTotal" setting activated in the Spanish version.
+        Initialize();
+
+        // [GIVEN] "Include Importe Total" is enabled in the SII Setup
+        SetIncludeImporteTotalInSIISetup();
+
+        // [GIVEN] Validate Enable Non-Deductible VAT in VAT Setup.
+        VATSetup.Get();
+        VATSetup."Enable Non-Deductible VAT" := true;
+        VATSetup.Modify();
+
+        // [GIVEN] Create VAT Posting Setup with Non-Deductible VAT.
+        CreateVATPostingSetupWithNonDeductibleVAT(VATPostingSetup, LibraryRandom.RandIntInRange(10, 10), LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Generate and save Vendor in a Variable.
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create an Item and Validate VAT Prod. Posting Group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Purchase Header and Validate Vendor Invoice No.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
+        // PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(2));
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Credit Memo.
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        // [THEN] Create the xml and verify ImporteTotal is available in XML
+        VerifyImporteTotal(PostedDocNo, CalculateImporteTotal(PostedDocNo));
+    end;
+
     local procedure Initialize()
     begin
         Clear(SIIXMLCreator);
@@ -570,6 +677,58 @@ codeunit 147528 "SII Corrective Documents"
         SIISetup.Get();
         SIISetup.Validate("Include ImporteTotal", true);
         SIISetup.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetupWithNonDeductibleVAT(var VATPostingSetup: Record "VAT Posting Setup"; VATPct: Decimal; NDVATPct: Decimal)
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Identifier", LibraryRandom.RandText(10) + ' ' + Format(VATPct));
+        VATPostingSetup.Validate("VAT %", VATPct);
+        VATPostingSetup.Validate("Allow Non-Deductible VAT", VATPostingSetup."Allow Non-Deductible VAT"::Allow);
+        VATPostingSetup.Validate("Non-Deductible VAT %", NDVATPct);
+        VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VatPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VatPostingSetup.Modify(true);
+    end;
+
+    local procedure CalculateImporteTotal(PostedDocNo: Code[20]) ImporteTotal: Decimal
+    var
+        VATEntry: Record "VAT Entry";
+        TotalBaseAmount: Decimal;
+        TotalVATAmount: Decimal;
+        TotalNDBase: Decimal;
+        TotalNDAmount: Decimal;
+    begin
+        VATEntry.SetRange("Document No.", PostedDocNo);
+        VATEntry.FindSet();
+        repeat
+            TotalBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
+            if VATEntry."VAT Calculation Type" <> VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
+                TotalVATAmount += VATEntry.Amount + VATEntry."Unrealized Amount";
+            if VATEntry."Non-Deductible VAT %" <> 0 then begin
+                TotalNDBase += VATEntry."Non-Deductible VAT Base";
+                TotalNDAmount += VATEntry."Non-Deductible VAT Amount";
+            end;
+        until VATEntry.Next() = 0;
+
+        ImporteTotal := (TotalBaseAmount + TotalNDBase) + (TotalVATAmount + TotalNDAmount);
+    end;
+
+    local procedure VerifyImporteTotal(PostedDocNo: Code[20]; ImporteTotal: Decimal)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        VendorLedgerEntry.SetRange("Document No.", PostedDocNo);
+        VendorLedgerEntry.FindSet();
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(ImporteTotal));
     end;
 }
 

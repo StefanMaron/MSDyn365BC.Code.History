@@ -229,6 +229,7 @@ codeunit 99000886 "Capable to Promise"
         PlanningComponent.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         PlanningComponent.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
         PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
+        PlanningComponent.SetFilter(Quantity, '<>%1', 0);
         if PlanningComponent.FindSet() then
             repeat
                 if (PlanningComponent."Supplied-by Line No." = 0) and PlanningComponent.Critical then begin

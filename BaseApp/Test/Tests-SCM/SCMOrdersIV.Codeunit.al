@@ -166,7 +166,7 @@
         SalesLineDiscounts.SalesTypeFilter.SetValue(SalesTypeFilter);
 
         // [THEN] The page field "Sales Type" = "Customer"
-        SalesLineDiscounts.SalesType.AssertEquals(SalesTypeFilter);
+        SalesLineDiscounts."Sales Type".AssertEquals(SalesTypeFilter);
     end;
 
     [Test]
@@ -213,7 +213,7 @@
 
         // [THEN] The page field "Sales Type" = "Campaign"
         // [THEN] The page field "Sales Type Filter" = "Campaign"
-        SalesLineDiscounts.SalesType.AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
+        SalesLineDiscounts."Sales Type".AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
         SalesLineDiscounts.SalesTypeFilter.AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
     end;
 #endif

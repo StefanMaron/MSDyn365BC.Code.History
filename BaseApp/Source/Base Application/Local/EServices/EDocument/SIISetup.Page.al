@@ -93,6 +93,10 @@ page 10751 "SII Setup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies whether the new automatic sending experience is enabled. The new sending experience allows you to track sending status for job queue entries.';
                 }
+                field("Tax Period"; Rec."Tax Period")
+                {
+                    ApplicationArea = All;
+                }
             }
             group(Certificate)
             {
@@ -181,7 +185,7 @@ page 10751 "SII Setup"
                 Caption = 'Show SII History';
                 Image = History;
                 RunObject = Page "SII History";
-                                ToolTip = 'Show history of all SII communication.';
+                ToolTip = 'Show history of all SII communication.';
             }
         }
         area(Promoted)

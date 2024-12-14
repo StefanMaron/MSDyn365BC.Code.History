@@ -1051,6 +1051,19 @@ codeunit 13 "Gen. Jnl.-Post Batch"
           GenJnlLine."Incoming Document Entry No.", GenJnlLine."Posting Date", GenJnlLine."Document No.");
     end;
 
+    local procedure UnlinkIncDocFromGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        CurrGenJnlTemplate: Record "Gen. Journal Template";
+    begin
+        if GenJnlLine."Journal Template Name" = '' then
+            exit;
+        if not CurrGenJnlTemplate.Get(GenJnlLine."Journal Template Name") then
+            exit;
+        if not CurrGenJnlTemplate."Unlink Inc. Doc On Posting" then
+            exit;
+        GenJnlLine."Incoming Document Entry No." := 0;
+    end;
+
     local procedure CopyGenJnlLineBalancingData(var GenJnlLineTo: Record "Gen. Journal Line"; var GenJnlLineFrom: Record "Gen. Journal Line")
     var
         IsHandled: Boolean;
@@ -1652,6 +1665,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             GenJnlPostLine.RunWithoutCheck(GenJnlLine5);
             InsertPostedGenJnlLine(GenJournalLine);
             RemoveRecordLink(GenJournalLine);
+            UnlinkIncDocFromGenJnlLine(GenJournalLine);
         end;
         OnAfterPostGenJnlLine(GenJnlLine5, SuppressCommit, GenJnlPostLine, IsPosted, GenJournalLine);
         if (GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany) and (CurrentICPartner <> '') and
