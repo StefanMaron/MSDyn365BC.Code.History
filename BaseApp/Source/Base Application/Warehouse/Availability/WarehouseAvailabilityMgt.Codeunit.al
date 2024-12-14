@@ -992,7 +992,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             AvailabilityType::Variant:
                 ItemAvailabilityFormsMgt.ShowItemAvailabilityByVariant(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Variant Code"), WhseRcptLine."Variant Code", NewVariantCode);
             AvailabilityType::Location:
-                ItemAvailabilityFormsMgt.ShowItemAvailabilityByLocation(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Location Code"), WhseRcptLine."Location Code", NewLocationCode);
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByLocation(Item, '', WhseRcptLine."Location Code", NewLocationCode);
             AvailabilityType::"Event":
                 ItemAvailabilityFormsMgt.ShowItemAvailabilityByEvent(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Due Date"), WhseRcptLine."Due Date", NewDate, false);
             AvailabilityType::BOM:
@@ -1031,7 +1031,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             AvailabilityType::Variant:
                 ItemAvailabilityFormsMgt.ShowItemAvailabilityByVariant(Item, WhseActivLine.FieldCaption(WhseActivLine."Variant Code"), WhseActivLine."Variant Code", NewVariantCode);
             AvailabilityType::Location:
-                ItemAvailabilityFormsMgt.ShowItemAvailabilityByLocation(Item, WhseActivLine.FieldCaption(WhseActivLine."Location Code"), WhseActivLine."Location Code", NewLocationCode);
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByLocation(Item, '', WhseActivLine."Location Code", NewLocationCode);
             AvailabilityType::"Event":
                 ItemAvailabilityFormsMgt.ShowItemAvailabilityByEvent(Item, WhseActivLine.FieldCaption(WhseActivLine."Due Date"), WhseActivLine."Due Date", NewDate, false);
             AvailabilityType::BOM:

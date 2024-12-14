@@ -119,7 +119,9 @@ report 5984 "Contract Invoicing"
                         TempServiceLedgerEntry.FindSet()
                     else
                         TempServiceLedgerEntry.Next();
-                    if TempServiceLedgerEntry."Posting Date" < "Service Contract Header"."Next Invoice Date" then
+                    if (TempServiceLedgerEntry."Posting Date" < "Service Contract Header"."Next Invoice Date") and
+                        ("Service Contract Header".Prepaid) and
+                        (not ("Service Contract Header"."Invoice Period" = "Service Contract Header"."Invoice Period"::Year)) then
                         CurrReport.Skip();
                 end;
 
@@ -279,7 +281,7 @@ report 5984 "Contract Invoicing"
         InvoicePeriod := ServContractMgt.GetInvoicePeriodText(ServContrHeader."Invoice Period");
         Evaluate(DateFormula, InvoicePeriod);
         EntryNo := 0;
-        InvoiceFrom := ServContrHeader."Next Invoice Date";
+        InvoiceFrom := ServContrHeader."Next Invoice Period Start";
         InvoiceTo := CalcDate(DateFormula, InvoiceFrom);
         InvoiceTo := CalcDate('<-CM-1D>', InvoiceTo);
         OnAfterSetInvoiceDates(ServContrHeader, InvoiceFrom, InvoiceTo);
@@ -316,7 +318,9 @@ report 5984 "Contract Invoicing"
         TempServiceLedgerEntry."Posting Date" := DateFrom;
         TempServiceLedgerEntry."Contract Invoice Period" := Format(DateFrom) + DateSep + Format(DateTo);
         TempServiceLedgerEntry.Amount := CalcContrAmt("Service Contract Header", DateFrom, DateTo);
-        if DateFrom >= "Service Contract Header"."Next Invoice Date" then
+        if (DateFrom >= "Service Contract Header"."Next Invoice Date") or
+            ((not "Service Contract Header".Prepaid) and
+            ("Service Contract Header"."Invoice Period" = "Service Contract Header"."Invoice Period"::Year)) then
             InvoiceSum := InvoiceSum + TempServiceLedgerEntry.Amount;
         TempServiceLedgerEntry.Insert();
     end;

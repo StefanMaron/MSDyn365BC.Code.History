@@ -67,7 +67,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         Item.CopyFilter("Location Filter", ReqLineExtern."Location Code");
         ReqLineExtern.SetRange(Type, ReqLineExtern.Type::Item);
         ReqLineExtern.SetRange("No.", Item."No.");
-        OnCodeOnAfterSetReqLineFilters(ReqLineExtern, CurrTemplateName, CurrWorksheetName);
+        OnCodeOnAfterSetReqLineFilters(ReqLineExtern, CurrTemplateName, CurrWorksheetName, FromDate, ToDate);
         if ReqLineExtern.Find('-') then
             repeat
                 ReqLineExtern.Delete(true);
@@ -118,6 +118,8 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         OnCodeOnBeforeTempItemListInsert(TempItemList, IsHandled);
         if not IsHandled then
             TempItemList.Insert();
+
+        OnAfterCode(TempItemList, FromDate, ToDate);
     end;
 
     local procedure CalculateAndGetPlanningCompList()
@@ -347,7 +349,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterSetReqLineFilters(var ReqLineExtern: Record "Requisition Line"; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10])
+    local procedure OnCodeOnAfterSetReqLineFilters(var ReqLineExtern: Record "Requisition Line"; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; var FromDate: Date; var ToDate: Date)
     begin
     end;
 
@@ -368,6 +370,11 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
     [IntegrationEvent(false, false)]
     local procedure OnPlanThisItemOnBeforeExitMPS(var Item: Record Item; var LinesExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var TempItemList: Record Item temporary; var FromDate: Date; var ToDate: Date)
     begin
     end;
 }

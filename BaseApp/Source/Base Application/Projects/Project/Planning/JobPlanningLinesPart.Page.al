@@ -704,6 +704,19 @@ page 1015 "Job Planning Lines Part"
                         this.InsertExtendedText(true);
                     end;
                 }
+                action(ExplodeBOM_Functions)
+                {
+                    AccessByPermission = TableData "BOM Component" = R;
+                    ApplicationArea = Suite;
+                    Caption = 'E&xplode BOM';
+                    Image = ExplodeBOM;
+                    ToolTip = 'Add a line for each component on the bill of materials for the selected item. For example, this is useful for selling the parent item as a kit. CAUTION: The line for the parent item will be deleted and only its description will display. To undo this action, delete the component lines and add a line for the parent item again.';
+
+                    trigger OnAction()
+                    begin
+                        ExplodeBOM();
+                    end;
+                }
                 action(SelectMultiItems)
                 {
                     AccessByPermission = TableData Item = R;
@@ -989,6 +1002,11 @@ page 1015 "Job Planning Lines Part"
             exit(TypeFieldEditable);
 
         exit(Rec."Qty. Transferred to Invoice" = 0);
+    end;
+
+    local procedure ExplodeBOM()
+    begin
+        Codeunit.Run(Codeunit::"Job-Explode BOM", Rec);
     end;
 
     [IntegrationEvent(true, false)]

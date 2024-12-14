@@ -42,7 +42,10 @@ codeunit 32000000 "Ref. Payment Management"
 
     [Scope('OnPrem')]
     procedure SetLines(RefPaymentImported: Record "Ref. Payment - Imported"; JnlBatchName: Code[20]; JnlTemplateName: Code[20])
+    var
+        LineNoIncrement: Integer;
     begin
+        LineNoIncrement := 10000;
         GLSetup.Get();
         GenJnlTemplate.Get(JnlTemplateName);
 
@@ -50,11 +53,12 @@ codeunit 32000000 "Ref. Payment Management"
         GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
         GenJnlLine.SetFilter("Journal Template Name", JnlTemplateName);
         GenJnlLine.SetFilter("Journal Batch Name", JnlBatchName);
-        if GenJnlLine.FindLast() then begin
-            LineNro := GenJnlLine."Line No." + 10000;
-            LastDocNro := IncStr(GenJnlLine."Document No.");
-        end else
+        if GenJnlLine.FindLast() then
+            LastDocNro := IncStr(GenJnlLine."Document No.")
+        else
             GetNroSeries(JnlBatchName, JnlTemplateName);
+        OnBeforeSetLineNo(LineNoIncrement, GenJnlLine);
+        LineNro := GenJnlLine."Line No." + LineNoIncrement;
 
         RefPaymentImported.Ascending(true);
         RefPaymentImported.SetRange("Posted to G/L", false);
@@ -99,7 +103,7 @@ codeunit 32000000 "Ref. Payment Management"
                     GenJnlLine.Validate("Bal. Account No.", GetBalAccountNo(GenJnlLine, AccCode, CustLedgEntry));
                     OnSetLinesOnBeforeGenJnlLineInsert(CustLedgEntry, GenJnlLine);
                     GenJnlLine.Insert(true);
-                    LineNro := LineNro + 10000;
+                    LineNro += LineNoIncrement;
                     LastDocNro := IncStr(LastDocNro);
                 end;
             until RefPaymentImported.Next() = 0;
@@ -435,6 +439,11 @@ codeunit 32000000 "Ref. Payment Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetLinesOnBeforeGenJnlLineInsert(CustLedgEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLineNo(var LineNoIncrement: Integer; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

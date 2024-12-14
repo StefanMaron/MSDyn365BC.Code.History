@@ -275,6 +275,28 @@ table 1523 "Workflow Step Argument"
         end;
     end;
 
+    procedure GetNotificationUserId(Variant: Variant): Text[50]
+    var
+        ApprovalEntry: Record "Approval Entry";
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Variant);
+        if RecRef.Number = Database::"Approval Entry" then begin
+            ApprovalEntry := Variant;
+            if "Notification User ID" <> '' then
+                exit("Notification User ID");
+            if "Notify Sender" then
+                exit(ApprovalEntry."Sender ID");
+            exit(ApprovalEntry."Approver ID");
+        end;
+
+        if "Notify Sender" then
+            exit(CopyStr(UserId(), 1, 50));
+        exit("Notification User ID");
+    end;
+
+#if not CLEAN26
+    [Obsolete('Use GetNotificationUserId(var Variant: Variant): Text[50] instead.', '26.0')]
     procedure GetNotificationUserID(ApprovalEntry: Record "Approval Entry") NotificationUserID: Text[50]
     begin
         if "Notification User ID" <> '' then
@@ -283,7 +305,7 @@ table 1523 "Workflow Step Argument"
             exit(ApprovalEntry."Sender ID");
         exit(ApprovalEntry."Approver ID");
     end;
-
+#endif
     procedure GetNotificationUserName(): Text
     begin
         if "Notify Sender" then
