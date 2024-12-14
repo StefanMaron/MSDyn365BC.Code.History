@@ -846,7 +846,7 @@ codeunit 10860 "Payment Management"
     procedure StepSelect(Process: Text[30]; NextStatus: Integer; var Step: Record "Payment Step"; CreateDocumentFilter: Boolean) OK: Boolean
     var
         PaymentClass: Record "Payment Class";
-        Options: Text[250];
+        Options: Text;
         Choice: Integer;
         i: Integer;
     begin
