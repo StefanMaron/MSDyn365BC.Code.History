@@ -415,7 +415,8 @@ report 7391 "Whse. Get Bin Content"
                         end;
                     end;
                     WarehouseEntry.Find('+');
-                    WarehouseEntry.ClearTrackingFilter();
+                    if WarehouseEntry.Quantity > 0 then
+                        WarehouseEntry.ClearTrackingFilter();
                 end;
                 if DestinationType2 in [DestinationType2::ItemJournalLine, DestinationType2::TransferHeader] then
                     InsertTempTrackingSpecification(WarehouseEntry, TrackedQtyToEmptyBase, TempTrackingSpecification);
