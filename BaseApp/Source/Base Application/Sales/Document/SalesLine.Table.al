@@ -2393,6 +2393,8 @@ table 37 "Sales Line"
 
                 if Type = Type::Item then begin
                     GetUnitCost();
+                    if "Document Type" = "Document Type"::"Return Order" then
+                        ValidateReturnReasonCode(FieldNo("Variant Code"));
                     if "Variant Code" <> xRec."Variant Code" then
                         PlanPriceCalcByField(FieldNo("Variant Code"));
                 end;
@@ -8322,8 +8324,10 @@ table 37 "Sales Line"
         Currency2: Record Currency;
     begin
         Currency2.InitRoundingPrecision();
-        "Shipped Not Inv. (LCY) No VAT" :=
-          Round("Shipped Not Invoiced (LCY)" / (1 + "VAT %" / 100), Currency2."Amount Rounding Precision");
+        if Rec."VAT Calculation Type" = Rec."VAT Calculation Type"::"Full VAT" then
+            Rec."Shipped Not Inv. (LCY) No VAT" := 0
+        else
+            Rec."Shipped Not Inv. (LCY) No VAT" := Round("Shipped Not Invoiced (LCY)" / (1 + "VAT %" / 100), Currency2."Amount Rounding Precision");
     end;
 
     procedure ClearSalesHeader()
