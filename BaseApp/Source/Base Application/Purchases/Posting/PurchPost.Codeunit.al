@@ -4326,6 +4326,8 @@ codeunit 90 "Purch.-Post"
             ItemChargeAssgntPurch."Amount to Handle" :=
               Round(ItemChargeAssgntPurch."Qty. to Handle" * ItemChargeAssgntPurch."Unit Cost", Currency."Amount Rounding Precision");
             ItemChargeAssgntPurch.Modify();
+            if ItemChargeAssgntPurch."Qty. Assigned" = PurchOrderLine.Quantity then
+                DeleteItemChargeLines(ItemChargeAssgntPurch);
         end else begin
             ItemChargeAssgntPurch.SetRange("Applies-to Doc. Type");
             ItemChargeAssgntPurch.SetRange("Applies-to Doc. No.");
@@ -9094,6 +9096,12 @@ codeunit 90 "Purch.-Post"
     begin
         if NoSeries.Get(NoSeriesCode) then
             NoSeries.TestField("Default Nos.", true);
+    end;
+
+    local procedure DeleteItemChargeLines(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssgntPurch.SetFilter("Applies-to Doc. Line No.", '<>%1', ItemChargeAssgntPurch."Applies-to Doc. Line No.");
+        ItemChargeAssgntPurch.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

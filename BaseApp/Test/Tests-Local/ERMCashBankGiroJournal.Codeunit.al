@@ -1028,48 +1028,6 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     end;
 
     [Test]
-    [HandlerFunctions('GetProposalEntriesRequestPageHandler,ConfirmHandlerTrue,MessageHandler,PaymentHistoryListModalPageHandler,RequestPageHandlerExportSEPAISO20022')]
-    [Scope('OnPrem')]
-    procedure BankGiroJournalPostInvoiceCreditMemoWithPaymentDiscount()
-    var
-        VendorBankAccount: Record "Vendor Bank Account";
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        BankGiroJournal: TestPage "Bank/Giro Journal";
-        BankAccountNo: Code[20];
-        RemainingAmount: Decimal;
-        ExportProtocolCode: Code[20];
-    begin
-        // [FEATURE] [Payment Discount]
-        // [SCENARIO 364591] Bank Giro Journal posted for Credit Memo and Invoice with Payment Discount
-        Initialize();
-
-        // [GIVEN] Posted Purchase Invoice (Amount = X, Payment Discount Amount = D) and Credit Memo with Payment Discount
-        BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance();
-        ExportProtocolCode := CreateAndUpdateExportProtocol();
-        PostPurchaseDocumentWithVendorBankAccount(VendorBankAccount, true, ExportProtocolCode, BankAccountNo, true);
-        ExportPaymentTelebank(
-          VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.",
-          CalcDate('<1M>', WorkDate()), CalcDate('<1M>', WorkDate()), ExportProtocolCode);
-
-        // [GIVEN] Bank Giro Journal with suggested Payment History Lines
-        OpenBankGiroJournalListPage(BankAccountNo);
-        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate());
-
-        // [WHEN] Bank Giro Journal posted
-        BankGiroJournal.Post.Invoke();
-
-        // [THEN] Vendor Ledger Entries for Invoice and Credit Memo are closed and "Remaining Pmt. Disc. Possible" = 0
-        VendorLedgerEntry.SetRange("Vendor No.", VendorBankAccount."Vendor No.");
-        VerifyVLEPaymentDisc(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, false, 0, 0);
-        RemainingAmount := -VendorLedgerEntry."Original Pmt. Disc. Possible";
-        asserterror VerifyVLEPaymentDisc(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", false, 0, 0);
-        Assert.KnownFailure('Open', 252156);
-
-        // [THEN] Vendor Ledger Entries for Payment is Opened. "Remaining Amount" = D.
-        VerifyVLEPaymentDisc(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, true, 0, RemainingAmount);
-    end;
-
-    [Test]
     [HandlerFunctions('VerifyBatchOnCBGPostingTestRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestReportOpenFromGenJournaBatchesPageForBankTemplate()

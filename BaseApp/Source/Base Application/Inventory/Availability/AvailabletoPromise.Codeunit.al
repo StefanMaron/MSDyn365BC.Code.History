@@ -598,9 +598,9 @@ codeunit 5790 "Available to Promise"
 
         if TransferLine.FindLinesWithItemToPlan(Item, true, false) then
             repeat
-                TransferLine.CalcFields("Reserved Qty. Inbnd. (Base)");
+                TransferLine.CalcFields("Reserved Qty. Inbnd. (Base)", "Reserved Qty. Shipped (Base)");
                 UpdateScheduledReceipt(AvailabilityAtDate, TransferLine."Receipt Date",
-                  TransferLine."Outstanding Qty. (Base)" + TransferLine."Qty. Shipped (Base)" - TransferLine."Qty. Received (Base)" - TransferLine."Reserved Qty. Inbnd. (Base)");
+                  TransferLine."Outstanding Qty. (Base)" + TransferLine."Qty. Shipped (Base)" - TransferLine."Qty. Received (Base)" - TransferLine."Reserved Qty. Inbnd. (Base)" - TransferLine."Reserved Qty. Shipped (Base)");
             until TransferLine.Next() = 0;
     end;
 

@@ -1714,6 +1714,41 @@ codeunit 144103 "Test SEPA CT v09"
           '//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:CdtrAcct/ns:Id/ns:IBAN', FormatIBAN(VendorBankAccount.IBAN));
     end;
 
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    procedure VerifyVendorNameNotExceed70Character()
+    var
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        ExportProtocolCode: Code[20];
+        FileName: Text;
+        NameSpace: Text;
+        TotalAmount: Decimal;
+        NoOfDocuments: Integer;
+    begin
+        // [SCENARIO 555372] Recipient Name should not be greater than 70 character
+        Initialize();
+
+        // [GIVEN] Export protocol with "SEPA CT pain.001.001.09" xml port
+        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol();
+
+        // [GIVEN] Vendor entry for export
+        SetupForExport(BankAccount, VendorBankAccount, ExportProtocolCode, TotalAmount, NoOfDocuments);
+
+        // [WHEN] Run xml export
+        GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
+
+        // [THEN] Xml file is exported with namespace 'xmlns:xsi=http://www.w3.org/2001/XMLSchemainstance'
+        FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
+
+        // [THEN] Verify the Recipient Name not exceed 70 characters
+        NameSpace := GetSEPACTNameSpace();
+        XMLReadHelper.Initialize(FileName, NameSpace);
+        VendorBankAccount."Account Holder Name" := '+' + CopyStr(VendorBankAccount."Account Holder Name", 2); // '&'
+        XMLReadHelper.VerifyNodeValueByXPath(
+         '//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:Nm', CopyStr(VendorBankAccount."Account Holder Name", 1, 70));
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";

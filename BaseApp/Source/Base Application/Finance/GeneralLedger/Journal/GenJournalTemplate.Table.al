@@ -330,6 +330,10 @@ table 80 "Gen. Journal Template"
         {
             Caption = 'Allow Posting Date To';
         }
+        field(34; "Unlink Inc. Doc On Posting"; Boolean)
+        {
+            Caption = 'Unlink Incoming Documents On Posting';
+        }
         field(11402; "No. of CBG Statements"; Integer)
         {
             CalcFormula = Count("CBG Statement" where("Journal Template Name" = field(Name)));
