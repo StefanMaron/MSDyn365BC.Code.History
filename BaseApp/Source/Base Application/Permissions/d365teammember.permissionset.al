@@ -1040,7 +1040,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Job Queue Entry Buffer" = RIMD,
                   tabledata "Job Queue Log Entry" = RIMD,
                   tabledata "Job Queue Role Center Cue" = RIMD,
-                  tabledata "Job Queue Notification Setup" = RM,
+                  tabledata "Job Queue Notification Setup" = RIMD,
                   tabledata "Job Queue Notified Admin" = RM,
                   tabledata "Job Register" = Rm,
 #if not CLEAN25

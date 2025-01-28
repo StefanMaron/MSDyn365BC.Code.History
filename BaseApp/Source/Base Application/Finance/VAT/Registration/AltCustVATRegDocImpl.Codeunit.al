@@ -166,7 +166,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
         exit(AltCustVATRegFacade.GetAlternativeCustVATReg(AltCustVATReg, Customer."No.", SalesHeader."VAT Country/Region Code"));
     end;
 
-    local procedure ConfirmChanges(SalesHeader: Record "Sales Header") Confirmed: Boolean
+    local procedure ConfirmChanges(var SalesHeader: Record "Sales Header") Confirmed: Boolean
     var
         TempChangeLogEntry: Record "Change Log Entry" temporary;
         ConfirmAltCustVATRegPage: Page "Confirm Alt. Cust. VAT Reg.";
@@ -174,7 +174,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
         FeatureTelemetry.LogUsage('0000NHM', FeatureNameTxt, 'Confirm changes');
         if not BuildFieldChangeBuffer(TempChangeLogEntry, SalesHeader) then
             exit(true);
-        if not GuiAllowed() then
+        if (not GuiAllowed()) or SalesHeader.GetHideValidationDialog() then
             exit(true);
         if not ShowConfirmation() then
             exit(true);

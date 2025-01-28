@@ -3007,6 +3007,7 @@ codeunit 80 "Sales-Post"
                             PurchOrderHeader.TestField("Receiving No. Series");
                             PurchOrderHeader."Receiving No." :=
                               NoSeries.GetNextNo(PurchOrderHeader."Receiving No. Series", SalesHeader."Posting Date");
+                            OnUpdateAssosOrderPostingNosOnBeforeModifyPurchOrderHeader(PurchOrderHeader, SalesHeader);
                             PurchOrderHeader.Modify();
                         end;
                         OnUpdateAssosOrderPostingNosOnAfterReleasePurchaseDocument(PurchOrderHeader, SalesHeader);
@@ -12769,6 +12770,11 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertShptEntryRelationOnBeforeDeleteTempHandlingSpecification(var TempHandlingTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAssosOrderPostingNosOnBeforeModifyPurchOrderHeader(var PurchaseOrderHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header")
     begin
     end;
 }

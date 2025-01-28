@@ -179,9 +179,16 @@ codeunit 56 "Sales - Calc Discount By Type"
             SalesHeader."Invoice Discount Calculation"::Amount:
                 exit(SalesHeader."Invoice Discount Value" <> 0);
             SalesHeader."Invoice Discount Calculation"::"%":
-                exit(true);
+                begin
+                    if not InvoiceDiscServiceChargeIsAllowed(SalesHeader."Invoice Disc. Code") then
+                        exit(false);
+                    exit(true);
+                end;
             SalesHeader."Invoice Discount Calculation"::None:
                 begin
+                    if not InvoiceDiscServiceChargeIsAllowed(SalesHeader."Invoice Disc. Code") then
+                        exit(false);
+
                     if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
                         exit(true);
 
@@ -235,6 +242,26 @@ codeunit 56 "Sales - Calc Discount By Type"
         SalesLine.CalcSums(Amount, "Amount Including VAT", "Inv. Discount Amount");
         AmountIncludingVATDiscountAllowed := SalesLine."Amount Including VAT";
         AmountDiscountAllowed := SalesLine.Amount + SalesLine."Inv. Discount Amount";
+    end;
+
+    local procedure InvoiceDiscServiceChargeIsAllowed(InvDiscCode: Code[20]): Boolean
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        if not SalesReceivablesSetup."Calc. Inv. Discount" then
+            if CustInvDiscServiceChargeExists(InvDiscCode) then
+                exit(false);
+        exit(true);
+    end;
+
+    local procedure CustInvDiscServiceChargeExists(InvDiscCode: Code[20]): Boolean
+    var
+        CustInvDisc: Record "Cust. Invoice Disc.";
+    begin
+        CustInvDisc.SetRange(Code, InvDiscCode);
+        CustInvDisc.SetFilter("Service Charge", '<>%1', 0);
+        exit(not CustInvDisc.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]
