@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
@@ -438,6 +438,12 @@ page 44 "Sales Credit Memo"
                     ApplicationArea = VAT;
                     Importance = Additional;
                     ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                }
+                field("Enterprise No."; Rec."Enterprise No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the enterprise number for customers';
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {

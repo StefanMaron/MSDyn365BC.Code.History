@@ -397,7 +397,6 @@ table 846 "Cash Flow Worksheet Line"
             "Cash Flow Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
     end;
 
-    [Scope('OnPrem')]
     procedure ShowSource()
     var
         CFManagement: Codeunit "Cash Flow Management";

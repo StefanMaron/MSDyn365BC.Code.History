@@ -524,20 +524,31 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     end;
 
     local procedure MoveAmounts(var PurchaseLine: Record "Purchase Line"; var AllocationPurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; var AllocationAccount: Record "Allocation Account")
-    var
-        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
-        AmountRoundingPrecision: Decimal;
     begin
         PurchaseLine."Unit Cost" := AllocationPurchaseLine."Unit Cost";
 
         if AllocationAccount."Document Lines Split" = AllocationAccount."Document Lines Split"::"Split Amount" then begin
-            AmountRoundingPrecision := AllocationAccountMgt.GetCurrencyRoundingPrecision(PurchaseLine."Currency Code");
-            PurchaseLine.Validate("Direct Unit Cost", Round(AllocationLine.Amount / PurchaseLine.Quantity, AmountRoundingPrecision));
-            PurchaseLine.Validate("Line Amount", AllocationLine.Amount);
+            PurchaseLine.Validate("Direct Unit Cost", GetUnitPrice(PurchaseLine, AllocationLine.Amount));
+            PurchaseLine."Line Amount" := AllocationLine.Amount;
         end else begin
             PurchaseLine.Validate("Direct Unit Cost", AllocationPurchaseLine."Direct Unit Cost");
             PurchaseLine."Line Amount" := AllocationPurchaseLine."Line Amount";
         end;
+    end;
+
+    local procedure GetUnitPrice(var PurchaseLine: Record "Purchase Line"; AllocationLineAmount: Decimal): Decimal
+    var
+        PurchaseHeader: Record "Purchase Header";
+        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
+        AmountRoundingPrecision: Decimal;
+    begin
+        PurchaseHeader.ReadIsolation := IsolationLevel::ReadUncommitted;
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        if PurchaseHeader."Prices Including VAT" then
+            AllocationLineAmount += AllocationLineAmount * PurchaseLine."VAT %" / 100;
+
+        AmountRoundingPrecision := AllocationAccountMgt.GetCurrencyRoundingPrecision(PurchaseLine."Currency Code");
+        exit(Round(AllocationLineAmount / PurchaseLine.Quantity, AmountRoundingPrecision));
     end;
 
     local procedure GetNextLine(var AllocationPurchaseLine: Record "Purchase Line"): Integer

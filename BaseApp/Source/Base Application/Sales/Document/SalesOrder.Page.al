@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.Setup;
@@ -458,6 +458,12 @@ page 42 "Sales Order"
                     ApplicationArea = VAT;
                     Importance = Additional;
                     ToolTip = 'Specifies the VAT registration number for customers.';
+                }
+                field("Enterprise No."; Rec."Enterprise No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the enterprise number for customers';
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {

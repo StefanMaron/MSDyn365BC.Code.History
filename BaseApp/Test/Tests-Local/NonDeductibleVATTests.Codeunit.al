@@ -1631,6 +1631,13 @@ codeunit 144000 "Non-Deductible VAT Tests"
         VerifyVATEntryLCYAndACYAmounts(
           PurchInvHeader."Buy-from Vendor No.", PurchInvHeader."No.",
           VATBase, VATAmount, NonDedVATAmount, 0, 0, 0);
+
+        // [THEN] VAT Statement Line has following Base and Amount:
+        // [THEN] InclNonDeductibleVAT = FALSE, UseAmtsInAddCurr = FALSE: Base = 1080, Amount = 120
+        // [THEN] InclNonDeductibleVAT = TRUE, UseAmtsInAddCurr = FALSE: Base = 1000, Amount = 200
+        // [THEN] InclNonDeductibleVAT = FALSE, UseAmtsInAddCurr = TRUE: Base = 0, Amount = 0
+        // [THEN] InclNonDeductibleVAT = TRUE, UseAmtsInAddCurr = TRUE: Base = 0, Amount = 0
+        VerifyVATStatementAmountsLCYAndACY(VATPostingSetup, VATBase, VATAmount, NonDedVATAmount, 0, 0, 0);
     end;
 
     [Test]
@@ -1681,7 +1688,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [THEN] InclNonDeductibleVAT = TRUE, UseAmtsInAddCurr = FALSE: Base = 10000, Amount = 2000
         // [THEN] InclNonDeductibleVAT = FALSE, UseAmtsInAddCurr = TRUE: Base = 0, Amount = 0
         // [THEN] InclNonDeductibleVAT = TRUE, UseAmtsInAddCurr = TRUE: Base = 0, Amount = 0
-        VerifyVATStatementAmountLCYAndACY(VATPostingSetup, VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, 0, 0, 0);
+        VerifyVATStatementAmountsLCYAndACY(VATPostingSetup, VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, 0, 0, 0);
     end;
 
     [Test]
@@ -1731,7 +1738,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [THEN] InclNonDeductibleVAT = TRUE, UseAmtsInAddCurr = FALSE: Base = 1000, Amount = 200
         // [THEN] InclNonDeductibleVAT = FALSE, UseAmtsInAddCurr = TRUE: Base = 10800, Amount = 1200
         // [THEN] InclNonDeductibleVAT = TRUE, UseAmtsInAddCurr = TRUE: Base = 10000, Amount = 2000
-        VerifyVATStatementAmountLCYAndACY(
+        VerifyVATStatementAmountsLCYAndACY(
           VATPostingSetup,
           VATBase, VATAmount, NonDedVATAmount,
           VATBaseACY, VATAmountACY, NonDedVATAmountACY);
@@ -3914,18 +3921,6 @@ codeunit 144000 "Non-Deductible VAT Tests"
         JobLedgerEntry.FindLast();
         Assert.AreNearlyEqual(ExpectedAmount, JobLedgerEntry."Unit Cost", 0.01, 'Invalid Unit Cost');
         Assert.AreNearlyEqual(JobLedgerEntry.Quantity * JobLedgerEntry."Unit Cost", JobLedgerEntry."Total Cost", 0.01, 'Invalid Total Cost');
-    end;
-
-    local procedure VerifyVATStatementAmountLCYAndACY(VATPostingSetup: Record "VAT Posting Setup"; ExpectedBase: Decimal; ExpectedAmount: Decimal; NonDedVATAmount: Decimal; ExpectedBaseACY: Decimal; ExpectedAmountACY: Decimal; NonDedVATAmountACY: Decimal)
-    begin
-        VerifyVATStatementAmounts(
-          VATPostingSetup, ExpectedBase, ExpectedAmount, true, false);
-        VerifyVATStatementAmounts(
-          VATPostingSetup, ExpectedBaseACY, ExpectedAmountACY, true, true);
-        VerifyVATStatementAmounts(
-          VATPostingSetup, ExpectedBase - NonDedVATAmount, ExpectedAmount + NonDedVATAmount, false, false);
-        VerifyVATStatementAmounts(
-          VATPostingSetup, ExpectedBaseACY - NonDedVATAmountACY, ExpectedAmountACY + NonDedVATAmountACY, false, true);
     end;
 
     [ModalPageHandler]

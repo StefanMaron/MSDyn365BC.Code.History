@@ -26,6 +26,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         FieldNotVisibleErr: Label 'Field must be visible.';
         StdCodeDeleteConfirmLbl: Label 'If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?';
         CompanyBankAccountCodeErr: Label 'The Company Bank Account Code is missing on Sales Invoice.';
+        DateErr: Label '%1 must be %2 in %3.', Comment = '%1= Field Caption, %2= Field Value, %3=Table Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1146,6 +1147,60 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
 
         // [THEN] "Allocation Account List" page is run includes Allocation Account "A" (AllocationAccountListPageHandler)
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure QuoteToOrderAutomaticSalesOrderRespectsWorkDate()
+    var
+        PaymentTerms: Record "Payment Terms";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesQuoteToOrder: Codeunit "Sales-Quote to Order";
+    begin
+        // [SCENARIO 549141]  Document Date and Due Date is updated when creating a Sales Order from a Quote.
+        Initialize();
+
+        // [GIVEN] Validate Link Doc. Date To Posting Date and Default Posting Date in Sales and Receivables Setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Validate("Default Posting Date", SalesReceivablesSetup."Default Posting Date"::"Work Date");
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create new Sales Quote for a Customer.
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader[1], LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create Payment Terms Code.
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+
+        // [GIVEN] Validate Payment Terms Code in Sales Header.
+        SalesHeader[1].Validate(SalesHeader[1]."Payment Terms Code", PaymentTerms.Code);
+        SalesHeader[1].Modify(true);
+
+        // [WHEN] Run Sales-Quote to Order.
+        SalesQuoteToOrder.Run(SalesHeader[1]);
+
+        // [THEN] Order created with no errors.
+        SalesQuoteToOrder.GetSalesOrderHeader(SalesHeader[2]);
+
+        // [THEN] Document Date should be updated as per Work Date.
+        Assert.AreEqual(
+            WorkDate(),
+            SalesHeader[2]."Document Date",
+            StrSubstNo(
+                DateErr,
+                SalesHeader[2].FieldCaption("Document Date"),
+                WorkDate(),
+                SalesHeader[2].TableCaption()));
+
+        // [THEN] Due Date should be updated as per Work Date.
+        Assert.AreEqual(
+            CalcDate(PaymentTerms."Due Date Calculation", WorkDate()),
+            SalesHeader[2]."Due Date",
+            StrSubstNo(
+                DateErr,
+                SalesHeader[2].FieldCaption("Document Date"),
+                WorkDate(),
+                SalesHeader[2].TableCaption()));
     end;
 
     local procedure Initialize()

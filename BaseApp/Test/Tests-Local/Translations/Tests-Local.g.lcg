@@ -5,6 +5,42 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 1555283369 - NamedType 3551190662" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The VAT country is different than the customer's. Do you want to add an alternative VAT registration for this VAT country?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust. VAT Doc. BE Tests - NamedType AddAlternativeCustVATRegQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1555283369 - NamedType 2332186252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to change %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = change what]D;]A;(LookupHint=Codeunit Alt. Cust. VAT Doc. BE Tests - NamedType ChangeQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1555283369 - NamedType 715993174" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The following fields have been updated from the customer card: Enterprise No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = list of the fields]D;]A;(LookupHint=Codeunit Alt. Cust. VAT Doc. BE Tests - NamedType EnterpriseNoTakenFromCustomerMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1555283369 - NamedType 3104469869" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The country for the address is different than the customer's. Do you want to add an alternative VAT registration for the customer?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust. VAT Doc. BE Tests - NamedType ShipToAddAlternativeCustVATRegQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 204062033 - NamedType 565480431" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The account must be a vendor, customer or employee account.]]></Val>

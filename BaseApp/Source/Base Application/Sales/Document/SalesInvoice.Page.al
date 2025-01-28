@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Bank.Setup;
 using Microsoft.CRM.Contact;
@@ -437,6 +437,12 @@ page 43 "Sales Invoice"
                     ApplicationArea = VAT;
                     Importance = Additional;
                     ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                }
+                field("Enterprise No."; Rec."Enterprise No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the enterprise number for customers';
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {

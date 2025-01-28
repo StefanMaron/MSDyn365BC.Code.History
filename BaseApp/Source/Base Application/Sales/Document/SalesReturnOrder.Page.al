@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Document;
+namespace Microsoft.Sales.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
@@ -378,6 +378,12 @@ page 6630 "Sales Return Order"
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                }
+                field("Enterprise No."; Rec."Enterprise No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the enterprise number for customers';
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {

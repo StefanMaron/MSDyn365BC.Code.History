@@ -423,7 +423,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         PurchaseHeader: Record "Purchase Header";
     begin
         OnBeforeGetUnpostedSalesPurchaseDocType(IncomingDocumentAttachment, IncomingDocument, RelatedDocumentType);
-        if RelatedDocumentType <> RelatedDocumentType::" " then
+        if not (RelatedDocumentType in [RelatedDocumentType::" ", RelatedDocumentType::Journal]) then
             exit;
 
         case IncomingDocumentAttachment.GetRangeMin("Document Table No. Filter") of

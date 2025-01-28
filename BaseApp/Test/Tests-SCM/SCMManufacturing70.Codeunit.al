@@ -3210,6 +3210,38 @@ codeunit 137063 "SCM Manufacturing 7.0"
                 FamilyLine.TableCaption()));
     end;
 
+    [Test]
+    procedure ProdutionBOMVersionIsCertifedIfAnotherVersionIsClosedContainBOMLoop()
+    var
+        ChildItem: Record Item;
+        GrandParentItem: Record Item;
+        GrandProductionBOMHeader: Record "Production BOM Header";
+        ParentItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMVersion: array[2] of Record "Production BOM Version";
+    begin
+        // [SCENARIO 537287] New version of production BOM gets certified if there is another closed version containing BOM loop.
+        Initialize();
+
+        // [GIVEN] Create two level of Item Hierarchy.
+        CreateItemHierarchy(ProductionBOMHeader, ParentItem, ChildItem, LibraryRandom.RandInt(5));
+        CreateItemHierarchy(GrandProductionBOMHeader, GrandParentItem, ParentItem, LibraryRandom.RandInt(5));
+
+        // [GIVEN] Create version one of production bom, add parent item and marked status as closed.
+        CreateBOMVersionAndClosed(ParentItem, ProductionBOMVersion[1], ProductionBOMHeader);
+
+        // [GIVEN] Create version two of production bom.
+        CreateBOMVersionUsingCopyBOM(ParentItem."Base Unit of Measure", ProductionBOMVersion[2], ProductionBOMHeader, Format(LibraryRandom.RandIntInRange(2, 2)));
+
+        // [WHEN] When update quantity in version two of bom.
+        FindProductionBOMLine(ProductionBOMHeader, ProductionBOMVersion[2], ChildItem."No.", ProductionBOMLine);
+        UpdateProductionBOMLineByField(ProductionBOMLine, ProductionBOMLine.FieldNo(Quantity), LibraryRandom.RandIntInRange(3, 5));
+
+        // [THEN] Version two of production bom gets certified.
+        UpdateStatusOnProductionBOMVersion(ProductionBOMVersion[2], ProductionBOMVersion[2].Status::Certified);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5606,6 +5638,69 @@ codeunit 137063 "SCM Manufacturing 7.0"
         LibraryManufacturing.CreateFamilyLine(FamilyLine[4], Family."No.", Item."No.", LibraryRandom.RandIntInRange(6, 6));
         FamilyLine[4].Validate("Unit of Measure Code", UnitOfMeasure3.Code);
         FamilyLine[4].Modify(true);
+    end;
+
+    local procedure CreateBOMVersionAndClosed(
+        ParentItem: Record Item;
+        ProductionBOMVersion: Record "Production BOM Version";
+        ProductionBOMHeader: Record "Production BOM Header")
+    begin
+        CreateBOMVersionUsingCopyBOM(ParentItem."Base Unit of Measure", ProductionBOMVersion, ProductionBOMHeader, Format(LibraryRandom.RandInt(0)));
+        AddProductionBOMLine(ProductionBOMHeader, ProductionBOMVersion, ParentItem."No.");
+        UpdateStatusOnProductionBOMVersion(ProductionBOMVersion, ProductionBOMVersion.Status::Closed);
+    end;
+
+    local procedure CreateBOMVersionUsingCopyBOM(
+        BaseUnitOfMeasure: Code[10];
+        var ProductionBOMVersion: Record "Production BOM Version";
+        ProductionBOMHeader: Record "Production BOM Header"; VersionCode: Code[20])
+    var
+        ProductionBOMCopy: Codeunit "Production BOM-Copy";
+    begin
+        LibraryManufacturing.CreateProductionBOMVersion(
+            ProductionBOMVersion, ProductionBOMHeader."No.",
+            VersionCode, BaseUnitOfMeasure);
+        ProductionBOMCopy.CopyBOM(
+            ProductionBOMVersion."Production BOM No.", '',
+            ProductionBOMHeader, ProductionBOMVersion."Version Code");
+    end;
+
+    local procedure AddProductionBOMLine(ProductionBOMHeader: Record "Production BOM Header"; ProductionBOMVersion: Record "Production BOM Version"; ItemNo: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine, ProductionBOMVersion."Version Code",
+            ProductionBOMLine.Type::Item, ItemNo, LibraryRandom.RandInt(0));
+    end;
+
+    local procedure UpdateStatusOnProductionBOMVersion(var ProductionBOMVersion: Record "Production BOM Version"; Status: Enum "BOM Status")
+    begin
+        ProductionBOMVersion.Validate(Status, Status);
+        ProductionBOMVersion.Modify(true);
+    end;
+
+    local procedure FindProductionBOMLine(
+        ProductionBOMHeader: Record "Production BOM Header"; ProductionBOMVersion: Record "Production BOM Version";
+        ItemNo: Code[20]; var ProductionBOMLine: Record "Production BOM Line");
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+        ProductionBOMLine.SetRange("Version Code", ProductionBOMVersion."Version Code");
+        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
+        ProductionBOMLine.SetRange("No.", ItemNo);
+        ProductionBOMLine.FindLast();
+    end;
+
+    local procedure UpdateProductionBOMLineByField(var ProductionBOMLine: Record "Production BOM Line"; FieldNo: Integer; Value: Variant)
+    var
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        RecRef.GetTable(ProductionBOMLine);
+        FieldRef := RecRef.Field(FieldNo);
+        FieldRef.Validate(Value);
+        RecRef.SetTable(ProductionBOMLine);
+        ProductionBOMLine.Modify(true);
     end;
 }
 

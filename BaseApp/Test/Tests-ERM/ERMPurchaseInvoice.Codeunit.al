@@ -62,6 +62,7 @@
         CannotAllowInvDiscountErr: Label 'The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".';
         DocumentNoErr: Label 'Document No. are not equal.';
         AmountZeroErr: Label 'Amount must be zero';
+        AmountMustSameErr: Label 'Amount must be same';
 
     [Test]
     [Scope('OnPrem')]
@@ -3221,6 +3222,36 @@
 
         // [THEN] Verify the 0 amount G/l entry posted.
         Assert.AreEqual(0, GLEntry.Amount, AmountZeroErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AmountUpdatedInPurchInvEntityAggregateTableWhenPurchInvHasLastLineAsGLAccount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
+        LineAmtGLAccount: Decimal;
+        LineAmtItem: Decimal;
+        TotalAmountIncludingVAT: Decimal;
+    begin
+        // [SCENARIO 557775] Amount not updated in Purch. Inv. Entity Aggregate Table 5477 when last line of the Purchase Invoice has type G/L Account
+        Initialize();
+
+        // [GIVEN] Create Purchase Header and 2 Purchase Line, 1st line type with Item
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LineAmtItem := CreatePurchLineWithReturnAmt(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem());
+        TotalAmountIncludingVAT := PurchaseLine."Amount Including VAT";
+
+        // [WHEN] 2nd line type with G/L Account
+        LineAmtGLAccount := CreatePurchLineWithReturnAmt(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        TotalAmountIncludingVAT += PurchaseLine."Amount Including VAT";
+
+        // [THEN] Verify Amount and "Amount Including VAT" as same as total amounts on purchase lines
+        PurchInvEntityAggregate.SetRange("No.", PurchaseHeader."No.");
+        PurchInvEntityAggregate.FindFirst();
+        Assert.AreEqual(LineAmtGLAccount + LineAmtItem, PurchInvEntityAggregate.Amount, AmountMustSameErr);
+        Assert.AreEqual(TotalAmountIncludingVAT, PurchInvEntityAggregate."Amount Including VAT", AmountMustSameErr);
     end;
 
     local procedure Initialize()

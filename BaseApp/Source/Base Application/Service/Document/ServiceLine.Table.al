@@ -4910,6 +4910,8 @@ table 5902 "Service Line"
                 TotalVATAmount, Currency, ServHeader."Currency Factor", ServHeader."Prices Including VAT", ServHeader."VAT Base Discount %",
                 ServHeader."Tax Area Code", ServHeader."Tax Liable", ServHeader."Posting Date");
 
+        OnCalcVATAmountLinesOnBeforeUpdateVATAmountLine(ServiceLine, VATAmountLine, TotalVATAmount, Currency, RoundingLineInserted);
+
         if RoundingLineInserted and (TotalVATAmount <> 0) then
             if VATAmountLine.Get(ServiceLine."VAT Identifier", ServiceLine."VAT Calculation Type",
                  ServiceLine."Tax Group Code", false, ServiceLine."Line Amount" >= 0)
@@ -7228,6 +7230,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateLineAmount(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; Currency: Record Currency; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeUpdateVATAmountLine(var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; var TotalVATAmount: Decimal; Currency: Record Currency; var RoundingLineInserted: Boolean)
     begin
     end;
 }

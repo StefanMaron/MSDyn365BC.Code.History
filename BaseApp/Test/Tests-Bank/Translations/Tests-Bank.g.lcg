@@ -77,6 +77,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Bank Account - NamedType WrongIBANErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4055676525 - NamedType 3522299158" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Last Entry No. must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Value ,%2= Table Name.]D;]A;(LookupHint=Codeunit ERM Bank Reconciliation - NamedType AnalysisViewErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4055676525 - NamedType 809636057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[When you use action Delete the bank statement will be deleted]]></Val>
@@ -111,6 +120,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - statement number]D;]A;(LookupHint=Codeunit ERM Bank Reconciliation - NamedType StatementAlreadyExistsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4055676525 - NamedType 3626040211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Statement Ending Balance, %2 = Amount, %3 = Bank Acc. Reconciliation]D;]A;(LookupHint=Codeunit ERM Bank Reconciliation - NamedType StatementEndingBalanceErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4055676525 - NamedType 1238912297" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

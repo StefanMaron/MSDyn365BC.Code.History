@@ -98,6 +98,32 @@ table 213 "Alt. Cust. VAT Reg."
             TableRelation = "VAT Business Posting Group";
             ToolTip = 'Specifies the customer''s VAT specification to link transactions made for this customer to.';
         }
+        field(11300; "Enterprise No."; Text[50])
+        {
+            Caption = 'Enterprise No.';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies the customer''s enterprise number.';
+
+            trigger OnValidate()
+            var
+                Country: Record "Country/Region";
+                EnterpriseNoMgt: Codeunit VATLogicalTests;
+                IsHandled: Boolean;
+            begin
+                IsHandled := false;
+                OnBeforeValidateEnterpriseNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
+                if "Enterprise No." <> DelChr("Enterprise No.", '=', '0123456789') then begin
+                    if not Country.DetermineCountry("VAT Country/Region Code") then
+                        Error(EnterpriseNoForeignCountryErr, FieldCaption("Enterprise No."));
+                    if not EnterpriseNoMgt.MOD97Check("Enterprise No.") then
+                        Error(EnterpriseNoNotValidErr, FieldCaption("Enterprise No."));
+                    "VAT Registration No." := '';
+                end;
+            end;
+        }
     }
 
     keys
@@ -115,6 +141,8 @@ table 213 "Alt. Cust. VAT Reg."
         AltCustVATRegFacade: Codeunit "Alt. Cust. VAT. Reg. Facade";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         FeatureNameTxt: Label 'Alternative Customer VAT Registration', Locked = true;
+        EnterpriseNoForeignCountryErr: Label 'You cannot use %1 for foreign customers.', Comment = '%1 = Enterprise No.';
+        EnterpriseNoNotValidErr: Label '%1 is not valid.', Comment = '%1 = Enterprise No.';
 
     trigger OnInsert()
     begin
@@ -168,6 +196,11 @@ table 213 "Alt. Cust. VAT Reg."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVATRegistrationValidation(var AltCustVATReg: Record "Alt. Cust. VAT Reg."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEnterpriseNo(var AltCustVATReg: Record "Alt. Cust. VAT Reg."; xAltCustVATReg: Record "Alt. Cust. VAT Reg."; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }
