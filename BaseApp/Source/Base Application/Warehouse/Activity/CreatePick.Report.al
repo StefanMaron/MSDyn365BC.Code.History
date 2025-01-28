@@ -326,43 +326,47 @@ report 5754 "Create Pick"
 
             PickWhseWkshLine.TestField("Qty. per Unit of Measure");
             CreatePick.SetWhseWkshLine(PickWhseWkshLine, TempNo);
-            case PickWhseWkshLine."Whse. Document Type" of
-                PickWhseWkshLine."Whse. Document Type"::Shipment:
-                    begin
-                        WarehouseShipmentLine.Get(PickWhseWkshLine."Whse. Document No.", PickWhseWkshLine."Whse. Document Line No.");
-                        if not WarehouseShipmentLine."Assemble to Order" then
-                            CreatePick.SetTempWhseItemTrkgLine(
-                              PickWhseWkshLine."Whse. Document No.", Database::"Warehouse Shipment Line", '', 0,
-                              PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code")
-                        else
-                            CreatePick.SetTempWhseItemTrkgLine(
-                              PickWhseWkshLine."Source No.", Database::"Assembly Line", '', 0,
-                              PickWhseWkshLine."Source Line No.", PickWhseWkshLine."Location Code");
-                    end;
-                PickWhseWkshLine."Whse. Document Type"::Assembly:
-                    CreatePick.SetTempWhseItemTrkgLine(
-                      PickWhseWkshLine."Whse. Document No.", Database::"Assembly Line", '', 0,
-                      PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code");
-                PickWhseWkshLine."Whse. Document Type"::"Internal Pick":
-                    CreatePick.SetTempWhseItemTrkgLine(
-                      PickWhseWkshLine."Whse. Document No.", Database::"Whse. Internal Pick Line", '', 0,
-                      PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code");
-                PickWhseWkshLine."Whse. Document Type"::Production:
-                    CreatePick.SetTempWhseItemTrkgLine(
-                      PickWhseWkshLine."Source No.", PickWhseWkshLine."Source Type", '', PickWhseWkshLine."Source Line No.",
-                      PickWhseWkshLine."Source Subline No.", PickWhseWkshLine."Location Code");
-                PickWhseWkshLine."Whse. Document Type"::Job:
-                    CreatePick.SetTempWhseItemTrkgLine(
-                      PickWhseWkshLine."Source No.", Database::"Job Planning Line", '', 0,
-                      PickWhseWkshLine."Source Line No.", PickWhseWkshLine."Location Code");
-                else // Movement Worksheet Line
-                    CreatePick.SetTempWhseItemTrkgLine(
-                      PickWhseWkshLine.Name, Database::"Prod. Order Component", PickWhseWkshLine."Worksheet Template Name",
-                      0, PickWhseWkshLine."Line No.", PickWhseWkshLine."Location Code");
-            end;
+            IsHandled := false;
+            OnCreateTempLineOnBeforeSetTempWhseItemTrackingLine(PickWhseWkshLine, PickQty, PickQtyBase, IsHandled);
+            if not IsHandled then begin
+                case PickWhseWkshLine."Whse. Document Type" of
+                    PickWhseWkshLine."Whse. Document Type"::Shipment:
+                        begin
+                            WarehouseShipmentLine.Get(PickWhseWkshLine."Whse. Document No.", PickWhseWkshLine."Whse. Document Line No.");
+                            if not WarehouseShipmentLine."Assemble to Order" then
+                                CreatePick.SetTempWhseItemTrkgLine(
+                                  PickWhseWkshLine."Whse. Document No.", Database::"Warehouse Shipment Line", '', 0,
+                                  PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code")
+                            else
+                                CreatePick.SetTempWhseItemTrkgLine(
+                                  PickWhseWkshLine."Source No.", Database::"Assembly Line", '', 0,
+                                  PickWhseWkshLine."Source Line No.", PickWhseWkshLine."Location Code");
+                        end;
+                    PickWhseWkshLine."Whse. Document Type"::Assembly:
+                        CreatePick.SetTempWhseItemTrkgLine(
+                          PickWhseWkshLine."Whse. Document No.", Database::"Assembly Line", '', 0,
+                          PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code");
+                    PickWhseWkshLine."Whse. Document Type"::"Internal Pick":
+                        CreatePick.SetTempWhseItemTrkgLine(
+                          PickWhseWkshLine."Whse. Document No.", Database::"Whse. Internal Pick Line", '', 0,
+                          PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code");
+                    PickWhseWkshLine."Whse. Document Type"::Production:
+                        CreatePick.SetTempWhseItemTrkgLine(
+                          PickWhseWkshLine."Source No.", PickWhseWkshLine."Source Type", '', PickWhseWkshLine."Source Line No.",
+                          PickWhseWkshLine."Source Subline No.", PickWhseWkshLine."Location Code");
+                    PickWhseWkshLine."Whse. Document Type"::Job:
+                        CreatePick.SetTempWhseItemTrkgLine(
+                          PickWhseWkshLine."Source No.", Database::"Job Planning Line", '', 0,
+                          PickWhseWkshLine."Source Line No.", PickWhseWkshLine."Location Code");
+                    else // Movement Worksheet Line
+                        CreatePick.SetTempWhseItemTrkgLine(
+                          PickWhseWkshLine.Name, Database::"Prod. Order Component", PickWhseWkshLine."Worksheet Template Name",
+                          0, PickWhseWkshLine."Line No.", PickWhseWkshLine."Location Code");
+                end;
 
-            PickQty := PickWhseWkshLine."Qty. to Handle";
-            PickQtyBase := PickWhseWkshLine."Qty. to Handle (Base)";
+                PickQty := PickWhseWkshLine."Qty. to Handle";
+                PickQtyBase := PickWhseWkshLine."Qty. to Handle (Base)";
+            end;
             OnAfterSetQuantityToPick(PickWhseWkshLine, PickQty, PickQtyBase);
             if (PickQty > 0) and
                (PickWhseWkshLine."Destination Type" = PickWhseWkshLine."Destination Type"::Customer)
@@ -382,43 +386,52 @@ report 5754 "Create Pick"
 
             CreatePick.SetCalledFromWksh(true);
 
-            OnCreateTempLineOnBeforeCreatePickCreateTempLine(PickWhseWkshLine);
-            CreatePick.CreateTempLine(
-                PickWhseWkshLine."Location Code", PickWhseWkshLine."Item No.", PickWhseWkshLine."Variant Code",
-                PickWhseWkshLine."Unit of Measure Code", '', PickWhseWkshLine."To Bin Code", PickWhseWkshLine."Qty. per Unit of Measure",
-                PickWhseWkshLine."Qty. Rounding Precision", PickWhseWkshLine."Qty. Rounding Precision (Base)", PickQty, PickQtyBase);
+            IsHandled := false;
+            OnCreateTempLineOnBeforeCreatePickCreateTempLine(PickWhseWkshLine, TempWhseItemTrkgLine, PickQty, PickQtyBase, TotalQtyPickedBase, IsHandled);
+            if not IsHandled then
+                CreatePick.CreateTempLine(
+                    PickWhseWkshLine."Location Code", PickWhseWkshLine."Item No.", PickWhseWkshLine."Variant Code",
+                    PickWhseWkshLine."Unit of Measure Code", '', PickWhseWkshLine."To Bin Code", PickWhseWkshLine."Qty. per Unit of Measure",
+                    PickWhseWkshLine."Qty. Rounding Precision", PickWhseWkshLine."Qty. Rounding Precision (Base)", PickQty, PickQtyBase);
 
             TotalQtyPickedBase := CreatePick.GetActualQtyPickedBase();
 
             // Update/delete lines
             PickWhseWkshLine."Qty. to Handle (Base)" := PickWhseWkshLine.CalcBaseQty(PickWhseWkshLine."Qty. to Handle");
-            if PickWhseWkshLine."Qty. (Base)" =
-               PickWhseWkshLine."Qty. Handled (Base)" + TotalQtyPickedBase
-            then
-                PickWhseWkshLine.Delete(true)
-            else begin
-                PickWhseWkshLine."Qty. Handled" := PickWhseWkshLine."Qty. Handled" + PickWhseWkshLine.CalcQty(TotalQtyPickedBase);
-                PickWhseWkshLine."Qty. Handled (Base)" := PickWhseWkshLine.CalcBaseQty(PickWhseWkshLine."Qty. Handled");
-                PickWhseWkshLine."Qty. Outstanding" := PickWhseWkshLine.Quantity - PickWhseWkshLine."Qty. Handled";
-                PickWhseWkshLine."Qty. Outstanding (Base)" := PickWhseWkshLine.CalcBaseQty(PickWhseWkshLine."Qty. Outstanding");
-                PickWhseWkshLine."Qty. to Handle" := 0;
-                PickWhseWkshLine."Qty. to Handle (Base)" := 0;
-                OnBeforePickWhseWkshLineModify(PickWhseWkshLine);
-                PickWhseWkshLine.Modify();
-            end;
+            IsHandled := false;
+            OnCreateTempLineOnBeforeDeleteOrModifyPickWhseWorksheetLine(PickWhseWkshLine, TotalQtyPickedBase, PickQtyBase, IsHandled);
+            if not IsHandled then
+                if PickWhseWkshLine."Qty. (Base)" =
+                   PickWhseWkshLine."Qty. Handled (Base)" + TotalQtyPickedBase
+                then
+                    PickWhseWkshLine.Delete(true)
+                else begin
+                    PickWhseWkshLine."Qty. Handled" := PickWhseWkshLine."Qty. Handled" + PickWhseWkshLine.CalcQty(TotalQtyPickedBase);
+                    PickWhseWkshLine."Qty. Handled (Base)" := PickWhseWkshLine.CalcBaseQty(PickWhseWkshLine."Qty. Handled");
+                    PickWhseWkshLine."Qty. Outstanding" := PickWhseWkshLine.Quantity - PickWhseWkshLine."Qty. Handled";
+                    PickWhseWkshLine."Qty. Outstanding (Base)" := PickWhseWkshLine.CalcBaseQty(PickWhseWkshLine."Qty. Outstanding");
+                    PickWhseWkshLine."Qty. to Handle" := 0;
+                    PickWhseWkshLine."Qty. to Handle (Base)" := 0;
+                    OnBeforePickWhseWkshLineModify(PickWhseWkshLine);
+                    PickWhseWkshLine.Modify();
+                end;
         until PickWhseWkshLine.Next() = 0;
 
-        OldFirstSetPickNo := FirstSetPickNo;
-        OnBeforeCreatePickWhseDocument(PickWhseWkshLine);
-        CreatePick.CreateWhseDocument(FirstSetPickNo, LastPickNo, false);
-        if FirstSetPickNo = OldFirstSetPickNo then
-            exit;
+        IsHandled := false;
+        OnCreateTempLineOnBeforeSetOldFirstSetPickNo(PickWhseWkshLine, IsHandled);
+        if not IsHandled then begin
+            OldFirstSetPickNo := FirstSetPickNo;
+            OnBeforeCreatePickWhseDocument(PickWhseWkshLine);
+            CreatePick.CreateWhseDocument(FirstSetPickNo, LastPickNo, false);
+            if FirstSetPickNo = OldFirstSetPickNo then
+                exit;
 
-        if FirstPickNo = '' then
-            FirstPickNo := FirstSetPickNo;
-        CreatePick.ReturnTempItemTrkgLines(TempWhseItemTrkgLine);
-        ItemTrackingMgt.UpdateWhseItemTrkgLines(TempWhseItemTrkgLine);
-        Commit();
+            if FirstPickNo = '' then
+                FirstPickNo := FirstSetPickNo;
+            CreatePick.ReturnTempItemTrkgLines(TempWhseItemTrkgLine);
+            ItemTrackingMgt.UpdateWhseItemTrkgLines(TempWhseItemTrkgLine);
+            Commit();
+        end;
 
         PickWhseActivHeader.SetRange(Type, PickWhseActivHeader.Type::Pick);
         PickWhseActivHeader.SetRange("No.", FirstSetPickNo, LastPickNo);
@@ -639,8 +652,8 @@ report 5754 "Create Pick"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateTempLineOnBeforeCreatePickCreateTempLine(PickWhseWkshLine: Record "Whse. Worksheet Line")
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateTempLineOnBeforeCreatePickCreateTempLine(PickWhseWkshLine: Record "Whse. Worksheet Line"; TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var PickQty: Decimal; var PickQtyBase: Decimal; var TotalQtyPickedBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -651,6 +664,21 @@ report 5754 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateTempLineOnBeforeCalcAvailableQtyBase(PickWhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateTempLineOnBeforeSetTempWhseItemTrackingLine(var PickWhseWorksheetLine: Record "Whse. Worksheet Line"; var PickQty: Decimal; var PickQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateTempLineOnBeforeDeleteOrModifyPickWhseWorksheetLine(var PickWhseWorksheetLine: Record "Whse. Worksheet Line"; var TotalQtyPickedBase: Decimal; var PickQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateTempLineOnBeforeSetOldFirstSetPickNo(var PickWhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
     begin
     end;
 }

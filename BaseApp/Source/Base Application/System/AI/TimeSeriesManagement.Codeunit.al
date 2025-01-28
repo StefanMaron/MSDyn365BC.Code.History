@@ -52,11 +52,20 @@ codeunit 2000 "Time Series Management"
 #endif
     [TryFunction]
     procedure Initialize(Uri: Text; "Key": SecretText; TimeOutSeconds: Integer; UseStdCredentials: Boolean)
+    var
+        LimitType: Option;
+        Limit: Decimal;
+        ApiUriSized: Text[250];
     begin
         ApiUri := Uri;
         ApiKey := Key;
         TimeOutSec := TimeOutSeconds;
         UseStandardCredentials := UseStdCredentials;
+
+        if ((ApiUri = '') or ApiKey.IsEmpty()) and UseStdCredentials then begin
+            GetMLForecastCredentials(ApiUriSized, ApiKey, LimitType, Limit);
+            ApiUri := ApiUriSized;
+        end;
 
         if not AzureMLConnector.Initialize(ApiKey, ApiUri, TimeOutSec) then
             Error(InitializationErr);

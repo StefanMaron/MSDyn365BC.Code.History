@@ -129,7 +129,7 @@ page 5726 "Catalog Item List"
                     RunObject = Page "Item Substitution Entry";
                     RunPageLink = Type = const("Nonstock Item"),
                                   "No." = field("Entry No.");
-                    ToolTip = 'View substitute items that are set up to be sold instead of the item.';
+                    ToolTip = 'View or edit substitute items that are set up to be traded instead of the item in case it is not available.';
                 }
                 action("Co&mments")
                 {
@@ -161,7 +161,7 @@ page 5726 "Catalog Item List"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Item Substitutions";
-                ToolTip = 'View or edit any substitute items that are set up to be traded instead of the item in case it is not available.';
+                ToolTip = 'View substitute items that are set up to be sold instead of the items in the filter. A detailed overview also includes description, unit cost, quantity on hand, base unit of measure, information about interchangeability and additional conditions.';
             }
         }
         area(Promoted)

@@ -525,6 +525,9 @@ codeunit 5348 "CRM Quote to Sales Quote"
         NAVItemUomRecordId: RecordID;
         NAVResourceUomRecordId: RecordID;
     begin
+        if IsNullGuid(CRMProduct.ProductId) then
+            exit;
+
         case CRMProduct.ProductTypeCode of
             CRMProduct.ProductTypeCode::SalesInventory:
                 begin
