@@ -68,6 +68,7 @@
 #pragma warning restore AL0432               
 #endif
                   codeunit "Item Handler CZL" = X,
+                  codeunit "Item Charge Assgnt. Purch. CZL" = X,
                   codeunit "Item Jnl.CheckLine Handler CZL" = X,
 #if not CLEAN22   
 #pragma warning disable AL0432               

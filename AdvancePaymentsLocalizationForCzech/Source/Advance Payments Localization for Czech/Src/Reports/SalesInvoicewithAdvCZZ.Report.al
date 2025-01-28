@@ -295,7 +295,7 @@ report 31018 "Sales - Invoice with Adv. CZZ"
             column(PrepaymentAmt_SalesInvoiceHeader; PrepaymentAmt)
             {
             }
-            column(TotalAfterPrepayed_SalesInvoiceHeader; TotalAfterPrepayed)
+            column(TotalAfterPrepayed_SalesInvoiceHeader; Format(TotalAfterPrepayed, 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Invoice Header"."Currency Code")))
             {
             }
             column(CalculatedExchRate; CalculatedExchRate)
@@ -793,6 +793,7 @@ report 31018 "Sales - Invoice with Adv. CZZ"
         ReasonCode: Record "Reason Code";
         ShipmentMethod: Record "Shipment Method";
         TempVATAmountLine: Record "VAT Amount Line" temporary;
+        AutoFormat: Codeunit "Auto Format";
         CompanyAddr: array[8] of Text[100];
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];

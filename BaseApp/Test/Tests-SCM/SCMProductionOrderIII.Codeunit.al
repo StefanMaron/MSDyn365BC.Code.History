@@ -5247,6 +5247,56 @@ codeunit 137079 "SCM Production Order III"
         VerifyProdOrderCapacity(ProductionOrder, WorkCenters[2], 4);
         VerifyProdOrderCapacity(ProductionOrder, WorkCenters[3], 1);
     end;
+    
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemTrackingHandler,MessageHandlerWithoutValidation')]
+    procedure CheckReservationEntryStatusWhenPlannedProdOrderConvertToReleasedProdOrder()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        PlannedProdOrder: TestPage "Planned Production Order";
+        TotalQuantity: Decimal;
+    begin
+        // [SCENARIO 523992] Change the reservation entry status from prospect to surplus when planned prod. order convert to the released prod. order.
+        Initialize();
+
+        // [GIVEN] Set location code in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", LocationBlue.Code);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item with Lot Tracking.
+        CreateItemWithLotTracking(Item);
+
+        // [GIVEN] Create a Sales Order.
+        TotalQuantity := CreateSalesOrderOnManufacturingLocation(SalesHeader, Item."No.", LibraryRandom.RandInt(5), LocationBlue.Code);
+
+        // [GIVEN] Create Production Order.
+        CreateProdOrderOnManufacturingLocation(ProductionOrder, Item."No.", TotalQuantity, LocationBlue.Code);
+
+        // [WHEN] Refreshing released production order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Open Planned Prod. Order page.
+        PlannedProdOrder.OpenEdit();
+        PlannedProdOrder.GoToRecord(ProductionOrder);
+
+        // [GIVEN] Enqueue the Lot No. and Quantity value.
+        OpenItemTrackingLinesSetValueInProdOrderLine(LibraryUtility.GenerateGUID(), '', TotalQuantity);
+
+        // [WHEN] Invoke the Item Tracking Page and assign the values.
+        PlannedProdOrder.ProdOrderLines."Item &Tracking Lines".Invoke();
+
+        // [WHEN] Change the Production Order Status.
+        LibraryManufacturing.ChangeProuctionOrderStatus(ProductionOrder."No.", ProductionOrder.Status::Planned, ProductionOrder.Status::Released);
+
+        // [THEN] Check Reservation Entry Status.
+        VerifyReservationEntry(Item."No.", ProductionOrder.Quantity, ReservationEntry."Reservation Status"::Surplus, LocationBlue.Code);
+    end;
 
     local procedure Initialize()
     begin
@@ -7536,6 +7586,64 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderCapacityNeed.SetRange("Work Center No.", WorkCenter."No.");
         Assert.RecordCount(ProdOrderCapacityNeed, NoOfRecords);
+    end;
+    
+    local procedure CreateItemWithLotTracking(Var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItem(Item);
+
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateSalesOrderOnManufacturingLocation(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]): Decimal;
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerNo());
+
+        SalesHeader.Validate("Shipment Date", Today);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            ItemNo,
+            Quantity);
+        UpdateLocationOnSalesLine(SalesLine."Document No.", LocationCode);
+
+        exit(SalesLine.Quantity);
+    end;
+
+    local procedure CreateProdOrderOnManufacturingLocation(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Planned,
+            ProductionOrder."Source Type"::Item,
+            ItemNo,
+            Quantity);
+
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Validate("Due Date", Today);
+        ProductionOrder.Modify(true);
+    end;
+
+    local procedure OpenItemTrackingLinesSetValueInProdOrderLine(LotNo: Code[50]; SerialNo: Code[50]; Quantity: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SetValue);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(Quantity);
     end;
 
     [MessageHandler]
