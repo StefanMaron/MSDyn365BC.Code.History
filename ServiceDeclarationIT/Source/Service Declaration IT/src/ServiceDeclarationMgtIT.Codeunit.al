@@ -513,9 +513,7 @@ codeunit 12216 "Service Declaration Mgt. IT"
             ServiceDeclarationLine."Source Entry No." := VATEntry."Entry No.";
             ServiceDeclarationLine.ValidateSourceEntryNo(ServiceDeclarationLine."Source Entry No.");
             if not HasApplications then
-                ServiceDeclarationLine.Amount := GetVATEntryAmount(VATEntry)
-            else
-                ServiceDeclarationLine.Amount -= GetAmountSign(ServiceDeclarationLine.Amount) * Abs(NonEUServiceLineAmount(ServiceDeclarationHeader.Type, ServiceDeclarationLine."Document No."));
+                ServiceDeclarationLine.Amount := GetVATEntryAmount(VATEntry);
 
             if ServiceDeclarationHeader."Corrective Entry" then begin
                 ServiceDeclarationLine."Custom Office No." := CopyStr(ServiceDeclarationHeader."Customs Office No.", 1, MaxStrLen(ServiceDeclarationLine."Custom Office No."));
