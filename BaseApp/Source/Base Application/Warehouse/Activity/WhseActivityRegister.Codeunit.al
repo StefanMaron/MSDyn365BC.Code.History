@@ -1619,6 +1619,10 @@ codeunit 7307 "Whse.-Activity-Register"
             SubTotalBase :=
               QtyInWhseBase -
               QtyOnPickBinsBase - QtyOnOutboundBinsBase - QtyOnDedicatedBinsBase;
+
+            if (WhseActivLine."Action Type" = WhseActivLine."Action Type"::Take) and (WhseActivLine."Bin Code" = Location."Shipment Bin Code") then
+                SubTotalBase += QtyOnOutboundBinsBase;
+
             if WhseActivLine."Activity Type" <> WhseActivLine."Activity Type"::"Invt. Movement" then
                 SubTotalBase -= Abs(Item."Reserved Qty. on Inventory");
 
