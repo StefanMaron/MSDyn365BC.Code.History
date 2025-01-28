@@ -92,6 +92,7 @@ codeunit 1393 "Cancel Issued Reminder"
         SetIssuedReminderCancelled(IssuedReminderHeader, DocumentNo);
 
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
+        IssuedReminderLine.SetRange("Detailed Interest Rates Entry", false);
         if IssuedReminderLine.FindSet() then
             repeat
                 IsHandled := false;

@@ -13,11 +13,7 @@ codeunit 139316 "Company Creation Wizard Tests"
         LibraryUtility: Codeunit "Library - Utility";
         CompanyAlreadyExistsErr: Label 'A company with that name already exists. Try a different name.';
         SpecifyCompanyNameErr: Label 'To continue, you must specify a name for the company.';
-        FinExtendedTxt: Label 'Advanced Experience / Cronus Company Sample Data / Setup Data';
-        NoDataTxt: Label 'No Sample Data / No Setup Data';
         SetupNotCompletedQst: Label 'The company has not yet been created.\\Are you sure that you want to exit?';
-        NoDataExtendedTxt: Label 'Create a company with the desired experience for companies with any process complexity';
-        FinExtendedTextTxt: Label 'Create a company with the Advanced functionality scope containing everything you need to evaluate';
 
     [Test]
     [Scope('OnPrem')]
@@ -34,11 +30,11 @@ codeunit 139316 "Company Creation Wizard Tests"
     [Test]
     [HandlerFunctions('ConfirmYes')]
     [Scope('OnPrem')]
-    procedure WizardShowsProductionSetupDataOnlyFirstIfFullSaaSDisabled()
+    procedure WizardCheckDefaultDemoData()
     var
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         CompanyCreationWizard: TestPage "Company Creation Wizard";
-        NewCompanyData: Enum "Company Data Type (Production)";
+        NewCompanyData: Enum "Company Demo Data Type";
     begin
         // [GIVEN] Full SaaS experience is disabled
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -47,100 +43,10 @@ codeunit 139316 "Company Creation Wizard Tests"
         CompanyCreationWizard.OpenEdit();
         CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
 
-        // [THEN] Company Data is "Production - Setup Data Only"
+        // [THEN] Default option is Create New - No Data
         Assert.AreEqual(
-            CompanyCreationWizard.CompanyData.Value, Format(NewCompanyData::"Production - Setup Data Only"),
+            CompanyCreationWizard.CompanyData.Value, Format(NewCompanyData::"Create New - No Data"),
             'First option should be Production - Setup Data Only.');
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmYes')]
-    [Scope('OnPrem')]
-    procedure WizardShowsThreeOptionsIfFullSaaSDisabled()
-    var
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        CompanyCreationWizard: TestPage "Company Creation Wizard";
-        NewCompanyData: Enum "Company Data Type (Production)";
-        NewCompanyDataSandbox: Enum "Company Data Type (Sandbox)";
-    begin
-        // [GIVEN] Full SaaS experience is disabled
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        // [GIVEN] Open Company Creation Wizard on Basic Information tab
-        CompanyCreationWizard.OpenEdit();
-        CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
-        // [WHEN] Set Company Data as "None"
-        NewCompanyData := NewCompanyData::"Create New - No Data";
-        CompanyCreationWizard.CompanyData.SetValue(NewCompanyData);
-        // [THEN] Company Data is "None"
-        Assert.ExpectedMessage(Format(NewCompanyData), CompanyCreationWizard.CompanyData.Value);
-        Assert.IsFalse(CompanyCreationWizard.CompanyFullData.Visible(), 'CompanyFullData should be invisible');
-
-        // [WHEN] Set Company Data as "Extended Evaluation Data"
-        NewCompanyData := NewCompanyDataSandbox::"Advanced Evaluation - Complete Sample Data";
-        asserterror CompanyCreationWizard.CompanyData.SetValue(NewCompanyData);
-        // [THEN] Error: there is no such option.
-        Assert.ExpectedError('Validation error for Field: CompanyData');
-    end;
-
-    [Test]
-    [HandlerFunctions('HandleConfirm')]
-    [Scope('OnPrem')]
-    procedure WizardShowsExtendedDataOptionIfFullSaaSEnabled()
-    var
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        CompanyCreationWizard: TestPage "Company Creation Wizard";
-        NewCompanyData: Enum "Company Data Type (Sandbox)";
-    begin
-        // [GIVEN] Full SaaS experience is enabled
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        MockSandbox(true);
-        // [GIVEN] Open Company Creation Wizard on Basic Information tab
-        CompanyCreationWizard.OpenEdit();
-        CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
-
-        // [WHEN] Set Company Data as "Extended Evaluation Data"
-        NewCompanyData := NewCompanyData::"Advanced Evaluation - Complete Sample Data";
-        CompanyCreationWizard.CompanyFullData.SetValue(NewCompanyData);
-
-        // [THEN] Company Data is "Extended Data", Company Data Description contains 'Full Evaluation Data'
-        Assert.IsFalse(CompanyCreationWizard.CompanyData.Visible(), 'CompanyData should be invisible');
-        Assert.ExpectedMessage(Format(NewCompanyData), CompanyCreationWizard.CompanyFullData.Value);
-        Assert.ExpectedMessage(FinExtendedTxt, CompanyCreationWizard.NewCompanyDataDescription.Value);
-        Assert.ExpectedMessage(FinExtendedTextTxt, CompanyCreationWizard.NewCompanyDataDescription.Value);
-        MockSandbox(false);
-    end;
-
-    [Test]
-    [HandlerFunctions('HandleConfirm')]
-    [Scope('OnPrem')]
-    procedure WizardShowsFourOptionsIfFullSaaSEnabled()
-    var
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        CompanyCreationWizard: TestPage "Company Creation Wizard";
-        NewCompanyData: Enum "Company Data Type (Sandbox)";
-    begin
-        // [GIVEN] Full SaaS experience is enabled
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        MockSandbox(true);
-        // [GIVEN] Open Company Creation Wizard on Basic Information tab
-        CompanyCreationWizard.OpenEdit();
-        CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
-
-        // [WHEN] Set Company Data as "No Data"
-        NewCompanyData := NewCompanyData::"Create New - No Data";
-        CompanyCreationWizard.CompanyFullData.SetValue(NewCompanyData);
-
-        // [THEN] Company Data is "No Data", Company Data Description contains 'No Sample Data.. Create your own company'
-        Assert.IsFalse(CompanyCreationWizard.CompanyData.Visible(), 'CompanyData should be invisible');
-        Assert.ExpectedMessage(Format(NewCompanyData), CompanyCreationWizard.CompanyFullData.Value);
-        Assert.ExpectedMessage(NoDataExtendedTxt, CompanyCreationWizard.NewCompanyDataDescription.Value);
-        Assert.ExpectedMessage(NoDataTxt, CompanyCreationWizard.NewCompanyDataDescription.Value);
-        MockSandbox(false);
-
-        // [THEN] Setting Company Data as the third option "No Data" is not possible
-        NewCompanyData := "Company Data Type (Sandbox)".FromInteger(2); // "No Data";
-        asserterror CompanyCreationWizard.CompanyFullData.SetValue(NewCompanyData);
-        Assert.ExpectedError('Validation error for Field: CompanyFullData');
     end;
 
     [Test]
@@ -221,7 +127,7 @@ codeunit 139316 "Company Creation Wizard Tests"
         Company: Record Company;
         AssistedCompanySetup: Codeunit "Assisted Company Setup";
         CompanyCreationWizard: TestPage "Company Creation Wizard";
-        NewCompanyData: Enum "Company Data Type (Internal)";
+        NewCompanyData: Enum "Company Demo Data Type";
         NewCompanyName: Text[30];
     begin
         // [WHEN] The company creation wizard is completed
@@ -236,7 +142,7 @@ codeunit 139316 "Company Creation Wizard Tests"
 
         // [WHEN] The company is created again with same name
         AssistedCompanySetup.CreateNewCompany(NewCompanyName);
-        AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData::None.AsInteger());
+        AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData::"Create New - No Data");
 
         // [THEN] The company was created with no errors
         Assert.IsTrue(Company.Get(NewCompanyName), 'The new company was not created');
@@ -252,7 +158,7 @@ codeunit 139316 "Company Creation Wizard Tests"
 
     local procedure RunWizardToCompletion(var CompanyCreationWizard: TestPage "Company Creation Wizard"; NewCompanyName: Text)
     var
-        NewCompanyData: Option "ENU=Evaluation - Sample Data","Production - Setup Data Only","No Data","Advanced Evaluation - Complete Sample Data","Create New - No Data";
+        NewCompanyData: Enum "Company Demo Data Type";
     begin
         CompanyCreationWizard.Trap();
         PAGE.Run(PAGE::"Company Creation Wizard");
@@ -262,7 +168,7 @@ codeunit 139316 "Company Creation Wizard Tests"
         Assert.IsFalse(CompanyCreationWizard.ActionBack.Enabled(), 'Back should not be enabled at the beginning of the wizard');
         CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
         CompanyCreationWizard.CompanyName.SetValue(NewCompanyName);
-        CompanyCreationWizard.CompanyData.SetValue(NewCompanyData::"No Data"); // Set to None to avoid lengthy data import
+        CompanyCreationWizard.CompanyData.SetValue(NewCompanyData::"Create New - No Data"); // Set to None to avoid lengthy data import
         CompanyCreationWizard.ActionNext.Invoke(); // Manage Users page
         CompanyCreationWizard.ActionNext.Invoke(); // That's it page
         Assert.IsTrue(CompanyCreationWizard.ActionBack.Enabled(), 'Back should be enabled at the end of the wizard');

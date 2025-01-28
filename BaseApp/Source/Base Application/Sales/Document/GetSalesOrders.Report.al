@@ -194,38 +194,43 @@ report 698 "Get Sales Orders"
         if not IsHandled then
             ReqLine.Validate("Unit of Measure Code", SalesLine."Unit of Measure Code");
         ValidateRequisitionLineQuantity(ReqLine, SalesLine);
-        ReqLine."Sales Order No." := SalesLine."Document No.";
-        ReqLine."Sales Order Line No." := SalesLine."Line No.";
-        IsHandled := false;
-        OnInsertReqWkshLineOnBeforeSetSellToCustomerNo(ReqLine, SalesLine, SpecOrder, IsHandled);
-        if not IsHandled then
-            ReqLine."Sell-to Customer No." := SalesLine."Sell-to Customer No.";
-        SalesHeader.Get(1, SalesLine."Document No.");
-        if SpecOrder <> 1 then
-            ReqLine."Ship-to Code" := SalesHeader."Ship-to Code";
-        ReqLine."Item Category Code" := SalesLine."Item Category Code";
-        ReqLine.Nonstock := SalesLine.Nonstock;
-        ReqLine."Action Message" := "Action Message Type"::New;
-        ReqLine."Purchasing Code" := SalesLine."Purchasing Code";
-        // Backward Scheduling
-        ReqLine."Due Date" := SalesLine."Shipment Date";
-        OnInsertReqWkshLineOnBeforeCalcEndingDate(ReqLine, SalesLine);
-        ReqLine."Ending Date" :=
-            LeadTimeMgt.GetPlannedEndingDate(
-                ReqLine."No.", ReqLine."Location Code", ReqLine."Variant Code", ReqLine."Due Date",
-                ReqLine."Vendor No.", ReqLine."Ref. Order Type");
-        ReqLine.CalcStartingDate('');
-        ReqLine.UpdateDescription();
-        ReqLine.UpdateDatetime();
 
-        OnBeforeInsertReqWkshLine(ReqLine, SalesLine, SpecOrder);
-        ReqLine.Insert();
-        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), ReqLine.RowID1(), true);
-        if GetDim = GetDim::"Sales Line" then begin
-            ReqLine."Shortcut Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
-            ReqLine."Shortcut Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
-            ReqLine."Dimension Set ID" := SalesLine."Dimension Set ID";
-            ReqLine.Modify();
+        IsHandled := false;
+        OnInsertReqWkshLineOnBeforeSetInsertRequisitionLineBatch(ReqLine, SalesLine, IsHandled);
+        if not IsHandled then begin
+            ReqLine."Sales Order No." := SalesLine."Document No.";
+            ReqLine."Sales Order Line No." := SalesLine."Line No.";
+            IsHandled := false;
+            OnInsertReqWkshLineOnBeforeSetSellToCustomerNo(ReqLine, SalesLine, SpecOrder, IsHandled);
+            if not IsHandled then
+                ReqLine."Sell-to Customer No." := SalesLine."Sell-to Customer No.";
+            SalesHeader.Get(1, SalesLine."Document No.");
+            if SpecOrder <> 1 then
+                ReqLine."Ship-to Code" := SalesHeader."Ship-to Code";
+            ReqLine."Item Category Code" := SalesLine."Item Category Code";
+            ReqLine.Nonstock := SalesLine.Nonstock;
+            ReqLine."Action Message" := "Action Message Type"::New;
+            ReqLine."Purchasing Code" := SalesLine."Purchasing Code";
+            // Backward Scheduling
+            ReqLine."Due Date" := SalesLine."Shipment Date";
+            OnInsertReqWkshLineOnBeforeCalcEndingDate(ReqLine, SalesLine);
+            ReqLine."Ending Date" :=
+                LeadTimeMgt.GetPlannedEndingDate(
+                    ReqLine."No.", ReqLine."Location Code", ReqLine."Variant Code", ReqLine."Due Date",
+                    ReqLine."Vendor No.", ReqLine."Ref. Order Type");
+            ReqLine.CalcStartingDate('');
+            ReqLine.UpdateDescription();
+            ReqLine.UpdateDatetime();
+
+            OnBeforeInsertReqWkshLine(ReqLine, SalesLine, SpecOrder);
+            ReqLine.Insert();
+            ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), ReqLine.RowID1(), true);
+            if GetDim = GetDim::"Sales Line" then begin
+                ReqLine."Shortcut Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
+                ReqLine."Shortcut Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
+                ReqLine."Dimension Set ID" := SalesLine."Dimension Set ID";
+                ReqLine.Modify();
+            end;
         end;
 
         OnAfterInsertReqWkshLine(ReqLine, SalesLine);
@@ -309,6 +314,11 @@ report 698 "Get Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertReqWkshLineOnBeforeCalcEndingDate(var RequisitionLine: Record "Requisition Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertReqWkshLineOnBeforeSetInsertRequisitionLineBatch(var RequisitionLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

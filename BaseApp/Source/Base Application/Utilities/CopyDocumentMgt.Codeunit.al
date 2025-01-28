@@ -286,7 +286,7 @@ codeunit 6620 "Copy Document Mgt."
         LinesNotCopied: Integer;
         MissingExCostRevLink: Boolean;
         ReleaseDocument: Boolean;
-        IsHandled: Boolean;
+        IsHandled, ShouldExit : Boolean;
     begin
         if not CreateToHeader then begin
             ToSalesHeader.TestField(Status, ToSalesHeader.Status::Open);
@@ -371,7 +371,10 @@ codeunit 6620 "Copy Document Mgt."
                 "Sales Document Type From"::"Posted Invoice":
                     begin
                         FromSalesHeader.TransferFields(FromSalesInvHeader);
-                        OnCopySalesDocOnBeforeCopySalesDocInvLine(FromSalesInvHeader, ToSalesHeader);
+                        ShouldExit := false;
+                        OnCopySalesDocOnBeforeCopySalesDocInvLine(FromSalesInvHeader, ToSalesHeader, ShouldExit);
+                        if ShouldExit then
+                            exit;
                         CopySalesDocInvLine(FromSalesInvHeader, ToSalesHeader, LinesNotCopied, MissingExCostRevLink);
                     end;
                 "Sales Document Type From"::"Posted Return Receipt":
@@ -432,6 +435,9 @@ codeunit 6620 "Copy Document Mgt."
             ErrorMessageHandler.NotifyAboutErrors();
             ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
+
+        ToSalesLine.GetCaptionClass(ToSalesHeader.FieldNo("Prices Including VAT"));
+
         OnAfterCopySalesDocument(
           FromDocType.AsInteger(), FromDocNo, ToSalesHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);
     end;
@@ -1043,6 +1049,8 @@ codeunit 6620 "Copy Document Mgt."
             ErrorMessageHandler.NotifyAboutErrors();
             ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
+
+        ToPurchLine.GetCaptionClass(ToPurchHeader.FieldNo("Prices Including VAT"));
 
         OnAfterCopyPurchaseDocument(
           FromDocType.AsInteger(), FromDocNo, ToPurchHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);
@@ -9518,7 +9526,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopySalesDocOnBeforeCopySalesDocInvLine(var FromSalesInvoiceHeader: Record "Sales Invoice Header"; var ToSalesHeader: Record "Sales Header")
+    local procedure OnCopySalesDocOnBeforeCopySalesDocInvLine(var FromSalesInvoiceHeader: Record "Sales Invoice Header"; var ToSalesHeader: Record "Sales Header"; var ShouldExit: Boolean)
     begin
     end;
 
