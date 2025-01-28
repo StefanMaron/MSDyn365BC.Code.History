@@ -890,7 +890,7 @@ codeunit 134658 "Edit Posted Documents"
         // [GIVEN] Validate Purch. Prepayments Account in VAT Posting Setup. // IT
         VATPostingSetup.Validate("Purch. Prepayments Account", GeneralPostingSetup."Purch. Prepayments Account");
         VATPostingSetup.Modify(true);
- 
+
         // [GIVEN] Validate Gen. and VAT Posting Groups in Purch. Prepayments Account.
         ValidateGenAndVATPostingGrpsInPurchPrepymtAcc(GeneralPostingSetup, VATPostingSetup);
 
@@ -1676,3 +1676,4 @@ codeunit 134658 "Edit Posted Documents"
         Reply := true;
     end;
 }
+

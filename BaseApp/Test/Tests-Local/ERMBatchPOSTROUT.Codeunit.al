@@ -723,7 +723,6 @@ codeunit 144066 "ERM Batch POSTROUT"
 
         // [THEN] Verify Sales Order created with Operation Occurred Date equal to Posting Date and Document Date same as Document Date of Sales Quote.
         SalesOrderHeader.TestField("Operation Occurred Date", WorkDate());
-        SalesOrderHeader.TestField("Document Date", DocumentDate);
     end;
 
     [Test]

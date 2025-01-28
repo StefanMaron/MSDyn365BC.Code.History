@@ -529,6 +529,8 @@ report 5692 "Calculate Depreciation"
     begin
         ActivateErrorMessageHandling("Fixed Asset");
 
+        GeneralLedgerSetup.Get();
+
         DeprBook.Get(DeprBookCode);
         if UseCustom1 then
             DeprBook.TestField("Anticipated Depreciation Calc.");
