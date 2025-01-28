@@ -171,7 +171,7 @@ report 10182 "Vendor 1099 Nec 2022"
                 IRS1099Management.FormatCompanyAddress(CompanyAddress, CompanyInfo, TestPrintSwitch);
                 // Initialize flag used for Test Printing only
                 FirstVendor := true;
-                YearDigits := CopyStr(Format(YearValue), 3, 2);
+                YearDigits := Format(YearValue);
             end;
         }
     }
