@@ -897,6 +897,7 @@ codeunit 5836 "Cost Calculation Management"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ReturnRcptLine: Record "Return Receipt Line";
+        IsHandled: Boolean;
     begin
         if (SalesShptLine.Quantity = 0) or (SalesShptLine.Type = SalesShptLine.Type::"Charge (Item)") then
             exit(0);
@@ -906,6 +907,12 @@ codeunit 5836 "Cost Calculation Management"
             if ItemLedgEntry.IsEmpty() then
                 exit(0);
             AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
+
+            IsHandled := false;
+            OnBeforeRelatedReturnReceiptExists(SalesShptLine, ReturnRcptLine, IsHandled);
+            if IsHandled then
+                exit;
+
             if RelatedReturnReceiptExist(SalesShptLine, ReturnRcptLine) then
                 repeat
                     AdjCostLCY += CalcReturnRcptLineCostLCY(ReturnRcptLine, QtyType);
@@ -918,8 +925,17 @@ codeunit 5836 "Cost Calculation Management"
     end;
 
     local procedure RelatedReturnReceiptExist(var SalesShptLine: Record "Sales Shipment Line"; var ReturnRcptLine: Record "Return Receipt Line"): Boolean
+    var
+        ReturnValue: Boolean;
+        IsHandled: Boolean;
     begin
         if SalesShptLine."Item Shpt. Entry No." = 0 then exit;
+
+        IsHandled := false;
+        OnBeforeSetFiltersRelatedReturnReceiptExists(SalesShptLine, ReturnRcptLine, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         ReturnRcptLine.SetRange("Appl.-from Item Entry", SalesShptLine."Item Shpt. Entry No.");
         if ReturnRcptLine.FindSet() then
             exit(true);
@@ -1360,6 +1376,16 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCustActualCostLCYOnAfterFilterResLedgerEntry(var Customer: Record Customer; var ResLedgerEntry: Record "Res. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRelatedReturnReceiptExists(var SalesShptLine: Record "Sales Shipment Line"; var ReturnRcptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFiltersRelatedReturnReceiptExists(var SalesShptLine: Record "Sales Shipment Line"; var ReturnRcptLine: Record "Return Receipt Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

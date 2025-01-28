@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -23,6 +23,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Setup;
 using System.Globalization;
 using System.Utilities;
+using System.Telemetry;
 
 report 10572 "Sales - Invoice GB"
 {
@@ -744,7 +745,10 @@ report 10572 "Sales - Invoice GB"
             }
 
             trigger OnAfterGetRecord()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
+                FeatureTelemetry.LogUsage('0000OJL', FeatureNameTok, EventNameTok);
                 CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
 
@@ -1028,6 +1032,8 @@ report 10572 "Sales - Invoice GB"
         PaymentDiscountCaptionLbl: Label 'Payment Discount';
         DocDateCaptionLbl: Label 'Document Date';
         TotalReverseChargeVATLbl: Label 'Total Reverse Charge VAT';
+        FeatureNameTok: Label 'Sales Invoice GB', Locked = true;
+        EventNameTok: Label 'Sales Invoice GB report has been used', Locked = true;
 
     [Scope('OnPrem')]
     procedure InitLogInteraction()

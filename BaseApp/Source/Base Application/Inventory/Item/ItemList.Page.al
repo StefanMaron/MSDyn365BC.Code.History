@@ -1189,7 +1189,7 @@ page 31 "Item List"
                     Caption = 'Item Substitutions';
                     Image = "Report";
                     RunObject = Report "Item Substitutions";
-                    ToolTip = 'View or edit any substitute items that are set up to be traded instead of the item in case it is not available.';
+                    ToolTip = 'View substitute items that are set up to be sold instead of the items in the filter. A detailed overview also includes description, unit cost, quantity on hand, base unit of measure, information about interchangeability and additional conditions.';
                 }
 #if not CLEAN25
                 action("Price List")
@@ -1563,7 +1563,7 @@ page 31 "Item List"
                     RunObject = Page "Item Substitution Entry";
                     RunPageLink = Type = const(Item),
                                   "No." = field("No.");
-                    ToolTip = 'View substitute items that are set up to be sold instead of the item.';
+                    ToolTip = 'View or edit substitute items that are set up to be traded instead of the item in case it is not available.';
                 }
             }
             group(Availability)

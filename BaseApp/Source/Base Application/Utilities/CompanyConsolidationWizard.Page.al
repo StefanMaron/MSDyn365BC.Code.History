@@ -566,13 +566,10 @@ page 1826 "Company Consolidation Wizard"
     end;
 
     local procedure CreateAction()
-    var
-        CompanyDataType: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data";
     begin
         if NewCompanyName <> '' then begin
             AssistedCompanySetup.CreateNewCompany(NewCompanyName);
-            CompanyDataType := NewCompanyData + 1;
-            AssistedCompanySetup.SetUpNewCompany(NewCompanyName, CompanyDataType);
+            AssistedCompanySetup.SetUpNewCompany(NewCompanyName, Enum::"Company Demo Data Type"::"Create New - No Data");
             ConsolidatedCompany := NewCompanyName;
         end;
         CreateBusinessUnits();

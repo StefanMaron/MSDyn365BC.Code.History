@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -23,6 +23,7 @@ using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Globalization;
 using System.Utilities;
+using System.Telemetry;
 
 report 10571 "Order Confirmation GB"
 {
@@ -666,7 +667,10 @@ report 10571 "Order Confirmation GB"
             }
 
             trigger OnAfterGetRecord()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
+                FeatureTelemetry.LogUsage('0000OJJ', FeatureNameTok, EventNameTok);
                 CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
 
@@ -936,5 +940,7 @@ report 10571 "Order Confirmation GB"
         VATIdentCaptionLbl: Label 'VAT Identifier';
         TotalCaptionLbl: Label 'Total';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
+        FeatureNameTok: Label 'Order Confirmation GB', Locked = true;
+        EventNameTok: Label 'Order ConfirmationGB report has been used', Locked = true;
 }
 

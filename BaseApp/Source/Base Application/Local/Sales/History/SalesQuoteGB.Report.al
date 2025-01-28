@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -25,6 +25,7 @@ using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Globalization;
 using System.Utilities;
+using System.Telemetry;
 
 report 10570 "Sales - Quote GB"
 {
@@ -683,7 +684,10 @@ report 10570 "Sales - Quote GB"
             }
 
             trigger OnAfterGetRecord()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
+                FeatureTelemetry.LogUsage('0000OJM', FeatureNameTok, EventNameTok);
                 CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
 
@@ -981,5 +985,7 @@ report 10570 "Sales - Quote GB"
         HomePageCaptionLbl: Label 'HomePage';
         EmailCaptionLbl: Label 'E-Mail';
         DocumentDateCaptionLbl: Label 'Document Date';
+        FeatureNameTok: Label 'Sales Quote GB', Locked = true;
+        EventNameTok: Label 'Sales Quote GB report has been used', Locked = true;
 }
 

@@ -14,6 +14,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Purch Documents - NamedType ReverseChargeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3726053622 - NamedType 2033887935" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Bus. Posting Group cannot be %1. Item %2 is not subjected to Reverse Charge in Sales Line Document Type='%3',Document No.='%4',Line No.='%5'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=VAT Bus. Posting Group ,%2=Item No. ,%3=Document Type ,%4=Document No. , %5=Line No.]D;]A;(LookupHint=Codeunit ERM Sales Purch Documents - NamedType ReverseErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3726053622 - NamedType 1447595616" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.]]></Val>

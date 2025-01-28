@@ -60,6 +60,8 @@ codeunit 144038 "ERM Sales Purch Documents"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
+        ReverseErr: Label 'VAT Bus. Posting Group cannot be %1. Item %2 is not subjected to Reverse Charge in Sales Line Document Type=''%3'',Document No.=''%4'',Line No.=''%5''.',
+            Comment = '%1=VAT Bus. Posting Group ,%2=Item No. ,%3=Document Type ,%4=Document No. , %5=Line No.';
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandlerTRUE')]
@@ -406,6 +408,50 @@ codeunit 144038 "ERM Sales Purch Documents"
         Assert.ExpectedError(TotalToDeferErr);
     end;
 
+    [Test]
+    procedure ErrorMessageOnSalesLineReverseChargeVAT()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO 548073] Error Message appear if line with Reverse Charge VAT in Sales Order.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup.
+        CreateVATPostingSetupWithBlankVATBusPostingGroup(VATPostingSetup);
+
+        // [GIVEN] Validate Reverse Charge Vat Posting Group in Sales and Receivables Setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Reverse Charge VAT Posting Gr.", VATPostingSetup."VAT Bus. Posting Group");
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create a Sales Header of type Order.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer(VATPostingSetup));
+
+        // [GIVEN] Create an Item.
+        Item.Get(LibraryInventory.CreateItemNo());
+
+        // [GIVEN] Create a Sales Line and Validate Type.
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Validate(Type, SalesLine.Type::Item);
+
+        // [WHEN] Validate Item No. in Sales Line.
+        asserterror SalesLine.Validate("No.", Item."No.");
+
+        // [THEN] Error is thrown when line is Reverse Charge VAT.
+        Assert.ExpectedError(
+            StrSubstNo(
+                ReverseErr,
+                SalesLine."VAT Bus. Posting Group",
+                Item."No.",
+                SalesLine."Document Type",
+                SalesLine."Document No.",
+                SalesLine."Line No."));
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -721,6 +767,31 @@ codeunit 144038 "ERM Sales Purch Documents"
         DeferralLine.SetRange("Document Type", PurchaseLine."Document Type");
         DeferralLine.SetRange("Document No.", PurchaseLine."Document No.");
         DeferralLine.FindFirst();
+    end;
+
+    local procedure CreateVATPostingSetupWithBlankVATBusPostingGroup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, '', VATProductPostingGroup.Code); // Set VAT Bus. Posting Group to blank.
+        VATPostingSetup.Validate("VAT Identifier", VATPostingSetup."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(10));
+        VATPostingSetup.Validate("Purchase VAT Account", GLAccount."No.");
+        VATPostingSetup.Validate("Sales VAT Account", GLAccount."No.");
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateCustomer(var VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     [MessageHandler]

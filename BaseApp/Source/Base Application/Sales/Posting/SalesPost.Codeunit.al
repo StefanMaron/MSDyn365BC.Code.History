@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -76,6 +76,7 @@ using System.Automation;
 using System.Utilities;
 using System.Environment.Configuration;
 using System.Email;
+using System.Telemetry;
 
 codeunit 80 "Sales-Post"
 {
@@ -201,6 +202,7 @@ codeunit 80 "Sales-Post"
         DeferralUtilities: Codeunit "Deferral Utilities";
         UOMMgt: Codeunit "Unit of Measure Management";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         InvoicePostingInterface: Interface "Invoice Posting";
         IsInterfaceInitalized: Boolean;
         Window: Dialog;
@@ -289,6 +291,8 @@ codeunit 80 "Sales-Post"
         ItemReservDisruptionLbl: Label 'Confirm Item Reservation Disruption', Locked = true;
         ItemChargeZeroAmountErr: Label 'The amount for item charge %1 cannot be 0.', Comment = '%1 = Item Charge No.';
         SuppressCommitErr: Label 'Commit is blocked when %1 %2 is used.', Comment = '%1 = Date Order, %2 = Number Series';
+        ReverseChargeFeatureNameTok: Label 'Reverse Charge GB', Locked = true;
+        ReverseChargeEventNameTok: Label 'Reverse Charge GB has been used', Locked = true;
         DateOrderSeriesUsed: Boolean;	
 #if not CLEAN25        
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
@@ -1036,6 +1040,7 @@ codeunit 80 "Sales-Post"
                         SalesLine."Qty. to Invoice" / SalesLine.Quantity, Currency."Amount Rounding Precision");
                     SalesLine.SuspendStatusCheck(true);
                     SalesLine.Validate("VAT Bus. Posting Group", SalesSetup."Reverse Charge VAT Posting Gr.");
+                    FeatureTelemetry.LogUsage('0000OJO', ReverseChargeFeatureNameTok, ReverseChargeEventNameTok);
                 end;
                 DivideAmount(SalesHeader, SalesLine, 1, SalesLine."Qty. to Invoice", TempVATAmountLine, TempVATAmountLineRemainder);
             end;
@@ -2999,6 +3004,7 @@ codeunit 80 "Sales-Post"
                             PurchOrderHeader.TestField("Receiving No. Series");
                             PurchOrderHeader."Receiving No." :=
                               NoSeries.GetNextNo(PurchOrderHeader."Receiving No. Series", SalesHeader."Posting Date");
+                            OnUpdateAssosOrderPostingNosOnBeforeModifyPurchOrderHeader(PurchOrderHeader, SalesHeader);
                             PurchOrderHeader.Modify();
                         end;
                         OnUpdateAssosOrderPostingNosOnAfterReleasePurchaseDocument(PurchOrderHeader, SalesHeader);
@@ -12743,5 +12749,10 @@ codeunit 80 "Sales-Post"
     [IntegrationEvent(false, false)]
     local procedure OnInsertShptEntryRelationOnBeforeDeleteTempHandlingSpecification(var TempHandlingTrackingSpecification: Record "Tracking Specification" temporary)
     begin
-    end;    
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAssosOrderPostingNosOnBeforeModifyPurchOrderHeader(var PurchaseOrderHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
 }

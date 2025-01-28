@@ -1,12 +1,13 @@
-#pragma warning disable AS0072
+#if not CLEAN26
+#pragma warning disable AS0018, AS0049, AS0072
 namespace System.IO;
 
 using System.Environment.Configuration;
 using System.Threading;
 using Microsoft.Utilities;
-
 codeunit 1799 "Import Config. Package File"
 {
+    Access = Internal;
     TableNo = "Configuration Package File";
     ObsoleteTag = '25.2';
     ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
@@ -42,4 +43,5 @@ codeunit 1799 "Import Config. Package File"
     var
         DescriptionTxt: Label 'Could not complete the company setup.';
 }
-#pragma warning restore AS0072
+#pragma warning restore AS0018, AS0049, AS0072
+#endif

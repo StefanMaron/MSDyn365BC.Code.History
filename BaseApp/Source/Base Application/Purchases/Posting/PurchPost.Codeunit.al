@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -71,6 +71,7 @@ using Microsoft.Warehouse.Setup;
 using System.Automation;
 using System.Utilities;
 using System.Environment.Configuration;
+using System.Telemetry;
 
 codeunit 90 "Purch.-Post"
 {
@@ -372,6 +373,7 @@ codeunit 90 "Purch.-Post"
         UOMMgt: Codeunit "Unit of Measure Management";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         InvoicePostingInterface: Interface "Invoice Posting";
         IsInterfaceInitialized: Boolean;
         Window: Dialog;
@@ -469,7 +471,9 @@ codeunit 90 "Purch.-Post"
         ConfirmUsageWithBlankJobPlanningLineNoQst: Label 'Usage will not be linked to the project planning line because the Project Planning Line No field is empty.\\Do you want to continue?';
 #if not CLEAN25        
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
-#endif        
+#endif
+        ReverseChargeFeatureNameTok: Label 'Reverse Charge GB', Locked = true;
+        ReverseChargeEventNameTok: Label 'Reverse Charge GB has been used', Locked = true;
 
     /// <summary>
     /// Generates a record id for an 'empty' line
@@ -701,6 +705,7 @@ codeunit 90 "Purch.-Post"
         RefreshTempLinesNeeded: Boolean;
         IsHandled: Boolean;
     begin
+        OnBeforeCheckAndUpdate(PurchHeader, ModifyHeader);
         DocumentIsReadyToBeChecked := true;
         CheckPurchDocument(PurchHeader);
 
@@ -1077,6 +1082,7 @@ codeunit 90 "Purch.-Post"
                             (TempPurchLine2."Amount Including VAT" - TempPurchLine2.Amount) *
                             TempPurchLine2."Qty. to Invoice" / TempPurchLine2.Quantity,
                             Currency."Amount Rounding Precision");
+                        FeatureTelemetry.LogUsage('0000OJN', ReverseChargeFeatureNameTok, ReverseChargeEventNameTok);
                     end;
                     SetInvoiceOrderNo(PurchLine, PurchInvLine);
 
@@ -1540,7 +1546,7 @@ codeunit 90 "Purch.-Post"
             CalcItemJnlLineToBeReceivedAmounts(ItemJnlLine, PurchHeader, PurchLine, QtyToBeReceived);
 
         OnPostItemJnlLineOnAfterPrepareItemJnlLine(
-            ItemJnlLine, PurchLine, PurchHeader, PreviewMode, GenJnlLineDocNo, TrackingSpecification, QtyToBeReceived);
+            ItemJnlLine, PurchLine, PurchHeader, PreviewMode, GenJnlLineDocNo, TrackingSpecification, QtyToBeReceived, QtyToBeInvoiced);
 
         if PurchLine."Prod. Order No." <> '' then
             PostItemJnlLineCopyProdOrder(PurchLine, ItemJnlLine, QtyToBeReceived, QtyToBeInvoiced);
@@ -2407,44 +2413,49 @@ codeunit 90 "Purch.-Post"
         IsHandled: Boolean;
         ItemShptEntryNo: Integer;
     begin
-        SalesOrderHeader.Get(
-          SalesOrderHeader."Document Type"::Order, PurchLine."Sales Order No.");
-        SalesOrderLine.Get(
-          SalesOrderLine."Document Type"::Order, PurchLine."Sales Order No.", PurchLine."Sales Order Line No.");
-        ErrorMessageMgt.PushContext(ErrorContextElementSalesLine, SalesOrderLine.RecordId, 0, '');
-
         IsHandled := false;
-        OnPostAssocItemJnlLineOnBeforeInitAssocItemJnlLine(SalesOrderLine, ItemShptEntryNo, IsHandled);
-        if IsHandled then
-            exit(ItemShptEntryNo);
+        OnBeforeProcedurePostAssocItemJnlLine(SalesOrderLine, TempTrackingSpecification, TempHandlingSpecification, QtyToBeShipped, QtyToBeShippedBase, ItemShptEntryNo, IsHandled);
+        if not IsHandled then begin
+            SalesOrderHeader.Get(
+              SalesOrderHeader."Document Type"::Order, PurchLine."Sales Order No.");
+            SalesOrderLine.Get(
+              SalesOrderLine."Document Type"::Order, PurchLine."Sales Order No.", PurchLine."Sales Order Line No.");
+            ErrorMessageMgt.PushContext(ErrorContextElementSalesLine, SalesOrderLine.RecordId, 0, '');
 
-        InitAssocItemJnlLine(ItemJnlLine, SalesOrderHeader, SalesOrderLine, PurchHeader, QtyToBeShipped, QtyToBeShippedBase);
+            IsHandled := false;
+            OnPostAssocItemJnlLineOnBeforeInitAssocItemJnlLine(SalesOrderLine, ItemShptEntryNo, IsHandled);
+            if IsHandled then
+                exit(ItemShptEntryNo);
 
-        IsHandled := false;
-        OnPostAssocItemJnlLineOnBeforePost(ItemJnlLine, SalesOrderLine, IsHandled);
-        if (SalesOrderLine."Job Contract Entry No." = 0) or IsHandled then begin
-            TransferReservToItemJnlLine(SalesOrderLine, ItemJnlLine, PurchLine, QtyToBeShippedBase, true);
-            OnBeforePostAssocItemJnlLine(ItemJnlLine, SalesOrderLine, SuppressCommit, PurchLine);
-            RunItemJnlPostLine(ItemJnlLine);
-            OnAfterPostAssocItemJnlLine(ItemJnlLine, ItemJnlPostLine);
-            // Handle Item Tracking
-            if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification2) then begin
-                if TempHandlingSpecification2.FindSet() then
-                    repeat
-                        TempTrackingSpecification := TempHandlingSpecification2;
-                        TempTrackingSpecification.SetSourceFromSalesLine(SalesOrderLine);
-                        if TempTrackingSpecification.Insert() then;
-                        ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification2);
-                        ItemEntryRelation.SetSource(DATABASE::"Sales Shipment Line", 0, SalesOrderHeader."Shipping No.", SalesOrderLine."Line No.");
-                        ItemEntryRelation.SetOrderInfo(SalesOrderLine."Document No.", SalesOrderLine."Line No.");
-                        ItemEntryRelation.Insert();
-                    until TempHandlingSpecification2.Next() = 0;
-                exit(0);
+            InitAssocItemJnlLine(ItemJnlLine, SalesOrderHeader, SalesOrderLine, PurchHeader, QtyToBeShipped, QtyToBeShippedBase);
+
+            IsHandled := false;
+            OnPostAssocItemJnlLineOnBeforePost(ItemJnlLine, SalesOrderLine, IsHandled);
+            if (SalesOrderLine."Job Contract Entry No." = 0) or IsHandled then begin
+                TransferReservToItemJnlLine(SalesOrderLine, ItemJnlLine, PurchLine, QtyToBeShippedBase, true);
+                OnBeforePostAssocItemJnlLine(ItemJnlLine, SalesOrderLine, SuppressCommit, PurchLine);
+                RunItemJnlPostLine(ItemJnlLine);
+                OnAfterPostAssocItemJnlLine(ItemJnlLine, ItemJnlPostLine);
+                // Handle Item Tracking
+                if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification2) then begin
+                    if TempHandlingSpecification2.FindSet() then
+                        repeat
+                            TempTrackingSpecification := TempHandlingSpecification2;
+                            TempTrackingSpecification.SetSourceFromSalesLine(SalesOrderLine);
+                            if TempTrackingSpecification.Insert() then;
+                            ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification2);
+                            ItemEntryRelation.SetSource(DATABASE::"Sales Shipment Line", 0, SalesOrderHeader."Shipping No.", SalesOrderLine."Line No.");
+                            ItemEntryRelation.SetOrderInfo(SalesOrderLine."Document No.", SalesOrderLine."Line No.");
+                            ItemEntryRelation.Insert();
+                        until TempHandlingSpecification2.Next() = 0;
+                    exit(0);
+                end;
             end;
+
+            IsHandled := false;
+            ItemShptEntryNo := ItemJnlLine."Item Shpt. Entry No.";
         end;
 
-        IsHandled := false;
-        ItemShptEntryNo := ItemJnlLine."Item Shpt. Entry No.";
         OnPostAssocItemJnlLineOnBeforeExit(SalesOrderHeader, ItemShptEntryNo, IsHandled);
         exit(ItemShptEntryNo);
     end;
@@ -8172,7 +8183,7 @@ codeunit 90 "Purch.-Post"
             OnValidatePostingAndDocumentDateOnBeforeTestPostingDate(PurchaseHeader, PostingDateExists, SkipTestPostingDate);
             if not SkipTestPostingDate then
                 PurchaseHeader.TestPostingDate(PostingDateExists);
-        end;    
+        end;
 
         OnValidatePostingAndDocumentDateOnBeforePurchaseHeaderModify(PurchaseHeader, ModifyHeader);
         if ModifyHeader then
@@ -11248,7 +11259,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterPrepareItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var GenJnlLineDocNo: code[20]; TrackingSpecification: Record "Tracking Specification"; QtyToBeReceived: Decimal)
+    local procedure OnPostItemJnlLineOnAfterPrepareItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var GenJnlLineDocNo: code[20]; TrackingSpecification: Record "Tracking Specification"; QtyToBeReceived: Decimal; QtyToBeInvoiced: Decimal)
     begin
     end;
 
@@ -12313,6 +12324,11 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAndUpdate(var PurchaseHeader: Record "Purchase Header"; var ModifyHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostItemChargeOnAfterCalcTotalChargeAmt(var PurchaseLineToPost: Record "Purchase Line"; QtyToAssign: Decimal; var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -12355,5 +12371,10 @@ codeunit 90 "Purch.-Post"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemCharge(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
     begin
-    end;    
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcedurePostAssocItemJnlLine(var SalesOrderLine: Record "Sales Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempHandlingSpecification: Record "Tracking Specification" temporary; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal; var ItemShptEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
 }

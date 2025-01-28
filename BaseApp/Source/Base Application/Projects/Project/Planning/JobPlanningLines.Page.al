@@ -688,7 +688,7 @@ page 1007 "Job Planning Lines"
                         PurchaseLine: Record "Purchase Line";
                     begin
                         Rec.SetPurchLineFilters(PurchaseLine);
-                        PurchaseLine.SetFilter("Outstanding Amount (LCY)", '<> 0');
+                        PurchaseLine.SetFilter(Quantity, '<> 0');
                         Page.RunModal(Page::"Purchase Lines", PurchaseLine);
                     end;
                 }

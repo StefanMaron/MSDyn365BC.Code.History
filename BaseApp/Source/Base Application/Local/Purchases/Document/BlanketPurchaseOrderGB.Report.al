@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Vendor;
 using System.Globalization;
 using System.Utilities;
+using System.Telemetry;
 
 report 10579 "Blanket Purchase Order GB"
 {
@@ -473,10 +474,13 @@ report 10579 "Blanket Purchase Order GB"
             }
 
             trigger OnAfterGetRecord()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
+                FeatureTelemetry.LogUsage('0000OJE', FeatureNameTok, EventNameTok);
                 CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
- 
+
                 CompanyInfo.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
@@ -636,5 +640,7 @@ report 10579 "Blanket Purchase Order GB"
         NoCaptionLbl: Label 'No.';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
         ShipToAddressCaptionLbl: Label 'Ship-to Address';
+        FeatureNameTok: Label 'Blanket Purchase Order GB', Locked = true;
+        EventNameTok: Label 'Blanket Purchase Order GB report has been used', Locked = true;
 }
 
