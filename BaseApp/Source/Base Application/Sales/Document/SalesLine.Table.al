@@ -458,7 +458,7 @@ table 37 "Sales Line"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateShipmentDate(IsHandled, Rec, xRec);
+                OnBeforeValidateShipmentDate(IsHandled, Rec, xRec, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -8813,7 +8813,7 @@ table 37 "Sales Line"
         OnAfterCheckShipmentRelation(Rec, SalesShptLine);
     end;
 
-    local procedure CheckShipmentDateBeforeWorkDate()
+    procedure CheckShipmentDateBeforeWorkDate()
     var
         IsHandled: Boolean;
     begin
@@ -9405,6 +9405,8 @@ table 37 "Sales Line"
         if IsNullGuid(SalesHeader.SystemId) then
             exit;
         if SalesHeader."Invoice Discount Value" = 0 then
+            exit;
+        if SalesHeader."Invoice Discount Calculation" = SalesHeader."Invoice Discount Calculation"::"%" then
             exit;
         SalesHeader."Invoice Discount Value" -= InvDiscountAmount;
         SalesHeader.Modify(true);
@@ -10091,7 +10093,7 @@ table 37 "Sales Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateUnitCostLCYOnGetUnitCost(IsHandled, Rec);
+        OnBeforeValidateUnitCostLCYOnGetUnitCost(IsHandled, Rec, Item);
         if IsHandled then
             exit;
 
@@ -12256,7 +12258,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeValidateUnitCostLCYOnGetUnitCost(var IsHandled: Boolean; var SalesLine: Record "Sales Line")
+    local procedure OnBeforeValidateUnitCostLCYOnGetUnitCost(var IsHandled: Boolean; var SalesLine: Record "Sales Line"; Item: Record Item)
     begin
     end;
 
@@ -12276,7 +12278,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeValidateShipmentDate(var IsHandled: Boolean; var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
+    local procedure OnBeforeValidateShipmentDate(var IsHandled: Boolean; var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
 

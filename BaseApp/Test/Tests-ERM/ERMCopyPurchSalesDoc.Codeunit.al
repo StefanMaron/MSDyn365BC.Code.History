@@ -36,6 +36,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         WrongCopyPurchaseResourceErr: Label 'Wrong data after copy purchase resource';
         AddrChangedErr: Label 'field on the purchase order %1 must be the same as on sales order %2.', Comment = '%1: Purchase Order No., %2: Sales Order No.';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
+        GLEntryExistLabel: Label 'G/L Entry with zero amount is posted.';
 
 #if not CLEAN25
     [Test]
@@ -6793,6 +6794,34 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
                 SalesLine.TableCaption()));
     end;
 
+    [Test]
+    procedure ZeroAmountEntryNotPostedWithLineDiscAndDeferral()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        DeferralCode: Code[20];
+    begin
+        // [SCENARIO 550371] Zero amount not posted in G/L Entries when post Sales Invoice having Line Discount,
+        // Deferral Code and Discount Posting set to No Discount in Sales Setup.
+        Initialize();
+
+        // [GIVEN] Set Discount Posting to No Discount.
+        LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
+
+        // [GIVEN] Create a Deferral Template.
+        DeferralCode := CreateDeferralTemplateByPeriod(LibraryRandom.RandIntInRange(3, 3));
+
+        // [GIVEN] Create a Sales Invoice with Line Dscount Percent.
+        CreateSalesInvoiceWithLineDiscountAndDeferralCode(SalesHeader, DeferralCode);
+
+        // [WHEN] Post a Sales Invoice.
+        SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [THEN] Verify Zero Amount G/L Entry not Posted.
+        Assert.AreEqual(false, VerifyZeroAmountEntryGLEntryExist(SalesInvHeader."No."), GLEntryExistLabel);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -8420,6 +8449,42 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
         exit(Item."No.");
+    end;
+
+    local procedure CreateDeferralTemplateByPeriod(NoOfPeriod: Integer): code[10]
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        DeferralTemplate.Init();
+        DeferralTemplate."Deferral Code" := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
+        DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo();
+        DeferralTemplate."Calc. Method" := DeferralTemplate."Calc. Method"::"Straight-Line";
+        DeferralTemplate."Start Date" := DeferralTemplate."Start Date"::"Posting Date";
+        DeferralTemplate."No. of Periods" := NoOfPeriod;
+        DeferralTemplate.Insert();
+
+        exit(DeferralTemplate."Deferral Code");
+    end;
+
+    local procedure CreateSalesInvoiceWithLineDiscountAndDeferralCode(var SalesHeader: Record "Sales Header"; DeferralCode: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, GetItemNo(), LibraryRandom.RandIntInRange(2, 2));
+        SalesLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 10));
+        SalesLine.Validate("Deferral Code", DeferralCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure VerifyZeroAmountEntryGLEntryExist(DocumentNo: Code[20]): Boolean
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange(Amount, 0);
+        if not GLEntry.IsEmpty() then
+            exit(true);
     end;
 
     [RequestPageHandler]
