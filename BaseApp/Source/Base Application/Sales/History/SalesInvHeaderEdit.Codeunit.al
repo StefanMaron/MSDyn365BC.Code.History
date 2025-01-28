@@ -30,6 +30,7 @@ codeunit 1409 "Sales Inv. Header - Edit"
         SalesInvoiceHeader."Dispute Status" := Rec."Dispute Status";
         SalesInvoiceHeader."Promised Pay Date" := Rec."Promised Pay Date";
         SalesInvoiceHeader."Due Date" := Rec."Due Date";
+        SalesInvoiceHeader."Your Reference" := Rec."Your Reference";
         OnOnRunOnBeforeTestFieldNo(SalesInvoiceHeader, Rec);
         SalesInvoiceHeader.TestField("No.", Rec."No.");
         SalesInvoiceHeader.Modify();

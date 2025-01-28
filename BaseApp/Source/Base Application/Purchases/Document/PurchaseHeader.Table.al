@@ -1947,7 +1947,14 @@ table 38 "Purchase Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupPrepmtCrMemoNoSeries(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 PurchHeader := Rec;
                 GetPurchSetup();
                 PurchSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
@@ -1957,7 +1964,14 @@ table 38 "Purchase Header"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePrepmtCrMemoNoSeries(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Prepmt. Cr. Memo No. Series" <> '' then begin
                     GetPurchSetup();
                     PurchSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
@@ -4590,6 +4604,7 @@ table 38 "Purchase Header"
     /// <param name="OldParentDimSetID">Previous dimension set ID.</param>
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     var
+        xPurchaseLine: Record "Purchase Line";
         ConfirmManagement: Codeunit "Confirm Management";
         NewDimSetID: Integer;
         ReceivedShippedItemLineDimChangeConfirmed: Boolean;
@@ -4621,6 +4636,7 @@ table 38 "Purchase Header"
                 NewDimSetID := DimMgt.GetDeltaDimSetID(PurchLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 OnUpdateAllLineDimOnAfterGetPurchLineNewDimsetID(Rec, xRec, PurchLine, NewDimSetID, NewParentDimSetID, OldParentDimSetID);
                 if PurchLine."Dimension Set ID" <> NewDimSetID then begin
+                    xPurchaseLine := PurchLine;
                     PurchLine."Dimension Set ID" := NewDimSetID;
 
                     if not GetHideValidationDialog() and GuiAllowed then
@@ -4629,7 +4645,7 @@ table 38 "Purchase Header"
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       PurchLine."Dimension Set ID", PurchLine."Shortcut Dimension 1 Code", PurchLine."Shortcut Dimension 2 Code");
 
-                    OnUpdateAllLineDimOnBeforePurchLineModify(PurchLine);
+                    OnUpdateAllLineDimOnBeforePurchLineModify(PurchLine, xPurchaseLine);
                     PurchLine.Modify();
                 end;
             until PurchLine.Next() = 0;
@@ -4739,7 +4755,13 @@ table 38 "Purchase Header"
     procedure GetPstdDocLinesToReverse()
     var
         PurchPostedDocLines: Page "Posted Purchase Document Lines";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPstdDocLinesToReverse(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetVend("Buy-from Vendor No.");
         PurchPostedDocLines.SetToPurchHeader(Rec);
         PurchPostedDocLines.SetRecord(Vend);
@@ -4748,6 +4770,8 @@ table 38 "Purchase Header"
             PurchPostedDocLines.CopyLineToDoc();
 
         Clear(PurchPostedDocLines);
+
+        OnAfterGetPstdDocLinesToReverse(Rec);
     end;
 
     /// <summary>
@@ -5017,6 +5041,7 @@ table 38 "Purchase Header"
 
         PurchaseLine.SetRange("Document Type", "Document Type");
         PurchaseLine.SetRange("Document No.", "No.");
+        PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
         if not PurchaseLine.FindFirst() then
             exit(true);
 
@@ -8281,7 +8306,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAllLineDimOnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line")
+    local procedure OnUpdateAllLineDimOnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -8779,6 +8804,26 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnAfterConfirmKeepExisting(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPrepmtCrMemoNoSeries(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepmtCrMemoNoSeries(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPstdDocLinesToReverse(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPstdDocLinesToReverse(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

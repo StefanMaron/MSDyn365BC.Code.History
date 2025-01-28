@@ -31,6 +31,7 @@
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryDimension: Codeunit "Library - Dimension";
         IsInitialized: Boolean;
         MustNotBeEqualErr: Label 'Transaction No. %1 and %2 must not be equal.', Comment = '%1=Transaction1;%2=Transaction2';
         PostingDateErr: Label 'Enter the posting date.';
@@ -56,6 +57,7 @@
         CannotRenameItemErr: Label 'You cannot rename %1 in a %2, because it is used in %3.', Comment = '%1 = Item No. caption, %2 = Table caption, %3 = Reference Table caption';
         AdjustExchRateDefaultDescTxt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Locked = true;
         AccountBalanceErrLbl: Label 'G/L Account %1 is not balanced';
+        AmountNotMatchedErr: Label 'Amount not matched.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2708,6 +2710,112 @@
         VerifyGLEntryForAccount(VendorPostingGroup, ActualAmount);
     end;
 
+    [Test]
+    procedure PurchaseInvoiceAmountExclVATWithInheritFromParentAllocationAccount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLEntry: Record "G/L Entry";
+        DimensionValues: array[2] of Record "Dimension Value";
+        AllocationAccountNo: Code[20];
+        GLAccountNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        DimSetID: array[2] of Integer;
+        Share: array[2] of Decimal;
+        Amount: array[2] of Decimal;
+        AmtRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Allocation Account] [Purchase]
+        // [SCENARIO 561035] G/L Entry amounts when Purchase Invoice with Amount Incl. VAT not set is posted with Allocation Account with Inherit from parent lines.
+        Initialize();
+
+        // [GIVEN] Allocation Account "AA" with Fixed Distribution.
+        // [GIVEN] Two distribution lines with Inherit from parent type and Shares 40 and 60.
+        // [GIVEN] Lines have Dimension DEPARTMENT with SALES and PROD values.
+        Share[1] := 40;
+        Share[2] := 60;
+        AllocationAccountNo := CreateAllocationAccountWithFixedDistribution();
+        CreateDimensionWithValues(DimensionValues);
+        DimSetID[1] := CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo, Share[1], DimensionValues[1]);
+        DimSetID[2] := CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo, Share[2], DimensionValues[2]);
+
+        // [GIVEN] Purchase Invoice with Prices Including VAT not set.
+        // [GIVEN] Purchase Line with G/L Account "GL1", Amount 1000 and Allocation Account No. "AA".
+        CreatePurchaseInvoiceWithInheritFromParentAllocationAccount(PurchaseHeader, PurchaseLine, AllocationAccountNo, false);
+        AmtRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
+        Amount[1] := Round(PurchaseLine.Amount * Share[1] / 100, AmtRoundingPrecision);
+        Amount[2] := Round(PurchaseLine.Amount * Share[2] / 100, AmtRoundingPrecision);
+        GLAccountNo := PurchaseLine."No.";
+
+        // [WHEN] Post Purchase Invoice.
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Two G/L Entries for G/L Account "GL1" with Amounts 400 and 600 were created.
+        GLEntry.SetRange("Document No.", PostedInvoiceNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+
+        GLEntry.SetRange("Dimension Set ID", DimSetID[1]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(Amount[1], GLEntry.Amount, AmountNotMatchedErr);
+
+        GLEntry.SetRange("Dimension Set ID", DimSetID[2]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(Amount[2], GLEntry.Amount, AmountNotMatchedErr);
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceAmountInclVATWithInheritFromParentAllocationAccount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLEntry: Record "G/L Entry";
+        DimensionValues: array[2] of Record "Dimension Value";
+        AllocationAccountNo: Code[20];
+        GLAccountNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        DimSetID: array[2] of Integer;
+        Share: array[2] of Decimal;
+        Amount: array[2] of Decimal;
+        AmtRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Allocation Account] [Purchase]
+        // [SCENARIO 561035] G/L Entry amounts when Purchase Invoice with Amount Incl. VAT set is posted with Allocation Account with Inherit from parent lines.
+        Initialize();
+
+        // [GIVEN] Allocation Account "AA" with Fixed Distribution.
+        // [GIVEN] Two distribution lines with Inherit from parent type and Shares 40 and 60.
+        // [GIVEN] Lines have Dimension DEPARTMENT with SALES and PROD values.
+        Share[1] := 40;
+        Share[2] := 60;
+        AllocationAccountNo := CreateAllocationAccountWithFixedDistribution();
+        CreateDimensionWithValues(DimensionValues);
+        DimSetID[1] := CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo, Share[1], DimensionValues[1]);
+        DimSetID[2] := CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo, Share[2], DimensionValues[2]);
+
+        // [GIVEN] Purchase Invoice with Prices Including VAT set.
+        // [GIVEN] Purchase Line with G/L Account "GL1", Amount 1000 and Allocation Account No. "AA".
+        CreatePurchaseInvoiceWithInheritFromParentAllocationAccount(PurchaseHeader, PurchaseLine, AllocationAccountNo, true);
+        AmtRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
+        Amount[1] := Round(PurchaseLine.Amount * Share[1] / 100, AmtRoundingPrecision);
+        Amount[2] := Round(PurchaseLine.Amount * Share[2] / 100, AmtRoundingPrecision);
+        GLAccountNo := PurchaseLine."No.";
+
+        // [WHEN] Post Purchase Invoice.
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Two G/L Entries for G/L Account "GL1" with Amounts 400 and 600 were created.
+        GLEntry.SetRange("Document No.", PostedInvoiceNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+
+        GLEntry.SetRange("Dimension Set ID", DimSetID[1]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(Amount[1], GLEntry.Amount, AmountNotMatchedErr);
+
+        GLEntry.SetRange("Dimension Set ID", DimSetID[2]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(Amount[2], GLEntry.Amount, AmountNotMatchedErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3644,6 +3752,35 @@
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreatePurchaseInvoiceWithInheritFromParentAllocationAccount(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; AllocationAccountNo: Code[20]; PricesInclVAT: Boolean)
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, Enum::"Tax Calculation Type"::"Normal VAT");
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Validate("Prices Including VAT", PricesInclVAT);
+        Vendor.Modify(true);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+            GLAccount."No.", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        PurchaseLine.Validate("Selected Alloc. Account No.", AllocationAccountNo);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure CreateAllocationAccountWithFixedDistribution(var AllocationAccountPage: TestPage "Allocation Account"): Code[20]
     var
         DummyAllocationAccount: Record "Allocation Account";
@@ -3656,6 +3793,30 @@
         AllocationAccountPage.Name.SetValue(LibraryRandom.RandText(5));
 
         exit(AllocationAccountNo);
+    end;
+
+    local procedure CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo: Code[20]; Share: Decimal; DimensionValue: Record "Dimension Value") DimSetID: Integer
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        DimSetID := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
+
+        AllocAccountDistribution."Allocation Account No." := AllocationAccountNo;
+        AllocAccountDistribution."Line No." := LibraryUtility.GetNewRecNo(AllocAccountDistribution, AllocAccountDistribution.FieldNo("Line No."));
+        AllocAccountDistribution."Account Type" := AllocAccountDistribution."Account Type"::Fixed;
+        AllocAccountDistribution."Destination Account Type" := AllocAccountDistribution."Destination Account Type"::"Inherit from Parent";
+        AllocAccountDistribution.Validate(Share, Share);
+        AllocAccountDistribution.Validate("Dimension Set ID", DimSetID);
+        AllocAccountDistribution.Insert();
+    end;
+
+    local procedure CreateDimensionWithValues(var DimensionValues: array[2] of Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValues[1], Dimension.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValues[2], Dimension.Code);
     end;
 
     local procedure CreateGLAccount(GLAccountType: Enum Microsoft.Finance.GeneralLedger.Account."G/L Account Type"; DirectPosting: Boolean): Code[20]

@@ -614,6 +614,8 @@ page 7139 "Sales Budget Overview"
 
         FindPeriod('');
         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+
+        OnOpenPageOnBeforeUpdateMatrixSubform(ItemBudgetName, DateFilter, SourceNoFilter, ItemFilter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter, GlobalDim1Filter, GlobalDim2Filter);
         UpdateMatrixSubForm();
     end;
 
@@ -978,6 +980,11 @@ page 7139 "Sales Budget Overview"
         if ColumnDimType = ColumnDimType::Period then
             GenerateColumnCaptions("Matrix Page Step Type"::Initial);
         UpdateMatrixSubForm();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeUpdateMatrixSubform(ItemBudgetName: Record "Item Budget Name"; var DateFilter: Text; var SourceNoFilter: Text; var ItemFilter: Text; var BudgetDim1Filter: Text; var BudgetDim2Filter: Text; var BudgetDim3Filter: Text; var GlobalDim1Filter: Text; var GlobalDim2Filter: Text)
+    begin
     end;
 }
 
