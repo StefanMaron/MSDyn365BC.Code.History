@@ -2,7 +2,11 @@ namespace Microsoft.PowerBIReports;
 
 using System.Integration.PowerBI;
 
-page 36995 "General Ledger Entries"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+page 36995 "PowerBI General Ledg. Entries"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;

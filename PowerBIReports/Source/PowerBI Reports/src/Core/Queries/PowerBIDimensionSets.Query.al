@@ -2,8 +2,11 @@ namespace Microsoft.PowerBIReports;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 
-
-query 36951 "Dimension Sets"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+query 36951 "PowerBI Dimension Sets"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     // ***This is an internal query which is no longer directly exposed to Power BI***
     // ***This Query is used internally to refresh and store data in Table 57699 - Power BI Dim. Set Entry***

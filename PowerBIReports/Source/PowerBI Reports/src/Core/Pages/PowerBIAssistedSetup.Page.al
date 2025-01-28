@@ -6,11 +6,14 @@ using System.DateTime;
 using System.Security.User;
 using System.Utilities;
 
-page 36950 "Assisted Setup"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+page 36950 "PowerBI Assisted Setup"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     PageType = NavigatePage;
-    // IMPORTANT: do not change the caption - see slice 546954
-    Caption = 'Assisted Setup', Comment = 'IMPORTANT: Use the same translation as in System App''s page "Assisted Setup" id: "Page 799089619 - Property 2879900210"';
+    Caption = 'Power BI Assisted Setup';
     SourceTable = "PowerBI Reports Setup";
     Extensible = false;
 
@@ -715,7 +718,7 @@ page 36950 "Assisted Setup"
 
                 trigger OnAction();
                 begin
-                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Assisted Setup");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"PowerBI Assisted Setup");
                     CurrPage.Close();
                 end;
             }
@@ -763,7 +766,7 @@ page 36950 "Assisted Setup"
             Rec.Insert();
         end;
         if NavApp.GetCurrentModuleInfo(AppInfo) then
-            AssistedSetupComplete := GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Setup");
+            AssistedSetupComplete := GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"PowerBI Assisted Setup");
 
         if UserSetup.Get(UserId()) then
             TestEmailAddress := UserSetup."E-Mail";

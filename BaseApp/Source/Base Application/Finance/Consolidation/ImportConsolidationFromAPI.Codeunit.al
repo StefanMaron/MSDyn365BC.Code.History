@@ -21,6 +21,7 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
 
     var
         ConsolidationSetup: Record "Consolidation Setup";
+        BusinessUnitBeingImported: Record "Business Unit";
         AADTenantId: Text;
         BusinessUnitAPIBaseUrl: Text;
         LogRequests: Boolean;
@@ -49,7 +50,7 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         PPEFinancialsScopeTok: Label 'https://api.businesscentral.dynamics-tie.com/.default', Locked = true;
         RedirectURLTok: Label 'https://businesscentral.dynamics.com/OAuthLanding.htm', Locked = true;
         PPERedirectUrlTok: Label 'https://businesscentral.dynamics-tie.com/OAuthLanding.htm', Locked = true;
-        TelemetryCategoyTok: Label 'financial-consolidations', Locked = true;
+        TelemetryCategoryTok: Label 'financial-consolidations', Locked = true;
         GetTokenCalledFromOnPremMsg: Label 'Get token called from OnPrem', Locked = true;
         RefreshingTokenMsg: Label 'Refreshing token for Financial Consolidations', Locked = true;
         AKVSecretNotFoundMsg: Label 'AKV key not found', Locked = true;
@@ -268,13 +269,13 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         IsEnvPPE: Boolean;
     begin
         IsEnvPPE := IsPPE();
-        Session.LogMessage('0000KTS', RefreshingTokenMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoyTok);
+        Session.LogMessage('0000KTS', RefreshingTokenMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         if not EnvironmentInformation.IsSaaS() then begin
-            Session.LogMessage('0000KOB', GetTokenCalledFromOnPremMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoyTok);
+            Session.LogMessage('0000KOB', GetTokenCalledFromOnPremMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(AccessToken);
         end;
         if not AzureKeyVault.GetAzureKeyVaultSecret(ClientIdAKVKeyTok, ClientId) then begin
-            Session.LogMessage('0000KOE', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoyTok);
+            Session.LogMessage('0000KOE', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(AccessToken);
         end;
         FinancialsScope := FinancialsScopeTok;
@@ -283,16 +284,16 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
             FinancialsScope := PPEFinancialsScopeTok;
             RedirectURL := PPERedirectUrlTok;
             if not AzureKeyVault.GetAzureKeyVaultSecret(ClientSecretAKVKeyTok, ClientSecret) then begin
-                Session.LogMessage('0000KOI', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoyTok);
+                Session.LogMessage('0000KOI', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                 exit(AccessToken);
             end
         end else begin
             if not AzureKeyVault.GetAzureKeyVaultSecret(ClientCertificateAKVKeyTok, CertificateName) then begin
-                Session.LogMessage('0000KOC', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoyTok);
+                Session.LogMessage('0000KOC', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                 exit(AccessToken);
             end;
             if not AzureKeyVault.GetAzureKeyVaultCertificate(CertificateName, Certificate) then begin
-                Session.LogMessage('0000KOD', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoyTok);
+                Session.LogMessage('0000KOD', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                 exit(AccessToken);
             end;
         end;
@@ -314,13 +315,20 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
 
     local procedure HttpGetTextWithTokenInIsolatedStorage(Uri: Text; var StatusCode: Integer; var StatusReasonPhrase: Text): Text
     var
+        Response: Text;
         StorageKey: Text;
         Token: SecretText;
     begin
         StorageKey := IsolatedStorageKey(AADTenantId);
         if IsolatedStorage.Contains(StorageKey, DataScope::Company) then
             IsolatedStorage.Get(StorageKey, DataScope::Company, Token);
-        exit(HttpGetText(Uri, Token, StatusCode, StatusReasonPhrase));
+        Response := HttpGetText(Uri, Token, StatusCode, StatusReasonPhrase);
+        if StatusCode = 401 then begin
+            AcquireTokenAndStoreInIsolatedStorage(BusinessUnitBeingImported);
+            IsolatedStorage.Get(StorageKey, DataScope::Company, Token);
+            Response := HttpGetText(Uri, Token, StatusCode, StatusReasonPhrase);
+        end;
+        exit(Response);
     end;
 
     local procedure HttpGetText(Uri: Text; Token: SecretText; var StatusCode: Integer; var StatusReasonPhrase: Text): Text
@@ -406,6 +414,7 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
 
         SetAPIParameters(BusinessUnit."AAD Tenant ID", BusinessUnit."Log Requests");
         SetBusinessUnitAPIBaseUrl(BusinessUnit);
+        BusinessUnitBeingImported.Get(BusinessUnit.Code);
 
         if GeneralLedgerSetup."Journal Templ. Name Mandatory" then
             GenJournalBatch.Get(ConsolidationProcess."Journal Template Name", ConsolidationProcess."Journal Batch Name");

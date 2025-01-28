@@ -2,14 +2,18 @@ namespace Microsoft.PowerBIReports;
 
 using System.Integration.PowerBI;
 
-page 37031 "Bin Contents"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+page 37049 "PowerBI Released Prod. Orders"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
     PageType = Card;
-    Caption = 'Bin Contents';
-    AboutTitle = 'About Bin Contents';
-    AboutText = 'The Bin Contents report provides a detailed view of item quantities by bin code and location. It includes additional information such as warehouse quantity, pick and put-away quantities, and both negative and positive adjustments, offering a comprehensive overview of bin movements and inventory management within the warehouse.';
+    Caption = 'Released Production Orders';
+    AboutTitle = 'About Released Production Orders';
+    AboutText = 'View how your released production orders are tracking by comparing Expected Quantity vs Finished Quantity';
     Extensible = false;
 
     layout
@@ -57,7 +61,7 @@ page 37031 "Bin Contents"
         SetupHelper: Codeunit "Setup Helper";
         ReportId: Guid;
 #pragma warning disable AA0240
-        ReportPageLbl: Label 'ReportSection12b3ff23621e20c1398d', Locked = true;
+        ReportPageLbl: Label 'ReportSectionc2dea8def8e17bcc1d69', Locked = true;
 #pragma warning restore AA0240
 
     trigger OnOpenPage()
@@ -65,7 +69,7 @@ page 37031 "Bin Contents"
         PowerBIReportsSetup: Record "PowerBI Reports Setup";
     begin
         SetupHelper.EnsureUserAcceptedPowerBITerms();
-        ReportId := SetupHelper.GetReportIdAndEnsureSetup(CurrPage.Caption(), PowerBIReportsSetup.FieldNo("Inventory Report Id"));
+        ReportId := SetupHelper.GetReportIdAndEnsureSetup(CurrPage.Caption(), PowerBIReportsSetup.FieldNo("Manufacturing Report Id"));
     end;
 }
 

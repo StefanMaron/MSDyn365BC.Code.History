@@ -3,7 +3,11 @@ namespace Microsoft.Finance.PowerBIReports;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.History;
 
-query 36963 "Vendor Ledger Entries"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+query 36963 "Vendor Ledg. Entries - PBI API"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     Access = Internal;
     QueryType = API;

@@ -1,6 +1,10 @@
 namespace Microsoft.PowerBIReports;
 
-query 36950 "Dimension Set Entries"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+query 36950 "PowerBI Dimension Set Entries"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     Access = Internal;
     Caption = 'Power BI Dimension Set Entries';
@@ -14,7 +18,7 @@ query 36950 "Dimension Set Entries"
 
     elements
     {
-        dataitem(PBIDimensionSetEntries; "Dimension Set Entry")
+        dataitem(PBIDimensionSetEntries; "PowerBI Flat Dim. Set Entry")
         {
             column(id; SystemId)
             {

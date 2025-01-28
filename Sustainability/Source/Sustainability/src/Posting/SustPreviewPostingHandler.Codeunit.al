@@ -14,4 +14,14 @@ codeunit 6228 "Sust. Preview Posting Handler"
     begin
         SustPreviewPostInstance.InsertSustLedgEntry(Rec, RunTrigger);
     end;
+
+    procedure TryBindPostingPreviewHandler(): Boolean
+    begin
+        exit(BindSubscription(this));
+    end;
+
+    procedure TryUnbindPostingPreviewHandler(): Boolean
+    begin
+        exit(UnbindSubscription(this));
+    end;
 }

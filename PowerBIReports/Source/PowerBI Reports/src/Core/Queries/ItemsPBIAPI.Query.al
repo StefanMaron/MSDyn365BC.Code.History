@@ -2,7 +2,11 @@ namespace Microsoft.PowerBIReports;
 
 using Microsoft.Inventory.Item;
 
-query 36953 Items
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+query 36953 "Items - PBI API"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     Access = Internal;
     Caption = 'Power BI Items';

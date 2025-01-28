@@ -2,7 +2,9 @@ namespace Microsoft.PowerBIReports;
 
 using Microsoft.Projects.RoleCenters;
 
-pageextension 36957 "Job Project Manager RC" extends "Job Project Manager RC"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+pageextension 36957 "Power BI Job Project Manager" extends "Job Project Manager RC"
 {
     actions
     {
@@ -82,3 +84,5 @@ pageextension 36957 "Job Project Manager RC" extends "Job Project Manager RC"
     }
 }
 
+#pragma warning restore AS0030
+#pragma warning restore AS0125

@@ -2,14 +2,18 @@ namespace Microsoft.PowerBIReports;
 
 using System.Integration.PowerBI;
 
-page 37049 "Released Production Orders"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+page 37042 "PowerBI Work Center Load"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
     PageType = Card;
-    Caption = 'Released Production Orders';
-    AboutTitle = 'About Released Production Orders';
-    AboutText = 'View how your released production orders are tracking by comparing Expected Quantity vs Finished Quantity';
+    Caption = 'Work Center Load';
+    AboutTitle = 'About Work Center Load';
+    AboutText = 'View the percentage of production order time assigned vs Available Capacity for each Work Centre Group and/or Work Centre in a specified period. Allows you to determine if a Work Centre is overloaded and requires rescheduling.';
     Extensible = false;
 
     layout
@@ -57,7 +61,7 @@ page 37049 "Released Production Orders"
         SetupHelper: Codeunit "Setup Helper";
         ReportId: Guid;
 #pragma warning disable AA0240
-        ReportPageLbl: Label 'ReportSectionc2dea8def8e17bcc1d69', Locked = true;
+        ReportPageLbl: Label 'ReportSection83a7395d207d5b47b1a4', Locked = true;
 #pragma warning restore AA0240
 
     trigger OnOpenPage()

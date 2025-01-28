@@ -829,10 +829,10 @@ page 9249 "Analysis by Dimensions Matrix"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         NoEntriesToExportToExcelErr: Label 'There are no entries to export to Excel.';
-        Emphasize: Boolean;
 
     protected var
         AnalysisByDimParameters: Record "Analysis by Dim. Parameters";
+        Emphasize: Boolean;
 
     local procedure InitRecord(var DimCodeBuf: Record "Dimension Code Buffer"; DimOption: Enum "Analysis Dimension Option")
     var

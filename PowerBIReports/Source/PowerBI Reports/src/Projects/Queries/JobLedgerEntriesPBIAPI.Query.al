@@ -2,7 +2,11 @@ namespace Microsoft.Projects.PowerBIReports;
 
 using Microsoft.Projects.Project.Ledger;
 
-query 36992 "Job Ledger Entries"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+query 36992 "Job Ledger Entries - PBI API"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     Access = Internal;
     QueryType = API;

@@ -2,7 +2,11 @@ namespace Microsoft.Inventory.PowerBIReports;
 
 using Microsoft.Inventory.Ledger;
 
-query 36968 "Item Ledger Entries"
+#pragma warning disable AS0125
+#pragma warning disable AS0030
+query 36968 "Item Ledger Entries - PBI API"
+#pragma warning restore AS0030
+#pragma warning restore AS0125
 {
     Access = Internal;
     Caption = 'Power BI Item Ledger Entries';
