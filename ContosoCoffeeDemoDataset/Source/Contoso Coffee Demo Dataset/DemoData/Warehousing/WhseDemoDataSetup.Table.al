@@ -11,6 +11,7 @@ table 4763 "Whse Demo Data Setup"
     ObsoleteState = Removed;
     ObsoleteTag = '26.0';
 #endif
+    ReplicateData = false;
 
     fields
     {

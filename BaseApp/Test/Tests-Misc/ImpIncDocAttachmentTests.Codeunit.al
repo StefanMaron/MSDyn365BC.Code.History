@@ -15,7 +15,10 @@ codeunit 134419 "Imp. Inc.Doc. Attachment Tests"
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibrarySales: Codeunit "Library - Sales";
         Initialized: Boolean;
+        IncomingRelatedDocTypeNotMatchErr: Label 'Incoming Document Type does not match.';
+        AttachmentFileNameTxt: Label 'dummyattachment.txt', Locked = true;
 
     local procedure Initialize()
     begin
@@ -103,6 +106,70 @@ codeunit 134419 "Imp. Inc.Doc. Attachment Tests"
         UnbindSubscription(ImpIncDocAttachmentTests);
     end;
 
+    [Test]
+    procedure MainAttachmentDocumentTypeMustBePurchaseInvoiceInPurchInvoice()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        TempBlob: Codeunit "Temp Blob";
+        IncomingRelatedDocumentType: Enum "Incoming Related Document Type";
+        FileOutStream: OutStream;
+        DummyText: Text;
+        FileName: Text[250];
+    begin
+        // [SCENARIO 559566] Document Type in main attachment of Purchase Invoice must be equal to "Purchase Invoice".
+        Initialize();
+
+        // [GIVEN] Create a Purchase Invoice.
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        // [GIVEN] Create a dummy document to attach.
+        TempBlob.CreateOutStream(FileOutStream);
+        DummyText := LibraryRandom.RandText(100);
+        FileOutStream.WriteText(DummyText);
+        FileName := AttachmentFileNameTxt;
+
+        // [WHEN] Uploading the attachment to "Purchase Invoice".
+        IncomingDocumentAttachment.NewAttachmentFromPurchaseDocument(PurchaseHeader, FileName, TempBlob);
+
+        // [THEN] Verify the attached Incoming Document has "Document Type" = "Purchase Invoice".
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        VerifyTheRelatedIncomingDocumentType(PurchaseHeader."Incoming Document Entry No.", IncomingRelatedDocumentType::"Purchase Invoice");
+    end;
+
+    [Test]
+    procedure MainAttachmentDocumentTypeMustBeSalesInvoiceInSalesInvoice()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        SalesHeader: Record "Sales Header";
+        TempBlob: Codeunit "Temp Blob";
+        IncomingRelatedDocumentType: Enum "Incoming Related Document Type";
+        FileOutStream: OutStream;
+        DummyText: Text;
+        FileName: Text[250];
+    begin
+        // [SCENARIO 559566] "Document Type" in main attachment of Sales invoice must be equal to "Sales Invoice".
+        Initialize();
+
+        // [GIVEN] Create a Sales Invoice.
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // [GIVEN] Create a dummy document to attach.
+        TempBlob.CreateOutStream(FileOutStream);
+        DummyText := LibraryRandom.RandText(100);
+        FileOutStream.WriteText(DummyText);
+        FileName := AttachmentFileNameTxt;
+
+        // [WHEN] Uploading the attachment to Sales Invoice.
+        IncomingDocumentAttachment.NewAttachmentFromDocument(
+          SalesHeader."Incoming Document Entry No.", Database::"Sales Header", SalesHeader."Document Type".AsInteger(),
+          SalesHeader."No.", FileName, TempBlob);
+
+        // [THEN] Verify the attached Incoming Document has "Document Type" = "Sales Invoice".
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        VerifyTheRelatedIncomingDocumentType(SalesHeader."Incoming Document Entry No.", IncomingRelatedDocumentType::"Sales Invoice");
+    end;
+
     local procedure VerifyIncomingDocumentAttachment(IncomingDocumentAttachment: Record "Incoming Document Attachment"; TextToTest: Text; FileName: Text[250])
     var
         TempBlob: Codeunit "Temp Blob";
@@ -126,6 +193,14 @@ codeunit 134419 "Imp. Inc.Doc. Attachment Tests"
     begin
         Assert.IsTrue(IncomingDocumentAttachment.GetContent(TempBlob), 'Unable to get content as tempblob');
         exit(TempBlob.Length());
+    end;
+
+    local procedure VerifyTheRelatedIncomingDocumentType(EntryNo: Integer; IncRelatedDocType: Enum "Incoming Related Document Type")
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        IncomingDocument.Get(EntryNo);
+        Assert.AreEqual(IncRelatedDocType, IncomingDocument."Document Type", IncomingRelatedDocTypeNotMatchErr)
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document Attachment", 'OnAttachBinaryFile', '', false, false)]

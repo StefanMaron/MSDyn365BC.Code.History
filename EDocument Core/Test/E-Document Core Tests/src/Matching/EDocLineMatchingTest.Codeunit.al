@@ -75,7 +75,7 @@ codeunit 139659 "E-Doc. Line Matching Test"
         Assert.AreEqual('5', EDocOrderLineMatchingPage.ImportedLines.Quantity.Value(), '');
         Assert.AreEqual('0', EDocOrderLineMatchingPage.ImportedLines."Matched Quantity".Value(), '');
         // [THEN] we have qty 5 and qty to invoice 0
-        Assert.AreEqual('5', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), '');
+        Assert.AreEqual('5.00', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), '');
         Assert.AreEqual('0', EDocOrderLineMatchingPage.OrderLines."Qty. to Invoice".Value(), '');
 
         // [GIVEN] We click "Match Manually" action
@@ -85,7 +85,7 @@ codeunit 139659 "E-Doc. Line Matching Test"
         Assert.AreEqual('5', EDocOrderLineMatchingPage.ImportedLines.Quantity.Value(), '');
         Assert.AreEqual('5', EDocOrderLineMatchingPage.ImportedLines."Matched Quantity".Value(), '');
         // [THEN] we have qty 5 and qty to invoice 5 
-        Assert.AreEqual('5', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), '');
+        Assert.AreEqual('5.00', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), '');
         Assert.AreEqual('5', EDocOrderLineMatchingPage.OrderLines."Qty. to Invoice".Value(), '');
     end;
 
@@ -207,7 +207,7 @@ codeunit 139659 "E-Doc. Line Matching Test"
         EDocument.SetRecFilter();
     end;
 
-    local procedure CreatePurchaseOrderWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Quantity: Integer)
+    local procedure CreatePurchaseOrderWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Quantity: Decimal)
     begin
         LibraryEdoc.CreatePurchaseOrderWithLine(Vendor, PurchaseHeader, PurchaseLine, Quantity);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
@@ -238,7 +238,7 @@ codeunit 139659 "E-Doc. Line Matching Test"
         TempEDocImportedLine.Insert();
     end;
 
-    local procedure CreateImportedLine(EDocument: Record "E-Document"; LineNo: Integer; Quantity: Integer; Type: Enum "Purchase Line Type")
+    local procedure CreateImportedLine(EDocument: Record "E-Document"; LineNo: Integer; Quantity: Decimal; Type: Enum "Purchase Line Type")
     var
         EDocImportedLine: Record "E-Doc. Imported Line";
     begin
@@ -249,6 +249,5 @@ codeunit 139659 "E-Doc. Line Matching Test"
         EDocImportedLine.Type := Type;
         EDocImportedLine.Insert();
     end;
-
 
 }
