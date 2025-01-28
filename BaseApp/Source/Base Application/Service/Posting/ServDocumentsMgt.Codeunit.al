@@ -355,7 +355,7 @@ codeunit 5988 "Serv-Documents Mgt."
 
         ServLine.Reset();
         SortLines(ServLine);
-        OnPostDocumentLinesOnAfterSortLines(ServHeader, ServLine);
+        OnPostDocumentLinesOnAfterSortLines(ServHeader, ServLine, TempVATAmountLine, TempVATAmountLineForSLE);
         ServLedgEntryNo := FindFirstServLedgEntry(ServLine);
         if ServLine.Find('-') then
             repeat
@@ -2953,7 +2953,7 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDocumentLinesOnAfterSortLines(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line")
+    local procedure OnPostDocumentLinesOnAfterSortLines(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineForSLE: Record "VAT Amount Line" temporary)
     begin
     end;
 

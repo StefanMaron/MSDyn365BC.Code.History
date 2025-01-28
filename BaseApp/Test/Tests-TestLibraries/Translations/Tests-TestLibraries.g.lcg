@@ -3929,15 +3929,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Assert - NamedType UnsupportedTypeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3923843657 - NamedType 1866849693" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Standard]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Must be similar to "Data Type" option in table 101900 Demonstration Data Setup]D;]A;(LookupHint=Codeunit Assis. Comp. Setup Plat. Tests - NamedType StandardTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4033808984 - NamedType 1493571964" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[FIRST TEST Page]]></Val>

@@ -26,6 +26,18 @@ using Microsoft.Utilities;
 codeunit 7009 CopyFromToPriceListLine
 {
     var
+#if not CLEAN25
+        CheckedReferencedItemDictionary: Dictionary of [Code[20], Boolean];
+        CheckedReferencedItemVariantDictionary: Dictionary of [Dictionary of [Code[20], Code[10]], Boolean];
+        CheckedReferencedUnitOfMeasureDictionary: Dictionary of [Code[10], Boolean];
+        CheckedReferencedItemUnitOfMeasureDictionary: Dictionary of [Dictionary of [Code[20], Code[10]], Boolean];
+        CheckedReferencedCurrencyDictionary: Dictionary of [Code[10], Boolean];
+        CheckedReferencedGLAccountDictionary: Dictionary of [Code[20], Boolean];
+        CheckedReferencedResourceDictionary: Dictionary of [Code[20], Boolean];
+        CheckedReferencedWorkTypeDictionary: Dictionary of [Code[10], Boolean];
+        CheckedReferencedJobDictionary: Dictionary of [Code[20], Boolean];
+        CheckedReferencedJobTaskDictionary: Dictionary of [Dictionary of [Code[20], Code[20]], Boolean];
+#endif
         GenerateHeader: Boolean;
         UseDefaultPriceLists: Boolean;
 #if not CLEAN25
@@ -93,31 +105,211 @@ codeunit 7009 CopyFromToPriceListLine
     end;
 
     local procedure VerifySalesPriceConsistency(SalesPrice: Record "Sales Price"): Boolean;
-    var
-        Currency: Record Currency;
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        ItemUnitofMeasure: Record "Item Unit of Measure";
-        UnitofMeasure: Record "Unit of Measure";
     begin
         if SalesPrice."Item No." = '' then
             exit(false);
-        Item.SetLoadFields("No.");
-        if not Item.Get(SalesPrice."Item No.") then
+
+        if ReferencedItemRecordMissing(SalesPrice."Item No.") then
             exit(false);
-        if SalesPrice."Variant Code" <> '' then
-            if not ItemVariant.Get(SalesPrice."Item No.", SalesPrice."Variant Code") then
-                exit(false);
-        if SalesPrice."Unit of Measure Code" <> '' then begin
-            if not UnitofMeasure.Get(SalesPrice."Unit of Measure Code") then
-                exit(false);
-            if not ItemUnitofMeasure.Get(SalesPrice."Item No.", SalesPrice."Unit of Measure Code") then
-                exit(false);
-        end;
-        if SalesPrice."Currency Code" <> '' then
-            if not Currency.Get(SalesPrice."Currency Code") then
-                exit(false);
+
+        if ReferencedItemVariantRecordMissing(SalesPrice."Item No.", SalesPrice."Variant Code") then
+            exit(false);
+
+        if ReferencedUnitOfMeasureRecordMissing(SalesPrice."Item No.", SalesPrice."Unit of Measure Code") then
+            exit(false);
+
+        if ReferencedCurrencyRecordMissing(SalesPrice."Currency Code") then
+            exit(false);
+
         exit(true);
+    end;
+
+    local procedure ReferencedItemRecordMissing(ItemNo: Code[20]): Boolean;
+    var
+        Item: Record Item;
+    begin
+        if CheckedReferencedItemDictionary.ContainsKey(ItemNo) then
+            exit(not CheckedReferencedItemDictionary.Get(ItemNo));
+
+        Item.SetRange("No.", ItemNo);
+        if not Item.IsEmpty() then begin
+            CheckedReferencedItemDictionary.Add(ItemNo, true);
+            exit(false);
+        end else begin
+            CheckedReferencedItemDictionary.Add(ItemNo, false);
+            exit(true);
+        end;
+    end;
+
+    local procedure ReferencedItemVariantRecordMissing(ItemNo: Code[20]; VariantCode: Code[10]): Boolean;
+    var
+        ItemVariant: Record "Item Variant";
+        ItemVariantDictionary: Dictionary of [Code[20], Code[10]];
+    begin
+        if VariantCode = '' then
+            exit(false);
+
+        ItemVariantDictionary.Add(ItemNo, VariantCode);
+        if CheckedReferencedItemVariantDictionary.ContainsKey(ItemVariantDictionary) then
+            exit(not CheckedReferencedItemVariantDictionary.Get(ItemVariantDictionary));
+
+        ItemVariant.SetRange("Item No.", ItemNo);
+        ItemVariant.SetRange(Code, VariantCode);
+        if not ItemVariant.IsEmpty() then begin
+            CheckedReferencedItemVariantDictionary.Add(ItemVariantDictionary, true);
+            exit(false);
+        end else begin
+            CheckedReferencedItemVariantDictionary.Add(ItemVariantDictionary, false);
+            exit(true);
+        end;
+    end;
+
+    local procedure ReferencedUnitOfMeasureRecordMissing(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]): Boolean;
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemUnitOfMeasureDictionary: Dictionary of [Code[20], Code[10]];
+    begin
+        if UnitOfMeasureCode = '' then
+            exit(false);
+
+        if CheckedReferencedUnitOfMeasureDictionary.ContainsKey(UnitOfMeasureCode) then begin
+            if not CheckedReferencedUnitOfMeasureDictionary.Get(UnitOfMeasureCode) then
+                exit(true);
+        end else begin
+            UnitOfMeasure.SetRange(Code, UnitOfMeasureCode);
+            if not UnitOfMeasure.IsEmpty() then
+                CheckedReferencedUnitOfMeasureDictionary.Add(UnitOfMeasureCode, true)
+            else begin
+                CheckedReferencedUnitOfMeasureDictionary.Add(UnitOfMeasureCode, false);
+                exit(true);
+            end;
+        end;
+
+        ItemUnitOfMeasureDictionary.Add(ItemNo, UnitOfMeasureCode);
+        if CheckedReferencedItemUnitOfMeasureDictionary.ContainsKey(ItemUnitOfMeasureDictionary) then
+            exit(not CheckedReferencedItemUnitOfMeasureDictionary.Get(ItemUnitOfMeasureDictionary));
+
+        ItemUnitOfMeasure.SetRange("Item No.", ItemNo);
+        ItemUnitofMeasure.SetRange(Code, UnitOfMeasureCode);
+        if not ItemUnitOfMeasure.IsEmpty() then begin
+            CheckedReferencedItemUnitOfMeasureDictionary.Add(ItemUnitOfMeasureDictionary, true);
+            exit(false);
+        end else begin
+            CheckedReferencedItemUnitOfMeasureDictionary.Add(ItemUnitOfMeasureDictionary, false);
+            exit(true);
+        end;
+    end;
+
+    local procedure ReferencedCurrencyRecordMissing(CurrencyCode: Code[10]): Boolean;
+    var
+        Currency: Record Currency;
+    begin
+        if CurrencyCode = '' then
+            exit(false);
+
+        if CheckedReferencedCurrencyDictionary.ContainsKey(CurrencyCode) then
+            exit(not CheckedReferencedCurrencyDictionary.Get(CurrencyCode));
+
+        Currency.SetRange(Code, CurrencyCode);
+        if not Currency.IsEmpty() then begin
+            CheckedReferencedCurrencyDictionary.Add(CurrencyCode, true);
+            exit(false);
+        end else begin
+            CheckedReferencedCurrencyDictionary.Add(CurrencyCode, false);
+            exit(true);
+        end;
+    end;
+
+    local procedure ReferencedGLAccountRecordMissing(GLAccountNo: Code[20]): Boolean;
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        if CheckedReferencedGLAccountDictionary.ContainsKey(GLAccountNo) then
+            exit(not CheckedReferencedGLAccountDictionary.Get(GLAccountNo));
+
+        GLAccount.SetRange("No.", GLAccountNo);
+        if not GLAccount.IsEmpty() then begin
+            CheckedReferencedGLAccountDictionary.Add(GLAccountNo, true);
+            exit(false);
+        end else begin
+            CheckedReferencedGLAccountDictionary.Add(GLAccountNo, false);
+            exit(true);
+        end;
+    end;
+
+    local procedure ReferencedResourceRecordMissing(ResourceNo: Code[20]): Boolean;
+    var
+        Resource: Record Resource;
+    begin
+        if CheckedReferencedResourceDictionary.ContainsKey(ResourceNo) then
+            exit(not CheckedReferencedResourceDictionary.Get(ResourceNo));
+
+        Resource.SetRange("No.", ResourceNo);
+        if not Resource.IsEmpty() then begin
+            CheckedReferencedResourceDictionary.Add(ResourceNo, true);
+            exit(false);
+        end else begin
+            CheckedReferencedResourceDictionary.Add(ResourceNo, false);
+            exit(true);
+        end;
+    end;
+
+    local procedure ReferencedWorkTypeRecordMissing(WorkTypeCode: Code[10]): Boolean;
+    var
+        WorkType: Record "Work Type";
+    begin
+        if WorkTypeCode = '' then
+            exit(false);
+
+        if CheckedReferencedWorkTypeDictionary.ContainsKey(WorkTypeCode) then
+            exit(not CheckedReferencedWorkTypeDictionary.Get(WorkTypeCode));
+
+        WorkType.SetRange(Code, WorkTypeCode);
+        if not WorkType.IsEmpty() then begin
+            CheckedReferencedWorkTypeDictionary.Add(WorkTypeCode, true);
+            exit(false);
+        end else begin
+            CheckedReferencedWorkTypeDictionary.Add(WorkTypeCode, false);
+            exit(true);
+        end;
+    end;
+
+    local procedure ReferencedJobRecordMissing(JobNo: Code[20]): Boolean;
+    var
+        Job: Record Job;
+    begin
+        if CheckedReferencedJobDictionary.ContainsKey(JobNo) then
+            exit(not CheckedReferencedJobDictionary.Get(JobNo));
+
+        Job.SetRange("No.", JobNo);
+        if not Job.IsEmpty() then begin
+            CheckedReferencedJobDictionary.Add(JobNo, true);
+            exit(false);
+        end else begin
+            CheckedReferencedJobDictionary.Add(JobNo, false);
+            exit(true);
+        end;
+    end;
+
+    local procedure ReferencedJobTaskRecordMissing(JobNo: Code[20]; JobTaskNo: Code[20]): Boolean;
+    var
+        JobTask: Record "Job Task";
+        JobTaskDictionary: Dictionary of [Code[20], Code[20]];
+    begin
+        JobTaskDictionary.Add(JobNo, JobTaskNo);
+        if CheckedReferencedJobTaskDictionary.ContainsKey(JobTaskDictionary) then
+            exit(not CheckedReferencedJobTaskDictionary.Get(JobTaskDictionary));
+
+        JobTask.SetRange("Job No.", JobNo);
+        JobTask.SetRange("Job Task No.", JobTaskNo);
+        if not JobTask.IsEmpty() then begin
+            CheckedReferencedJobTaskDictionary.Add(JobTaskDictionary, true);
+            exit(false);
+        end else begin
+            CheckedReferencedJobTaskDictionary.Add(JobTaskDictionary, false);
+            exit(true);
+        end;
     end;
 
 #pragma warning disable AS0072
@@ -171,32 +363,24 @@ codeunit 7009 CopyFromToPriceListLine
     end;
 
     local procedure VerifySalesLineDiscConsistency(SalesLineDiscount: Record "Sales Line Discount"): Boolean;
-    var
-        Currency: Record Currency;
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        ItemUnitofMeasure: Record "Item Unit of Measure";
-        UnitofMeasure: Record "Unit of Measure";
     begin
         if SalesLineDiscount.Type = SalesLineDiscount.Type::Item then begin
             if SalesLineDiscount.Code = '' then
                 exit(false);
-            Item.SetLoadFields("No.");
-            if not Item.Get(SalesLineDiscount.Code) then
+
+            if ReferencedItemRecordMissing(SalesLineDiscount.Code) then
                 exit(false);
-            if SalesLineDiscount."Variant Code" <> '' then
-                if not ItemVariant.Get(SalesLineDiscount.Code, SalesLineDiscount."Variant Code") then
-                    exit(false);
-            if SalesLineDiscount."Unit of Measure Code" <> '' then begin
-                if not UnitofMeasure.Get(SalesLineDiscount."Unit of Measure Code") then
-                    exit(false);
-                if not ItemUnitofMeasure.Get(SalesLineDiscount.Code, SalesLineDiscount."Unit of Measure Code") then
-                    exit(false);
-            end;
+
+            if ReferencedItemVariantRecordMissing(SalesLineDiscount.Code, SalesLineDiscount."Variant Code") then
+                exit(false);
+
+            if ReferencedUnitOfMeasureRecordMissing(SalesLineDiscount.Code, SalesLineDiscount."Unit of Measure Code") then
+                exit(false);
         end;
-        if SalesLineDiscount."Currency Code" <> '' then
-            if not Currency.Get(SalesLineDiscount."Currency Code") then
-                exit(false);
+
+        if ReferencedCurrencyRecordMissing(SalesLineDiscount."Currency Code") then
+            exit(false);
+
         exit(true);
     end;
 
@@ -380,30 +564,22 @@ codeunit 7009 CopyFromToPriceListLine
     end;
 
     local procedure VerifyJobItemPriceConsistency(JobItemPrice: Record "Job Item Price"): Boolean;
-    var
-        Currency: Record Currency;
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        ItemUnitofMeasure: Record "Item Unit of Measure";
-        UnitofMeasure: Record "Unit of Measure";
     begin
         if JobItemPrice."Item No." = '' then
             exit(false);
-        Item.SetLoadFields("No.");
-        if not Item.Get(JobItemPrice."Item No.") then
+
+        if ReferencedItemRecordMissing(JobItemPrice."Item No.") then
             exit(false);
-        if JobItemPrice."Variant Code" <> '' then
-            if not ItemVariant.Get(JobItemPrice."Item No.", JobItemPrice."Variant Code") then
-                exit(false);
-        if JobItemPrice."Unit of Measure Code" <> '' then begin
-            if not UnitofMeasure.Get(JobItemPrice."Unit of Measure Code") then
-                exit(false);
-            if not ItemUnitofMeasure.Get(JobItemPrice."Item No.", JobItemPrice."Unit of Measure Code") then
-                exit(false);
-        end;
-        if JobItemPrice."Currency Code" <> '' then
-            if not Currency.Get(JobItemPrice."Currency Code") then
-                exit(false);
+
+        if ReferencedItemVariantRecordMissing(JobItemPrice."Item No.", JobItemPrice."Variant Code") then
+            exit(false);
+
+        if ReferencedUnitOfMeasureRecordMissing(JobItemPrice."Item No.", JobItemPrice."Unit of Measure Code") then
+            exit(false);
+
+        if ReferencedCurrencyRecordMissing(JobItemPrice."Currency Code") then
+            exit(false);
+
         exit(true);
     end;
 
@@ -472,18 +648,16 @@ codeunit 7009 CopyFromToPriceListLine
     end;
 
     local procedure VerifyJobGLAccountPriceConsistency(JobGLAccountPrice: Record "Job G/L Account Price"): Boolean;
-    var
-        Currency: Record Currency;
-        GLAccount: Record "G/L Account";
     begin
         if JobGLAccountPrice."G/L Account No." = '' then
             exit(false);
-        GLAccount.SetLoadFields("No.");
-        if not GLAccount.Get(JobGLAccountPrice."G/L Account No.") then
+
+        if ReferencedGLAccountRecordMissing(JobGLAccountPrice."G/L Account No.") then
             exit(false);
-        if JobGLAccountPrice."Currency Code" <> '' then
-            if not Currency.Get(JobGLAccountPrice."Currency Code") then
-                exit(false);
+
+        if ReferencedCurrencyRecordMissing(JobGLAccountPrice."Currency Code") then
+            exit(false);
+
         exit(true);
     end;
 
@@ -545,37 +719,32 @@ codeunit 7009 CopyFromToPriceListLine
     end;
 
     local procedure VerifyJobResourcePriceConsistency(JobResourcePrice: Record "Job Resource Price"): Boolean;
-    var
-        Currency: Record Currency;
-        Resource: Record Resource;
-        WorkType: Record "Work Type";
     begin
         if JobResourcePrice.Type = JobResourcePrice.Type::Resource then begin
             if JobResourcePrice.Code = '' then
                 exit(false);
-            Resource.SetLoadFields("No.");
-            if not Resource.Get(JobResourcePrice.Code) then
+
+            if ReferencedResourceRecordMissing(JobResourcePrice.Code) then
                 exit(false);
         end;
-        if JobResourcePrice."Currency Code" <> '' then
-            if not Currency.Get(JobResourcePrice."Currency Code") then
-                exit(false);
-        if JobResourcePrice."Work Type Code" <> '' then
-            if not WorkType.Get(JobResourcePrice."Work Type Code") then
-                exit(false);
+
+        if ReferencedCurrencyRecordMissing(JobResourcePrice."Currency Code") then
+            exit(false);
+
+        if ReferencedWorkTypeRecordMissing(JobResourcePrice."Work Type Code") then
+            exit(false);
+
         exit(true);
     end;
 
     local procedure SetJobAsSource(JobNo: Code[20]; JobTaskNo: Code[20]; var PriceListLine: Record "Price List Line"): Boolean;
-    var
-        Job: Record Job;
-        JobTask: Record "Job Task";
     begin
         if JobNo <> '' then
-            if not Job.Get(JobNo) then
+            if ReferencedJobRecordMissing(JobNo) then
                 exit(false);
+
         if JobTaskNo <> '' then
-            if not JobTask.Get(JobNo, JobTaskNo) then
+            if ReferencedJobTaskRecordMissing(JobNo, JobTaskNo) then
                 exit(false);
 
         if JobTaskNo = '' then begin
@@ -639,20 +808,18 @@ codeunit 7009 CopyFromToPriceListLine
     end;
 
     local procedure VerifyResourceCostConsistency(ResourceCost: Record "Resource Cost"): Boolean;
-    var
-        Resource: Record Resource;
-        WorkType: Record "Work Type";
     begin
         if ResourceCost.Type = ResourceCost.Type::Resource then begin
             if ResourceCost.Code = '' then
                 exit(false);
-            Resource.SetLoadFields("No.");
-            if not Resource.Get(ResourceCost.Code) then
+
+            if ReferencedResourceRecordMissing(ResourceCost.Code) then
                 exit(false);
         end;
-        if ResourceCost."Work Type Code" <> '' then
-            if not WorkType.Get(ResourceCost."Work Type Code") then
-                exit(false);
+
+        if ReferencedWorkTypeRecordMissing(ResourceCost."Work Type Code") then
+            exit(false);
+
         exit(true);
     end;
 
@@ -768,24 +935,21 @@ codeunit 7009 CopyFromToPriceListLine
     end;
 
     local procedure VerifyResourcePriceConsistency(ResourcePrice: Record "Resource Price"): Boolean;
-    var
-        Currency: Record Currency;
-        Resource: Record Resource;
-        WorkType: Record "Work Type";
     begin
         if ResourcePrice.Type = ResourcePrice.Type::Resource then begin
             if ResourcePrice.Code = '' then
                 exit(false);
-            Resource.SetLoadFields("No.");
-            if not Resource.Get(ResourcePrice.Code) then
+
+            if ReferencedResourceRecordMissing(ResourcePrice.Code) then
                 exit(false);
         end;
-        if ResourcePrice."Currency Code" <> '' then
-            if not Currency.Get(ResourcePrice."Currency Code") then
-                exit(false);
-        if ResourcePrice."Work Type Code" <> '' then
-            if not WorkType.Get(ResourcePrice."Work Type Code") then
-                exit(false);
+
+        if ReferencedCurrencyRecordMissing(ResourcePrice."Currency Code") then
+            exit(false);
+
+        if ReferencedWorkTypeRecordMissing(ResourcePrice."Work Type Code") then
+            exit(false);
+
         exit(true);
     end;
 
@@ -833,30 +997,22 @@ codeunit 7009 CopyFromToPriceListLine
     end;
 
     local procedure VerifyPurchPriceConsistency(PurchasePrice: Record "Purchase Price"): Boolean;
-    var
-        Currency: Record Currency;
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        ItemUnitofMeasure: Record "Item Unit of Measure";
-        UnitofMeasure: Record "Unit of Measure";
     begin
         if PurchasePrice."Item No." = '' then
             exit(false);
-        Item.SetLoadFields("No.");
-        if not Item.Get(PurchasePrice."Item No.") then
+
+        if ReferencedItemRecordMissing(PurchasePrice."Item No.") then
             exit(false);
-        if PurchasePrice."Variant Code" <> '' then
-            if not ItemVariant.Get(PurchasePrice."Item No.", PurchasePrice."Variant Code") then
-                exit(false);
-        if PurchasePrice."Unit of Measure Code" <> '' then begin
-            if not UnitofMeasure.Get(PurchasePrice."Unit of Measure Code") then
-                exit(false);
-            if not ItemUnitofMeasure.Get(PurchasePrice."Item No.", PurchasePrice."Unit of Measure Code") then
-                exit(false);
-        end;
-        if PurchasePrice."Currency Code" <> '' then
-            if not Currency.Get(PurchasePrice."Currency Code") then
-                exit(false);
+
+        if ReferencedItemVariantRecordMissing(PurchasePrice."Item No.", PurchasePrice."Variant Code") then
+            exit(false);
+
+        if ReferencedUnitOfMeasureRecordMissing(PurchasePrice."Item No.", PurchasePrice."Unit of Measure Code") then
+            exit(false);
+
+        if ReferencedCurrencyRecordMissing(PurchasePrice."Currency Code") then
+            exit(false);
+
         exit(true);
     end;
 
@@ -904,30 +1060,22 @@ codeunit 7009 CopyFromToPriceListLine
     end;
 
     local procedure VerifyPurchLineDiscConsistency(PurchaseLineDiscount: Record "Purchase Line Discount"): Boolean;
-    var
-        Currency: Record Currency;
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        ItemUnitofMeasure: Record "Item Unit of Measure";
-        UnitofMeasure: Record "Unit of Measure";
     begin
         if PurchaseLineDiscount."Item No." = '' then
             exit(false);
-        Item.SetLoadFields("No.");
-        if not Item.Get(PurchaseLineDiscount."Item No.") then
+
+        if ReferencedItemRecordMissing(PurchaseLineDiscount."Item No.") then
             exit(false);
-        if PurchaseLineDiscount."Variant Code" <> '' then
-            if not ItemVariant.Get(PurchaseLineDiscount."Item No.", PurchaseLineDiscount."Variant Code") then
-                exit(false);
-        if PurchaseLineDiscount."Unit of Measure Code" <> '' then begin
-            if not UnitofMeasure.Get(PurchaseLineDiscount."Unit of Measure Code") then
-                exit(false);
-            if not ItemUnitofMeasure.Get(PurchaseLineDiscount."Item No.", PurchaseLineDiscount."Unit of Measure Code") then
-                exit(false);
-        end;
-        if PurchaseLineDiscount."Currency Code" <> '' then
-            if not Currency.Get(PurchaseLineDiscount."Currency Code") then
-                exit(false);
+
+        if ReferencedItemVariantRecordMissing(PurchaseLineDiscount."Item No.", PurchaseLineDiscount."Variant Code") then
+            exit(false);
+
+        if ReferencedUnitOfMeasureRecordMissing(PurchaseLineDiscount."Item No.", PurchaseLineDiscount."Unit of Measure Code") then
+            exit(false);
+
+        if ReferencedCurrencyRecordMissing(PurchaseLineDiscount."Currency Code") then
+            exit(false);
+
         exit(true);
     end;
 
@@ -943,7 +1091,7 @@ codeunit 7009 CopyFromToPriceListLine
     var
         PriceListManagement: Codeunit "Price List Management";
     begin
-        if PriceListLine.IsTemporary then
+        if PriceListLine.IsTemporary() then
             PriceListLine."Line No." += 10000
         else begin
             SetPriceListCode(PriceListLine);
@@ -997,7 +1145,7 @@ codeunit 7009 CopyFromToPriceListLine
         PriceListHeader.SetRange("Currency Code", PriceListLine."Currency Code");
         PriceListHeader.SetRange("Amount Type", PriceListLine."Amount Type");
         OnBeforeFindHeader(PriceListLine, PriceListHeader);
-        exit(PriceListHeader.FindFirst())
+        exit(PriceListHeader.FindFirst());
     end;
 
     local procedure InsertHeader(PriceListLine: Record "Price List Line"; var PriceListHeader: Record "Price List Header")

@@ -371,13 +371,27 @@ codeunit 826 "Purch. Post Invoice Events"
     begin
     end;
 
-    procedure RunOnPrepareLineOnAfterFillInvoicePostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; PurchLine: Record "Purchase Line")
+    procedure RunOnPrepareLineOnAfterFillInvoicePostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; PurchLine: Record "Purchase Line"; var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; var FALineNo: Integer; var InvDefLineNo: Integer; var DeferralLineNo: Integer; var IsHandled: Boolean)
     begin
-        OnPrepareLineOnAfterFillInvoicePostingBuffer(InvoicePostingBuffer, PurchLine);
+        OnPrepareLineOnAfterFillInvoicePostingBuffer(InvoicePostingBuffer, PurchLine, TempInvoicePostingBuffer, FALineNo, InvDefLineNo, DeferralLineNo, IsHandled);
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by procedure RunOnPrepareLineOnAfterFillInvoicePostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; PurchLine: Record "Purchase Line"; var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; var FALineNo: Integer; var InvDefLineNo: Integer; var DeferralLineNo: Integer; var IsHandled: Boolean)', '26.0')]
+    procedure RunOnPrepareLineOnAfterFillInvoicePostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; PurchLine: Record "Purchase Line")
+    var
+        TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary;
+        FALineNo: Integer;
+        InvDefLineNo: Integer;
+        DeferralLineNo: Integer;
+        IsHandled: Boolean;
+    begin
+        OnPrepareLineOnAfterFillInvoicePostingBuffer(InvoicePostingBuffer, PurchLine, TempInvoicePostingBuffer, FALineNo, InvDefLineNo, DeferralLineNo, IsHandled);
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
-    local procedure OnPrepareLineOnAfterFillInvoicePostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; PurchLine: Record "Purchase Line")
+    local procedure OnPrepareLineOnAfterFillInvoicePostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; PurchLine: Record "Purchase Line"; var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; var FALineNo: Integer; var InvDefLineNo: Integer; var DeferralLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

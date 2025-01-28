@@ -42,6 +42,7 @@ codeunit 1253 "Change Bank Rec. Statement No."
         TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
         TempBankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer" temporary;
     begin
+        TempBankAccReconciliation.OnInsertValidations(BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.", NewStatementNo);
         UpdateAppliedBankLedgerEntries(BankAccReconciliation, NewStatementNo);
         UpdateAppliedCheckLedgerEntries(BankAccReconciliation, NewStatementNo);
 

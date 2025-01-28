@@ -2,6 +2,7 @@ codeunit 139018 "Job Queue Entry Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -771,6 +772,32 @@ codeunit 139018 "Job Queue Entry Tests"
         Assert.AreEqual(1, JobQueueLogEntry.Count(), 'Job queue entry should have been run');
     end;
 
+    [Test]
+    procedure EnsureOldErrorIsCleared()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        // [SCENARIO] The job queue entry runs only if it is within the start and end time
+
+        // [GIVEN] An existing job queue entry
+        CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Error);
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
+        JobQueueEntry.SetError('An error has occurred :-(');
+        JobQueueEntry."Error Message Register Id" := CreateGuid();
+        JobQueueEntry.Modify(true);
+
+        // [WHEN] The job queue entry is restarted
+        BindSubscription(this);
+        JobQueueEntry.Restart();
+        UnBindSubscription(this);
+
+        // [THEN] The job queue entry error info is cleared
+        Assert.AreEqual('', JobQueueEntry."Error Message", 'Job queue entry should not have an error message');
+        if not IsNullGuid(JobQueueEntry."Error Message Register Id") then
+            Error('Error Message Register Id must be null');
+    end;
+
     local procedure TestDelegatedJQ()
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -893,6 +920,13 @@ codeunit 139018 "Job Queue Entry Tests"
     procedure ApprovalRequestSentHandler(Message: Text[1024])
     begin
         Assert.IsSubstring('An approval request has been sent.', Message);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnBeforeScheduleTask', '', false, false)]
+    local procedure OnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var TaskGUID: Guid; var IsHandled: Boolean)
+    begin
+        TaskGUID := CreateGuid();
+        IsHandled := true;
     end;
 }
 

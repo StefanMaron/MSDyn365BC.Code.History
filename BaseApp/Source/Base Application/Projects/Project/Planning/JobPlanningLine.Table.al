@@ -2002,7 +2002,7 @@ table 1003 "Job Planning Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateAllAmounts(Rec, xRec, IsHandled);
+        OnBeforeUpdateAllAmounts(Rec, xRec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -3598,7 +3598,7 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAllAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateAllAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; CurrFieldNo: Integer)
     begin
     end;
 

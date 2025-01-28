@@ -112,32 +112,6 @@ codeunit 136217 "Marketing Defaulting"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CreateSalesQuote()
-    var
-        UserSetup: Record "User Setup";
-        SalesHeader: Record "Sales Header";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-    begin
-        Initialize();
-        // [GIVEN] Salesperson Code field filled in User Setup with current User ID
-        CreateUserSetup(UserSetup);
-        SalesReceivablesSetup.Get();
-        if SalesReceivablesSetup."Quote Nos." = '' then begin
-            SalesReceivablesSetup."Quote Nos." := LibraryUtility.GetGlobalNoSeriesCode();
-            SalesReceivablesSetup.Modify();
-        end;
-
-        // [WHEN]  New Sales Quote is created
-        SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
-        SalesHeader."No." := '';
-        SalesHeader.Insert(true);
-
-        // [THEN]  Salesperson Code field for new Quote is the same as in User Setup
-        Assert.AreEqual(UserSetup."Salespers./Purch. Code", SalesHeader."Salesperson Code", 'Salesperson code should be same.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CreatePurchQuote()
     var
         UserSetup: Record "User Setup";
