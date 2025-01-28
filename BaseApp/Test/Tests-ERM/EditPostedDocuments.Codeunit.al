@@ -26,6 +26,7 @@ codeunit 134658 "Edit Posted Documents"
         UnexpectedGrossWeightErr: Label 'Unexpected Gross Weight shown.';
         UnexpectedVolumeErr: Label 'Unexpected Volume shown.';
         CashFlowWorkSheetLineMustNotBeFoundErr: Label 'Cash Flow Worksheet Line must not be found.';
+        YourReferenceErr: Label 'Your reference must be editable';
 
     [Test]
     [HandlerFunctions('PostedSalesShipmentUpdateGetEditablelModalPageHandler')]
@@ -1003,6 +1004,30 @@ codeunit 134658 "Edit Posted Documents"
         Assert.IsTrue(CashFlowWorksheetLine.IsEmpty(), CashFlowWorkSheetLineMustNotBeFoundErr);
     end;
 
+    [Test]
+    [HandlerFunctions('PostedSalesInvoiceUpdateYourReferenceModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateYourReferenceInPostedSalesInvoice()
+    var
+        PostedPurchaseInvoice: TestPage "Posted Sales Invoice";
+    begin
+        // [SCENARIO 559776] Your Reference field is Editable on the Posted Sales Invoice
+        Initialize();
+
+        // [GIVEN] Lower the permission
+        LibraryLowerPermissions.SetO365Setup();
+
+        // [WHEN] Open "Posted Sales Invoice - Update" page
+        PostedPurchaseInvoice.OpenView();
+        PostedPurchaseInvoice."Update Document".Invoke();
+
+        // [THEN] Verify the Your Reference field is editable
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), YourReferenceErr);
+
+        LibraryVariableStorage.AssertEmpty();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents");
@@ -1602,6 +1627,14 @@ codeunit 134658 "Edit Posted Documents"
         SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(false);
         SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(false);
         SuggestWorksheetLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoiceUpdateYourReferenceModalPageHandler(var PostedSalesInvUpdate: TestPage "Posted Sales Inv. - Update")
+    begin
+        LibraryVariableStorage.Enqueue(PostedSalesInvUpdate."Your Reference".Editable());
+        PostedSalesInvUpdate.Cancel().Invoke();
     end;
 
     [ConfirmHandler]

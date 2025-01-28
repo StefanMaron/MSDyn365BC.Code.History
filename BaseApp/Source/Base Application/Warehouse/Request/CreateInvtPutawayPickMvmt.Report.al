@@ -39,6 +39,8 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                             TotalMovementCounter += 1;
                 end;
 
+                ReadIsolation := IsolationLevel::UpdLock;
+
                 if CheckWhseRequest("Warehouse Request") then
                     CurrReport.Skip();
 
