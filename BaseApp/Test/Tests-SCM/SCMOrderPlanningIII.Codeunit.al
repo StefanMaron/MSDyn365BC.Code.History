@@ -2867,6 +2867,39 @@ codeunit 137088 "SCM Order Planning - III"
         OrderPlanning.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    [Scope('OnPrem')]
+    procedure StartingTimeShouldNotBlankOnFirmPlannedProductionOrder()
+    var
+        ProductionOrder: Record "Production Order";
+        ParentItem: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        ChildItem: Record Item;
+        ProductionOrderNo: Code[20];
+        StartingTime: Time;
+    begin
+        // [SCENARIO 560672] "Starting Time" is blank when creating a "Firm Planned Production Order" using the "Planning Worksheet"
+        Initialize();
+
+        // [GIVEN] Define setup and create production order 
+        LibraryApplicationArea.EnablePremiumSetup();
+        CreateManufacturingSetup(ParentItem, ChildItem, true, ChildItem."Order Tracking Policy"::None);
+        CreateAndRefreshProdOrder(
+            ProductionOrder, ProductionOrder.Status::"Firm Planned",
+            ParentItem."No.", LocationRed.Code, LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Calculate Order Plan Production and save starting time value to verify
+        LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
+        FindRequisitionLine(RequisitionLine, ProductionOrder."No.", ChildItem."No.", LocationRed.Code);
+        StartingTime := RequisitionLine."Starting Time";
+        MakeSupplyOrdersActiveOrder(ProductionOrder."No.");
+        ProductionOrderNo := FindProductionOrderNo(ChildItem."No.");
+
+        // [THEN] Verify Starting Time on Firm Planned Production Order
+        VerifyStartingTimeOnFirmPlannedProductionOrder(StartingTime, ChildItem."No.", ProductionOrderNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3668,6 +3701,20 @@ codeunit 137088 "SCM Order Planning - III"
         SalesReceivablesSetup.Validate("Credit Warnings", TempSalesReceivablesSetup."Credit Warnings");
         SalesReceivablesSetup.Validate("Stockout Warning", TempSalesReceivablesSetup."Stockout Warning");
         SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure VerifyStartingTimeOnFirmPlannedProductionOrder(
+        StartingTime: Time;
+        SourceNo: Code[20];
+        No: Code[20])
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source No.", SourceNo);
+        ProductionOrder.SetRange("No.", No);
+        ProductionOrder.FindFirst();
+        Assert.IsTrue(ProductionOrder."Starting Time" = StartingTime, '');
     end;
 
     [ModalPageHandler]

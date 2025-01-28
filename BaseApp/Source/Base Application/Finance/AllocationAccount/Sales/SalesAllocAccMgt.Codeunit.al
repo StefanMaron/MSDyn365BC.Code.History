@@ -520,20 +520,31 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
     end;
 
     local procedure MoveAmounts(var SalesLine: Record "Sales Line"; var AllocationSalesLine: Record "Sales Line"; var AllocationLine: Record "Allocation Line"; var AllocationAccount: Record "Allocation Account")
-    var
-        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
-        AmountRoundingPrecision: Decimal;
     begin
         SalesLine."Unit Cost" := AllocationSalesLine."Unit Cost";
 
         if AllocationAccount."Document Lines Split" = AllocationAccount."Document Lines Split"::"Split Amount" then begin
-            AmountRoundingPrecision := AllocationAccountMgt.GetCurrencyRoundingPrecision(SalesLine."Currency Code");
-            SalesLine.Validate("Unit Price", Round(AllocationLine.Amount / SalesLine.Quantity, AmountRoundingPrecision));
-            SalesLine.Validate("Line Amount", AllocationLine.Amount);
+            SalesLine.Validate("Unit Price", GetUnitPrice(SalesLine, AllocationLine.Amount));
+            SalesLine."Line Amount" := AllocationLine.Amount;
         end else begin
             SalesLine.Validate("Unit Price", AllocationSalesLine."Unit Price");
             SalesLine."Line Amount" := AllocationSalesLine."Line Amount";
         end;
+    end;
+
+    local procedure GetUnitPrice(var SalesLine: Record "Sales Line"; AllocationLineAmount: Decimal): Decimal
+    var
+        SalesHeader: Record "Sales Header";
+        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
+        AmountRoundingPrecision: Decimal;
+    begin
+        SalesHeader.ReadIsolation := IsolationLevel::ReadUncommitted;
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        if SalesHeader."Prices Including VAT" then
+            AllocationLineAmount += AllocationLineAmount * SalesLine."VAT %" / 100;
+
+        AmountRoundingPrecision := AllocationAccountMgt.GetCurrencyRoundingPrecision(SalesLine."Currency Code");
+        exit(Round(AllocationLineAmount / SalesLine.Quantity, AmountRoundingPrecision));
     end;
 
     local procedure GetNextLine(var AllocationSalesLine: Record "Sales Line"): Integer

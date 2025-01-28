@@ -48,6 +48,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         InvPickCreatedMessage: Label 'Number of Invt. Pick activities created: 1 out of a total of 1.';
         NoOfPicksCreatedMsg: Label 'Number of Invt. Pick activities created';
         WhseHandlingRequiredErr: Label 'Warehouse handling is required';
+        InventoryMovementIsNotRegisteredErr: Label 'Inventory Movement is not registered.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1964,6 +1965,85 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         BinContents.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesDequeuePageHandler,WhseItemTrackingLinesDequeuePageHandler,ConfirmHandlerTrue,DummyMessageHandler')]
+    [Scope('OnPrem')]
+    procedure InvntoryMovementRegisterfromShipBin()
+    var
+        Item: Record Item;
+        Bin: array[2] of Record Bin;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        RegisteredInvMovementHdr: Record "Registered Invt. Movement Hdr.";
+        LotNo: Code[10];
+        WsheActivityheaderNo: Code[20];
+        Qty: Integer;
+    begin
+        // [SCENARIO 558944] When registering Inventory Movement with Lot Number from Ship bin error ""Lot No. xxx is not available on inventory or it has already been reserved for another document." should not occure.
+        // Inventory Movement should be registered.
+        Initialize();
+
+        // [GIVEN] Create a Location with two Bins. And assign first Bin to "Shipment Bin Code" of the Location.
+        CreateWshLoctionWithShipBin(Location, Bin);
+
+        // [GIVEN] Create an Item with Lot.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Set Qty and LotNo.
+        Qty := LibraryRandom.RandInt(100);
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create a Positive Adjustment Item Journal in Location using Bin[1] and Quantity = Qty.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin[1].Code, Qty);
+
+        // [GIVEN] Enqueue LotNo and Qty.
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+
+        // [GIVEN] Open the Item Tracking Lines page and assign the LotNo and Qty through "ItemTrackingLinesDequeuePageHandler".
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        // [GIVEN] Post the Item Journal.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create a Movement Worksheet.
+        CreateWhseWorksheetName(WhseWorksheetName, Location.code);
+        CreateWhseWorksheetLineWithToBinCode(
+          WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, Item."No.", Location.Code,
+          Qty, Bin[2].Code);
+
+        // [GIVEN] Autofill the "Qty. to Handle".
+        WhseWorksheetLine.AutofillQtyToHandle(WhseWorksheetLine);
+
+        // [GIVEN] Enque the LotNo and Qty.
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+
+        // [GIVEN] Update the Quantity and "Lot No." in Wsh. Item Tracking Lines pages through the" WhseItemTrackingLinesDequeuePageHandler".
+        WhseWorksheetLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create the Inventory Movement from Movement Worksheet.
+        WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
+
+        // [GIVEN] Get the Warehouse Activity Header (Inventory Movement Header). 
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+        WsheActivityheaderNo := WarehouseActivityHeader."No.";
+
+        // [GIVEN] Autofill the "Qty. to Handle".
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+
+        // [WHEN] Registering Inv. Movement.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Verify Inventory Movement is registered.
+        RegisteredInvMovementHdr.SetRange("Invt. Movement No.", WsheActivityheaderNo);
+        Assert.IsTrue(RegisteredInvMovementHdr.Count > 0, InventoryMovementIsNotRegisteredErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3389,6 +3469,37 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WhseShipmentHeader.Get(WhseShipmentLine."No.");
     end;
 
+    local procedure CreateWshLoctionWithShipBin(var Location: Record Location; var Bin: array[2] of Record Bin)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        WarehouseEmployee.DeleteAll();
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.validate("Shipment Bin Code", Bin[1].Code);
+        Location.Modify(true);
+    end;
+
+    local procedure CreateWhseWorksheetLineWithToBinCode(
+        var WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WorksheetTemplateName: Code[10];
+        Name: Code[10];
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        Quantity: Decimal;
+        ToBinCode: Code[20])
+    begin
+        LibraryWarehouse.CreateWhseWorksheetLine(
+          WhseWorksheetLine, WorksheetTemplateName, Name, LocationCode, WhseWorksheetLine."Whse. Document Type"::"Whse. Mov.-Worksheet");
+        WhseWorksheetLine.Validate("Item No.", ItemNo);
+        WhseWorksheetLine.Validate("From Bin Code", FindBinContent(LocationCode, ItemNo));
+        WhseWorksheetLine.Validate("To Bin Code", ToBinCode);
+        WhseWorksheetLine.Validate(Quantity, Quantity);
+        WhseWorksheetLine.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CreateOrderFromSalesPageHandler(var CreateOrderFromSales: Page "Create Order From Sales"; var Response: Action)
@@ -3601,6 +3712,22 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     [Scope('OnPrem')]
     procedure DummyMessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesDequeuePageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Foundation.Address;
 
 report 11005 "VAT Statement Germany"
 {
@@ -258,6 +259,27 @@ report 11005 "VAT Statement Germany"
                         MultiLine = true;
                         ToolTip = 'Specifies if you want report amounts to be shown in the additional reporting currency.';
                     }
+                    field("Country/Region Filter"; CountryRegionFilter)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Country/Region Filter';
+                        ToolTip = 'Specifies the country/region to filter the VAT entries.';
+                        Importance = Additional;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            CountryRegion: Record "Country/Region";
+                            CountriesRegions: Page "Countries/Regions";
+                        begin
+                            CountriesRegions.LookupMode(true);
+                            if CountriesRegions.RunModal() = Action::LookupOK then begin
+                                CountriesRegions.GetRecord(CountryRegion);
+                                CountryRegionFilter := CountryRegion.Code;
+                                exit(true);
+                            end;
+                            exit(false);
+                        end;
+                    }
                 }
             }
         }
@@ -334,6 +356,7 @@ report 11005 "VAT Statement Germany"
 
     protected var
         UseAmtsInAddCurr: Boolean;
+        CountryRegionFilter: Text;
 
     local procedure SetVATEntryVATKey(var VATEntry: Record "VAT Entry")
     begin
@@ -398,6 +421,8 @@ report 11005 "VAT Statement Germany"
                         else
                             VATEntry.SetRange(Closed);
                     end;
+                    if CountryRegionFilter <> '' then
+                        VATEntry.SetFilter("Country/Region Code", CountryRegionFilter);
                     OnBeforeCalcAmountVATEntryTotaling(VATEntry, VATStmtLine2);
                     case VATStmtLine2."Amount Type" of
                         VATStmtLine2."Amount Type"::Amount:
@@ -520,6 +545,12 @@ report 11005 "VAT Statement Germany"
     [Scope('OnPrem')]
     procedure InitializeRequest(var NewVATStatementName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
+        InitializeRequest(NewVATStatementName, NewVATStatementLine, NewSelection, NewPeriodSelection, NewPrintInIntegers, NewUseAmtsInAddCurr, '');
+    end;
+
+    [Scope('OnPrem')]
+    procedure InitializeRequest(var NewVATStatementName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewCountryRegionFilter: Text)
+    begin
         "VAT Statement Name".Copy(NewVATStatementName);
         "VAT Statement Line".Copy(NewVATStatementLine);
         Selection := NewSelection;
@@ -535,6 +566,7 @@ report 11005 "VAT Statement Germany"
             EndDateReq := 0D;
             EndDate := 99991231D
         end;
+        CountryRegionFilter := NewCountryRegionFilter;
     end;
 
     [Scope('OnPrem')]
