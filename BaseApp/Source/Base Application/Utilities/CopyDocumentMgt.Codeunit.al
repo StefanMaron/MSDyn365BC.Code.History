@@ -662,7 +662,7 @@ codeunit 6620 "Copy Document Mgt."
                 SavedDimSetId := ToSalesHeader."Dimension Set ID";
             ToSalesHeader.CreateDimFromDefaultDim(0);
             if IncludeHeader then
-                ToSalesHeader."Dimension Set ID" := SavedDimSetId;
+                ToSalesHeader.Validate("Dimension Set ID", SavedDimSetId);
         end;
 
         ToSalesHeader."No. Printed" := 0;
@@ -1187,7 +1187,7 @@ codeunit 6620 "Copy Document Mgt."
                 SavedDimSetId := ToPurchHeader."Dimension Set ID";
             ToPurchHeader.CreateDimFromDefaultDim(0);
             if IncludeHeader then
-                ToPurchHeader."Dimension Set ID" := SavedDimSetId;
+                ToPurchHeader.Validate("Dimension Set ID", SavedDimSetId);
         end;
         ToPurchHeader."No. Printed" := 0;
         ToPurchHeader."Applies-to Doc. Type" := ToPurchHeader."Applies-to Doc. Type"::" ";

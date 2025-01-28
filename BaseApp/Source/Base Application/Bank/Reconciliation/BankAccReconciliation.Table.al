@@ -69,7 +69,7 @@ table 273 "Bank Acc. Reconciliation"
         field(3; "Statement Ending Balance"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
+            AutoFormatType = 2;
             Caption = 'Statement Ending Balance';
         }
         field(4; "Statement Date"; Date)
