@@ -544,7 +544,7 @@
         VerifyCorrectionLineCount(GenJournalLine, GenJournalBatch, GLAccount, 1);
         GenJournalLine.FindFirst();
         GenJournalLine.TestField("Posting Date", CurrencyExchangeRate."Starting Date");
-        GenJournalLine.TestField("Source Code", SourceCodeSetup."Exchange Rate Adjmt.");
+        GenJournalLine.TestField("Source Code", SourceCodeSetup."G/L Currency Revaluation");
         GenJournalLine.TestField("Currency Code", '');
         Assert.AreNearlyEqual(GetCorrectionAmountAndAccount(BalAccountNo, CurrencyExchangeRate, GLAccount), GenJournalLine.Amount,
           GeneralLedgerSetup."Amount Rounding Precision", 'Wrong correction amount.');

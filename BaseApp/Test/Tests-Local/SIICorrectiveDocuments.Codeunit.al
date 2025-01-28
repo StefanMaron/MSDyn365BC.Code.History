@@ -20,6 +20,7 @@ codeunit 147528 "SII Corrective Documents"
         LibrarySII: Codeunit "Library - SII";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryNonDeductibleVAT: Codeunit "Library - NonDeductible VAT";
         IsInitialized: Boolean;
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
         XPathPurchBaseImponibleTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:DesgloseFactura/sii:DesgloseIVA/sii:DetalleIVA/';
@@ -447,7 +448,6 @@ codeunit 147528 "SII Corrective Documents"
     [Scope('OnPrem')]
     procedure PostPurchInvoiceAndValidateImporteTotalWithNonDeductibleVAT()
     var
-        VATSetup: Record "VAT Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -462,10 +462,8 @@ codeunit 147528 "SII Corrective Documents"
         // [GIVEN] "Include Importe Total" is enabled in the SII Setup
         SetIncludeImporteTotalInSIISetup();
 
-        // [GIVEN] Validate Enable Non-Deductible VAT in VAT Setup.
-        VATSetup.Get();
-        VATSetup."Enable Non-Deductible VAT" := true;
-        VATSetup.Modify();
+        // [GIVEN] Enable Non-Deductible VAT in VAT Setup.
+        LibraryNonDeductibleVAT.EnableNonDeductibleVAT();
 
         // [GIVEN] Create VAT Posting Setup with Non-Deductible VAT.
         CreateVATPostingSetupWithNonDeductibleVAT(VATPostingSetup, LibraryRandom.RandIntInRange(5, 5), LibraryRandom.RandIntInRange(5, 5));
@@ -500,7 +498,6 @@ codeunit 147528 "SII Corrective Documents"
     [Scope('OnPrem')]
     procedure PostPurchCreditMemoAndValidateImporteTotalWithNonDeductibleVAT()
     var
-        VATSetup: Record "VAT Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -515,10 +512,8 @@ codeunit 147528 "SII Corrective Documents"
         // [GIVEN] "Include Importe Total" is enabled in the SII Setup
         SetIncludeImporteTotalInSIISetup();
 
-        // [GIVEN] Validate Enable Non-Deductible VAT in VAT Setup.
-        VATSetup.Get();
-        VATSetup."Enable Non-Deductible VAT" := true;
-        VATSetup.Modify();
+        // [GIVEN] Enable Non-Deductible VAT in VAT Setup.
+        LibraryNonDeductibleVAT.EnableNonDeductibleVAT();
 
         // [GIVEN] Create VAT Posting Setup with Non-Deductible VAT.
         CreateVATPostingSetupWithNonDeductibleVAT(VATPostingSetup, LibraryRandom.RandIntInRange(10, 10), LibraryRandom.RandIntInRange(10, 10));
@@ -531,9 +526,8 @@ codeunit 147528 "SII Corrective Documents"
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Item.Modify(true);
 
-        // [GIVEN] Create a Purchase Header and Validate Vendor Invoice No.
+        // [GIVEN] Create a Purchase Header
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        // PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(2));
         PurchaseHeader.Modify(true);
 
         // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
@@ -548,6 +542,53 @@ codeunit 147528 "SII Corrective Documents"
         VerifyImporteTotal(PostedDocNo, CalculateImporteTotal(PostedDocNo));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure WrongBaseImponibleACosteWhenPostingPurchInvoiceWithNonDeductibleVATAndSpecialSchemeCode06()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [SCENARIO Bug 557629: [All-E] "El campo CuotaSoportada tiene un valor incorrecto para el valor de los campos BaseImponibleACoste y
+        // TipoImpositivo suministrados" error in SII if we use Non-Deductible VAT and Purchase Special Scheme Code 06. Group of Entities
+        Initialize();
+
+        // [GIVEN] Enable Non-Deductible VAT in VAT Setup.
+        LibraryNonDeductibleVAT.EnableNonDeductibleVAT();
+
+        // [GIVEN] Create VAT Posting Setup with Non-Deductible VAT.
+        CreateVATPostingSetupWithNonDeductibleVAT(VATPostingSetup, LibraryRandom.RandIntInRange(10, 10), LibraryRandom.RandIntInRange(100, 100));
+
+        // [GIVEN] Generate and save Vendor in a Variable.
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create an Item and Validate VAT Prod. Posting Group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Purchase Header, validate Vendor Invoice No. and set Invoice Type to F2
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(2));
+        PurchaseHeader.Validate("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"06 Groups of Entities");
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1000));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice.
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        // [THEN] Create the xml and verify ImporteTotal is available in XML
+        VerifyBaseImponibleACoste(PostedDocNo, CalculateBaseImponibleACoste(PostedDocNo));
+    end;
+
     local procedure Initialize()
     begin
         Clear(SIIXMLCreator);
@@ -557,6 +598,7 @@ codeunit 147528 "SII Corrective Documents"
 
         LibrarySII.InitSetup(true, false);
         LibrarySII.BindSubscriptionJobQueue();
+        LibrarySetupStorage.Save(Database::"VAT Setup");
         LibrarySetupStorage.Save(DATABASE::"SII Setup");
 
         IsInitialized := true;
@@ -729,6 +771,35 @@ codeunit 147528 "SII Corrective Documents"
         VendorLedgerEntry.FindSet();
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
         LibrarySII.ValidateElementByName(XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(ImporteTotal));
+    end;
+
+    local procedure CalculateBaseImponibleACoste(PostedDocNo: Code[20]) BaseImponibleACoste: Decimal
+    var
+        VATEntry: Record "VAT Entry";
+        TotalBaseAmount: Decimal;
+        TotalNDBase: Decimal;
+    begin
+        VATEntry.SetRange("Document No.", PostedDocNo);
+        VATEntry.FindSet();
+        repeat
+            TotalBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
+            TotalNDBase += VATEntry."Non-Deductible VAT Base";
+        until VATEntry.Next() = 0;
+
+        BaseImponibleACoste := (TotalBaseAmount + TotalNDBase);
+    end;
+
+    local procedure VerifyBaseImponibleACoste(PostedDocNo: Code[20]; BaseImponibleACoste: Decimal)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        VendorLedgerEntry.SetRange("Document No.", PostedDocNo);
+        VendorLedgerEntry.FindSet();
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:BaseImponibleACoste', SIIXMLCreator.FormatNumber(BaseImponibleACoste));
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(BaseImponibleACoste));
     end;
 }
 

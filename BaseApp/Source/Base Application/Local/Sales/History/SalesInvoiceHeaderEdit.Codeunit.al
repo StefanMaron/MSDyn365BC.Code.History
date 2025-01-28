@@ -28,6 +28,7 @@ codeunit 10765 "Sales Invoice Header - Edit"
         SalesInvoiceHeader."Issued By Third Party" := Rec."Issued By Third Party";
         SalesInvoiceHeader.SetSIIFirstSummaryDocNo(Rec.GetSIIFirstSummaryDocNo());
         SalesInvoiceHeader.SetSIILastSummaryDocNo(Rec.GetSIILastSummaryDocNo());
+        SalesInvoiceHeader."Dispute Status" := Rec."Dispute Status";
 
         OnRunOnBeforeSalesInvoiceHeaderModify(SalesInvoiceHeader, Rec);
         SalesInvoiceHeader.TestField("No.", Rec."No.");

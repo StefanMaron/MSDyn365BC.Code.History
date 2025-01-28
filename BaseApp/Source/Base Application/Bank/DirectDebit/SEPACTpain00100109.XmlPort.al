@@ -91,10 +91,13 @@ xmlport 1001 "SEPA CT pain.001.001.09"
                         }
                         textelement(SvcLvl)
                         {
-                            XmlName = 'SvcLvl';
-                            textelement(sepatxt)
+                            textelement(Cd)
                             {
-                                XmlName = 'Cd';
+
+                                trigger OnBeforePassVariable()
+                                begin
+                                    Cd := 'SEPA';
+                                end;
                             }
                         }
                     }
@@ -412,7 +415,6 @@ xmlport 1001 "SEPA CT pain.001.001.09"
         until PaymentExportData.Next() = 0;
         InsertPmtGroup(PaymentGroupNo);
         GetOrgIdOthrId(PaymentExportData."Sender Bank Account Code");
-        SepaTxt := 'SEPA';
     end;
 
     local procedure IsNewGroup(): Boolean
