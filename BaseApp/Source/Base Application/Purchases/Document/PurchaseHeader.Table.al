@@ -4665,6 +4665,7 @@ table 38 "Purchase Header"
 
         PurchaseLine.SetRange("Document Type", "Document Type");
         PurchaseLine.SetRange("Document No.", "No.");
+        PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
         if not PurchaseLine.FindFirst() then
             exit(true);
 

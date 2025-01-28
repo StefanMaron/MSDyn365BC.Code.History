@@ -2455,6 +2455,97 @@ codeunit 137065 "SCM Reservation II"
         UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    procedure RegisterWarehousePickUsingSplitLines()
+    var
+        Bin: Record Bin;
+        BinType: Record "Bin Type";
+        Item: array[2] of Record Item;
+        ItemUnitOfMeasure: array[3] of Record "Item Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        BinCode: Code[20];
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 540303] Registering the pick using Split Lines in Warehouse Pick.
+        Initialize();
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, false);
+
+        // [GIVEN] Update Manufacturing Setup Components in Location.
+        UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
+
+        // [GIVEN] Validate Put-away Worksheet and Prod. Output Whse. Handling in Location.
+        LocationWhite.Validate("Use Put-away Worksheet", true);
+        LocationWhite.Modify();
+
+        // [GIVEN] Create a Zone.
+        LibraryWarehouse.CreateZone(Zone, Zone.Code, LocationWhite.Code, '', '', '', 0, false);
+
+        // [GIVEN] Find Bin Type of Pick.
+        BinType.SetRange(Pick, true);
+        BinType.FindFirst();
+
+        // [GIVEN] Create Bin in a Location.
+        LibraryWarehouse.CreateBin(Bin, LocationWhite.Code, Bin.Code, Zone.Code, BinType.Code);
+
+        // [GIVEN] Store Quantity.
+        Quantity := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create an Item with setup.
+        CreateItemSetupWithLotTracking(Item[1], Item[2]);
+
+        // [GIVEN] Create Item Unit of Measure.
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure[1], Item[1]."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure[2], Item[1]."No.", LibraryRandom.RandIntInRange(100, 110));
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure[3], Item[1]."No.", LibraryRandom.RandIntInRange(1000, 1010));
+
+        // [GIVEN] Create Inventory and Register in Warehouse Item Journal.
+        UpdateInventoryAndAssignTrackingInWhseItemJournal(LocationWhite, Item[1], Item[2], Quantity);
+
+        // [GIVEN] Create Warehouse Pick from Production Order.
+        CreateWarehousePickfromProductionOrderSetup(Item[1], Item[2], ProductionOrder, Quantity);
+
+        // [GIVEN] Find Warehouse Activity Line and store Bin Code.
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        WarehouseActivityLine.FindFirst();
+        BinCode := WarehouseActivityLine."Bin Code";
+
+        // [GIVEN] Validate Qty. to Handle in Warehouse Activity Line.
+        WarehouseActivityLine.Validate("Qty. to Handle", Quantity - LibraryRandom.RandInt(2));
+        WarehouseActivityLine.Modify(true);
+
+        // [GIVEN] Use Split Line in Warehouse Activity Line.
+        WarehouseActivityLine.SplitLine(WarehouseActivityLine);
+
+        // [GIVEN] Find latest Warehouse Activity Line which has been split and Validate Bin Code.
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        WarehouseActivityLine.FindLast();
+        WarehouseActivityLine.Validate("Bin Code", BinCode);
+        WarehouseActivityLine.Modify();
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.SetRange("Location Code", LocationWhite.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [WHEN] Register Warehouse Activity.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Posted Warehouse Activity Header is created.
+        RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityHeader."No.");
+        RegisteredWhseActivityHdr.FindFirst();
+        Assert.RecordIsNotEmpty(RegisteredWhseActivityHdr);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
