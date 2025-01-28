@@ -1650,9 +1650,9 @@ codeunit 7307 "Whse.-Activity-Register"
 
                 QtyPickedNotShipped := CalcQtyPickedNotShipped(WhseActivLine, WhseItemTrackingSetup);
 
-                LineReservedQtyBase :=
-                    WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                        "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", false, TempWhseActivLine2);
+            LineReservedQtyBase :=
+                WhseAvailMgt.CalcLineReservedQtyOnInvt(
+                    WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", false, WhseItemTrackingSetup, WhseActivLine);
 
                 TotalAvailQtyBase :=
                   QtyInWhseBase -
