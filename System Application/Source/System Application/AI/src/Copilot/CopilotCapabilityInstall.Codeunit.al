@@ -27,8 +27,7 @@ codeunit 7760 "Copilot Capability Install"
         ApplicationFamily: Text;
     begin
         ApplicationFamily := EnvironmentInformation.GetApplicationFamily();
-
-        if ApplicationFamily = 'US' then
+        if ApplicationFamily in ['AT', 'BE', 'BG', 'CH', 'CZ', 'DK', 'EE', 'ES', 'FI', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LT', 'LV', 'MX', 'NL', 'PL', 'PT', 'RO', 'RS', 'SE', 'SI', 'SK', 'UA', 'US', 'W1'] then
             RegisterSaaSCapability(Enum::"Copilot Capability"::Chat, Enum::"Copilot Availability"::Preview, ChatLearnMoreLbl);
 
         RegisterSaaSCapability(Enum::"Copilot Capability"::"Analyze List", Enum::"Copilot Availability"::Preview, AnalyzeListLearnMoreLbl);

@@ -1847,6 +1847,38 @@ codeunit 134421 "Report Selections Tests"
         Assert.AreEqual(LayoutCode, ReportLayoutSelection."Custom Report Layout Code", LayoutCodeShouldNotChangedErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyFromReportSelectionsCustomerEmailAttachment()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+        CustomerReportSelections: Record "Report Selections";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 558243] Copy from Report Selection option from Document Layouts does not bring the Email Attachment Layout from the Report Selection page.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections as Sales Invoice
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"S.Invoice", 1306);
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Invoice");
+        if ReportSelections.FindFirst() then begin
+            ReportSelections."Email Body Layout Name" := 'StandardSalesInvoiceDefEmail.docx';
+            ReportSelections."Report Layout Name" := 'StandardSalesInvoiceBlueSimple.docx';
+            ReportSelections.Modify(true);
+        end;
+        CustomerReportSelections.SetFilter(Usage, '%1', ReportSelections.Usage::"S.Invoice");
+
+        // [GIVEN] Create new Customer
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [WHEN] Copy Report Selections to Custom Report Selection
+        CustomReportSelection.CopyFromReportSelections(CustomerReportSelections, Database::Customer, CustomerNo);
+
+        // [THEN] Verify Custom Report Selection contains report selection with Email Attachment
+        VerifyCopiedCustomReportSelectionEmailAttachment(ReportSelections, Database::Customer, CustomerNo, 1);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2347,6 +2379,20 @@ codeunit 134421 "Report Selections Tests"
             CustomReportSelection.SetRange("Report ID", ReportSelections."Report ID");
             Assert.RecordCount(CustomReportSelection, 1);
         until ReportSelections.Next() = 0;
+    end;
+
+    local procedure VerifyCopiedCustomReportSelectionEmailAttachment(var ReportSelections: Record "Report Selections"; SourceType: Integer; SourceNo: Code[20]; CustomReportSelectionRecordCount: Integer)
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+    begin
+        CustomReportSelection.SetRange("Source Type", SourceType);
+        CustomReportSelection.SetRange("Source No.", SourceNo);
+        Assert.RecordCount(CustomReportSelection, CustomReportSelectionRecordCount);
+
+        CustomReportSelection.SetRange(Usage, ReportSelections.Usage);
+        CustomReportSelection.SetRange("Report ID", ReportSelections."Report ID");
+        If CustomReportSelection.FindFirst() then
+            Assert.AreEqual(CustomReportSelection."Email Attachment Layout Name", ReportSelections."Report Layout Name", 'Report Layout name must match');
     end;
 
     local procedure CreatePersonContactWithEmail(CompanyContactNo: Code[20]; UseMaxFieldLength: Boolean): Text

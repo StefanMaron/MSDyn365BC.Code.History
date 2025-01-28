@@ -2,8 +2,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+#pragma warning disable AS0002
 namespace Microsoft.Utilities;
-
 using System.Environment;
 
 table 1802 "Assisted Company Setup Status"
@@ -34,22 +34,22 @@ table 1802 "Assisted Company Setup Status"
                 OnEnabled("Company Name", Enabled);
             end;
         }
-#pragma warning disable AS0072
+#pragma warning disable AS0072, AS0115
         field(3; "Package Imported"; Boolean)
         {
             Caption = 'Package Imported';
             ObsoleteTag = '25.2';
             ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
         }
         field(4; "Import Failed"; Boolean)
         {
             Caption = 'Import Failed';
             ObsoleteTag = '25.2';
             ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
         }
-#pragma warning restore AS0072
+#pragma warning restore AS0072, AS0115
         field(5; "Company Setup Session ID"; Integer)
         {
             Caption = 'Company Setup Session ID';
@@ -63,8 +63,12 @@ table 1802 "Assisted Company Setup Status"
             Caption = 'Server Instance ID';
             DataClassification = SystemMetadata;
         }
+        field(8; "Company Demo Data"; Enum "Company Demo Data Type")
+        {
+            Caption = 'Company Demo Data';
+            DataClassification = SystemMetadata;
+        }
     }
-
     keys
     {
         key(Key1; "Company Name")
@@ -102,10 +106,6 @@ table 1802 "Assisted Company Setup Status"
             AssistedCompanySetupStatus.Insert();
         end else begin
             AssistedCompanySetupStatus.Validate(Enabled, Enable);
-            if ResetState then begin
-                AssistedCompanySetupStatus."Package Imported" := false;
-                AssistedCompanySetupStatus."Import Failed" := false;
-            end;
             AssistedCompanySetupStatus.Modify();
         end;
     end;
@@ -140,4 +140,4 @@ table 1802 "Assisted Company Setup Status"
         end;
     end;
 }
-
+#pragma warning restore AS0002

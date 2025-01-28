@@ -1036,8 +1036,6 @@ page 1020 "Job G/L Journal"
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
-        AccName: Text[100];
-        BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
         ShowBalance: Boolean;
@@ -1055,6 +1053,8 @@ page 1020 "Job G/L Journal"
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
+        AccName: Text[100];
+        BalAccName: Text[100];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
