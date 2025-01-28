@@ -38,7 +38,17 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                     GenJnlLine."Line No." := GenJnlLine."Line No." + 10000;
                     GenJnlLine.Validate("Posting Date", "Transaction Date");
                     SourceCodeSetup.Get();
-                    GenJnlLine."Source Code" := SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl.";
+                    case
+                        GenJnlTemplate.Type of
+                        GenJnlTemplate.Type::General:
+                            GenJnlLine."Source Code" := SourceCodeSetup."General Journal";
+                        GenJnlTemplate.Type::Purchases:
+                            GenJnlLine."Source Code" := SourceCodeSetup."Purchase Journal";
+                        GenJnlTemplate.Type::Sales:
+                            GenJnlLine."Source Code" := SourceCodeSetup."Sales Journal";
+                        else
+                            GenJnlLine."Source Code" := SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl.";
+                    end;
                     if "Document No." <> '' then
                         GenJnlLine."Document No." := "Document No."
                     else
