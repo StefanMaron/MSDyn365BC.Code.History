@@ -70,6 +70,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
 
     procedure ValidateUnitOfMeasure(var PriceAsset: Record "Price Asset"): Boolean
     begin
+        ItemUnitofMeasure.SetLoadFields("Item No.", Code);
         ItemUnitofMeasure.Get(PriceAsset."Asset No.", PriceAsset."Unit of Measure Code");
     end;
 
@@ -126,6 +127,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
+        StockkeepingUnit.SetLoadFields("Last Direct Cost");
         if StockkeepingUnit.Get(PriceCalculationBuffer."Location Code", PriceCalculationBuffer."Asset No.", PriceCalculationBuffer."Variant Code") then
             if StockkeepingUnit."Last Direct Cost" <> 0 then
                 UnitCost := StockkeepingUnit."Last Direct Cost";
@@ -215,7 +217,8 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
 
         ItemVar.SetRange("Item No.", PriceAsset."Asset No.");
         ItemVar.SetRange(Code, PriceAsset."Variant Code");
-        if not ItemVar.IsEmpty() then exit;
+        if not ItemVar.IsEmpty() then
+            exit;
 
         if Item.Get(PriceAsset."Asset No.") then begin
             PriceAsset."Asset ID" := Item.SystemId;

@@ -538,6 +538,9 @@ table 6661 "Return Receipt Line"
         key(Key6; "Sell-to Customer No.")
         {
         }
+        key(Key7; "Appl.-from Item Entry")
+        {
+        }
     }
 
     fieldgroups

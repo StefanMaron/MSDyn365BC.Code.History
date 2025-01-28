@@ -97,7 +97,6 @@ table 30101 "Shpfy Metafield"
             Caption = 'Type';
             DataClassification = CustomerContent;
 
-#if not CLEAN26
             trigger OnValidate()
             begin
                 if Type = Type::string then
@@ -105,7 +104,6 @@ table 30101 "Shpfy Metafield"
                 if Type = Type::integer then
                     Error(StringTypeErr, Format(Type), Format(Type::number_integer));
             end;
-#endif
         }
         field(9; "Last Updated by BC"; DateTime)
         {
@@ -168,10 +166,8 @@ table 30101 "Shpfy Metafield"
         "Last Updated by BC" := CurrentDateTime;
     end;
 
-#if not CLEAN26
     var
         StringTypeErr: Label 'The type %1 is obsolete. Use %2 instead.', Comment = '%1 - Type, %2 - Type';
-#endif
 
     /// <summary>
     /// Get the owner type based on the resources's owner table number.

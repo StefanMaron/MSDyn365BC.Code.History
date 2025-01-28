@@ -1244,6 +1244,16 @@ codeunit 442 "Sales-Post Prepayments"
         OnAfterApplyFilter(SalesLine, SalesHeader, DocumentType);
     end;
 
+    procedure PrepmtAmount(SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic) Result: Decimal
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
+            SalesHeader.Init();
+
+        exit(PrepmtAmount(SalesLine, DocumentType, SalesHeader."Prepmt. Include Tax"));
+    end;
+
     procedure PrepmtAmount(SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; IncludeTax: Boolean) Result: Decimal
     var
         CurrencyLocal: Record Currency;

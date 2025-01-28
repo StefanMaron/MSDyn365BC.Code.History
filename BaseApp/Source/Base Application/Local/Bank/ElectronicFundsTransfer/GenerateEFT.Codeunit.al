@@ -40,6 +40,7 @@ codeunit 10098 "Generate EFT"
         Window: Dialog;
     begin
         InitialChecks(BalAccountNo);
+        OnProcessAndGenerateEFTFileOnAfterInitialChecks(SettlementDate, TempEFTExportWorkset);
         GenJnlLineChecks(TempEFTExportWorkset);
 
         ACHFileCreated := false;
@@ -222,6 +223,11 @@ codeunit 10098 "Generate EFT"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitalChecks(BankAccountNo: Code[20]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessAndGenerateEFTFileOnAfterInitialChecks(var SettlementDate: Date; var TempEFTExportWorkset: Record "EFT Export Workset")
     begin
     end;
 }

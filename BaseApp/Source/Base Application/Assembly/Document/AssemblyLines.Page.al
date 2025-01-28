@@ -4,12 +4,14 @@ using Microsoft.Inventory.Item;
 
 page 903 "Assembly Lines"
 {
-    AutoSplitKey = true;
+    ApplicationArea = Basic, Suite;
+	AutoSplitKey = true;
     Caption = 'Assembly Lines';
     Editable = false;
     PageType = List;
     PopulateAllFields = true;
     SourceTable = "Assembly Line";
+    UsageCategory = Lists;
 
     layout
     {

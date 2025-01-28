@@ -2048,7 +2048,7 @@ page 30 "Item Card"
                     RunObject = Page "Item Substitution Entry";
                     RunPageLink = Type = const(Item),
                                   "No." = field("No.");
-                    ToolTip = 'View substitute items that are set up to be sold instead of the item.';
+                    ToolTip = 'View or edit substitute items that are set up to be traded instead of the item in case it is not available.';
                 }
                 action(ApprovalEntries)
                 {

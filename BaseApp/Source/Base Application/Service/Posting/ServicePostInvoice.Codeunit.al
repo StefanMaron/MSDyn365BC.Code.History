@@ -100,6 +100,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
                 ServicePostInvoiceEvents.RunOnPrepareLineAfterGetGenPostingSetup(GenPostingSetup, ServiceHeader, ServiceLine, ServiceLineACY);
             end;
 
+        SalesSetup.Get();
         if not GLSetup."VAT in Use" then
             if (ServiceLine.Type.AsInteger() >= ServiceLine.Type::Item.AsInteger()) and
                ((ServiceLine."Qty. to Invoice" <> 0) or (ServiceLine."Qty. to Ship" <> 0))

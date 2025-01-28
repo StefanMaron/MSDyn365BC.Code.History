@@ -17,6 +17,7 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryService: Codeunit "Library - Service";
         IsInitialized: Boolean;
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
 
@@ -151,6 +152,84 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, WarehouseEntry.TableCaption(), 1);
         GLPostingPreview.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PreviewMultipleTimesWarehouseShipmentPostWithBin_SalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        Location: Record Location;
+        Bin: Record Bin;
+        GLEntry: Record "G/L Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        DetailedCustLedgerEntry: Record "Detailed Cust. Ledg. Entry";
+        ValueEntry: Record "Value Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+        WhsePostShipmentYesNo: Codeunit "Whse.-Post Shipment (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [FEATURE] [Sales] [Warehouse Shipment] [Preview Posting]
+        // [SCENARIO] Preview Warehouse Shipment posting multiple times with Bin set shows the ledger entries that will be grnerated when the Shipment is posted.
+        Initialize();
+
+        // [GIVEN] Location for Warehouse Shipment where 'Require Shipment' and 'Bin Mandatory' are true
+        // [GIVEN] Warehouse Employee setup for User and Location
+        CreateLocationWMSWithWhseEmployee(Location, true, false, false, false, true);
+        LibraryWarehouse.CreateBin(
+                  Bin, Location.Code,
+                  CopyStr(
+                    LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), 1,
+                    LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code))), '', '');
+        Location.Validate("Default Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Sales Order created
+        CreateSalesDocumentWithLineLocation(SalesHeader, SalesHeader."Document Type"::Order, Location.Code, Bin.Code, true);
+
+        // [WHEN] Warehouse Shipment created
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        //Commit();
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentLine(WarehouseShipmentLine, SalesHeader."No.");
+        Commit();
+
+        // [WHEN] Preview is invoked
+        GLPostingPreview.Trap();
+        asserterror WhsePostShipmentYesNo.Preview(WarehouseShipmentLine);
+        Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
+        GLPostingPreview.OK().Invoke();
+
+        // [WHEN] Preview is invoked
+        GLPostingPreview.Trap();
+        asserterror WhsePostShipmentYesNo.Preview(WarehouseShipmentLine);
+        Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
+
+        // [THEN] Preview creates the entries that will be created when the Shipment is posted
+        GLPostingPreview.First();
+        VerifyGLPostingPreviewLine(GLPostingPreview, GLEntry.TableCaption(), 2);
+
+        GLPostingPreview.Next();
+        VerifyGLPostingPreviewLine(GLPostingPreview, CustLedgerEntry.TableCaption(), 1);
+
+        GLPostingPreview.Next();
+        VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 1);
+
+        GLPostingPreview.Next();
+        VerifyGLPostingPreviewLine(GLPostingPreview, VATEntry.TableCaption(), 1);
+
+        GLPostingPreview.Next();
+        VerifyGLPostingPreviewLine(GLPostingPreview, DetailedCustLedgerEntry.TableCaption(), 1);
+
+        GLPostingPreview.Next();
+        VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
+
+        GLPostingPreview.Next();
+        VerifyGLPostingPreviewLine(GLPostingPreview, WarehouseEntry.TableCaption(), 1);
     end;
 
     [Test]
@@ -300,12 +379,26 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
     end;
 
     local procedure CreateSalesDocumentWithLineLocation(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; LocationCode: Code[10]; BinCode: Code[10])
+    begin
+        CreateSalesDocumentWithLineLocation(SalesHeader, DocumentType, LocationCode, BinCode, false);
+    end;
+
+    local procedure CreateSalesDocumentWithLineLocation(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; LocationCode: Code[10]; BinCode: Code[20]; CreateServiceItemGroup: Boolean)
     var
         SalesLine: Record "Sales Line";
         ItemJournalLine: Record "Item Journal Line";
         Item: Record Item;
+        ServiceItemGroup: Record "Service Item Group";
     begin
         LibraryInventory.CreateItem(Item);
+        if CreateServiceItemGroup then begin
+            LibraryService.CreateServiceItemGroup(ServiceItemGroup);
+            ServiceItemGroup.Validate("Create Service Item", true);
+            ServiceItemGroup.Modify(true);
+            Item.Validate("Service Item Group", ServiceItemGroup.Code);
+            Item.Modify(true);
+        end;
+
         LibraryInventory.CreateItemJournalLineInItemTemplate(
           ItemJournalLine, Item."No.", LocationCode, BinCode, LibraryRandom.RandIntInRange(10, 20));
         LibraryInventory.PostItemJournalLine(

@@ -31,6 +31,7 @@ using Microsoft.Service.Pricing;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
+using System.Environment.Configuration;
 using System.TestLibraries.Email;
 using System.TestLibraries.Reflection;
 using System.TestLibraries.Utilities;
@@ -2882,6 +2883,56 @@ codeunit 136108 "Service Posting - Invoice"
         LibraryVariableStorage.Clear();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure GLDiscountEntryIsCreatedOnPostServiceInvoiceWithEnabledInvoicePostingEngine()
+    var
+        Customer: Record Customer;
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        GLEntry: Record "G/L Entry";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PostingDate: Date;
+    begin
+        // [SCENARIO 561229] GL Discount Entry is created on Post Service Invoice with enabled Invoice Posting Engine
+        Initialize();
+
+        // [GIVEN] Enable Extensible Invoice Posting Engine Feature
+        EnableExtensibleInvoicePostingEngineFeature();
+
+        // [GIVEN] Set Calc. Invoice Discount to false
+        ModifyInvoiceDiscount();
+
+        // [GIVEN] Creare Customer and Customer Invoice Discount
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", '', 0);  // Minimum amount is 0.
+        UpdateCustomerInvoiceDiscount(CustInvoiceDisc);
+
+        // [GIVEN] Create Service Invoice with Customer and Customer Invoice Discount
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, '');
+        ServiceLine.Validate("Unit Price", 10 * LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
+        Commit();  // Commit is required to run the batch job.  
+
+        // [GIVEN] Find Invoice Discount Account
+        GeneralPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
+
+        // [WHEN] Run the Batch Post Service Invoices with any random date greater than work date
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
+        BatchPostServiceInvoices(ServiceHeader, PostingDate, false, false, true);
+
+        // [GIVEN] Find the Service Invoice Header and GL Entries
+        FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader."No.");
+        FindGLEntries(GLEntry, ServiceInvoiceHeader);
+
+        // [THEN] Check the GL Entry is created for the Discount Amount        
+        GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Inv. Disc. Account");
+        GLEntry.FindFirst();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3691,6 +3742,24 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
         Assert.RecordIsEmpty(ServiceInvoiceHeader);
+    end;
+
+    local procedure FindGLEntries(var GLEntry: Record "G/L Entry"; ServiceInvoiceHeader: Record "Service Invoice Header")
+    begin
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
+    end;
+
+    local procedure EnableExtensibleInvoicePostingEngineFeature()
+    var
+        FeatureKey: Record "Feature Key";
+    begin
+        FeatureKey.Get('ExtensibleInvoicePostingEngine');
+        if FeatureKey.Enabled = FeatureKey.Enabled::"All Users" then
+            exit;
+
+        FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
+        FeatureKey.Modify();
     end;
 
     [ConfirmHandler]
