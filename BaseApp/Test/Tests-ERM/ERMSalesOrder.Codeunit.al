@@ -70,6 +70,7 @@ codeunit 134378 "ERM Sales Order"
         CustomerBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
         UnitPriceMustMatchErr: Label 'Unit Price must match.';
         PlannedShipmentDateErr: Label 'Planned Shipment Date must be %1 in %2.', Comment = '%1= Value ,%2=Table Name.';
+        ServiceChargeLineExist: Label 'Service Charge Line exist';
 
     [Test]
     [Scope('OnPrem')]
@@ -5441,6 +5442,35 @@ codeunit 134378 "ERM Sales Order"
                 SalesLine.TableCaption()));
     end;
 
+    [Test]
+    procedure ServiceChargeLineIsNotRecreatedWhenChangePostingDateAndCalcInvDiscIsOff()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustomerNo: Code[20];
+        ServiceChargeAmt: Decimal;
+    begin
+        // [SCENARIO 557866]  Service Charge Line is not created automaticallly when user change posting date and        
+        // Calc. Inv Discount is off in Sales & Receivables Setup.
+        Initialize();
+
+        // [GIVEN] Disable invoice discount calculation on "Sales & Receivables Setup".
+        LibrarySales.SetCalcInvDiscount(false);
+
+        // [GIVEN] Create Customer with Service Charge Line. 
+        CreateCustomerWithServiceChargeAmount(CustomerNo, ServiceChargeAmt);
+
+        // [GIVEN] Create Sales Order.
+        CreateSalesOrderWithServiceCharge(SalesHeader, CustomerNo);
+
+        // [WHEN] Posting Date is changed in Sales Order.
+        SalesHeader.Validate("Posting Date", WorkDate() + 1);
+        SalesHeader.Modify(true);
+
+        // [THEN] Verify Service Charge Line is not created.
+        Assert.IsFalse(FindSalesServiceChargeLineexist(SalesLine, SalesHeader), ServiceChargeLineExist);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -7522,6 +7552,15 @@ codeunit 134378 "ERM Sales Order"
             Assert.Equal(SalesLine."Qty. to Ship", SalesLine.Quantity);
             Assert.Equal(SalesLine."Qty. Shipped (Base)", 0);
         until SalesLine.Next() = 0;
+    end;
+
+    local procedure FindSalesServiceChargeLineExist(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"): Boolean
+    begin
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
+        if not SalesLine.IsEmpty then
+            exit(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]

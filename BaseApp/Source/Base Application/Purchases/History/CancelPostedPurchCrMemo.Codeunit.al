@@ -171,6 +171,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         PartiallyApplied: Boolean;
     begin
         VendLedgEntry.CalcFields(Amount, "Remaining Amount");
+        OnTestIfAppliedCorrectlyBeforeCalcPartiallyApplied(VendLedgEntry);
         PartiallyApplied :=
           ((VendLedgEntry.Amount <> VendLedgEntry."Remaining Amount") and (VendLedgEntry."Remaining Amount" <> 0));
         if (CalcDtldVendLedgEntryCount(DetailedVendLedgEntry."Entry Type"::"Initial Entry", VendLedgEntry."Entry No.") <> 1) or
@@ -595,6 +596,11 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeRunPurchPost(var PurchaseHeader: Record "Purchase Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestIfAppliedCorrectlyBeforeCalcPartiallyApplied(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

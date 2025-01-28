@@ -1165,7 +1165,7 @@ page 88 "Job Card"
                         PurchaseLine: Record "Purchase Line";
                     begin
                         Rec.SetPurchLineFilters(PurchaseLine);
-                        PurchaseLine.SetFilter("Outstanding Amount (LCY)", '<> 0');
+                        PurchaseLine.SetFilter(Quantity, '<> 0');
                         Page.RunModal(Page::"Purchase Lines", PurchaseLine);
                     end;
                 }

@@ -38,6 +38,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         CancelAppliedEntryFinChargeMemoErr: Label 'You must unapply customer ledger entry %1 before canceling issued finance charge memo %2.', Comment = '%1 - entry number, %2 - issued reminder number';
         NotAllRemindersCancelledTxt: Label 'One or more of the selected issued reminders could not be canceled.\\Do you want to see a list of the issued reminders that were not canceled?';
         NotAllFinChMemosCancelledTxt: Label 'One or more of the selected issued finance charge memos could not be canceled.\\Do you want to see a list of the issued finance charge memos that were not canceled?';
+        IssuedReminderErr: Label 'Amount must be in opposite sign.';
 
     [Test]
     [HandlerFunctions('DocumentEntriesRequestPageHandler,NavigatePagehandler')]
@@ -1362,6 +1363,29 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Assert.RecordCount(IssuedReminderHeader, CancelDocumentCount);
     end;
 
+    [Test]
+    [HandlerFunctions('BatchCancelIssuedRemindersRequestPageHandler')]
+    procedure CancelIssuedReminderCancelsCorrectAmount()
+    var
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        ReminderNo: Code[20];
+    begin
+        // [SCENARIO 558925] Correct Interest Amounts upon the Reversal of an Issued Reminder.
+        Initialize();
+
+        // [GIVEN] Create Reminder with Reminder Terms and Finance Charge Terms.
+        ReminderNo := CreateReminderWithReminderTermsAndFinChargeTerms(CreateReminderTerms(false, true, true, true));
+
+        // [GIVEN] Create Issued Reminder.
+        IssuedReminderHeader.Get(IssueReminder(ReminderNo, WorkDate()));
+
+        // [WHEN] Cancel Issued Reminder.
+        RunCancelIssuedReminder(IssuedReminderHeader);
+
+        // [THEN] Amount must be same but in opposite sign.
+        VerifyAmountInGLEntries(IssuedReminderHeader."No.");
+    end;
+
     local procedure Initialize()
     var
         FeatureKey: Record "Feature Key";
@@ -2276,6 +2300,21 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
             IssuedReminderHeader.Get(IssueReminder(CreateReminder(CustomerNo, DocumentDate), WorkDate()));
             RunCancelIssuedReminder(IssuedReminderHeader);
         end;
+    end;
+
+    local procedure VerifyAmountInGLEntries(IssuedReminderNo: Code[20])
+    var
+        GLEntry: array[2] of Record "G/L Entry";
+    begin
+        GLEntry[1].SetRange("Document No.", IssuedReminderNo);
+        GLEntry[1].SetRange("Document Type", GLEntry[1]."Document Type"::Reminder);
+        GLEntry[1].FindSet();
+        repeat
+            GLEntry[2].SetRange("Document No.", IssuedReminderNo);
+            GLEntry[2].SetRange(Amount, -GLEntry[1].Amount);
+            GLEntry[2].FindFirst();
+            Assert.AreEqual(GLEntry[1].Amount, -GLEntry[2].Amount, IssuedReminderErr);
+        until GLEntry[1].Next() = 0;
     end;
 
     [RequestPageHandler]
