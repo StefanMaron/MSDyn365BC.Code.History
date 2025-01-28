@@ -19,6 +19,9 @@ codeunit 453 "Job Queue - Enqueue"
         if JobQueueEntry."Job Queue Category Code" <> '' then
             CheckAndCreateCategory(JobQueueEntry);  // we have some code in CRM and WF that doesn't rely on consistent data
 
+        JobQueueEntry."Error Message" := '';
+        Clear(JobQueueEntry."Error Message Register Id");
+
         SavedStatus := JobQueueEntry.Status;
         InitEntryForSchedulerWithDelayInSec(JobQueueEntry, 1);
         if IsNullGuid(JobQueueEntry.ID) then
