@@ -3603,12 +3603,5 @@ codeunit 134202 "Document Approval - Users"
     begin
         SalesList.OK().Invoke();
     end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Log Management", 'OnBeforeIsLogActive', '', false, false)]
-    local procedure DisableChangeLogOnBeforeIsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion; var IsActive: Boolean; var IsHandled: Boolean)
-    begin
-        IsHandled := true;
-        IsActive := false;
-    end;
 }
 

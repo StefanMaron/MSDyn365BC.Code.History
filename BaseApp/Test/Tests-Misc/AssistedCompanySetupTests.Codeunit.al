@@ -197,27 +197,6 @@ codeunit 139301 "Assisted Company Setup Tests"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure TestGetConfigurationPackageFile()
-    var
-        ConfigurationPackageFile: Record "Configuration Package File";
-        AssistedCompanySetup: Codeunit "Assisted Company Setup";
-        FileName: Text;
-    begin
-        // [GIVEN] A Configuration Package File record
-        ConfigurationPackageFile.Init();
-        ConfigurationPackageFile.Insert();
-
-        // [WHEN] GetConfigurationPackageFile is called
-        FileName := AssistedCompanySetup.GetConfigurationPackageFile(ConfigurationPackageFile);
-
-        // [THEN] A file is created
-        Assert.IsTrue(FILE.Exists(FileName), '');
-        FILE.Erase(FileName);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure TestFeatureSetupStatusCanBeSetAndRetrieved()
     var
         GuidedExperience: Codeunit "Guided Experience";

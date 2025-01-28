@@ -284,6 +284,8 @@ table 339 "Item Application Entry"
     end;
 
     procedure CheckIsCyclicalLoop(CheckItemLedgEntry: Record "Item Ledger Entry"; FromItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    var
+        IsCyclicalLoop: Boolean;
     begin
         if CheckItemLedgEntry."Entry No." = FromItemLedgEntry."Entry No." then
             exit(true);
@@ -301,6 +303,12 @@ table 339 "Item Application Entry"
         if FromItemLedgEntry."Entry Type" = FromItemLedgEntry."Entry Type"::"Assembly Consumption" then
             if CheckCyclicAsmCyclicalLoop(CheckItemLedgEntry, FromItemLedgEntry) then
                 exit(true);
+
+        IsCyclicalLoop := false;
+        OnCheckIsCyclicalLoopOnBeforeCheckCyclicForwardToAppliedInbounds(CheckItemLedgEntry, FromItemLedgEntry, MaxValuationDate, IsCyclicalLoop);
+        if IsCyclicalLoop then
+            exit(true);
+
         exit(CheckCyclicFwdToAppliedInbnds(CheckItemLedgEntry, FromItemLedgEntry."Entry No."));
     end;
 
@@ -336,27 +344,7 @@ table 339 "Item Application Entry"
         ItemLedgerEntry.SetRange("Order No.", ItemLedgerEntry."Order No.");
         ItemLedgerEntry.SetRange("Order Line No.", ItemLedgerEntry."Order Line No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
-        if MaxValuationDate <> 0D then
-            ItemLedgerEntry.SetRange("Posting Date", 0D, MaxValuationDate);
-        ItemLedgerEntry.SetLoadFields(Positive);
-        if ItemLedgerEntry.FindSet() then
-            repeat
-                if TrackChain then begin
-                    TempItemLedgerEntryInChainNo.Number := ItemLedgerEntry."Entry No.";
-                    if TempItemLedgerEntryInChainNo.Insert() then;
-
-                    if SearchedItemLedgerEntryFound(ItemLedgerEntry) then
-                        exit(true);
-                end;
-
-                if ItemLedgerEntry."Entry No." = CheckItemLedgerEntry."Entry No." then
-                    exit(true);
-
-                if ItemLedgerEntry.Positive then
-                    if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgerEntry, ItemLedgerEntry."Entry No.") then
-                        exit(true);
-            until ItemLedgerEntry.Next() = 0;
-        exit(false);
+        exit(CheckCyclicOrderCyclicalLoop(CheckItemLedgerEntry, ItemLedgerEntry));
     end;
 
     local procedure CheckCyclicAsmCyclicalLoop(CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
@@ -377,6 +365,11 @@ table 339 "Item Application Entry"
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type");
         ItemLedgerEntry.SetRange("Order No.", ItemLedgerEntry."Order No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Assembly Output");
+        exit(CheckCyclicOrderCyclicalLoop(CheckItemLedgerEntry, ItemLedgerEntry));
+    end;
+
+    local procedure CheckCyclicOrderCyclicalLoop(CheckItemLedgerEntry: Record "Item Ledger Entry"; var ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
+    begin
         if MaxValuationDate <> 0D then
             ItemLedgerEntry.SetRange("Posting Date", 0D, MaxValuationDate);
         ItemLedgerEntry.SetLoadFields(Positive);
@@ -448,6 +441,7 @@ table 339 "Item Application Entry"
     local procedure CheckCyclicFwdToAppliedEntries(CheckItemLedgerEntry: Record "Item Ledger Entry"; var ItemApplicationEntry: Record "Item Application Entry"; FromEntryNo: Integer; IsPositiveToNegativeFlow: Boolean): Boolean
     var
         ToEntryNo: Integer;
+        IsCyclicalLoop: Boolean;
     begin
         if EntryIsVisited(FromEntryNo) then
             exit(false);
@@ -478,6 +472,11 @@ table 339 "Item Application Entry"
                     if CheckCyclicFwdToAsmOutput(CheckItemLedgerEntry, ToEntryNo) then
                         exit(true);
                 end;
+
+                IsCyclicalLoop := false;
+                OnCheckCyclicFwdToAppliedEntriesOnAfterCheckItemApplicationEntry(CheckItemLedgerEntry, ToEntryNo, IsPositiveToNegativeFlow, IsCyclicalLoop);
+                if IsCyclicalLoop then
+                    exit(true);
             end;
         until ItemApplicationEntry.Next() = 0;
 
@@ -738,6 +737,16 @@ table 339 "Item Application Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetOutboundsNotUpdatedOnAfterSetFilters(var ItemApplicationEntry: Record "Item Application Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCheckIsCyclicalLoopOnBeforeCheckCyclicForwardToAppliedInbounds(CheckItemLedgEntry: Record "Item Ledger Entry"; FromItemLedgEntry: Record "Item Ledger Entry"; MaxValuationDate: Date; var IsCyclicalLoop: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCheckCyclicFwdToAppliedEntriesOnAfterCheckItemApplicationEntry(CheckItemLedgerEntry: Record "Item Ledger Entry"; ToEntryNo: Integer; IsPositiveToNegativeFlow: Boolean; var IsCyclicalLoop: Boolean)
     begin
     end;
 }

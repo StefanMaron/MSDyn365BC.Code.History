@@ -650,6 +650,7 @@ report 20 "Calc. and Post VAT Settlement"
                     field("Country/Region Filter"; CountryRegionFilter)
                     {
                         ApplicationArea = Basic, Suite;
+                        Caption = 'Country/Region Filter';
                         ToolTip = 'Specifies the country/region to filter the VAT entries.';
                         Importance = Additional;
 

@@ -4636,6 +4636,57 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.ExpectedError(FieldLengthErr);
     end;
 
+    [Test]
+    [HandlerFunctions('VATStatementTemplateListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATStatementPreviewWithCountryRegionFilterSunshine()
+    var
+        VATEntry: array[2] of Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        VATStatement: TestPage "VAT Statement";
+    begin
+        // [FEATURE] [UI] [VAT Statement]
+        // [SCENARIO 556928] VAT Entries opened from VAT Statement Preview respect the Country/Region Filter in VAT Statement
+
+        // [GIVEN] "VAT Statement Name" and "VAT Statement Line" with Type = "VAT Entry Totaling"
+        LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
+        LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
+        VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
+        VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::Amount);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATStatementLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATStatementLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATStatementLine.Validate("Gen. Posting Type", VATStatementLine."Gen. Posting Type"::Purchase);
+        VATStatementLine.Modify(true);
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+
+        MockPurchVATEntryWithCountryCode(VATEntry[1], VATPostingSetup);
+        MockPurchVATEntryWithCountryCode(VATEntry[2], VATPostingSetup);
+
+        // [GIVEN] Open page "VAT Statement Preview" for created line
+        VATStatement.OpenEdit();
+        VATStatement.Filter.SetFilter("Statement Template Name", VATStatementLine."Statement Template Name");
+        VATStatement.Filter.SetFilter("Statement Name", VATStatementLine."Statement Name");
+        VATStatement.First();
+        VATStatementPreview.Trap();
+        VATStatement."P&review".Invoke();
+
+        VATStatementPreview.PeriodSelection.SetValue('Within Period');
+        VATStatementPreview.DateFilter.SetValue(WorkDate());
+        // [WHEN] Set country/region filter to "DE"
+        VATStatementPreview."Country/Region Filter".SetValue(VATEntry[2]."Country/Region Code");
+
+        // [THEN]
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(VATEntry[2].Amount);
+
+        // tear down
+        VATStatement.Close();
+        VATStatementPreview.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -4800,6 +4851,22 @@ codeunit 134341 "UT Page Actions & Controls"
         ToDo.Duration := LibraryRandom.RandIntInRange(2, 10) * 1000 * 60 * 60 * 24;
         ToDo.Type := ToDo.Type::" ";
         ToDo.Insert();
+    end;
+
+    local procedure MockPurchVATEntryWithCountryCode(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry."VAT Reporting Date" := WorkDate();
+        VATEntry.Type := VATEntry.Type::Purchase;
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        VATEntry."Country/Region Code" := CountryRegion.Code;
+        VATEntry.Amount := LibraryRandom.RandDec(100, 2);
+        VATEntry.Insert();
     end;
 
 #if not CLEAN25

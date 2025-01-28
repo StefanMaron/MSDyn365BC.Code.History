@@ -816,22 +816,23 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     local procedure CalcQtyOutstandingPick(SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; SourceProdOrderLine: Integer; var WarehouseActivityLine: Record "Warehouse Activity Line"): Decimal
     var
-        WhseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityLineForCalc: Record "Warehouse Activity Line";
     begin
         if SourceType = Database::"Prod. Order Component" then
-            WhseActivityLine.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo, true)
+            WarehouseActivityLineForCalc.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo, true)
         else
-            WhseActivityLine.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, -1, true);
-        WhseActivityLine.SetFilter("Action Type", '%1|%2', WhseActivityLine."Action Type"::Take, WhseActivityLine."Action Type"::" ");
-        OnCalcQtyOutstandingPickOnAfterSetFilters(WhseActivityLine, SourceType, SourceSubType, SourceID, SourceRefNo, SourceProdOrderLine);
+            WarehouseActivityLineForCalc.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, -1, true);
+        WarehouseActivityLineForCalc.SetFilter("Action Type", '%1|%2', WarehouseActivityLineForCalc."Action Type"::Take, WarehouseActivityLineForCalc."Action Type"::" ");
+        OnCalcQtyOutstandingPickOnAfterSetFilters(WarehouseActivityLineForCalc, SourceType, SourceSubType, SourceID, SourceRefNo, SourceProdOrderLine);
 
-        WhseActivityLine.CalcSums("Qty. Outstanding (Base)");
+        WarehouseActivityLineForCalc.CalcSums("Qty. Outstanding (Base)");
 
         // For not yet committed warehouse activity lines
-        WarehouseActivityLine.CopyFilters(WhseActivityLine);
+        WarehouseActivityLine.CopyFilters(WarehouseActivityLineForCalc);
         WarehouseActivityLine.CalcSums("Qty. Outstanding (Base)");
+        OnCalcQtyOutstandingPickOnAfterCalcSums(WarehouseActivityLine, WarehouseActivityLineForCalc);
 
-        exit(WhseActivityLine."Qty. Outstanding (Base)" + WarehouseActivityLine."Qty. Outstanding (Base)");
+        exit(WarehouseActivityLineForCalc."Qty. Outstanding (Base)" + WarehouseActivityLine."Qty. Outstanding (Base)");
     end;
 
     procedure CalcQtyAvailToTakeOnWhseWorksheetLine(WhseWorksheetLine: Record "Whse. Worksheet Line") AvailQtyBase: Decimal
@@ -1058,6 +1059,11 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenCalcRsvQtyOnPickShipWithITQuery(var CalcRsvQtyOnPicksShipsWithIT: Query CalcRsvQtyOnPicksShipsWithIT)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOutstandingPickOnAfterCalcSums(var WarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityLineForCalc: Record "Warehouse Activity Line");
     begin
     end;
 }
