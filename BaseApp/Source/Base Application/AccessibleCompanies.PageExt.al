@@ -30,6 +30,13 @@ pageextension 9177 "Accessible Companies" extends "Accessible Companies"
             }
         }
     }
+    actions
+    {
+        modify("Create New Company")
+        {
+            Visible = true;
+        }
+    }
 
     trigger OnAfterGetRecord()
     var

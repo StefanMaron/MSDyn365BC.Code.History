@@ -852,9 +852,14 @@ report 5607 "Fixed Asset - Projected Value"
     local procedure CalculateFirstDeprAmount(var Done: Boolean)
     var
         FirstTime: Boolean;
+        IsHandled: Boolean;
     begin
         FirstTime := true;
         UntilDate := StartingDate;
+        IsHandled := false;
+        OnBeforeCalculateFirstDeprAmount("Fixed Asset", CalculateDepr, DepreciationCalculation, FirstTime, Done, UntilDate, StartingDate, DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays, DeprBookCode, EntryAmounts, DaysInFirstPeriod, EndingDate, IsHandled);
+        if IsHandled then
+            exit;
         repeat
             if not FirstTime then
                 GetNextDate();
@@ -1189,6 +1194,11 @@ report 5607 "Fixed Asset - Projected Value"
     begin
         GroupAmounts[1] := GroupAmounts[1] + DeprAmount;
         TotalAmounts[1] := TotalAmounts[1] + DeprAmount;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalculateFirstDeprAmount(var FixedAsset: Record "Fixed Asset"; var CalculateDepr: Codeunit "Calculate Depreciation"; var DepreciationCalculation: Codeunit "Depreciation Calculation"; var FirstTime: Boolean; var Done: Boolean; var UntilDate: Date; var StartingDate: Date; var DeprAmount: Decimal; var Custom1Amount: Decimal; var NumberOfDays: Integer; var Custom1NumberOfDays: Integer; var DeprBookCode: Code[10]; var EntryAmounts: array[4] of Decimal; var DaysInFirstPeriod: Integer; var EndingDate: Date; var IsHandled: Boolean)
+    begin
     end;
 }
 

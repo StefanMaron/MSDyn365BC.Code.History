@@ -555,7 +555,6 @@ table 846 "Cash Flow Worksheet Line"
             "Amount (LCY)" := "Amount (LCY)" - PmtToleranceToApply;
     end;
 
-    [Scope('OnPrem')]
     procedure ShowSource()
     var
         CFManagement: Codeunit "Cash Flow Management";

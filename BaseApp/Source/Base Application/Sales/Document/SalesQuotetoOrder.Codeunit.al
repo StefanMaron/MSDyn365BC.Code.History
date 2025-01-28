@@ -150,6 +150,7 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderHeader."VAT Registration No." := Customer."VAT Registration No.";
 
         SalesOrderHeader."VAT Reporting Date" := GlSetup.GetVATDate(SalesOrderHeader."Posting Date", SalesOrderHeader."Document Date");
+        SalesOrderHeader.Validate("Posting Date");
 
         SalesHeader.CalcFields("Work Description");
         SalesOrderHeader."Work Description" := SalesHeader."Work Description";

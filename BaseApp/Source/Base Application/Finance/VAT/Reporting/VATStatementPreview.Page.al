@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+using Microsoft.Foundation.Address;
 using System.Text;
 
 #pragma warning disable AS0106 // Protected variable VATDateType was removed before AS0106 was introduced.
@@ -101,6 +102,33 @@ page 474 "VAT Statement Preview"
                         CurrPage.Update();
                     end;
                 }
+                field("Country/Region Filter"; CountryRegionFilter)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Country/Region Filter';
+                    ToolTip = 'Specifies the country/region to filter the VAT entries.';
+                    Importance = Additional;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateSubForm();
+                        CurrPage.Update();
+                    end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        CountryRegion: Record "Country/Region";
+                        CountriesRegions: Page "Countries/Regions";
+                    begin
+                        CountriesRegions.LookupMode(true);
+                        if CountriesRegions.RunModal() = Action::LookupOK then begin
+                            CountriesRegions.GetRecord(CountryRegion);
+                            CountryRegionFilter := CountryRegion.Code;
+                            exit(true);
+                        end;
+                        exit(false);
+                    end;
+                }
             }
             part(VATStatementLineSubForm; "VAT Statement Preview Line")
             {
@@ -159,11 +187,12 @@ page 474 "VAT Statement Preview"
         VATPeriod: Code[10];
         UseAmtsInAddCurr: Boolean;
         DateFilter: Text[30];
+        CountryRegionFilter: Text;
 
     procedure UpdateSubForm()
     begin
         OnBeforeUpdateSubForm(Rec);
-        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr, VATPeriod);
+        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr, VATPeriod, CountryRegionFilter);
     end;
 
     procedure GetParameters(var NewSelection: Enum "VAT Statement Report Selection"; var NewPeriodSelection: Enum "VAT Statement Report Period Selection"; var NewUseAmtsInAddCurr: Boolean)

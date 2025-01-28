@@ -2147,6 +2147,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Field name,%2=Field value,%3=Table name,%4=Field name,%5=Field value,%6=Field value]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Orders - NamedType VATAmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3297607540 - NamedType 3363820899" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Country/Region Code must be %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Country/Region Code]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Orders - NamedType VATCountryRegionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3297607540 - NamedType 1812959196" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Vendor No. must have a value in Service Item Line:]]></Val>

@@ -1851,6 +1851,48 @@ codeunit 144200 "FatturaPA Test"
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef, CustLedgerEntry."Document Type"::Invoice, ExportFromType::Sales, '', true, '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSalesInvoiceForCustomerWithCurrencyCode()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        GLAccount: Record "G/L Account";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        TempBlob: Codeunit "Temp Blob";
+        DocumentRecRef: RecordRef;
+        GenPostingType: Enum "General Posting Type";
+        VATCalculationType: Enum "Tax Calculation Type";
+        DocumentNo: Code[20];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 557964] Correct Detail Line is populated when exporting a document with different currency.
+        Initialize();
+
+        // [GIVEN] Create a VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType::"Normal VAT", LibraryRandom.RandIntInRange(20, 20));
+
+        // [GIVEN] Create a Currency with Exchange Rate.
+        CreateCurrencyWithExchangeRate(Currency);
+
+        // [GIVEN] Create a Customer with Currency Code.
+        CreateCustomerWithCurrencyCode(Customer, Currency.Code, VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create a G/L Account.
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType::Sale));
+
+        // [GIVEN] Create a Sales Invoice and Post it.
+        DocumentNo := CreateAndPostSalesInvWithCurrencyCode(DocumentRecRef, Customer."No.", GLAccount."No.");
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] A Fattura PA document is created for this Sales Invoice.
+        ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Verify sum of PrezzoTotale(Total Price) xml node for both lines equals to xml node ImponibileImporto(Taxable Amount).
+        VerifyNodeImponibileImporto(TempBlob);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -3183,6 +3225,74 @@ codeunit 144200 "FatturaPA Test"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::" ", '', 0);
         SalesLine.Description := DescriptionTxt;
         SalesLine.Modify();
+    end;
+
+    local procedure CreateCurrencyWithExchangeRate(var Currency: Record Currency)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandIntInRange(100, 100));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", LibraryRandom.RandIntInRange(100, 100));
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDecInDecimalRange(154.8801, 154.8801, 4));
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", LibraryRandom.RandDecInDecimalRange(154.8801, 154.8801, 4));
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithCurrencyCode(var Customer: Record Customer; CurrencyCode: Code[20]; VATBusPostingGroupCode: Code[20])
+    begin
+        Customer.Get(CreateCustomerWithVATBussPostGroup(VATBusPostingGroupCode));
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Validate("Payment Terms Code", CreatePaymentTerms());
+        Customer.Validate("Payment Method Code", CreatePaymentMethod());
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateAndPostSalesInvWithCurrencyCode(var DocumentRecordRef: RecordRef; CustomerNo: Code[20]; GLAccountNo: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        UnitPrice: array[2] of Decimal;
+        Quantity: array[2] of Integer;
+        i: Integer;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+
+        for i := 1 to 2 do begin
+            UnitPrice[1] := LibraryRandom.RandDecInDecimalRange(3.64, 3.64, 2);
+            UnitPrice[2] := LibraryRandom.RandDecInDecimalRange(3.18, 3.18, 2);
+            Quantity[1] := LibraryRandom.RandIntInRange(3000, 3000);
+            Quantity[2] := LibraryRandom.RandIntInRange(2000, 2000);
+
+            LibrarySales.CreateSalesLineWithShipmentDate(SalesLine[i], SalesHeader, SalesLine[i].Type::"G/L Account", GLAccountNo, WorkDate(), Quantity[i]);
+            SalesLine[i].Validate(SalesLine[i]."Unit Price", UnitPrice[i]);
+            SalesLine[i].Modify(true);
+        end;
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        DocumentRecordRef.GetTable(SalesInvoiceHeader);
+        exit(GetDocumentNo(DocumentRecordRef));
+    end;
+
+    local procedure VerifyNodeImponibileImporto(TempBlob: Codeunit "Temp Blob")
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempXMLBufferPart: Record "XML Buffer" temporary;
+        LineTotal: array[2] of Decimal;
+    begin
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale');
+        TempXMLBufferPart.FindFirst();
+        Evaluate(LineTotal[1], TempXMLBufferPart.Value);
+        TempXMLBufferPart.FindLast();
+        Evaluate(LineTotal[2], TempXMLBufferPart.Value);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale');
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo/ImponibileImporto',
+          FormatAmount((LineTotal[1] + LineTotal[2])));
     end;
 }
 

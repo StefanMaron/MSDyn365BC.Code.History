@@ -6261,6 +6261,7 @@ table 81 "Gen. Journal Line"
         if "Applies-to Doc. No." <> '' then begin
             CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+            CustLedgEntry.SetRange("Document Occurrence", "Applies-to Occurrence No.");
             if CustLedgEntry.FindFirst() then;
         end else
             if "Applies-to ID" <> '' then begin
@@ -6277,6 +6278,7 @@ table 81 "Gen. Journal Line"
         if "Applies-to Doc. No." <> '' then begin
             VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+            VendLedgEntry.SetRange("Document Occurrence", "Applies-to Occurrence No.");
             if VendLedgEntry.FindFirst() then;
         end else
             if "Applies-to ID" <> '' then begin

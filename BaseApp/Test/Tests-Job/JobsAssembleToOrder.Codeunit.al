@@ -1020,6 +1020,50 @@ codeunit 136322 "Jobs - Assemble-to Order"
         Assert.RecordIsNotEmpty(PostedATOLink);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    procedure PostJobJournalLinesForTwoPlanningLinesWithSameAssemblyItem()
+    var
+        ParentItem, CompItem1, CompItem2 : Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        ItemJournalLine: Record "Item Journal Line";
+        JobJournalLine: Record "Job Journal Line";
+        i: Integer;
+    begin
+        // [SCENARIO 561041] Verify post job journal lines for two planning lines with same assembly item
+        Initialize();
+
+        // [GIVEN] Create an assembly item with 2 components.
+        CreateAssemblyItemWithBOM(ParentItem, CompItem1, CompItem2);
+
+        // [GIVEN] Add components to inventory
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem1."No.");
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem2."No.");
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask);
+
+        // [WHEN] Create Job Planning Line and Job Journal Line 2 times
+        for i := 1 to 2 do begin
+            // Create Job Planning Line
+            CreateSimpleJobPlanningLineWithAssemblyItem(JobPlanningLine, JobTask, ParentItem."No.");
+
+            // Validate Quantity on Job Planning Line
+            JobPlanningLine.Validate("Quantity", 1);
+            JobPlanningLine.Modify(true);
+
+            // Create Job Journal Line
+            LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, "Job Line Type"::Budget, 1, JobJournalLine);
+            JobJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+            JobJournalLine.Modify(true);
+        end;
+
+        // [THEN] Verify Post usage from Job Journal
+        LibraryJob.PostJobJournal(JobJournalLine);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Jobs - Assemble-to Order");

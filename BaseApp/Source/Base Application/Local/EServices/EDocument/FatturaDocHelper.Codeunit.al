@@ -1131,6 +1131,7 @@ codeunit 12184 "Fattura Doc. Helper"
         UnitPrice: Decimal;
         InvDiscAmountByQty: Decimal;
         LineDiscountPct: Decimal;
+        Amount: Decimal;
     begin
         if Format(LineRecRef.Field(LineTypeFieldNo).Value) = ' ' then
             exit;
@@ -1146,12 +1147,14 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaLine."VAT %" := LineRecRef.Field(VatPercFieldNo).Value();
         Quantity := LineRecRef.Field(QuantityFieldNo).Value();
         UnitPrice := LineRecRef.Field(UnitPriceFieldNo).Value();
+        Amount := Quantity * UnitPrice;
 
         Currency.Initialize(TempFatturaHeader."Currency Code");
         UnitPrice :=
             ExchangeToLCYAmount(TempFatturaHeader,
                 CalcForPricesIncludingVAT(
                 UnitPrice, PricesIncludingVAT, TempFatturaLine."VAT %", Currency."Unit-Amount Rounding Precision"));
+        Amount := ExchangeToLCYAmount(TempFatturaHeader, Amount);
         if Quantity < 0 then
             TempFatturaLine."Unit Price" := -UnitPrice
         else begin
@@ -1171,7 +1174,7 @@ codeunit 12184 "Fattura Doc. Helper"
 
         TempFatturaLine.Amount := LineRecRef.Field(LineAmountFieldNo).Value();
         if (TempFatturaLine.Amount <> 0) and (InvDiscAmountByQty = 0) and (LineDiscountPct = 0) and (TempFatturaLine."Discount Amount" = 0) then
-            TempFatturaLine.Amount := Round(Quantity * UnitPrice) - TempFatturaLine."Discount Amount"
+            TempFatturaLine.Amount := Round(Amount) - TempFatturaLine."Discount Amount"
         else
             TempFatturaLine.Amount :=
               ExchangeToLCYAmount(

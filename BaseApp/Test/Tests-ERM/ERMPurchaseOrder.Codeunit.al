@@ -8414,6 +8414,67 @@
         VerifyItemChargeQty(PurchaseLine[2]);
     end;
 
+    [Test]
+    procedure CorrectiveCreditMemoShouldBePostedWihtCalcInvDisc()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        DocumentNo: array[2] of Code[20];
+        Qty: Decimal;
+    begin
+        // [SCENARIO 560246] "Canceling failed: You need to enter the document number of the document from the vendor in the 
+        // Vendor Cr. Memo No. field..." error if you Cancel a Purchase Invoice with Calc. Inv. Disc in the Italian version.
+        Initialize();
+
+        // [GIVEN] "Purchases & Payables Setup" with "Calc. Inv. Discount" = TRUE
+        LibraryPurchase.SetCalcInvDiscount(true);
+        Qty := LibraryRandom.RandIntInRange(100, 100);
+
+        // [GIVEN] Create Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), Qty);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify();
+        DocumentNo[1] := PurchaseHeader."No.";
+        Item.Get(PurchaseLine."No.");
+
+        // [GIVEN] Post purchase order with receive only
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create Purchase Invoice and set Vendor Invoice No.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Create Purchase Line by using "Get Receipt Lines"
+        FindPurchRcptLine(PurchRcptLine, DocumentNo[1]);
+        PurchaseLine.Init();
+        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
+        PurchRcptLine.InsertInvLineFromRcptLine(PurchaseLine);
+
+        // [GIVEN] Purchase Invoice posted, and get the Posted Purchase Invoice Header
+        DocumentNo[2] := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(DocumentNo[2]);
+
+        // [WHEN] Corrective Credit Memo should be created and Posted
+        Codeunit.Run(Codeunit::"Correct Posted Purch. Invoice", PurchInvHeader);
+
+        // [THEN] Verify Posted Purchase Credit Memo
+        PurchCrMemoHdr.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
+        PurchCrMemoHdr.FindFirst();
+
+        // [THEN] Verify Quantity Received on Purchase Order Line is set to zero as a Corrective Credit Memo has been posted
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", DocumentNo[1]);
+        PurchaseLine.FindFirst();
+        Assert.IsTrue(PurchaseLine."Quantity Received" = 0, '');
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

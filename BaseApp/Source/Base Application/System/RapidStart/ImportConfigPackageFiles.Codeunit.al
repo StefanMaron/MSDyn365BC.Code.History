@@ -1,4 +1,5 @@
-#pragma warning disable AS0072
+#if not CLEAN26
+#pragma warning disable AS0018, AS0049, AS0072
 namespace System.IO;
 
 using Microsoft.Foundation.Company;
@@ -14,6 +15,7 @@ codeunit 1805 "Import Config. Package Files"
     ObsoleteTag = '25.2';
     ObsoleteReason = 'Changing the way demo data is generated, for more infromation see https://go.microsoft.com/fwlink/?linkid=2288084';
     ObsoleteState = Pending;
+    Access = Internal;
 
     trigger OnRun()
     var
@@ -60,7 +62,7 @@ codeunit 1805 "Import Config. Package Files"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
         ConfigPackageImport: Codeunit "Config. Package - Import";
-        AssistedCompanySetup: Codeunit "Assisted Company Setup";
+        // AssistedCompanySetup: Codeunit "Assisted Company Setup";
         MessageText: Text;
         ServerTempFileName: Text;
         ErrorCount: Integer;
@@ -71,7 +73,7 @@ codeunit 1805 "Import Config. Package Files"
         AssistedCompanySetupStatus.Get(CompanyName);
 
         ConfigurationPackageFile.SetCurrentKey("Processing Order");
-        if ConfigurationPackageFile.FindSet() then begin
+        if ConfigurationPackageFile.FindSet() then
             repeat
                 MessageText := StrSubstNo(ImportStartedMsg, ConfigurationPackageFile.Code, CompanyName);
                 InitVirtualJobQueueEntry(JobQueueEntry, AssistedCompanySetupStatus."Task ID");
@@ -79,7 +81,7 @@ codeunit 1805 "Import Config. Package Files"
                 JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
                 Message(MessageText);
 
-                ServerTempFileName := AssistedCompanySetup.GetConfigurationPackageFile(ConfigurationPackageFile);
+                ServerTempFileName := GetConfigurationPackageFile(ConfigurationPackageFile);
                 ConfigPackageImport.ImportRapidStartPackage(ServerTempFileName, TempConfigSetupSystemRapidStart);
                 MessageText := StrSubstNo(ImportSuccessfulMsg, ConfigurationPackageFile.Code, CompanyName);
                 JobQueueLogEntry.Description := CopyStr(MessageText, 1, MaxStrLen(JobQueueLogEntry.Description));
@@ -111,13 +113,8 @@ codeunit 1805 "Import Config. Package Files"
                 JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
                 Message(MessageText);
 
-            until ConfigurationPackageFile.Next() = 0;
-            if TotalNoOfErrors > 0 then
-                AssistedCompanySetupStatus.Validate("Import Failed", true)
-            else
-                AssistedCompanySetupStatus.Validate("Package Imported", true);
-        end else begin
-            AssistedCompanySetupStatus.Validate("Import Failed", true);
+            until ConfigurationPackageFile.Next() = 0
+        else begin
             MessageText := StrSubstNo(NoPackDefinedMsg, ConfigurationPackageFile.GetFilters);
             InitVirtualJobQueueEntry(JobQueueEntry, AssistedCompanySetupStatus."Task ID");
             UpdateVirtualJobQueueEntry(JobQueueEntry, MessageText);
@@ -133,6 +130,22 @@ codeunit 1805 "Import Config. Package Files"
         Commit();
 
         OnAfterImportConfigurationFile(ConfigurationPackageFile);
+    end;
+
+    procedure GetConfigurationPackageFile(ConfigurationPackageFile: Record "Configuration Package File") ServerTempFileName: Text
+    var
+        FileManagement: Codeunit "File Management";
+        TempFile: File;
+        OutStream: OutStream;
+        InStream: InStream;
+    begin
+        ServerTempFileName := FileManagement.ServerTempFileName('rapidstart');
+        TempFile.Create(ServerTempFileName);
+        TempFile.CreateOutStream(OutStream);
+        ConfigurationPackageFile.CalcFields(Package);
+        ConfigurationPackageFile.Package.CreateInStream(InStream);
+        CopyStream(OutStream, InStream);
+        TempFile.Close();
     end;
 
     local procedure InitVirtualJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TaskID: Guid)
@@ -220,4 +233,5 @@ codeunit 1805 "Import Config. Package Files"
     begin
     end;
 }
-#pragma warning restore AS0072
+#pragma warning restore AS0018, AS0049, AS0072
+#endif

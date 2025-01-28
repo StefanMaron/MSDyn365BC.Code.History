@@ -29,6 +29,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryHumanResource: Codeunit "Library - Human Resource";
+        LibraryInventory: Codeunit "Library - Inventory";
         isInitialized: Boolean;
         TimesSuggestLinesRun: Integer;
         StatementNoEditableErr: Label '%1 should not be editable.', Comment = '%1 - "Statement No." field caption';
@@ -38,6 +39,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         PaymentLineAppliedMsg: Label '%1 payment lines out of 1 are applied.\\', Comment = '%1 - number';
         WrongAmountErr: Label '%1 must be %2.', Locked = true;
         HasBankEntriesMsg: Label 'When you use action Delete the bank statement will be deleted';
+        AnalysisViewErr: Label 'Last Entry No. must be %1 in %2.', Comment = '%1= Field Value ,%2= Table Name.';
+        StatementEndingBalanceErr: Label '%1 must be %2 in %3', Comment = '%1 = Statement Ending Balance, %2 = Amount, %3 = Bank Acc. Reconciliation';
 
     [Test]
     [HandlerFunctions('GenJnlPageHandler')]
@@ -4465,6 +4468,120 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', TotalOutstandingTransactionAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
+    procedure PostingGeneralReconciliationUpdatesAnalysisView()
+    var
+        AnalysisView: Record "Analysis View";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+    begin
+        // [SCENARIO 554706] Payment Reconciliation Journal does not update in Analysis View
+        Initialize();
+
+        // [GIVEN] Create Analysis View.
+        LibraryERM.CreateAnalysisView(AnalysisView);
+
+        // [GIVEN] Create and Get GL Account.
+        GLAccount.Get(LibraryERM.CreateGLAccountNo());
+
+        // [GIVEN] Validate Update On Posting, Account Source and Account Filter in Analysis View.
+        AnalysisView.Validate("Update on Posting", true);
+        AnalysisView.Validate("Account Source", AnalysisView."Account Source"::"G/L Account");
+        AnalysisView.Validate("Account Filter", GLAccount."No.");
+        AnalysisView.Modify(true);
+
+        // [GIVEN] Create Bank Reconciliation With GLAccount.
+        CreateBankReconciliationWithGLAccount(BankAccReconciliation, BankAccReconciliationLine, GLAccount."No.");
+
+        // [GIVEN] Update Bank Account Statement Ending Balance.
+        UpdateBankAccRecStmEndingBalance(
+            BankAccReconciliation,
+            BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
+
+        // [WHEN] Post Bank Account Reconciliation.
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Last Entry No. on Analysis View is updated with GL Entry created by Reconciliation.
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("Bal. Account No.", GLAccount."No.");
+        GLEntry.FindLast();
+        AnalysisView.Get(AnalysisView.Code);
+        Assert.AreEqual(
+            GLEntry."Entry No.",
+            AnalysisView."Last Entry No.",
+            StrSubstNo(
+                AnalysisViewErr,
+                GLEntry."Entry No.",
+                AnalysisView.TableCaption()));
+    end;
+
+    [Test]
+    procedure StatmtEndingBalInBankAccReconAcceptsDecimalValuesDefinedInUnitAmtDecimalPlacesOfBankAccCurrency()
+    var
+        BankAccount: Record "Bank Account";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        Amount: Decimal;
+    begin
+        // [SCENARIO 555882] Statement Ending Balance in Bank Acc. Reconciliation accepts decimal values 
+        // Defined in Unit-Amount Rounding Precision of Currency of Bank Account.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Bank Account and Validate Currency Code.
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", CreateCurrencyCode());
+        BankAccount.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Generate Amount and save it in a Variable.
+        Amount := LibraryRandom.RandDecInDecimalRange(100.123, 100.123, 3);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", Amount);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Document.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create a Bank Account Reconciliation.
+        CreateBankReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+
+        // [GIVEN] Open Bank Account Reconciliation page and Set value in Statement Ending Balance.
+        BankAccReconciliationPage.OpenEdit();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        BankAccReconciliationPage.StatementEndingBalance.SetValue(Amount);
+        BankAccReconciliationPage.Close();
+
+        // [WHEN] Find Bank Account Reconciliation.
+        BankAccReconciliation.Get(BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+
+        // [THEN] Statement Ending Balance value is equal to Amount.
+        Assert.AreEqual(
+            Amount,
+            BankAccReconciliation."Statement Ending Balance",
+            StrSubstNo(
+                StatementEndingBalanceErr,
+                BankAccReconciliation.FieldCaption("Statement Ending Balance"),
+                Amount,
+                BankAccReconciliation.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
@@ -5715,6 +5832,28 @@ codeunit 134141 "ERM Bank Reconciliation"
     begin
         BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
         BankAccRecon.Modify();
+    end;
+
+    local procedure CreateCurrencyCode(): Code[10]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
+    begin
+        GeneralLedgerSetup.Get();
+
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
+        Currency.Validate("EMU Currency", true);
+        Currency.Validate("Amount Rounding Precision", 0.0001);
+        Currency.Validate("Invoice Rounding Precision", 0.0001);
+        Currency.Validate("Amount Decimal Places", '2:2');
+        Currency.Validate("Unit-Amount Decimal Places", '2:5');
+        Currency.Modify(true);
+
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+
+        exit(Currency.Code);
     end;
 
     [ModalPageHandler]

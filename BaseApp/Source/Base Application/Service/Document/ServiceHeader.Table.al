@@ -5466,6 +5466,7 @@ table 5900 "Service Header"
         "Tax Representative Type" := Cust."Tax Representative Type";
         "Tax Representative No." := Cust."Tax Representative No.";
         "Place of Birth" := Cust."Place of Birth";
+        "VAT Country/Region Code" := "Country/Region Code";
         if not SkipContact then begin
             "Contact Name" := Cust.Contact;
             "Phone No." := Cust."Phone No.";

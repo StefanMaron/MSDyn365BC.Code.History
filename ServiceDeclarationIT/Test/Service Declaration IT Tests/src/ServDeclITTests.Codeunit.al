@@ -590,6 +590,67 @@ codeunit 144112 "Serv. Decl. IT Tests"
         LibraryServDecl.DeleteServDecl(ServDeclNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceDeclarationSumInvoiceAndCreditMemoAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ItemNo: Code[20];
+        Amount: List of [Decimal];
+        i: Integer;
+        InvoiceDate: Date;
+        ServDeclPage: TestPage "Service Declaration";
+        ServDeclNo, InvoiceNo : Code[20];
+    begin
+        // [SCENARIO 555251] Service Declaration sums absolute values causing errors in total amount in the Italian version
+
+        // [GIVEN] Posted Purchase Order and Credit Memo for service declaration in same period
+        Initialize();
+        InvoiceDate := CalcDate('<5Y>', WorkDate());
+        WorkDate(InvoiceDate);
+
+        // [GIVEN] Create and Post Purchase Order with mentioned amount
+        ItemNo := LibraryServDecl.CreateItem();
+        Amount.Add(-300);
+        Amount.Add(1000);
+        LibraryServDecl.CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, InvoiceDate, LibraryServDecl.CreateVendor(LibraryServDecl.GetCountryRegionCode()));
+        for i := 1 to Amount.Count do begin
+            LibraryServDecl.CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, ItemNo);
+            PurchaseLine."Direct Unit Cost" := Amount.Get(i);
+            PurchaseLine.Modify();
+        end;
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create and Post Purchase Credit Memo
+        PurchInvHeader.Get(InvoiceNo);
+        LibraryServDecl.CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", InvoiceDate, PurchInvHeader."Buy-from Vendor No.");
+        LibraryServDecl.CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, ItemNo);
+        PurchaseLine."Direct Unit Cost" := 400;
+        PurchaseLine.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Create Service Declaration
+        FileNo := IncStr(FileNo);
+        CreateServDeclAndSuggestLines(InvoiceDate, ServDeclNo, Periodicity::Month, Type::Purchase, false, FileNo);
+        Commit();
+
+        // [GIVEN] A Service Declaration
+        ServDeclPage.OpenEdit();
+        ServDeclPage.Filter.SetFilter("No.", ServDeclNo);
+        ValidateMissingFields(ServDeclPage);
+
+        // [WHEN] Running Create File
+        ServDeclPage.CreateFile.Invoke();
+
+        // [THEN] Check file content for purchase monthly invoice 
+        CheckFileContentForNormalReporting(ServDeclPage, 'A', 'M');
+        ServDeclPage.Close();
+
+        LibraryServDecl.DeleteServDecl(ServDeclNo);
+    end;
+
     local procedure VerifyVATEntry(EntryType: Enum "General Posting Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CountryRegionCode: Code[10]; Amount: Decimal)
     var
         VATEntry: Record "VAT Entry";

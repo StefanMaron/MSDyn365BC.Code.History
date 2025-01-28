@@ -1463,6 +1463,68 @@ codeunit 144164 "ERM Payment Lines"
         Assert.AreEqual(0, Vendor.Balance, VendorBalanceErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToDocNoShouldBringCorrectDueDateAsPerSelectedLineOfPostedPurchaseInvoiceWithSplitPayment()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DocumentAmount: Decimal;
+        PaymentTermsCode: Code[10];
+    begin
+        // [SCENARIO 560381] Applies-to-Doc No. brings the first Due Date even if you select the second line of an Purchase Invoice with split payments in the Italian version.
+        Initialize();
+
+        // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
+        PaymentTermsCode := CreatePaymentTerms();
+        DocumentAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', PaymentTermsCode, '');
+
+        // [GIVEN] Post Purchase Invoice
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+
+        // [WHEN] Create Payment Journal Line with Applies-To Doc. No. with specific Applies-to Occurrence No.
+        CreateGenJournalLineWithAppliesToOccurrence(
+            GenJournalLine, GenJournalLine."Account Type"::Vendor, PurchInvHeader."Pay-to Vendor No.", Round(DocumentAmount / 3),
+            GenJournalLine."Document Type"::Payment, PurchaseHeader."Document Type"::Invoice, PurchInvHeader."No.", 2);
+
+        // [THEN] Verify Applies-to Doc. Due Date is correct on Payment Journal Line as per selected line
+        GetVendorLedgerEntry(VendorLedgerEntry, PurchInvHeader."No.", 2);
+        VerifyGetAppliesToDocDueDate(GenJournalLine."Journal Batch Name", VendorLedgerEntry."Due Date");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToDocNoShouldBringCorrectDueDateAsPerSelectedLineOfPostedSalesInvoiceWithSplitPayment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DocumentAmount: Decimal;
+        PaymentTermsCode: Code[10];
+    begin
+        // [SCENARIO 560381] Applies-to-Doc No. brings the first Due Date even if you select the second line of an Sales Invoice with split payments in the Italian version.
+        Initialize();
+
+        // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
+        PaymentTermsCode := CreatePaymentTerms();
+        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', PaymentTermsCode);
+
+        // [GIVEN] Post Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [WHEN] Create Payment Journal Line with Applies-To Doc. No. with specific Applies-to Occurrence No.
+        CreateGenJournalLineWithAppliesToOccurrence(
+            GenJournalLine, GenJournalLine."Account Type"::Customer, SalesInvoiceHeader."Bill-to Customer No.", Round(DocumentAmount / 3),
+            GenJournalLine."Document Type"::Payment, SalesHeader."Document Type"::Invoice, SalesInvoiceHeader."No.", 2);
+
+        // [THEN] Verify Applies-to Doc. Due Date is correct on Payment Journal Line as per selected line
+        GetCustLedgerEntry(CustLedgerEntry, SalesInvoiceHeader."No.", 2);
+        VerifyGetAppliesToDocDueDate(GenJournalLine."Journal Batch Name", CustLedgerEntry."Due Date");
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2078,6 +2140,53 @@ codeunit 144164 "ERM Payment Lines"
         PostedPurchaseCreditMemosPage.FILTER.SETFILTER("No.", DocumentNo);
         PostedPurchaseCreditMemosPage."Remaining Amount".ASSERTEQUALS(Amount);
         PostedPurchaseCreditMemosPage.Close();
+    end;
+
+    local procedure CreateGenJournalLineWithAppliesToOccurrence(
+        var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal;
+        DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; AppliesToOccurrenceNo: Integer)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreatePaymentGeneralBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        GenJournalLine.Validate("Applies-to Occurrence No.", AppliesToOccurrenceNo);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreatePaymentGeneralBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure GetVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; DocumentOccurrence: Integer)
+    begin
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Document Occurrence", DocumentOccurrence);
+        VendorLedgerEntry.FindFirst();
+    end;
+
+    local procedure GetCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentOccurrence: Integer)
+    begin
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Document Occurrence", DocumentOccurrence);
+        CustLedgerEntry.FindFirst();
+    end;
+
+    local procedure VerifyGetAppliesToDocDueDate(JournalBatchName: Code[10]; DueDate: Date)
+    var
+
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
+        PaymentJournal.GetAppliesToDocDueDate.AssertEquals(DueDate);
     end;
 
     [ModalPageHandler]

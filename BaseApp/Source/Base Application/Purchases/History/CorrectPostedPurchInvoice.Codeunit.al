@@ -35,8 +35,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         RedoApplications := UnapplyCostApplication(ItemJnlPostLine, Rec."No.");
         OnRunOnBeforeCreateCopyDocument(Rec);
         CreateCopyDocument(Rec, PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", false);
-        PurchaseHeader."Vendor Cr. Memo No." := PurchaseHeader."No.";
-	
+
         SuppressCommit := not NoSeries.IsNoSeriesInDateOrder(PurchaseHeader."Posting No. Series");
 
         OnBeforeUpdateCheckTotal(Rec, PurchaseHeader, CancellingOnly, SuppressCommit);
@@ -45,6 +44,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
             Commit();
 
         UpdateCheckTotal(PurchaseHeader);
+        PurchaseHeader."Vendor Cr. Memo No." := PurchaseHeader."No.";
         OnAfterCreateCorrectivePurchCrMemo(Rec, PurchaseHeader, CancellingOnly);
 
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
