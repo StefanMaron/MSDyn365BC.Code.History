@@ -790,7 +790,8 @@ codeunit 144028 "Test VAT Statement"
     end;
 
     [Test]
-    procedure VATStatementWhenNonDeductibleVATIsFalse()
+    [Scope('OnPrem')]
+    procedure VATStatementForNonDeductibleVAT()
     var
         VATEntry: Record "VAT Entry";
         VATStatementLine: Record "VAT Statement Line";
@@ -798,16 +799,16 @@ codeunit 144028 "Test VAT Statement"
         VATAmountInt: Integer;
     begin
         // [FEATURE] [Non Deductible VAT]
-        // [SCENARIO 534529] VAT Base should contain Non Deductible VAT in VAT Statement if "Incl. Non Deductible VAT" is set to FALSE in VAT Statement Line.
+        // [SCENARIO 251548] VAT Base should not contain Non Deductible VAT in VAT Statement if "Incl. Non Deductible VAT" is set to FALSE in VAT Statement Line
         Initialize();
 
-        // [GIVEN] VAT Entry with Base including Non deductible VAT), VAT Amount and "Non Ded. VAT Amount".
+        // [GIVEN] VAT Entry with "Base" 1010 (including 10 of non deductible VAT), "VAT Amount" 110 and "Non Ded. VAT Amount" 10
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
         VATAmountInt := VATEntry.Amount div 1;
         VATEntry."Non Ded. VAT Amount" := LibraryRandom.RandDec(VATAmountInt, 2);
         VATEntry.Modify();
 
-        // [WHEN] Create and show VAT Statement.
+        // [WHEN] Create and show VAT Statement
         CreateVATStmt(VATEntry, VATStatementLine);
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
         VATStatementLine.SetRange("Amount Type", VATStatementLine."Amount Type"::Base);
@@ -815,13 +816,13 @@ codeunit 144028 "Test VAT Statement"
         VATStatementPreviewLine.OpenView();
         VATStatementPreviewLine.GotoRecord(VATStatementLine);
 
-        // [THEN] Base is shown with non deductible VAT.
-        Assert.AreEqual(VATEntry.Base - VATEntry."Non Ded. VAT Amount", VATStatementPreviewLine.ColumnValue.AsDecimal(), VATBaseErr);
+        // [THEN] Base is shown without non deductible VAT (1000)
+        Assert.AreEqual(VATEntry.Base, VATStatementPreviewLine.ColumnValue.AsDecimal(), VATBaseErr);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATStatementBaseInclNonDeductibleVATIsTrue()
+    procedure VATStatementBaseInclNonDeductibleVAT()
     var
         VATEntry: Record "VAT Entry";
         VATStatementLine: Record "VAT Statement Line";
@@ -829,16 +830,16 @@ codeunit 144028 "Test VAT Statement"
         VATAmountInt: Integer;
     begin
         // [FEATURE] [Non Deductible VAT]
-        // [SCENARIO 534529] VAT Base should not contain Non Deductible VAT in VAT Statement if "Incl. Non Deductible VAT" is set to TRUE in VAT Statement Line.
+        // [SCENARIO 251548] VAT Base should contain Non Deductible VAT in VAT Statement if "Incl. Non Deductible VAT" is set to TRUE in VAT Statement Line
         Initialize();
 
-        // [GIVEN] VAT Entry with "Base" including 10 of non deductible VAT, "VAT Amount" and "Non Ded. VAT Amount".
+        // [GIVEN] VAT Entry with "Base" 1010 (including 10 of non deductible VAT), "VAT Amount" 110 and "Non Ded. VAT Amount" 10
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
         VATAmountInt := VATEntry.Amount div 1;
         VATEntry."Non Ded. VAT Amount" := LibraryRandom.RandDec(VATAmountInt, 2);
         VATEntry.Modify();
 
-        // [WHEN] Create and show VAT Statement.
+        // [WHEN] Create and show VAT Statement
         CreateVATStmt(VATEntry, VATStatementLine);
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
         VATStatementLine.SetRange("Amount Type", VATStatementLine."Amount Type"::Base);
@@ -848,8 +849,8 @@ codeunit 144028 "Test VAT Statement"
         VATStatementPreviewLine.OpenView();
         VATStatementPreviewLine.GotoRecord(VATStatementLine);
 
-        // [THEN] Base is shown without non deductible VAT.
-        Assert.AreEqual(VATEntry.Base, VATStatementPreviewLine.ColumnValue.AsDecimal(), VATBaseErr);
+        // [THEN] Base is shown with non deductible VAT (1010)
+        Assert.AreEqual(VATEntry.Base - VATEntry."Non Ded. VAT Amount", VATStatementPreviewLine.ColumnValue.AsDecimal(), VATBaseErr);
     end;
 
     local procedure FindAVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; AmountType: Enum "VAT Statement Line Amount Type")
