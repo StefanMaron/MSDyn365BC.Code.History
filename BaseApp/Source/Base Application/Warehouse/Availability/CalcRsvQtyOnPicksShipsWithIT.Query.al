@@ -5,7 +5,6 @@ using Microsoft.Inventory.Tracking;
 query 7314 CalcRsvQtyOnPicksShipsWithIT
 {
     QueryType = Normal;
-    Access = Internal;
     DataAccessIntent = ReadOnly;
     elements
     {
@@ -56,6 +55,10 @@ query 7314 CalcRsvQtyOnPicksShipsWithIT
 
             }
             filter(Positive; Positive)
+            {
+
+            }
+            filter(Item_Tracking; "Item Tracking")
             {
 
             }

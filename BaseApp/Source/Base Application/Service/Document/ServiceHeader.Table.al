@@ -4835,6 +4835,7 @@ table 5900 "Service Header"
         County := Cust.County;
         "Country/Region Code" := Cust."Country/Region Code";
         "Account Code" := Cust."Account Code";
+        "VAT Country/Region Code" := "Country/Region Code";
         if not SkipContact then begin
             "Contact Name" := Cust.Contact;
             "Phone No." := Cust."Phone No.";

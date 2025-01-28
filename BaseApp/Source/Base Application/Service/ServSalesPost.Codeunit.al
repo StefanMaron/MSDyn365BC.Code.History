@@ -26,6 +26,7 @@ codeunit 6455 "Serv. Sales-Post"
     begin
         TempServiceItem2.DeleteAll();
         TempServiceItemComp2.DeleteAll();
+        Clear(ServItemManagement);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterInsertShipmentLine', '', false, false)]

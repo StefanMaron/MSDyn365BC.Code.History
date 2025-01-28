@@ -38,6 +38,7 @@ codeunit 392 "Reminder-Make"
     var
         ReminderLine: Record "Reminder Line";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        IsHandled: Boolean;
     begin
         CustLedgEntryLastIssuedReminderLevelFilter := GlobalCustLedgEntry.GetFilter("Last Issued Reminder Level");
         FeatureTelemetry.LogUptake('0000LB0', 'Reminder', Enum::"Feature Uptake Status"::"Set up");
@@ -47,6 +48,10 @@ codeunit 392 "Reminder-Make"
             HeaderExists := true;
             GlobalReminderHeader.TestField("Customer No.");
             GlobalCustomer.Get(GlobalReminderHeader."Customer No.");
+            IsHandled := false;
+            OnCodeOnAfterGlobalReminderGetGlobalCustomer(GlobalReminderHeader, GlobalCustomer, IsHandled, RetVal);
+            if IsHandled then
+                exit(RetVal);
             GlobalReminderHeader.TestField("Document Date");
             GlobalReminderHeader.TestField("Reminder Terms Code");
             GlobalReminderHeaderReq := GlobalReminderHeader;
@@ -54,7 +59,10 @@ codeunit 392 "Reminder-Make"
             ReminderLine.DeleteAll();
         end;
 
-        OnCodeOnBeforeGetReminderTerms(GlobalCustomer, GlobalCustLedgEntry, CustLedgEntryLastIssuedReminderLevelFilter);
+        IsHandled := false;
+        OnCodeOnBeforeGetReminderTerms(GlobalCustomer, GlobalCustLedgEntry, CustLedgEntryLastIssuedReminderLevelFilter, GlobalReminderHeader, IsHandled, RetVal);
+        if IsHandled then
+            exit(RetVal);
         GetReminderTerms();
         if HeaderExists then
             RetVal := MakeReminder(GlobalReminderHeader."Currency Code")
@@ -766,7 +774,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnBeforeGetReminderTerms(Customer: Record Customer; CustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgEntryLastIssuedReminderLevelFilter: Text)
+    local procedure OnCodeOnBeforeGetReminderTerms(var Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgEntryLastIssuedReminderLevelFilter: Text; var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean; var ReturnValue: Boolean)
     begin
     end;
 
@@ -857,6 +865,11 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReminderLinesInsertLoop(var ReminderHeader: Record "Reminder Header"; CurrencyCode: Code[10]; var NextLineNo: Integer; var MaxReminderLevel: Integer; OverdueEntriesOnly: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterGlobalReminderGetGlobalCustomer(var ReminderHeader: Record "Reminder Header"; var Customer: Record Customer; var IsHandled: Boolean; var ReturnValue: Boolean)
     begin
     end;
 }

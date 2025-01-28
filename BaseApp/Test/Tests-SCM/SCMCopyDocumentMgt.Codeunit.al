@@ -28,6 +28,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         MsgCorrectedInvoiceNo: Label 'have a Corrected Invoice No. Do you want to continue?';
         WrongDimensionsCopiedErr: Label 'Wrong dimensions in copied document';
         ItemTrackingMode: Option "Assign Lot No.","Select Entries","Assign Serial Nos.";
+        CaptionNotMatchErr: Label 'Incorrect caption';
 
     local procedure CopyDocument(SourceType: Enum "Sales Document Type From"; SourceUnpostedType: Enum "Sales Document Type"; DestType: Enum "Sales Document Type")
     var
@@ -1348,6 +1349,92 @@ codeunit 137212 "SCM Copy Document Mgt."
         NewSalesLine.TestField("Qty. to Assemble to Order", 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CopySalesDocumentHandler')]
+    procedure CheckLineCaptionWhenSalesDocumentCopied()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        SalesInvoice: TestPage "Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 556718] Check Sales Document Caption after copy document.
+        Initialize();
+
+        // [GIVEN] Create Sales Invoice and Post.
+        DocumentNo := CreateAndPostSalesInvoice(Customer);
+
+        // [GIVEN] Modify Customer.
+        Customer.Validate("Prices Including VAT", true);
+        Customer.Modify(true);
+
+        // [GIVEN] Enqueue Multiple Values.
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);
+
+        // [GIVEN] Create a new Sales Invoice.
+        CreateEmptySalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", false);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Open Sales Invoice Page.
+        SalesInvoice.OpenNew();
+        SalesInvoice.GoToRecord(SalesHeader);
+        Commit();
+
+        // [WHEN] Copy the Posted Document.
+        SalesInvoice.CopyDocument.Invoke();
+
+        // [THEN] Verify Sales Line Field Caption.
+        VerifySalesDocumentCaption(SalesInvoice);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CopyPurchaseDocumentHandler')]
+    procedure CheckLineCaptionWhenPurchaseDocumentCopied()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 556718] Check Purchase Document Caption after copy document.
+        Initialize();
+
+        // [GIVEN] Create Purchase Invoice and Post.
+        DocumentNo := CreateAndPostPurchaseInvoice(Vendor);
+
+        // [GIVEN] Modify Vendor.
+        Vendor.Validate("Prices Including VAT", true);
+        Vendor.Modify(true);
+
+        // [GIVEN] Enqueue Multiple Values.
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Invoice", DocumentNo, true, true);
+
+        // [GIVEN] Create a new Purchase Invoice.
+        CreateEmptyPurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Validate("Prices Including VAT", false);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Open Purchase Invoice Page.
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GoToRecord(PurchaseHeader);
+        Commit();
+
+        // [WHEN] Copy the Posted Document.
+        PurchaseInvoice.CopyDocument.Invoke();
+
+        // [THEN] Verify Purchase Line Field Caption.
+        VerifyPurchaseDocumentCaption(PurchaseInvoice);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2327,6 +2414,100 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine.TestField("Qty. to Assign", QtyToAssign);
     end;
 
+    local procedure EnqueueCopyDocumentReqpageParameters(DocType: Variant; DocNo: Variant; IncludeHeader: Variant; RecalcLines: Variant)
+    begin
+        LibraryVariableStorage.Enqueue(DocType);
+        LibraryVariableStorage.Enqueue(DocNo);
+        LibraryVariableStorage.Enqueue(IncludeHeader);
+        LibraryVariableStorage.Enqueue(RecalcLines);
+    end;
+
+    local procedure CreateAndPostSalesInvoice(var Customer: Record Customer): Code[20]
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        LibrarySales.CreateCustomer(Customer);
+
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Invoice,
+            Customer."No.");
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+            Item,
+            LibraryRandom.RandDecInRange(1, 100, 2),
+            LibraryRandom.RandDecInRange(1, 100, 2));
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(100));
+
+        SalesLine.Validate("VAT %", 0);
+        SalesLine.Modify(true);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure VerifySalesDocumentCaption(var SalesInvoice: TestPage "Sales Invoice")
+    begin
+        Assert.AreEqual(
+            'Unit Price Excl. VAT',
+            SalesInvoice.SalesLines."Unit Price".Caption(),
+            CaptionNotMatchErr);
+        Assert.AreEqual(
+            'Line Amount Excl. VAT',
+            SalesInvoice.SalesLines."Line Amount".Caption(),
+            CaptionNotMatchErr);
+    end;
+
+    local procedure CreateAndPostPurchaseInvoice(var Vendor: Record Vendor): Code[20]
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DocumentNo: Code[20];
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Invoice,
+            Vendor."No.");
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+            Item,
+            LibraryRandom.RandDecInRange(1, 100, 2),
+            LibraryRandom.RandDecInRange(1, 100, 2));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(100));
+
+        PurchaseLine.Validate("VAT %", 0);
+        PurchaseLine.Modify(true);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure VerifyPurchaseDocumentCaption(var PurchaseInvoice: TestPage "Purchase Invoice")
+    begin
+        Assert.AreEqual(
+            'Direct Unit Cost Excl. VAT',
+            PurchaseInvoice.PurchLines."Direct Unit Cost".Caption(),
+            CaptionNotMatchErr);
+        Assert.AreEqual(
+            'Line Amount Excl. VAT',
+            PurchaseInvoice.PurchLines."Line Amount".Caption(),
+            CaptionNotMatchErr);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
@@ -2398,6 +2579,50 @@ codeunit 137212 "SCM Copy Document Mgt."
     local procedure ExecuteConfirmHandler()
     begin
         if Confirm(MsgCorrectedInvoiceNo) then;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CopySalesDocumentHandler(var CopySalesDocument: TestRequestPage "Copy Sales Document")
+    var
+        DocType: Option;
+        DocumentType: Variant;
+        No: Variant;
+        IncludeHeader: Variant;
+        RecalculateLines: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentType);
+        LibraryVariableStorage.Dequeue(No);
+        DocType := DocumentType;
+        LibraryVariableStorage.Dequeue(IncludeHeader);
+        LibraryVariableStorage.Dequeue(RecalculateLines);
+        CopySalesDocument.DocumentType.SetValue(DocType);
+        CopySalesDocument.DocumentNo.SetValue(No);
+        CopySalesDocument.IncludeHeader_Options.SetValue(IncludeHeader);
+        CopySalesDocument.RecalculateLines.SetValue(RecalculateLines);
+        CopySalesDocument.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyPurchaseDocumentHandler(var CopyPurchaseDocument: TestRequestPage "Copy Purchase Document")
+    var
+        DocType: Option;
+        DocumentType: Variant;
+        No: Variant;
+        IncludeHeader: Variant;
+        RecalculateLines: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentType);
+        LibraryVariableStorage.Dequeue(No);
+        DocType := DocumentType;
+        LibraryVariableStorage.Dequeue(IncludeHeader);
+        LibraryVariableStorage.Dequeue(RecalculateLines);
+        CopyPurchaseDocument.DocumentType.SetValue(DocType);
+        CopyPurchaseDocument.DocumentNo.SetValue(No);
+        CopyPurchaseDocument.IncludeHeader_Options.SetValue(IncludeHeader);
+        CopyPurchaseDocument.RecalculateLines.SetValue(RecalculateLines);
+        CopyPurchaseDocument.OK().Invoke();
     end;
 }
 
