@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -20,6 +20,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Setup;
 using System.Globalization;
 using System.Utilities;
+using System.Telemetry;
 
 report 10573 "Sales - Credit Memo GB"
 {
@@ -707,7 +708,10 @@ report 10573 "Sales - Credit Memo GB"
             }
 
             trigger OnAfterGetRecord()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
+                FeatureTelemetry.LogUsage('0000OJK', FeatureNameTok, EventNameTok);
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
 
@@ -978,6 +982,8 @@ report 10573 "Sales - Credit Memo GB"
         DocumentDateCaptionLbl: Label 'Document Date';
         AppliesToCaptionLbl: Label 'Applies To';
         TotalReverseChargeVATLbl: Label 'Total Reverse Charge VAT';
+        FeatureNameTok: Label 'Sales Credit Memo GB', Locked = true;
+        EventNameTok: Label 'Sales Credit Memo GB report has been used', Locked = true;
 
     [Scope('OnPrem')]
     procedure InitLogInteraction()

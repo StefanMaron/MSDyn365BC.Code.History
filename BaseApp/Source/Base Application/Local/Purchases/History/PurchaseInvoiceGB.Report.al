@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +19,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Vendor;
 using System.Globalization;
 using System.Utilities;
+using System.Telemetry;
 
 report 10577 "Purchase - Invoice GB"
 {
@@ -686,7 +687,10 @@ report 10577 "Purchase - Invoice GB"
             }
 
             trigger OnAfterGetRecord()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
+                FeatureTelemetry.LogUsage('0000OJH', FeatureNameTok, EventNameTok);
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
 
@@ -921,5 +925,7 @@ report 10577 "Purchase - Invoice GB"
         VATIdentifierCaptionLbl: Label 'VAT Identifier';
         TotalCaptionLbl: Label 'Total';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
+        FeatureNameTok: Label 'Purchase Invoice GB', Locked = true;
+        EventNameTok: Label 'Purchase Invoice GB report has been used', Locked = true;
 }
 

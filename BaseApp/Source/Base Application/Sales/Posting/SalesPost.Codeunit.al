@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Posting;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -73,6 +77,7 @@ using System.Automation;
 using System.Utilities;
 using System.Environment.Configuration;
 using System.Email;
+using System.Telemetry;
 
 codeunit 80 "Sales-Post"
 {
@@ -198,6 +203,7 @@ codeunit 80 "Sales-Post"
         DeferralUtilities: Codeunit "Deferral Utilities";
         UOMMgt: Codeunit "Unit of Measure Management";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         InvoicePostingInterface: Interface "Invoice Posting";
         IsInterfaceInitalized: Boolean;
         Window: Dialog;
@@ -287,6 +293,8 @@ codeunit 80 "Sales-Post"
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
 #endif        
         SuppressCommitErr: Label 'Commit is blocked when %1 %2 is used.', Comment = '%1 = Date Order, %2 = Number Series';
+        ReverseChargeFeatureNameTok: Label 'Reverse Charge GB', Locked = true;
+        ReverseChargeEventNameTok: Label 'Reverse Charge GB has been used', Locked = true;
         DateOrderSeriesUsed: Boolean;
 
     internal procedure RunWithCheck(var SalesHeader2: Record "Sales Header")
@@ -930,6 +938,7 @@ codeunit 80 "Sales-Post"
                         SalesLine."Qty. to Invoice" / SalesLine.Quantity, Currency."Amount Rounding Precision");
                     SalesLine.SuspendStatusCheck(true);
                     SalesLine.Validate("VAT Bus. Posting Group", SalesSetup."Reverse Charge VAT Posting Gr.");
+                    FeatureTelemetry.LogUsage('0000OJO', ReverseChargeFeatureNameTok, ReverseChargeEventNameTok);
                 end;
                 DivideAmount(SalesHeader, SalesLine, 1, SalesLine."Qty. to Invoice", TempVATAmountLine, TempVATAmountLineRemainder);
             end;

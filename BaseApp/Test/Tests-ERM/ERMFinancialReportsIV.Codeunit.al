@@ -288,6 +288,7 @@ codeunit 134992 "ERM Financial Reports IV"
     procedure CalculateVATSettlementAfterPostSalesOrder()
     var
         SalesHeader: Record "Sales Header";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
         SalesLine: Record "Sales Line";
         DocumentNo: Code[20];
@@ -296,7 +297,11 @@ codeunit 134992 "ERM Financial Reports IV"
 
         // Setup: Create and Post Sales Order.
         Initialize();
+
         CreateVATPostingSetupWithBlankVATBusPostingGroup(VATPostingSetup);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VATPostingSetup.Rename(VATBusinessPostingGroup.Code, VATPostingSetup."VAT Prod. Posting Group");
+
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer(VATPostingSetup));
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup));
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);

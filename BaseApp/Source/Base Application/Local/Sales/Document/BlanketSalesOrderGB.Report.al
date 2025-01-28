@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -22,6 +22,7 @@ using Microsoft.Sales.Posting;
 using Microsoft.Sales.Setup;
 using System.Globalization;
 using System.Utilities;
+using System.Telemetry;
 
 report 10574 "Blanket Sales Order GB"
 {
@@ -667,7 +668,10 @@ report 10574 "Blanket Sales Order GB"
             }
 
             trigger OnAfterGetRecord()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
+                FeatureTelemetry.LogUsage('0000OJI', FeatureNameTok, EventNameTok);
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
 
@@ -908,5 +912,7 @@ report 10574 "Blanket Sales Order GB"
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         InvDiscountAmtCaptionLbl: Label 'Invoice Discount Amount';
         ShipmentDateCaptionLbl: Label 'Shipment Date';
+        FeatureNameTok: Label 'Blanket Sales Order GB', Locked = true;
+        EventNameTok: Label 'Blanket Sales Order GB report has been used', Locked = true;
 }
 

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Posting;
 
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
@@ -68,6 +72,7 @@ using Microsoft.Warehouse.Setup;
 using System.Automation;
 using System.Utilities;
 using System.Environment.Configuration;
+using System.Telemetry;
 
 codeunit 90 "Purch.-Post"
 {
@@ -358,6 +363,7 @@ codeunit 90 "Purch.-Post"
         UOMMgt: Codeunit "Unit of Measure Management";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         InvoicePostingInterface: Interface "Invoice Posting";
         IsInterfaceInitialized: Boolean;
         Window: Dialog;
@@ -451,7 +457,9 @@ codeunit 90 "Purch.-Post"
         ConfirmUsageWithBlankJobPlanningLineNoQst: Label 'Usage will not be linked to the project planning line because the Project Planning Line No field is empty.\\Do you want to continue?';
 #if not CLEAN25        
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
-#endif        
+#endif
+        ReverseChargeFeatureNameTok: Label 'Reverse Charge GB', Locked = true;
+        ReverseChargeEventNameTok: Label 'Reverse Charge GB has been used', Locked = true;
 
     local procedure GetZeroPurchLineRecID(PurchHeader: Record "Purchase Header"; var PurchLineRecID: RecordId)
     var
@@ -967,6 +975,7 @@ codeunit 90 "Purch.-Post"
                             (TempPurchLine2."Amount Including VAT" - TempPurchLine2.Amount) *
                             TempPurchLine2."Qty. to Invoice" / TempPurchLine2.Quantity,
                             Currency."Amount Rounding Precision");
+                        FeatureTelemetry.LogUsage('0000OJN', ReverseChargeFeatureNameTok, ReverseChargeEventNameTok);
                     end;
                     SetInvoiceOrderNo(PurchLine, PurchInvLine);
 
@@ -7776,7 +7785,7 @@ codeunit 90 "Purch.-Post"
             OnValidatePostingAndDocumentDateOnBeforeTestPostingDate(PurchaseHeader, PostingDateExists, SkipTestPostingDate);
             if not SkipTestPostingDate then
                 PurchaseHeader.TestPostingDate(PostingDateExists);
-        end;    
+        end;
 
         OnValidatePostingAndDocumentDateOnBeforePurchaseHeaderModify(PurchaseHeader, ModifyHeader);
         if ModifyHeader then
