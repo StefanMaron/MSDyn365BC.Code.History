@@ -128,6 +128,17 @@ xmlport 1001 "SEPA CT pain.001.001.09"
                         fieldelement(InstrPrty; PaymentExportDataGroup."SEPA Instruction Priority Text")
                         {
                         }
+                        textelement(SvcLvl)
+                        {
+                            textelement(Cd)
+                            {
+
+                                trigger OnBeforePassVariable()
+                                begin
+                                    Cd := 'SEPA';
+                                end;
+                            }
+                        }
                     }
                     textelement(ReqdExctnDt)
                     {

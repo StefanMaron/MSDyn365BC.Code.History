@@ -46,6 +46,11 @@ page 279 "Source Code Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted when you run the Adjust Exchange Rates batch job.';
                 }
+                field("G/L Currency Revaluation"; Rec."G/L Currency Revaluation")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code linked to entries that are posted when you run the G/L Currency Revaluation batch job.';
+                }
                 field("Deleted Document"; Rec."Deleted Document")
                 {
                     ApplicationArea = Basic, Suite;
