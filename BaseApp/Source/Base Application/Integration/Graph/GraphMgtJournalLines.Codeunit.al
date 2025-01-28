@@ -76,10 +76,11 @@ codeunit 5478 "Graph Mgt - Journal Lines"
             GenJournalLine.Validate("Bal. Account Type", TempGenJournalLine."Bal. Account Type");
         if (TempGenJournalLine."Bal. Account No." <> '') and (TempGenJournalLine."Bal. Account No." <> GenJournalLine."Bal. Account No.") then
             GenJournalLine.Validate("Bal. Account No.", TempGenJournalLine."Bal. Account No.");
-        if TempGenJournalLine."VAT Prod. Posting Group" <> GenJournalLine."VAT Prod. Posting Group" then
-            GenJournalLine.Validate("VAT Prod. Posting Group", TempGenJournalLine."VAT Prod. Posting Group");
         if TempGenJournalLine."Tax Group Code" <> GenJournalLine."Tax Group Code" then
             GenJournalLine.Validate("Tax Group Code", TempGenJournalLine."Tax Group Code");
+
+        if GenJournalLine.CopyVATSetupToJnlLines() then
+            SetPostingGroupValues(GenJournalLine, TempGenJournalLine);
     end;
 
     procedure SetPaymentsValues(var GenJournalLine: Record "Gen. Journal Line"; TempGenJournalLine: Record "Gen. Journal Line" temporary)
@@ -110,6 +111,20 @@ codeunit 5478 "Graph Mgt - Journal Lines"
             GenJournalLine.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type");
             GenJournalLine.Validate("Bal. Account No.", GenJournalBatch."Bal. Account No.");
         end
+    end;
+
+    local procedure SetPostingGroupValues(var GenJournalLine: Record "Gen. Journal Line"; TempGenJournalLine: Record "Gen. Journal Line" temporary)
+    begin
+        if TempGenJournalLine."Gen. Posting Type" <> GenJournalLine."Gen. Posting Type" then
+            GenJournalLine."Gen. Posting Type" := TempGenJournalLine."Gen. Posting Type";
+        if TempGenJournalLine."Gen. Bus. Posting Group" <> GenJournalLine."Gen. Bus. Posting Group" then
+            GenJournalLine."Gen. Bus. Posting Group" := TempGenJournalLine."Gen. Bus. Posting Group";
+        if TempGenJournalLine."Gen. Prod. Posting Group" <> GenJournalLine."Gen. Prod. Posting Group" then
+            GenJournalLine."Gen. Prod. Posting Group" := TempGenJournalLine."Gen. Prod. Posting Group";
+        if TempGenJournalLine."VAT Bus. Posting Group" <> GenJournalLine."VAT Bus. Posting Group" then
+            GenJournalLine."VAT Bus. Posting Group" := TempGenJournalLine."VAT Bus. Posting Group";
+        if TempGenJournalLine."VAT Prod. Posting Group" <> GenJournalLine."VAT Prod. Posting Group" then
+            GenJournalLine."VAT Prod. Posting Group" := TempGenJournalLine."VAT Prod. Posting Group";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
