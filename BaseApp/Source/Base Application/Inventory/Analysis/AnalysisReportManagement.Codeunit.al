@@ -1021,27 +1021,33 @@ codeunit 7110 "Analysis Report Management"
         end;
     end;
 
-    local procedure CalcQuantity(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean): Decimal
+    local procedure CalcQuantity(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; Invoiced: Boolean) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
-        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
-            ItemStatisticsBuf.SetRange("Source Type Filter");
+        OnBeforeCalcQuantity(ItemStatisticsBuffer, Invoiced, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
+        if ItemStatisticsBuffer.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuffer.SetRange("Source Type Filter");
 
         if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Entry Type Filter");
+            ItemStatisticsBuffer.SetRange(ItemStatisticsBuffer."Entry Type Filter");
             if Invoiced then begin
-                ItemStatisticsBuf.CalcFields("Invoiced Quantity");
-                exit(ItemStatisticsBuf."Invoiced Quantity");
+                ItemStatisticsBuffer.CalcFields("Invoiced Quantity");
+                exit(ItemStatisticsBuffer."Invoiced Quantity");
             end;
-            ItemStatisticsBuf.CalcFields(Quantity);
-            exit(ItemStatisticsBuf.Quantity);
+            ItemStatisticsBuffer.CalcFields(Quantity);
+            exit(ItemStatisticsBuffer.Quantity);
         end;
-        ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Entry Type Filter");
+        ItemStatisticsBuffer.SetRange(ItemStatisticsBuffer."Entry Type Filter");
         if Invoiced then begin
-            ItemStatisticsBuf.CalcFields("Analysis - Invoiced Quantity");
-            exit(ItemStatisticsBuf."Analysis - Invoiced Quantity");
+            ItemStatisticsBuffer.CalcFields("Analysis - Invoiced Quantity");
+            exit(ItemStatisticsBuffer."Analysis - Invoiced Quantity");
         end;
-        ItemStatisticsBuf.CalcFields("Analysis - Quantity");
-        exit(ItemStatisticsBuf."Analysis - Quantity");
+        ItemStatisticsBuffer.CalcFields("Analysis - Quantity");
+        exit(ItemStatisticsBuffer."Analysis - Quantity");
     end;
 
     local procedure CalcUnitPrice(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
@@ -1120,17 +1126,23 @@ codeunit 7110 "Analysis Report Management"
         exit(ItemStatisticsBuf."Analysis - Budgeted Cost Amt.");
     end;
 
-    local procedure CalcBudgetQuantity(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
+    local procedure CalcBudgetQuantity(var ItemStatisticsBuffer: Record "Item Statistics Buffer") Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
-        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
-            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
+        OnBeforeCalcBudgetQuantity(ItemStatisticsBuffer, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
+        if ItemStatisticsBuffer.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuffer.SetRange(ItemStatisticsBuffer."Source Type Filter");
 
         if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-            ItemStatisticsBuf.CalcFields(ItemStatisticsBuf."Budgeted Quantity");
-            exit(ItemStatisticsBuf."Budgeted Quantity");
+            ItemStatisticsBuffer.CalcFields(ItemStatisticsBuffer."Budgeted Quantity");
+            exit(ItemStatisticsBuffer."Budgeted Quantity");
         end;
-        ItemStatisticsBuf.CalcFields(ItemStatisticsBuf."Analysis - Budgeted Quantity");
-        exit(ItemStatisticsBuf."Analysis - Budgeted Quantity");
+        ItemStatisticsBuffer.CalcFields(ItemStatisticsBuffer."Analysis - Budgeted Quantity");
+        exit(ItemStatisticsBuffer."Analysis - Budgeted Quantity");
     end;
 
     local procedure DrillDownSalesAmount(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean)
@@ -1198,31 +1210,36 @@ codeunit 7110 "Analysis Report Management"
         end;
     end;
 
-    local procedure DrillDownQuantity(var ItemStatisticsBuf: Record "Item Statistics Buffer"; Invoiced: Boolean)
+    local procedure DrillDownQuantity(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; Invoiced: Boolean)
     var
         ValueEntry: Record "Value Entry";
-        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
+        IsHandled: Boolean;
     begin
-        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
-            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
+        OnBeforeDrillDownQuantity(ItemStatisticsBuffer, Invoiced, IsHandled);
+        if IsHandled then
+            exit;
 
-        ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Entry Type Filter");
+        if ItemStatisticsBuffer.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuffer.SetRange(ItemStatisticsBuffer."Source Type Filter");
+
+        ItemStatisticsBuffer.SetRange(ItemStatisticsBuffer."Entry Type Filter");
 
         if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
             if Invoiced then begin
-                FilterValueEntry(ItemStatisticsBuf, ValueEntry);
-                PAGE.Run(0, ValueEntry, ValueEntry."Invoiced Quantity");
+                FilterValueEntry(ItemStatisticsBuffer, ValueEntry);
+                Page.Run(0, ValueEntry, ValueEntry."Invoiced Quantity");
             end else begin
-                FilterItemLedgEntry(ItemStatisticsBuf, ItemLedgEntry);
-                PAGE.Run(0, ItemLedgEntry, ItemLedgEntry.Quantity);
+                FilterItemLedgEntry(ItemStatisticsBuffer, ItemLedgerEntry);
+                Page.Run(0, ItemLedgerEntry, ItemLedgerEntry.Quantity);
             end;
         end else begin
-            FilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
+            FilterItemAnalyViewEntry(ItemStatisticsBuffer, ItemAnalysisViewEntry);
             if Invoiced then
-                PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Invoiced Quantity")
+                Page.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Invoiced Quantity")
             else
-                PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry.Quantity);
+                Page.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry.Quantity);
         end;
     end;
 
@@ -1310,20 +1327,25 @@ codeunit 7110 "Analysis Report Management"
         end;
     end;
 
-    local procedure DrillDownBudgetQuantity(var ItemStatisticsBuf: Record "Item Statistics Buffer")
+    local procedure DrillDownBudgetQuantity(var ItemStatisticsBuffer: Record "Item Statistics Buffer")
     var
         ItemBudgetEntry: Record "Item Budget Entry";
         ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry";
+        IsHandled: Boolean;
     begin
-        if ItemStatisticsBuf.GetFilter("Source No. Filter") = '' then
-            ItemStatisticsBuf.SetRange(ItemStatisticsBuf."Source Type Filter");
+        OnBeforeDrillDownBudgetQuantity(ItemStatisticsBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ItemStatisticsBuffer.GetFilter("Source No. Filter") = '' then
+            ItemStatisticsBuffer.SetRange(ItemStatisticsBuffer."Source Type Filter");
 
         if AnalysisLineTemplate."Item Analysis View Code" = '' then begin
-            FilterItemBudgetEntry(ItemStatisticsBuf, ItemBudgetEntry);
-            PAGE.Run(0, ItemBudgetEntry, ItemBudgetEntry.Quantity);
+            FilterItemBudgetEntry(ItemStatisticsBuffer, ItemBudgetEntry);
+            Page.Run(0, ItemBudgetEntry, ItemBudgetEntry.Quantity);
         end else begin
-            FilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
-            PAGE.Run(0, ItemAnalysisViewBudgEntry, ItemAnalysisViewBudgEntry.Quantity);
+            FilterItemAnalyViewBudgEntry(ItemStatisticsBuffer, ItemAnalysisViewBudgEntry);
+            Page.Run(0, ItemAnalysisViewBudgEntry, ItemAnalysisViewBudgEntry.Quantity);
         end;
     end;
 
@@ -1838,6 +1860,26 @@ codeunit 7110 "Analysis Report Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcSalesAmount(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; Invoiced: Boolean; var IsHandled: Boolean; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQuantity(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; Invoiced: Boolean; var IsHandled: Boolean; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBudgetQuantity(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var IsHandled: Boolean; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDownQuantity(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; Invoiced: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDownBudgetQuantity(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var IsHandled: Boolean)
     begin
     end;
 }

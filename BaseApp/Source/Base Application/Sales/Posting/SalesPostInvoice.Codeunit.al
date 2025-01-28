@@ -208,7 +208,10 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
         InvoicePostingBuffer."Deferral Code" := SalesLine."Deferral Code";
         SalesPostInvoiceEvents.RunOnPrepareLineOnAfterFillInvoicePostingBuffer(InvoicePostingBuffer, SalesLine);
-        UpdateInvoicePostingBuffer(InvoicePostingBuffer, false);
+        IsHandled := false;
+        SalesPostInvoiceEvents.RunOnBeforeUpdateInvoicePostingBuffer(TempInvoicePostingBuffer, InvoicePostingBuffer, false, InvDefLineNo, DeferralLineNo, FALineNo, SalesLine, IsHandled);
+        if not IsHandled then
+            UpdateInvoicePostingBuffer(InvoicePostingBuffer, false);
 
         SalesPostInvoiceEvents.RunOnPrepareLineOnAfterUpdateInvoicePostingBuffer(
             SalesHeader, SalesLine, InvoicePostingBuffer, TempInvoicePostingBuffer);

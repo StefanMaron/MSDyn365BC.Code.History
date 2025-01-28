@@ -19,6 +19,7 @@ codeunit 134919 "ERM Batch Job II"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPurchase: Codeunit "Library - Purchase";
         TargetJobStatus: Enum "Job Status";
         GLAccountNo: Code[20];
         Amount: Decimal;
@@ -28,6 +29,7 @@ codeunit 134919 "ERM Batch Job II"
         BudgetName: Code[10];
         BudgetError: Label 'G/L Budget: %1 must not exist.', Comment = '%1=G/L Budget Name';
         JobsCopyMsg: Label 'The project no. %1 was successfully copied to the new project no. %2 with the status %3.', Comment = '%1 - The "No." of source project; %2 - The "No." of target project, %3 - project status.';
+        PurchaseHeaderMustNotBeFoundErr: Label 'Purchase Header must not be found.';
 
     [Test]
     [Scope('OnPrem')]
@@ -399,6 +401,105 @@ codeunit 134919 "ERM Batch Job II"
         UnbindSubscription(ERMBatchJobII);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure POHavingPurchLineWithJobPlanningLineNoIsReceivedAndInvoiced()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        Vendor: Record Vendor;
+        Location: Record Location;
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseLine: array[3] of Record "Purchase Line";
+    begin
+        // [SCENARIO 559229] Purchase Order having Job Planning Line No. 
+        // Is received and invoiced without any error.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Order Tracking Policy.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Job.
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create a Job Task.
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create a Job Planning Line and Validate No., Quantity and Location Code.
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(0));
+        JobPlanningLine.Validate("Location Code", Location.Code);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader[1],
+            PurchaseHeader[1]."Document Type"::Order,
+            Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line [1] with Job Planning Line No.
+        CreatePurchaseLineWithJobPlanningLineNo(
+            PurchaseHeader[1],
+            PurchaseLine[1],
+            Item,
+            Location,
+            Job,
+            JobTask,
+            JobPlanningLine);
+
+        // [GIVEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, true);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader[2],
+            PurchaseHeader[2]."Document Type"::Order,
+            Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line [2] with Job Planning Line No.
+        CreatePurchaseLineWithJobPlanningLineNo(
+            PurchaseHeader[2],
+            PurchaseLine[2],
+            Item,
+            Location,
+            Job,
+            JobTask,
+            JobPlanningLine);
+
+        // [GIVEN] Create a Purchase Line [3] with Job Planning Line No.
+        CreatePurchaseLineWithJobPlanningLineNo(
+            PurchaseHeader[2],
+            PurchaseLine[3],
+            Item,
+            Location,
+            Job,
+            JobTask,
+            JobPlanningLine);
+
+        // [GIVEN] Receive Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], true, false);
+
+        // [WHEN] Invoice Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], false, true);
+
+        // [THEN] Find Purchase Header.
+        Assert.IsFalse(
+            PurchaseHeader[3].Get(PurchaseHeader[3]."Document Type"::Order, PurchaseHeader[2]."No."),
+            PurchaseHeaderMustNotBeFoundErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Batch Job II");
@@ -505,6 +606,24 @@ codeunit 134919 "ERM Batch Job II"
           RoundingMethodCode, DateChangeFormula, ToDateCompression::None);
         CopyGLBudget.UseRequestPage(false);
         CopyGLBudget.Run();
+    end;
+
+    local procedure CreatePurchaseLineWithJobPlanningLineNo(
+        var PurchaseHeader: Record "Purchase Header";
+        var PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        Location: Record Location;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line")
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Budget);
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.Modify(true);
     end;
 
     [Scope('OnPrem')]

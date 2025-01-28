@@ -1746,6 +1746,51 @@ codeunit 136350 "UT T Job"
     end;
 
     [Test]
+    [HandlerFunctions('PurchOrderFromJobModalPageHandler,PurchaseLinesFromJobModalPageHandler')]
+    procedure LinkPurchaseLinesWithProjectWithoutAmountOnPurchaseOrder()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        JobCard: TestPage "Job Card";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 556855] Verify Purchase lines are linked with Project without amount on Purchase Order 
+        Initialize();
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Job with Job Task
+        CreateJobAndJobTask();
+
+        // [GIVEN] Create Job Planning Line
+        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 1);
+
+        // [WHEN] Create Purchase Order from Job
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        PurchaseOrder.Trap();
+        JobCard.OpenEdit();
+        JobCard.GotoRecord(Job);
+        JobCard.CreatePurchaseOrder.Invoke();
+
+        // [GIVEN] Find Purchase document
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+
+        // Enqueue Purchase document values
+        LibraryVariableStorage.Enqueue(PurchaseLine."Document No.");
+        LibraryVariableStorage.Enqueue(PurchaseLine."No.");
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [THEN] Verify results        
+        JobCard.PurchaseLines.Invoke();
+    end;
+
+    [Test]
     [HandlerFunctions('PurchOrderFromJobModalPageHandlerWithDPPLocation')]
     procedure VerifyErrorOnCreatePurchaseOrderFromJobForDPPLocation()
     var
@@ -2473,6 +2518,14 @@ codeunit 136350 "UT T Job"
     begin
         PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
         PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchaseLinesFromJobModalPageHandler(var PurchaseLines: TestPage "Purchase Lines")
+    begin
+        Assert.AreEqual(PurchaseLines."Document No.".Value, LibraryVariableStorage.DequeueText(), 'Purchase Lines are not linked with Project');
+        Assert.AreEqual(PurchaseLines."No.".Value, LibraryVariableStorage.DequeueText(), 'Purchase Lines are not linked with Project');
+        Assert.AreEqual(PurchaseLines."Buy-from Vendor No.".Value, LibraryVariableStorage.DequeueText(), 'Purchase Lines are not linked with Project');
     end;
 
     [MessageHandler]

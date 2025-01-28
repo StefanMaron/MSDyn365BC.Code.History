@@ -167,6 +167,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST Bonded Warehouse Tests - NamedType ToStateCodeLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1059961450 - NamedType 3345974943" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit GST Bonded Warehouse Tests - NamedType ValueEntryVerifyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1059961450 - NamedType 2193582545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VendorNo]]></Val>
