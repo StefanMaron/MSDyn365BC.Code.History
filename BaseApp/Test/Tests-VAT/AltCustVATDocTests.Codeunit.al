@@ -731,6 +731,43 @@ codeunit 134237 "Alt. Cust. VAT. Doc. Tests"
         LibraryLowerPermissions.SetOutsideO365Scope();
     end;
 
+    [Test]
+    [HandlerFunctions('NoNotificationOtherThanShipToAddressSendNotificationHandler')]
+    procedure NoAltCustVATRegConfWhenSetHideValidationDialog()
+    var
+        ShipToAddress: Record "Ship-to Address";
+        AltCustVATReg: Record "Alt. Cust. VAT Reg.";
+        SalesHeader: Record "Sales Header";
+        CustNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 560630] No confirmation is shown when using Alternative Customer VAT Registration with SetHideValidationDialog
+
+        Initialize();
+        // [GIVEN] Enable the "Confirm Alt. Cust VAT Reg." option in the VAT Setup
+        LibraryAltCustVATReg.UpdateConfirmAltCustVATReg(true);
+        // [GIVEN] Customer with country "X", "VAT Registration No." = "X1234567890", "Gen. Bus. Posting Group" = "CUSTBUS", "VAT Bus. Posting Group" = "CUSTVAT"
+        CustNo := LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsCreate();
+        // [GIVEN] Ship-To Address with country "Y"
+        LibrarySales.CreateShipToAddressWithRandomCountryCode(ShipToAddress, CustNo);
+        // [GIVEN] Alternative Customer VAT Reg. with country "Y", "VAT Registration No." = "Y1234567890", "Gen. Bus. Posting Group" = "SHIPTOBUS", "VAT Bus. Posting Group" = "SHIPTOVAT"
+        LibraryAltCustVATReg.CreateAlternativeCustVATReg(AltCustVATReg, CustNo, ShipToAddress."Country/Region Code");
+        // [GIVEN] Sales order with the customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustNo);
+        // [GIVEN] SetHideValidationDialog is enabled on the sales header
+        SalesHeader.SetHideValidationDialog(true);
+        // [WHEN] Choose Ship-To Address with country "Y" and confirm changes though the page
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        // [THEN] No confirmation is required
+        // [THEN] Sales order has "VAT Bus. Posting Group" = "SHIPTOVAT", "Gen. Bus. Posting Group" = "SHIPTOBUS", "VAT Registration No." = "Y1234567890", "Country/Region Code" = "Y"
+        VerifyVATRegDataInSalesHeader(SalesHeader, AltCustVATReg."VAT Bus. Posting Group", AltCustVATReg."Gen. Bus. Posting Group", AltCustVATReg."VAT Registration No.", AltCustVATReg."VAT Country/Region Code");
+        // [THEN] Sales order has "Alt. VAT Registration No.", "Alt. Gen. Bus Posting Group", "Alt. VAT Bus Posting Group" options
+        LibraryAltCustVATReg.VerifySalesDocAltVATReg(SalesHeader, true);
+        LibraryLowerPermissions.SetOutsideO365Scope();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

@@ -1432,6 +1432,8 @@ table 900 "Assembly Header"
             Error(Text015, FieldCaption("Due Date"), "Due Date", FieldCaption("Ending Date"), "Ending Date");
         if "Ending Date" < "Starting Date" then
             Error(Text015, FieldCaption("Ending Date"), "Ending Date", FieldCaption("Starting Date"), "Starting Date");
+
+        OnAfterValidateDates(Rec, FieldNumToCalculateFrom, DoNotValidateButJustAssign);
     end;
 
     local procedure CalculateNewDates(FieldNumToCalculateFrom: Integer; var NewDueDate: Date; var NewEndDate: Date; var NewStartDate: Date)
@@ -2227,6 +2229,11 @@ table 900 "Assembly Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var AssemblyHeader: Record "Assembly Header"; CurrentFieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateDates(var AssemblyHeader: Record "Assembly Header"; FieldNumToCalculateFrom: Integer; var DoNotValidateButJustAssign: Boolean)
     begin
     end;
 }

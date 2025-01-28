@@ -247,13 +247,19 @@ page 953 "Manager Time Sheet List"
     }
 
     trigger OnOpenPage()
+    var
+        IsHandled: Boolean;
     begin
-        TimeSheetAdminActionsVisible := true;
-        if UserSetup.Get(UserId) then
-            CurrPage.Editable := UserSetup."Time Sheet Admin.";
-        TimeSheetAdminActionsVisible := UserSetup."Time Sheet Admin.";
+        IsHandled := false;
+        OnBeforeOnOpenPage(Rec, IsHandled);
+        if not IsHandled then begin
+            TimeSheetAdminActionsVisible := true;
+            if UserSetup.Get(UserId) then
+                CurrPage.Editable := UserSetup."Time Sheet Admin.";
+            TimeSheetAdminActionsVisible := UserSetup."Time Sheet Admin.";
 
-        TimeSheetMgt.FilterTimeSheets(Rec, Rec.FieldNo("Approver User ID"));
+            TimeSheetMgt.FilterTimeSheets(Rec, Rec.FieldNo("Approver User ID"));
+        end;
 
         OnAfterOnOpenPage(Rec);
     end;
@@ -281,6 +287,11 @@ page 953 "Manager Time Sheet List"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnOpenPage(var TimeSheetHeader: Record "Time Sheet Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(var TimeSheetHeader: Record "Time Sheet Header"; var IsHandled: Boolean);
     begin
     end;
 }

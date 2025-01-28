@@ -57,6 +57,7 @@ codeunit 136306 "Job Invoicing"
         YourReferenceErr: Label 'The actual %1 Your Reference and the expected %2 Your Reference are not equal', Comment = '%1 = Project, %2 = Sales Header';
         DetailLevel: Option All,"Per Job","Per Job Task","Per Job Planning Line";
         LineDiscountPctErr: Label '%1 should be %2', Comment = '%1 = Field Caption, %2 = Field Value';
+        WrongNoofLinesLbl: Label 'Wrong number of lines created';
 
     [Test]
     [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
@@ -3821,6 +3822,53 @@ codeunit 136306 "Job Invoicing"
             StrSubstNo(LineDiscountPctErr, SalesCrMemoLine.FieldCaption("Line Discount %"), Format(LineDiscountPct)));
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SingleInvoiceCreatedBillingMethodMultipleCustomerSameCustomerOnPlanningLines()
+    var
+        JobTask: Record "Job Task";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        JobPlanningLine: array[3] of Record "Job Planning Line";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        DocumentType: Enum "Sales Document Type";
+        TaskBillingMethod: Enum "Task Billing Method";
+        InvoicesList: List of [Code[20]];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 556289] When Task Billing Method set to Multiple Customers on the Project Header and Customer No is same on
+        // all Project Planning Lines of same task then single invoice is created.
+        Initialize();
+
+        // [GIVEN] Create a Job and a Job Task with Billing Method set Multiple Customers.
+        CreateJobAndJobTaskWithBillingMethod(JobTask, TaskBillingMethod::"Multiple customers");
+
+        // [GIVEN] Create Three Job Planning Lines for Type Item. 
+        CreateThreeJobPlanningLinesWithItem(JobTask, JobPlanningLine);
+        Commit();
+
+        // [GIVEN] Create Invoice for all three Job Planning Lines.
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine[3], false);
+
+        // [WHEN] Get Sales Invoice Document.
+        GetSalesInvoiceDocumentList(JobPlanningLine[3], DocumentType::Invoice, InvoicesList);
+
+        // [THEN] Verify One Sales Invoice is Created.
+        Assert.AreEqual(1, InvoicesList.Count, WrongNoofLinesLbl);
+
+        // [GIVEN] Get Sales Invoice No from List.
+        InvoicesList.Get(1, DocumentNo);
+
+        // [WHEN] Get Sales Header and Lines.
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, DocumentNo);
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", DocumentNo);
+
+        // [THEN] Verify Three Sales Lines are created in a single invoice.
+        Assert.AreEqual(3, SalesLine.Count, WrongNoofLinesLbl);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5397,6 +5445,49 @@ codeunit 136306 "Job Invoicing"
         JobPlanningLine.Modify(true);
         TransferJobPlanningLine(JobPlanningLine, QtyInvoiceFraction, false, SalesHeader);
         exit(Job."No.");
+    end;
+
+    local procedure CreateJobAndJobTaskWithBillingMethod(var JobTask: Record "Job Task"; TaskBillingMethod: Enum "Task Billing Method")
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryJob.CreateJob(Job, Customer."No.");
+        Job.Validate("Task Billing Method", TaskBillingMethod);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+    end;
+
+    local procedure CreateThreeJobPlanningLinesWithItem(JobTask: Record "Job Task"; var JobPlanningLine: array[3] of Record "Job Planning Line")
+    var
+        Item: array[3] of Record Item;
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen((Item)) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            CreateJobPlanningLineWithItem(JobPlanningLine[i], JobTask, JobPlanningLine[i]."Line Type"::"Both Budget and Billable", Item[i]."No.", LibraryRandom.RandIntInRange(1, 10));
+        end;
+    end;
+
+    local procedure GetSalesInvoiceDocumentList(
+       JobPlanningLine: Record "Job Planning Line";
+       DocumentType: Enum "Sales Document Type";
+       var InvoicesList: List of [Code[20]])
+    var
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+    begin
+        JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLineInvoice.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        if DocumentType = DocumentType::Invoice then
+            JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::Invoice)
+        else
+            JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::"Credit Memo");
+        JobPlanningLineInvoice.FindSet();
+        Repeat
+            if not InvoicesList.Contains(JobPlanningLineInvoice."Document No.") then
+                InvoicesList.Add(JobPlanningLineInvoice."Document No.");
+        until JobPlanningLineInvoice.Next() = 0;
     end;
 
     [RequestPageHandler]

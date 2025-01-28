@@ -384,7 +384,7 @@ page 9203 "Budget Matrix"
         DateFilter: Text[30];
         InternalDateFilter: Text[30];
         BusUnitFilter: Code[250];
-        GLAccFilter: Code[250];
+        GLAccFilter: Text;
         IncomeBalanceGLAccFilter: Enum "G/L Account Income/Balance";
         GLAccCategoryFilter: Enum "G/L Account Category";
         GlobalDim1Filter: Code[250];
@@ -864,6 +864,46 @@ page 9203 "Budget Matrix"
         exit(NewAmount);
     end;
 
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[80]; var NewMatrixRecords: array[12] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; NewLineDimCode: Text[30]; NewLineDimType: Enum "G/L Budget Matrix Dimensions"; NewColumnDimType: Enum "G/L Budget Matrix Dimensions"; NewGlobalDim1Filter: Code[250]; NewGlobalDim2Filter: Code[250]; NewBudgetDim1Filter: Code[250]; NewBudgetDim2Filter: Code[250]; NewBudgetDim3Filter: Code[250]; NewBudgetDim4Filter: Code[250]; var NewGLBudgetName: Record "G/L Budget Name"; NewDateFilter: Text[30]; NewGLAccFilter: Text; NewIncomeBalanceGLAccFilter: Enum "G/L Account Income/Balance"; NewGLAccCategoryFilter: Enum "G/L Account Category"; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewPeriodType: Enum "Analysis Period Type")
+    var
+        i: Integer;
+    begin
+        for i := 1 to 12 do
+            MATRIX_CellData[i] := 0;
+
+        for i := 1 to 12 do begin
+            if NewMatrixColumns[i] = '' then
+                MATRIX_CaptionSet[i] := ' '
+            else
+                MATRIX_CaptionSet[i] := NewMatrixColumns[i];
+            MatrixRecords[i] := NewMatrixRecords[i];
+        end;
+        if CurrentNoOfMatrixColumns > ArrayLen(MATRIX_CellData) then
+            MATRIX_CurrentNoOfMatrixColumn := ArrayLen(MATRIX_CellData)
+        else
+            MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
+        LineDimCode := NewLineDimCode;
+        LineDimType := NewLineDimType;
+        ColumnDimType := NewColumnDimType;
+        GlobalDim1Filter := NewGlobalDim1Filter;
+        GlobalDim2Filter := NewGlobalDim2Filter;
+        BudgetDim1Filter := NewBudgetDim1Filter;
+        BudgetDim2Filter := NewBudgetDim2Filter;
+        BudgetDim3Filter := NewBudgetDim3Filter;
+        BudgetDim4Filter := NewBudgetDim4Filter;
+        GLBudgetName := NewGLBudgetName;
+        DateFilter := NewDateFilter;
+        GLAccFilter := NewGLAccFilter;
+        IncomeBalanceGLAccFilter := NewIncomeBalanceGLAccFilter;
+        GLAccCategoryFilter := NewGLAccCategoryFilter;
+        RoundingFactor := NewRoundingFactor;
+        PeriodType := NewPeriodType;
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
+        InternalDateFilter := '';
+    end;
+
+#if not CLEAN26
+    [Obsolete('Replaced by LoadMatrix with NewGLAccFilter: Text instead of Code[250]', '26.0')]
     procedure LoadMatrix(NewMatrixColumns: array[32] of Text[80]; var NewMatrixRecords: array[12] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; NewLineDimCode: Text[30]; NewLineDimType: Enum "G/L Budget Matrix Dimensions"; NewColumnDimType: Enum "G/L Budget Matrix Dimensions"; NewGlobalDim1Filter: Code[250]; NewGlobalDim2Filter: Code[250]; NewBudgetDim1Filter: Code[250]; NewBudgetDim2Filter: Code[250]; NewBudgetDim3Filter: Code[250]; NewBudgetDim4Filter: Code[250]; var NewGLBudgetName: Record "G/L Budget Name"; NewDateFilter: Text[30]; NewGLAccFilter: Code[250]; NewIncomeBalanceGLAccFilter: Enum "G/L Account Income/Balance"; NewGLAccCategoryFilter: Enum "G/L Account Category"; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewPeriodType: Enum "Analysis Period Type")
     var
         i: Integer;
@@ -901,6 +941,7 @@ page 9203 "Budget Matrix"
         RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
         InternalDateFilter := '';
     end;
+#endif
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
     begin

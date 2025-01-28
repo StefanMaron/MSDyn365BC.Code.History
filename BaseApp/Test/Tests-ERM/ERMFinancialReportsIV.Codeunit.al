@@ -722,6 +722,49 @@ codeunit 134992 "ERM Financial Reports IV"
         VATEntry.TestField(Amount, Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('VATStatementCountryFilterRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATStatementCountryRegionFilterSunshine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: array[2] of Record Vendor;
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatementTemplate: Record "VAT Statement Template";
+        DocNo: array[2] of Code[20];
+        Selection: Enum "VAT Statement Report Selection";
+        i: Integer;
+        Amount: Decimal;
+    begin
+        // [SCENARIO 556928] VAT statement report correctly prints VAT entries based on the country/region filter
+
+        // [GIVEN] Vendors from Spain and Germany
+        // [GIVEN] Post two purchase invoices for each vendor. Spanish invoice with VAT amount = 100, german invoice with VAT amount = 200
+        Initialize();
+        for i := 1 to ArrayLen(Vendor) do begin
+            CreateVendorWithCountry(Vendor[i]);
+            DocNo[i] :=
+                CreateAndPostGeneralJournalLine(WorkDate(), -1, GenJournalLine."Account Type"::Vendor, Vendor[i]."No.", LibraryERM.CreateGLAccountNo());
+        end;
+
+        Amount := CalculateVATEntryAmount(WorkDate(), DocNo[2]);
+        CreateVATStatementTemplateAndLine(VATStatementLine, VATPostingSetup, "General Posting Type"::Purchase);
+        LibraryVariableStorage.Enqueue(Vendor[2]."Country/Region Code"); // set country/region filter for VATStatementCountryFilterRequestPageHandler
+
+        // [WHEN] Create and save VAT statement report with country/region filter = "Germany"
+        SaveVATStatementReport(VATStatementLine."Statement Name", Selection, "VAT Statement Report Period Selection"::"Within Period");
+
+        // [THEN] Total amount in the report is 200
+        VerifyTotalAmountOnVATStatementReport(VATStatementLine, Amount);
+
+        // Tear Down: Delete VAT Statement Template created earlier.
+        VATStatementTemplate.Get(VATStatementLine."Statement Template Name");
+        VATStatementTemplate.Delete(true);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -790,6 +833,16 @@ codeunit 134992 "ERM Financial Reports IV"
         TotalAmount := VATEntry.Amount;
     end;
 
+    local procedure CalculateVATEntryAmount(PostingDate: Date; DocNo: Code[20]): Decimal
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Posting Date", PostingDate);
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.CalcSums(Amount);
+        exit(VATEntry.Amount);
+    end;
+
     local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
                                                                                                                       GenPostingType: Enum "General Posting Type";
                                                                                                                       SignFactor: Integer;
@@ -802,22 +855,28 @@ codeunit 134992 "ERM Financial Reports IV"
                                                                                                                                          GenPostingType: Enum "General Posting Type";
                                                                                                                                          SignFactor: Integer;
                                                                                                                                          FindVATPostingSetup: Boolean)
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
     begin
         VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
         if FindVATPostingSetup then
             LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateAndPostGeneralJournalLine(PostingDate, SignFactor, AccountType, AccountNo, CreateGLAccountWithVAT(VATPostingSetup, GenPostingType));
+    end;
+
+    local procedure CreateAndPostGeneralJournalLine(PostingDate: Date; SignFactor: Integer; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]): Code[20]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           AccountType, AccountNo, SignFactor * LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Validate("Bal. Account No.", CreateGLAccountWithVAT(VATPostingSetup, GenPostingType));
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreateCustomerWithCountryRegionVATRegNo(var Customer: Record Customer)
@@ -908,6 +967,16 @@ codeunit 134992 "ERM Financial Reports IV"
         Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         Customer.Modify(true);
         exit(Customer."No.");
+    end;
+
+    local procedure CreateVendorWithCountry(var Vendor: Record Vendor)
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Vendor.Validate("Country/Region Code", CountryRegion.Code);
+        Vendor.Modify(true);
     end;
 
     local procedure CreateItem(var VATPostingSetup: Record "VAT Posting Setup"): Code[20]
@@ -1080,6 +1149,15 @@ codeunit 134992 "ERM Financial Reports IV"
           SameAmountErr);
     end;
 
+    local procedure VerifyTotalAmountOnVATStatementReport(VATStatementLine: Record "VAT Statement Line"; TotalAmount: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('VatStmtLineRowNo', VATStatementLine."Row No.");
+        if not LibraryReportDataset.GetNextRow() then
+            Error(NoDataRowErr, 'VatStmtLineRowNo', VATStatementLine."Row No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmount', TotalAmount);
+    end;
+
     local procedure GetLastPostingDate(): Date
     var
         VATEntry: Record "VAT Entry";
@@ -1194,6 +1272,14 @@ codeunit 134992 "ERM Financial Reports IV"
     [Scope('OnPrem')]
     procedure RHVATStatement(var VATStatement: TestRequestPage "VAT Statement")
     begin
+        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VATStatementCountryFilterRequestPageHandler(var VATStatement: TestRequestPage "VAT Statement")
+    begin
+        VATStatement."Country/Region Filter".SetValue(LibraryVariableStorage.DequeueText());
         VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 

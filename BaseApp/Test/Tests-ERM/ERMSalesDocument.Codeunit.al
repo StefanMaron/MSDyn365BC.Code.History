@@ -31,6 +31,7 @@
 #endif
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryDimension: Codeunit "Library - Dimension";
         isInitialized: Boolean;
         VATAmountError: Label 'VAT %1 must be %2 in %3.';
         FieldError: Label '%1 must be %2 in %3.';
@@ -4543,6 +4544,112 @@
         SalesCrMemoHeader.TestField("Registration Number", Customer."Registration Number");
     end;
 
+    [Test]
+    procedure SalesInvoiceAmountExclVATWithInheritFromParentAllocationAccount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLEntry: Record "G/L Entry";
+        DimensionValues: array[2] of Record "Dimension Value";
+        AllocationAccountNo: Code[20];
+        GLAccountNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        DimSetID: array[2] of Integer;
+        Share: array[2] of Decimal;
+        Amount: array[2] of Decimal;
+        AmtRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Allocation Account] [Sales]
+        // [SCENARIO 561035] G/L Entry amounts when Sales Invoice with Amount Incl. VAT not set is posted with Allocation Account with Inherit from parent lines.
+        Initialize();
+
+        // [GIVEN] Allocation Account "AA" with Fixed Distribution.
+        // [GIVEN] Two distribution lines with Inherit from parent type and Shares 40 and 60.
+        // [GIVEN] Lines have Dimension DEPARTMENT with SALES and PROD values.
+        Share[1] := 40;
+        Share[2] := 60;
+        AllocationAccountNo := CreateAllocationAccountWithFixedDistribution();
+        CreateDimensionWithValues(DimensionValues);
+        DimSetID[1] := CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo, Share[1], DimensionValues[1]);
+        DimSetID[2] := CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo, Share[2], DimensionValues[2]);
+
+        // [GIVEN] Sales Invoice with Prices Including VAT not set.
+        // [GIVEN] Sales Line with G/L Account "GL1", Amount 1000 and Allocation Account No. "AA".
+        CreateSalesInvoiceWithInheritFromParentAllocationAccount(SalesHeader, SalesLine, AllocationAccountNo, false);
+        AmtRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
+        Amount[1] := Round(SalesLine.Amount * Share[1] / 100, AmtRoundingPrecision);
+        Amount[2] := Round(SalesLine.Amount * Share[2] / 100, AmtRoundingPrecision);
+        GLAccountNo := SalesLine."No.";
+
+        // [WHEN] Post Sales Invoice.
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Two G/L Entries for G/L Account "GL1" with Amounts 400 and 600 were created.
+        GLEntry.SetRange("Document No.", PostedInvoiceNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+
+        GLEntry.SetRange("Dimension Set ID", DimSetID[1]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(-Amount[1], GLEntry.Amount, AmountNotMatchedErr);
+
+        GLEntry.SetRange("Dimension Set ID", DimSetID[2]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(-Amount[2], GLEntry.Amount, AmountNotMatchedErr);
+    end;
+
+    [Test]
+    procedure SalesInvoiceAmountInclVATWithInheritFromParentAllocationAccount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLEntry: Record "G/L Entry";
+        DimensionValues: array[2] of Record "Dimension Value";
+        AllocationAccountNo: Code[20];
+        GLAccountNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        DimSetID: array[2] of Integer;
+        Share: array[2] of Decimal;
+        Amount: array[2] of Decimal;
+        AmtRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Allocation Account] [Sales]
+        // [SCENARIO 561035] G/L Entry amounts when Sales Invoice with Amount Incl. VAT set is posted with Allocation Account with Inherit from parent lines.
+        Initialize();
+
+        // [GIVEN] Allocation Account "AA" with Fixed Distribution.
+        // [GIVEN] Two distribution lines with Inherit from parent type and Shares 40 and 60.
+        // [GIVEN] Lines have Dimension DEPARTMENT with SALES and PROD values.
+        Share[1] := 40;
+        Share[2] := 60;
+        AllocationAccountNo := CreateAllocationAccountWithFixedDistribution();
+        CreateDimensionWithValues(DimensionValues);
+        DimSetID[1] := CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo, Share[1], DimensionValues[1]);
+        DimSetID[2] := CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo, Share[2], DimensionValues[2]);
+
+        // [GIVEN] Sales Invoice with Prices Including VAT set.
+        // [GIVEN] Sales Line with G/L Account "GL1", Amount 1000 and Allocation Account No. "AA".
+        CreateSalesInvoiceWithInheritFromParentAllocationAccount(SalesHeader, SalesLine, AllocationAccountNo, true);
+        AmtRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
+        Amount[1] := Round(SalesLine.Amount * Share[1] / 100, AmtRoundingPrecision);
+        Amount[2] := Round(SalesLine.Amount * Share[2] / 100, AmtRoundingPrecision);
+        GLAccountNo := SalesLine."No.";
+
+        // [WHEN] Post Sales Invoice.
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Two G/L Entries for G/L Account "GL1" with Amounts 400 and 600 were created.
+        GLEntry.SetRange("Document No.", PostedInvoiceNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+
+        GLEntry.SetRange("Dimension Set ID", DimSetID[1]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(-Amount[1], GLEntry.Amount, AmountNotMatchedErr);
+
+        GLEntry.SetRange("Dimension Set ID", DimSetID[2]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(-Amount[2], GLEntry.Amount, AmountNotMatchedErr);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6157,6 +6264,35 @@
         SalesLine.Modify(true);
     end;
 
+    local procedure CreateSalesInvoiceWithInheritFromParentAllocationAccount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; AllocationAccountNo: Code[20]; PricesInclVAT: Boolean)
+    var
+        Customer: Record Customer;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, Enum::"Tax Calculation Type"::"Normal VAT");
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Prices Including VAT", PricesInclVAT);
+        Customer.Modify(true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+            GLAccount."No.", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        SalesLine.Validate("Selected Alloc. Account No.", AllocationAccountNo);
+        SalesLine.Modify(true);
+    end;
+
     local procedure CreateAllocationAccountWithFixedDistribution(): Code[20]
     var
         AllocationAccount: Record "Allocation Account";
@@ -6183,6 +6319,30 @@
         AllocAccountDistribution."Destination Account Number" := GLAccount."No.";
         AllocAccountDistribution.Validate(Share, Shape);
         AllocAccountDistribution.Insert();
+    end;
+
+    local procedure CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo: Code[20]; Share: Decimal; DimensionValue: Record "Dimension Value") DimSetID: Integer
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        DimSetID := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
+
+        AllocAccountDistribution."Allocation Account No." := AllocationAccountNo;
+        AllocAccountDistribution."Line No." := LibraryUtility.GetNewRecNo(AllocAccountDistribution, AllocAccountDistribution.FieldNo("Line No."));
+        AllocAccountDistribution."Account Type" := AllocAccountDistribution."Account Type"::Fixed;
+        AllocAccountDistribution."Destination Account Type" := AllocAccountDistribution."Destination Account Type"::"Inherit from Parent";
+        AllocAccountDistribution.Validate(Share, Share);
+        AllocAccountDistribution.Validate("Dimension Set ID", DimSetID);
+        AllocAccountDistribution.Insert();
+    end;
+
+    local procedure CreateDimensionWithValues(var DimensionValues: array[2] of Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValues[1], Dimension.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValues[2], Dimension.Code);
     end;
 
     [ConfirmHandler]
