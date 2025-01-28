@@ -90,6 +90,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempVATEntry: Record "VAT Entry" temporary;
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        SourceCodeSetup: Record "Source Code Setup";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         DeferralUtilities: Codeunit "Deferral Utilities";
@@ -138,6 +139,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PreviewMode: Boolean;
         GLEntryInconsistent: Boolean;
         MultiplePostingGroups: Boolean;
+        SourceCodeSetupRead: Boolean;
 
         NeedsRoundingErr: Label '%1 needs to be rounded', Comment = '%1 - amount';
         PurchaseAlreadyExistsErr: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
@@ -1066,7 +1068,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             IsHandled := false;
             OnPostGLAccOnBeforeInsertGLEntry(GenJnlLine, GLEntry, IsHandled, Balancing);
             if not IsHandled then
-                InsertGLEntry(GenJnlLine, GLEntry, true);
+                if not ((GenJnlLine."Deferral Code" <> '') and (GenJnlLine.Amount = 0)) then
+                    InsertGLEntry(GenJnlLine, GLEntry, true);
             IsHandled := false;
             OnPostGLAccOnBeforePostJob(GenJnlLine, GLEntry, IsHandled, Balancing);
             if not IsHandled then
@@ -1878,6 +1881,25 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if GenJnlLine."Source Currency Code" = '' then
             exit;
 
+        GetGLSetup();
+        GetSourceCodeSetup();
+        if (GenJnlLine."Source Code" = SourceCodeSetup."Inventory Post Cost") and (AddCurrencyCode <> '') then
+            exit;
+
+        if (GenJnlLine."Source Code" = SourceCodeSetup."Exchange Rate Adjmt.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."General Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Purchase Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Sales Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Exchange Rate Adjmt.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Sales Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Purchase Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Employee Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Sales Entry Appln.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Purch. Entry Appln.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Empl. Entry Appln.")
+        then
+            exit;
+
         GLEntry."Source Currency Code" := GenJnlLine."Source Currency Code";
         case GenJnlLine."VAT Calculation Type" of
             GenJnlLine."VAT Calculation Type"::"Sales Tax":
@@ -1986,7 +2008,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if not FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then begin
             if not (GLAcc."Currency Code" in ['', GLSetup."LCY Code"]) and
                 not (GenJnlLine."Currency Code" in ['', GLSetup."LCY Code"]) and
-                not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only")
+                not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only") and
+                not IsVendorPayableAccount(GLAcc."No.")
             then
                 GLEntry."Amount (FCY)" := GenJnlLine.Amount / (1 + GenJnlLine."VAT %" / 100);
         end else
@@ -1998,7 +2021,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
 #else
         if not (GLAcc."Source Currency Code" in ['', GLSetup."LCY Code"]) and
             not (GenJnlLine."Currency Code" in ['', GLSetup."LCY Code"]) and
-            not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only")
+            not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only") and
+            not IsVendorPayableAccount(GLAcc."No.")
         then
             GLEntry."Source Currency Amount" := GenJnlLine.Amount / (1 + GenJnlLine."VAT %" / 100);
 #endif
@@ -6515,6 +6539,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
         NewGLSetup := GLSetup;
     end;
 
+    procedure GetSourceCodeSetup()
+    begin
+        if SourceCodeSetupRead then
+            exit;
+
+        SourceCodeSetup.Get();
+        SourceCodeSetupRead := true;
+    end;
+
     local procedure CheckSalesExtDocNo(GenJnlLine: Record "Gen. Journal Line")
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -7559,6 +7592,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
     procedure SetTempGLEntryBufEntryNo(NewTempGLEntryBufEntryNo: Integer)
     begin
         TempGLEntryBuf."Entry No." := NewTempGLEntryBufEntryNo;
+    end;
+
+    local procedure IsVendorPayableAccount(GLAccNo: Code[20]): Boolean
+    var
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        VendorPostingGroup.SetRange("Payables Account", GLAccNo);
+        exit(VendorPostingGroup.Count() > 0);
     end;
 
     [IntegrationEvent(true, false)]

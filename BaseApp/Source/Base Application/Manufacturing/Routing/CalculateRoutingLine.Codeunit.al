@@ -1127,7 +1127,10 @@ codeunit 99000774 "Calculate Routing Line"
                 SetMaxDateTime(
                   ProdStartingDate, ProdStartingTime, ProdOrderRoutingLine2."Ending Date", ProdOrderRoutingLine2."Ending Time");
 
-            LotSize := SendAheadLotSize;
+            if SendAheadLotSize > ProdOrderQty then
+                LotSize := ProdOrderQty
+            else
+                LotSize := SendAheadLotSize;
             RemainNeedQty := LotSize * ProdOrderRoutingLine.RunTimePer();
             OnCalculateRoutingLineForwardOnAfterCalcRemainNeedQtyForLotSize(ProdOrderRoutingLine, RemainNeedQty);
             RemainNeedQty :=
