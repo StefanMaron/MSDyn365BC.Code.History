@@ -92,6 +92,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempVATEntry: Record "VAT Entry" temporary;
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        SourceCodeSetup: Record "Source Code Setup";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         DeferralUtilities: Codeunit "Deferral Utilities";
@@ -140,6 +141,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PreviewMode: Boolean;
         GLEntryInconsistent: Boolean;
         MultiplePostingGroups: Boolean;
+        SourceCodeSetupRead: Boolean;
 
         NeedsRoundingErr: Label '%1 needs to be rounded', Comment = '%1 - amount';
         PurchaseAlreadyExistsErr: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
@@ -1051,7 +1053,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             IsHandled := false;
             OnPostGLAccOnBeforeInsertGLEntry(GenJnlLine, GLEntry, IsHandled, Balancing);
             if not IsHandled then
-                InsertGLEntry(GenJnlLine, GLEntry, true);
+                if not ((GenJnlLine."Deferral Code" <> '') and (GenJnlLine.Amount = 0)) then
+                    InsertGLEntry(GenJnlLine, GLEntry, true);
             IsHandled := false;
             OnPostGLAccOnBeforePostJob(GenJnlLine, GLEntry, IsHandled, Balancing);
             if not IsHandled then
@@ -1860,6 +1863,25 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure UpdateGLEntrySourceCurrencyFields(var GLEntry: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line")
     begin
         if GenJnlLine."Source Currency Code" = '' then
+            exit;
+
+        GetGLSetup();
+        GetSourceCodeSetup();
+        if (GenJnlLine."Source Code" = SourceCodeSetup."Inventory Post Cost") and (AddCurrencyCode <> '') then
+            exit;
+
+        if (GenJnlLine."Source Code" = SourceCodeSetup."Exchange Rate Adjmt.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."General Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Purchase Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Sales Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Exchange Rate Adjmt.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Sales Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Purchase Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Employee Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Sales Entry Appln.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Purch. Entry Appln.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Empl. Entry Appln.")
+        then
             exit;
 
         GLEntry."Source Currency Code" := GenJnlLine."Source Currency Code";
@@ -6449,6 +6471,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure ReadGLSetup(var NewGLSetup: Record "General Ledger Setup")
     begin
         NewGLSetup := GLSetup;
+    end;
+
+    procedure GetSourceCodeSetup()
+    begin
+        if SourceCodeSetupRead then
+            exit;
+
+        SourceCodeSetup.Get();
+        SourceCodeSetupRead := true;
     end;
 
     local procedure CheckSalesExtDocNo(GenJnlLine: Record "Gen. Journal Line")
