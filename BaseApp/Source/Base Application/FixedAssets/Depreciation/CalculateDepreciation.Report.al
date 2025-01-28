@@ -351,6 +351,8 @@ report 5692 "Calculate Depreciation"
     begin
         ActivateErrorMessageHandling("Fixed Asset");
 
+        GeneralLedgerSetup.Get();
+
         DeprBook.Get(DeprBookCode);
         if DeprUntilDate = 0D then
             Error(Text000, FAJnlLine.FieldCaption("FA Posting Date"));
