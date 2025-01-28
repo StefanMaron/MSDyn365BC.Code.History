@@ -118,6 +118,7 @@ codeunit 136101 "Service Orders"
         RoundingBalanceErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
         UnitCostErr: Label 'Unit Cost are Not equal.';
         AvailableExpectedQuantityErr: Label 'Available expected quantity must be %1.', Comment = '%1=Value';
+        VATCountryRegionLbl: Label 'VAT Country/Region Code must be %1', Comment = '%1 = Country/Region Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -5392,6 +5393,40 @@ codeunit 136101 "Service Orders"
 
         // [THEN] Error is shown and the Service Order is not released.
         asserterror LibraryService.ReleaseServiceDocument(ServiceHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    procedure VATCountryRegionCodeHasValueWhenBilltoSelltoVATCalcIsSelltoBuyfromNo()
+    var
+        CountryRegion: array[2] of Record "Country/Region";
+        Customer: array[2] of Record Customer;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ServiceHeader: Record "Service Header";
+    begin
+        // [SCENARIO 560573] "VAT Country/Region Code" is populated when Bill-to/Sell-to VAT Calc. field on the General Ledger Setup
+        // is set to Sell-to/Buy-from No.
+        Initialize();
+
+        // [GIVEN] Set GeneralLedgerSetup "Bill-to/Sell-to VAT Calc." to "Sell-to/Buy-from No.";
+        LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+
+        // [GIVEN] Create two Customers with different Country/Region codes.
+        CreateCustomerWithCountryRegion(CountryRegion[1], Customer[1]);
+        CreateCustomerWithCountryRegion(CountryRegion[2], Customer[2]);
+
+        // [GIVEN] Create a Service Order for the first Customer.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer[1]."No.");
+
+        // [GIVEN] "VAT Country/Region Code" on a Service Header is equals to first Customer Country/Region code.
+        Assert.AreEqual(Customer[1]."Country/Region Code", ServiceHeader."VAT Country/Region Code", VATCountryRegionLbl);
+
+        // [WHEN] Change to second Customer No.
+        ServiceHeader.Validate("Customer No.", Customer[2]."No.");
+        ServiceHeader.Modify(true);
+
+        // [THEN] "VAT Country/Region Code" on a Service Header is equals to second Customer Country/Region code.
+        Assert.AreEqual(Customer[2]."Country/Region Code", ServiceHeader."VAT Country/Region Code", VATCountryRegionLbl);
     end;
 
     [ConfirmHandler]

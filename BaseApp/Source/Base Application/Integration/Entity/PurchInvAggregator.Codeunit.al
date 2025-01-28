@@ -769,7 +769,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         if not PurchInvEntityAggregate.Get(PurchaseLine."Document No.", false) then
             exit;
 
-        if not PurchaseLine."Recalculate Invoice Disc." then
+        if (not PurchaseLine."Recalculate Invoice Disc.") and (PurchaseLine.Type = PurchaseLine.Type::Item) then
             exit;
 
         AssignTotalsFromPurchaseLine(PurchaseLine, PurchInvEntityAggregate, PurchaseHeader);

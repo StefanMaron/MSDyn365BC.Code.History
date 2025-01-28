@@ -75,7 +75,6 @@ codeunit 6 "Fiscal Year-Close"
     begin
     end;
 
-    [Scope('OnPrem')]
     procedure SetHidePrintDialog(NewHidePrintDialog: Boolean)
     begin
         HidePrintDialog := NewHidePrintDialog;

@@ -31,6 +31,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         CheckBillSituationPostedOrderErr: Label '%1 cannot be applied because it is included in a posted payment order.', Comment = '%1 - document type and number';
         PostDocumentAppliedToBillInGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/1 from Group/Pmt. Order %2 and try again.';
         DocumentNoMustBeBlankErr: Label 'Document No. must be blank.';
+        UnbalancedGLAccountErr: Label 'G/L Account %1 is not balanced', Comment = '%1 = G/L Account No.';
 
     [Test]
     [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandlerYes,MessageVerifyHandler')]
@@ -1891,6 +1892,53 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.AreNotEqual(DocumentNo, Format(PaymentOrders.Docs."Document No."), DocumentNoMustBeBlankErr);
     end;
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,SettleDocsInPostedPOModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure GLShouldBalancedOnSettlingPaymentOrderWithExchangeRateDifference()
+    var
+        Currency: Record Currency;
+        PaymentOrder: Record "Payment Order";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        POPostAndPrint: Codeunit "BG/PO-Post and Print";
+        DocumentNo: Code[20];
+        CurrencyExchRate: array[2] of Decimal;
+        PostingDate: array[2] of Date;
+        DocumentNoFilter: Text[100];
+    begin
+        // [SCENARIO 557342] On settling the Payment Order in foreign currency with different exchange rates, the amount posted in the G/L Account should be balanced.
+        Initialize();
+
+        // [GIVEN] Create a Currency with "Payment Order" enabled.
+        Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(false, false, true));
+
+        // [GIVEN] Set CurrencyExchRate and PostingDate.
+        SetDateAndCurrencyExchangefactor(CurrencyExchRate, PostingDate);
+
+        // [GIVEN] Set two exchange rate for the Currency.
+        LibraryERM.CreateExchangeRate(Currency.Code, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
+        LibraryERM.CreateExchangeRate(Currency.Code, PostingDate[2], CurrencyExchRate[2], CurrencyExchRate[2]);
+
+        // [GIVEN] Create Vendor, Vendor Posting Group, Payment Method and Bank Account.
+        CreateCarteraVendorAndRelatedRecord(Vendor, Currency.Code);
+
+        // [GIVEN] Create and post a Purchase Invoice on "Posting Date" = PostingDate[1].
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create and post Payment Order on "Posting Date" = PostingDate[2].
+        CreatePaymentOrderAndAddDocument(PaymentOrder, Currency.Code, PostingDate[2], DocumentNo);
+        POPostAndPrint.PayablePostOnly(PaymentOrder);
+
+        // [WHEN] Run the Total Settlement on "Posting Date" = PostingDate[2].
+        TotalSettlementOnItemInPostedPaymentOrder(PaymentOrder."No.", DocumentNo);
+
+        // [THEN] Verify the Amount posted in Payable Accounts are balanced.
+        DocumentNoFilter := DocumentNo + '|' + PaymentOrder."No.";
+        VerifyGLIsBalanced(Vendor."Vendor Posting Group", DocumentNoFilter);
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -2455,6 +2503,37 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<+1M>', WorkDate()), 1 / (CurrExchRateAmount + 20), 1 / (CurrExchRateAmount + 20));
         LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<+2M>', WorkDate()), 1 / (CurrExchRateAmount + 40), 1 / (CurrExchRateAmount + 40));
         exit(Currency.Code);
+    end;
+
+    local procedure SetDateAndCurrencyExchangefactor(var ExchRate: array[2] of Decimal; var PostDate: array[2] of Date)
+    begin
+        ExchRate[1] := 1.0943;
+        ExchRate[2] := 1.0958;
+        PostDate[1] := WorkDate();
+        PostDate[2] := CalcDate('<2M>', WorkDate());
+    end;
+
+    local procedure CreateCarteraVendorAndRelatedRecord(var Vendor: Record Vendor; CurrencyCode: Code[10])
+    begin
+        LibraryCarteraPayables.CreateCarteraVendorUseInvoicesToCarteraPayment(Vendor, CurrencyCode);
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, CurrencyCode);
+    end;
+
+    local procedure VerifyGLIsBalanced(VendorPostingGroupCode: Code[20]; DocumentNoFilter: Text[100])
+    var
+        GLEntry: Record "G/L Entry";
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        VendorPostingGroup.Get(VendorPostingGroupCode);
+        GLEntry.SetRange("Document No.", DocumentNoFilter);
+
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payables Account");
+        GLEntry.CalcSums(Amount);
+        Assert.AreEqual(0, GLEntry.Amount, StrSubstNo(UnbalancedGLAccountErr, GLEntry."G/L Account No."));
+
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Invoices in  Pmt. Ord. Acc.");
+        GLEntry.CalcSums(Amount);
+        Assert.AreEqual(0, GLEntry.Amount, StrSubstNo(UnbalancedGLAccountErr, GLEntry."G/L Account No."));
     end;
 
 #if not CLEAN23

@@ -966,15 +966,18 @@ codeunit 7000006 "Document-Post"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedPaymentOrder: Record "Posted Payment Order";
         CurrExchRate: Record "Currency Exchange Rate";
+        PaymentMethod: Record "Payment Method";
         CurrFact: Decimal;
     begin
         if PurchInvHeader.Get(PostedCarteraDoc."Document No.") then
             if PurchInvHeader."Currency Factor" <> 0 then begin
                 if PostedPaymentOrder.Get(PostedCarteraDoc."Bill Gr./Pmt. Order No.") then;
+                if PaymentMethod.Get(PostedCarteraDoc."Payment Method Code") then;
                 CurrFact := CurrExchRate.ExchangeRate(PostedPaymentOrder."Posting Date", PostedCarteraDoc."Currency Code");
                 if CurrFact <> PurchInvHeader."Currency Factor" then
-                    DocAmountLCY :=
-                      GetCorrectAmounts(CollDocAmountLCY, AppliedAmountLCY, CurrFact, PurchInvHeader."Currency Factor", PostedCarteraDoc);
+                    if not PaymentMethod."Invoices to Cartera" then
+                        DocAmountLCY :=
+                          GetCorrectAmounts(CollDocAmountLCY, AppliedAmountLCY, CurrFact, PurchInvHeader."Currency Factor", PostedCarteraDoc);
             end;
     end;
 

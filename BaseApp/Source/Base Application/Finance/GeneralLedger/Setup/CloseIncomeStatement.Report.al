@@ -764,7 +764,6 @@ report 94 "Close Income Statement"
             until BalLineBuffer.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure InitializeRequest(EndDateReq2: Date; GenJnlTemplate2: Code[10]; GenJnlBatchName2: Code[10]; DocNo2: Code[10]; PostingDescription2: Text[50]; ClosePerBusUnit2: Boolean; ClosePerDept2: Boolean; ClosePerProj2: Boolean; RetainedAccNo: Code[20])
     begin
         EndDateReq := EndDateReq2;

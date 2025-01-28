@@ -65,6 +65,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         VATIdentifierSalesLineCap: Label 'VATIdentifier_SalesLine';
         DiscAccountGLEntryCreatedErr: Label 'G/L Entry with Sales Line Disc. Account should not be created.';
         TotalFromSevPrepmtAmtErr: Label 'Total amount from several prepayments must be equal to original document amount';
+        CountryCodeLbl: Label '%1 must be %2', Comment = '%1 Field ,%2 = Expected Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -834,6 +835,66 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         VerifyTotalECAmountInStandardSalesInvoiceReport(ExpectedECAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure VATCountryRegionUpdatedIfCustomerIsChangedInSalesDocumentWhenGLSetupBilltoSellIsSellTo()
+    var
+        Customer: array[2] of Record Customer;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesHeader: Record "Sales Header";
+        DocumentType: Enum "Sales Document Type";
+    begin
+        // [SCENARIO 549137] VAT Country/Region Code is updated if Sell-to Customer No. is changed in a Sales document.
+        Initialize();
+
+        // [GIVEN] Update "Bill-to/Sell-to VAT Calc." in General Ledger Setup.
+        SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+
+        // [GIVEN] Create Two Customers.
+        Customer[1].Get(LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo());
+        Customer[2].Get(LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo());
+
+        // [GIVEN] Create Sales Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType::Invoice, Customer[1]."No.");
+
+        // [WHEN] Change Validate "Sell-to Customer No." with another customer.
+        SalesHeader.Validate("Sell-to Customer No.", Customer[2]."No.");
+
+        // [THEN] Verify Fields "VAT Country/Region Code","Bill-to Country/Region Code","Sell-to Country/Region Code","Ship-to Country/Region Code"
+        VerifyCountryCodes(Customer[2], SalesHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure VATCountryRegionUpdatedIfCustomerIsChangedInSalesDocumentWhenGLSetupBilltoSellIsBillTo()
+    var
+        Customer: array[2] of Record Customer;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesHeader: Record "Sales Header";
+        DocumentType: Enum "Sales Document Type";
+    begin
+        // [SCENARIO 549137] VAT Country/Region Code is updated if Sell-to Customer No. is changed in a Sales document.
+        Initialize();
+
+        // [GIVEN] Update "Bill-to/Sell-to VAT Calc." in General Ledger Setup.
+        SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
+
+        // [GIVEN] Create Two Customers.
+        Customer[1].Get(LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo());
+        Customer[2].Get(LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo());
+
+        // [GIVEN] Create Sales Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType::Invoice, Customer[1]."No.");
+
+        // [WHEN] Change Validate "Sell-to Customer No." with another customer.
+        SalesHeader.Validate("Sell-to Customer No.", Customer[2]."No.");
+
+        // [THEN] Verify Fields "VAT Country/Region Code","Bill-to Country/Region Code","Sell-to Country/Region Code","Ship-to Country/Region Code"
+        VerifyCountryCodes(Customer[2], SalesHeader);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1274,6 +1335,35 @@ SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalECAmount', ExpectedECAmount)
     end;
 
+    local procedure VerifyCountryCodes(Customer: Record Customer; SalesHeader: Record "Sales Header")
+    begin
+        Assert.AreEqual(
+            Customer."Country/Region Code",
+            SalesHeader."VAT Country/Region Code",
+            StrSubstNo(CountryCodeLbl, SalesHeader.FieldCaption("VAT Country/Region Code"), Customer."Country/Region Code"));
+        Assert.AreEqual(
+            Customer."Country/Region Code",
+            SalesHeader."Bill-to Country/Region Code",
+            StrSubstNo(CountryCodeLbl, SalesHeader.FieldCaption("Bill-to Country/Region Code"), Customer."Country/Region Code"));
+        Assert.AreEqual(
+            Customer."Country/Region Code",
+            SalesHeader."Sell-to Country/Region Code",
+            StrSubstNo(CountryCodeLbl, SalesHeader.FieldCaption("Sell-to Country/Region Code"), Customer."Country/Region Code"));
+        Assert.AreEqual(
+            Customer."Country/Region Code",
+            SalesHeader."Ship-to Country/Region Code",
+            StrSubstNo(CountryCodeLbl, SalesHeader.FieldCaption("Ship-to Country/Region Code"), Customer."Country/Region Code"));
+    end;
+
+    local procedure SetBillToSellToVATCalcInGenLedgSetup(NewBillToSellToVATCalcType: Enum "G/L Setup VAT Calculation")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", NewBillToSellToVATCalcType);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsModalPageHandler(var SalesStatistics: TestPage "Sales Statistics")
@@ -1313,6 +1403,13 @@ SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
     procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [MessageHandler]

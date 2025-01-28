@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Address;
 
 report 12 "VAT Statement"
 {
@@ -244,6 +245,27 @@ report 12 "VAT Statement"
                         Caption = 'Amounts in add. Curr.';
                         ToolTip = 'Specifies if you want report amounts to be shown in the additional reporting currency.';
                     }
+                    field("Country/Region Filter"; CountryRegionFilter)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Country/Region Filter';
+                        ToolTip = 'Specifies the country/region to filter the VAT entries.';
+                        Importance = Additional;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            CountryRegion: Record "Country/Region";
+                            CountriesRegions: Page "Countries/Regions";
+                        begin
+                            CountriesRegions.LookupMode(true);
+                            if CountriesRegions.RunModal() = Action::LookupOK then begin
+                                CountriesRegions.GetRecord(CountryRegion);
+                                CountryRegionFilter := CountryRegion.Code;
+                                exit(true);
+                            end;
+                            exit(false);
+                        end;
+                    }
                 }
             }
         }
@@ -341,7 +363,7 @@ report 12 "VAT Statement"
         Selection: Enum "VAT Statement Report Selection";
         TotalAmount: Decimal;
         UseAmtsInAddCurr: Boolean;
-        CountryRegionFilter: Text[250];
+        CountryRegionFilter: Text;
 
     [Scope('OnPrem')]
     procedure CalcLineTotal2C(VATStmtLine2: Record "VAT Statement Line"; Level: Integer): Boolean
@@ -631,7 +653,7 @@ report 12 "VAT Statement"
         InitializeRequest(NewVATStmtName, NewVATStatementLine, NewSelection, NewPeriodSelection, NewPrintInIntegers, NewUseAmtsInAddCurr, '');
     end;
 
-    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewCountryRegionFilter: Text[250])
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewCountryRegionFilter: Text)
     begin
         "VAT Statement Name".Copy(NewVATStmtName);
         "VAT Statement Line".Copy(NewVATStatementLine);
@@ -756,6 +778,7 @@ report 12 "VAT Statement"
             else
                 VATEntry.SetRange(Closed);
         end;
+        OnCalcLineFromVATEntry1COnAfterVATEntrySetFilters(VATStatementLine, VATEntry);
         if VATEntry.FindFirst() then;
         case VATStatementLine."Amount Type" of
             VATStatementLine."Amount Type"::Amount:
@@ -881,6 +904,11 @@ report 12 "VAT Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAmtRoundingDirection(var Direction: Text[1]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineFromVATEntry1COnAfterVATEntrySetFilters(VATStatementLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry")
     begin
     end;
 }

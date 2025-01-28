@@ -22,10 +22,12 @@ codeunit 132522 "Sales-Calc. Discount Test"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryERM: Codeunit "Library - ERM";
         Initialized: Boolean;
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
         LineDscPctErr: Label 'Wrong value of Line Discount %.';
         LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit price instead.';
+        InvDscPctErr: Label 'Wrong value of Invoice Discount %.';
 
     local procedure Initialize()
     var
@@ -301,6 +303,45 @@ codeunit 132522 "Sales-Calc. Discount Test"
         Assert.ExpectedError(LineAmountInvalidErr);
     end;
 
+    [Test]
+    procedure InvDiscPerShowCorrectValueAfterAddingLineDiscount()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+        InvoiceDiscPer: Decimal;
+    begin
+        // [SCENARIO 560958] Invoice discount percentage shows correct value after adding a line discount.
+        Initialize();
+
+        // [GIVEN] Enable invoice discount calculation on "Sales & Receivables Setup".
+        LibrarySales.SetCalcInvDiscount(true);
+
+        // [GIVEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Generate invoice discount percentage.
+        InvoiceDiscPer := CreateCustomerInvDiscount(Customer."No.");
+
+        // [GIVEN] Create Item.
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Create Sales Order.    
+        CreateSalesOrder(SalesHeader, Customer."No.", ItemNo);
+
+        // [GIVEN] Calculate discount.
+        LibrarySales.CalcSalesDiscount(SalesHeader);
+
+        // [GIVEN] Update line discount percentage in Sales Line.
+        FindSalesLine(SalesHeader, SalesLine, ItemNo);
+        UpdateSalesLineByField(SalesLine, SalesLine.FieldNo("Line Discount %"), LibraryRandom.RandInt(5));
+
+        // [THEN] Verify invoice discount percentage does not change after calculation of Line Discount.
+        SalesHeader.Find();
+        Assert.AreEqual(InvoiceDiscPer, SalesHeader."Invoice Discount Value", InvDscPctErr);
+    end;
+
     local procedure DiscountTest(DiscCurrencyCode: Code[10]; SOCurrencyCode: Code[10]; QuantityDelta: Integer)
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
@@ -478,6 +519,49 @@ codeunit 132522 "Sales-Calc. Discount Test"
         exit('CUST. INVOICE DISC.: Currency=' + CustInvoiceDisc."Currency Code" +
               ', Minimum Amount=' + Format(CustInvoiceDisc."Minimum Amount") +
               ', Discount=' + Format(CustInvoiceDisc."Discount %"))
+    end;
+
+    local procedure CreateCustomerInvDiscount(CustomerNo: Code[20]): Decimal
+    var
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+    begin
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CustomerNo, '', 0);  // Set Zero for Charge Amount.
+        CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandDecInRange(10, 20, 2));  // Take Random Discount.
+        CustInvoiceDisc.Modify(true);
+        exit(CustInvoiceDisc."Discount %");
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        UnitPrice: Decimal;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        UnitPrice := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(0));
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure FindSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20])
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetRange("No.", ItemNo);
+        SalesLine.FindFirst();
+    end;
+
+    local procedure UpdateSalesLineByField(var SalesLine: Record "Sales Line"; FieldNo: Integer; Val: Variant)
+    var
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        RecRef.GetTable(SalesLine);
+        FieldRef := RecRef.Field(FieldNo);
+        FieldRef.Validate(Val);
+        RecRef.SetTable(SalesLine);
+        SalesLine.Modify(true);
     end;
 }
 

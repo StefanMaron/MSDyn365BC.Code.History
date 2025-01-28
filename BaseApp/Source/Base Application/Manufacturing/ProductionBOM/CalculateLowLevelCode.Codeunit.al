@@ -36,10 +36,8 @@ codeunit 99000793 "Calculate Low-Level Code"
     procedure CalcLevels(Type: Option " ",Item,"Production BOM",Assembly; No: Code[20]; Level: Integer; LevelDepth: Integer) Result: Integer
     var
         Item2: Record Item;
-        ProdBOMHeader: Record "Production BOM Header";
         ProdBOMLine: Record "Production BOM Line";
         AsmBOMComp: Record "BOM Component";
-        ProductionBOMVersion: Record "Production BOM Version";
         ActLevel: Integer;
         TotalLevels: Integer;
         CalculateDeeperLevel: Boolean;
@@ -94,21 +92,11 @@ codeunit 99000793 "Calculate Low-Level Code"
         ProdBOMLine.SetRange("No.", No);
         if ProdBOMLine.FindSet() then
             repeat
-                if ProdBOMHeader.Get(ProdBOMLine."Production BOM No.") then begin
-                    if ProdBOMHeader."No." = ActualProdBOM."No." then
-                        Error(ProdBomErr, 50, Item."No.", No, Level);
-
-                    if ProdBOMLine."Version Code" <> '' then begin
-                        ProductionBOMVersion.Get(ProdBOMLine."Production BOM No.", ProdBOMLine."Version Code");
-                        CalculateDeeperLevel := ProductionBOMVersion.Status = ProductionBOMVersion.Status::Certified;
-                    end else
-                        CalculateDeeperLevel := ProdBOMHeader.Status = ProdBOMHeader.Status::Certified;
-
-                    if CalculateDeeperLevel then begin
-                        ActLevel := CalcLevels(Type::"Production BOM", ProdBOMLine."Production BOM No.", Level, LevelDepth + 1);
-                        if ActLevel > TotalLevels then
-                            TotalLevels := ActLevel;
-                    end;
+                CalculateDeeperLevel := CalcDeeperLevel(ProdBOMLine, No, Level);
+                if CalculateDeeperLevel then begin
+                    ActLevel := CalcLevels(Type::"Production BOM", ProdBOMLine."Production BOM No.", Level, LevelDepth + 1);
+                    if ActLevel > TotalLevels then
+                        TotalLevels := ActLevel;
                 end;
             until ProdBOMLine.Next() = 0;
 
@@ -241,6 +229,32 @@ codeunit 99000793 "Calculate Low-Level Code"
     procedure SetActualProdBOM(ActualProdBOM2: Record "Production BOM Header")
     begin
         ActualProdBOM := ActualProdBOM2;
+    end;
+
+    local procedure CalcDeeperLevel(ProdBOMLine: Record "Production BOM Line"; No: Code[20]; Level: Integer): Boolean
+    var
+        ProdBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+    begin
+        ProdBOMHeader.SetLoadFields(Status);
+        if not ProdBOMHeader.Get(ProdBOMLine."Production BOM No.") then
+            exit(false);
+
+        if ProdBOMLine."Version Code" <> '' then begin
+            ProductionBOMVersion.SetLoadFields(Status);
+            ProductionBOMVersion.Get(ProdBOMLine."Production BOM No.", ProdBOMLine."Version Code");
+
+            if ProductionBOMVersion.Status = ProductionBOMVersion.Status::Closed then
+                exit(false);
+        end;
+
+        if ProdBOMHeader."No." = ActualProdBOM."No." then
+            Error(ProdBomErr, 50, Item."No.", No, Level);
+
+        if ProdBOMLine."Version Code" <> '' then
+            exit(ProductionBOMVersion.Status = ProductionBOMVersion.Status::Certified)
+        else
+            exit(ProdBOMHeader.Status = ProdBOMHeader.Status::Certified);
     end;
 
     [IntegrationEvent(false, false)]

@@ -653,6 +653,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Payment Basic Scenario - NamedType SuccessfulBillRedrawMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1376994288 - NamedType 595380194" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Account %1 is not balanced]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L Account No.]D;]A;(LookupHint=Codeunit Cartera Payment Basic Scenario - NamedType UnbalancedGLAccountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 693493174 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3 %4 %5.]]></Val>
@@ -2991,6 +3000,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType BillToCustomerNoCap)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 607156453 - NamedType 156853089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 Field ,%2 = Expected Value]D;]A;(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType CountryCodeLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 607156453 - NamedType 2105556322" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

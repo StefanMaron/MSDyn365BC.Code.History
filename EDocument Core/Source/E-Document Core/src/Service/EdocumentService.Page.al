@@ -33,11 +33,6 @@ page 6133 "E-Document Service"
                 field("Export Format"; Rec."Document Format")
                 {
                     ToolTip = 'Specifies the export format of the electronic export setup.';
-
-                    trigger OnValidate()
-                    begin
-                        CurrPage.Update(false);
-                    end;
                 }
                 field("Service Integration"; Rec."Service Integration")
                 {

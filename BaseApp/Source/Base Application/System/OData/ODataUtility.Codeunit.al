@@ -346,7 +346,6 @@ codeunit 6710 ODataUtility
     var
         Company: Record Company;
         TenantWebService: Record "Tenant Web Service";
-        MediaResources: Record "Media Resources";
         FileManagement: Codeunit "File Management";
         AzureADTenant: Codeunit "Azure AD Tenant";
         TempBlob: Codeunit "Temp Blob";
@@ -369,11 +368,8 @@ codeunit 6710 ODataUtility
             HostName := CopyStr(HostName, 1, StrPos(HostName, '?') - 1);
 
         TempFileName := ServiceNameParm + '.xltm';
-        if not MediaResources.Get(TempFileName) then
-            exit;
 
-        MediaResources.CalcFields(Blob);
-        MediaResources.Blob.CreateInStream(NvInStream);
+        NavApp.GetResource('ExcelTemplates\' + TempFileName, NvInStream);
 
         TempBlob.CreateOutStream(NvOutStream);
         CopyStream(NvOutStream, NvInStream);
