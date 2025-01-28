@@ -270,6 +270,10 @@ report 1201 "Post Direct Debit Collection"
                 GenJnlLine."Document No." := NoSeries.GetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date");
                 GenJournalTemplate.Get(GeneralJournalTemplateName);
                 GenJnlLine."Source Code" := GenJournalTemplate."Source Code";
+                if GenJnlBatch."Posting No. Series" <> '' then
+                    GenJnlLine."Posting No. Series" := GenJnlBatch."Posting No. Series"
+                else
+                    GenJnlLine."Posting No. Series" := GenJnlBatch."No. Series";
             end;
 
         GenJnlLine.SetSuppressCommit(true);

@@ -221,7 +221,7 @@ report 10181 "Vendor 1099 Div 2022"
                 FormatCompanyAddress(CompanyAddress, CompanyInfo, TestPrintSwitch);
                 // Initialize flag used for Test Printing only
                 FirstVendor := true;
-                YearDigits := CopyStr(Format(YearValue), 3, 2);
+                YearDigits := Format(YearValue);
             end;
         }
     }

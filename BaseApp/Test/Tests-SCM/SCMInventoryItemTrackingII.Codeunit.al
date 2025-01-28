@@ -44,6 +44,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
         InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.', Comment = '%1 = Item Tracking ID, %2 = Item Tracking No."';
         CloseItemTrackingLinesWithQtyZeroConfirmErr: Label 'One or more lines have tracking specified';
+        ReservationIsNotCreatedForSOErr: Label 'Reservation is not created for Sales Order: %1', Comment = '%1 = Sales Order No.';
         CreateSNInfo: Boolean;
 
     [Test]
@@ -2329,6 +2330,90 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ConfirmHandlerTrue,ProductionJournalPageHandler,MessageHandler')]
+    procedure VerifyConsumptionAppliedToUnreservedItemLedgerEntry()
+    var
+        Bins: array[4] of record Bin;
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+        WhseActivityline: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        LotNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 557020] Consumption should not apply to already reserved Item Ledger Entry from other demands.
+        Initialize();
+
+        // [GIVEN] Create a LOT tracked Item.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create a Whse Location and setup the Bins in the Location.
+        CreateWhseLocationWithBins(Location, Bins);
+
+        // [GIVEN] Initialize the LotNo and Quantity.
+        LotNo := LibraryUtility.GenerateGUID();
+        Quantity := 1;
+
+        // [GIVEN] Create the Inventory Posting Setup for the Location.
+        LibraryInventory.UpdateInventoryPostingSetup(Location);
+
+        // [GIVEN] Create and Post two Positive Adjustment Journal at Bin[1] of Location with Quantity = 1 and "Lot No" = LotNo.      
+        CreateAndPostTwoLinePositiveAdjustmentJnlwithLotNo(Location.Code, Bins[1].Code, Item."No.", Quantity, LotNo);
+
+        // [GIVEN] Create a Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create a Sales Order, then create the Warehouse Shipment from the Sales Order.
+        CreateSalesOrderAndWareshouseShipment(SalesHeader, Item."No.", Location.Code, Quantity);
+
+        // [WHEN] Create and Register the Warehouse Pick.
+        CreateAndRegisterPickFromWareshouseShipment(SalesHeader."No.", LotNo, '', Quantity);
+
+        // [THEN] Quantity = 1 will be reserve for the Sales Order from the first Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Reserved Quantity");
+        Assert.AreEqual(Quantity, ItemLedgerEntry."Reserved Quantity", StrSubstNo(ReservationIsNotcreatedForSOErr, SalesHeader."No."));
+
+        // [GIVEN] Create and refresh a Released Production Order.
+        CreateAndRefreshProductionOrderOnLocation(ProductionOrder, Location.Code, Item."No.", Quantity);
+
+        // [GIVEN] Create a Prod. Order Component using same Item and "Quantity Per" = 1.
+        CreateProdOrderComponent(ProductionOrder, ProdOrderLine, Item."No.", Location.Code);
+
+        // [GIVEN] Create a Warehouse Pick from Production Order.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+
+        // [GIVEN] Update the "Lot No." and register the Warehouse Pick.
+        WhseActivityline.SetRange("Source No.", ProductionOrder."No.");
+        if WhseActivityline.FindSet() then
+            WhseActivityline.ModifyAll("Lot No.", LotNo, true);
+        WhseActivityHeader.Get(WhseActivityline."Activity Type", WhseActivityline."No.");
+        LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
+
+        // [WHEN] Create and post the Production Journal with LotNo.
+        CreateAndPostProductionJnlWithLotNo(ProductionOrder, ProdOrderLine."Line No.", LotNo);
+
+        // [THEN] Verify that the consumption is applied to second Item Ledger Entry as first Item Ledger Entry is reserved for Sales Order.
+        // So there should be one open Item Ledger Entry with "Reserved Quantity" > 0.
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Positive Adjmt.");
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.SetRange(Open, true);
+        ItemLedgerEntry.SetFilter("Reserved Quantity", '<>%1', 0);
+        Assert.RecordCount(ItemLedgerEntry, 1);
+
+        // [WHEN] Posting the Warehouse Shipment.
+        PostWarehouseShipmentFromSalesOrder(SalesHeader);
+
+        // [THEN] Verified as no error occurred.
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -3570,6 +3655,97 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreateWhseLocationWithBins(var Location: Record Location; var Bin: array[4] of record Bin)
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[4], Location.Code, '', '', '');
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Validate("Shipment Bin Code", Bin[2].Code);
+        Location.Validate("Receipt Bin Code", Bin[3].Code);
+        Location.Validate("To-Production Bin Code", Bin[4].Code);
+        Location.Modify(true);
+    end;
+
+    local procedure CreatePositiveAdjmtLocationAndBin(
+        ItemJnlTemplateName: Code[10]; ItemJnlBatchName: Code[10]; LocationCode: Code[10];
+        BinCode: Code[20]; ItemNo: Code[20]; ItemQty: Integer; LotNo: Code[20])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJnlTemplateName, ItemJnlBatchName,
+            ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, ItemQty);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine."Bin Code" := BinCode;
+        ItemJournalLine.Validate("Lot No.", LotNo);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostTwoLinePositiveAdjustmentJnlwithLotNo(
+        LocationCode: Code[10];
+        BinCode: Code[20];
+        ItemNo: Code[20];
+        Quantity: Decimal;
+        LotNo: Code[20])
+    var
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalTemplate(ItemJnlTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJnlBatch, ItemJnlTemplate.Name);
+
+        CreatePositiveAdjmtLocationAndBin(ItemJnlTemplate.Name, ItemJnlBatch.Name, LocationCode, BinCode, ItemNo, Quantity, LotNo);
+        CreatePositiveAdjmtLocationAndBin(ItemJnlTemplate.Name, ItemJnlBatch.Name, LocationCode, BinCode, ItemNo, Quantity, LotNo);
+
+        ItemJournalLine.SetRange("Journal Template Name", ItemJnlTemplate.Name);
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJnlBatch.Name);
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        if ItemJournalLine.FindSet() then
+            repeat
+                LibraryVariableStorage.Enqueue(TrackingOption::EditValue);
+                LibraryVariableStorage.Enqueue(LotNo);
+                ItemJournalLine.OpenItemTrackingLines(false);
+            until ItemJournalLine.Next() = 0;
+
+        LibraryInventory.PostItemJournalLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name);
+    end;
+
+    local procedure CreateAndPostProductionJnlWithLotNo(ProductionOrder: Record "Production Order"; ProdOrderLineNo: Integer; LotNo: Code[20])
+    var
+        ReleaseProdOrder: TestPage "Released Production Order";
+    begin
+        LibraryVariableStorage.Enqueue(TrackingOption::EditValue);
+        LibraryVariableStorage.Enqueue(LotNo);
+
+        ReleaseProdOrder.OpenView();
+        ReleaseProdOrder.GoToRecord(ProductionOrder);
+        ReleaseProdOrder.ProdOrderLines.Filter.SetFilter("Line No.", Format(ProdOrderLineNo));
+        ReleaseProdOrder.ProdOrderLines.ProductionJournal.Invoke();
+    end;
+
+    local procedure CreateProdOrderComponent(
+        var ProductionOrder: Record "Production Order";
+        var ProdOrderLine: Record "Prod. Order Line";
+        ItemNo: Code[20];
+        LocationCode: Code[20])
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        FindProdOrderLine(ProdOrderLine, ProductionOrder);
+        LibraryManufacturing.CreateProductionOrderComponent(
+            ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", ItemNo);
+        ProdOrderComponent.Validate("Quantity per", 1);
+        ProdOrderComponent.Validate("Location Code", LocationCode);
+        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
+        ProdOrderComponent.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -4095,6 +4271,15 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Next();
+        ProductionJournal.ItemTrackingLines.Invoke();
+        ProductionJournal.Post.Invoke();
     end;
 }
 
