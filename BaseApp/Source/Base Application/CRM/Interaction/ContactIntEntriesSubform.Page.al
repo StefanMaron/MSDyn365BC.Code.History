@@ -8,7 +8,8 @@ page 5073 "Contact Int. Entries Subform"
     PageType = ListPart;
     SourceTable = "Interaction Log Entry";
     SourceTableView = sorting("Entry No.")
-                      order(descending);
+                      order(descending)
+                      where("Contact No." = filter(<> ''));
 
     layout
     {

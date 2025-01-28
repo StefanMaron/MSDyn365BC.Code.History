@@ -162,6 +162,7 @@ codeunit 2 "Company-Initialize"
         Text005: Label 'DELETE';
         Text006: Label 'INVTPCOST';
         Text007: Label 'EXCHRATADJ';
+        Text008: Label 'GLCURREVAL';
         Text010: Label 'CLSINCOME';
         Text011: Label 'CONSOLID';
         Text012: Label 'Consolidation';
@@ -465,6 +466,7 @@ codeunit 2 "Company-Initialize"
 #else
             InsertSourceCode(SourceCodeSetup."Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Exch. Rate Adjustment"));
 #endif
+            InsertSourceCode(SourceCodeSetup."G/L Currency Revaluation", Text008, ReportName(REPORT::"G/L Currency Revaluation"));
             InsertSourceCode(SourceCodeSetup."Close Income Statement", Text010, ReportName(REPORT::"Close Income Statement"));
             InsertSourceCode(SourceCodeSetup.Consolidation, Text011, Text012);
             InsertSourceCode(SourceCodeSetup."General Journal", Text013, PageName(PAGE::"General Journal"));
