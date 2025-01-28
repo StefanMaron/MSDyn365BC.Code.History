@@ -88,7 +88,7 @@ table 742 "VAT Statement Report Line"
         VATReportSetup: Record "VAT Report Setup";
     begin
         VATReportSetup.Get();
-        VATReportHeader.Get("VAT Report Config. Code", "VAT Report No.");
+        VATReportHeader.Get("VAT Report No.");
 
         if (VATReportHeader.Status = VATReportHeader.Status::Released) and
            (not VATReportSetup."Modify Submitted Reports")

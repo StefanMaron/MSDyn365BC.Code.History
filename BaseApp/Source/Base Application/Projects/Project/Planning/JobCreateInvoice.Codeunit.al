@@ -103,9 +103,11 @@ codeunit 1002 "Job Create-Invoice"
                 repeat
                     JobPlanningLine.SetFilter("Job No.", JobPlanningLine2."Job No.");
                     JobPlanningLine.SetFilter("Job Task No.", JobPlanningLine2."Job Task No.");
-                    JobPlanningLine.SetFilter("Line No.", '%1', JobPlanningLine2."Line No.");
                     JobPlanningLine.FindFirst();
                     CreateSalesInvoiceLines(JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo);
+                    JobPlanningLine2.SetRange("Job Task No.", JobPlanningLine2."Job Task No.");
+                    JobPlanningLine2.FindLast();
+                    JobPlanningLine2.SetRange("Job Task No.");
                 until JobPlanningLine2.Next() = 0;
             end;
 
