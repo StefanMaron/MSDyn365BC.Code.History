@@ -4795,6 +4795,7 @@ table 5900 "Service Header"
         "Post Code" := Cust."Post Code";
         County := Cust.County;
         "Country/Region Code" := Cust."Country/Region Code";
+        "VAT Country/Region Code" := "Country/Region Code";
         if not SkipContact then begin
             "Contact Name" := Cust.Contact;
             "Phone No." := Cust."Phone No.";

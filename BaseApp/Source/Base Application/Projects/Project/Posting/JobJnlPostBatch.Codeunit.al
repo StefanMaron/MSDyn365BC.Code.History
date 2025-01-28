@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.Projects.Project.Posting;
 
+using Microsoft.Assembly.Document;
+using Microsoft.Assembly.Posting;
 using Microsoft.Finance.Analysis;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
@@ -8,6 +10,7 @@ using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Setup;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
 
 codeunit 1013 "Job Jnl.-Post Batch"
 {
@@ -35,6 +38,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
         JobJnlCheckLine: Codeunit "Job Jnl.-Check Line";
         JobJnlPostLine: Codeunit "Job Jnl.-Post Line";
         NoSeriesBatch: Codeunit "No. Series - Batch";
+        AsmPost: Codeunit "Assembly-Post";
         Window: Dialog;
         JobRegNo: Integer;
         StartLineNo: Integer;
@@ -54,6 +58,9 @@ codeunit 1013 "Job Jnl.-Post Batch"
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        AssemblyFinalizeProgressMsg: Label '#1#################################\\Finalizing Assembly #2###########', Comment = '%1 = Text, %2 = Progress bar';
+        Format4Lbl: Label '%1 %2 %3 %4', Comment = '%1 = Job No., %2 = Job Task No., %3 = Job Planning Line No., %4 = Line No.';
+        Format2Lbl: Label '%1 %2', Comment = 'Assemble %1 = Document Type, %2 = No.';
 
     local procedure "Code"()
     var
@@ -179,6 +186,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
         JobJnlLine.Init();
         JobJnlLine."Line No." := JobRegNo;
 
+        FinalizePosting();
         UpdateAndDeleteLines();
         OnAfterPostJnlLines(JobJnlBatch, JobJnlLine, JobRegNo);
 
@@ -211,6 +219,46 @@ codeunit 1013 "Job Jnl.-Post Batch"
     begin
         if (JobJnlLine2."No." <> '') and (JobJnlLine2."Recurring Method" <> 0) then
             AccountingPeriod.MakeRecurringTexts(JobJnlLine2."Posting Date", JobJnlLine2."Document No.", JobJnlLine2.Description);
+    end;
+
+    local procedure FinalizePosting()
+    var
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        JobJournalLine.CopyFilters(JobJnlLine);
+        JobJournalLine.SetRange("Assemble to Order", true);
+        if JobJournalLine.FindSet() then
+            repeat
+                FinalizePostATO(JobJournalLine);
+            until JobJournalLine.Next() = 0;
+    end;
+
+    local procedure FinalizePostATO(JobJournalLine: Record "Job Journal Line")
+    var
+        AsmHeader: Record "Assembly Header";
+        ATOLink: Record "Assemble-to-Order Link";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if not JobPlanningLine.Get(JobJournalLine."Job No.", JobJournalLine."Job Task No.", JobJournalLine."Job Planning Line No.") then
+            exit;
+
+        if JobPlanningLine.AsmToOrderExists(AsmHeader) then begin
+            if GuiAllowed() then begin
+                Window.Open(AssemblyFinalizeProgressMsg);
+                Window.Update(1,
+                    StrSubstNo(Format4Lbl,
+                    JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine.FieldCaption("Line No."), JobPlanningLine."Line No."));
+                Window.Update(2, StrSubstNo(Format2Lbl, AsmHeader."Document Type", AsmHeader."No."));
+            end;
+
+            if AsmHeader."Remaining Quantity (Base)" = 0 then begin
+                AsmPost.FinalizePostATO(AsmHeader);
+                ATOLink.Get(AsmHeader."Document Type", AsmHeader."No.");
+                ATOLink.Delete();
+            end;
+            if GuiAllowed() then
+                Window.Close();
+        end;
     end;
 
     local procedure UpdateAndDeleteLines()

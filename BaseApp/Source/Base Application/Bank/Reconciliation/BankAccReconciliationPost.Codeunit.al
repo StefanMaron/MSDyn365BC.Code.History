@@ -7,6 +7,7 @@ using Microsoft.Bank.Statement;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.Analysis;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using System.Utilities;
@@ -266,6 +267,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         AppliedPmtEntry: Record "Applied Payment Entry";
+        UpdateAnalysisView: Codeunit "Update Analysis View";
         CreationDateTime: DateTime;
         MatchedWithAI: Boolean;
         LineCount: Integer;
@@ -290,6 +292,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
         BankAccRecon.Find();
         BankAccRecon.Delete();
+        UpdateAnalysisView.UpdateAll(0, true);
         TelemetryCategories.Add('Category', BankAccountRecCategoryLbl);
         TelemetryCategories.Add('MatchedWithAI', Format(MatchedWithAI, 0, 9));
         TelemetryCategories.Add('NumberOfLines', Format(LineCount));

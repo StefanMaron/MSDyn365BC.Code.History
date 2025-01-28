@@ -1044,7 +1044,7 @@ codeunit 99000830 "Create Reserv. Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromInsertReservEntry(var InsertReservEntry: Record "Reservation Entry"; var ReservEntry: Record "Reservation Entry"; FromReservEntry: Record "Reservation Entry"; Status: Enum "Reservation Status"; QtyToHandleAndInvoiceIsSet: Boolean)
+    local procedure OnAfterCopyFromInsertReservEntry(var InsertReservEntry: Record "Reservation Entry"; var ReservEntry: Record "Reservation Entry"; FromReservEntry: Record "Reservation Entry"; Status: Enum "Reservation Status"; var QtyToHandleAndInvoiceIsSet: Boolean)
     begin
     end;
 

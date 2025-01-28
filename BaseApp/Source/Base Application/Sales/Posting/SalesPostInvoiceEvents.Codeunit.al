@@ -613,4 +613,14 @@ codeunit 825 "Sales Post Invoice Events"
     local procedure OnAfterPrepareDeferralLine(var DeferralPostBuffer: Record "Deferral Posting Buffer"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; GenJnlLineDocNo: Code[20]; DeferralAccount: Code[20]; SalesAccount: Code[20]; InvDefLineNo: Integer; DeferralLineNo: Integer; var AmountToDefer: Decimal)
     begin
     end;
+
+    internal procedure RunOnBeforeUpdateInvoicePostingBuffer(var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; InvoicePostingBuffer: Record "Invoice Posting Buffer"; ForceGLAccountType: Boolean; var InvDefLineNo: Integer; var DeferralLineNo: Integer; var FALineNo: Integer; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateInvoicePostingBuffer(TempInvoicePostingBuffer, InvoicePostingBuffer, ForceGLAccountType, InvDefLineNo, DeferralLineNo, FALineNo, SalesLine, IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateInvoicePostingBuffer(var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; InvoicePostingBuffer: Record "Invoice Posting Buffer"; ForceGLAccountType: Boolean; var InvDefLineNo: Integer; var DeferralLineNo: Integer; var FALineNo: Integer; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
 }

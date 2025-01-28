@@ -66,7 +66,7 @@ table 273 "Bank Acc. Reconciliation"
         field(3; "Statement Ending Balance"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
+            AutoFormatType = 2;
             Caption = 'Statement Ending Balance';
         }
         field(4; "Statement Date"; Date)
@@ -353,26 +353,8 @@ table 273 "Bank Acc. Reconciliation"
 
     trigger OnInsert()
     begin
-        TestField("Statement No.");
-        TestField("Bank Account No.");
-        BankAcc.Get("Bank Account No.");
-        case "Statement Type" of
-            "Statement Type"::"Bank Reconciliation":
-                begin
-                    if PostedBankAccStmt.Get("Bank Account No.", "Statement No.") then
-                        Error(DuplicateStatementErr, "Statement No.");
-                    BankAcc."Last Statement No." := "Statement No.";
-                end;
-            "Statement Type"::"Payment Application":
-                begin
-                    if PostedPaymentReconHdr.Get("Bank Account No.", "Statement No.") then
-                        Error(DuplicateStatementErr, "Statement No.");
-                    if BankAcc."Pmt. Rec. No. Series" = '' then
-                        BankAcc."Last Payment Statement No." := "Statement No.";
-                end;
-        end;
-
-        BankAcc.Modify();
+        OnInsertValidations(Rec);
+        SetLastStatementNoInBankAccount(Rec);
     end;
 
     trigger OnRename()
@@ -382,11 +364,9 @@ table 273 "Bank Acc. Reconciliation"
 
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
-        PostedBankAccStmt: Record "Bank Account Statement";
-        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
         DimMgt: Codeunit DimensionManagement;
 
-        DuplicateStatementErr: Label 'Statement %1 already exists.', Comment = '%1=Statement No. value';
+        DuplicateStatementErr: Label 'A statement with number %1 has already been posted. Make sure that the fields "Last Statement No." and "Last Payment Statement No." in the bank account are correct. If you are changing the statement number, you can choose a different target number or undo the existing bank statement. ', Comment = '%1=Statement No. value';
         RenameErr: Label 'You cannot rename a %1.', Comment = '%1=Table name caption';
         BalanceQst: Label '%1 is different from %2 on the %3. Do you want to change the value?', Comment = '%1=Balance Last Statement field caption;%2=field caption;%3=table caption';
         YouChangedDimQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
@@ -402,6 +382,45 @@ table 273 "Bank Acc. Reconciliation"
 
     protected var
         BankAcc: Record "Bank Account";
+
+    local procedure OnInsertValidations(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+        BankAccReconciliation.TestField("Statement No.");
+        BankAccReconciliation.TestField("Bank Account No.");
+        OnInsertValidations(BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+    end;
+
+    internal procedure OnInsertValidations(StatementType: Enum "Bank Acc. Rec. Stmt. Type"; BankAccountNo: Code[20]; StatementNo: Code[20])
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountStatement: Record "Bank Account Statement";
+        PostedPaymentReconciliationHeader: Record "Posted Payment Recon. Hdr";
+    begin
+        BankAccount.Get(BankAccountNo);
+        case StatementType of
+            StatementType::"Bank Reconciliation":
+                if BankAccountStatement.Get(BankAccountNo, StatementNo) then
+                    Error(DuplicateStatementErr, StatementNo);
+            StatementType::"Payment Application":
+                if PostedPaymentReconciliationHeader.Get(BankAccountNo, StatementNo) then
+                    Error(DuplicateStatementErr, StatementNo);
+        end;
+    end;
+
+    local procedure SetLastStatementNoInBankAccount(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        BankAccount.Get(BankAccReconciliation."Bank Account No.");
+        case BankAccReconciliation."Statement Type" of
+            "Bank Acc. Rec. Stmt. Type"::"Bank Reconciliation":
+                BankAccount."Last Statement No." := BankAccReconciliation."Statement No.";
+            "Bank Acc. Rec. Stmt. Type"::"Payment Application":
+                if BankAccount."Pmt. Rec. No. Series" = '' then
+                    BankAccount."Last Payment Statement No." := BankAccReconciliation."Statement No.";
+        end;
+        BankAccount.Modify();
+    end;
 
     internal procedure GetPaymentRecJournalTelemetryFeatureName(): Text
     begin
@@ -821,7 +840,6 @@ table 273 "Bank Acc. Reconciliation"
         PAGE.Run(PAGE::"Bank Account Ledger Entries", BankAccountLedgerEntry);
     end;
 
-    [Scope('OnPrem')]
     procedure MatchCandidateFilterDate(): Date
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
