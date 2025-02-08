@@ -4820,7 +4820,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     procedure PostDtldCVLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; AccNo: Code[20]; var AdjAmount: array[4] of Decimal; Unapply: Boolean)
     var
+        CustomerPostingGroup: Record "Customer Posting Group";
         VendorPostingGroup: Record "Vendor Posting Group";
+        AccNo2: Code[20];
+        AccNo3: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4845,9 +4848,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         CreateGLEntryGainLoss(GenJournalLine, AccNo, -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
 
                     if MultiplePostingGroups and (DetailedCVLedgEntryBuffer."Entry Type" in [DetailedCVLedgEntryBuffer."Entry Type"::"Unrealized Loss", DetailedCVLedgEntryBuffer."Entry Type"::"Unrealized Gain"]) then begin
-                        CreateGLEntryGainLoss(GenJournalLine, GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer), DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
-                        GetVendorPostingGroup(GenJournalLine, VendorPostingGroup);
-                        CreateGLEntryGainLoss(GenJournalLine, GetVendorPayablesAccount(GenJournalLine, VendorPostingGroup), -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                        case GenJournalLine."Account Type" of
+                            GenJournalLine."Account Type"::Customer:
+                                begin
+                                    GetCustomerPostingGroup(GenJournalLine, CustomerPostingGroup);
+                                    AccNo2 := GetCustDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer);
+                                    AccNo3 := GetCustomerReceivablesAccount(GenJournalLine, CustomerPostingGroup);
+                                end;
+                            GenJournalLine."Account Type"::Vendor:
+                                begin
+                                    GetVendorPostingGroup(GenJournalLine, VendorPostingGroup);
+                                    AccNo2 := GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer);
+                                    AccNo3 := GetVendorPayablesAccount(GenJournalLine, VendorPostingGroup);
+                                end;
+                        end;
+                        CreateGLEntryGainLoss(GenJournalLine, AccNo2, DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                        CreateGLEntryGainLoss(GenJournalLine, AccNo3, -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
                     end;
 
                     if not Unapply then
