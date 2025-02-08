@@ -151,8 +151,13 @@
                   codeunit "VAT LCY Corr.-Post(Yes/No) CZL" = X,
                   codeunit "VAT Reg. Log Suppression CZL" = X,
                   codeunit "VAT Statement DPHDP3 CZL" = X,
+                  codeunit "VAT Statement DPHDP3v3 CZL" = X,
                   codeunit "VAT Statement Line Handler CZL" = X,
+#if not CLEAN26
+#pragma warning disable AL0432
                   codeunit "VAT Stmt. Template Handler CZL" = X,
+#pragma warning restore AL0432
+#endif
                   codeunit "VAT Stmt XML Export Helper CZL" = X,
                   codeunit "VAT Stmt XML Export Runner CZL" = X,
                   codeunit "Vendor Bank Acc. Handler CZL" = X,
