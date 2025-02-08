@@ -58,6 +58,7 @@
         CannotRenameItemErr: Label 'You cannot rename %1 in a %2, because it is used in %3.', Comment = '%1 = Item No. caption, %2 = Table caption, %3 = Reference Table caption';
         AdjustExchRateDefaultDescTxt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Locked = true;
         AccountBalanceErrLbl: Label 'G/L Account %1 is not balanced';
+        PostedDocumentNoErr: Label 'Document No. must be equal to %1', Comment = '%1= Document No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1542,7 +1543,7 @@
     end;
 
     [Test]
-        [Scope('OnPrem')]
+    [Scope('OnPrem')]
     procedure UT_RenameGLAccountExistsInPurchInvoice()
     var
         GLAccount: Record "G/L Account";
@@ -2926,6 +2927,44 @@
         VerifyGLEntryForAccount(VendorPostingGroup, ActualAmount);
     end;
 
+    [Test]
+    procedure PurchaseInvoiceHavingAllocationAccountShouldPostWhenStatusReleased()
+    var
+        GLAccount: array[4] of Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        AllocationAccountCode: Code[20];
+        PostedDocumentNo: Code[20];
+        Share: Decimal;
+    begin
+        // [SCENARIO 562692] Puechase Invoice will be posted when PurchaseLine has Allocation Account and Status is Released
+        Initialize();
+
+        // [GIVEN] Create Allocation Account
+        AllocationAccountCode := CreateAllocationAccountWithFixedDistribution();
+
+        // [GIVEN] Generate and save Shares value
+        Share := LibraryRandom.RandDecInDecimalRange(0.25, 0.25, 2);
+
+        // [GIVEN] Add GL Accounts with Share in Fixed Account Distribution.
+        CreateMultipleGLAccountAllocationForFixedDistribution(AllocationAccountCode, GLAccount, Share);
+
+        // [GIVEN] Create Purchase Invoice with Allocation Account.
+        CreatePurchInvoiceWithAllocationAccount(PurchaseHeader, PurchaseLine, AllocationAccountCode);
+
+        // [WHEN] Released the Purchase Invoice
+        PurchaseHeader.Validate(Status, PurchaseHeader.Status::Released);
+        PurchaseHeader.Modify();
+
+        // [WHEN] Post Purchase Invoice.
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Find Last GL Entry and verify invoice has been posted without any entry
+        GLEntry.FindLast();
+        Assert.AreEqual(PostedDocumentNo, GLEntry."Document No.", StrSubstNo(PostedDocumentNoErr, PostedDocumentNo));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4052,6 +4091,30 @@
 
         GetGLEntryBalance(VendorPostingGroup[2]."Payables Account", ActualAmount[2]);
         Assert.AreEqual(0, ActualAmount[2], StrSubstNo(AccountBalanceErrLbl, VendorPostingGroup[2]."Payables Account"));
+    end;
+
+    local procedure CreateMultipleGLAccountAllocationForFixedDistribution(AllocationAccountCode: Code[20]; GLAccount: array[4] of Record "G/L Account"; Share: Decimal)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(GLAccount) do
+            CreateGLAccountAllocationForFixedDistrubution(AllocationAccountCode, GLAccount[i], Share);
+    end;
+
+    local procedure CreateGLAccountAllocationForFixedDistrubution(AllocationAccountNo: Code[20]; var GLAccount: Record "G/L Account"; Shape: Decimal)
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        if GLAccount."No." = '' then
+            GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        AllocAccountDistribution."Allocation Account No." := AllocationAccountNo;
+        AllocAccountDistribution."Line No." := LibraryUtility.GetNewRecNo(AllocAccountDistribution, AllocAccountDistribution.FieldNo("Line No."));
+        AllocAccountDistribution."Account Type" := AllocAccountDistribution."Account Type"::Fixed;
+        AllocAccountDistribution."Destination Account Type" := AllocAccountDistribution."Destination Account Type"::"G/L Account";
+        AllocAccountDistribution."Destination Account Number" := GLAccount."No.";
+        AllocAccountDistribution.Validate(Share, Shape);
+        AllocAccountDistribution.Insert();
     end;
 
     [RequestPageHandler]

@@ -7,7 +7,7 @@ using System.Utilities;
 
 table 84 "Acc. Schedule Name"
 {
-    Caption = 'Acc. Schedule Name';
+    Caption = 'Financial Report Row Definition';
     DataCaptionFields = Name, Description;
     LookupPageID = "Account Schedule Names";
     DataClassification = CustomerContent;
