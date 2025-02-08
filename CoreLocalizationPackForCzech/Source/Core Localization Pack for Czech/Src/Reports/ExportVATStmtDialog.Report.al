@@ -221,7 +221,6 @@ report 31003 "Export VAT Stmt. Dialog CZL"
 
     var
         RecordVATStatementName: Record "VAT Statement Name";
-        VATStatementTemplate: Record "VAT Statement Template";
         NoTax: Boolean;
         PrintInIntegers: Boolean;
         UseAmtsInAddCurr: Boolean;
@@ -252,8 +251,7 @@ report 31003 "Export VAT Stmt. Dialog CZL"
     local procedure GetStatementNameRec()
     begin
         RecordVATStatementName.Get(VATStatementTemplateName, VATStatementName);
-        VATStatementTemplate.Get(VATStatementTemplateName);
-        XMLFormat := VATStatementTemplate."XML Format CZL";
+        XMLFormat := RecordVATStatementName."XML Format CZL";
 
         RecordVATStatementName.CalcFields("Comments CZL", "Attachments CZL");
         Comments := RecordVATStatementName."Comments CZL";
