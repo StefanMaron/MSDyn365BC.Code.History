@@ -20,6 +20,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
@@ -2058,13 +2059,88 @@ codeunit 147562 "SII Special Scheme Code Tests"
         ServiceLine.TestField("Special Scheme Code", ServiceLine."Special Scheme Code"::"03 Special System");
     end;
 
-    local procedure Initialize()
+    [Test]
+    procedure SpecialSchemeCodeIs01ForPurchInvWithVATCashRegimInGenLedgSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchaseHeader: Record "Purchase Header";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
     begin
+        // [SCENARIO 561053] Special scheme code is "01" for purchase invoice with VAT Cash Regime in General Ledger Setup
+
+        Initialize();
+
+        // [GIVEN] VAT Cash Regime in General Ledger Setup
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Cash Regime", true);
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Posted purchase invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibrarySII.CreatePurchLineWithUnitCost(PurchaseHeader, LibraryInventory.CreateItemNo());
+        LibraryERM.FindVendorLedgerEntry(
+          VendLedgEntry, PurchaseHeader."Document Type",
+          LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendLedgEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] ClaveRegimenEspecialOTrascendencia is "01" in the exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '01');
+    end;
+
+    [Test]
+    procedure SpecialSchemeCodeIs07ForPurchInvWithVATCashRegimInVATPostingSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchaseHeader: Record "Purchase Header";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [SCENARIO 561053] Special scheme code is "07" for purchase invoice with VAT Cash Regime in VAT Posting Setup
+
+        Initialize();
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Unrealized VAT", true);
+        GeneralLedgerSetup.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        // [GIVEN] VAT Posting Setup "X" with "VAT Cash Regime"
+        // [GIVEN] Posted purchase invoice with VAT Posting Setup "X"
+        LibrarySII.CreatePurchLineWithUnitCost(
+          PurchaseHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithVATCashRegime(PurchaseHeader."VAT Bus. Posting Group")));
+        LibraryERM.FindVendorLedgerEntry(
+          VendLedgEntry, PurchaseHeader."Document Type",
+          LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendLedgEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] ClaveRegimenEspecialOTrascendencia is "07" in the exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '07');
+    end;
+
+    local procedure Initialize()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibrarySetupStorage.Restore();
+        VATPostingSetup.ModifyAll("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::" ");
+        VATPostingSetup.ModifyAll("Purch. Special Scheme Code", VATPostingSetup."Purch. Special Scheme Code"::" ");
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SII Special Scheme Code Tests");
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SII Special Scheme Code Tests");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySII.InitSetup(true, false);
         LibrarySII.BindSubscriptionJobQueue();
         IsInitialized := true;
@@ -2198,6 +2274,21 @@ codeunit 147562 "SII Special Scheme Code Tests"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         exit(CreateVATPostingSetup(VATBusPostGroupCode, VATPostingSetup."Sales Special Scheme Code"::" ", SpecialSchemeCode));
+    end;
+
+    local procedure CreateVATPostingSetupWithVATCashRegime(VATBusPostGroupCode: Code[20]): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup.Get(
+          VATBusPostGroupCode,
+          CreateVATPostingSetupWithPurchSpecialSchemeCode(
+            VATBusPostGroupCode, VATPostingSetup."Purch. Special Scheme Code"::" "));
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("VAT Cash Regime", true);
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+        exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     local procedure CreateVATPostingSetup(VATBusPostGroupCode: Code[20]; SalesSpecialSchemeCode: Enum "SII Sales Upload Scheme Code"; PurchSpecialSchemeCode: Enum "SII Purch. Upload Scheme Code"): Code[20]
