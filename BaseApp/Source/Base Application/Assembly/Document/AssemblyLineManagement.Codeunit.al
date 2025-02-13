@@ -121,7 +121,7 @@ codeunit 905 "Assembly Line Management"
                 AssemblyLine.CalcBOMQuantity(
                 BOMComponent.Type, BOMComponent."Quantity per", 1, QtyPerUoM, AssemblyLine."Resource Usage Type"));
         IsHandled := false;
-        OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader, AssemblyLine, BOMComponent, IsHandled);
+        OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader, AssemblyLine, BOMComponent, IsHandled, QtyPerUoM);
         if not IsHandled then begin
             AssemblyLine.Validate(
                 Quantity,
@@ -946,7 +946,7 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component"; var IsHandled: Boolean)
+    local procedure OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component"; var IsHandled: Boolean; QtyPerUoM: Decimal)
     begin
     end;
 

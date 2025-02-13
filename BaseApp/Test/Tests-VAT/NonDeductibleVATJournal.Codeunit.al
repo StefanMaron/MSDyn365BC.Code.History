@@ -20,6 +20,7 @@ codeunit 134288 "Non-Deductible VAT Journal"
         IsInitialized: Boolean;
         ReverseEntriesQst: Label 'Do you want to reverse the entries';
         EntriesReversedLbl: Label 'The entries were successfully reversed';
+        NonDeductiableVATAmountMustBeEqualErr: Label 'Non-Deductable VAT Amount must be %1 in VAT Entries', Comment = '%1 = Expected Non-Deductible VAT Amount';
 
     [Test]
     [Scope('OnPrem')]
@@ -177,7 +178,7 @@ codeunit 134288 "Non-Deductible VAT Journal"
         GLEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLEntry.FindFirst();
         // [THEN] "Non-Deductible VAT Amount" is zero in all non-VAT G/L entries
-		// Bug 523795: Bal. Non-Deductible VAT amount is not correct 
+        // Bug 523795: Bal. Non-Deductible VAT amount is not correct 
         GLEntry.TestField("Non-Deductible VAT Amount", Round(GenJournalLine."Bal. VAT Amount" * VATPostingSetup."Non-Deductible VAT %" / 100));
         GLEntry.SetRange("VAT Bus. Posting Group", '');
         GLEntry.SetRange("VAT Prod. Posting Group", '');
@@ -215,6 +216,44 @@ codeunit 134288 "Non-Deductible VAT Journal"
         GenJournalLine.TestField("Bal. Non-Ded. VAT %", VATPostingSetup."Non-Deductible VAT %");
     end;
 
+    [Test]
+    procedure NonDeductibleVATShouldShowAsNonDeductibleOnDoingFullVAT()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        NonDeductableVATAmount: Decimal;
+    begin
+        // [SCENARIO 537128] On posting Non-Deductible full VAT amount should be display in Non-Deductable VAT field of VAT Entry. 
+        Initialize();
+
+        // [GIVEN] Create Non-Deductible VAT Posting Setup with "Non-Deductible VAT %" = 100.
+        LibraryNonDeductibleVAT.CreatVATPostingSetupAllowedForNonDeductibleVAT(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        VATPostingSetup.Validate("Non-Deductible VAT %", 100);
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] General Journal Line with Non-Deductible VAT Posting Setup and "Account No" = VATPostingSetup."Purchase VAT Account".
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
+            VATPostingSetup."Purchase VAT Account", LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+
+        // [GIVEN] Validate VAT Bus. & Prod. Posting Group fields.
+        GenJournalLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GenJournalLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GenJournalLine.Modify(true);
+        NonDeductableVATAmount := GenJournalLine.Amount;
+
+        // [WHEN] Post the General Journal.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Verify that "Non-Deductible VAT Amount" field must have the value in VAT Entry.
+        FindVATEntryByVATPostingSetup(VATEntry, VATPostingSetup);
+        Assert.AreEqual(NonDeductableVATAmount, VATEntry."Non-Deductible VAT Amount", StrSubstNo(NonDeductiableVATAmountMustBeEqualErr, NonDeductableVATAmount));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -242,6 +281,13 @@ codeunit 134288 "Non-Deductible VAT Journal"
         VATEntry.CalcSums("Non-Deductible VAT Base", "Non-Deductible VAT Amount");
         VATEntry.Testfield("Non-Deductible VAT Base", NDBase);
         VATEntry.Testfield("Non-Deductible VAT Amount", NDAmount);
+    end;
+
+    local procedure FindVATEntryByVATPostingSetup(var VATENtry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATEntry.FindLast();
     end;
 
     [ConfirmHandler]

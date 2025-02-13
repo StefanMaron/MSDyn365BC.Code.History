@@ -74,6 +74,8 @@ codeunit 134387 "ERM Sales Documents III"
         ReturnQtyToReceiveMustBeZeroErr: Label ' Return Qty. to Receive must be zero.';
         QtyToAssignErr: Label '%1 must be %2 in %3', Comment = '%1 = Qty. to Assign, %2 = Quantity, %3 = Sales Return Order Subform';
         UniCostLCYErr: Label 'Unit Cost (LCY) must be zero.';
+        AdjustExchRateDefaultDescTxt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Locked = true;
+        AccountBalanceErrLbl: Label 'G/L Account %1 is not balanced', Comment = '%1 = G/L Account No';
 
     [Test]
     [Scope('OnPrem')]
@@ -6179,6 +6181,82 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.TestField("Salesperson Code", BillToCustomer."Salesperson Code");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure UnreliazedGainLossEntrieAreClearWhenUsingMultiplePostingGroups()
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: array[3] of Record "Currency Exchange Rate";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Customer: Record Customer;
+        CustomerPostingGroup: array[2] of Record "Customer Posting Group";
+        ActualAmount: array[2] of Decimal;
+        PostingDate: array[3] of Date;
+        PaymentDocNo: Code[20];
+        VATCalculationType: Enum "Tax Calculation Type";
+    begin
+        // [SCENARIO 563207] Unrealized Gain / Loss is cleared during applicaiton when using multiple customer posting groups. 
+        Initialize();
+
+        // [GIVEN] Set Journal Templ Name mandatory to false.
+        SetJournalTemplNameMandatoryFalse();
+
+        // [GIVEN] Generate Posting Date.
+        GeneratePostingDate(PostingDate);
+
+        // [GIVEN] Create Currency and Exchange Rates.
+        CreateCurrencyWithExchangeRates(Currency, CurrencyExchangeRate, PostingDate);
+
+        // [GIVEN] Create VAT Posting Setup with Zero Vat.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType::"Normal VAT", 0);
+
+        // [GIVEN] Create Customer Posting Group One.
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[1]);
+
+        // [GIVEN] Set Allowed Multiple Posting Groups.
+        SetSalesAllowMultiplePostingGroups(true);
+
+        // [GIVEN Create Customer.
+        CreateCustomerWithAllowMultiplePostingGroups(
+            Customer, CustomerPostingGroup[1].Code,
+            Currency.Code, VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create Alternative Customer Posting Group. 
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[2]);
+        LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[1].Code, CustomerPostingGroup[2].Code);
+
+        // [GIVEN] Create Item.
+        Item.Get(LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+
+        // [GIVEN] Create Sales Invoice.
+        CreateSalesInvoice(SalesHeader, SalesLine, PostingDate[3], Item."No.", Customer."No.");
+
+        // [GIVEN] Post Sales Invoice.
+        SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Run Exchange Rate Adjustment.
+        LibraryERM.RunExchRateAdjustment(Currency.Code, PostingDate[3], PostingDate[1], AdjustExchRateDefaultDescTxt, PostingDate[2], LibraryRandom.RandText(10), false);
+
+        // [GIVEN] Create General Journal Batch.
+        CreateGeneralJournalBatch(GenJournalBatch, true);
+
+        // [GIVEN] Create a Payment and Post.
+        CreatePaymentAndPost(GenJournalLine, GenJournalBatch, Customer."No.", CustomerPostingGroup[2].Code, PostingDate[1], PaymentDocNo);
+
+        // [WHEN] Apply Payment with Invoice.
+        ApplyPostCustPayment2Invoices(PaymentDocNo, SalesInvHeader."No.");
+
+        // [THEN] Verify G/L Entries for Payable Account are Balanced.
+        VerifyGLEntryForAccount(CustomerPostingGroup, ActualAmount);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -7497,6 +7575,145 @@ codeunit 134387 "ERM Sales Documents III"
         end;
         PostCode.Validate("Country/Region Code", CountryRegionCode);
         PostCode.Insert(true);
+    end;
+
+    local procedure SetJournalTemplNameMandatoryFalse()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
+        GeneralLedgerSetup.Modify();
+    end;
+
+    local procedure GeneratePostingDate(var PostingDate: array[3] of Date)
+    begin
+        PostingDate[1] := WorkDate();
+        PostingDate[2] := CalcDate('<-15D>', PostingDate[1]);
+        PostingDate[3] := CalcDate('<-15D>', PostingDate[2]);
+    end;
+
+    local procedure CreateCurrencyWithExchangeRates(
+        var Currency: Record Currency;
+        var CurrencyExchangeRate: array[3] of Record "Currency Exchange Rate";
+        PostingDate: array[3] of Date)
+    var
+        RelExchRateAmount: array[3] of Integer;
+        AdjustExchRateAmount: Integer;
+    begin
+        RelExchRateAmount[1] := LibraryRandom.RandIntInRange(75, 75);
+        RelExchRateAmount[2] := LibraryRandom.RandIntInRange(80, 80);
+        RelExchRateAmount[3] := LibraryRandom.RandIntInRange(90, 90);
+        AdjustExchRateAmount := LibraryRandom.RandIntInRange(100, 100);
+
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+
+        LibraryERM.CreateExchRate(CurrencyExchangeRate[1], Currency.Code, PostingDate[3]);
+        CurrencyExchangeRate[1].Validate("Exchange Rate Amount", AdjustExchRateAmount);
+        CurrencyExchangeRate[1].Validate("Adjustment Exch. Rate Amount", AdjustExchRateAmount);
+        CurrencyExchangeRate[1].Validate("Relational Exch. Rate Amount", RelExchRateAmount[1]);
+        CurrencyExchangeRate[1].Validate("Relational Adjmt Exch Rate Amt", RelExchRateAmount[1]);
+        CurrencyExchangeRate[1].Modify(true);
+
+        LibraryERM.CreateExchRate(CurrencyExchangeRate[2], Currency.Code, PostingDate[2]);
+        CurrencyExchangeRate[2].Validate("Exchange Rate Amount", AdjustExchRateAmount);
+        CurrencyExchangeRate[2].Validate("Adjustment Exch. Rate Amount", AdjustExchRateAmount);
+        CurrencyExchangeRate[2].Validate("Relational Exch. Rate Amount", RelExchRateAmount[2]);
+        CurrencyExchangeRate[2].Validate("Relational Adjmt Exch Rate Amt", RelExchRateAmount[2]);
+        CurrencyExchangeRate[2].Modify(true);
+
+        LibraryERM.CreateExchRate(CurrencyExchangeRate[3], Currency.Code, PostingDate[1]);
+        CurrencyExchangeRate[3].Validate("Exchange Rate Amount", AdjustExchRateAmount);
+        CurrencyExchangeRate[3].Validate("Adjustment Exch. Rate Amount", AdjustExchRateAmount);
+        CurrencyExchangeRate[3].Validate("Relational Exch. Rate Amount", RelExchRateAmount[3]);
+        CurrencyExchangeRate[3].Validate("Relational Adjmt Exch Rate Amt", RelExchRateAmount[3]);
+        CurrencyExchangeRate[3].Modify(true);
+    end;
+
+    local procedure CreateCustomerWithAllowMultiplePostingGroups(
+        var Customer: Record Customer;
+        CustomerPostingGroupCode: Code[20];
+        CurrencyCode: Code[20];
+        VATBusPostGroupCode: Code[20])
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
+        Customer.Validate("Customer Posting Group", CustomerPostingGroupCode);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateSalesInvoice(
+        var SalesHeader: Record "Sales Header";
+        var SalesLine: Record "Sales Line";
+        PostingDate: Date;
+        ItemCode: Code[20];
+        CustomerNo: Code[20])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Document Date", PostingDate);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLineWithUnitPrice(
+            SalesLine, SalesHeader, ItemCode,
+            LibraryRandom.RandIntInRange(100, 100), LibraryRandom.RandInt(0));
+    end;
+
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; ForceDocBalance: Boolean)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate("Force Doc. Balance", ForceDocBalance);
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreatePaymentAndPost(
+        GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; CustomerNo: Code[20];
+        CustomerPostingGroupCode: Code[20]; PostingDate: Date; var PaymentDocNo: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), -LibraryRandom.RandIntInRange(100, 100));
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Posting Group", CustomerPostingGroupCode);
+        GenJournalLine.Modify(true);
+        PaymentDocNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure ApplyPostCustPayment2Invoices(PayDocNo: Code[20]; InvDocNo: Code[20])
+    var
+        CustLedgerEntryFrom: Record "Cust. Ledger Entry";
+        CustLedgerEntryTo: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntryFrom, CustLedgerEntryFrom."Document Type"::Payment, PayDocNo);
+        CustLedgerEntryFrom.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntryFrom, CustLedgerEntryFrom."Remaining Amount");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntryTo, CustLedgerEntryTo."Document Type"::Invoice, InvDocNo);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntryTo);
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntryFrom);
+    end;
+
+    local procedure VerifyGLEntryForAccount(CustomerPostingGroup: array[2] of Record "Customer Posting Group"; ActualAmount: array[2] of Decimal)
+    begin
+        GetGLEntryBalance(CustomerPostingGroup[1]."Receivables Account", ActualAmount[1]);
+        Assert.AreEqual(0, ActualAmount[1], StrSubstNo(AccountBalanceErrLbl, CustomerPostingGroup[1]."Receivables Account"));
+        GetGLEntryBalance(CustomerPostingGroup[2]."Receivables Account", ActualAmount[2]);
+        Assert.AreEqual(0, ActualAmount[2], StrSubstNo(AccountBalanceErrLbl, CustomerPostingGroup[2]."Receivables Account"));
+    end;
+
+    local procedure GetGLEntryBalance(AccountNo: Code[20]; var Balance: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", AccountNo);
+        GLEntry.CalcSums(Amount);
+        Balance := GLEntry.Amount;
     end;
 
     [ConfirmHandler]

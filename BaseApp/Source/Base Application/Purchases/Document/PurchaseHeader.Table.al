@@ -1656,6 +1656,7 @@ table 38 "Purchase Header"
                     UpdateDocumentDate := true;
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
+                UpdateDocumentDate := false;
             end;
         }
         field(101; "Area"; Code[10])
@@ -4295,7 +4296,7 @@ table 38 "Purchase Header"
             Modify();
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(Rec, xRec);
+            OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(Rec, xRec, FieldNumber);
             if not IsNullGuid(Rec.SystemId) then
                 Modify();
             if PurchLinesExist() then
@@ -7886,7 +7887,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(var PurcasehHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
+    local procedure OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(var PurcasehHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; FieldNumber: Integer)
     begin
     end;
 

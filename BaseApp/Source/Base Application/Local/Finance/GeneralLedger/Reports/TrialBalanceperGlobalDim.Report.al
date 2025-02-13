@@ -581,20 +581,31 @@ report 10023 "Trial Balance, per Global Dim."
                 Error(Text003);
         end;
 
-        if DimCode = GLSetup."Global Dimension 1 Code" then begin
-            DimValue := "G/L Account".GetFilter("Global Dimension 1 Filter");
-            "G/L Account".SetRange("Global Dimension 1 Filter");
-        end else
-            if DimCode = GLSetup."Global Dimension 2 Code" then begin
-                DimValue := "G/L Account".GetFilter("Global Dimension 2 Filter");
-                "G/L Account".SetRange("Global Dimension 2 Filter");
-            end else
+        case DimCode of
+            GLSetup."Global Dimension 1 Code":
+                begin
+                    DimValue := "G/L Account".GetFilter("Global Dimension 1 Filter");
+                    "G/L Account".SetRange("Global Dimension 1 Filter");
+                end;
+            GLSetup."Global Dimension 2 Code":
+                begin
+                    DimValue := "G/L Account".GetFilter("Global Dimension 2 Filter");
+                    "G/L Account".SetRange("Global Dimension 2 Filter");
+                end;
+            else
                 Error(Text016);
+        end;
+
         /* set up the date ranges */
         FromDate := "G/L Account".GetRangeMin("Date Filter");
         ToDate := "G/L Account".GetRangeMax("Date Filter");
-        PriorFromDate := CalcDate('<-1Y>', FromDate + 1) - 1;
-        PriorToDate := CalcDate('<-1Y>', ToDate + 1) - 1;
+        PriorFromDate := CalcDate('<-1Y>', NormalDate(FromDate) + 1) - 1;
+        PriorToDate := CalcDate('<-1Y>', NormalDate(ToDate) + 1) - 1;
+        if FromDate <> NormalDate(FromDate) then
+            PriorFromDate := ClosingDate(PriorFromDate);
+        if ToDate <> NormalDate(ToDate) then
+            PriorToDate := ClosingDate(PriorToDate);
+
         "G/L Account".SetRange("Date Filter");       // since it is in the title, it does
         GLAccountFilter := "G/L Account".GetFilters(); // not have to be in the filter string
         /* set up header texts

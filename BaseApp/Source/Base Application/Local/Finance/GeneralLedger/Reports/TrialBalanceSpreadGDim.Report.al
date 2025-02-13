@@ -716,8 +716,12 @@ report 10025 "Trial Balance, Spread G. Dim."
         /* set up the date ranges */
         FromDate := "G/L Account".GetRangeMin("Date Filter");
         ToDate := "G/L Account".GetRangeMax("Date Filter");
-        PriorFromDate := CalcDate('<-1Y>', FromDate + 1) - 1;
-        PriorToDate := CalcDate('<-1Y>', ToDate + 1) - 1;
+        PriorFromDate := CalcDate('<-1Y>', NormalDate(FromDate) + 1) - 1;
+        PriorToDate := CalcDate('<-1Y>', NormalDate(ToDate) + 1) - 1;
+        if FromDate <> NormalDate(FromDate) then
+            PriorFromDate := ClosingDate(PriorFromDate);
+        if ToDate <> NormalDate(ToDate) then
+            PriorToDate := ClosingDate(PriorToDate);
         "G/L Account".SetRange("Date Filter");       // since these are in the titles, they
         if not PrintToExcel then begin               // do not have to be in the filter string
             "G/L Account".SetRange("Global Dimension 1 Filter");

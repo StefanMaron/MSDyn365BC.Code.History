@@ -218,7 +218,10 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     local procedure CreateLinesFromDocument(var PurchaseHeader: Record "Purchase Header")
     var
         AllocationPurchaseLine: Record "Purchase Line";
+        IsReopen: Boolean;
     begin
+        CheckPurchaseReleaseStatus(PurchaseHeader, IsReopen);
+
         AllocationPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         AllocationPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         AllocationPurchaseLine.SetRange("Type", AllocationPurchaseLine."Type"::"Allocation Account");
@@ -231,6 +234,8 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         AllocationPurchaseLine.SetFilter("Selected Alloc. Account No.", '<>%1', '');
         CreateLines(AllocationPurchaseLine);
         AllocationPurchaseLine.DeleteAll();
+
+        CheckPurchaseReleaseStatus(PurchaseHeader, IsReopen);
     end;
 
     local procedure CreateLines(var AllocationPurchaseLine: Record "Purchase Line")
@@ -719,6 +724,25 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
             VerifyAllocationAccount(AllocationAccount);
             AllocationAccountMgt.VerifyNoInheritFromParentUsed(AllocationAccount."No.");
         end;
+    end;
+
+    local procedure CheckPurchaseReleaseStatus(var PurchaseHeader: Record "Purchase Header"; var IsReopen: Boolean)
+    var
+        PurchaseRelease: Codeunit "Release Purchase Document";
+    begin
+        if IsReopen then begin
+            PurchaseRelease.Run(PurchaseHeader);
+            PurchaseHeader.Modify();
+            exit;
+        end;
+
+        if PurchaseHeader.Status <> PurchaseHeader.Status::Released then
+            exit;
+
+        PurchaseRelease.Reopen(PurchaseHeader);
+        IsReopen := true;
+        PurchaseRelease.SetSkipCheckReleaseRestrictions();
+        PurchaseHeader.SetHideValidationDialog(true);
     end;
 
     [IntegrationEvent(false, false)]
