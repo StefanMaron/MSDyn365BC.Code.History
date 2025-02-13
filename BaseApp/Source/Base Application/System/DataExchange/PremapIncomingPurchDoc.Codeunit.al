@@ -287,7 +287,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         OnAfterCorrectHeaderData(EntryNo, RecordNo, DataExch, IncomingDocument);
     end;
 
-    local procedure CorrectHeaderField(EntryNo: Integer; TableID: Integer; FieldID: Integer; RecordNo: Integer; IncomingDocumentValue: Variant)
+    procedure CorrectHeaderField(EntryNo: Integer; TableID: Integer; FieldID: Integer; RecordNo: Integer; IncomingDocumentValue: Variant)
     var
         IntermediateDataImport: Record "Intermediate Data Import";
         ExistingValue: Text;

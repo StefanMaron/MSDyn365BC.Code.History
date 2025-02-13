@@ -41,6 +41,7 @@ codeunit 136353 "UT T Job Planning Line"
         RoundingTo0Err: Label 'Rounding of the field';
         NoJobPlanningLineErr: Label '%1 must be %2 in %3', Comment = '%1 = "No." field of Job Planning Line, %2 = Value of "No." field of Item, %3 = Job Planning Line';
         UnitCostLCYErr: Label '%1 must be %2 in %3', Comment = '%1 = Unit Cost (LCY), %2 = Unit Cost of Item, %3 = Job Planning Line';
+        UnitCostErr: Label '%1 must be %2 in %3', Comment = '%1 = Unit Cost, %2 = UnitCost variable value, %3 = Job Planning Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -2079,6 +2080,72 @@ codeunit 136353 "UT T Job Planning Line"
         // [THEN] Verify Planning Date and Document No. Planning Line
         FindJobPlanningLine(TextJobPlanningLine, JobTask, Job, JobPlanningLine.Type::Text);
         Assert.RecordIsNotEmpty(TextJobPlanningLine, CompanyName);
+    end;
+
+    [Test]
+    procedure UnitCostIsNotChangedWhenUnitPriceIsChangedInJobPlanningLine()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLines: TestPage "Job Planning Lines";
+        UnitCost: Decimal;
+    begin
+        // [SCENARIO 561139] Unit Cost in Job Planning Line is not changed when Unit Price is changed.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Costing Method and Unit Cost.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Unit Cost", LibraryRandom.RandInt(100));
+        Item.Modify(true);
+
+        // [GIVEN] Create a Job and a Job task.
+        CreateJobAndJobTask(Job, JobTask, false, '');
+
+        // [GIVEN] Create a Job Planning Line and Validate Type and No.
+        CreateSimpleJobPlanningLine(JobPlanningLine, JobTask);
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Generate and save Unit Cost in a Variable.
+        UnitCost := LibraryRandom.RandInt(50);
+
+        // [GIVEN] Open Job Planning Lines page and set value in Unit Cost.
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GoToRecord(JobPlanningLine);
+        JobPlanningLines."Unit Cost".SetValue(UnitCost);
+        JobPlanningLines.Close();
+
+        // [GIVEN] Find Job Planning Line.
+        JobPlanningLine.Get(
+            JobPlanningLine."Job No.",
+            JobPlanningLine."Job Task No.",
+            JobPlanningLine."Line No.");
+
+        // [GIVEN] Open Job Planning Lines page and set value in Unit Price.
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GoToRecord(JobPlanningLine);
+        JobPlanningLines."Unit Price".SetValue(LibraryRandom.RandInt(100));
+        JobPlanningLines.Close();
+
+        // [WHEN] Find Job Planning Line.
+        JobPlanningLine.Get(
+            JobPlanningLine."Job No.",
+            JobPlanningLine."Job Task No.",
+            JobPlanningLine."Line No.");
+
+        // [THEN] Unit Cost of Job Planning Line is equal to UnitCost.
+        Assert.AreEqual(
+            UnitCost,
+            JobPlanningLine."Unit Cost",
+            StrSubstNo(
+                UnitCostErr,
+                JobPlanningLine.FieldCaption("Unit Cost"),
+                UnitCost,
+                JobPlanningLine.TableCaption()));
     end;
 
     local procedure Initialize()
