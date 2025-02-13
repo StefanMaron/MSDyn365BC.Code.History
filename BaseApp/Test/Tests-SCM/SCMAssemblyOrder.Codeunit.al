@@ -1559,6 +1559,7 @@ codeunit 137908 "SCM Assembly Order"
         Assert.AreEqual(0.45, AssemblyLine.Quantity, 'Quantity is not calculated correctly.');
         Assert.AreEqual(0.45, AssemblyLine."Quantity to Consume", 'Quantity to Consume is not calculated correctly from Quantity.');
         Assert.AreEqual(0.00045, AssemblyLine."Quantity to Consume (Base)", 'Quantity to Consume (Base) is not calculated correctly from Quantity to Consume.');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CreatePostedAssemblyHeader(var PostedAsmHeader: Record "Posted Assembly Header"; AssemblyHeader: Record "Assembly Header")
@@ -2355,10 +2356,75 @@ codeunit 137908 "SCM Assembly Order"
         Assert.AreEqual(ExpectedQuantity, AssemblyLine.Quantity, MustMatchTxt);
     end;
 
+    [Test]
+    [HandlerFunctions('AvailabilityWindowHandler')]
+    [Scope('OnPrem')]
+    procedure GrossRequirementIsCorrectlyCalculatedWithDifferentUoMRForItems()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        BaseQtyPerUOM: Decimal;
+        NonBaseQtyPerUOM: Decimal;
+    begin
+        // [SCENARIO 547904] Gross Component quantity showing correct value when Assembly component item has Item UOM other than Base UOM
+        Initialize();
+
+        // [GIVEN] Assign Non Base Qty and Base Qty Per UOM
+        NonBaseQtyPerUOM := 0.4329;
+        BaseQtyPerUOM := 1;
+
+        // [GIVEN] Create Assembly order Parent item and child item
+        ParentItem.Get(MakeItemWithLot());
+        ChildItem.Get(MakeItemWithLot());
+
+        // [GIVEN] Create  Unit of Measure code
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+
+        // [GIVEN] Create Item UOM for Child Item
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        // [GIVEN] Create Non BAse UOM and Item UOM
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [WHEN] Create Assembly order
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", NonBaseUOM.Code, 1, 1, '');
+
+        // [THEN] Open Show Availability page and verify Gross requirement on page
+        OpenAssemblyAvailabilityPage(AssemblyHeader."No.");
+    end;
+
+    local procedure OpenAssemblyAvailabilityPage(DocumentNo: Code[20])
+    var
+        AssemblyOrder: TestPage "Assembly Order";
+    begin
+        AssemblyOrder.OpenView();
+        AssemblyOrder.FILTER.SetFilter("No.", DocumentNo);
+        AssemblyOrder.ShowAvailability.Invoke();
+        AssemblyOrder.OK().Invoke();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AvailabilityWindowHandler(var AsmAvailability: TestPage "Assembly Availability Check")
+    begin
+        AsmAvailability.AssemblyLineAvail.First();
+        AsmAvailability.AssemblyLineAvail.GrossRequirement.AssertEquals(0);
+        AsmAvailability.AssemblyLineAvail.ExpectedAvailableInventory.AssertEquals(0);
     end;
 }
 
