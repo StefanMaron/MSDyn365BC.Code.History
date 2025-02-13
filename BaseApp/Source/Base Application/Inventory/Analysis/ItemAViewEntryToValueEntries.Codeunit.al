@@ -64,6 +64,9 @@ codeunit 7151 ItemAViewEntryToValueEntries
         ValueEntry.SetRange("Posting Date", StartDate, EndDate);
         ValueEntry.SetRange("Entry No.", 0, ItemAnalysisView."Last Entry No.");
 
+        if ItemAnalysisViewEntry.GetFilter("Location Code") <> '' then
+            ItemAnalysisViewEntry.CopyFilter("Location Code", ValueEntry."Location Code");
+
         if GetGlobalDimValue(GLSetup."Global Dimension 1 Code", ItemAnalysisViewEntry, GlobalDimValue) then
             ValueEntry.SetRange("Global Dimension 1 Code", GlobalDimValue)
         else

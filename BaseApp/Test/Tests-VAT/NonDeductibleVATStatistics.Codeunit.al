@@ -16,8 +16,11 @@ codeunit 134287 "Non-Deductible VAT Statistics"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
+        GLEntryConsistentErr: Label 'G/L Entry is inconsistent';
 
     [Test]
     [HandlerFunctions('PurchaseStatisticsChangeVATAmountModalPageHandler')]
@@ -640,6 +643,60 @@ codeunit 134287 "Non-Deductible VAT Statistics"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsChangeVATAmountModalPageHandler')]
+    procedure PurchaseInvoiceInCurrencyIsPostedWhenChangeVATAmountOnStatisticIfNDVATPctIs100()
+    var
+        Currency: Record Currency;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
+        GenPostingType: Enum "General Posting Type";
+        GLAccountNo: Code[20];
+        ChangeVATAmount: Decimal;
+    begin
+        // [SCENARIO 560355] Purchase Invoice with currency code gets posted when Non-Deductible VAT is 100 Percent
+        // And Non-Deductible VAT and the VAT Amount was previously modified in the Statistics.
+        Initialize();
+
+        // [GIVEN] "Allow VAT Difference" is enabled in Purchases Setup.
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [GIVEN] Create Currency with Exchange Rate.
+        CreateCurrencyWithExchangeRate(Currency);
+
+        // [GIVEN] Set "Max. VAT Difference Allowed" in Currency.
+        SetMaxVATDifferenceAllowInCurrency(LibraryRandom.RandIntInRange(1000, 1000), Currency);
+
+        // [GIVEN] Generate VAT Amount to Change.
+        ChangeVATAmount := LibraryRandom.RandIntInRange(150, 150);
+
+        // [GIVEN] Create Normal VAT Posting Setup with "VAT %" = 20 and Non-Deductible VAT %" = 100.        
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 20, 100);
+
+        // [GIVEN] Create a G/L Account.
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType::Purchase);
+
+        // [GIVEN] Create a Purchase Invoice.
+        CreatePurchaseInvoiceWithCurrencyCode(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group", Currency.Code, GLAccountNo);
+        LibraryVariableStorage.Enqueue(ChangeVATAmount);
+        LibraryVariableStorage.Enqueue(ChangeVATAmount);
+
+        // [GIVEN] Open Purchase Invoice page.
+        PurchaseInvoicePage.OpenEdit();
+        PurchaseInvoicePage.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [GIVEN] Open statistics of the invoice.
+        PurchaseInvoicePage.Statistics.Invoke();
+
+        // [WHEN] Purchase Invoice is Posted.
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [THEN] Verify G/L Entry is Consistent.
+        VerifyGLEntryByDocumentNo(PurchInvHeader."No.", 0);
+    end;
+
     local procedure SetAllowVATDifference(MaxVATDifference: Decimal)
     var
         PurchasesSetup: Record "Purchases & Payables Setup";
@@ -670,6 +727,61 @@ codeunit 134287 "Non-Deductible VAT Statistics"
         Assert.RecordCount(GLEntry, ExpectedCount);
         GLEntry.CalcSums(Amount);
         GLEntry.TestField(Amount, ExpectedAmount);
+    end;
+
+    local procedure CreateCurrencyWithExchangeRate(var Currency: Record Currency)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandInt(0));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", LibraryRandom.RandInt(0));
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDecInDecimalRange(0.6458, 0.6458, 4));
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", LibraryRandom.RandDecInDecimalRange(0.6458, 0.6458, 4));
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure SetMaxVATDifferenceAllowInCurrency(MaxVATDifference: Decimal; Currency: Record Currency)
+    begin
+        Currency.Validate("Max. VAT Difference Allowed", MaxVATDifference);
+        Currency.Modify(true);
+    end;
+
+    local procedure CreatePurchaseInvoiceWithCurrencyCode(
+        var PurchaseHeader: Record "Purchase Header";
+        VATBusPostingGroup: Code[20];
+        CurrencyCode: Code[20];
+        GLAccountNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroup));
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::"G/L Account",
+            GLAccountNo,
+            LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1000));
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure VerifyGLEntryByDocumentNo(DocumentNo: Code[20]; ExpectedAmount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.CalcSums(Amount);
+        Assert.AreEqual(ExpectedAmount, GLEntry.Amount, GLEntryConsistentErr);
     end;
 
     [ModalPageHandler]

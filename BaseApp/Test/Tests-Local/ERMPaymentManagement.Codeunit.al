@@ -107,6 +107,7 @@ codeunit 144049 "ERM Payment Management"
         CheckDimValuePostingHeaderErr: Label 'A dimension used in %1 has caused an error. Dimension %2 is blocked.';
         PaymentSlipErr: Label 'Payment Slip must be posted without error of Document No.';
         AppliesToIDMustBeBlankErr: Label 'Applies-to ID must be blank in Vendor Ledger Entry.';
+        DocumentNoErr: Label 'Document No. must be equal to %1', Comment = '%1 = Document No.';
 
     [Test]
     [HandlerFunctions('GLCustLedgerReconciliationRequestPageHandler')]
@@ -1915,6 +1916,57 @@ codeunit 144049 "ERM Payment Management"
         Assert.AreEqual('', VendorLedgerEntry."Applies-to ID", AppliesToIDMustBeBlankErr);
     end;
 
+    [Test]
+    [HandlerFunctions('PaymentClassListModalPageHandler,ApplyCustomerEntriesModalPageHandler')]
+    procedure NoSeriesUpdatedWhenInsertPaylineManually()
+    var
+        PaymentClass: Record "Payment Class";
+        PaymentStepLedger: Record "Payment Step Ledger";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PaymentLine: Record "Payment Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        NoSeriesLine: Record "No. Series Line";
+        PaymentSlip: TestPage "Payment Slip";
+        PaymentHeaderNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 561809]Last No. Used in No. Series line incremented when the Payment Slip lines are entered manually
+        Initialize();
+
+        // [GIVEN] Payment Slip Setup with Line No. series defined (<> Header No. Series)
+        PaymentClass.Get(
+          SetupForPaymentSlipPost(PaymentStepLedger."Detail Level"::Account, PaymentClass.Suggestions::Customer));
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
+        PaymentClass.Modify(true);
+
+        // [GIVEN] Posted Sales Invoice
+        CustomerNo := CreateAndPostSalesInvoice(VATPostingSetup."Unrealized VAT Type"::" ");
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesInvoiceHeader.FindFirst();
+
+        // [GIVEN] Payment Slip with Payment Line with Document No. = "Y"
+        PaymentHeaderNo := CreatePaymentSlip(PaymentLine."Account Type"::Customer, CustomerNo);
+
+        // [GIVEN] Open the Payment Slip and enqueue the values for handler
+        OpenPaymentSlip(PaymentSlip, PaymentHeaderNo);
+        EnqueueValuesForHandler(EnqueueOpt::Application, SalesInvoiceHeader."Amount Including VAT");
+
+        // [WHEN] Payment Line applied to Customer Ledger Entry of Posted Sales Invoice
+        PaymentSlipApplication(PaymentSlip);
+
+        // [THEN] Customer Ledger Entry value of Applies-to ID = "Y"
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SalesInvoiceHeader."No.");
+        PaymentLine.SetRange("No.", PaymentHeaderNo);
+        PaymentLine.FindFirst();
+
+        // [THEN] Find the Line No. Series line
+        FindNoSeriesLine(NoSeriesLine, PaymentClass."Line No. Series");
+
+        // [THEN] Verify the No. Series Line Last No. used updated
+        Assert.AreEqual(PaymentLine."Document No.", NoSeriesLine."Last No. Used", StrSubstNo(DocumentNoErr, PaymentLine."Document No."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Management");
@@ -3232,6 +3284,12 @@ codeunit 144049 "ERM Payment Management"
                 end;
         end;
         ApplyVendorEntries.OK().Invoke();
+    end;
+
+    local procedure FindNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; NoSeriesCode: Code[20])
+    begin
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst();
     end;
 
     [ModalPageHandler]
