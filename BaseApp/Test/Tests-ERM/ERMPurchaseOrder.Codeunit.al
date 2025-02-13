@@ -97,6 +97,7 @@ codeunit 134327 "ERM Purchase Order"
         ItemRefrenceNoErr: Label 'Item Reference No. should be %1.', Comment = '%1 - old reference no.';
         GrossWeightErr: Label '%1 must be calculated in %2.', Comment = '%1=Field Caption; %2 Page Caption.';
         QuantityMustBeZeroLbl: Label '%1 must be 0', Comment = '%1=Field Caption';
+        GlobalDimensionCodeErr: Label '%1 must be blank in %2.', Comment = '%1=Field Caption; %2 Page Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -8409,6 +8410,98 @@ codeunit 134327 "ERM Purchase Order"
         VerifyItemChargeQty(PurchaseLine[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ItemChargeAssignmentModalPageHandler,ItemChargeAssignMenuHandler')]
+    procedure PostPurchaseInvoiceWithItemChargeWhenReceiptLinesWithLocationDimension()
+    var
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: array[2] of Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        Location: array[2] of Record Location;
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: array[4] of Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ValueEntry: Record "Value Entry";
+        WarehouseEmployee: Record "Warehouse Employee";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        Quantity: Integer;
+        DirectUnitCost: Decimal;
+    begin
+        // [SCENARIO 561174] Unable to Post Purchase Invoice with Item Charge when the receipt lines are assigned to a location that has Dimension of Code Mandatory.
+        Initialize();
+
+        // [GIVEN] Create Location one with Dimension Value one and Inventory Posting Setup
+        GeneralLedgerSetup.Get();
+        CreateLocationWithDimension(Location[1], DimensionValue[1], GeneralLedgerSetup."Shortcut Dimension 1 Code", DefaultDimension."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] Create Location two with Dimension Value two and Inventory Posting Setup
+        CreateLocationWithDimension(Location[2], DimensionValue[2], GeneralLedgerSetup."Shortcut Dimension 1 Code", DefaultDimension."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] Create Warehouse Employee with first Location
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location[1].Code, false);
+
+        // [GIVEN] Create an Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Charge Item
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Generate Quantity
+        Quantity := LibraryRandom.RandInt(0);
+
+        // [GIVEN] Generate Direct Unit Cost
+        DirectUnitCost := LibraryRandom.RandDecInRange(10, 50, 2);
+
+        // [GIVEN] Create a Purchase Header with Document Type Order.
+        CreatePurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order);
+
+        // [GIVEN] Create Purchase Lines one with an Item with Location one and Dimension Value one.
+        CreatePurchaseLinesAndUpdateLocationAndDimension(
+            PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item,
+            Item."No.", Quantity, Quantity, DirectUnitCost, Location[1].Code, Dimensionvalue[1].Code);
+
+        // [GIVEN] Create Purchase Lines two with an Item with Location two and Dimension Value two.
+        CreatePurchaseLinesAndUpdateLocationAndDimension(
+            PurchaseLine[2], PurchaseHeader[1], PurchaseLine[2].Type::Item,
+            Item."No.", Quantity, Quantity, DirectUnitCost, Location[2].Code, Dimensionvalue[2].Code);
+
+        // [GIVEN] Post Receipt of Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
+
+        // [GIVEN] Create Purchase Invoice with the help of "Get Receipt Lines".
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, PurchaseHeader[1]."Buy-from Vendor No.");
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader[1]."No.");
+        PurchGetReceipt.SetPurchHeader(PurchaseHeader[2]);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        // [GIVEN] Create new Purchase Lines three with an Charge Item.    
+        CreatePurchaseLinesAndUpdateQtytoReceive(
+            PurchaseLine[3], PurchaseHeader[2], PurchaseLine[3].Type::"Charge (Item)",
+            ItemCharge."No.", Quantity, Quantity, LibraryRandom.RandDecInRange(20, 20, 2));
+
+        // [GIVEN] Find Charge Item Purchase Line.
+        FindItemChargePurchaseLine(PurchaseLine[4], PurchaseHeader[2]."No.", PurchaseHeader[2]."Document Type");
+
+        // [GIVEN] Invoke Suggest Item Charge Assignment with option By Amount
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseLine[4].ShowItemChargeAssgnt();
+
+        // [WHEN] Post Invoice of Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], false, true);
+
+        // [THEN] Value Entry with Entry Type, Direct Cost, Item and item charge has Global Dimension 1 Code.
+        FindDirectCostValueEntry(ValueEntry, Item."No.", ItemCharge."No.");
+        Assert.AreEqual('', ValueEntry."Global Dimension 1 Code",
+            StrSubstNo(
+                GlobalDimensionCodeErr,
+                ValueEntry.FieldCaption("Global Dimension 1 Code"),
+                ValueEntry.TableCaption));
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11783,6 +11876,41 @@ codeunit 134327 "ERM Purchase Order"
         ImplementStandardCostChange.OK().Invoke();
     end;
 #endif
+
+    local procedure CreateLocationWithDimension(var Location: Record Location; var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        if DimensionCode = '' then
+            exit;
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Location, Location.Code, DimensionCode, DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", ValuePosting);
+        DefaultDimension.Validate("Allowed Values Filter", DimensionValue.Code);
+        DefaultDimension.Modify(true);
+    end;
+
+    local procedure CreatePurchaseLinesAndUpdateLocationAndDimension(
+        var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type";
+        ItemNo: Code[20]; Quantity: Decimal; QtytoReceive: Decimal; DirectUnitCost: Decimal; LocationCode: Code[10]; DimensionCode: Code[20])
+    begin
+        CreatePurchaseLinesAndUpdateQtytoReceive(
+            PurchaseLine, PurchaseHeader, LineType,
+            ItemNo, Quantity, QtytoReceive, DirectUnitCost);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Validate("Shortcut Dimension 1 Code", DimensionCode);
+        PurchaseLine.Modify();
+    end;
+
+    local procedure FindDirectCostValueEntry(var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; ItemChargeNo: Code[20])
+    begin
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
+        ValueEntry.FindFirst();
+    end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]

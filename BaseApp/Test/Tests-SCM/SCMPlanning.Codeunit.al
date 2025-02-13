@@ -30,6 +30,7 @@ codeunit 137020 "SCM Planning"
         PlanningEndDate: DateFormula;
         StringsMustBeIdenticalErr: Label 'Strings must be identical.';
         RoutingType: Option Serial,Parallel;
+        SalesHeaderMustNotBeFoundErr: Label 'Sales Header must not be found.';
 
     local procedure GlobalSetup()
     begin
@@ -4872,6 +4873,244 @@ codeunit 137020 "SCM Planning"
         Assert.AreEqual(MaxQty, InvtQty - 2 * SalesQty + RequisitionLine.Quantity, 'Wrong planned quantity.');
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandlers')]
+    procedure ItemOrderTrackingPolicyTrackingOnlyAndPlanningReservationForDropShipItem()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        Location: Record Location;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 556539] Item setup for Order Tracking Policy in Tracking Only and Planning for this Drop Ship item.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create an Item and Validate Reorder Policy, Tracking Policy, Reorder point and Quantity.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item.Validate("Reorder Point", LibraryRandom.RandIntInRange(70, 75));
+        Item.Validate("Reorder Quantity", LibraryRandom.RandIntInRange(120, 120));
+        Item.Validate("Vendor No.", Vendor."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Create Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Validate Component at Location in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", Location.Code);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Select Item Journal Template.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+
+        // [GIVEN] Select Item Journal Batch Name.
+        LibraryInventory.SelectItemJournalBatchName(
+          ItemJournalBatch,
+          ItemJournalBatch."Template Type"::Item,
+          ItemJournalTemplate.Name);
+
+        // [GIVEN] Create an Item Journal.
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+
+        // [GIVEN] Create an Item Journal Line and Validate Location Code in Item Journal Line.
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine,
+          ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          Item."No.",
+          LibraryRandom.RandIntInRange(5, 5));
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post an Item Journal.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create an Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Sales Order with Drop Shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader[1], SalesLine[1], Location, Customer, Item);
+
+        // [GIVEN] Create Requisition Worksheet Name and Calculate Plan.
+        CreateRequisitionWkshNameAndCalculatePlan(RequisitionWkshName, Item);
+
+        // [GIVEN] Find REquisition Line.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+
+        // [GIVEN] Run Get Sales Order in Requisition Line.
+        RunGetSalesOrders(SalesLine[1], RequisitionLine);
+
+        // [GIVEN] Run Carry Out Requisition Line.
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
+
+        // [GIVEN] Post Sales Order for Shipment Only.
+        LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // [GIVEN] Create Sales Order with Drop Shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader[2], SalesLine[2], Location, Customer, Item);
+
+        // [GIVEN] Create Requisition Worksheet Name.
+        CreateRequisitionWkshNameAndCalculatePlan(RequisitionWkshName, Item);
+
+        // [GIVEN] Create Requisition Line and Validate Worksheet Template Name, Journal Batch Name, Type and No. in Requisition Line.
+        RequisitionLine.Init();
+        RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Insert(true);
+
+        // [GIVEN] Run Get Sales Orders in Requisition Line.
+        RunGetSalesOrders(SalesLine[2], RequisitionLine);
+
+        // [GIVEN] Find the Requisition Line.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.SetRange("Location Code", Location.Code);
+        RequisitionLine.FindFirst();
+
+        // [GIVEN] Run Carry out Requisition Worksheet.
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
+
+        // [WHEN] Post Sales Order with Shipment only.
+        LibrarySales.PostSalesDocument(SalesHeader[2], true, false);
+
+        // [THEN] Sales Order should be Posted and Sales Shipment Line is created.
+        SalesShipmentLine.SetRange("No.", Item."No.");
+        SalesShipmentLine.SetRange("Location Code", Location.Code);
+        SalesShipmentLine.FindFirst();
+        Assert.RecordIsNotEmpty(SalesShipmentLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlers')]
+    [Scope('OnPrem')]
+    procedure SOWithSpecOrderPurchCodeAndLotforLotItemWithTrackOnlyOrderTrackPolicyIsPostedAfterCalcRegPlan()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Purchasing: Record Purchasing;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 558518] Sales Order having Special Order Purchasing Code and Item with 
+        // Order Tracking Policy as Tracking Only and Reorder Policy as Lot-for-Lot is posted 
+        // Without any error after running Calculate Regenrative Plan.
+        Initialize();
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create an Item and Validate Reordering Policy, 
+        // Order Tracking Policy and Vendor No.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item.Validate("Vendor No.", Vendor."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Order,
+            Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+
+        // [GIVEN] Validate Location Code.
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Purchasing and Validate Special Order.
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        Purchasing.Validate("Special Order", true);
+        Purchasing.Modify(true);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Order,
+            Customer."No.");
+
+        // [GIVEN] Create a Sales Line and Validate Location Code and Purchasing Code.
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+
+        // [GIVEN] Validate Location Code and Purchasing Code in Sales Line.
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Purchasing Code", Purchasing.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Release Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Get Sales Order On Requisition Worksheet and run Carry Our Action Msg.
+        GetSalesOrderOnReqWkshtAndCarryOutActionMsg(Item."No.");
+
+        // [GIVEN] Reopen Sales Order.
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [GIVEN] Validate Planned Shipment Date in Sales Line.
+        SalesLine.Validate("Planned Shipment Date", CalcDate('<+14D>', SalesLine."Planned Shipment Date"));
+
+        // [GIVEN] Release Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Calculate Regenerative Plan.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(
+            Item,
+            CalcDate('<-CY>', WorkDate()),
+            CalcDate('<CY>', WorkDate()));
+
+        // [WHEN] Post Sales Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Sales Header is not found.
+        Assert.IsFalse(
+            SalesHeader.Get(SalesHeader."Document Type"::Order, SalesHeader."No."),
+            SalesHeaderMustNotBeFoundErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4982,6 +5221,77 @@ codeunit 137020 "SCM Planning"
         PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
     end;
 
+    local procedure FindPurchasingCode(): Code[10]
+    var
+        Purchasing: Record Purchasing;
+        RecordRef: RecordRef;
+    begin
+        Purchasing.Init();
+        Purchasing.SetRange("Drop Shipment", true);
+        RecordRef.GetTable(Purchasing);
+        LibraryUtility.FindRecord(RecordRef);
+        RecordRef.SetTable(Purchasing);
+        exit(Purchasing.Code);
+    end;
+
+    local procedure RunGetSalesOrders(SalesLine: Record "Sales Line"; RequisitionLine: Record "Requisition Line")
+    var
+        GetSalesOrders: Report "Get Sales Orders";
+        RetrieveDimensions: Option Item,"Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type");
+        SalesLine.SetRange("Document No.", SalesLine."Document No.");
+        Clear(GetSalesOrders);
+        GetSalesOrders.SetTableView(SalesLine);
+        GetSalesOrders.InitializeRequest(RetrieveDimensions::"Sales Line");
+        GetSalesOrders.SetReqWkshLine(RequisitionLine, 0);
+        GetSalesOrders.UseRequestPage(false);
+        GetSalesOrders.RunModal();
+    end;
+
+    local procedure CreateSalesOrderWithDropShipment(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Location: Record Location; Customer: Record Customer; Item: Record Item)
+    begin
+        LibrarySales.CreateSalesHeader(
+          SalesHeader,
+          SalesHeader."Document Type"::Order,
+          Customer."No.");
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item,
+          Item."No.", LibraryRandom.RandIntInRange(500, 2));
+        SalesLine.Validate("Purchasing Code", FindPurchasingCode());
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateRequisitionWkshNameAndCalculatePlan(var RequisitionWkshName: Record "Requisition Wksh. Name"; Item: Record Item)
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+    begin
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
+        ReqWkshTemplate.SetRange(Recurring, false);
+        ReqWkshTemplate.FindFirst();
+        ReqWkshTemplate."Increment Batch Name" := true;
+        ReqWkshTemplate.Modify();
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate() - LibraryRandom.RandIntInRange(365, 365), WorkDate());
+    end;
+
+    local procedure GetSalesOrderOnReqWkshtAndCarryOutActionMsg(ItemNo: Code[20])
+    var
+        RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+    begin
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
+        ReqWkshTemplate.FindFirst();
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
+        LibraryPlanning.GetSpecialOrder(RequisitionLine, ItemNo);
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Msg: Text[1024])
@@ -4992,6 +5302,11 @@ codeunit 137020 "SCM Planning"
         LibraryVariableStorage.Dequeue(DequeueVariable);
         LocalMessage := DequeueVariable;
         Assert.IsTrue(StrPos(Msg, LocalMessage) > 0, Msg);
+    end;
+
+    [MessageHandler]
+    procedure MessageHandlers(Msg: Text[1024])
+    begin
     end;
 
     [RequestPageHandler]

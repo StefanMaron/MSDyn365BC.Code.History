@@ -1238,7 +1238,6 @@ codeunit 7322 "Create Inventory Pick/Movement"
     var
         Item2: Record Item;
         TempWarehouseActivityLine2: Record "Warehouse Activity Line" temporary;
-        BlockedItemTrackingSetup: Record "Item Tracking Setup";
         WhseActivLineItemTrackingSetup: Record "Item Tracking Setup";
         WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
         QtyAssgndtoPick: Decimal;
@@ -1283,7 +1282,6 @@ codeunit 7322 "Create Inventory Pick/Movement"
             WarehouseAvailabilityMgt.CalcReservQtyOnPicksShips(
                 WarehouseActivityLine."Location Code", WarehouseActivityLine."Item No.", WarehouseActivityLine."Variant Code", TempWarehouseActivityLine2);
 
-        BlockedItemTrackingSetup.CopyTrackingFromItemTrackingSetup(WhseItemTrackingSetup);
         if CurrLocation."Bin Mandatory" then
             QtyBlocked :=
                 WarehouseAvailabilityMgt.CalcQtyOnBlockedITOrOnBlockedOutbndBins(
@@ -1291,7 +1289,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         else
             QtyBlocked :=
                 WarehouseAvailabilityMgt.CalcQtyOnBlockedItemTracking(
-                    WarehouseActivityLine."Location Code", WarehouseActivityLine."Item No.", WarehouseActivityLine."Variant Code");
+                    WarehouseActivityLine."Location Code", WarehouseActivityLine."Item No.", WarehouseActivityLine."Variant Code", WhseItemTrackingSetup);
         OnCalcInvtAvailabilityOnAfterCalcQtyBlocked(WarehouseActivityLine, WhseItemTrackingSetup, QtyBlocked);
         exit(
           Item2.Inventory - Abs(Item2."Reserved Qty. on Inventory") - QtyAssgndtoPick - QtyOnDedicatedBins - QtyBlocked +

@@ -262,6 +262,47 @@ table 1234 "CSV Buffer"
     end;
 
     /// <summary>
+    /// Loads data from a stream.
+    /// </summary>
+    /// <param name="CSVInStream">Instream from which to read data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
+    /// <param name="EncodingCodePage">Encoding page from the file that was loaded in the stream. For more references you can see the Encoding.GetEncoding(EncodingCodePage) in C#.</param>
+    procedure LoadDataFromStream(CSVInStream: InStream; CSVFieldSeparator: Text[1]; EncodingCodePage: Integer)
+    begin
+        LoadDataFromStream(CSVInStream, CSVFieldSeparator, '', EncodingCodePage);
+    end;
+
+    /// <summary>
+    /// Loads data from a stream.
+    /// </summary>
+    /// <param name="CSVInStream">Instream from which to read data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
+    /// <param name="CSVCharactersToTrim">Characters to trim from the beginning and the end of the read values.</param>
+    /// <param name="EncodingCodePage">Encoding page from the file that was loaded in the stream. For more references you can see the Encoding.GetEncoding(EncodingCodePage) in C#.</param>
+    procedure LoadDataFromStream(CSVInStream: InStream; CSVFieldSeparator: Text[1]; CSVCharactersToTrim: Text; EncodingCodePage: Integer)
+    begin
+        InitializeReaderFromStream(CSVInStream, CSVFieldSeparator, CSVCharactersToTrim, EncodingCodePage);
+        ReadLines(0);
+        StreamReader.Close();
+    end;
+
+    /// <summary>
+    /// Initializes the CSV buffer.
+    /// </summary>
+    /// <param name="CSVInStream">The stream from which to read data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
+    /// <param name="CSVCharactersToTrim">Characters to trim from the beginning and the end of the read values.</param>
+    /// <param name="EncodingCodePage">Encoding page from the file that was loaded in the stream. For more references you can see the Encoding.GetEncoding(EncodingCodePage) in C#.</param>
+    procedure InitializeReaderFromStream(CSVInStream: InStream; CSVFieldSeparator: Text[1]; CSVCharactersToTrim: Text; EncodingCodePage: Integer)
+    var
+        Encoding: DotNet Encoding;
+    begin
+        StreamReader := StreamReader.StreamReader(CSVInStream, Encoding.GetEncoding(EncodingCodePage));
+        Separator := CSVFieldSeparator;
+        CharactersToTrim := CSVCharactersToTrim;
+    end;
+
+    /// <summary>
     /// Populated the CSV buffer with entries.
     /// </summary>
     /// <remarks>
