@@ -129,6 +129,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         isInitialized: Boolean;
         No_SalesShipmentLine_XPathTok: Label '/ReportDataSet/DataItems/DataItem/DataItems/DataItem/DataItems/DataItem/DataItems/DataItem/Columns/Column[@name=''No_SalesShptLine'']';
         OrderNo_StandardSalesInvoice_XPathTok: Label '/ReportDataSet/DataItems/DataItem/Columns/Column[@name=''OrderNo'']';
+        AmountErr: Label '%1 must be %2 in %3.', Comment = '%1=Field Name, %2 = Expected Value, %3 = Table Name';
 
     [Test]
     [HandlerFunctions('BatchPostSalesOrdersRequestPageHandler,MessageHandler')]
@@ -745,6 +746,105 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure AmountFCYShouldBeZeroInGLOnPostingPurchInvWithPayableAccThatHasCurrencyCode()
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        DocumentNo: Code[20];
+        ForeignCurrencyCode: Code[10];
+        ItemNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 546030] On posting Purchase Invoice with Payable Account that has "Currency Code", "Amount (FCY)" should be zero in G\L Entry.
+        Initialize();
+
+        // [GIVEN] Setup a Currency with Exchange Rates.
+        ForeignCurrencyCode := CreateCurrencyAndExchangeRate(1, 100, WorkDate());
+
+        // [GIVEN] Create a Vendor and Item with posting setups.
+        CreateVendorAndItem(VendorNo, ItemNo, ForeignCurrencyCode);
+
+        // [GIVEN] Create a Vendor Posting Group and assign it to the Vendor.
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Assign "Currency Code" in "Payable Account" of Vendor Posting Group.
+        GLAccount.Get(VendorPostingGroup."Payables Account");
+#if not CLEAN24
+        GLAccount.Validate("Currency Code", ForeignCurrencyCode);
+        GLAccount.Modify(true);
+#endif
+
+        // [WHEN] Post the Purchase Invoice for the Vendor.
+        DocumentNo := CreateAndPostPurchaseDocument(PurchaseLine, WorkDate(), VendorNo, ItemNo, PurchaseLine."Document Type"::Invoice,
+            LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
+
+        // [THEN] Verify that "Amount (FCY)" in GL Entry is zero for "G\L Account No" = VendorPostingGroup."Payables Account".
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payables Account");
+#if not CLEAN24    
+        GLEntry.CalcSums("Amount (FCY)");
+        Assert.AreEqual(0, GLEntry."Amount (FCY)", StrSubstNo(AmountErr, GLEntry.FieldCaption("Amount (FCY)"), 0, GLEntry.TableCaption));
+#endif
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SourceCurrencyAmtShouldBeZeroInGLOnPostingPurchInvWithPayableAccThatHasCurrencyCode()
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        DocumentNo: Code[20];
+        ForeignCurrencyCode: Code[10];
+        ItemNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 546030] On posting Purchase Invoice with Payable Account that has "Currency Code", "Source Currency Amount" should be zero in G\L Entry.
+        Initialize();
+
+        // [GIVEN] Setup a Currency with Exchange Rates.
+        ForeignCurrencyCode := CreateCurrencyAndExchangeRate(1, 100, WorkDate());
+
+        // [GIVEN] Create a Vendor and Item with posting setups.
+        CreateVendorAndItem(VendorNo, ItemNo, ForeignCurrencyCode);
+
+        // [GIVEN] Create a Vendor Posting Group and assign it to the Vendor.
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Assign "Currency Code" in "Payable Account" of Vendor Posting Group.
+        GLAccount.Get(VendorPostingGroup."Payables Account");
+#if CLEAN24
+        GLAccount.Validate("Source Currency Code", ForeignCurrencyCode);
+        GLAccount.Modify(true);
+#endif
+
+        // [WHEN] Post the Purchase Invoice for the Vendor.
+        DocumentNo := CreateAndPostPurchaseDocument(PurchaseLine, WorkDate(), VendorNo, ItemNo, PurchaseLine."Document Type"::Invoice,
+            LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
+
+        // [THEN] Verify that "Source Currency Amount" in GL Entry is zero for "G\L Account No" = VendorPostingGroup."Payables Account".
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payables Account");
+#if CLEAN24    
+        GLEntry.CalcSums("Source Currency Amount");
+        Assert.AreEqual(0, GLEntry."Source Currency Amount", StrSubstNo(AmountErr, GLEntry.FieldCaption("Source Currency Amount"), 0, GLEntry.TableCaption));
+#endif
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1141,6 +1241,96 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText(), '');
         LibraryXPathXMLReader.VerifyNodeCountByXPath('/ReportDataSet/DataItems/DataItem', 1);
         LibraryXPathXMLReader.VerifyNodeValueByXPath(OrderNo_StandardSalesInvoice_XPathTok, SalesHeader."No.");
+    end;
+
+    local procedure CreateCurrencyAndExchangeRate(Rate: Decimal; RelationalRate: Decimal; FromDate: Date): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        PrepareCurrency(Currency, 0);
+        CreateExchangeRate(Currency.Code, Rate, RelationalRate, FromDate);
+        exit(Currency.Code);
+    end;
+
+    local procedure PrepareCurrency(var Currency: Record Currency; ApplnRoundingPrecision: Decimal)
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
+        Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
+        Currency.Validate("Appln. Rounding Precision", ApplnRoundingPrecision);
+        Currency.Modify(true);
+    end;
+
+    local procedure CreateExchangeRate(CurrencyCode: Code[10]; Rate: Decimal; RelationalRate: Decimal; FromDate: Date)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, FromDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", Rate);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", Rate);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalRate);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalRate);
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure CreateVendorAndItem(var VendorNo: Code[20]; var ItemNo: Code[20]; ForeignCurrencyCode: Code[10])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+    begin
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+
+        ItemNo := CreateItemWithPostingSetup(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VendorNo := CreateVendorWithPostingSetup(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Currency Code", ForeignCurrencyCode);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateItemWithPostingSetup(GenProdPostingGroup: Code[20]; VATProductPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
+        Item.Validate("VAT Prod. Posting Group", VATProductPostingGroup);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateVendorWithPostingSetup(GenBusPostingGroupCode: Code[20]; VATBusPostingGroupCode: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+        LibraryPurchase: Codeunit "Library - Purchase";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; PostingDate: Date; VendorNo: Code[20]; ItemNo: Code[20]; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal; DirectUnitCost: Decimal) PostedDocumentNo: Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        UpdateDirectUnitCostOnPurchaseLine(PurchaseLine, DirectUnitCost);
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure UpdateDirectUnitCostOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DirectUnitCost: Decimal)
+    begin
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
     end;
 
     [RequestPageHandler]

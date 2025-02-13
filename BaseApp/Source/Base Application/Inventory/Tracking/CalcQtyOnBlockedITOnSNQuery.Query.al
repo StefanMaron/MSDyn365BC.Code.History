@@ -18,6 +18,7 @@ query 7315 CalcQtyOnBlockedITOnSNQuery
             filter(Item_No_; "Item No.") { }
             filter(Variant_Code; "Variant Code") { }
             filter(Blocked; Blocked) { }
+            filter(Serial_No_; "Serial No.") { }
             dataitem(Item_Ledger_Entry; "Item Ledger Entry")
             {
                 DataItemLink = "Serial No." = Serial_No__Information."Serial No.";
@@ -36,4 +37,10 @@ query 7315 CalcQtyOnBlockedITOnSNQuery
             }
         }
     }
+
+    procedure SetItemTrackingFilter(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No." <> '' then
+            SetRange(Serial_No_, ItemTrackingSetup."Serial No.");
+    end;
 }

@@ -273,7 +273,13 @@ codeunit 1255 "Match Bank Payments"
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         Prefix: Code[50];
         MaxEntriesToCheck: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNotifyIfEntriesMatchedElsewhere(BankAccReconciliationLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not GuiAllowed() then
             exit;
         MaxEntriesToCheck := 600;
@@ -2479,6 +2485,11 @@ codeunit 1255 "Match Bank Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsCustomerBankAccountMatching(ValueFromBankStatement: Text; CustomerNo: Code[20]; BankAccountNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeNotifyIfEntriesMatchedElsewhere(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var IsHandled: Boolean)
     begin
     end;
 
