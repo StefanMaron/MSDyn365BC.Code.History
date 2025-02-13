@@ -599,7 +599,7 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetQtysOnRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; Qty: Decimal; QtyBase: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeSetQtysOnRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var Qty: Decimal; var QtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

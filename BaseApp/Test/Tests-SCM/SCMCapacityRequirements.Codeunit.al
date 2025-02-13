@@ -39,6 +39,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CapacityErr: Label '%1 must be %2 in %3', Comment = '%1 = Capacity, %2 = value, %3 = WorkCenterGroupLoadlines';
         ProdOrderNeedQtyErr: Label '%1 must be %2 in %3', Comment = '%1 = Prod. Order Need (Qty.), %2 = value, %3 = WorkCenterGroupLoadlines';
         Description2Err: Label 'Description must not be blank in %1.', Comment = '%1 = Table Caption.';
+        EndingTimeErr: Label 'Ending Time must be equal to %1', Comment = '%1 = Ending Time';
 
     [Test]
     [Scope('OnPrem')]
@@ -4757,6 +4758,48 @@ codeunit 137074 "SCM Capacity Requirements"
             ProductionOrder.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyEndingDateTimeProductionOrderWhenOutputPostedTwoTimes()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderLine: Record "Prod. Order Line";
+        ExpectedTime: Integer;
+        OutputQty: Integer;
+        TotalQty: Integer;
+    begin
+        // [SCENARIO 556711] Ending Date/Time in Production Order Line is calculated, when remaining Quantity lower than the Quantity
+        Initialize();
+
+        // [GIVEN] Assign TotalQty and OutputQty
+        TotalQty := LibraryRandom.RandInt(60);
+        OutputQty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create Production Item  with single routing line and Work Center, SetupTime=0, runtime=1 and WaitTime=0
+        CreateProductionItemWithRouting(Item, 0, 1, 0, 0, WorkDate());
+
+        // [GIVEN] Create Production Order and releases it with given quantity and time should be 08:00 AM
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", TotalQty, WorkDate(), 080000T);
+
+        // [GIVEN] Find first Prod. Order Routing Line
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+
+        // [GIVEN] Create and post output of less than 10 quantity
+        CreateAndPostOutputJnlLine(ProdOrderRoutingLine, Item."No.", OutputQty, 0, 0);
+
+        // [WHEN] Find the first Prod. Order Line and validate the "Starting Date-Time" with same value
+        FindFirstProdOrderLine(ProductionOrder, ProdOrderLine);
+        ProdOrderLine.Validate("Starting Date-Time", ProdOrderLine."Starting Date-Time");
+
+        // [WHEN] Save the Expected time in integer format
+        ExpectedTime := (ProdOrderLine."Ending Time" - ProdOrderLine."Starting Time") / 60000;
+
+        // [THEN] Verify expected time should be same as Output quantity deducted from Production Order quantity, runtime is 1
+        Assert.AreEqual(ExpectedTime, TotalQty - OutputQty, EndingTimeErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6032,6 +6075,53 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         if Date2DWY(WorkDate(), 1) in [1, 6, 7] then
             exit(CalcDate('<3D>', WorkDate()));
+    end;
+
+    local procedure CreateProductionItemWithRouting(var Item: Record Item; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal; DueDate: Date)
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        CapacityUOM: Record "Capacity Unit of Measure";
+        WorkCenterCode: Code[20];
+    begin
+        WorkCenterCode := CreateWorkCenterWithShopCalendar(CapacityUOM.Type::Minutes, CreateShopCalendar(), 100, 1, DueDate);
+        CreateItem(Item, Item."Replenishment System"::"Prod. Order");
+
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLineWithSendAhead(
+          RoutingLine, RoutingHeader, RoutingLine.Type::"Work Center", WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, 0, 1, '10', '', '');
+        UpdateStatusOnRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateShopCalendar(): Code[10]
+    var
+        ShopCalendar: Record "Shop Calendar";
+        WorkShift: Record "Work Shift";
+    begin
+        LibraryManufacturing.CreateShopCalendarCode(ShopCalendar);
+        LibraryManufacturing.CreateWorkShiftCode(WorkShift);
+        UpdateShiftsShopCalendarWorkingDays(ShopCalendar.Code, WorkShift.Code);
+        exit(ShopCalendar.Code);
+    end;
+
+    local procedure UpdateShiftsShopCalendarWorkingDays(ShopCalendarCode: Code[10]; WorkShiftCode: Code[10])
+    var
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        DoW: Integer;
+    begin
+        for DoW := ShopCalendarWorkingDays.Day::Monday to ShopCalendarWorkingDays.Day::Sunday do
+            LibraryManufacturing.CreateShopCalendarWorkingDays(
+              ShopCalendarWorkingDays, ShopCalendarCode, DoW, WorkShiftCode, 000000T, 235959T);
+    end;
+
+    local procedure FindFirstProdOrderLine(ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", ProductionOrder."Source No.");
+        ProdOrderLine.FindFirst();
     end;
 
     [StrMenuHandler]

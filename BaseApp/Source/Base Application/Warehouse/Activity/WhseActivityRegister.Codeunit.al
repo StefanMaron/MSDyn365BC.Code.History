@@ -1670,7 +1670,7 @@ codeunit 7307 "Whse.-Activity-Register"
 
             LineReservedQtyBase :=
                 WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                    WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", false, TempWhseActivLine2);
+                    WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", false, WhseItemTrackingSetup, WhseActivLine);
 
             TotalAvailQtyBase :=
               QtyInWhseBase -
@@ -2155,6 +2155,7 @@ codeunit 7307 "Whse.-Activity-Register"
         TempWarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type");
         TempWarehouseActivityLine.SetRange("Original Breakbulk", WarehouseActivityLine."Original Breakbulk");
         TempWarehouseActivityLine.SetRange("Breakbulk No.", WarehouseActivityLine."Breakbulk No.");
+        TempWarehouseActivityLine.SetRange("Unit of Measure Code", WarehouseActivityLine."Unit of Measure Code");
         if TempWarehouseActivityLine.FindFirst() then begin
             TempWarehouseActivityLine."Qty. to Handle" += WarehouseActivityLine."Qty. to Handle";
             TempWarehouseActivityLine."Qty. to Handle (Base)" += WarehouseActivityLine."Qty. to Handle (Base)";

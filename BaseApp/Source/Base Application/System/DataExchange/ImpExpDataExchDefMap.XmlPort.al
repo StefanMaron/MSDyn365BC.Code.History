@@ -155,6 +155,11 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                 {
                     Occurrence = Optional;
                 }
+                fieldattribute(LineSeparator; "Data Exch. Def"."Line Separator")
+                {
+                    Occurrence = Optional;
+                    FieldValidate = no;
+                }
                 tableelement("Data Exch. Line Def"; "Data Exch. Line Def")
                 {
                     LinkFields = "Data Exch. Def Code" = field(Code);
