@@ -293,8 +293,12 @@ codeunit 10758 "SII Scheme Code Mgt."
         PurchaseLine."Special Scheme Code" := PurchaseLine."Special Scheme Code"::"01 General";
         if not VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group") then
             exit;
-        if VATPostingSetup."Purch. Special Scheme Code" = VATPostingSetup."Purch. Special Scheme Code"::" " then
+        if VATPostingSetup."Purch. Special Scheme Code" = VATPostingSetup."Purch. Special Scheme Code"::" " then begin
+            if VATPostingSetup."VAT Cash Regime" then
+                PurchaseLine."Special Scheme Code" := PurchaseLine."Special Scheme Code"::"07 Special Cash";
             exit;
+        end;
+
         PurchaseLine."Special Scheme Code" :=
             "SII Purch. Special Scheme Code".FromInteger(VATPostingSetup."Purch. Special Scheme Code".AsInteger() - 1);
     end;

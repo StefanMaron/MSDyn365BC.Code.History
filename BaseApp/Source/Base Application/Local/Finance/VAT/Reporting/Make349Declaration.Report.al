@@ -270,7 +270,7 @@ report 10710 "Make 349 Declaration"
                                                 if AmountToIncludein349 <> 0 then
                                                     AmountEUService += AmountToIncludein349
                                                 else
-                                                    AmountEUService += VATInvSales.Base;
+                                                    AmountEUService += VATInvSales.Base + VATInvSales."Non-Deductible VAT Base";
                                             end else
                                                 EmptyVATRegNo := true;
                                 until VATInvSales.Next() = 0;
@@ -562,7 +562,7 @@ report 10710 "Make 349 Declaration"
                                                 if (AmountToIncludein349 <> 0) and ("Currency Code" = '') then
                                                     AmountEUService += AmountToIncludein349
                                                 else
-                                                    AmountEUService += VATInvPurch.Base;
+                                                    AmountEUService += VATInvPurch.Base + VATInvPurch."Non-Deductible VAT Base";
                                             end else
                                                 EmptyVATRegNo := true;
                                 until VATInvPurch.Next() = 0;
@@ -1949,6 +1949,8 @@ report 10710 "Make 349 Declaration"
             NormalAmount -= CustVendWarning349."Original Declared Amount"
         else
             NormalAmount += VATEntry.Base;
+        CustVendWarning349.Exported := true;
+        CustVendWarning349.Modify();
     end;
 
     local procedure CorrectAmountEU()
@@ -1960,6 +1962,8 @@ report 10710 "Make 349 Declaration"
             AmountEUService += VATEntry.Base;
         end else
             AmountEUService -= CustVendWarning349."Original Declared Amount";
+        CustVendWarning349.Exported := true;
+        CustVendWarning349.Modify();
     end;
 
     local procedure InitVATEntry(var VATEntry: Record "VAT Entry"; CustVendWarning349VATEntryNo: Integer)

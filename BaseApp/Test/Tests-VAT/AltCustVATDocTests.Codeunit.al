@@ -767,6 +767,44 @@ codeunit 134237 "Alt. Cust. VAT. Doc. Tests"
         LibraryLowerPermissions.SetOutsideO365Scope();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,NoNotificationOtherThanShipToAddressSendNotificationHandler')]
+    procedure ShipToCodeConnectionAltCustVATSetupOfBillToCustomer()
+    var
+        ShipToAddress: Record "Ship-to Address";
+        AltCustVATReg: Record "Alt. Cust. VAT Reg.";
+        SalesHeader: Record "Sales Header";
+        Customer, BillToCustomer : Record Customer;
+    begin
+        // [SCENARIO 563939] VAT Registration data is copied to the sales header from the Alternative Customer VAT Registration setup
+        // [SCENARIO 563939] when ship-to address connected to the Alternative Customer VAT Registration setup for the Bill-To Customer
+
+        Initialize();
+        // [GIVEN] Sell-To Customer with country "X", "VAT Registration No." = "X1234567890", "Gen. Bus. Posting Group" = "CUSTBUS", "VAT Bus. Posting Group" = "CUSTVAT"
+        LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo(Customer);
+        // [GIVEN] Bill-To Customer with country "Z", "VAT Registration No." = "Z1234567890", "Gen. Bus. Posting Group" = "BILLCUSTBUS", "VAT Bus. Posting Group" = "BILLCUSTVAT"
+        LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo(BillToCustomer);
+        // [GIVEN] Ship-To Address with country "Y"
+        LibrarySales.CreateShipToAddressWithRandomCountryCode(ShipToAddress, Customer."No.");
+        // [GIVEN] Bill-To Customer and Ship-To Code are assigned to the Sell-To Customer
+        Customer.Validate("Bill-to Customer No.", BillToCustomer."No.");
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsCreate();
+        // [GIVEN] Alternative Customer VAT Reg. for Bill-To Customer with country "Y", "VAT Registration No." = "Y1234567890", "Gen. Bus. Posting Group" = "SHIPTOBUS", "VAT Bus. Posting Group" = "SHIPTOVAT"
+        LibraryAltCustVATReg.CreateAlternativeCustVATReg(AltCustVATReg, BillToCustomer."No.", ShipToAddress."Country/Region Code");
+        // [WHEN] Create sales order for Sell-To Customer (Bill-To Customer and Ship-To Code are taken from the card)
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        // [THEN] Sales order has "VAT Registration No." = "Y1234567890", "Gen. Bus. Posting Group" = "SHIPTOBUS", "VAT Bus. Posting Group" = "SHIPTOVAT", "Country/Region Code" = "Y"
+        VerifyVATRegDataInSalesHeader(SalesHeader, AltCustVATReg."VAT Bus. Posting Group", AltCustVATReg."Gen. Bus. Posting Group", AltCustVATReg."VAT Registration No.", AltCustVATReg."VAT Country/Region Code");
+        // [THEN] Sales order has "Alt. VAT Registration No.", "Alt. Gen. Bus Posting Group", "Alt. VAT Bus Posting Group" options
+        LibraryAltCustVATReg.VerifySalesDocAltVATReg(SalesHeader, true);
+        LibraryVariableStorage.AssertEmpty();
+
+        LibraryLowerPermissions.SetOutsideO365Scope();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

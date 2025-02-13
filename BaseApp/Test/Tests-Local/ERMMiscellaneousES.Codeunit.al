@@ -105,6 +105,8 @@ codeunit 144072 "ERM Miscellaneous ES"
         isInitialized: Boolean;
         PostedInvoiceIsPaidCorrectOrCancelErr: Label 'You cannot perform this action for closed or partially paid entries, nor for any entries that are created with the Cartera module.';
         RecipientBankErr: Label 'Recipant Bank Account must be %1 in %2.', Comment = '%1 = Recipant Bank %2=Table Name';
+        AmountPostedToWrongGLAccountErr: Label 'Amount is posted to wrong G/L Account';
+        DtldCustLedgerWithTransactionNoZeroNotExistErr: Label 'Detailed Cust. Ledger Entry with Transaction No 0 does not exist';
 
     [Test]
     [HandlerFunctions('SalesInvoiceBookRequestPageHandler')]
@@ -2084,6 +2086,65 @@ codeunit 144072 "ERM Miscellaneous ES"
                 GenJournalLine.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ApplyCustomerEntriesModalPageHandler,PostApplicationModalPageHandler,MessageHandler,ConfirmHandler')]
+    procedure VerifyCrMemoAppliedToPostedInvoiceUseCorrectGLWhenPaymentMethodWithCreateBill()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentMethod: Record "Payment Method";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        CustomerNo: array[2] of Code[20];
+        DocumentNo: Code[20];
+        PaymentMethodCode: array[2] of Code[10];
+        PostedSalesDocNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 555810] Credit Memo applied to Posted Invoice with "Create Bills" should not use the incorrect G/L Account
+        //when another Payment Method is modified to "Create Bills" = true.
+        Initialize();
+
+        // [GIVEN] Create a Payment Method and another Payment Method with "Create Bills" = true.
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethodCode[1] := PaymentMethod.Code;
+        PaymentMethodCode[2] := CreatePaymentMethodWithCreateBills();
+
+        // [GIVEN] Create a Customer with "Payment Method Code" = PaymentMethodCode[1].
+        CustomerNo[1] := CreateCustomerWithPaymentMethod(PaymentMethodCode[1]);
+
+        // [GIVEN] Create and post a Sales Invoice.
+        CreateAndPostSalesInvoiceForCustomer(SalesHeader[1], SalesLine[1], CustomerNo[1]);
+
+        // [GIVEN] Post a Payment Journal.
+        DocumentNo := CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::Customer,
+            SalesLine[1]."Sell-to Customer No.", -SalesLine[1]."Amount Including VAT", '', WorkDate());
+
+        // [WHEN] Apply the Payment to Invoice.
+        ApplyCustomerLedgerEntry(CustomerLedgerEntries, DocumentNo);
+
+        // [THEN] There should be Detailed Cust. Ledger Entry with "Transaction No." = 0 and the "Payment Method" in Cust. Ledger Entry is equal to PaymentMethodCode[1] 
+        Assert.IsTrue(CheckDetCustLedgerWithTransactionZeroExistForPaymentMethod(PaymentMethodCode[1]), DtldCustLedgerWithTransactionNoZeroNotExistErr);
+
+        // [GIVEN] Create another Customer with "Payment Method Code" = PaymentMethodCode[2].
+        CustomerNo[2] := CreateCustomerWithPaymentMethod(PaymentMethodCode[2]);
+
+        // [GIVEN] Create and post Sales Invoice for the CustomerNo[2].
+        PostedSalesDocNo[1] := CreateAndPostSalesInvoiceForCustomer(SalesHeader[2], SalesLine[2], CustomerNo[2]);
+
+        // [GIVEN] Enable the "Create Bills" on first Payment Method.
+        PaymentMethod.Validate("Create Bills", true);
+        PaymentMethod.Modify(true);
+
+        // [WHEN] Post the Sales credit Memo for the Invoice. 
+        PostedSalesDocNo[2] := CreateAndPostSalesCrMemo(SalesHeader[3], CustomerNo[2], PostedSalesDocNo[1]);
+
+        // [THEN] Verify that the correct GL Accounts get posted, i.e. the "Remaining Amount" = 0 in Posted Sales Credit Memo.
+        SalesCrMemoHeader.Get(PostedSalesDocNo[2]);
+        SalesCrMemoHeader.CalcFields("Remaining Amount");
+        Assert.AreEqual(0, SalesCrMemoHeader."Remaining Amount", AmountPostedToWrongGLAccountErr);
+    end;
 
     local procedure Initialize()
     begin
@@ -2960,6 +3021,39 @@ codeunit 144072 "ERM Miscellaneous ES"
         VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CheckDetCustLedgerWithTransactionZeroExistForPaymentMethod(PaymentMethodCode: Code[20]): Boolean
+    var
+        CustLedgerentry: Record "Cust. Ledger Entry";
+        DtldCustLedgerEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        DtldCustLedgerEntry.SetRange("Transaction No.", 0);
+        if DtldCustLedgerEntry.FindSet() then
+            repeat
+                if CustLedgerentry.Get(DtldCustLedgerEntry."Cust. Ledger Entry No.") and (CustLedgerentry."Payment Method Code" = PaymentMethodCode) then
+                    exit(true);
+            until DtldCustLedgerEntry.Next() = 0;
+        exit(false);
+    end;
+
+    local procedure CreateAndPostSalesInvoiceForCustomer(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]): Code[20]
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::invoice, CustomerNo);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem());
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+    end;
+
+    local procedure CreateAndPostSalesCrMemo(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; PostedInvoiceNo: Code[20]): Code[20]
+    var
+        SalesDocumentTypeFrom: enum "Sales Document Type From";
+    begin
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SalesHeader.Validate("Applies-to ID", PostedInvoiceNo);
+        SalesHeader.Modify(true);
+        LibrarySales.CopySalesDocument(SalesHeader, SalesDocumentTypeFrom::"Posted Invoice", PostedInvoiceNo, true, false);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
     [RequestPageHandler]

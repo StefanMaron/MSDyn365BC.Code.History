@@ -896,19 +896,14 @@ codeunit 10756 "SII Management"
 
     procedure UpdateSIIInfoInPurchDoc(var PurchaseHeader: Record "Purchase Header")
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         Vendor: Record Vendor;
     begin
-        GeneralLedgerSetup.Get();
-        if GeneralLedgerSetup."VAT Cash Regime" then
-            PurchaseHeader."Special Scheme Code" := PurchaseHeader."Special Scheme Code"::"07 Special Cash"
-        else
-            if PurchaseHeader."Pay-to Vendor No." <> '' then
-                if Vendor.Get(PurchaseHeader."Pay-to Vendor No.") then
-                    if VendorIsIntraCommunity(Vendor."No.") then
-                        PurchaseHeader."Special Scheme Code" := PurchaseHeader."Special Scheme Code"::"09 Intra-Community Acquisition"
-                    else
-                        PurchaseHeader."Special Scheme Code" := PurchaseHeader."Special Scheme Code"::"01 General";
+        if PurchaseHeader."Pay-to Vendor No." <> '' then
+            if Vendor.Get(PurchaseHeader."Pay-to Vendor No.") then
+                if VendorIsIntraCommunity(Vendor."No.") then
+                    PurchaseHeader."Special Scheme Code" := PurchaseHeader."Special Scheme Code"::"09 Intra-Community Acquisition"
+                else
+                    PurchaseHeader."Special Scheme Code" := PurchaseHeader."Special Scheme Code"::"01 General";
     end;
 
     local procedure DoNotReportNegativeLines(): Boolean

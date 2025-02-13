@@ -295,6 +295,7 @@ page 576 "VAT Specification Subform"
         VATAmountLine2: Record "VAT Amount Line";
         TotalVATDifference: Decimal;
         TotalECDifference: Decimal;
+        ShowVATDifferenceError: Boolean;
     begin
         Rec.CheckVATDifference(CurrencyCode, AllowVATDifference);
         VATAmountLine2 := Rec;
@@ -306,7 +307,9 @@ page 576 "VAT Specification Subform"
                 TotalECDifference := TotalECDifference + Abs(Rec."EC Difference");
             until Rec.Next() = 0;
         Rec := VATAmountLine2;
-        if TotalVATDifference > Currency."Max. VAT Difference Allowed" then
+        ShowVATDifferenceError := TotalVATDifference > Currency."Max. VAT Difference Allowed";
+        OnFormCheckVATDifferenceOnAfterCalcShowVATDifferenceError(Rec, TotalVATDifference, Currency, ShowVATDifferenceError);
+        if ShowVATDifferenceError then
             Error(
               Text001, Rec.FieldCaption("VAT Difference"),
               Currency."Max. VAT Difference Allowed", Currency.FieldCaption("Max. VAT Difference Allowed"));
@@ -374,6 +377,11 @@ page 576 "VAT Specification Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterModifyRec(var SourceHeader: Variant; var VATAmountLine: Record "VAT Amount Line"; ParentControl: Integer; CurrentTabNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFormCheckVATDifferenceOnAfterCalcShowVATDifferenceError(VATAmountLine: Record "VAT Amount Line"; TotalVATDifference: Decimal; Currency: Record Currency; var ShowVATDifferenceError: Boolean)
     begin
     end;
 }

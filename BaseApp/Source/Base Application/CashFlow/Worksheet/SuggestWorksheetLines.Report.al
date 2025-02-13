@@ -858,6 +858,7 @@ report 840 "Suggest Worksheet Lines"
             CFForecastEntry.Reset();
             repeat
                 CFForecastEntry.SetRange("Cash Flow Forecast No.", TempCashFlowForecast."No.");
+                OnDeleteEntriesOnBeforeDeleteAllCashFlowForecastEntry(CFForecastEntry, TempCashFlowForecast);
                 CFForecastEntry.DeleteAll();
             until TempCashFlowForecast.Next() = 0;
         end;
@@ -2107,6 +2108,11 @@ report 840 "Suggest Worksheet Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertCFLineForGLAccountOnBeforeInsertTempCFWorksheetLine(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; CashFlowForecast: Record "Cash Flow Forecast"; CashFlowAccount: Record "Cash Flow Account");
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnDeleteEntriesOnBeforeDeleteAllCashFlowForecastEntry(var CashFlowForecastEntry: Record "Cash Flow Forecast Entry"; var TempCashFlowForecast: Record "Cash Flow Forecast" temporary)
     begin
     end;
 }

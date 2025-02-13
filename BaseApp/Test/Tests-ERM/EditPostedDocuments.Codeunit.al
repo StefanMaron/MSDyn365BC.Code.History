@@ -26,6 +26,8 @@ codeunit 134658 "Edit Posted Documents"
         UnexpectedGrossWeightErr: Label 'Unexpected Gross Weight shown.';
         UnexpectedVolumeErr: Label 'Unexpected Volume shown.';
         CashFlowWorkSheetLineMustNotBeFoundErr: Label 'Cash Flow Worksheet Line must not be found.';
+        DisputeStatusVisibleErr: Label 'Dispute Status must be visible';
+        DisputeStatusEditableErr: Label 'Dispute Status must be editable';
 
     [Test]
     [HandlerFunctions('PostedSalesShipmentUpdateGetEditablelModalPageHandler')]
@@ -760,6 +762,27 @@ codeunit 134658 "Edit Posted Documents"
         Assert.IsTrue(CashFlowWorksheetLine.IsEmpty(), CashFlowWorkSheetLineMustNotBeFoundErr);
     end;
 
+    [Test]
+    [HandlerFunctions('PostedSalesInvoiceUpdateGetEditablelModalPageHandler')]
+    procedure UpdateDisputeStatusInPostedSalesInvoice()
+    var
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        // [SCENARIO 561219] Dispute Status field is Editable and visible on the Posted Sales Invoice - Update page.
+        Initialize();
+
+        // [WHEN] Open "Posted Sales Invoice - Update" page
+        PostedSalesInvoice.OpenEdit();
+        PostedSalesInvoice."Update Document".Invoke();
+
+        // [THEN] Verify the Dispute Status field is Visible and Editable.
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), DisputeStatusVisibleErr);
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), DisputeStatusEditableErr);
+
+        PostedSalesInvoice.Close();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents");
@@ -1206,6 +1229,14 @@ codeunit 134658 "Edit Posted Documents"
         SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(false);
         SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(false);
         SuggestWorksheetLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PostedSalesInvoiceUpdateGetEditablelModalPageHandler(var PostedSalesInvoiceUpdate: TestPage "Posted Sales Invoice - Update")
+    begin
+        LibraryVariableStorage.Enqueue(PostedSalesInvoiceUpdate."Dispute Status".Visible());
+        LibraryVariableStorage.Enqueue(PostedSalesInvoiceUpdate."Dispute Status".Editable());
+        PostedSalesInvoiceUpdate.OK().Invoke();
     end;
 
     [ConfirmHandler]

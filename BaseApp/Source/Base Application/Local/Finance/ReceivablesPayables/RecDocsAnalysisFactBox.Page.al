@@ -90,7 +90,6 @@ page 35290 "Rec. Docs Analysis Fact Box"
 
     local procedure UpdateStatistics()
     begin
-        Doc.Copy(Rec);
         Doc.SetCurrentKey(Type, "Bill Gr./Pmt. Order No.", "Category Code", "Currency Code");
         Doc.SetFilter("Category Code", CategoryFilter);
         Doc.SetFilter("Currency Code", CurrencyFilter);

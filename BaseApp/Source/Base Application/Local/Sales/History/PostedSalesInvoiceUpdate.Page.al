@@ -125,6 +125,13 @@ page 10765 "Posted Sales Invoice - Update"
                         Rec.SetSIILastSummaryDocNo(SIILastSummaryDocNo);
                     end;
                 }
+                field("Dispute Status"; Rec."Dispute Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    DrillDown = false;
+                    Importance = Promoted;
+                    Tooltip = 'Specifies if there is an ongoing dispute for this Invoice';
+                }
             }
         }
     }
@@ -172,7 +179,8 @@ page 10765 "Posted Sales Invoice - Update"
           (Rec."Succeeded VAT Registration No." <> xSalesInvoiceHeader."Succeeded VAT Registration No.") or
           (Rec."Issued By Third Party" <> xSalesInvoiceHeader."Issued By Third Party") or
           (Rec.GetSIIFirstSummaryDocNo() <> xSalesInvoiceHeader.GetSIIFirstSummaryDocNo()) or
-          (Rec.GetSIILastSummaryDocNo() <> xSalesInvoiceHeader.GetSIILastSummaryDocNo());
+          (Rec.GetSIILastSummaryDocNo() <> xSalesInvoiceHeader.GetSIILastSummaryDocNo()) or
+          (Rec."Dispute Status" <> xSalesInvoiceHeader."Dispute Status");
 
         OnAfterRecordIsChanged(Rec, xSalesInvoiceHeader, RecordIsChanged);
     end;

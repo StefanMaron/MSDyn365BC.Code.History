@@ -333,6 +333,31 @@ codeunit 147506 "Cartera Payable Unit Tests"
         CarteraDoc.TestField("Payment Method Code", PaymentMethod.Code);
     end;
 
+    [Test]
+    procedure PayableFactBoxShowingCorrValues()
+    var
+        PayableCarteraDocs: TestPage "Payables Cartera Docs";
+        NoofDocuments: Integer;
+        TotalAmount: Decimal;
+        TotalAmountLCY: Decimal;
+    begin
+        // [SCENARIO 561864] Payable cartera doc factbox are showing correct values of total number of documents and the total amount.
+        Initialize();
+
+        // [GIVEN] Calculate NoofDocuments,TotalAmount,TotalAmountLCY from Payable Doc Analysis Fact Box. 
+        CalculateDocAnalysisFactBox(NoofDocuments, TotalAmount, TotalAmountLCY);
+
+        // [WHEN] Open Page for Payable Cartera Docs.
+        PayableCarteraDocs.OpenView();
+        PayableCarteraDocs.First();
+
+        // [THEN] Verify BillCount,Total,TotalLCY from Payable Cartera Doc Analysis Fact Box.
+        PayableCarteraDocs.Control1901421107.BillCount.AssertEquals(NoofDocuments);
+        PayableCarteraDocs.Control1901421107.Total.AssertEquals(TotalAmount);
+        PayableCarteraDocs.Control1901421107.TotalLCY.AssertEquals(TotalAmountLCY);
+        PayableCarteraDocs.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -406,6 +431,16 @@ codeunit 147506 "Cartera Payable Unit Tests"
         PaymentOrders.OpenEdit();
         PaymentOrders.GotoKey(PaymentOrderNo);
         PaymentOrders.Comments.Invoke();
+    end;
+
+    local procedure CalculateDocAnalysisFactBox(var NoofDocuments: Integer; var TotalAmount: Decimal; var TotalAmountLCY: Decimal)
+    var
+        CarteraDoc: Record "Cartera Doc.";
+    begin
+        NoofDocuments := CarteraDoc.Count;
+        CarteraDoc.CalcSums("Remaining Amount", "Remaining Amt. (LCY)");
+        TotalAmount := CarteraDoc."Remaining Amount";
+        TotalAmountLCY := CarteraDoc."Remaining Amt. (LCY)";
     end;
 
     [PageHandler]

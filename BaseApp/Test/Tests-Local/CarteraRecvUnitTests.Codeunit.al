@@ -374,6 +374,31 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         PaymentOrder.Delete(true);
     end;
 
+    [Test]
+    procedure ReceivablesFactBoxShowingCorrValues()
+    var
+        ReceivablesCarteraDocs: TestPage "Receivables Cartera Docs";
+        NoofDocuments: Integer;
+        TotalAmount: Decimal;
+        TotalAmountLCY: Decimal;
+    begin
+        // [SCENARIO 561864] Receivables cartera doc factbox are showing correct values of total number of documents and the total amount
+        Initialize();
+
+        // [GIVEN] Calculate NoofDocuments,TotalAmount,TotalAmountLCY from Receivables Doc Analysis Fact Box. 
+        CalculateDocAnalysisFactBox(NoofDocuments, TotalAmount, TotalAmountLCY);
+
+        // [WHEN] Open Page for Receivables Cartera Docs.
+        ReceivablesCarteraDocs.OpenView();
+        ReceivablesCarteraDocs.First();
+
+        // [THEN] Verify BillCount,Total,TotalLCY from Receivables Cartera Doc Analysis Fact Box.
+        ReceivablesCarteraDocs.Control1901421107.BillCount.AssertEquals(NoofDocuments);
+        ReceivablesCarteraDocs.Control1901421107.Total.AssertEquals(TotalAmount);
+        ReceivablesCarteraDocs.Control1901421107.TotalLCY.AssertEquals(TotalAmountLCY);
+        ReceivablesCarteraDocs.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -447,6 +472,16 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         PostedBillGroup."No." :=
           LibraryUtility.GenerateRandomCode(PostedBillGroup.FieldNo("No."), DATABASE::"Posted Bill Group");
         PostedBillGroup.Insert();
+    end;
+
+    local procedure CalculateDocAnalysisFactBox(var NoofDocuments: Integer; var TotalAmount: Decimal; var TotalAmountLCY: Decimal)
+    var
+        CarteraDoc: Record "Cartera Doc.";
+    begin
+        NoofDocuments := CarteraDoc.Count;
+        CarteraDoc.CalcSums("Remaining Amount", "Remaining Amt. (LCY)");
+        TotalAmount := CarteraDoc."Remaining Amount";
+        TotalAmountLCY := CarteraDoc."Remaining Amt. (LCY)";
     end;
 
     [PageHandler]

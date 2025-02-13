@@ -46,7 +46,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
                     BankAcc.Get(PostedBillGr."Bank Account No.");
                     OnReadPostedBillGroupOnAfterGetBankAcc(BankAcc);
                     Delay := BankAcc."Delay for Notices";
-                    OnReadPostedBillGroupOnAfterSetDelay(BankAcc, Delay);
+                    OnReadPostedBillGroupOnAfterSetDelay(BankAcc, Delay, PostedBillGr);
 
                     if DueOnly and (PostingDate < "Due Date" + Delay) then
                         CurrReport.Skip();
@@ -541,7 +541,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReadPostedBillGroupOnAfterSetDelay(var BankAccount: Record "Bank Account"; var Delay: Decimal)
+    local procedure OnReadPostedBillGroupOnAfterSetDelay(var BankAccount: Record "Bank Account"; var Delay: Decimal; PostedBillGr: Record "Posted Bill Group")
     begin
     end;
 

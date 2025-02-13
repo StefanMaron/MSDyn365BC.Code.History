@@ -162,14 +162,29 @@ table 3 "Payment Terms"
     end;
 
     procedure CalculateMaxDueDate(BaseDate: Date): Date
+    var
+        CalculatedDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateMaxDueDate(Rec, BaseDate, CalculatedDate, IsHandled);
+        if IsHandled then
+            exit(CalculatedDate);
+
         if "Max. No. of Days till Due Date" = 0 then
             exit(99991231D);
         exit(CalcDate(StrSubstNo('<%1D>', "Max. No. of Days till Due Date"), BaseDate));
     end;
 
     procedure VerifyMaxNoDaysTillDueDate(DueDate: Date; DocumentDate: Date; MessageFieldCaption: Text[50])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyMaxNoDaysTillDueDate(Rec, DueDate, DocumentDate, MessageFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         if (DueDate <> 0D) and ("Max. No. of Days till Due Date" > 0) then
             if DueDate - DocumentDate > "Max. No. of Days till Due Date" then
                 Error(Text10700, MessageFieldCaption, FieldCaption("Max. No. of Days till Due Date"), TableCaption);
@@ -203,6 +218,16 @@ table 3 "Payment Terms"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTranslateDescription(var PaymentTerms: Record "Payment Terms"; Language: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateMaxDueDate(PaymentTerms: Record "Payment Terms"; BaseDate: Date; var CalculatedDate: Date; var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyMaxNoDaysTillDueDate(PaymentTerms: Record "Payment Terms"; DueDate: Date; DocumentDate: Date; MessageFieldCaption: Text[50]; var IsHandled: boolean)
     begin
     end;
 }

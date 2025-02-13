@@ -608,7 +608,9 @@ codeunit 8 AccSchedManagement
                                             GLAccCategoriesToVisit."Entry No." := GLAccCatCode;
                                             GLAccCategoriesToVisit.Delete();
                                         end;
-                                    end;
+                                    end
+                                else
+                                    OnCalcCellValueOnElseTotalingType(AccSchedLine, AccountScheduleLine, ColumnLayout, Result);
                             end;
 
                 OnAfterCalcCellValue(AccSchedLine, ColumnLayout, Result, AccountScheduleLine, GLAcc);
@@ -876,7 +878,7 @@ codeunit 8 AccSchedManagement
                         end;
                     end;
             end;
-
+        OnCalcCFAccountOnAfterSetEntryFilters(CFAccount, AccSchedLine, ColumnLayout, ColValue);
         exit(ColValue);
     end;
 
@@ -1281,6 +1283,9 @@ codeunit 8 AccSchedManagement
         AccSchedLine.CopyFilter("Cash Flow Forecast Filter", CFForecastEntry."Cash Flow Forecast No.");
         AccSchedLine.CopyFilter("Dimension 1 Filter", CFForecastEntry."Global Dimension 1 Code");
         AccSchedLine.CopyFilter("Dimension 2 Filter", CFForecastEntry."Global Dimension 2 Code");
+
+        OnSetCFEntryFiltersOnAfterAccShedLineCopyFilter(AccSchedLine, CFForecastEntry);
+
         CFForecastEntry.FilterGroup(2);
         CFForecastEntry.SetFilter("Global Dimension 1 Code", AccSchedLine."Dimension 1 Totaling");
         CFForecastEntry.SetFilter("Global Dimension 2 Code", AccSchedLine."Dimension 2 Totaling");
@@ -1459,7 +1464,14 @@ codeunit 8 AccSchedManagement
     end;
 
     procedure FormatCellAsText(var ColumnLayout2: Record "Column Layout"; Value: Decimal; CalcAddCurr: Boolean) ValueAsText: Text[30]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFormatCellAsText(ColumnLayout2, Value, IsHandled);
+        if IsHandled then
+            exit;
+
         ValueAsText := MatrixMgt.FormatAmount(Value, ColumnLayout2."Rounding Factor", CalcAddCurr);
 
         if (ValueAsText <> '') and
@@ -2665,6 +2677,11 @@ codeunit 8 AccSchedManagement
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnCalcCellValueOnElseTotalingType(AccSchedLine: Record "Acc. Schedule Line"; AccountScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var Result: Decimal)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnConvDimTotalingFilterOnDimNoElseCase(DimNo: Integer; var DimCode: Code[20]; AnalysisView: Record "Analysis View"; CostAccountingSetup: Record "Cost Accounting Setup")
     begin
@@ -2747,6 +2764,21 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCellOnAfterAccountScheduleLineCopyFilters(ColumnLayout: Record "Column Layout"; var AccScheduleLine: Record "Acc. Schedule Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetCFEntryFiltersOnAfterAccShedLineCopyFilter(var AccSchedLine: Record "Acc. Schedule Line"; var CFForecastEntry: Record "Cash Flow Forecast Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatCellAsText(var ColumnLayout2: Record "Column Layout"; Value: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCFAccountOnAfterSetEntryFilters(var CFAccount: Record "Cash Flow Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ColValue: Decimal)
     begin
     end;
 }

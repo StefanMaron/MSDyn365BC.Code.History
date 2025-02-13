@@ -57,6 +57,7 @@ codeunit 137065 "SCM Reservation II"
         DateConflictWithExistingReservationsErr: Label 'The change leads to a date conflict with existing reservations.';
         PostJnlLinesMsg: Label 'Do you want to post the journal lines';
         SuggestedBackGroundRunQst: Label 'Would you like to run the low-level code calculation as a background job?';
+        ActionMessageEntryExistErr: Label 'Action Message Entry exist for item %1', Comment = '%1 = Item No.';
 
     [Test]
     [HandlerFunctions('ProdOrderComponentsHandler')]
@@ -2451,6 +2452,387 @@ codeunit 137065 "SCM Reservation II"
         UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    procedure RegisterWarehousePickUsingSplitLines()
+    var
+        Bin: Record Bin;
+        BinType: Record "Bin Type";
+        Item: array[2] of Record Item;
+        ItemUnitOfMeasure: array[3] of Record "Item Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        BinCode: Code[20];
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 540303] Registering the pick using Split Lines in Warehouse Pick.
+        Initialize();
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, false);
+
+        // [GIVEN] Update Manufacturing Setup Components in Location.
+        UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
+
+        // [GIVEN] Validate Put-away Worksheet and Prod. Output Whse. Handling in Location.
+        LocationWhite.Validate("Use Put-away Worksheet", true);
+        LocationWhite.Modify();
+
+        // [GIVEN] Create a Zone.
+        LibraryWarehouse.CreateZone(Zone, Zone.Code, LocationWhite.Code, '', '', '', 0, false);
+
+        // [GIVEN] Find Bin Type of Pick.
+        BinType.SetRange(Pick, true);
+        BinType.FindFirst();
+
+        // [GIVEN] Create Bin in a Location.
+        LibraryWarehouse.CreateBin(Bin, LocationWhite.Code, Bin.Code, Zone.Code, BinType.Code);
+
+        // [GIVEN] Store Quantity.
+        Quantity := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create an Item with setup.
+        CreateItemSetupWithLotTracking(Item[1], Item[2]);
+
+        // [GIVEN] Create Item Unit of Measure.
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure[1], Item[1]."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure[2], Item[1]."No.", LibraryRandom.RandIntInRange(100, 110));
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure[3], Item[1]."No.", LibraryRandom.RandIntInRange(1000, 1010));
+
+        // [GIVEN] Create Inventory and Register in Warehouse Item Journal.
+        UpdateInventoryAndAssignTrackingInWhseItemJournal(LocationWhite, Item[1], Item[2], Quantity);
+
+        // [GIVEN] Create Warehouse Pick from Production Order.
+        CreateWarehousePickfromProductionOrderSetup(Item[1], Item[2], ProductionOrder, Quantity);
+
+        // [GIVEN] Find Warehouse Activity Line and store Bin Code.
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        WarehouseActivityLine.FindFirst();
+        BinCode := WarehouseActivityLine."Bin Code";
+
+        // [GIVEN] Validate Qty. to Handle in Warehouse Activity Line.
+        WarehouseActivityLine.Validate("Qty. to Handle", Quantity - LibraryRandom.RandInt(2));
+        WarehouseActivityLine.Modify(true);
+
+        // [GIVEN] Use Split Line in Warehouse Activity Line.
+        WarehouseActivityLine.SplitLine(WarehouseActivityLine);
+
+        // [GIVEN] Find latest Warehouse Activity Line which has been split and Validate Bin Code.
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        WarehouseActivityLine.FindLast();
+        WarehouseActivityLine.Validate("Bin Code", BinCode);
+        WarehouseActivityLine.Modify();
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.SetRange("Location Code", LocationWhite.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [WHEN] Register Warehouse Activity.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Posted Warehouse Activity Header is created.
+        RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityHeader."No.");
+        RegisteredWhseActivityHdr.FindFirst();
+        Assert.RecordIsNotEmpty(RegisteredWhseActivityHdr);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickReportHandler,DummyMessageHandler,InvPostingSelectionHandler,GetActionMessageReportHandler')]
+    [Scope('OnPrem')]
+    procedure OrderTrackingAndItemTrackingShouldNotCreateWrongReservation()
+    var
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        Quantity: array[10] of Decimal;
+        LotNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 555810] Order Tracking and Item Tracking should not create bad Reservation Entry.
+        Initialize();
+
+        // [GIVEN] Create a Lot Tracked Item with "Order Tracking Policy" = "Tracking & Action Msg."
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Location and two Bins for the Location.
+        CreateAndUpdateLocation(Location, false, true, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, Bin[1].Code, '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, Bin[2].Code, '', '');
+
+        // [GIVEN] Set Quantity and LotNo.
+        Quantity[1] := 11;
+        Quantity[2] := 4;
+
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create and post two Item Journal with different LotNo and Bin.
+        ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        ItemJournalBatch.Modify(true);
+        CreateAndPostItemJournalLineWithLot(Item."No.", Quantity[1], bin[1].Code, Location.Code, LotNo[1]);
+        CreateAndPostItemJournalLineWithLot(Item."No.", Quantity[2], bin[2].Code, Location.Code, LotNo[2]);
+
+        // [GIVEN] Create and release a Sales Order with Quantity = Quantity[1] + Quantity[2] = 15.
+        CreateSalesOrder(SalesHeader[1], SalesLine[1], Item."No.", Quantity[1] + Quantity[2], Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+
+        // [WHEN] Create and release another Sales Order with Quantity = 8.
+        CreateSalesOrder(SalesHeader[2], SalesLine[2], Item."No.", 8, Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
+
+        // [THEN] Verify second Sales Order has one Surplus Reservation Entry because of insufficient inventory.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[2]."No.", ReservationEntry."Reservation Status"::Surplus, -SalesLine[2]."Quantity (Base)");
+
+        // [GIVEN] Create Inventory Pick from second Sales Order.
+        Commit();
+        SalesHeader[2].CreateInvtPutAwayPick();
+
+        // [GIVEN] Split the Inventory Pick Line and assign LotNo[1] for both lines but maintain the different "Bin Code"
+        // i.e. first line will have "Bin Code" = Bin[1].Code and second line will have "Bin Code" = Bin[2].Code
+        SplitInventoryPickAndUpdateLotAndBin(SalesHeader[2]."No.", LotNo, Bin, true);
+
+        // [WHEN] Posting the Inventory Pick.
+        asserterror PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[2]);
+
+        // [THEN] During the post the untracked surplus Reservation Entry will get delete and new Lot tracked Reservation with same "Quantity" will be created.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[2]."No.", ReservationEntry."Reservation Status"::Surplus, -SalesLine[2]."Quantity (Base)");
+
+        // [WHEN] Posting the Inventory Pick after correcting the "Lot No." in Pick Line.
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[2]."No.", Bin[1].Code, LotNo[1]);
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[2]."No.", Bin[2].Code, LotNo[2]);
+        PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[2]);
+
+        // [THEN] There should be Surplus Reservation Entry of "Quantity (Base)" = -8 for first Sales Order as second sales order use 8 inventory out of 15.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[1]."No.", ReservationEntry."Reservation Status"::Surplus, -8);
+
+        // [GIVEN] Modify the Quantity in first Sales Order to 7 and create the Inventory Pick.
+        SalesLine[1].Validate(Quantity, 7);
+        SalesLine[1].Modify(true);
+        Commit();
+        SalesHeader[1].CreateInvtPutAwayPick();
+
+        // [GIVEN] Assign the correct "Lot No." to Inventory Pick Lines.
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[1]."No.", Bin[1].Code, LotNo[1]);
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[1]."No.", Bin[2].Code, LotNo[2]);
+
+        // [WHEN] Post the Inventory Pick.
+        PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[1]);
+
+        // [THEN] Verify that there should not be any Action Message Entries for both Sales Orders.
+        // And Planning Worksheet should not generate any entry on doing "Get Action Message".
+        assert.IsFalse(ActionMessageExist(Item."No.", SalesHeader[1]."No."), StrSubstNo(ActionMessageEntryExistErr, Item."No."));
+        assert.IsFalse(ActionMessageExist(Item."No.", SalesHeader[2]."No."), StrSubstNo(ActionMessageEntryExistErr, Item."No."));
+        asserterror ExecuteGetActionMessageFromPlanningWorksheet(Item."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickReportHandler,DummyMessageHandler,InvPostingSelectionHandler,GetActionMessageReportHandler')]
+    [Scope('OnPrem')]
+    procedure OrderTrackingAndItemTrackingShouldNotCreateWrongReservation_V2()
+    var
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        Quantity: array[10] of Decimal;
+        LotNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 555810] Order Tracking and Item Tracking should not create bad Reservation Entry. 
+        // Same as previous test except create a new Sales Line in first Sales Order instead of modifying its quantity to 7.
+        Initialize();
+
+        // [GIVEN] Create a Lot Tracked Item with "Order Tracking Policy" = "Tracking & Action Msg."
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Location and two Bins for the Location.
+        CreateAndUpdateLocation(Location, false, true, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, Bin[1].Code, '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, Bin[2].Code, '', '');
+
+        // [GIVEN] Set quantity and LotNo.
+        Quantity[1] := 11;
+        Quantity[2] := 4;
+
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create and post two Item Journal with different LotNo and Bin.
+        ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        ItemJournalBatch.Modify(true);
+        CreateAndPostItemJournalLineWithLot(Item."No.", Quantity[1], bin[1].Code, Location.Code, LotNo[1]);
+        CreateAndPostItemJournalLineWithLot(Item."No.", Quantity[2], bin[2].Code, Location.Code, LotNo[2]);
+
+        // [GIVEN] Create a Sales Order with Quantity = Quantity[1] + Quantity[2] = 15.
+        CreateSalesOrder(SalesHeader[1], SalesLine[1], Item."No.", Quantity[1] + Quantity[2], Location.Code);
+
+        // [WHEN] Create and release another Sales Order with Quantity = 8.
+        CreateSalesOrder(SalesHeader[2], SalesLine[2], Item."No.", 8, Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
+
+        // [THEN] Verify SalesHeader[2] has one Surplus Reservation Entry because of insufficient inventory.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[2]."No.", ReservationEntry."Reservation Status"::Surplus, -SalesLine[2]."Quantity (Base)");
+
+        // [GIVEN] Create Inventory Pick from the second Sales Order.
+        Commit();
+        SalesHeader[2].CreateInvtPutAwayPick();
+
+        // [GIVEN] Split the Inventory Pick Line and assign LotNo[1] for both lines but maintain the different "Bin Code".
+        SplitInventoryPickAndUpdateLotAndBin(SalesHeader[2]."No.", LotNo, Bin, true);
+
+        // [WHEN] Posting the Inventory Pick
+        asserterror PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[2]);
+
+        // [THEN] During the post the untracked surplus Reservation Entry will get deleted and new Lot tracked Reservation with same "Quantity" will be created.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[2]."No.", ReservationEntry."Reservation Status"::Surplus, -SalesLine[2]."Quantity (Base)");
+
+        // [WHEN] Posting the Inventory Pick after correcting the "Lot No." in Pick Lines.
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[2]."No.", Bin[1].Code, LotNo[1]);
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[2]."No.", Bin[2].Code, LotNo[2]);
+        PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[2]);
+
+        // [THEN] There should be Surplus Reservation Entry of "Quantity (Base)" = -8 for first Sales Order.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[1]."No.", ReservationEntry."Reservation Status"::Surplus, -8);
+
+        // [GIVEN] Create new Sales Line with Quantity = 7 in first Sales Order and delete the first Sales Line.
+        SalesLine[3] := SalesLine[1];
+        SalesLine[3]."Line No." := SalesLine[1]."Line No." + 10000;
+        SalesLine[3].Validate(Quantity, 7);
+        SalesLine[3].Insert(true);
+        SalesLine[1].Delete(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+        Commit();
+
+        // [GIVEN] Create Inventory Pick for the first Sales Order.
+        SalesHeader[1].CreateInvtPutAwayPick();
+
+        // [GIVEN] Assign the correct "Lot No." to Inventory Pick Lines.
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[1]."No.", Bin[1].Code, LotNo[1]);
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[1]."No.", Bin[2].Code, LotNo[2]);
+
+        // [WHEN] Posting the Inventory Pick.
+        PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[1]);
+
+        // [THEN] Verify that there should not be any Action Message Entries for both Sales Orders.
+        // And Planning Worksheet should not generate any entry on doing "Get Action Message".
+        assert.IsFalse(ActionMessageExist(Item."No.", SalesHeader[1]."No."), StrSubstNo(ActionMessageEntryExistErr, Item."No."));
+        assert.IsFalse(ActionMessageExist(Item."No.", SalesHeader[2]."No."), StrSubstNo(ActionMessageEntryExistErr, Item."No."));
+        asserterror ExecuteGetActionMessageFromPlanningWorksheet(Item."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickReportHandler,DummyMessageHandler,InvPostingSelectionHandler,GetActionMessageReportHandler')]
+    [Scope('OnPrem')]
+    procedure OrderTrackingAndItemTrackingShouldNotCreateWrongReservation_V3()
+    var
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        Quantity: array[10] of Decimal;
+        LotNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 555810] Order Tracking and Item Tracking should not create bad Reservation Entry.
+        // Same as previous test but this test does not produce any error on posting the Inventory Pick of second Sales Order. 
+        Initialize();
+
+        // [GIVEN] Create a Lot Tracked Item with "Order Tracking Policy" = "Tracking & Action Msg."
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Location and two Bins for the Location.
+        CreateAndUpdateLocation(Location, false, true, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, Bin[1].Code, '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, Bin[2].Code, '', '');
+
+        // [GIVEN] Set quantity and LotNo.
+        Quantity[1] := 11;
+        Quantity[2] := 4;
+
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create and post two Item Journal with different LotNo and Bin.
+        ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        ItemJournalBatch.Modify(true);
+        CreateAndPostItemJournalLineWithLot(Item."No.", Quantity[1], bin[1].Code, Location.Code, LotNo[1]);
+        CreateAndPostItemJournalLineWithLot(Item."No.", Quantity[2], bin[2].Code, Location.Code, LotNo[2]);
+
+        // [GIVEN] Create the first Sales Order with Quantity = 15.
+        CreateSalesOrder(SalesHeader[1], SalesLine[1], Item."No.", Quantity[1] + Quantity[2], Location.Code);
+
+        // [WHEN] Create and release another Sales Order with Quantity = 8.
+        CreateSalesOrder(SalesHeader[2], SalesLine[2], Item."No.", 8, Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
+
+        // [THEN] Verify SalesHeader[2] has one Surplus Reservation Entry because of insufficient inventory.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[2]."No.", ReservationEntry."Reservation Status"::Surplus, -SalesLine[2]."Quantity (Base)");
+
+        // [GIVEN] Create Inventory Pick from second Sales Order.
+        Commit();
+        SalesHeader[2].CreateInvtPutAwayPick();
+
+        // [GIVEN] Split the Inventory Pick Line and assign correct "Lot No." and "Bin Code" (Do not produce error on posting)
+        SplitInventoryPickAndUpdateLotAndBin(SalesHeader[2]."No.", LotNo, Bin, false);
+
+        // [WHEN] Posting the Inventory Pick.
+        PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[2]);
+
+        // [THEN] There should be Surplus Reservation Entry of "Quantity (Base)" = -8 for first Sales Order.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[1]."No.", ReservationEntry."Reservation Status"::Surplus, -8);
+
+        // [GIVEN] Create new line with Quantity = 7 in first Sales Order and delete the existing line.
+        SalesLine[3] := SalesLine[1];
+        SalesLine[3]."Line No." := SalesLine[1]."Line No." + 10000;
+        SalesLine[3].Validate(Quantity, 7);
+        SalesLine[3].Insert(true);
+        SalesLine[1].Delete(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+        Commit();
+
+        // [GIVEN] Create the inventory Pick for first Sales Order.
+        SalesHeader[1].CreateInvtPutAwayPick();
+
+        // [GIVEN] Assign the correct "Lot No." to Inventory Pick lines.
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[1]."No.", Bin[1].Code, LotNo[1]);
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[1]."No.", Bin[2].Code, LotNo[2]);
+
+        // [WHEN] Post the Inventory Pick.
+        PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[1]);
+
+        // [THEN] Verify that there should not be any Action Message Entries for both Sales Orders.
+        // And Planning Worksheet should not generate any entry on doing "Get Action Message".
+        assert.IsFalse(ActionMessageExist(Item."No.", SalesHeader[1]."No."), StrSubstNo(ActionMessageEntryExistErr, Item."No."));
+        assert.IsFalse(ActionMessageExist(Item."No.", SalesHeader[2]."No."), StrSubstNo(ActionMessageEntryExistErr, Item."No."));
+        asserterror ExecuteGetActionMessageFromPlanningWorksheet(Item."No.");
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -4012,6 +4394,120 @@ codeunit 137065 "SCM Reservation II"
         until RegisteredWhseActivityLine.Next() = 0;
     end;
 
+    local procedure CreateAndPostItemJournalLineWithLot(ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20]; LocationCode: Code[10]; LotNo: Code[20])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Validate("Lot No.", LotNo);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure VerifyReservationIsCorrect(SourceType: Integer; SourceID: Code[20]; ReservationStatus: enum "Reservation Status"; ExpectedBaseQty: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source ID", SourceID);
+        ReservationEntry.SetRange("Reservation Status", ReservationStatus);
+        ReservationEntry.CalcSums("Quantity (Base)");
+        Assert.AreEqual(ExpectedBaseQty, ReservationEntry."Quantity (Base)", PickErr);
+    end;
+
+    local procedure SplitInventoryPickAndUpdateLotAndBin(SalesOrderNo: Code[20]; LotNo: array[2] of Code[20]; Bin: array[2] of Record Bin; SameLotNoForBothLine: Boolean)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        i: Integer;
+    begin
+        SplitInventoryPick(SalesOrderNo, 6);
+
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Sales Order");
+        WarehouseActivityLine.SetRange("Source No.", SalesOrderNo);
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                i += 1;
+                if i = 1 then
+                    WarehouseActivityLine.Validate("Bin Code", Bin[1].Code)
+                else
+                    WarehouseActivityLine.Validate("Bin Code", Bin[2].Code);
+
+                if SameLotNoForBothLine then
+                    WarehouseActivityLine.Validate("Lot No.", LotNo[1])
+                else
+                    if i = 1 then
+                        WarehouseActivityLine.Validate("Lot No.", LotNo[1])
+                    else
+                        WarehouseActivityLine.Validate("Lot No.", LotNo[2]);
+                WarehouseActivityLine.Modify(true);
+            until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure SplitInventoryPick(SourceNo: Code[20]; QtyToHandle: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Sales Order");
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        if WarehouseActivityLine.FindFirst() then begin
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
+            WarehouseActivityLine.SplitLine(WarehouseActivityLine);
+        end;
+    end;
+
+    local procedure PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader: Record "Sales Header")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Sales Order");
+        WarehouseActivityHeader.SetRange("Source No.", SalesHeader."No.");
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Sales Order");
+        WarehouseActivityLine.SetRange("Source No.", SalesHeader."No.");
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                Codeunit.Run(Codeunit::"Whse.-Act.-Post (Yes/No)", WarehouseActivityLine);
+            until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure UpdateWhseLotNoUsingSourceAndBin(SourceDocument: enum "Warehouse Activity Source Document"; SourceNo: Code[20]; BinCode: Code[20]; NewLotNo: Code[10])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Bin Code", BinCode);
+        if WarehouseActivityLine.FindSet() then
+            WarehouseActivityLine.ModifyAll("Lot No.", NewLotNo, true);
+    end;
+
+    local procedure ActionMessageExist(ItemNo: Code[20]; SourceID: Code[20]): Boolean
+    var
+        ActionMessageEntry: Record "Action Message Entry";
+    begin
+        ActionMessageEntry.SetRange("Item No.", ItemNo);
+        ActionMessageEntry.SetRange("Source ID", SourceID);
+        exit(not ActionMessageEntry.IsEmpty());
+    end;
+
+    local procedure ExecuteGetActionMessageFromPlanningWorksheet(ItemNo: Code[20])
+    var
+        PlanningWorksheet: TestPage "Planning Worksheet";
+    begin
+        LibraryVariableStorage.Enqueue(ItemNo);
+        PlanningWorksheet.OpenEdit();
+        PlanningWorksheet."Get &Action Messages".Invoke();
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderComponentsHandler(var ProdOrderComponents: TestPage "Prod. Order Components")
@@ -4273,5 +4769,27 @@ codeunit 137065 "SCM Reservation II"
         LibraryVariableStorage.Dequeue(ItemNo);
         ProdBOMWhereUsed."Item No.".AssertEquals(ItemNo);
         ProdBOMWhereUsed.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePickReportHandler(var CreatePickReqPage: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreatePickReqPage.CInvtPick.SetValue(true);
+        CreatePickReqPage.OK().Invoke();
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure InvPostingSelectionHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 2;
+    end;
+
+    [RequestPageHandler]
+    procedure GetActionMessageReportHandler(var GetActionMessageReqPage: TestRequestPage "Get Action Messages")
+    begin
+        GetActionMessageReqPage.Item.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        GetActionMessageReqPage.OK().Invoke();
     end;
 }

@@ -593,11 +593,13 @@ codeunit 21 "Item Jnl.-Check Line"
                 No[4] := ItemJnlLine."New Location Code";
                 CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, ItemJnlLine."New Dimension Set ID");
             end else begin
-                TableID[4] := Database::Location;
-                No[4] := ItemJnlLine."Location Code";
-                TableID[5] := Database::Location;
-                No[5] := ItemJnlLine."New Location Code";
-
+                // This condition will ensure locations default dimension is not checked as for Item charge lines, location in item journal is populated from document line
+                if ItemJnlLine."Item Charge No." = '' then begin
+                    TableID[4] := Database::Location;
+                    No[4] := ItemJnlLine."Location Code";
+                    TableID[5] := Database::Location;
+                    No[5] := ItemJnlLine."New Location Code";
+                end;
                 if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer) then begin
                     CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, ItemJnlLine."Dimension Set ID");
                     if (DimMgt.CheckDefaultDimensionHasCodeMandatory(TableID, No)) and
