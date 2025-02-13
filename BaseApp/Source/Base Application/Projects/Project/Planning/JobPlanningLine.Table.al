@@ -2038,7 +2038,8 @@ table 1003 "Job Planning Line"
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
                         "Unit Cost (LCY)" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
-                    "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
+                    if not (CurrFieldNo = FieldNo("Unit Price")) then
+                        "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                 end else
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
             else
@@ -2053,11 +2054,18 @@ table 1003 "Job Planning Line"
     end;
 
     local procedure CalculateRetrievedCost(var RetrievedCost: Decimal)
+    var
+        FullyInvoiced: Boolean;
     begin
-        if GetSKU() then
-            RetrievedCost := SKU."Unit Cost" * Rec."Qty. per Unit of Measure"
+        CalcFields("Qty. Invoiced", "Invoiced Cost Amount (LCY)");
+        FullyInvoiced := (Quantity = "Qty. Invoiced") and ("Qty. Invoiced" <> 0);
+        if FullyInvoiced then
+            RetrievedCost := "Invoiced Cost Amount (LCY)" / "Qty. Invoiced"
         else
-            RetrievedCost := Item."Unit Cost" * Rec."Qty. per Unit of Measure";
+            if GetSKU() then
+                RetrievedCost := SKU."Unit Cost" * Rec."Qty. per Unit of Measure"
+            else
+                RetrievedCost := Item."Unit Cost" * Rec."Qty. per Unit of Measure";
         OnAfterCalculateRetrievedCost(Rec, xRec, SKU, Item, RetrievedCost);
     end;
 

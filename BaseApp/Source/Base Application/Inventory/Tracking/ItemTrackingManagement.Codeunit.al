@@ -2648,6 +2648,7 @@ codeunit 6500 "Item Tracking Management"
         ReservEntryBindingCheck: Record "Reservation Entry";
         ATOSalesLine: Record "Sales Line";
         AsmHeader: Record "Assembly Header";
+        UntrackedReservEntry: Record "Reservation Entry";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         SignFactor: Integer;
         ToRowID: Text[250];
@@ -2762,6 +2763,13 @@ codeunit 6500 "Item Tracking Management"
 
                     if (TempTrackingSpec."Qty. to Handle (Base)" = 0) and (TempTrackingSpec."Qty. to Invoice (Base)" = 0) then
                         TempTrackingSpec.Delete();
+                end
+                else begin
+                    UntrackedReservEntry.SetSourceFilter(
+                        TempTrackingSpec."Source Type", TempTrackingSpec."Source Subtype",
+                        TempTrackingSpec."Source ID", TempTrackingSpec."Source Ref. No.", true);
+                    UntrackedReservEntry.SetSourceFilter('', TempTrackingSpec."Source Prod. Order Line");
+                    RemoveUntrackedSurplus(UntrackedReservEntry);
                 end;
             until TempTrackingSpec.Next() = 0;
 
