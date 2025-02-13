@@ -355,7 +355,12 @@ codeunit 225 "Gen. Jnl.-Apply"
         CustLedgEntry.SetRange("Customer No.", AccNo);
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
-        OnAfterCustLedgEntrySetFilters(CustLedgEntry, GenJnlLine, AccNo);
+
+        IsHandled := false;
+        OnAfterCustLedgEntrySetFilters(CustLedgEntry, GenJnlLine, AccNo, CustomAppliesToId, IsHandled);
+        if IsHandled then
+            exit;
+
         if CustLedgEntry.Find('-') then begin
             CurrencyCode2 := CustLedgEntry."Currency Code";
             if GenJnlLine.Amount = 0 then begin
@@ -387,6 +392,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                 if (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer) or (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor) then
                     GenJnlLine.Amount := -GenJnlLine.Amount;
                 GenJnlLine.Validate(Amount);
+                OnApplyCustomerLedgerEntryOnAfterValidateAmount(GenJnlLine, CustLedgEntry);
             end else
                 repeat
                     OnApplyCustomerLedgerEntryOnBeforeCheckAgainstApplnCurrencyCustomerAmountNotZero(GenJnlLine, CustLedgEntry);
@@ -581,7 +587,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                 Clear(BASManagement);
                 if (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer) or (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor) then
                     GenJnlLine.Amount := -GenJnlLine.Amount;
-                OnApplyVendorLedgerEntryOnBeforeValidateAmount(GenJnlLine);
+                OnApplyVendorLedgerEntryOnBeforeValidateAmount(GenJnlLine, VendLedgEntry);
                 GenJnlLine.Validate(Amount);
             end else
                 repeat
@@ -766,7 +772,7 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20])
+    local procedure OnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var CustomAppliesToId: Code[50]; var IsHandled: Boolean)
     begin
     end;
 
@@ -890,6 +896,11 @@ codeunit 225 "Gen. Jnl.-Apply"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnApplyCustomerLedgerEntryOnAfterValidateAmount(var GenJnlLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnSetVendApplIdAPIOnBeforeCheckAgainstApplnCurrency(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
@@ -956,7 +967,7 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyVendorLedgerEntryOnBeforeValidateAmount(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnApplyVendorLedgerEntryOnBeforeValidateAmount(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

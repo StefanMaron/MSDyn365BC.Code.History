@@ -3869,6 +3869,54 @@ codeunit 136306 "Job Invoicing"
         Assert.AreEqual(3, SalesLine.Count, WrongNoofLinesLbl);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,TransferToInvoiceHandler')]
+    procedure RetrieveUnitCostFromPostedInvoiceForFullyInvoicedJobPlanningLine()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        OldUnitCost: Decimal;
+    begin
+        // [SCENARIO 559747] Retrieve Unit Cost from the posted invoice for fully invoiced Job Planning Line.
+        Initialize();
+
+        // [GIVEN] Job, job task, job planning line with item.
+        LibraryJob.CreateJob(Job, LibrarySales.CreateCustomerNo());
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        Commit();
+
+        // [GIVEN] Create and post Sales Invoice for the Job Planning Line.
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Change Unit Cost of the item to "Y".
+        Item.Get(JobPlanningLine."No.");
+        Item.Validate("Unit Cost", 2 * Item."Unit Cost");
+        Item.Modify(true);
+
+        // [GIVEN] Current Unit Cost of the Job Planning Line = "X".
+        JobPlanningLine.Find();
+        JobPlanningLine.CalcFields("Qty. Invoiced");
+        OldUnitCost := JobPlanningLine."Unit Cost";
+
+        // [GIVEN] Set Quantity on the Job Planning Line to greater than Qty. Invoiced.
+        // [GIVEN] Verify that "Unit Cost" is updated to the new value "Y".
+        JobPlanningLine.Validate(Quantity, 2 * JobPlanningLine.Quantity);
+        JobPlanningLine.TestField("Unit Cost", Item."Unit Cost");
+
+        // [WHEN] Set Quantity on the Job Planning Line to equal to Qty. Invoiced.
+        JobPlanningLine.Validate(Quantity, JobPlanningLine."Qty. Invoiced");
+
+        // [THEN] Verify that "Unit Cost" is updated to the old value "X".
+        JobPlanningLine.TestField("Unit Cost", OldUnitCost);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

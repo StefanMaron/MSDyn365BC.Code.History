@@ -58,9 +58,9 @@ table 6757 "Create Reminders Setup"
         ExistingFilter: Text;
     begin
         CustomerRecordRef.Open(Database::Customer);
+        ExistingFilter := Rec.GetCustomerSelectionFilter();
         Clear(Rec."Customer Filter");
         Rec."Customer Filter".CreateOutStream(SelectionFilterOutStream, TextEncoding::UTF16);
-        ExistingFilter := Rec.GetCustomerSelectionFilter();
         if not RequestPageParametersHelper.OpenPageToGetFilter(CustomerRecordRef, SelectionFilterOutStream, ExistingFilter) then
             exit;
 
