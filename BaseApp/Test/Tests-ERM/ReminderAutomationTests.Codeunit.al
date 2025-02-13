@@ -798,6 +798,22 @@ codeunit 134979 "Reminder Automation Tests"
         VerifyReminderMailWithAttachmentSentForCustomer(Customer, 1, SendEmailMock);
     end;
 
+    [Test]
+    [HandlerFunctions('NewReminderActionModalPageHandler,CreateRemindersSetupModalPageHandlerWithFilterSaveCheck,CreateReminderSetupPageCustomerFilterHandler')]
+    procedure CustomerFilterAppliedInTheCreateReminderSetupPageShouldBeSaved()
+    var
+        ReminderAutomationCard: TestPage "Reminder Automation Card";
+    begin
+        // [SCENARIO 562688] Filters should be saved in the Create Reminders Setup page in Reminder Automation.
+        Initialize();
+
+        // [WHEN] Create a Remainders Automation.
+        CreateReminderAutomationWithCreateAction(ReminderAutomationCard);
+
+        // [THEN] Verify through the "CreateRemindersSetupModalPageHandlerWithFilterSaveCheck" that all filters applied in the "Customer Filter" of the Create Reminder Setup page are saved.
+        ReminderAutomationCard.Close();
+    end;
+
     local procedure CreateReminderAttachmentText(ReminderTerms: Record "Reminder Terms"; LanguageCode: Code[10])
     var
         ReminderLevel: Record "Reminder Level";
@@ -1161,6 +1177,40 @@ codeunit 134979 "Reminder Automation Tests"
         SelectRemTermsAutomation.OK().Invoke();
     end;
 
+    [ModalPageHandler()]
+    procedure CreateRemindersSetupModalPageHandlerWithFilterSaveCheck(var CreateRemindersSetupPage: TestPage "Create Reminders Setup")
+    var
+        CreateReminderSetup: Record "Create Reminders Setup";
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        CreateReminderSetup.SetRange(Code, CreateRemindersSetupPage.Code.Value);
+        CreateReminderSetup.FindFirst();
+
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue(Customer."Customer Posting Group");
+        CreateRemindersSetupPage.CustomerFilter.AssistEdit();
+        Assert.IsTrue(CreateReminderSetup.GetCustomerSelectionDisplayText() <> '', FiltersAreNotSavedErr);
+
+        // Now remove the "Customer Posting Group" filter in customer filter and check.
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue('');
+        CreateRemindersSetupPage.CustomerFilter.AssistEdit();
+        Assert.IsTrue(CreateReminderSetup.GetCustomerSelectionDisplayText() <> '', FiltersAreNotSavedErr);
+    end;
+
+    [FilterPageHandler]
+    procedure CreateReminderSetupPageCustomerFilterHandler(var CustomerRecordRef: RecordRef): Boolean
+    var
+        Customer: Record Customer;
+    begin
+        CustomerRecordRef.GetTable(Customer);
+        Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Customer.SetFilter("Customer Posting Group", LibraryVariableStorage.DequeueText());
+        CustomerRecordRef.SetView(Customer.GetView());
+        exit(true);
+    end;
+
     var
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
@@ -1171,4 +1221,5 @@ codeunit 134979 "Reminder Automation Tests"
         Assert: Codeunit Assert;
         Any: Codeunit Any;
         IsInitialized: Boolean;
+        FiltersAreNotSavedErr: Label 'Filters are not saved';
 }

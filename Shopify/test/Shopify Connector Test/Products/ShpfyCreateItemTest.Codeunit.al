@@ -48,7 +48,6 @@ codeunit 139567 "Shpfy Create Item Test"
         LibraryAssert.AreEqual(ShopifyVariant.Price, Item."Unit Price", 'Unit Price');
     end;
 
-    [HandlerFunctions('DeleteAttributeConfirmHandler')]
     [Test]
     procedure UnitTestCreateItemSKUIsItemNoFromProductWithMultiVariants()
     var
