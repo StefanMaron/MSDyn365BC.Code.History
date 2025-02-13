@@ -56,6 +56,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         RowVisibilityErr: Label 'Analysis row must only be visible in Inventory Analysis Matrix when Show <> No.';
         ColumnVisibilityErr: Label 'Analysis column must only be visible in Inventory Analysis Matrix when Show <> Never.';
         ColumnDoesNotExistErr: Label 'Analysis column does not exist in Analysis Column Template and therefore must not be visible.';
+        TransferLineDimensionChangeQst: Label 'You have changed one or more dimensions on the %1, which is already shipped. When you post the line with the changed dimension to General Ledger, amounts on the Inventory Interim account will be out of balance when reported per dimension.\\Do you want to keep the changed dimension?';
 
     [Test]
     [Scope('OnPrem')]
@@ -2192,6 +2193,104 @@ codeunit 137351 "SCM Inventory Reports - IV"
         InventoryAnalysisReport.ShowMatrix.Invoke();
     end;
 
+    [Test]
+    [HandlerFunctions('TransferDimensionUpdateConfirmHandler,ItemDimensionTotalRequestPageHandler,AnalysisDimSelectionLevelPageHandlerForAllLevels')]
+    procedure InventoryByItemLocationAndDimension()
+    var
+        AnalysisColumn: Record "Analysis Column";
+        AnalysisColumnTemplate: Record "Analysis Column Template";
+        AnalysisLine: Record "Analysis Line";
+        AnalysisLineTemplate: Record "Analysis Line Template";
+        AnalysisReportName: Record "Analysis Report Name";
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+        DimensionValue: array[3] of Record "Dimension Value";
+        FromLocation: Record Location;
+        InTransitLocation: Record Location;
+        InventorySetup: Record "Inventory Setup";
+        Item: Record Item;
+        ItemAnalysisView: Record "Item Analysis View";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ToLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        LibraryDimension: Codeunit "Library - Dimension";
+        CodeAsList: List of [Text[30]];
+    begin
+        // [SCENARIO 550677] Report Item Dimension - Details show wrong Cost Amounts for Transferred items
+        Initialize();
+
+        // [GIVEN] Create Inventory analysis report
+        LibraryInventory.CreateAnalysisReportName(AnalysisReportName, AnalysisReportName."Analysis Area"::Inventory);
+        LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, AnalysisLineTemplate."Analysis Area"::Inventory);
+        LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, AnalysisColumnTemplate."Analysis Area"::Inventory);
+        CreateInventoryAnalysisLineWithShowSetting(AnalysisLine, AnalysisLineTemplate.Name, AnalysisLine.Show::Yes);
+        CreateInventoryAnalysisColumnWithShowSetting(AnalysisColumn, AnalysisColumnTemplate.Name, AnalysisColumn.Show::Always);
+
+        // [GIVEN] Create 2 new dimension values for global dimension 1
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], LibraryERM.GetGlobalDimensionCode(1));
+        Dimension.Get(DimensionValue[1]."Dimension Code");
+
+        // [GIVEN] Create From Location, To Location and In-Transit Locations
+        LibraryWarehouse.CreateLocation(FromLocation);
+        LibraryWarehouse.CreateLocation(ToLocation);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Add Default Dimension to to FROM and TO Locations
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension, Database::Location, FromLocation.Code, DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension, Database::Location, ToLocation.Code, DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
+
+        // [GIVEN] Create New Item and add create Inventory Posting Setup with locations
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        InventorySetup.Get();
+        LibraryInventory.NoSeriesSetup(InventorySetup);
+        LibraryInventory.UpdateInventoryPostingSetup(FromLocation, Item."Inventory Posting Group");
+        LibraryInventory.UpdateInventoryPostingSetup(ToLocation, Item."Inventory Posting Group");
+        LibraryInventory.UpdateInventoryPostingSetup(InTransitLocation, Item."Inventory Posting Group");
+
+        // [GIVEN] Create and Post Purchase Order
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseHeader.SetHideValidationDialog(true);
+        PurchaseHeader.Validate("Posting Date", Today());
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Location Code", FromLocation.Code);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Transfer Order and update FROM Location dimension code on shortcut dimension 1 code and post its shipment
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        TransferHeader.Validate("Posting Date", Today());
+        TransferHeader.Validate("Shortcut Dimension 1 Code", DimensionValue[1].Code);
+        TransferHeader.Modify(true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 1);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
+
+        // [GIVEN] Update shortcut dimension 1 code to TO Location dimension code and post its receipt
+        TransferHeader.SetHideValidationDialog(true);
+        TransferHeader.Validate("Shortcut Dimension 1 Code", DimensionValue[2].Code);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, false, true);
+
+        // [GIVEN] Apply filters on Item Analysis View
+        CodeAsList.Add(Item.TableCaption);
+        CodeAsList.Add(ToLocation.TableCaption);
+        CodeAsList.Add(Dimension.Name);
+        SetupDimTotalReportWithAnalysisArea(ItemAnalysisView,
+                  DefaultDimension, CodeAsList, ItemAnalysisView."Analysis Area"::Inventory, AnalysisColumn."Value Type"::Quantity);
+
+        // [WHEN] Run Item Dimension - Total report
+        Commit();
+        REPORT.Run(REPORT::"Item Dimensions - Total", true, false, ItemAnalysisView);
+
+        // [THEN] Total Lines should not be available for Dimension Value 1 Code as the there is no inventory available for the dimension after Transfer Shipment
+        VerifyItemDimensionTotalReport(DimensionValue[1].Code, false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3358,6 +3457,41 @@ codeunit 137351 "SCM Inventory Reports - IV"
         InventorySetup.Modify(true);
     end;
 
+    local procedure SetupDimTotalReportWithAnalysisArea(var ItemAnalysisView: Record "Item Analysis View"; var DefaultDimension: Record "Default Dimension"; DimensionList: List of [Text[30]]; AnalysisArea: Enum "Analysis Area Type"; ValueType: Enum "Analysis Value Type")
+    var
+        AnalysisColumnTemplate: Record "Analysis Column Template";
+        AnalysisColumn: Record "Analysis Column";
+        ItemJournalLine: Record "Item Journal Line";
+        SetValue: Option IncludeDimension,NotIncludeDimension;
+    begin
+        CreateAndUpdateItemAnalysisView(ItemAnalysisView, AnalysisArea, DefaultDimension."Dimension Code");
+
+        // Create Analysis Column Template and Analysis Column.
+        LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, ItemAnalysisView."Analysis Area");
+        CreateAndModifyAnalysisColumn(
+          ItemAnalysisView."Analysis Area", AnalysisColumnTemplate.Name, ItemJournalLine.FieldCaption(Quantity),
+          AnalysisColumn."Value Type"::Quantity, true);
+        CreateAndModifyAnalysisColumn(ItemAnalysisView."Analysis Area", AnalysisColumnTemplate.Name, Amount, ValueType, true);
+
+        // Enqueue values 'ItemDimensionTotalRequestPageHandler' and 'AnalysisDimSelectionLevelPageHandler'.
+        LibraryVariableStorage.Enqueue(SetValue::IncludeDimension);
+
+        EnqueueValuesForItemDimensionTotalReport(
+          ItemAnalysisView."Analysis Area", ItemAnalysisView.Code, AnalysisColumnTemplate.Name, 't');
+        LibraryVariableStorage.Enqueue(DimensionList);
+    end;
+
+    local procedure VerifyItemDimensionTotalReport(DimensionCode: Code[20]; ShowBody: Boolean)
+    var
+        BooleanValue: Variant;
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('DimValCode3', DimensionCode);
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.FindCurrentRowValue('Level3Body3ShowOutput', BooleanValue);
+        Assert.AreEqual(ShowBody, BooleanValue, 'No match');
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AnalysisDimSelectionLevelPageHandler(var AnalysisDimSelectionLevel: TestPage "Analysis Dim. Selection-Level")
@@ -3878,6 +4012,44 @@ codeunit 137351 "SCM Inventory Reports - IV"
     procedure AnalysisLineTemplatesPageHandler(var AnalysisLineTemplates: TestPage "Analysis Line Templates")
     begin
         AnalysisLineTemplates.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AnalysisDimSelectionLevelPageHandlerForAllLevels(var AnalysisDimSelectionLevel: TestPage "Analysis Dim. Selection-Level")
+    var
+        AnalysisDimSelectionBuffer: Record "Analysis Dim. Selection Buffer";
+        "CodeListAsVariant": Variant;
+        Code: Text[30];
+        CodeList: List of [Text[30]];
+        Level: Integer;
+    begin
+        CodeListAsVariant := CodeList;
+        LibraryVariableStorage.Dequeue(CodeListAsVariant);
+        CodeList := CodeListAsVariant;
+
+        foreach Code in CodeList do begin
+            AnalysisDimSelectionLevel.FILTER.SetFilter(Description, Code);
+            Level += 1;
+            case Level of
+                1:
+                    AnalysisDimSelectionLevel.Level.SetValue(AnalysisDimSelectionBuffer.Level::"Level 1");
+                2:
+                    AnalysisDimSelectionLevel.Level.SetValue(AnalysisDimSelectionBuffer.Level::"Level 2");
+                3:
+                    AnalysisDimSelectionLevel.Level.SetValue(AnalysisDimSelectionBuffer.Level::"Level 3");
+            end;
+        end;
+        AnalysisDimSelectionLevel.Filter.SetFilter(Description, '');
+        AnalysisDimSelectionLevel.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure TransferDimensionUpdateConfirmHandler(Message: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.IsTrue(StrPos(Message, TransferLineDimensionChangeQst) > 0, Message);
+        Reply := true;
     end;
 }
 

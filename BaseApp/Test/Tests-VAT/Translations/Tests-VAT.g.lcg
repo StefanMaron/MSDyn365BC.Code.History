@@ -1193,6 +1193,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Journal - NamedType EntriesReversedLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1718597743 - NamedType 3255458007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Non-Deductable VAT Amount must be %1 in VAT Entries]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Expected Non-Deductible VAT Amount]D;]A;(LookupHint=Codeunit Non-Deductible VAT Journal - NamedType NonDeductiableVATAmountMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1718597743 - NamedType 3158364080" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to reverse the entries]]></Val>
@@ -1236,6 +1245,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Reports - NamedType ConfirmAdjustQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 116159835 - NamedType 479760294" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Entry is inconsistent]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Statistics - NamedType GLEntryConsistentErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 729097190 - NamedType 3551190662" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
