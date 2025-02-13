@@ -13,6 +13,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -302,6 +303,35 @@ codeunit 135404 "Sales Document Plan-based E2E"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler')]
+    procedure CreatePurchOrderFromSalesOrderForDirectedPutAwayAndPickLocation()
+    var
+        Location: Record Location;
+        TempCustomerDetails: Record Customer temporary;
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        PurchaseOrder: TestPage "Purchase Order";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 561744] Create a Purchase Order from a Sales Order for Directed Put-away and Pick Location.
+        Initialize();
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
+
+        // [GIVEN] Create a Directed Put-away and Pick Location.
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+
+        // [GIVEN] Create a Sales Order with Location.
+        CreateSalesOrderWithLocation(SalesOrder, '', Location.Code, TempCustomerDetails);
+
+        // [WHEN] A Purchase Order is created from the Sales Order.
+        CreatePurchaseOrderFromSalesOrder(SalesOrder, PurchaseOrder);
+
+        // [THEN] The purchase order contains the same lines as the sales order.
+        VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
@@ -459,6 +489,21 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         PurchaseOrder.OK().Invoke();
         SalesOrder.OK().Invoke();
+    end;
+
+    local procedure CreateSalesOrderWithLocation(var SalesOrder: TestPage "Sales Order"; ItemNo: Code[20]; LocationCode: Code[20]; TempCustomerDetails: Record Customer temporary)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer No.".SetValue(CreateCustomer(TempCustomerDetails));
+        SalesOrder."Location Code".SetValue(LocationCode);
+        SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
+        if ItemNo = '' then
+            SalesOrder.SalesLines."No.".SetValue(CreateItem())
+        else
+            SalesOrder.SalesLines."No.".SetValue(ItemNo);
+        SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 1));
     end;
 
     [ModalPageHandler]

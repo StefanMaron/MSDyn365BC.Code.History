@@ -255,9 +255,16 @@ table 1650 "Curr. Exch. Rate Update Setup"
     procedure ShowJobQueueEntry()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        IsHandled: Boolean;
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Update Currency Exchange Rates");
+
+        IsHandled := false;
+        OnShowJobQueueEntryOnBeforeJobQueueEntryFindFirst(Rec, JobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if JobQueueEntry.FindFirst() then
             PAGE.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
     end;
@@ -295,6 +302,11 @@ table 1650 "Curr. Exch. Rate Update Setup"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnShowJobQueueEntryOnBeforeJobQueueEntryFindFirst(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
     local procedure LogTelemetryWhenServiceEnabled()
     begin
         Session.LogMessage('00008AE', ExchRateServiceEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
@@ -309,5 +321,6 @@ table 1650 "Curr. Exch. Rate Update Setup"
     begin
         Session.LogMessage('00008AI', ExchRateServiceCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
+
 }
 
