@@ -509,6 +509,7 @@ codeunit 2000042 "Post Coded Bank Statement"
             CustLedgEntry2.SetRange("Customer No.", Cust."No.");
             CustLedgEntry2.SetRange(Open, true);
             CustLedgEntry2.SetRange(Positive, CodBankStmtLine."Statement Amount" > 0);
+            OnSearchCustLedgEntryOnAfterCustLedgEntry2SetFilters(CustLedgEntry2, CodBankStmtLine);
             if CustLedgEntry2.FindSet() then
                 repeat
                     CustLedgEntry2.CalcFields("Remaining Amount");
@@ -845,6 +846,11 @@ codeunit 2000042 "Post Coded Bank Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnDecodeVendLedgEntryOnAfterVendLedgEntrySetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; var CODAStatementLine: Record "CODA Statement Line"; var Message: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSearchCustLedgEntryOnAfterCustLedgEntry2SetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var CODAStatementLine: Record "CODA Statement Line")
     begin
     end;
 

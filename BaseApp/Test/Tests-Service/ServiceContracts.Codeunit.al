@@ -3501,6 +3501,68 @@ codeunit 136102 "Service Contracts"
           GetPostedServiceInvoiceAmount(ServiceContractHeader."Contract No."), GetPostedServiceCrMemoAmount(ServiceContractHeader."Contract No."), IncorrectCreditMemoAmountErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceContractHandler,MsgHandler')]
+    [Scope('OnPrem')]
+    procedure CheckLastInvoicePeriodEndFieldDataWhendeletingRelatedServiceInvoice()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceContract: TestPage "Service Contract";
+    begin
+        // [SCENARIO 560345] Check if the 'Last Invoice Period End' field is empty after deleting the related service invoice.
+        Initialize();
+
+        // [GIVEN] Set Work Date.
+        WorkDate := CalcDate('<1Y>', WorkDate());
+
+        // [GIVEN] Create a Service Contract Header.
+        CreateServiceContractDocument(ServiceContractHeader);
+
+        // [GIVEN] Create Service Contract Line and Service Item.
+        CreateServiceContLineWithServiceItem(ServiceContractHeader, ServiceItem, ServiceContractLine);
+
+        // [GIVEN] Sign the Prepaid Contract.
+        SignPrepaidContract(ServiceContractHeader);
+        LibraryVariableStorage.Clear();
+        OpenServiceContractAndCreateInvoice(ServiceContract, ServiceContractHeader);
+
+        // [GIVEN] Change Work Date.
+        WorkDate := CalcDate('<1Y>', WorkDate());
+
+        // [GIVEN] Create the second service invoice with a different work date.
+        LibraryVariableStorage.Enqueue(true); // Confirm to already create a Prepaid Service Invoice.
+        LibraryVariableStorage.Enqueue(true); // Confirm to create a new service invoice.
+        ServiceContract.CreateServiceInvoice.Invoke();
+        ServiceContract.Close();
+
+        // [WHEN] Delete the second service invoice.
+        ServiceHeader.SetRange("Order Date", WorkDate());
+        ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceHeader.SetRange("Customer No.", ServiceContractHeader."Customer No.");
+        LibraryVariableStorage.Enqueue(true); // Confirm deletion of the service invoice.
+        ServiceHeader.FindFirst();
+        ServiceHeader.Delete(true);
+
+        // [THEN] Verify that The last invoice date and the last invoice period end date.
+        Assert.Equal(ServiceContractHeader."Last Invoice Date", ServiceContractHeader."Starting Date");
+        Assert.Equal(ServiceContractHeader."Last Invoice Period End", CalcDate('<1Y>', ServiceContractHeader."Starting Date"));
+
+        // [WHEN] Delete the first service invoice.
+        ServiceHeader.Reset();
+        ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceHeader.SetRange("Customer No.", ServiceContractHeader."Customer No.");
+        ServiceHeader.FindFirst();
+        LibraryVariableStorage.Enqueue(true);// Confirm deletion of the service invoice.
+        ServiceHeader.Delete(true);
+
+        // [THEN] Verify that The last invoice date and the last invoice period end date should be empty.
+        Assert.Equal('', Format(ServiceContractHeader."Last Invoice Date"));
+        Assert.Equal('', Format(ServiceContractHeader."Last Invoice Period End"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5169,6 +5231,52 @@ codeunit 136102 "Service Contracts"
         exit(ShiptoAddress."Customer No.");
     end;
 
+    local procedure CreateServiceContractDocument(var ServiceContractHeader: Record "Service Contract Header")
+    var
+        ServiceContractAccountGroup: Record "Service Contract Account Group";
+    begin
+        LibraryVariableStorage.Enqueue(false); // To avoid using the default template.
+        LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
+
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
+        Evaluate(ServiceContractHeader."Service Period", '<1Y>');
+        ServiceContractHeader.Validate("Service Period");
+        ServiceContractHeader.Validate("Invoice Period", ServiceContractHeader."Invoice Period"::Year);
+        ServiceContractHeader.Validate(Prepaid, true);
+        ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
+        ServiceContractHeader.Modify(true);
+    end;
+
+    local procedure CreateServiceContLineWithServiceItem(ServiceContractHeader: Record "Service Contract Header"; var ServiceItem: Record "Service Item"; var ServiceContractLine: Record "Service Contract Line")
+    begin
+        LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
+        ServiceItem.Validate("Default Contract Cost", LibraryRandom.RandDec(1000, 2));
+        ServiceItem.Validate("Default Contract Value", LibraryRandom.RandDec(200, 2));
+        ServiceItem.Modify(true);
+
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+        ServiceContractLine.Validate("Next Planned Service Date", ServiceContractHeader."First Service Date");
+        ServiceContractLine.Validate("Service Period", ServiceContractHeader."Service Period");
+        ServiceContractLine.Validate("Starting Date", ServiceContractHeader."Starting Date");
+        ServiceContractLine.Modify(true);
+    end;
+
+    local procedure SignPrepaidContract(ServiceContractHeader: Record "Service Contract Header")
+    begin
+        LibraryVariableStorage.Enqueue(true); // Confirm to create a signed contract. 
+        LibraryVariableStorage.Enqueue(false); // Confirm not to create a new service invoice.
+        SignServContractDoc.SignContract(ServiceContractHeader);
+    end;
+
+    local procedure OpenServiceContractAndCreateInvoice(var ServiceContract: TestPage "Service Contract"; ServiceContractHeader: Record "Service Contract Header")
+    begin
+        ServiceContract.OpenEdit();
+        ServiceContract.GoToRecord(ServiceContractHeader);
+
+        LibraryVariableStorage.Enqueue(true); // Confirm to create a new service invoice.
+        ServiceContract.CreateServiceInvoice.Invoke();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ContractTemplateConfirmHandlerFalse(SignContractMessage: Text[1024]; var Result: Boolean)
@@ -5511,6 +5619,13 @@ codeunit 136102 "Service Contracts"
     procedure ServContractConfHandler(ConfirmMessage: Text[1024]; var Result: Boolean)
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), ConfirmMessage);
+        Result := LibraryVariableStorage.DequeueBoolean();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ServiceContractHandler(SignContractMessage: Text[1024]; var Result: Boolean)
+    begin
         Result := LibraryVariableStorage.DequeueBoolean();
     end;
 }

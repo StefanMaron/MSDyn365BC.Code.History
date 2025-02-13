@@ -349,7 +349,7 @@ report 12 "VAT Statement"
                         GLEntry.SetFilter("Document Type", '<>%1', VATStmtLine2."Document Type"::"Credit Memo")
                     else
                         GLEntry.SetRange("Document Type", VATStmtLine2."Document Type");
-                    OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(GLAcc, VATStmtLine2);
+                    OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(GLAcc, VATStmtLine2, GLEntry);
                     Amount := 0;
                     Amount2 := 0;
                     if GLAcc.Find('-') and (VATStmtLine2."Account Totaling" <> '') then
@@ -635,7 +635,7 @@ report 12 "VAT Statement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(var GLAccount: Record "G/L Account"; VATStatementLine2: Record "VAT Statement Line")
+    local procedure OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(var GLAccount: Record "G/L Account"; VATStatementLine2: Record "VAT Statement Line"; var GLEntry: Record "G/L Entry")
     begin
     end;
 
