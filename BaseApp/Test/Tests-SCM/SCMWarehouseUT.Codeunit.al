@@ -1505,6 +1505,55 @@ codeunit 137831 "SCM - Warehouse UT"
         Assert.ExpectedError(StrSubstNo(WhseEntriesExistErr, Item.FieldCaption(Type)));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReservedItemShowsErrorWhenRegisterPickForSameItem()
+    var
+        BinContent: Record "Bin Content";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseRequest: array[2] of Record "Warehouse Request";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        SerialNo: array[2] of Code[10];
+    begin
+        // [SCENARIO 527258] When trying Registering a Pick for a different SN reserved from a  different SO, gives error
+        Initialize();
+
+        // [GIVEN] Create BIN Content for Item, Warehouse Location and SN tracking
+        CreateSetupForSerialWMS(BinContent);
+
+        // [GIVEN] Define two serial no.
+        SerialNo[1] := LibraryUtility.GenerateGUID();
+        SerialNo[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create Inventory for serial no.
+        CreateInventoryForSerialAndLot(BinContent, SerialNo, 1, 0D);
+
+        // [GIVEN] Create two Sales Order A and B for same item, location but different serial no.
+        CreateSales(WarehouseRequest[1], BinContent."Item No.", BinContent."Location Code", 1);
+        CreateSales(WarehouseRequest[2], BinContent."Item No.", BinContent."Location Code", 1);
+
+        // [GIVEN] Reserve the item for both the serial no.
+        CreateSalesReservationAgainstILEForSerialAndLot(WarehouseRequest[1]."Source No.", 1, SerialNo[1], SerialNo[1]);
+        CreateSalesReservationAgainstILEForSerialAndLot(WarehouseRequest[2]."Source No.", 1, SerialNo[2], SerialNo[2]);
+
+        // [GIVEN] Create Shipment from first sales order A
+        CreateShipment(WarehouseShipmentLine, WarehouseRequest[1], BinContent."Item No.", BinContent."Location Code", 1);
+
+        // [GIVEN] Create Pick from Sales Shipment
+        CreateWarehousePickFromShipment(WarehouseShipmentLine);
+
+        // [WHEN] Update Serial no of B sales order and Lot No. will be blank
+        UpdateWarehouseActivityLineWithLotNoAndSerialNo(WarehouseRequest[1]."Source No.", '', SerialNo[2], 1);
+
+        // [THEN] Error when registering the pick
+        asserterror RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", WarehouseRequest[1]."Source No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+
+        // [THEN] Verify the error
+        Assert.IsSubstring(GetLastErrorText(), WarehouseRequest[1]."Source No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2191,6 +2240,221 @@ codeunit 137831 "SCM - Warehouse UT"
         WarehouseEntry."Bin Code" := BinCode;
         WarehouseEntry."Qty. (Base)" := Qty;
         WarehouseEntry.Insert();
+    end;
+
+    local procedure CreateSetupForSerialWMS(var BinContent: Record "Bin Content")
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+    begin
+        CreateItemWithSerialTracking(Item);
+        CreateWarehousePickLocation(Location);
+        Location.Insert();
+        CreateBin(Bin, Location.Code);
+        CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
+    end;
+
+    local procedure CreateItemWithSerialTracking(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        ItemTrackingCode.Init();
+        ItemTrackingCode.Code := LibraryUtility.GenerateGUID();
+        ItemTrackingCode."SN Specific Tracking" := true;
+        ItemTrackingCode."SN Warehouse Tracking" := true;
+        ItemTrackingCode.Insert();
+
+        Clear(Item);
+        Item."No." := LibraryUtility.GenerateGUID();
+        Item."Item Tracking Code" := ItemTrackingCode.Code;
+        Item.Insert();
+    end;
+
+    local procedure CreateInventoryForSerialAndLot(BinContent: Record "Bin Content"; SerialNo: array[2] of Code[10]; Quantity: Decimal; ExpirationDate: Date)
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+        WarehouseEntry2: Record "Warehouse Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntry2: Record "Item Ledger Entry";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(SerialNo) do begin
+            WarehouseEntry2.FindLast();
+            WarehouseEntry.Init();
+            WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
+            WarehouseEntry."Location Code" := BinContent."Location Code";
+            WarehouseEntry."Bin Code" := BinContent."Bin Code";
+            WarehouseEntry."Item No." := BinContent."Item No.";
+            WarehouseEntry."Serial No." := SerialNo[i];
+            WarehouseEntry."Lot No." := SerialNo[i];
+            WarehouseEntry.Quantity := Quantity;
+            WarehouseEntry."Qty. (Base)" := Quantity;
+            WarehouseEntry."Expiration Date" := ExpirationDate;
+            WarehouseEntry.Insert();
+
+            ItemLedgerEntry2.FindLast();
+            ItemLedgerEntry.Init();
+            ItemLedgerEntry."Entry No." := ItemLedgerEntry2."Entry No." + 1;
+            ItemLedgerEntry."Item No." := BinContent."Item No.";
+            ItemLedgerEntry."Location Code" := BinContent."Location Code";
+            ItemLedgerEntry."Serial No." := SerialNo[i];
+            ItemLedgerEntry."Lot No." := SerialNo[i];
+            ItemLedgerEntry.Quantity := Quantity;
+            ItemLedgerEntry.Positive := ItemLedgerEntry.Quantity > 0;
+            ItemLedgerEntry."Expiration Date" := ExpirationDate;
+            ItemLedgerEntry.Open := true;
+            ItemLedgerEntry."Remaining Quantity" := ItemLedgerEntry.Quantity;
+            ItemLedgerEntry.Insert();
+        end;
+    end;
+
+    local procedure CreateShipment(
+        var WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseRequest: Record "Warehouse Request";
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        QtyToShip: Decimal)
+    var
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        ShipmentBin: Record Bin;
+    begin
+        WarehouseShipmentHeader.Init();
+        WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID();
+        WarehouseShipmentHeader."Location Code" := LocationCode;
+        WarehouseShipmentHeader.Insert();
+
+        WarehouseShipmentLine.Init();
+        WarehouseShipmentLine."No." := WarehouseShipmentHeader."No.";
+        WarehouseShipmentLine."Source Type" := WarehouseRequest."Source Type";
+        WarehouseShipmentLine."Source Subtype" := WarehouseRequest."Source Subtype";
+        WarehouseShipmentLine."Source No." := WarehouseRequest."Source No.";
+        WarehouseShipmentLine."Source Document" := WarehouseRequest."Source Document";
+        WarehouseShipmentLine."Location Code" := LocationCode;
+        CreateBin(ShipmentBin, LocationCode);
+        WarehouseShipmentLine."Bin Code" := ShipmentBin.Code;
+        WarehouseShipmentLine."Item No." := ItemNo;
+        WarehouseShipmentLine.Quantity := QtyToShip;
+        WarehouseShipmentLine."Qty. (Base)" := QtyToShip;
+        WarehouseShipmentLine."Qty. Outstanding" := QtyToShip;
+        WarehouseShipmentLine."Qty. Outstanding (Base)" := QtyToShip;
+        WarehouseShipmentLine.Insert();
+    end;
+
+    local procedure CreateSalesReservationAgainstILEForSerialAndLot(SalesNo: Code[20]; QtyToReserve: Decimal; SerialNo: Code[10]; LotCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        FindSalesLine(SalesLine, SalesNo);
+
+        ItemLedgerEntry.SetRange("Lot No.", LotCode);
+        ItemLedgerEntry.SetRange("Serial No.", SerialNo);
+        ItemLedgerEntry.FindFirst();
+        CreateReservationEntryForSerialLot(SalesLine, LotCode, SerialNo, QtyToReserve,
+          DATABASE::"Item Ledger Entry", 0, '', ItemLedgerEntry."Entry No.");
+    end;
+
+    local procedure CreateReservationEntryForSerialLot(
+        var SalesLine: Record "Sales Line";
+        LotCode: Code[10];
+        SerialNo: Code[10];
+        LotQtyToShip: Decimal;
+        ResvAgainstSourceType: Integer;
+        ResvAgainstSourceSubtype: Option;
+        ResvAgainstSourceID: Code[20];
+        ResvAgainstSourceRefNo: Integer)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        CreateItemTrackingEntryForSerial(SalesLine, LotCode, SerialNo, LotQtyToShip);
+        ReservationEntry.FindLast();
+        ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Reservation;
+        ReservationEntry."Expected Receipt Date" := ReservationEntry."Shipment Date";
+        ReservationEntry.Modify();
+
+        ReservationEntry.Positive := true;
+        ReservationEntry."Source Type" := ResvAgainstSourceType;
+        ReservationEntry."Source Subtype" := ResvAgainstSourceSubtype;
+        ReservationEntry."Source ID" := ResvAgainstSourceID;
+        ReservationEntry."Source Ref. No." := ResvAgainstSourceRefNo;
+        ReservationEntry."Quantity (Base)" := LotQtyToShip;
+        ReservationEntry.Quantity := LotQtyToShip;
+        ReservationEntry."Qty. to Handle (Base)" := LotQtyToShip;
+        ReservationEntry."Shipment Date" := ReservationEntry."Expected Receipt Date";
+        ReservationEntry."Expected Receipt Date" := ReservationEntry."Shipment Date";
+        ReservationEntry.Insert();
+    end;
+
+    local procedure CreateItemTrackingEntryForSerial(
+        var SalesLine: Record "Sales Line";
+        LotCode: Code[10];
+        SerialNo: Code[10];
+        LotQtyToShip: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+        ReservationEntry2: Record "Reservation Entry";
+    begin
+        if ReservationEntry2.FindLast() then;
+        ReservationEntry.Init();
+        ReservationEntry."Entry No." := ReservationEntry2."Entry No." + 1;
+        ReservationEntry.Positive := false;
+        ReservationEntry."Source Type" := DATABASE::"Sales Line";
+        ReservationEntry."Source Subtype" := SalesLine."Document Type".AsInteger();
+        ReservationEntry."Source ID" := SalesLine."Document No.";
+        ReservationEntry."Source Ref. No." := SalesLine."Line No.";
+        ReservationEntry."Item No." := SalesLine."No.";
+        ReservationEntry."Location Code" := SalesLine."Location Code";
+        ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Surplus;
+        ReservationEntry."Lot No." := LotCode;
+        ReservationEntry."Serial No." := SerialNo;
+        ReservationEntry."Quantity (Base)" := -LotQtyToShip;
+        ReservationEntry.Quantity := -LotQtyToShip;
+        ReservationEntry."Qty. to Handle (Base)" := -LotQtyToShip;
+        ReservationEntry."Shipment Date" := WorkDate();
+        ReservationEntry.UpdateItemTracking();
+        ReservationEntry.Insert();
+    end;
+
+    local procedure UpdateWarehouseActivityLineWithLotNoAndSerialNo(SalesHeaderNo: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; QtyToHandle: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Sales Order");
+        WarehouseActivityLine.SetRange("Source No.", SalesHeaderNo);
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine."Serial No." := SerialNo;
+            WarehouseActivityLine."Lot No." := LotNo;
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify();
+        until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure RegisterWarehouseActivity(
+        var WarehouseActivityLine: Record "Warehouse Activity Line";
+        SourceDocument: Enum "Warehouse Activity Source Document";
+        SourceNo: Code[20];
+        ActivityType: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure FindWarehouseActivityLine(
+        var WarehouseActivityLine: Record "Warehouse Activity Line";
+        SourceDocument: Enum "Warehouse Activity Source Document";
+        SourceNo: Code[20];
+        ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst();
     end;
 }
 

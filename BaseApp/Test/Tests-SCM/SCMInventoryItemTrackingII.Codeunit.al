@@ -2414,6 +2414,112 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] Verified as no error occurred.
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure LotNoOnInvtPickLineByFEFOWithOtherLotsBlocked()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        LotNoInformation: Record "Lot No. Information";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: array[3] of Code[50];
+        i: Integer;
+    begin
+        // [FEATURE] [FEFO] [Item Tracking] [Blocked] [Inventory Pick]
+        // [SCENARIO 550978] Available lot no. is populated on inventory pick line when FEFO is enabled and other lots are blocked.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify(true);
+
+        CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(true, false, true));
+
+        for i := 1 to 3 do begin
+            LotNo[i] := LibraryUtility.GenerateGUID();
+            LibraryItemTracking.CreateLotNoInformation(LotNoInformation, Item."No.", '', LotNo[i]);
+            LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', 1);
+            LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, '', LotNo[i], ItemJournalLine.Quantity);
+            ReservEntry.Validate("Expiration Date", WorkDate());
+            ReservEntry.Modify(true);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        end;
+
+        LotNoInformation.Get(Item."No.", '', LotNo[1]);
+        LotNoInformation.Validate(Blocked, true);
+        LotNoInformation.Modify(true);
+        LotNoInformation.Get(Item."No.", '', LotNo[2]);
+        LotNoInformation.Validate(Blocked, true);
+        LotNoInformation.Modify(true);
+
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.", Location.Code, 1);
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateInvtPutPickMovement(SalesHeader."Document Type", SalesHeader."No.", false, true, false);
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SalesLine."Document No.", WarehouseActivityLine."Activity Type"::"Invt. Pick", SalesLine."Location Code",
+          WarehouseActivityLine."Action Type"::" ");
+        WarehouseActivityLine.TestField("Lot No.", LotNo[3]);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure SerialNoOnInvtPickLineByFEFOWithOtherSerialsBlocked()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SerialNoInformation: Record "Serial No. Information";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SerialNo: array[3] of Code[50];
+        i: Integer;
+    begin
+        // [FEATURE] [FEFO] [Item Tracking] [Blocked] [Inventory Pick]
+        // [SCENARIO 550978] Available serial no. is populated on inventory pick line when FEFO is enabled and other serial nos. are blocked.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify(true);
+
+        CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(false, true, true));
+
+        for i := 1 to 3 do begin
+            SerialNo[i] := LibraryUtility.GenerateGUID();
+            LibraryItemTracking.CreateSerialNoInformation(SerialNoInformation, Item."No.", '', SerialNo[i]);
+            LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', 1);
+            LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo[i], '', ItemJournalLine.Quantity);
+            ReservEntry.Validate("Expiration Date", WorkDate());
+            ReservEntry.Modify(true);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        end;
+
+        SerialNoInformation.Get(Item."No.", '', SerialNo[1]);
+        SerialNoInformation.Validate(Blocked, true);
+        SerialNoInformation.Modify(true);
+        SerialNoInformation.Get(Item."No.", '', SerialNo[2]);
+        SerialNoInformation.Validate(Blocked, true);
+        SerialNoInformation.Modify(true);
+
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.", Location.Code, 1);
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateInvtPutPickMovement(SalesHeader."Document Type", SalesHeader."No.", false, true, false);
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SalesLine."Document No.", WarehouseActivityLine."Activity Type"::"Invt. Pick", SalesLine."Location Code",
+          WarehouseActivityLine."Action Type"::" ");
+        WarehouseActivityLine.TestField("Serial No.", SerialNo[3]);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
