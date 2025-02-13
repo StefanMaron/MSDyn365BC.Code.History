@@ -303,7 +303,22 @@ page 2901 "Demand Forecast Card"
         VariantFilter := Rec.GetVariantFilterBlobAsText();
         VariantFilterIsEnabled := Rec."Forecast By Variants";
         LocationFilterIsEnabled := Rec."Forecast By Locations";
+
+        if RefreshMatrixOnNextRec then begin
+            SetMatrix();
+            CurrPage.Matrix.Page.Update(false);
+        end;
+        RefreshMatrixOnNextRec := false;
     end;
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        RefreshMatrixOnNextRec := true;
+        exit(Rec.Next(Steps));
+    end;
+
+    var
+        RefreshMatrixOnNextRec: Boolean;
 
     protected var
         MatrixRecords: array[32] of Record Date;

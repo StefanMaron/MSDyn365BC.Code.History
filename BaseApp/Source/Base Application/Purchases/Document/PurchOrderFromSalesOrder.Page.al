@@ -5,6 +5,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Purchases.Vendor;
+using Microsoft.Projects.Project.Planning;
 
 page 1328 "Purch. Order From Sales Order"
 {
@@ -391,6 +392,7 @@ page 1328 "Purch. Order From Sales Order"
         ReqLine.SetLoadFields("Location Code");
         ReqLine.SetCurrentKey("Location Code");
         ReqLine.SetFilter("Location Code", '<>%1', '');
+        ReqLine.SetRange("Demand Type", Database::"Job Planning Line");
         ReqLine.SetRange(Reserve, false);
         if ReqLine.FindSet() then
             repeat

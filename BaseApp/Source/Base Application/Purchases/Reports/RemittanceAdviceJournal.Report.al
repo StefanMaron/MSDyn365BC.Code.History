@@ -471,7 +471,6 @@ report 399 "Remittance Advice - Journal"
         AmountRoundingPrecision: Decimal;
         PmdDiscRec: Decimal;
         PmtDiscInvCurr: Decimal;
-        PaidAmount: Decimal;
         AppliedDebitAmounts: Decimal;
         VendorTotal: Decimal;
         CheckNo: Code[20];
@@ -499,6 +498,7 @@ report 399 "Remittance Advice - Journal"
         TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary;
         VendorAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
+        PaidAmount: Decimal;
 
     local procedure CurrencyCode(SrcCurrCode: Code[10]): Code[10]
     begin

@@ -5712,6 +5712,66 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine[4].TestField("Document No.", NewDocNo);
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    procedure RenumberDocGLAccountBeforeVendor()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[4] of Record "Gen. Journal Line";
+        NoSeries: Codeunit "No. Series";
+        OldDocNo: array[2] of Code[20];
+        NewDocNo: Code[20];
+    begin
+        // [SCENARIO 563098] Stan can renumber document numbers for multiple general journal lines with G/L account lines goes before vendor
+        Initialize();
+
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        CreateGenJournalBatchWithNoSeries(GenJournalBatch, GenJournalTemplate.Name, LibraryERM.CreateNoSeriesCode());
+        NewDocNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series");
+        // [GIVEN] General journal with multiple lines
+        // [GIVEN] "Document Type" = Invoice, "Document No." = "X1", "Account Type" = G/L Account, "Account No." = Y, "Bal. Account No." is blank
+        // [GIVEN] "Document Type" = Invoice, "Document No." = "X1", "Account Type" = Vendor, "Account No." = 10000, "Bal. Account No." is blank
+        // [GIVEN] "Document Type" = Invoice, "Document No." = "X2", "Account Type" = G/L Account, "Account No." = Y, "Bal. Account No." is blank
+        // [GIVEN] "Document Type" = Invoice, "Document No." = "X2", "Account Type" = Vendor, "Account No." = 20000, "Bal. Account No." is blank
+        OldDocNo[1] := LibraryUtility.GenerateGUID();
+        CreateGeneralJnlLineWithBatchAndDocNo(
+            GenJournalLine[1], GenJournalTemplate.Name, GenJournalBatch.Name,
+            GenJournalLine[1]."Document Type"::Invoice, OldDocNo[1], GenJournalLine[1]."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            GenJournalLine[1]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 2));
+        CreateGeneralJnlLineWithBatchAndDocNo(
+            GenJournalLine[2], GenJournalTemplate.Name, GenJournalBatch.Name,
+            GenJournalLine[2]."Document Type"::Invoice, OldDocNo[1], GenJournalLine[2]."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+            GenJournalLine[2]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 2));
+        OldDocNo[2] := LibraryUtility.GenerateGUID();
+        CreateGeneralJnlLineWithBatchAndDocNo(
+            GenJournalLine[3], GenJournalTemplate.Name, GenJournalBatch.Name,
+            GenJournalLine[3]."Document Type"::Invoice, OldDocNo[2], GenJournalLine[3]."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            GenJournalLine[3]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 2));
+        CreateGeneralJnlLineWithBatchAndDocNo(
+            GenJournalLine[4], GenJournalTemplate.Name, GenJournalBatch.Name,
+            GenJournalLine[4]."Document Type"::Invoice, OldDocNo[2], GenJournalLine[4]."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+            GenJournalLine[2]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 2));
+
+        // [WHEN] Renumber Document No.
+        GenJournalLine[4].RenumberDocumentNo();
+
+        // [THEN] The "Document No." has been renumbered in the following way
+        // [GIVEN] "Document Type" = Invoice, "Document No." = "Z1", "Account Type" = G/L Account, "Account No." = Y, "Bal. Account No." is blank
+        // [GIVEN] "Document Type" = Invoice, "Document No." = "Z1", "Account Type" = Vendor, "Account No." = 10000, "Bal. Account No." is blank
+        // [GIVEN] "Document Type" = Invoice, "Document No." = "Z2", "Account Type" = G/L Account, "Account No." = Y, "Bal. Account No." is blank
+        // [GIVEN] "Document Type" = Invoice, "Document No." = "Z2", "Account Type" = Vendor, "Account No." = 20000, "Bal. Account No." is blank
+        GenJournalLine[1].Find();
+        GenJournalLine[1].TestField("Document No.", NewDocNo);
+        GenJournalLine[2].Find();
+        GenJournalLine[2].TestField("Document No.", NewDocNo);
+        NewDocNo := IncStr(NewDocNo);
+        GenJournalLine[3].Find();
+        GenJournalLine[3].TestField("Document No.", NewDocNo);
+        GenJournalLine[4].Find();
+        GenJournalLine[4].TestField("Document No.", NewDocNo);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

@@ -616,8 +616,9 @@ report 4810 "Intrastat Report Get Lines"
 
         IsHandled := false;
         OnBeforeInsertJobLedgerLine(IntrastatReportLine, "Job Ledger Entry", IsHandled);
-        if not IsHandled then
-            IntrastatReportLine.Insert();
+        if IsHandled then
+            exit;
+        IntrastatReportLine.Insert();
 
         IntrastatReportLine."Record ID Filter" := Format(IntrastatReportLine.RecordId);
         IntrastatReportLine.Modify();
