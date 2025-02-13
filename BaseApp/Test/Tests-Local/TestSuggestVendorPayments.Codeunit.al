@@ -312,6 +312,37 @@ codeunit 144024 "Test Suggest Vendor Payments"
         RefPmtExported.TestField(Amount, -VendorLedgerEntry.Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('RPHSuggestBankPaymentsWithCurrencyFilter')]
+    [Scope('OnPrem')]
+    procedure CurrencyFilterShouldApplyOnBankPaymentToSendWhenSuggestVendorPayment()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        RefPmtExported: Record "Ref. Payment - Exported";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO 562522] The Currency filter is not considered if you Suggest Vendor Payments from the Bank Payment to send page in the Finnish version
+        Initialize();
+
+        // [GIVEN] Create Vendor with currency and Bank Account No.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
+        Vendor.Modify(true);
+        BankAccountNo := CreateBankAccount();
+
+        // [GIVEN] Create and Post Purchase Invoice
+        CreateAndPostPurchaseDocumentWithRandomAmounts(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.",
+            false, true, PurchaseHeader."Message Type"::Message);
+
+        // [WHEN] Running Suggest Bank Payment with Currency Code filter
+        RunSuggestBankPaymentsWithCurrencyCode(BankAccountNo, Vendor."No.", Vendor."Currency Code", CalcDate('<30D>', PurchaseHeader."Posting Date"));
+
+        // [THEN] Verify count to confirm exported entry
+        Assert.RecordCount(RefPmtExported, 1);
+    end;
+
     local procedure Initialize()
     var
         RefPmtExported: Record "Ref. Payment - Exported";
@@ -499,6 +530,19 @@ codeunit 144024 "Test Suggest Vendor Payments"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    local procedure RunSuggestBankPaymentsWithCurrencyCode(BankAccountNo: Code[20]; VendorNo: Text; CurrencyCode: Code[10]; PaymentDate: Date)
+    var
+        SuggestBankPayments: Report "Suggest Bank Payments";
+    begin
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(VendorNo);
+        LibraryVariableStorage.Enqueue(CurrencyCode);
+        SuggestBankPayments.InitializeRequest(PaymentDate, true, 0);
+        SuggestBankPayments.Run();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHSuggestBankPayments(var RequestPage: TestRequestPage "Suggest Bank Payments")
@@ -507,6 +551,18 @@ codeunit 144024 "Test Suggest Vendor Payments"
         RequestPage.UsePmtDiscTolerance.SetValue(LibraryVariableStorage.DequeueBoolean());
         RequestPage."Payment Account".SetValue(LibraryVariableStorage.DequeueText());
         RequestPage.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        RequestPage.OK().Invoke();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RPHSuggestBankPaymentsWithCurrencyFilter(var RequestPage: TestRequestPage "Suggest Bank Payments")
+    begin
+        RequestPage."Payment Account".SetValue(LibraryVariableStorage.DequeueText());
+        RequestPage.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        RequestPage.Vendor.SetFilter("Currency Filter", LibraryVariableStorage.DequeueText());
         RequestPage.OK().Invoke();
 
         LibraryVariableStorage.AssertEmpty();
