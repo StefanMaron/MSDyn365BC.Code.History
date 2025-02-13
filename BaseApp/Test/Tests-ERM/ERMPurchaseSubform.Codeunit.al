@@ -4479,6 +4479,198 @@ codeunit 134394 "ERM Purchase Subform"
             StrSubstNo(MustMatchErr, VendorInvoiceDisc.FieldCaption("Discount %"), InvoiceDiscPct));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuantityZeroOnBlanketPurchaseOrderSubForm()
+    var
+        PurchaseLine: Record "Purchase Line";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+    begin
+        // [SCENARIO 551594] Blanket purchase order subform quantity cannot be changed to zero when the item does not have Direct Unit Cost
+        Initialize();
+
+        // [GIVEN] Enable Calc. Inv. Discount on Purchases & Payables Setup
+        SetCalcInvDiscount();
+
+        // [GIVEN] Open new purchase order page and pick new customer
+        BlanketPurchaseOrder.OpenNew();
+        BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Create new line with Type = Item
+        BlanketPurchaseOrder.PurchLines.New();
+        BlanketPurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        BlanketPurchaseOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        BlanketPurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(100));
+        BlanketPurchaseOrder.PurchLines.Next();
+        BlanketPurchaseOrder.PurchLines.Previous();
+        BlanketPurchaseOrder.PurchLines.Quantity.SetValue(0);
+        BlanketPurchaseOrder.PurchLines.Next();
+        BlanketPurchaseOrder.PurchLines.Previous();
+
+        // [THEN] Quantity should be Zero
+        BlanketPurchaseOrder.PurchLines.Quantity.AssertEquals(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuantityZeroOnPurchaseQuoteSubForm()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseQuote: TestPage "Purchase Quote";
+    begin
+        // [SCENARIO 551594] Purchase quote subform quantity cannot be changed to zero when the item does not have Direct Unit Cost
+        Initialize();
+
+        // [GIVEN] Enable Calc. Inv. Discount on Purchases & Payables Setup
+        SetCalcInvDiscount();
+
+        // [GIVEN] Open new purchase quote page and pick new customer
+        PurchaseQuote.OpenNew();
+        PurchaseQuote."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Create new line with Type = Item
+        PurchaseQuote.PurchLines.New();
+        PurchaseQuote.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseQuote.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        PurchaseQuote.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(100));
+        PurchaseQuote.PurchLines.Next();
+        PurchaseQuote.PurchLines.Previous();
+        PurchaseQuote.PurchLines.Quantity.SetValue(0);
+        PurchaseQuote.PurchLines.Next();
+        PurchaseQuote.PurchLines.Previous();
+
+        // [THEN] Quantity should be Zero
+        PurchaseQuote.PurchLines.Quantity.AssertEquals(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuantityZeroOnPurchaseOrderSubForm()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 551594] Purchase order subform quantity cannot be changed to zero when the item does not have Direct Unit Cost
+        Initialize();
+
+        // [GIVEN] Enable Calc. Inv. Discount on Purchases & Payables Setup
+        SetCalcInvDiscount();
+
+        // [GIVEN] Open new purchase order page and pick new customer
+        PurchaseOrder.OpenNew();
+        PurchaseOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Create new line with Type = Item
+        PurchaseOrder.PurchLines.New();
+        PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        PurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(100));
+        PurchaseOrder.PurchLines.Next();
+        PurchaseOrder.PurchLines.Previous();
+        PurchaseOrder.PurchLines.Quantity.SetValue(0);
+        PurchaseOrder.PurchLines.Next();
+        PurchaseOrder.PurchLines.Previous();
+
+        // [THEN] Quantity should be Zero
+        PurchaseOrder.PurchLines.Quantity.AssertEquals(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuantityZeroOnPurchaseInvoiceSubForm()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 551594] Purchase invoice subform quantity cannot be changed to zero when the item does not have Direct Unit Cost
+        Initialize();
+
+        // [GIVEN] Enable Calc. Inv. Discount on Purchases & Payables Setup
+        SetCalcInvDiscount();
+
+        // [GIVEN] Open new purchase invoice page and pick new customer
+        PurchaseInvoice.OpenNew();
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Create new line with Type = Item
+        PurchaseInvoice.PurchLines.New();
+        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(100));
+        PurchaseInvoice.PurchLines.Next();
+        PurchaseInvoice.PurchLines.Previous();
+        PurchaseInvoice.PurchLines.Quantity.SetValue(0);
+        PurchaseInvoice.PurchLines.Next();
+        PurchaseInvoice.PurchLines.Previous();
+
+        // [THEN] Quantity should be Zero
+        PurchaseInvoice.PurchLines.Quantity.AssertEquals(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuantityZeroOnPurchaseCreditMemoSubForm()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        // [SCENARIO 551594] Purchase credit memo subform quantity cannot be changed to zero when the item does not have Direct Unit Cost
+        Initialize();
+
+        // [GIVEN] Enable Calc. Inv. Discount on Purchases & Payables Setup
+        SetCalcInvDiscount();
+
+        // [GIVEN] Open new purchase credit memo page and pick new customer
+        PurchaseCreditMemo.OpenNew();
+        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Create new line with Type = Item
+        PurchaseCreditMemo.PurchLines.New();
+        PurchaseCreditMemo.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseCreditMemo.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        PurchaseCreditMemo.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(100));
+        PurchaseCreditMemo.PurchLines.Next();
+        PurchaseCreditMemo.PurchLines.Previous();
+        PurchaseCreditMemo.PurchLines.Quantity.SetValue(0);
+        PurchaseCreditMemo.PurchLines.Next();
+        PurchaseCreditMemo.PurchLines.Previous();
+
+        // [THEN] Quantity should be Zero
+        PurchaseCreditMemo.PurchLines.Quantity.AssertEquals(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuantityZeroOnPurchaseReturnOrderSubForm()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [SCENARIO 551594] Purchase return order subform quantity cannot be changed to zero when the item does not have Direct Unit Cost
+        Initialize();
+
+        // [GIVEN] Enable Calc. Inv. Discount on Purchases & Payables Setup
+        SetCalcInvDiscount();
+
+        // [GIVEN] Open new purchase return order page and pick new customer
+        PurchaseReturnOrder.OpenNew();
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Create new line with Type = Item
+        PurchaseReturnOrder.PurchLines.New();
+        PurchaseReturnOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseReturnOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        PurchaseReturnOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(100));
+        PurchaseReturnOrder.PurchLines.Next();
+        PurchaseReturnOrder.PurchLines.Previous();
+        PurchaseReturnOrder.PurchLines.Quantity.SetValue(0);
+        PurchaseReturnOrder.PurchLines.Next();
+        PurchaseReturnOrder.PurchLines.Previous();
+
+        // [THEN] Quantity should be Zero
+        PurchaseReturnOrder.PurchLines.Quantity.AssertEquals(0);
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -5384,6 +5576,15 @@ codeunit 134394 "ERM Purchase Subform"
         PurchasePayablesSetup.Get();
         PurchasePayablesSetup.Validate("Calc. Inv. Discount", false);
         PurchasePayablesSetup.Modify(true);
+    end;
+
+    local procedure SetCalcInvDiscount()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Calc. Inv. Discount" := true;
+        PurchasesPayablesSetup.Modify();
     end;
 
     [PageHandler]

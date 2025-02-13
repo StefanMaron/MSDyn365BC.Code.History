@@ -1435,6 +1435,90 @@ codeunit 137212 "SCM Copy Document Mgt."
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [HandlerFunctions('CopySalesDocumentHandler')]
+    [Scope('OnPrem')]
+    procedure CheckGlobalDimensionsOnSalesDocumentWhenCopyDocument()
+    var
+        Customer: Record Customer;
+        SalesHeader: array[2] of Record "Sales Header";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        SalesInvoice: TestPage "Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        Initialize();
+        // [SCENARIO 557528] Verify Global Dimension and Shortcut Dimension on Sales Document.
+
+        // [GIVEN] Create Customer with Shortcut Dimension.
+        CreateCustomerWithMultipleDimension(Customer);
+
+        // [GIVEN] Create a Sales Invoice with Global Dimensions.
+        CreateSalesDocumentWithGlobalDimension(SalesHeader[1], SalesHeader[1]."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Post Sales Invoice.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader[1], false, true);
+
+        // [GIVEN] Create Empty Sales Invoice.
+        CreateEmptySalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice);
+
+        // [GIVEN] Open Sales Invoice Page.
+        SalesInvoice.OpenEdit();
+        SalesInvoice.GoToRecord(SalesHeader[2]);
+
+        // [GIVEN] Enqueue the Request Page Parmeters.
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Invoice", DocumentNo, true, true);
+        Commit();
+
+        // [WHEN] Copy Sales Invoice From Posted Invoice.
+        SalesInvoice.CopyDocument.Invoke();
+
+        // [THEN] Verify Sales Document Dimensions.
+        VerifySalesDocumentDimensions(SalesInvoice, SalesHeader[2], DocumentNo);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyPurchaseDocumentHandler')]
+    [Scope('OnPrem')]
+    procedure CheckGlobalDimensionsOnPurchaseDocumentWhenCopyDocument()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        Vendor: Record Vendor;
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        DocumentNo: Code[20];
+    begin
+        Initialize();
+        // [SCENARIO 557528] Verify Global Dimension and Shortcut Dimension on Purchase Document.
+
+        // [GIVEN] Create Vendor with Shortcut Dimension
+        CreateVendorWithMultipleDimension(Vendor);
+
+        // [GIVEN] Create a Purchase Invoice with Global Dimensions.
+        CreatePurchaseDocumentWithGlobalDimension(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Post Purchase Invoice.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], false, true);
+
+        // [GIVEN] Create Empty Purchase Invoice.
+        CreateEmptyPurchHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice);
+
+        // [GIVEN] Open Purchase Invoice Page.
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GoToRecord(PurchaseHeader[2]);
+
+        // [GIVEN] Enqueue the Request Page Parmeters.
+        EnqueueCopyDocumentReqpageParameters("Purchase Document Type From"::"Posted Invoice", DocumentNo, true, true);
+        Commit();
+
+        // [WHEN] Copy Purchase Invoice From Posted Invoice.
+        PurchaseInvoice.CopyDocument.Invoke();
+
+        // [THEN] Verify Purchase Document Dimensions.
+        VerifyPurchaseDocumentDimensions(PurchaseInvoice, PurchaseHeader[2], DocumentNo);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2506,6 +2590,150 @@ codeunit 137212 "SCM Copy Document Mgt."
             'Line Amount Excl. VAT',
             PurchaseInvoice.PurchLines."Line Amount".Caption(),
             CaptionNotMatchErr);
+    end;
+
+    local procedure CreateCustomerWithMultipleDimension(var Customer: Record Customer)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Dimension: array[4] of Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        i: Integer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+
+        for i := 1 to 4 do begin
+            GenerateDimensions(Dimension[i], DimensionValue);
+            LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, Customer."No.", Dimension[i].Code, DimensionValue.Code);
+        end;
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension[1].Code);
+        GeneralLedgerSetup.Validate("Shortcut Dimension 4 Code", Dimension[2].Code);
+        GeneralLedgerSetup.Validate("Shortcut Dimension 5 Code", Dimension[3].Code);
+        GeneralLedgerSetup.Validate("Shortcut Dimension 6 Code", Dimension[4].Code);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure CreateSalesDocumentWithGlobalDimension(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
+    var
+        DimensionValue: array[2] of Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], GeneralLedgerSetup."Global Dimension 1 Code");
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], GeneralLedgerSetup."Global Dimension 2 Code");
+
+        SalesHeader.Validate("Shortcut Dimension 1 Code", DimensionValue[1].Code);
+        SalesHeader.Validate("Shortcut Dimension 2 Code", DimensionValue[2].Code);
+        SalesHeader.Modify(true);
+
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+            Item,
+            LibraryRandom.RandIntInRange(1000, 2000),
+            LibraryRandom.RandIntInRange(3000, 4000));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount(), LibraryRandom.RandInt(10));
+    end;
+
+    local procedure VerifySalesDocumentDimensions(var SalesInvoice: TestPage "Sales Invoice"; SalesHeader: Record "Sales Header"; DocumentNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesInvoiceHeader.Get(DocumentNo);
+        SalesInvoice."Shortcut Dimension 1 Code".AssertEquals(SalesInvoiceHeader."Shortcut Dimension 1 Code");
+        SalesInvoice."Shortcut Dimension 2 Code".AssertEquals(SalesInvoiceHeader."Shortcut Dimension 2 Code");
+        SalesInvoice.Close();
+
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        Assert.AreEqual(SalesHeader."Dimension Set ID", SalesInvoiceHeader."Dimension Set ID", WrongDimensionsCopiedErr);
+
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetFilter("No.", '<>%1', '');
+        SalesLine.FindSet();
+        repeat
+            Assert.AreEqual(SalesLine."Dimension Set ID", SalesHeader."Dimension Set ID", WrongDimensionsCopiedErr);
+            Assert.AreEqual(SalesLine."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 1 Code", WrongDimensionsCopiedErr);
+            Assert.AreEqual(SalesLine."Shortcut Dimension 2 Code", SalesHeader."Shortcut Dimension 2 Code", WrongDimensionsCopiedErr);
+        until SalesLine.Next() = 0;
+    end;
+
+    local procedure CreateVendorWithMultipleDimension(var Vendor: Record Vendor)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Dimension: array[4] of Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        i: Integer;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+
+        for i := 1 to 4 do begin
+            GenerateDimensions(Dimension[i], DimensionValue);
+            LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", Dimension[i].Code, DimensionValue.Code);
+        end;
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension[1].Code);
+        GeneralLedgerSetup.Validate("Shortcut Dimension 4 Code", Dimension[2].Code);
+        GeneralLedgerSetup.Validate("Shortcut Dimension 5 Code", Dimension[3].Code);
+        GeneralLedgerSetup.Validate("Shortcut Dimension 6 Code", Dimension[4].Code);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure CreatePurchaseDocumentWithGlobalDimension(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
+    var
+        DimensionValue: array[2] of Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], GeneralLedgerSetup."Global Dimension 1 Code");
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], GeneralLedgerSetup."Global Dimension 2 Code");
+
+        PurchaseHeader.Validate("Shortcut Dimension 1 Code", DimensionValue[1].Code);
+        PurchaseHeader.Validate("Shortcut Dimension 2 Code", DimensionValue[2].Code);
+        PurchaseHeader.Modify(true);
+
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+            Item,
+            LibraryRandom.RandIntInRange(1000, 2000),
+            LibraryRandom.RandIntInRange(3000, 4000));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount(), LibraryRandom.RandInt(10));
+    end;
+
+    local procedure VerifyPurchaseDocumentDimensions(var PurchaseInvoice: TestPage "Purchase Invoice"; PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20])
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchInvHeader.Get(DocumentNo);
+        PurchaseInvoice."Shortcut Dimension 1 Code".AssertEquals(PurchInvHeader."Shortcut Dimension 1 Code");
+        PurchaseInvoice."Shortcut Dimension 2 Code".AssertEquals(PurchInvHeader."Shortcut Dimension 2 Code");
+        PurchaseInvoice.Close();
+
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        Assert.AreEqual(PurchaseHeader."Dimension Set ID", PurchInvHeader."Dimension Set ID", WrongDimensionsCopiedErr);
+
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetFilter("No.", '<>%1', '');
+        PurchaseLine.FindSet();
+        repeat
+            Assert.AreEqual(PurchaseLine."Dimension Set ID", PurchaseHeader."Dimension Set ID", WrongDimensionsCopiedErr);
+            Assert.AreEqual(PurchaseLine."Shortcut Dimension 1 Code", PurchaseHeader."Shortcut Dimension 1 Code", WrongDimensionsCopiedErr);
+            Assert.AreEqual(PurchaseLine."Shortcut Dimension 2 Code", PurchaseHeader."Shortcut Dimension 2 Code", WrongDimensionsCopiedErr);
+        until PurchaseLine.Next() = 0;
     end;
 
     [ModalPageHandler]
