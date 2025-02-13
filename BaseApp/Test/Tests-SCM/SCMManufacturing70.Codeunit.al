@@ -72,6 +72,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         SubcontractingDescriptionErr: Label 'The description in Subcontracting Worksheet must be from Work Center if available.';
         ProductionStatusErr: Label 'Selected Production Order must be released.';
         QuanityPerErrorLbl: Label '%1 must be %2 in %3', Comment = '%1 = "Quantity Per", %2 = Expected Value, %3 = Table Caption';
+        OperationNoErr: Label 'Operation No. must be equal to %1', Comment = '%1 = Operation No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3236,6 +3237,51 @@ codeunit 137063 "SCM Manufacturing 7.0"
         UpdateStatusOnProductionBOMVersion(ProductionBOMVersion[2], ProductionBOMVersion[2].Status::Certified);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySubConWorkSheetOrderByOperationNo()
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        RoutingHeader: Record "Routing Header";
+        WorkCenter: array[2] of Record "Work Center";
+        WorkCenter2: Record "Work Center";
+        Item: Record Item;
+        Item2: Record Item;
+        Item3: Record Item;
+        OperationNo: array[2] of Code[10];
+    begin
+        // [SCENARIO 561326] Subcontracting Worksheet -  order of the lines is based on the "Operation No"
+        Initialize();
+
+        // [GIVEN] Create multiple subcontracting setup with multiple Work Center
+        CreateMultipleSubcontractingSetup(WorkCenter, RoutingHeader, OperationNo);
+
+        // [GIVEN] Create one Production Item and two Raw Item
+        CreateMultipleItems(
+          Item, Item3, Item2, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
+          Item."Reordering Policy"::" ", false);
+
+        // [GIVEN] Create Production BOM and certify it
+        CreateProductionBOMAndCertify(ProductionBOMHeader, Item."Base Unit of Measure", ProductionBOMLine.Type::Item, Item2."No.", 1);
+
+        // [GIVEN] Update Production BOM No. and Routing on Item
+        UpdateItem(Item, Item.FieldNo("Production BOM No."), ProductionBOMHeader."No.");
+        UpdateItem(Item, Item.FieldNo("Routing No."), RoutingHeader."No.");
+
+        // [GIVEN] Create Released Production order
+        CreateAndRefreshProdOrder(
+          ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(10), ProductionOrder."Source Type"::Item, false);
+
+        // [WHEN] Run "Calculate Subcontracts" report
+        WorkCenter2.SetFilter("No.", '%1|%2', WorkCenter[1]."No.", WorkCenter[2]."No.");
+        LibraryManufacturing.CalculateSubcontractOrder(WorkCenter2);
+
+        // [THEN] Verify Operation No. on Requisition Line will be in order of routing
+        VerifyOperationNoOnRequisitionLineForProductionOrder(ProductionOrder, OperationNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5356,6 +5402,73 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Positive, Positive);
         ItemLedgerEntry.FindFirst();
+    end;
+
+    local procedure CreateMultipleSubcontractingSetup(
+    var WorkCenter: array[2] of Record "Work Center";
+    var RoutingHeader: Record "Routing Header";
+    var OperationNo: array[2] of Code[10]
+    )
+    var
+        WorkCenterNo: array[2] of Code[20];
+        RoutingHeaderNo: Code[20];
+    begin
+        Create2WorkCenter(WorkCenter, WorkCenterNo);
+        CreateRoutingWithSequentialOperations(WorkCenterNo, OperationNo, RoutingHeaderNo);
+        RoutingHeader.Get(RoutingHeaderNo);
+    end;
+
+    local procedure Create2WorkCenter(var WorkCenter: array[2] of Record "Work Center"; var WorkCenterNo: array[2] of Code[20])
+    var
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        Vendor: Record Vendor;
+        i: Integer;
+    begin
+        LibraryPurchase.CreateSubcontractor(Vendor);
+        CreateWorkCenterSetup(WorkCenter[1], CapacityUnitOfMeasure.Type::Minutes, 160000T, 235959T);
+        CreateWorkCenterSetup(WorkCenter[2], CapacityUnitOfMeasure.Type::Minutes, 160000T, 235959T);
+        for i := 1 to ArrayLen(WorkCenter) do begin
+            WorkCenterNo[i] := WorkCenter[i]."No.";
+            WorkCenter[i].Validate("Unit Cost Calculation", WorkCenter[i]."Unit Cost Calculation"::Time);
+            WorkCenter[i].Validate("Subcontractor No.", Vendor."No.");
+            WorkCenter[i].Modify(true);
+        end;
+    end;
+
+    local procedure CreateRoutingWithSequentialOperations(
+        WorkCenterNo: array[2] of Code[20];
+        var OperationNo: array[2] of Code[10];
+        var RoutingHeaderNo: Code[20])
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenterNo[2]);
+        OperationNo[1] := RoutingLine."Operation No.";
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenterNo[1]);
+        OperationNo[2] := RoutingLine."Operation No.";
+        UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+        RoutingHeaderNo := RoutingHeader."No.";
+    end;
+
+    local procedure VerifyOperationNoOnRequisitionLineForProductionOrder(
+        ProductionOrder: Record "Production Order";
+        OperationNo: array[2] of Code[10])
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        RequisitionLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
+        RequisitionLine.SetRange("No.", ProductionOrder."Source No.");
+        RequisitionLine.SetRange("Ref. Order Status", ProductionOrder.Status);
+        RequisitionLine.SetRange("Ref. Order No.", ProductionOrder."No.");
+        RequisitionLine.FindSet();
+
+        Assert.AreEqual(OperationNo[1], RequisitionLine."Operation No.", StrSubstNo(OperationNoErr, OperationNo[1]));
+        RequisitionLine.Next();
+        Assert.AreEqual(OperationNo[2], RequisitionLine."Operation No.", StrSubstNo(OperationNoErr, OperationNo[1]));
     end;
 
     [ModalPageHandler]

@@ -139,7 +139,7 @@ report 597 "G/L Currency Revaluation"
         GLAccount: Record "G/L Account";
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
         RevaluationAmount: Decimal;
-        CurrRate: Decimal;
+        CurrencyFactor: Decimal;
     begin
         GLAccount.SetFilter("No.", "G/L Account".GetFilter("No."));
         GLAccount.SetRange("Source Currency Revaluation", true);
@@ -150,18 +150,18 @@ report 597 "G/L Currency Revaluation"
                 if "G/L Account".GetFilter("Source Currency Code") <> '' then
                     GLAccountSourceCurrency.SetFilter("Currency Code", "G/L Account".GetFilter("Source Currency Code"));
                 GLAccountSourceCurrency.SetRange("Date Filter", 0D, PostingDateReq);
+                GLAccountSourceCurrency.SetAutoCalcFields("Balance at Date", "Source Curr. Balance at Date");
                 if GLAccountSourceCurrency.FindSet() then
                     repeat
                         if GLAccountSourceCurrency."Currency Code" <> '' then begin
-                            CurrRate := CurrencyExchangeRate.ExchangeRateAdjmt(PostingDateReq, GLAccountSourceCurrency."Currency Code");
-                            if CurrRate <> 0 then
-                                CurrRate := Round(1 / CurrRate, 0.00001);
-
-                            GLAccountSourceCurrency.CalcFields("Balance at Date", "Source Curr. Balance at Date");
-                            RevaluationAmount :=
-                                Round(
-                                    (GLAccountSourceCurrency."Source Curr. Balance at Date" * CurrRate) - GLAccountSourceCurrency."Balance at Date", 0.01);
-
+                            CurrencyFactor := CurrencyExchangeRate.ExchangeRateAdjmt(PostingDateReq, GLAccountSourceCurrency."Currency Code");
+                            RevaluationAmount := 0;
+                            if CurrencyFactor <> 0 then
+                                RevaluationAmount :=
+                                    Round(
+                                        CurrencyExchangeRate.ExchangeAmtFCYToLCYAdjmt(
+                                            PostingDateReq, GLAccountSourceCurrency."Currency Code", GLAccountSourceCurrency."Source Curr. Balance at Date", CurrencyFactor)) -
+                                    GLAccountSourceCurrency."Balance at Date";
                             if RevaluationAmount <> 0 then begin
                                 CreateGenJnlLine(GLAccount, GLAccountSourceCurrency, RevaluationAmount);
                                 LinesCreated := LinesCreated + 1;
