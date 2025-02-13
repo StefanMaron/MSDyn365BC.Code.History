@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -293,8 +293,8 @@ codeunit 80 "Sales-Post"
         SuppressCommitErr: Label 'Commit is blocked when %1 %2 is used.', Comment = '%1 = Date Order, %2 = Number Series';
         ReverseChargeFeatureNameTok: Label 'Reverse Charge GB', Locked = true;
         ReverseChargeEventNameTok: Label 'Reverse Charge GB has been used', Locked = true;
-        DateOrderSeriesUsed: Boolean;	
-#if not CLEAN25        
+        DateOrderSeriesUsed: Boolean;
+#if not CLEAN25
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
 #endif
 
@@ -5926,35 +5926,35 @@ codeunit 80 "Sales-Post"
         IsHandled := false;
         OnBeforePostJobContractLine(
             SalesHeader, SalesLine, IsHandled, JobContractLine, InvoicePostingInterface, SalesLineACY, SalesInvHeader, SalesCrMemoHeader);
-        if IsHandled then
-            exit;
-
-        if SalesLine."Job Contract Entry No." = 0 then
-            exit;
-
-        IsHandled := false;
-        OnPostJobContractLineBeforeTestFields(SalesHeader, SalesLine, IsHandled);
         if not IsHandled then begin
-            if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice) and
-               (SalesHeader."Document Type" <> SalesHeader."Document Type"::"Credit Memo")
-            then
-                SalesLine.TestField("Job Contract Entry No.", 0);
+            if SalesLine."Job Contract Entry No." = 0 then
+                exit;
 
-            SalesLine.TestField("Job No.");
-            SalesLine.TestField("Job Task No.");
-        end;
+            IsHandled := false;
+            OnPostJobContractLineBeforeTestFields(SalesHeader, SalesLine, IsHandled);
+            if not IsHandled then begin
+                if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice) and
+                   (SalesHeader."Document Type" <> SalesHeader."Document Type"::"Credit Memo")
+                then
+                    SalesLine.TestField("Job Contract Entry No.", 0);
 
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
-            SalesLine."Document No." := SalesInvHeader."No.";
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
-            SalesLine."Document No." := SalesCrMemoHeader."No.";
-        JobContractLine := true;
+                SalesLine.TestField("Job No.");
+                SalesLine.TestField("Job Task No.");
+            end;
+
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
+                SalesLine."Document No." := SalesInvHeader."No.";
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
+                SalesLine."Document No." := SalesCrMemoHeader."No.";
+            JobContractLine := true;
 #if not CLEAN23
-        if UseLegacyInvoicePosting() then
-            JobPostLine.PostInvoiceContractLine(SalesHeader, SalesLine)
-        else
+            if UseLegacyInvoicePosting() then
+                JobPostLine.PostInvoiceContractLine(SalesHeader, SalesLine)
+            else
 #endif
-        InvoicePostingInterface.PrepareJobLine(SalesHeader, SalesLine, SalesLineACY);
+            InvoicePostingInterface.PrepareJobLine(SalesHeader, SalesLine, SalesLineACY);
+        end;
+        OnAfterPostJobContractLine(SalesHeader, SalesLine, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode);
     end;
 
     local procedure InsertICGenJnlLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var ICGenJnlLineNo: Integer)
@@ -12753,6 +12753,11 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAssosOrderPostingNosOnBeforeModifyPurchOrderHeader(var PurchaseOrderHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostJobContractLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var GenJnlLineDocType: Enum "Gen. Journal Document Type"; var GenJnlLineDocNo: Code[20]; var GenJnlLineExtDocNo: Code[35]; var SrcCode: Code[10])
     begin
     end;
 }
