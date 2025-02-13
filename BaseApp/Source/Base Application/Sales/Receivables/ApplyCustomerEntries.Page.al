@@ -1495,7 +1495,7 @@ page 232 "Apply Customer Entries"
                                   TempAppliedCustLedgEntry."Remaining Amount" - TempAppliedCustLedgEntry.GetRemainingPmtDiscPossible(PostingDate);
                             end
                 else begin
-                    if ((CurrentAmount + TempAppliedCustLedgEntry."Amount to Apply") * CurrentAmount) <= 0 then
+                    if ((CurrentAmount + TempAppliedCustLedgEntry."Amount to Apply") * CurrentAmount) < 0 then
                         AppliedAmount += CorrectionAmount;
                     CurrentAmount += TempAppliedCustLedgEntry."Amount to Apply";
                 end;

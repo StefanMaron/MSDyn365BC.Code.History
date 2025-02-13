@@ -37,4 +37,10 @@ query 7316 CalcQtyOnBlockedITOnLNQuery
             }
         }
     }
+
+    procedure SetItemTrackingFilter(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Lot No." <> '' then
+            SetRange(Lot_No_, ItemTrackingSetup."Lot No.");
+    end;
 }

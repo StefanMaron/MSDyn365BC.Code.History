@@ -23,6 +23,8 @@ codeunit 144013 "Sales Documents With Tax"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryUTUtility: Codeunit "Library UT Utility";
+        RemainingPmtDiscountPossibleDoesNotHaveValueErr: Label 'Remaining Pmt. Discount Possible does not have a value';
+        IncorrectBalanceErr: Label 'Balance in %1 is incorrect', Comment = '%1=Page Name';
 
     [Test]
     [Scope('OnPrem')]
@@ -184,6 +186,71 @@ codeunit 144013 "Sales Documents With Tax"
         // Setup.
         Initialize();
         SpecialOrdersCombined(PurchasesPayablesSetup."Combine Special Orders Default"::"Never Combine");
+    end;
+
+    [Test]
+    [HandlerFunctions('PartialApplyCustomerEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyingPartialPaymentOnCrMemoShouldNotShowIncorrectBalanceOnApplyCustomerEntriesPage()
+    var
+        Customer: Record Customer;
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustomerLedgerEntriesPage: TestPage "Customer Ledger Entries";
+        PaymentTermCode: array[2] of Code[20];
+        SalesInvoiceNo: Code[20];
+        DiscountPercent: Decimal;
+    begin
+        // [SCENARIO 561458] Balance must be correct in Apply Customer Entries page while applying Payment to Invoice with Payment Discount and Credit Memos (partially).
+        Initialize();
+
+        // [GIVEN] Create two Payment Terms with and without Discount.
+        DiscountPercent := LibraryRandom.RandIntInRange(1, 10);
+        PaymentTermCode[1] := CreatePaymentTermsWithDiscount(0);
+        PaymentTermCode[2] := CreatePaymentTermsWithDiscount(DiscountPercent);
+
+        // [GIVEN] Create a Customer.
+        CreateCustomerWithGivenPaymentTerm(Customer, PaymentTermCode[1]);
+
+        // [GIVEN] Post a Payment for the Customer.
+        CreatePostBalancedPaymentJournalWithSpecifiedCustomerAndAmount(GenJournalLine, Customer."No.", LibraryRandom.RandInt(100));
+
+        // [WHEN] Create and post a Sales Invoice with Payment Discount (Payment Term Code = PaymentTermCode[2]).
+        Customer.Validate("Payment Terms Code", PaymentTermCode[2]);
+        Customer.Modify(true);
+        SalesInvoiceNo := CreateAndPostSalesDocument(SalesLine, WorkDate(),
+            Customer."No.", LibraryInventory.CreateItemNo(), SalesHeader."Document Type"::Invoice,
+            LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(1000, 2));
+
+        // [THEN] Verify that the Customer Ledger Entry has "Remaining Pmt. Disc. Possible" > 0.
+        Assert.IsTrue(GetRemainingPmtDiscForCustomer(CustLedgEntry."Document Type"::Invoice, Customer."No.", SalesInvoiceNo) > 0,
+            RemainingPmtDiscountPossibleDoesNotHaveValueErr);
+
+        // [GIVEN] Create and post three Sales Credit Memo with "Payment Terms Code" = PaymentTermCode[1] and Amount = 2000.
+        Customer.Validate("Payment Terms Code", PaymentTermCode[1]);
+        Customer.Modify(true);
+        CreateAndPostSalesDocument(SalesLine, WorkDate(),
+            Customer."No.", LibraryInventory.CreateItemNo(), SalesHeader."Document Type"::"Credit Memo",
+            LibraryRandom.RandDec(10, 2), 2000);
+        CreateAndPostSalesDocument(SalesLine, WorkDate(),
+            Customer."No.", LibraryInventory.CreateItemNo(), SalesHeader."Document Type"::"Credit Memo",
+            LibraryRandom.RandDec(10, 2), 2000);
+        CreateAndPostSalesDocument(SalesLine, WorkDate(),
+            Customer."No.", LibraryInventory.CreateItemNo(), SalesHeader."Document Type"::"Credit Memo",
+            LibraryRandom.RandDec(10, 2), 2000);
+
+        // [WHEN] Open Customer Ledger Entries page and execute the Apply Entries action.
+        CustomerLedgerEntriesPage.OpenView();
+        CustomerLedgerEntriesPage.Filter.SetFilter("Customer No.", Customer."No.");
+        CustomerLedgerEntriesPage.Filter.SetFilter("Document Type", Format(CustLedgEntry."Document Type"::Payment));
+        CustomerLedgerEntriesPage.First();
+        LibraryVariableStorage.Enqueue(CustomerLedgerEntriesPage."Remaining Amount".AsDecimal());
+        CustomerLedgerEntriesPage."Apply Entries".Invoke();
+
+        // [THEN] Verify through the "PartialApplyCustomerEntriesHandler" that partially applied amount gets balanced in Apply Customer Entries page.
+        CustomerLedgerEntriesPage.Close();
     end;
 
     local procedure SpecialOrdersCombined(CombineSpecialOrdersDefault: Option)
@@ -691,6 +758,61 @@ codeunit 144013 "Sales Documents With Tax"
           DocumentNo, GeneralPostingSetup."Sales Line Disc. Account", -SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Price");
     end;
 
+    local procedure CreatePostBalancedPaymentJournalWithSpecifiedCustomerAndAmount(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; PaymentAmount: Decimal)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), -PaymentAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    Local procedure GetRemainingPmtDiscForCustomer(DocumentType: enum "Gen. Journal Document Type"; CustomerNo: Code[20]; DocumentNo: Code[20]): Decimal
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgEntry.SetRange("Document Type", DocumentType);
+        CustLedgEntry.SetRange("Document No.", DocumentNo);
+        CustLedgEntry.FindFirst();
+        exit(CustLedgEntry."Remaining Pmt. Disc. Possible");
+    end;
+
+    local procedure CreatePaymentTermsWithDiscount(DiscountPercent: Decimal): Code[10]
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        PaymentTerms.Validate("Discount %", DiscountPercent);
+        PaymentTerms.Modify(true);
+        exit(PaymentTerms.Code);
+    end;
+
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; PostingDate: Date; CustomerNo: Code[20]; ItemNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Quantity: Decimal; UnitPrice: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateCustomerWithGivenPaymentTerm(var Customer: Record Customer; PaymentTermsCode: Code[10])
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTermsCode);
+        Customer.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -719,6 +841,36 @@ codeunit 144013 "Sales Documents With Tax"
     procedure CashAppliedRequestPageHandler(var CashApplied: TestRequestPage "Cash Applied")
     begin
         CashApplied.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PartialApplyCustomerEntriesHandler(var PartialApplyCustomerEntries: TestPage "Apply Customer Entries")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        BalanceAmount: Decimal;
+        PaymentDiscountAmt: Decimal;
+    begin
+        PartialApplyCustomerEntries.Filter.SetFilter("Document Type", Format(CustLedgerEntry."Document Type"::Invoice));
+        PartialApplyCustomerEntries.First();
+        PartialApplyCustomerEntries."Set Applies-to ID".Invoke();
+
+        BalanceAmount := PartialApplyCustomerEntries.ControlBalance.AsDecimal();
+        Assert.IsTrue(BalanceAmount > 0, StrSubstNo(IncorrectBalanceErr, PartialApplyCustomerEntries.Caption()));  // because payment is less than the invoice balance will be positive
+
+        PartialApplyCustomerEntries.Filter.SetFilter("Document Type", Format(CustLedgerEntry."Document Type"::"Credit Memo"));
+        PartialApplyCustomerEntries.First();
+        PartialApplyCustomerEntries."Amount to Apply".SetValue(-Round(BalanceAmount / 2, 0.01, '='));  //apply half of balance to the first credit memo
+
+        BalanceAmount := PartialApplyCustomerEntries.ControlBalance.AsDecimal();
+        PartialApplyCustomerEntries.Next();
+        PartialApplyCustomerEntries."Amount to Apply".SetValue(-BalanceAmount);  // apply remaining balance 
+
+        BalanceAmount := PartialApplyCustomerEntries.ControlBalance.AsDecimal();
+        PaymentDiscountAmt := PartialApplyCustomerEntries.PmtDiscountAmount.AsDecimal();
+
+        Assert.IsTrue(PaymentDiscountAmt <> 0, RemainingPmtDiscountPossibleDoesNotHaveValueErr);  //Pmt. Discount amount should have a value.
+        Assert.AreEqual(0, BalanceAmount, StrSubstNo(IncorrectBalanceErr, PartialApplyCustomerEntries.Caption()));  // and Balance should be zero
     end;
 }
 

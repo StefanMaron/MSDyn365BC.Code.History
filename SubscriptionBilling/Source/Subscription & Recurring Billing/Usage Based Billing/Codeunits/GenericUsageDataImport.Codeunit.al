@@ -132,8 +132,16 @@ codeunit 8025 "Generic Usage Data Import"
     local procedure CreateUsageDataSubscription(UsageDataGenericImport: Record "Usage Data Generic Import"; UsageDataSupplierReference: Record "Usage Data Supplier Reference"; SupplierNo: Code[20])
     var
         UsageDataSubscription: Record "Usage Data Subscription";
+        UsageDataCustomer: Record "Usage Data Customer";
     begin
-        if not UsageDataSubscription.FindForSupplierReference(SupplierNo, UsageDataGenericImport."Subscription ID") then begin
+        if UsageDataSubscription.FindForSupplierReference(SupplierNo, UsageDataGenericImport."Subscription ID") then begin
+            UsageDataCustomer.SetRange("Supplier No.", SupplierNo);
+            UsageDataCustomer.SetRange("Supplier Reference", UsageDataGenericImport."Customer ID");
+            if UsageDataCustomer.FindFirst() then begin
+                UsageDataSubscription.Validate("Customer No.", UsageDataCustomer."Customer No.");
+                UsageDataSubscription.Modify(true);
+            end;
+        end else begin
             UsageDataSubscription.Init();
             UsageDataSubscription."Entry No." := 0;
             UsageDataSubscription.Validate("Supplier No.", SupplierNo);

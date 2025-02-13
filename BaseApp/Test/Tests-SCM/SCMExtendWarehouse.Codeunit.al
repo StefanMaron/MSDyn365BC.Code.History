@@ -61,6 +61,7 @@ codeunit 137030 "SCM Extend Warehouse"
         MSG_UPDATE_LINES: Label 'You have changed the To Bin Code on the Internal Movement Header, but it has not been changed on the existing internal movement lines.';
         MSG_WHSEEMPLEE: Label 'You cannot use Location Code';
         MSG_BIN_MANDATORY: Label 'Bin Mandatory must be ';
+        UnitOfMeasureErr: Label 'The field Unit of Measure Code of table Internal Movement Line contains a value (%1) that cannot be found in the related table (Item Unit of Measure).', Comment = '%1= Unit of Measure Code.';
 
     [Normal]
     local procedure Initialize()
@@ -7389,6 +7390,61 @@ codeunit 137030 "SCM Extend Warehouse"
         // [THEN] Vecrify Bin Code are not updated on Component Lines
         AssertProdOrderComponent(ProductionOrder, ChildItem1."No.", 20, 20, 0, 0, LocationWhite.Code, ToBin[1].Code, 1);
         AssertProdOrderComponent(ProductionOrder, ChildItem2."No.", 20, 20, 0, 0, LocationWhite.Code, ToBin[1].Code, 1);
+    end;
+
+    [Test]
+    procedure ValidateUnitofMeasureCodeOnInternalMovementLine()
+    var
+        FromBin: Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovementLine: Record "Internal Movement Line";
+        ToBin: Record Bin;
+        UnitOfMeasureCode: Code[20];
+    begin
+        // [SCENARIO 560909] Unit of Measure Code should have Item Unit of Measure on Invernal Movement Line. 
+        Initialize();
+
+        // [GIVEN] Get Manufacturing Setup.
+        ManufacturingSetup();
+
+        // [GIVEN] Create an Item with Setup.
+        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
+
+        // [GIVEN] Create a Location with setup.
+        LocationSetup(Location, false, false, false, true, true,
+            LibraryRandom.RandIntInRange(6, 6), LibraryRandom.RandIntInRange(4, 4));
+
+        // [GIVEN] Find From Bin.
+        FindBin(FromBin, Location, false, LibraryRandom.RandInt(1));
+
+        // [GIVEN] Add Inventory on Location.
+        AddInventoryNonDirectLocation(Item, Location, FromBin, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Find To Bin.
+        FindBin(ToBin, Location, false, LibraryRandom.RandIntInRange(2, 2));
+
+        // [GIVEN] Create Internal Movement Header with Location and To Bin.
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, ToBin.Code);
+
+        // [GIVEN] Create Internal Movement Line
+        LibraryWarehouse.CreateInternalMovementLine(
+            InternalMovementHeader,
+            InternalMovementLine,
+            Item."No.",
+            FromBin.Code,
+            ToBin.Code,
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Store any Code as Unit of Measure.
+        UnitOfMeasureCode := LibraryRandom.RandText(3);
+
+        // [WHEN] Validate Unit of Measure in Internal Movement Line.
+        asserterror InternalMovementLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+
+        // [THEN] Item Unit of Measure should be for Unit Of Measure Code.
+        Assert.ExpectedError(StrSubstNo(UnitOfMeasureErr, UnitOfMeasureCode));
     end;
 
     local procedure UpdateMachineCenterOnRoutingLine(var ProductionOrder: Record "Production Order"; var MachineCenter: array[2] of Record "Machine Center")
