@@ -117,7 +117,7 @@ report 81 "Import Budget from Excel"
                 end;
 
                 IsHandled := false;
-                OnBeforeGetLastEntryNoBeforeImport(GLBudgetEntry3, LastEntryNoBeforeImport, IsHandled);
+                OnBeforeGetLastEntryNoBeforeImport(GLBudgetEntry3, LastEntryNoBeforeImport, EntryNo, IsHandled);
                 if not IsHandled then begin
                     GLBudgetEntry3.LockTable();
                     LastEntryNoBeforeImport := GLBudgetEntry3.GetLastEntryNo();
@@ -684,7 +684,7 @@ report 81 "Import Budget from Excel"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetLastEntryNoBeforeImport(var GLBudgetEntry3: Record "G/L Budget Entry"; var LastEntryNoBeforeImport: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeGetLastEntryNoBeforeImport(var GLBudgetEntry3: Record "G/L Budget Entry"; var LastEntryNoBeforeImport: Integer; var EntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

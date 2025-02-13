@@ -382,19 +382,20 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         Currency: Record Currency;
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
         Correction: Decimal;
+        CurrencyFactor: Decimal;
     begin
         Currency.Get(CurrencyExchangeRate."Currency Code");
         GLAccountSourceCurrency."G/L Account No." := GLAccount."No.";
         GLAccountSourceCurrency."Currency Code" := Currency.Code;
         GLAccountSourceCurrency.SetRange("Date Filter", 0D, CurrencyExchangeRate."Starting Date");
         GLAccountSourceCurrency.CalcFields("Balance at Date", "Source Curr. Balance at Date");
-
-        Correction :=
-            Round(
-                GLAccountSourceCurrency."Source Curr. Balance at Date" /
-                CurrencyExchangeRate.ExchangeRateAdjmt(CurrencyExchangeRate."Starting Date", Currency.Code) - GLAccountSourceCurrency."Balance at Date",
-                GeneralLedgerSetup."Amount Rounding Precision");
-
+        CurrencyFactor := CurrencyExchangeRate.ExchangeRateAdjmt(CurrencyExchangeRate."Starting Date", GLAccountSourceCurrency."Currency Code");
+        if CurrencyFactor <> 0 then
+            Correction :=
+                Round(
+                    CurrencyExchangeRate.ExchangeAmtFCYToLCYAdjmt(
+                        CurrencyExchangeRate."Starting Date", GLAccountSourceCurrency."Currency Code", GLAccountSourceCurrency."Source Curr. Balance at Date", CurrencyFactor)) -
+                GLAccountSourceCurrency."Balance at Date";
         if Correction > 0 then
             BalGLAccountNo := GetGainsAccount(Currency, GLAccount."Unrealized Revaluation")
         else

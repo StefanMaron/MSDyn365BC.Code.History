@@ -41,6 +41,7 @@
         HasBankEntriesMsg: Label 'When you use action Delete the bank statement will be deleted';
         AnalysisViewErr: Label 'Last Entry No. must be %1 in %2.', Comment = '%1= Field Value ,%2= Table Name.';
         StatementEndingBalanceErr: Label '%1 must be %2 in %3', Comment = '%1 = Statement Ending Balance, %2 = Amount, %3 = Bank Acc. Reconciliation';
+        AccountNoMustBeEqualToErr: Label 'Account No. must equal to %1.', Comment = '%1= Field Value';
 
     [Test]
     [HandlerFunctions('GenJnlPageHandler')]
@@ -4629,6 +4630,70 @@
                 BankAccReconciliation.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GeneralJournalPageHandler')]
+    procedure SourceCodeRelatedToGenJnltemplateTypeIsPopulatedToGenJnlLineWhenTransferToGenJnl()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        DeferralTemplate: Record "Deferral Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GLAccount: Record "G/L Account";
+        SourceCode: array[2] of Record "Source Code";
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        // [SCENARIO 560604] Source Code related to Gen. Journal Template Type is populated 
+        // To Gen. Journal Line when Stan runs Transfer To General Journal from Bank Acc. Reconciliation. 
+        Initialize();
+
+        // [GIVEN] Create a Bank Account.
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // [GIVEN] Create Source Code [1].
+        LibraryERM.CreateSourceCode(SourceCode[1]);
+
+        // [GIVEN] Create Source Code [2].
+        LibraryERM.CreateSourceCode(SourceCode[2]);
+
+        // [GIVEN] Validate "General Deferral" and "Trans. Bank Rec. to Gen. Jnl." in Source Code setup.
+        SourceCodeSetup.Get();
+        SourceCodeSetup.Validate("General Deferral", SourceCode[1].Code);
+        SourceCodeSetup.Validate("Trans. Bank Rec. to Gen. Jnl.", SourceCode[2].Code);
+        SourceCodeSetup.Modify(true);
+
+        // [GIVEN] Create a Deferral Template.
+        LibraryERM.CreateDeferralTemplate(
+            DeferralTemplate,
+            DeferralTemplate."Calc. Method"::"Straight-Line",
+            DeferralTemplate."Start Date"::"Posting Date",
+            LibraryRandom.RandInt(0));
+
+        // [GIVEN] Validate "Deferral %" and "Deferral Account" in Deferral Template.
+        DeferralTemplate.Validate("Deferral %", LibraryRandom.RandIntInRange(100, 100));
+        DeferralTemplate.Validate("Deferral Account", LibraryERM.CreateGLAccountNo());
+        DeferralTemplate.Modify(true);
+
+        // [GIVEN] Create a GL Account and Validate "Default Deferral Template Code".
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Default Deferral Template Code", DeferralTemplate."Deferral Code");
+        GLAccount.Modify(true);
+
+        // [GIVEN] Find and clear Gen. Journal Batch.
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+
+        // [GIVEN] Setup Bank Acc. Reconciliation.
+        SetupBankAccReconciliation(BankAccReconciliation, BankAccReconciliationLine);
+
+        // [WHEN] Run Transfer To Gen. Jnl. Report.
+        LibraryVariableStorage.Enqueue(Format(GLAccount."No."));
+        TransferToGenJnlReport(BankAccReconciliation, GenJournalBatch);
+
+        // [THEN] "Account No." in Gen. Journal Line is not blank in GeneralJournalPageHandler.
+    end;
+
     local procedure Initialize()
     var
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
@@ -5829,6 +5894,14 @@
     [Scope('OnPrem')]
     procedure GenJnlPageHandler(var GeneralJournal: TestPage "General Journal")
     begin
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalPageHandler(var GeneralJournal: TestPage "General Journal")
+    begin
+        GeneralJournal."Account No.".SetValue(LibraryVariableStorage.DequeueText());
+        Assert.IsTrue(Format(GeneralJournal."Account No.") <> '', StrSubstNo(AccountNoMustBeEqualToErr, GeneralJournal."Account No."));
     end;
 
     [ModalPageHandler]

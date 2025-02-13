@@ -36,6 +36,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         IsInitialized: Boolean;
         ReInitializeJobSetup: Boolean;
         ItemReclassificationErr: Label '%1 Item must be in Reclassification Journal.', Comment = '%1=Item No.';
+        LotNoErr: Label 'Lot No. must not be empty.';
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
@@ -1923,6 +1924,98 @@ codeunit 136317 "Inv. Pick On Job Planning"
                 Item."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,SelectItemTrackingLinesPageHandler')]
+    procedure ItemTrackingPopulatedGetBinContentInItemReclassification()
+    var
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ItemJournalTemplate: Record "Item Journal Template";
+        Location: Record Location;
+        ItemJournalLines: TestPage "Item Journal Lines";
+        BinCode: array[2] of Code[20];
+    begin
+        // [SCENARIO 561622] Item Tracking is populated by Get Bin Content in the Item Reclassification Journal.
+        Initialize();
+
+        // [GIVEN] Create Item Tracking Code.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
+
+        // [GIVEN] Create Item with Tracking Code.
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), ItemTrackingCode.Code);
+
+        // [GIVEN] Create Warehouse Location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+
+        // [GIVEN] Update Warehouse No Series in Warehouse Setup.
+        UpdateWarehouseNoSeries();
+
+        // [GIVEN] Create Number of Bins in a Location.
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', LibraryRandom.RandIntInRange(7, 10), false);
+
+        // [GIVEN] Find and store two Bins.
+        Bin.SetRange("Location Code", Location.Code);
+        Bin.FindFirst();
+        BinCode[1] := Bin.Code;
+        Bin.FindLast();
+        BinCode[2] := Bin.Code;
+
+        // [GIVEN] Create Item Journal Line and Validate Location, Bin Code, Unit Cost.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, BinCode[1], LibraryRandom.RandIntInRange(6, 6));
+        ItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Open Item Tracking Code and assign Serial No. and Lot No.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(false);
+        ItemJournalLines.OpenEdit();
+        ItemJournalLines.GoToRecord(ItemJournalLine);
+        ItemJournalLines."Item &Tracking Lines".Invoke();
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create and Post Item Reclassification Journal.
+        CreateAndPostItemReclassificationJournalLine(Item."No.", Location.Code, BinCode[1], BinCode[2]);
+
+        // [GIVEN] Select Item Journal Template.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+
+        // [GIVEN] Select Item Journal Batch.
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Transfer, ItemJournalTemplate.Name);
+
+        // [GIVEN] Create Item Journal Line and Validate Posting Date.
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
+
+        // [GIVEN] Find Bin Content.
+        BinContent.SetRange("Location Code", Location.Code);
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.FindFirst();
+
+        // [WHEN] Get Bin Content in Item Journal Line is executed.
+        LibraryWarehouse.WhseGetBinContentFromItemJournalLine(BinContent, ItemJournalLine);
+
+        // [THEN] Find Item Journal Line.
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Location Code", Location.Code);
+        ItemJournalLine.FindLast();
+
+        // [THEN] Item Journal Line should have Item Tracking Code.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(true);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure CreateDefaultWarehouseEmployee(var NewDefaultLocation: Record Location)
     var
         WarehouseEmployee: Record "Warehouse Employee";
@@ -2305,6 +2398,32 @@ codeunit 136317 "Inv. Pick On Job Planning"
         end;
     end;
 
+    local procedure CreateAndPostItemReclassificationJournalLine(ItemNo: Code[20]; LocationCode: Code[10]; FromBinCode: Code[20]; ToBinCode: Code[20])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalLines: TestPage "Item Journal Lines";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Transfer);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Transfer, ItemNo, LibraryRandom.RandIntInRange(2, 2));
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("New Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", FromBinCode);
+        ItemJournalLine.Validate("New Bin Code", ToBinCode);
+
+        ItemJournalLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        ItemJournalLines.OpenEdit();
+        ItemJournalLines.GoToRecord(ItemJournalLine);
+        ItemJournalLines."Item &Tracking Lines".Invoke();
+
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -2412,6 +2531,34 @@ codeunit 136317 "Inv. Pick On Job Planning"
     [ModalPageHandler]
     procedure EnterQuantityToCreate(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ItemReclassification: Boolean;
+        VerifyItemTrackingCode: Boolean;
+    begin
+        ItemReclassification := LibraryVariableStorage.DequeueBoolean();
+        VerifyItemTrackingCode := LibraryVariableStorage.DequeueBoolean();
+
+        if not ItemReclassification then
+            ItemTrackingLines."Assign &Lot No.".Invoke()
+        else begin
+            ItemTrackingLines."Select Entries".Invoke();
+            ItemTrackingLines."New Lot No.".SetValue(LibraryERM.CreateNoSeriesCode());
+        end;
+
+        if VerifyItemTrackingCode then
+            Assert.AreNotEqual(ItemTrackingLines."ItemTrackingCode.Code".Value(), '', LotNoErr);
+
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SelectItemTrackingLinesPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK().Invoke();
     end;
 }
 

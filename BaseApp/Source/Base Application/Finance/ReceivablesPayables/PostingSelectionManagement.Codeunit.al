@@ -458,7 +458,7 @@ codeunit 99 "Posting Selection Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetShipInvoiceSelectionForWhseActivity(DefaultOption: Integer; var Selection: Integer; var IsHandled: Boolean; var Result: Boolean)
+    local procedure OnBeforeGetShipInvoiceSelectionForWhseActivity(var DefaultOption: Integer; var Selection: Integer; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 

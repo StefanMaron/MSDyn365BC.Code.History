@@ -216,6 +216,12 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         if not FindReservEntry(OldProdOrderLine, OldReservationEntry) then
             exit;
 
+        if NeedUpdateReservationStatusForProdOrderLine(OldReservationEntry."Source Type", NewProdOrderLine.Status.AsInteger()) then
+            if OldReservationEntry."Source Subtype" = OldReservationEntry."Source Subtype"::"1" then begin
+                OldReservationEntry."Reservation Status" := OldReservationEntry."Reservation Status"::Surplus;
+                OldReservationEntry.Modify();
+            end;
+
         OldReservationEntry.Lock();
 
         NewProdOrderLine.TestItemFields(OldProdOrderLine."Item No.", OldProdOrderLine."Variant Code", OldProdOrderLine."Location Code");
@@ -1043,6 +1049,14 @@ codeunit 99000837 "Prod. Order Line-Reserve"
                     InventoryProfile."Order Priority" := 420;
             // Planned
             end;
+    end;
+    
+    local procedure NeedUpdateReservationStatusForProdOrderLine(SourceType: Integer; SourceSubtype: Option): Boolean
+    begin
+        if (SourceType <> Database::"Prod. Order Line") or (SourceSubtype <> 3) then
+            exit(false);
+
+        exit(true);
     end;
 }
 

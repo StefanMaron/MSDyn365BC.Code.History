@@ -73,6 +73,7 @@ codeunit 137159 "SCM Warehouse VII"
         PickQtyAndQtyPickedMustMatchErr: Label 'PickQty and Qty. Picked must match.';
         RegisterWhseMessageLbl: Label 'The journal lines were successfully registered.You are now';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
+        TrackingOption: Option AssignLotNoWithExpirationDate,VerifyExpirationDate;
 
     [Test]
     [Scope('OnPrem')]
@@ -2575,6 +2576,59 @@ codeunit 137159 "SCM Warehouse VII"
         Assert.ExpectedError(WarehouseShipmentRequiredError);
     end;
 
+    [Test]
+    [HandlerFunctions('DummyMessageHandler,ItemTrackingLinesPageHandlerTrackingOption,CalcRegenPlanReqPageHandler,ConfirmHandlerTrue')]
+    procedure ExpirationDateShouldNotBeRemovedFromProdOrderLineTracking()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PlanningWorksheet: TestPage "Planning Worksheet";
+    begin
+        // [SCENARIO 560520] After calculating planning worksheet, expiration date field of an item tracking line of a released production order has been cleared
+        Initialize();
+        ClearComponentsAtLocationInManufacturingSetup();
+
+        // [GIVEN] Item with "Replenishment System" as "Prod. Order" and Stockkeeping Unit as "Prod. Order" with "Lot-for-Lot" and Transfer with "Fixed Reorder Qty."
+        CreateTransferRoute(LocationBlue.Code, LocationRed.Code, LocationInTransit.Code);
+        CreateItemWithTwoSKU(Item, LocationBlue.Code, LocationRed.Code);
+
+        // [GIVEN] Create customer with location and a sales order
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Location Code", LocationRed.Code);
+        Customer.Modify(true);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", LibraryRandom.RandInt(50), '', false);
+
+        // [GIVEN] Create released production order for item and set item tracking information with expiration date
+        CreateProdOrderForParentItem(ProductionOrder, LocationRed.Code, Item."No.", 1);
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNoWithExpirationDate);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandText(10));
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(WorkDate() + LibraryRandom.RandIntInRange(100, 100));
+        ProdOrderLine.OpenItemTrackingLines();
+
+        // [GIVEN] Run "Calculate Regenerative Plan" from planning worksheet
+        PlanningWorksheet.OpenEdit();
+        Commit();
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        PlanningWorksheet.CalculateRegenerativePlan.Invoke();
+
+        // [THEN] Delete Lines from planning worksheet
+        PlanningWorksheet."Delete All".Invoke();
+
+        // [THEN] Verify Expiration Date on ItemTrackingEntries Handler.
+        LibraryVariableStorage.Enqueue(TrackingOption::VerifyExpirationDate);
+        LibraryVariableStorage.Enqueue(WorkDate() + LibraryRandom.RandIntInRange(100, 100));
+        ProdOrderLine.OpenItemTrackingLines();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4640,6 +4694,51 @@ codeunit 137159 "SCM Warehouse VII"
         exit(Item."No.")
     end;
 
+    local procedure CreateTransferRoute(TransferFrom: Code[10]; TransferTo: Code[10]; InTransit: Code[10])
+    var
+        TransferRoute: Record "Transfer Route";
+    begin
+        if not TransferRoute.Get(TransferFrom, TransferTo) then begin
+            LibraryWarehouse.CreateTransferRoute(TransferRoute, TransferFrom, TransferTo);
+            TransferRoute.Validate("In-Transit Code", InTransit);
+            TransferRoute.Modify(true);
+        end;
+    end;
+
+    local procedure CreateItemWithTwoSKU(var Item: Record Item; LocationCode: Code[10]; LocationCode1: Code[10])
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        CreateItemWithItemTrackingCode(Item, true, false, true, LibraryUtility.GetGlobalNoSeriesCode(), '');
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item."Reorder Point" := LibraryRandom.RandIntInRange(500, 500);
+        Item."Reorder Quantity" := LibraryRandom.RandIntInRange(100, 100);
+        Item."Minimum Order Quantity" := LibraryRandom.RandIntInRange(1, 1);
+        Item."Order Multiple" := LibraryRandom.RandIntInRange(1, 1);
+        Item."Use Cross-Docking" := false;
+        Item.Modify(true);
+
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationCode, Item."No.", '');
+        StockkeepingUnit.Validate("Replenishment System", StockkeepingUnit."Replenishment System"::"Prod. Order");
+        StockkeepingUnit."Reorder Point" := LibraryRandom.RandIntInRange(500, 500);
+        StockkeepingUnit."Reorder Quantity" := LibraryRandom.RandIntInRange(100, 100);
+        StockkeepingUnit."Minimum Order Quantity" := LibraryRandom.RandIntInRange(1, 1);
+        StockkeepingUnit."Order Multiple" := LibraryRandom.RandIntInRange(1, 1);
+        StockkeepingUnit.Validate("Reordering Policy", StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
+        StockkeepingUnit.Modify(true);
+
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationCode1, Item."No.", '');
+        StockkeepingUnit.Validate("Replenishment System", StockkeepingUnit."Replenishment System"::Transfer);
+        StockkeepingUnit."Reorder Point" := LibraryRandom.RandIntInRange(500, 500);
+        StockkeepingUnit."Reorder Quantity" := LibraryRandom.RandIntInRange(100, 100);
+        StockkeepingUnit."Minimum Order Quantity" := LibraryRandom.RandIntInRange(1, 1);
+        StockkeepingUnit."Order Multiple" := LibraryRandom.RandIntInRange(1, 1);
+        StockkeepingUnit.Validate("Transfer-from Code", LocationCode);
+        StockkeepingUnit.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -4983,6 +5082,39 @@ codeunit 137159 "SCM Warehouse VII"
     procedure ConfirmHandlerTrue(QuestionText: Text[1024]; var Relpy: Boolean)
     begin
         Relpy := true;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalcRegenPlanReqPageHandler(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
+    begin
+        CalculatePlanPlanWksh.MPS.SetValue(true);
+        CalculatePlanPlanWksh.MRP.SetValue(true);
+        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
+        CalculatePlanPlanWksh.EndingDate.SetValue(WorkDate());
+        CalculatePlanPlanWksh.NoPlanningResiliency.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CalculatePlanPlanWksh.Item.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CalculatePlanPlanWksh.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandlerTrackingOption(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            TrackingOption::AssignLotNoWithExpirationDate:
+                begin
+                    ItemTrackingLines.New();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines."Expiration Date".SetValue(LibraryVariableStorage.DequeueDate());
+                end;
+            TrackingOption::VerifyExpirationDate:
+                ItemTrackingLines."Expiration Date".AssertEquals(LibraryVariableStorage.DequeueDate());
+        end;
+
+        ItemTrackingLines.OK().Invoke();
     end;
 }
 
