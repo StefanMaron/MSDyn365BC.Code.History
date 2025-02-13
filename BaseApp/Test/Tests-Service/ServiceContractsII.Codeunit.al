@@ -770,7 +770,6 @@ codeunit 136145 "Service Contracts II"
         ServContractLine: Record "Service Contract Line";
         ServContractManagement: Codeunit ServContractManagement;
         ExpectedAmount: Decimal;
-        SavedWorkDate: Date;
         ContractStartingDate: Date;
     begin
         // [SCENARIO 379870] New prepaid service contract line with "Starting Date" after "Next Invoice Period Start" should split by periods when sign contract
@@ -794,7 +793,6 @@ codeunit 136145 "Service Contracts II"
         LibraryVariableStorage.Enqueue(CreateInvoiceMsg);
 
         // [WHEN] Sign Service Contract with new line added
-        SavedWorkDate := WorkDate();
         WorkDate := ServContractLine."Starting Date";
         SignContract(ServContractHeader);
 
@@ -804,8 +802,6 @@ codeunit 136145 "Service Contracts II"
           GetServContractGLAcc(ServContractHeader."Serv. Contract Acc. Gr. Code", true),
           ServContractLine."Starting Date", 12, ExpectedAmount);
 
-        // Tear down
-        WorkDate := SavedWorkDate;
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -896,14 +892,12 @@ codeunit 136145 "Service Contracts II"
         ServiceHeader: Record "Service Header";
         ServiceInvoiceLine: Record "Service Invoice Line";
         ServiceInvoiceHeader: Record "Service Invoice Header";
-        SavedWorkDate: Date;
         CustomExchRate: Decimal;
     begin
         // [FEATURE] [FCY] [Rounding]
         // [SCENARIO 379879] Total amount is correct without rounding variance in Service Invoice with multiple lines for Prepaid Service Contract
 
         Initialize();
-        SavedWorkDate := WorkDate();
 
         // [GIVEN] Prepaid Service Contract with FCY. Exchange Rate equal 100/64.8824
         CustomExchRate := 100 / 64.8824;
@@ -2285,6 +2279,7 @@ codeunit 136145 "Service Contracts II"
         LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded();
         LibrarySetupStorage.Restore();
+        WorkDate(Today());
 
         if IsInitialized then
             exit;

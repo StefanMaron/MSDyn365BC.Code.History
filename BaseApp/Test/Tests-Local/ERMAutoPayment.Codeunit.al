@@ -128,6 +128,7 @@ codeunit 144050 "ERM Auto Payment"
         IncorrectBankRcptTempNoErr: Label 'Incorrect Bank Receipt Temp. No.';
         DimensionCodeMissingErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.', Comment = '%1 = Dimension Code, %2 = Customer no.';
         ContactNoSeriesErr: Label 'No. Series should be assigned from selected Series from Assist Edit.';
+        AnalysisViewErr: Label 'Last Entry No. must be %1 in %2.', Comment = '%1= Field Value ,%2= Table Name.';
 
     [Test]
     [HandlerFunctions('BankSheetPrintRequestPageHandler')]
@@ -1345,6 +1346,144 @@ codeunit 144050 "ERM Auto Payment"
         NoSeriesLine.SetRange("Series Code", SeriesCode);
         NoSeriesLine.FindFirst();
         Assert.AreEqual(ContactCard."No.".Value(), NoSeriesLine."Last No. Used", ContactNoSeriesErr);
+    end;
+
+    [Test]
+    procedure PostingSalesInvoiceUpdatesAnalysisView()
+    var
+        AnalysisView: Record "Analysis View";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 560063] Posting Sales Invoice updates in Analysis View.
+        Initialize();
+
+        // [GIVEN] Create Analysis View.
+        LibraryERM.CreateAnalysisView(AnalysisView);
+
+        // [GIVEN] Create VAT Business Posting Group.
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+
+        // [GIVEN] Create VAT Product Posting Group.
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+
+        // [GIVEN] Create VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
+
+        // [GIVEN] Create GL Account with VAT Product Posting Setup.
+        LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
+
+        // [GIVEN] Validate Update On Posting and Account Source in Analysis View.
+        AnalysisView.Validate("Update on Posting", true);
+        AnalysisView.Validate("Account Source", AnalysisView."Account Source"::"G/L Account");
+        AnalysisView.Modify(true);
+
+        // [GIVEN] Create Sales Header with Document Type Invoice.
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Invoice,
+            LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create Sales Line with Type GL Account.
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::"G/L Account",
+            GLAccount."No.",
+            LibraryRandom.RandInt(2));
+
+        // [GIVEN] Validate Unit Price in Sales Line.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify();
+
+        // [WHEN] Post Sales Document.
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Last Entry No. on Analysis View is updated with GL Entry created by Sales Invoice.
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", InvoiceNo);
+        GLEntry.FindLast();
+        AnalysisView.Get(AnalysisView.Code);
+        Assert.AreEqual(
+            GLEntry."Entry No.",
+            AnalysisView."Last Entry No.",
+            StrSubstNo(
+                AnalysisViewErr,
+                GLEntry."Entry No.",
+                AnalysisView.TableCaption()));
+    end;
+
+    [Test]
+    procedure PostingPurchaseInvoiceUpdatesAnalysisView()
+    var
+        AnalysisView: Record "Analysis View";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 560063] Posting Purchase Invoice updates in Analysis View.
+        Initialize();
+
+        // [GIVEN] Create Analysis View.
+        LibraryERM.CreateAnalysisView(AnalysisView);
+
+        // [GIVEN] Create VAT Business Posting Group.
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+
+        // [GIVEN] Create VAT Product Posting Group.
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+
+        // [GIVEN] Create VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
+
+        // [GIVEN] Create GL Account with VAT Product Posting Setup.
+        LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
+
+        // [GIVEN] Validate Update On Posting and Account Source in Analysis View.
+        AnalysisView.Validate("Update on Posting", true);
+        AnalysisView.Validate("Account Source", AnalysisView."Account Source"::"G/L Account");
+        AnalysisView.Modify(true);
+
+        // [GIVEN] Create Purchase Header with Document Type Invoice.
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        // [GIVEN] Create Purchase Line with Type GL Account.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::"G/L Account",
+            GLAccount."No.",
+            LibraryRandom.RandInt(2));
+
+        // [GIVEN] Validate Unit Price in Purchase Line.
+        PurchaseLine.Validate("Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify();
+
+        // [WHEN] Post Purchase Document.
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Last Entry No. on Analysis View is updated with GL Entry created by Purchase Invoice.
+        GLEntry.SetRange("Document No.", InvoiceNo);
+        GLEntry.FindLast();
+        AnalysisView.Get(AnalysisView.Code);
+        Assert.AreEqual(
+            GLEntry."Entry No.",
+            AnalysisView."Last Entry No.",
+            StrSubstNo(
+                AnalysisViewErr,
+                GLEntry."Entry No.",
+                AnalysisView.TableCaption()));
     end;
 
     local procedure Initialize()

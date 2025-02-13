@@ -2106,6 +2106,8 @@
     begin
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+        VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
+        VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
         VATPostingSetup.SetRange("Deductible %", 100);

@@ -9064,15 +9064,16 @@ table 37 "Sales Line"
     var
         Item: Record Item;
         IsHandled: Boolean;
+        ShouldUpdateDeferralCode: Boolean;
     begin
         IsHandled := false;
         OnBeforeInitDeferralCode(Rec, IsHandled);
         if IsHandled then
             exit;
 
-        if "Document Type" in
-           ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Credit Memo", "Document Type"::"Return Order"]
-        then
+        ShouldUpdateDeferralCode := "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Credit Memo", "Document Type"::"Return Order"];
+        OnInitDeferralCodeOnBeforeUpdateDeferralCode(Rec, ShouldUpdateDeferralCode);
+        if ShouldUpdateDeferralCode then
             case Type of
                 Type::"G/L Account":
                     Validate("Deferral Code", GLAcc."Default Deferral Template Code");
@@ -12210,6 +12211,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcUnitPriceUsingUOMCoef(var SalesLine: Record "Sales Line"; SalesInvoiceLine: Record "Sales Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitDeferralCodeOnBeforeUpdateDeferralCode(var SalesLine: Record "Sales Line"; var ShouldUpdateDeferralCode: Boolean)
     begin
     end;
 }

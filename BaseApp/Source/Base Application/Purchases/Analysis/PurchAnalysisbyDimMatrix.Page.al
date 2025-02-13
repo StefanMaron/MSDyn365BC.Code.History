@@ -785,7 +785,6 @@ page 9225 "Purch. Analysis by Dim Matrix"
         MatrixMgt: Codeunit "Matrix Management";
         RoundingFactor: Enum "Analysis Rounding Factor";
         ValueType: Enum "Item Analysis Value Type";
-        LineDimType: Enum "Item Analysis Dimension Type";
         ColumnDimType: Enum "Item Analysis Dimension Type";
         PeriodType: Enum "Analysis Period Type";
         ShowActualBudget: Enum "Item Analysis Show Type";
@@ -844,6 +843,9 @@ page 9225 "Purch. Analysis by Dim Matrix"
         Field31Visible: Boolean;
         Field32Visible: Boolean;
         Emphasize: Boolean;
+
+    protected var
+        LineDimType: Enum "Item Analysis Dimension Type";
 
     procedure LoadMartix(NewItemAnalysisView: Record "Item Analysis View"; NewCurrentItemAnalysisViewCode: Code[10]; NewCurrentAnalysisArea: Enum "Analysis Area Type"; NewLineDimType: Enum "Item Analysis Dimension Type"; NewColumnDimType: Enum "Item Analysis Dimension Type"; NewPeriodType: Enum "Analysis Period Type"; NewValueType: Enum "Item Analysis Value Type"; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewShowActualBudget: Enum "Item Analysis Show Type"; NewMatrixColumnCaptions: array[32] of Text[1024]; NewShowOppositeSign: Boolean; NewPeriodInitialized: Boolean; NewShowColumnName: Boolean; NewNoOfRecords: Integer)
     begin

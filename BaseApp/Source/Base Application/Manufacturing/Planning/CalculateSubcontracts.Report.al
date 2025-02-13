@@ -34,38 +34,10 @@ report 99001015 "Calculate Subcontracts"
                 RequestFilterFields = "Prod. Order No.", "Starting Date";
 
                 trigger OnAfterGetRecord()
-                var
-                    Item: Record Item;
                 begin
-                    Window.Update(2, "Prod. Order No.");
-
-                    ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.", "Routing No.", "Routing Reference No.");
-                    ProdOrderLine.SetRange(Status, Status);
-                    ProdOrderLine.SetRange("Prod. Order No.", "Prod. Order No.");
-                    ProdOrderLine.SetRange("Routing No.", "Routing No.");
-                    ProdOrderLine.SetRange("Routing Reference No.", "Routing Reference No.");
-                    OnProdOrderRoutingLineOnAfterGetRecordOnAfterProdOrderLineSetFilters(ProdOrderLine, "Prod. Order Routing Line");
-                    if ProdOrderLine.Find('-') then begin
-                        DeleteRepeatedReqLines();
-                        repeat
-                            Item.Get(ProdOrderLine."Item No.");
-                            if Item.Blocked then begin
-                                Message(Text1130000, "Prod. Order No.", ProdOrderLine."Item No.");
-                                CurrReport.Skip();
-                            end;
-                            BaseQtyToPurch :=
-                                CostCalcMgt.CalcQtyAdjdForRoutingScrap(
-                                    CostCalcMgt.CalcQtyAdjdForBOMScrap(
-                                        ProdOrderLine."Quantity (Base)", ProdOrderLine."Scrap %"),
-                                        "Scrap Factor % (Accumulated)", "Fixed Scrap Qty. (Accum.)") -
-                                (CostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, "Prod. Order Routing Line") +
-                                 CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, "Prod. Order Routing Line"));
-                            QtyToPurch := Round(BaseQtyToPurch / ProdOrderLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-                            OnAfterCalcQtyToPurch(ProdOrderLine, QtyToPurch);
-                            if QtyToPurch > 0 then
-                                InsertReqWkshLine();
-                        until ProdOrderLine.Next() = 0;
-                    end;
+                    TempProdOrderRoutingLine.Init();
+                    TempProdOrderRoutingLine := "Prod. Order Routing Line";
+                    TempProdOrderRoutingLine.Insert();
                 end;
             }
 
@@ -94,9 +66,15 @@ report 99001015 "Calculate Subcontracts"
 
             trigger OnPreDataItem()
             begin
+                TempProdOrderRoutingLine.DeleteAll();
                 ReqLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
                 ReqLine.SetRange("Journal Batch Name", ReqLine."Journal Batch Name");
                 ReqLine.DeleteAll();
+            end;
+
+            trigger OnPostDataItem()
+            begin
+                CalculateSubContractRequirements();
             end;
         }
     }
@@ -145,6 +123,7 @@ report 99001015 "Calculate Subcontracts"
         GLSetup: Record "General Ledger Setup";
         PurchLine: Record "Purchase Line";
         Item: Record Item;
+        TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         CostCalcMgt: Codeunit "Cost Calculation Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
@@ -167,12 +146,15 @@ report 99001015 "Calculate Subcontracts"
         ReqLine := NewReqLine;
     end;
 
-    local procedure InsertReqWkshLine()
+    local procedure InsertReqWkshLine(ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     var
+        WorkCenter: Record "Work Center";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertReqWkshLine("Prod. Order Routing Line", "Work Center", ReqLine, IsHandled, ProdOrderLine);
+        if ProdOrderRoutingLine.Type = ProdOrderRoutingLine.Type::"Work Center" then
+            WorkCenter.Get(ProdOrderRoutingLine."No.");
+        OnBeforeInsertReqWkshLine(ProdOrderRoutingLine, WorkCenter, ReqLine, IsHandled, ProdOrderLine);
         if IsHandled then
             exit;
 
@@ -190,20 +172,20 @@ report 99001015 "Calculate Subcontracts"
         ReqLine.Validate(Quantity, QtyToPurch);
         GetGLSetup();
         IsHandled := false;
-        OnBeforeValidateUnitCost(ReqLine, "Work Center", IsHandled, ProdOrderLine, "Prod. Order Routing Line");
+        OnBeforeValidateUnitCost(ReqLine, WorkCenter, IsHandled, ProdOrderLine, ProdOrderRoutingLine);
         if not IsHandled then
             if ReqLine.Quantity <> 0 then begin
-                if "Work Center"."Unit Cost Calculation" = "Work Center"."Unit Cost Calculation"::Units then
+                if WorkCenter."Unit Cost Calculation" = WorkCenter."Unit Cost Calculation"::Units then
                     ReqLine.Validate(
                         ReqLine."Direct Unit Cost",
                         Round(
-                            "Prod. Order Routing Line"."Direct Unit Cost" * ProdOrderLine."Qty. per Unit of Measure",
+                            ProdOrderRoutingLine."Direct Unit Cost" * ProdOrderLine."Qty. per Unit of Measure",
                             GLSetup."Unit-Amount Rounding Precision"))
                 else
                     ReqLine.Validate(
                         ReqLine."Direct Unit Cost",
                         Round(
-                            ("Prod. Order Routing Line"."Expected Operation Cost Amt." - "Prod. Order Routing Line"."Expected Capacity Ovhd. Cost") /
+                            (ProdOrderRoutingLine."Expected Operation Cost Amt." - ProdOrderRoutingLine."Expected Capacity Ovhd. Cost") /
                             ProdOrderLine."Total Exp. Oper. Output (Qty.)",
                             GLSetup."Unit-Amount Rounding Precision"));
             end else
@@ -214,21 +196,21 @@ report 99001015 "Calculate Subcontracts"
         ReqLine."Qty. Rounding Precision (Base)" := ProdOrderLine."Qty. Rounding Precision (Base)";
         ReqLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
         ReqLine."Prod. Order Line No." := ProdOrderLine."Line No.";
-        ReqLine."Due Date" := "Prod. Order Routing Line"."Ending Date";
+        ReqLine."Due Date" := ProdOrderRoutingLine."Ending Date";
         ReqLine."Requester ID" := UserId;
         ReqLine."Location Code" := ProdOrderLine."Location Code";
         ReqLine."Bin Code" := ProdOrderLine."Bin Code";
-        ReqLine."Routing Reference No." := "Prod. Order Routing Line"."Routing Reference No.";
-        ReqLine."Routing No." := "Prod. Order Routing Line"."Routing No.";
-        ReqLine."Operation No." := "Prod. Order Routing Line"."Operation No.";
-        ReqLine."Work Center No." := "Prod. Order Routing Line"."Work Center No.";
-        ReqLine."Standard Task Code" := "Prod. Order Routing Line"."Standard Task Code";
+        ReqLine."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
+        ReqLine."Routing No." := ProdOrderRoutingLine."Routing No.";
+        ReqLine."Operation No." := ProdOrderRoutingLine."Operation No.";
+        ReqLine."Work Center No." := ProdOrderRoutingLine."Work Center No.";
+        ReqLine."Standard Task Code" := ProdOrderRoutingLine."Standard Task Code";
         ReqLine."Variant Code" := ProdOrderLine."Variant Code";
-        ReqLine."WIP Item" := "Prod. Order Routing Line"."WIP Item";
-        ReqLine.Validate(ReqLine."Vendor No.", "Work Center"."Subcontractor No.");
-        ReqLine.Description := "Prod. Order Routing Line".Description;
+        ReqLine."WIP Item" := ProdOrderRoutingLine."WIP Item";
+        ReqLine.Validate(ReqLine."Vendor No.", WorkCenter."Subcontractor No.");
+        ReqLine.Description := ProdOrderRoutingLine.Description;
         SetVendorItemNo();
-        OnAfterTransferProdOrderRoutingLine(ReqLine, "Prod. Order Routing Line");
+        OnAfterTransferProdOrderRoutingLine(ReqLine, ProdOrderRoutingLine);
         // If purchase order already exist we will change this if possible
         PurchLine.Reset();
         PurchLine.SetCurrentKey("Document Type", Type, "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.");
@@ -236,8 +218,8 @@ report 99001015 "Calculate Subcontracts"
         PurchLine.SetRange(Type, PurchLine.Type::Item);
         PurchLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         PurchLine.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-        PurchLine.SetRange("Routing No.", "Prod. Order Routing Line"."Routing No.");
-        PurchLine.SetRange("Operation No.", "Prod. Order Routing Line"."Operation No.");
+        PurchLine.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+        PurchLine.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
         PurchLine.SetRange("Planning Flexibility", PurchLine."Planning Flexibility"::Unlimited);
         PurchLine.SetRange("Quantity Received", 0);
         if PurchLine.FindFirst() then begin
@@ -276,7 +258,7 @@ report 99001015 "Calculate Subcontracts"
         GLSetupRead := true;
     end;
 
-    local procedure DeleteRepeatedReqLines()
+    local procedure DeleteRepeatedReqLines(ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -284,8 +266,8 @@ report 99001015 "Calculate Subcontracts"
         RequisitionLine.SetRange("No.", ProdOrderLine."Item No.");
         RequisitionLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         RequisitionLine.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-        RequisitionLine.SetRange("Operation No.", "Prod. Order Routing Line"."Operation No.");
-        OnDeleteRepeatedReqLinesOnAfterRequisitionLineSetFilters(RequisitionLine, ProdOrderLine, "Prod. Order Routing Line");
+        RequisitionLine.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+        OnDeleteRepeatedReqLinesOnAfterRequisitionLineSetFilters(RequisitionLine, ProdOrderLine, ProdOrderRoutingLine);
         RequisitionLine.DeleteAll(true);
     end;
 
@@ -307,6 +289,46 @@ report 99001015 "Calculate Subcontracts"
         Item.FindItemVend(ItemVendor, ReqLine."Location Code");
         ReqLine.Validate("Vendor Item No.", ItemVendor."Vendor Item No.");
         OnAfterSetVendorItemNo(ReqLine, ItemVendor, Item);
+    end;
+
+    local procedure CalculateSubContractRequirements()
+    begin
+        if TempProdOrderRoutingLine.IsEmpty then
+            exit;
+
+        TempProdOrderRoutingLine.SetCurrentKey("Prod. Order No.", "Routing Reference No.", Status, "Routing No.", "Operation No.");
+        if TempProdOrderRoutingLine.FindSet() then
+            repeat
+                Window.Update(2, TempProdOrderRoutingLine."Prod. Order No.");
+
+                ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.", "Routing No.", "Routing Reference No.");
+                ProdOrderLine.SetRange(Status, TempProdOrderRoutingLine.Status);
+                ProdOrderLine.SetRange("Prod. Order No.", TempProdOrderRoutingLine."Prod. Order No.");
+                ProdOrderLine.SetRange("Routing No.", TempProdOrderRoutingLine."Routing No.");
+                ProdOrderLine.SetRange("Routing Reference No.", TempProdOrderRoutingLine."Routing Reference No.");
+                OnProdOrderRoutingLineOnAfterGetRecordOnAfterProdOrderLineSetFilters(ProdOrderLine, TempProdOrderRoutingLine);
+                if ProdOrderLine.Findset() then begin
+                    DeleteRepeatedReqLines(TempProdOrderRoutingLine);
+                    repeat
+                        Item.Get(ProdOrderLine."Item No.");
+                        if Item.Blocked then begin
+                            Message(Text1130000, TempProdOrderRoutingLine."Prod. Order No.", ProdOrderLine."Item No.");
+                            CurrReport.Skip();
+                        end;
+                        BaseQtyToPurch :=
+                            CostCalcMgt.CalcQtyAdjdForRoutingScrap(
+                                CostCalcMgt.CalcQtyAdjdForBOMScrap(
+                                    ProdOrderLine."Quantity (Base)", ProdOrderLine."Scrap %"),
+                                    TempProdOrderRoutingLine."Scrap Factor % (Accumulated)", TempProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)") -
+                                (CostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, TempProdOrderRoutingLine) +
+                                CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, TempProdOrderRoutingLine));
+                            QtyToPurch := Round(BaseQtyToPurch / ProdOrderLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+                            OnAfterCalcQtyToPurch(ProdOrderLine, QtyToPurch);
+                        if QtyToPurch > 0 then
+                            InsertReqWkshLine(TempProdOrderRoutingLine);
+                    until ProdOrderLine.Next() = 0;
+                end;
+            until TempProdOrderRoutingLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -540,8 +540,6 @@ codeunit 90 "Purch.-Post"
     /// </remarks>
     local procedure CommitAndUpdateAnalysisVeiw()
     var
-        UpdateAnalysisView: Codeunit "Update Analysis View";
-        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -551,9 +549,10 @@ codeunit 90 "Purch.-Post"
 
         if not (InvtPickPutaway or SuppressCommit or PreviewMode) then begin
             Commit();
-            UpdateAnalysisView.UpdateAll(0, true);
-            UpdateItemAnalysisView.UpdateAll(0, true);
-        end;
+            UpdateAnalysisViewAfterPosting();
+        end else
+            if DateOrderSeriesUsed then
+                UpdateAnalysisViewAfterPosting();
     end;
 
     /// <summary>
@@ -740,7 +739,7 @@ codeunit 90 "Purch.-Post"
         ModifyHeader := UpdatePostingNos(PurchHeader, ReverseChargeVAT);
         if DateOrderSeriesUsed then
             SuppressCommit := true;
-	  
+
         if PurchHeader.Invoice and (PurchHeader."Operation Occurred Date" < GLSetup."Last Gen. Jour. Printing Date") then
             PurchHeader.FieldError("Operation Occurred Date", StrSubstNo(Text1130008, GLSetup."Last Gen. Jour. Printing Date"));
 
@@ -9982,6 +9981,15 @@ codeunit 90 "Purch.-Post"
     begin
         ItemChargeAssgntPurch.SetFilter("Applies-to Doc. Line No.", '<>%1', ItemChargeAssgntPurch."Applies-to Doc. Line No.");
         ItemChargeAssgntPurch.DeleteAll();
+    end;
+
+    local procedure UpdateAnalysisViewAfterPosting()
+    var
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+    begin
+        UpdateAnalysisView.UpdateAll(0, true);
+        UpdateItemAnalysisView.UpdateAll(0, true);
     end;
 
     [IntegrationEvent(false, false)]

@@ -124,6 +124,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
     procedure UpdateSetupOnBillToCustomerChangeInSalesHeader(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; BillToCustomer: Record Customer)
     var
         GLSetup: Record "General Ledger Setup";
+        AltCustVATReg: Record "Alt. Cust. VAT Reg.";
     begin
         GLSetup.Get();
         if GLSetup."Bill-to/Sell-to VAT Calc." <> GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then
@@ -135,6 +136,10 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
             CopyFromCustomer(SalesHeader, xSalesHeader, BillToCustomer);
             exit;
         end;
+        if AltCustVATRegFacade.GetAlternativeCustVATReg(AltCustVATReg, BillToCustomer."No.", SalesHeader."Ship-to Country/Region Code") then begin
+            SalesHeader.Validate("VAT Country/Region Code", AltCustVATReg."VAT Country/Region Code");
+            exit;
+        end;
         if (SalesHeader."VAT Bus. Posting Group" <> '') and (SalesHeader."VAT Bus. Posting Group" <> BillToCustomer."VAT Bus. Posting Group") then
             SalesHeader.Validate("VAT Bus. Posting Group", BillToCustomer."VAT Bus. Posting Group")
         else
@@ -143,6 +148,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
         SalesHeader.AssignVATRegistrationNo(BillToCustomer."No.");
         SalesHeader."Registration Number" := BillToCustomer."Registration Number";
         SalesHeader."Gen. Bus. Posting Group" := BillToCustomer."Gen. Bus. Posting Group";
+        OnAfterUpdateSetupOnBillToCustomerChangeInSalesHeader(SalesHeader, BillToCustomer);
     end;
 
     local procedure IsAltVATRegUsed(SalesHeader: Record "Sales Header"): Boolean
@@ -367,5 +373,10 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
     local procedure SetSalesLineRecreatedOnAfterRecreateSalesLines()
     begin
         SalesLinesRecreated := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateSetupOnBillToCustomerChangeInSalesHeader(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
+    begin
     end;
 }

@@ -62,7 +62,7 @@ codeunit 137154 "SCM Warehouse Management II"
         CheckReceiptLineErr: Label 'Expect Receipt Linefrom Source No. %1 exist: %2, contrary to actual result';
         ShipmentLinesNotCreatedErr: Label 'There are no warehouse shipment lines created.';
         ReceiptLinesNotCreatedErr: Label 'There are no warehouse receipt lines created.';
-        ItemTrackingMode: Option " ","Assign Lot No.","Assign Multiple Lot No.","Assign Serial No.","Assign Lot And Serial","Select Entries","Blank Quantity Base","Assign Lot No. & Expiration Date";
+        ItemTrackingMode: Option " ","Assign Lot No.","Assign Multiple Lot No.","Assign Serial No.","Assign Lot And Serial","Select Entries","Blank Quantity Base","Assign Lot No. & Expiration Date","Assign Manual Lot Nos","Show Entries";
         DescriptionMustBeSame: Label 'Description must be same.';
 
     [Test]
@@ -3290,6 +3290,65 @@ codeunit 137154 "SCM Warehouse Management II"
         WarehouseReceipt."No.".AssertEquals(Format(WarehouseReceiptHeader."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,ConfirmHandlerYes')]
+    procedure UndoTransferShipmentWithAlternateUOMShowsCorrectItemTrackingQuantity()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Quantity: Decimal;
+        QuantityPerUOM: Decimal;
+        LotNo: array[4] of Code[50];
+    begin
+        // [SCENARIO 562010] Item Tracking Line show correct quantity and lines after undo Transfer shipment with alternate unit of measure.
+        Initialize();
+
+        // [GIVEN] Generate Quantity.
+        Quantity := LibraryRandom.RandIntInRange(5, 5);
+
+        // [GIVEN] Generate Quantity per unit of measure.
+        QuantityPerUOM := LibraryRandom.RandIntInRange(500, 500);
+
+        // [GIVEN] Generate Four Lot No.
+        GenerateFourLot(LotNo);
+
+        // [GIVEN] Create Item with Lot No. Tracking.
+        LibraryInventory.CreateTrackedItem(Item, '', '', LotItemTrackingCode.Code);
+
+        // [GIVEN] Create Item Unit of measure Code.
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QuantityPerUOM);
+
+        // [GIVEN] Create Item Journal with Four lines of Item Tracking and Post.
+        CreateItemJournalWithItemTrackingAndPost(ItemJournalLine, Quantity, ItemUnitOfMeasure.Code, Item."No.", LotNo);
+
+        // [GIVEN] Create Transfer Order and assign Item tracking.
+        CreateTransferOrderLineWithItemTracking(TransferHeader, TransferLine, LocationBlue.Code, LocationRed.Code, Item."No.", Quantity, ItemUnitOfMeasure.Code);
+
+        // [GIVEN] Create Warehouse shipment for Transfer Order and Release. 
+        CreateAndReleaseWarehouseShipmentFromTransferOrder(WarehouseShipmentHeader, TransferHeader);
+
+        // [GIVEN] Post Warehouse Shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [GIVEN] Undo Transfer Order Shipment.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] Verify The Posted Warehouse Shipment Line after Undo Transfer Shipment.
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", TransferLine.Quantity, false);
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", -TransferLine.Quantity, true);
+
+        // [THEN] Verify Item Tracking Receipt Line on Transfer Line after Undo,verification done in ItemTrackingLinesPageHandler.
+        VerifyTrackingOnTransferLineReceiptAfterUndo(TransferLine, 0, Quantity * QuantityPerUOM);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4936,6 +4995,63 @@ codeunit 137154 "SCM Warehouse Management II"
         Assert.AreEqual(Exist, not WhseReceiptLine.IsEmpty, StrSubstNo(CheckReceiptLineErr, SourceDocNo, Format(Exist)));
     end;
 
+    local procedure GenerateFourLot(var LotNo: array[4] of Code[50])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(LotNo) do
+            LotNo[i] := LibraryUtility.GenerateGUID();
+    end;
+
+    local procedure CreateItemJournalWithItemTrackingAndPost(
+        ItemJournalLine: Record "Item Journal Line";
+        Quantity: Decimal;
+        UOM: Code[20];
+        ItemNo: Code[20];
+        LotNo: array[4] of Code[50])
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationBlue.Code, '', Quantity);
+        ItemJournalLine.Validate("Unit of Measure Code", UOM);
+        ItemJournalLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Manual Lot Nos");
+        LibraryVariableStorage.Enqueue(4);
+        LibraryVariableStorage.Enqueue(LotNo[1]);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(1900, 1900));
+
+        LibraryVariableStorage.Enqueue(LotNo[2]);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(300, 300));
+
+        LibraryVariableStorage.Enqueue(LotNo[3]);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(200, 200));
+
+        LibraryVariableStorage.Enqueue(LotNo[4]);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(100, 100));
+
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateTransferOrderLineWithItemTracking(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; FromLocationCode: Code[10]; ToLocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; ChangeUOM: Code[20])
+    begin
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, LocationIntransit.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
+        TransferLine.Validate("Qty. to Ship", Quantity);
+        TransferLine.Validate("Unit of Measure Code", ChangeUOM);
+        TransferLine.Modify(true);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+    end;
+
+    local procedure VerifyTrackingOnTransferLineReceiptAfterUndo(TransferLine: Record "Transfer Line"; TrackingQtyToHandle: Decimal; TrackingQty: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Show Entries");
+        LibraryVariableStorage.Enqueue(TrackingQtyToHandle);
+        LibraryVariableStorage.Enqueue(TrackingQty);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Inbound);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
@@ -4954,6 +5070,11 @@ codeunit 137154 "SCM Warehouse Management II"
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     var
         Quantity: Decimal;
+        TrackingQtyToHandle: Decimal;
+        TrackingQty: Decimal;
+        NoOfTrackingLines: Integer;
+        I: Integer;
+        QtyVar: Variant;
     begin
         case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingMode::"Assign Lot No.", ItemTrackingMode::"Assign Lot No. & Expiration Date":
@@ -4985,6 +5106,27 @@ codeunit 137154 "SCM Warehouse Management II"
                 begin
                     ItemTrackingLines."Quantity (Base)".SetValue(0);
                     ItemTrackingLines."Qty. to Handle (Base)".SetValue(0);
+                end;
+            ItemTrackingMode::"Assign Manual Lot Nos":
+                begin
+                    NoOfTrackingLines := LibraryVariableStorage.DequeueInteger();
+                    for I := 1 to NoOfTrackingLines do begin
+                        ItemTrackingLines.New();
+                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    end;
+                end;
+            ItemTrackingMode::"Show Entries":
+                begin
+                    //Verify qty that has tracking
+                    LibraryVariableStorage.Dequeue(QtyVar);  // Dequeue variable.
+                    TrackingQtyToHandle := QtyVar;  // To convert Variant into Integer.
+                    Assert.AreEqual(TrackingQtyToHandle, ItemTrackingLines.Handle1.AsDecimal(), 'Wrong quantity to handle on Item Tracking Lines page');
+
+                    //Verify qty that should have tracking
+                    LibraryVariableStorage.Dequeue(QtyVar);
+                    TrackingQty := QtyVar;
+                    Assert.AreEqual(TrackingQty, ItemTrackingLines.Quantity_ItemTracking.AsDecimal(), 'Wrong quantity using tracking on Item Tracking Lines page');
                 end;
         end;
         ItemTrackingLines.OK().Invoke();

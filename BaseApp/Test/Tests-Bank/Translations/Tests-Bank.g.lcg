@@ -86,6 +86,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Bank Account - NamedType WrongIBANErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4055676525 - NamedType 3388634878" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Account No. must equal to %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Value]D;]A;(LookupHint=Codeunit ERM Bank Reconciliation - NamedType AccountNoMustBeEqualToErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4055676525 - NamedType 3522299158" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Last Entry No. must be %1 in %2.]]></Val>
