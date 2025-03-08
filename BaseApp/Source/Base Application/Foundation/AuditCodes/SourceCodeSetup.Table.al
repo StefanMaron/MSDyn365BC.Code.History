@@ -230,12 +230,6 @@ table 242 "Source Code Setup"
             Caption = 'Payment Reconciliation Journal';
             TableRelation = "Source Code";
         }
-        field(50; "G/L Currency Revaluation"; Code[10])
-        {
-            Caption = 'G/L Currency Revaluation';
-            TableRelation = "Source Code";
-            DataClassification = CustomerContent;
-        }
         field(840; "Cash Flow Worksheet"; Code[10])
         {
             Caption = 'Cash Flow Worksheet';
