@@ -1909,6 +1909,13 @@ codeunit 22 "Item Jnl.-Post Line"
                         ReservEntry.SetRange("Item No.", ItemJnlLine."Item No.");
                     end;
 
+                if TempTrackingSpecification.IsEmpty() then
+                    if ItemJnlLine."Document Type" = ItemJnlLine."Document Type"::"Direct Transfer" then
+                        if ItemLedgEntry.Quantity < 0 then
+                            ReservEntry.SetRange("Source Subtype", 0)
+                        else
+                            ReservEntry.SetRange("Source Subtype", 1);
+
                 UseReservationApplication := ReservEntry.FindFirst();
 
                 Handled := false;

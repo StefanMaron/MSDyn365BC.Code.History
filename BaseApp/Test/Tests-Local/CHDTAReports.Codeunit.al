@@ -974,8 +974,7 @@ codeunit 144351 "CH DTA Reports"
 
         CompanyInformation.Get();
 
-        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
-        LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
+        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
