@@ -287,6 +287,8 @@ codeunit 1002 "Job Create-Invoice"
         JobPlanningLine: Record "Job Planning Line";
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         IsHandled: Boolean;
+        GroupMultipleCustomer: Boolean;
+        InvoicePerProjectTask: Boolean;
     begin
         IsHandled := false;
         OnBeforeCreateSalesInvoiceJobTask(
@@ -321,11 +323,18 @@ codeunit 1002 "Job Create-Invoice"
             JobInvCurrency := IsJobInvCurrencyDependingOnBillingMethod(Job, JobTask2);
         Cust.Get(ReturnBillToCustomerNoDependingOnTaskBillingMethod(Job, JobTask2));
 
-        if CreateNewInvoice(JobTask, InvoicePerTask, OldJobNo, OldJobTaskNo, LastJobTask) then begin
+        if InvoicePerTask or (Job."Task Billing Method" = Job."Task Billing Method"::"Multiple customers") then
+            InvoicePerProjectTask := true;
+
+        if CreateNewInvoice(JobTask, InvoicePerProjectTask, OldJobNo, OldJobTaskNo, LastJobTask) then begin
             Job.Get(TempJobPlanningLine."Job No.");
+
+            if (Job."Task Billing Method" = Job."Task Billing Method"::"Multiple customers") and InvoicePerTask then
+                GroupMultipleCustomer := true;
+
             Cust.Get(ReturnBillToCustomerNoDependingOnTaskBillingMethod(Job, JobTask2));
             SalesHeader2."Document Type" := SalesHeader2."Document Type"::Invoice;
-            if not SalesInvoiceExistForMultipleCustomerBillingMethod(Job) then begin
+            if not SalesInvoiceExistForMultipleCustomerBillingMethod(Job, GroupMultipleCustomer) then begin
                 CreateSalesHeader(Job, PostingDate, DocumentDate, TempJobPlanningLine);
                 NoOfInvoices := NoOfInvoices + 1;
             end;
@@ -495,7 +504,7 @@ codeunit 1002 "Job Create-Invoice"
         SalesHeader.Modify(true);
     end;
 
-    local procedure SalesInvoiceExistForMultipleCustomerBillingMethod(Job: Record Job): Boolean
+    local procedure SalesInvoiceExistForMultipleCustomerBillingMethod(Job: Record Job; InvoicePerTask: Boolean): Boolean
     var
         JobTask: Record "Job Task";
         JobTask2: Record "Job Task";
@@ -505,7 +514,8 @@ codeunit 1002 "Job Create-Invoice"
         RecRef: RecordRef;
         JobTaskFilter: Text;
     begin
-        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+        if (Job."Task Billing Method" = Job."Task Billing Method"::"One customer") or
+            InvoicePerTask then
             exit;
 
         TempJobPlanningLine3.Copy(TempJobPlanningLine2, true);

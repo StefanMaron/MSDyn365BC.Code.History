@@ -34,6 +34,7 @@ codeunit 136323 "Jobs - Multiple Customers"
         PostJournalLineQst: Label 'Do you want to post the journal lines?';
         PostedJournalLinesMsg: Label 'The journal lines were successfully posted.';
         UpdateBillToCustMsg: Label 'You have changed a customer. Prices and costs needs to be updated on a related lines.\\Do you want to update related lines?';
+        MultipleInvoiceCreatedMsg: Label '%1 invoices are created.', Comment = '%1= Invoice count';
 
     [Test]
     procedure DefaultTaskBillingMethodIsPulledOnNewProject()
@@ -1780,6 +1781,61 @@ codeunit 136323 "Jobs - Multiple Customers"
         JobTasks[3].Validate("Bill-to Customer No.", Customers[2]."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('JobCreateSalesInvoicePerTaskHandler,MessageHandler')]
+    procedure InvoicePerProjectTaskCreateSaleInvoiceForMultipleCustomers()
+    var
+        Customers: array[2] of Record Customer;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobTasks: array[4] of Record "Job Task";
+        SalesLine: Record "Sales Line";
+        JobCreateSalesInvoice: Report "Job Create Sales Invoice";
+        JobChoice: Option Job,"Job Task";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 562511]  When run report "Job Create Sales Invoice" for Invoice Per as Job task, each Job task has individual invoice for multiple customer
+        Initialize();
+
+        // [GIVEN] Create Customers
+        LibrarySales.CreateCustomer(Customers[1]);
+        LibrarySales.CreateCustomer(Customers[2]);
+
+        // [GIVEN] Create new Project
+        LibraryJob.CreateJob(Job, Customers[1]."No.");
+
+        // [GIVEN] Set "Task Billing Method": to Multiple Customer.
+        Job.Validate("Task Billing Method", Job."Task Billing Method"::"Multiple customers");
+        Job.Modify();
+
+        // [GIVEN] Create multiple Job Task for multiple customers
+        CreateJobTaskForMultipleCustomer(JobTasks, Job, Customers);
+
+        // [GIVEN] Create multiple Job Planning Lines
+        CreateMultipleJobPlanningLines(JobTasks);
+
+        // [GIVEN] Enqueue data
+        LibraryVariableStorage.Enqueue(JobChoice::"Job Task");
+        LibraryVariableStorage.Enqueue(StrSubstNo(MultipleInvoiceCreatedMsg, ArrayLen(JobTasks)));
+
+        // [WHEN] Commit required to run the report
+        Commit();
+
+        // [WHEN] Filter the Job Task to run the report "Job Create Sales Invoice"
+        JobTask.SetRange("Job No.", Job."No.");
+        JobCreateSalesInvoice.SetTableView(JobTask);
+        JobCreateSalesInvoice.Run();
+
+        // [WHEN] Find the sales lines
+        FindSalesLine(SalesLine, SalesLine."Document Type"::Invoice, SalesLineType::Resource, Job."No.");
+
+        // [THEN] Count the Sales Line, It will be same as Job task
+        Assert.RecordCount(SalesLine, ArrayLen(JobTasks));
+
+        // Clear the Variable storage
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Jobs - Multiple Customers");
@@ -1920,6 +1976,33 @@ codeunit 136323 "Jobs - Multiple Customers"
         SalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No.")));
     end;
 
+    local procedure CreateJobTaskForMultipleCustomer(var JobTasks: array[4] of Record "Job Task";
+    Job: Record Job;
+    Customers: array[2] of Record Customer)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(JobTasks) do begin
+            LibraryJob.CreateJobTask(Job, JobTasks[i]);
+            if i > 2 then
+                JobTasks[i].Validate("Bill-to Customer No.", Customers[1]."No.")
+            else
+                JobTasks[i].Validate("Bill-to Customer No.", Customers[2]."No.");
+            JobTasks[i].Modify(true);
+        end;
+    end;
+
+    local procedure CreateMultipleJobPlanningLines(JobTasks: array[4] of Record "Job Task")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        i: Integer;
+        Qty: Integer;
+    begin
+        Qty := LibraryRandom.RandInt(10);
+        for i := 1 to ArrayLen(JobTasks) do
+            CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLine, JobTasks[i], Qty, Qty);
+    end;
+
     [RequestPageHandler]
     procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
@@ -1968,6 +2051,16 @@ codeunit 136323 "Jobs - Multiple Customers"
     [RequestPageHandler]
     procedure JobCreateSalesInvoiceHandler(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
     begin
+        JobCreateSalesInvoice.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure JobCreateSalesInvoicePerTaskHandler(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
+    var
+        JoBChoice: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(JoBChoice);
+        JobCreateSalesInvoice.JobChoice.SetValue(JoBChoice);
         JobCreateSalesInvoice.OK().Invoke();
     end;
 

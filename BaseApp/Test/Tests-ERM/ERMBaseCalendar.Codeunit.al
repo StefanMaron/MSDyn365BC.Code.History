@@ -16,6 +16,7 @@ codeunit 134233 "ERM Base Calendar"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryService: Codeunit "Library - Service";
+        PlannedDeliveryDateErr: Label 'Planned Delivery Date must be %1 in %2.', Comment = '%1= Value ,%2=Table Name.';
 
     [Test]
     procedure T001_CalcBaseCalendarLocationWithBlankCalendar()
@@ -309,6 +310,87 @@ codeunit 134233 "ERM Base Calendar"
 
         // [THEN] BaseCalendarEntries shows corresponding record
         BaseCalendarCard.BaseCalendarEntries.Description.AssertEquals(SecondBaseCalendarCode);
+    end;
+
+    [Test]
+    procedure UpdatePlannedDeliveryDateWithLocationBaseCalenderCode()
+    var
+        Location: Record Location;
+        BaseCalendar: Record "Base Calendar";
+        BaseCalendarChange: Record "Base Calendar Change";
+        Customer: Record Customer;
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        DateFormula: DateFormula;
+        Day: Option " ",Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday;
+    begin
+        // [SCENARIO 542852] Requested Delivery Date is not taking into consideration Weekends when no Base Calendar Code is set on the Shipping Agent Service, but is considering when setting a Requested Delivery Date calculating back to the Shipment Date.
+
+        // [GIVEN] Create Base Calendar.
+        LibraryService.CreateBaseCalendar(BaseCalendar);
+
+        // [GIVEN] Create Nonworking Day for Saturday and Sunday in Base Calendar Change.
+        CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, Day::Saturday, BaseCalendarChange);
+        CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, Day::Sunday, BaseCalendarChange);
+
+        // [GIVEN] Create location with Base Calendar Code and assign Base Calendar Code and Outbound Whse. Handling Time as 3 Days.
+        LibraryWarehouse.CreateLocation(Location);
+        Location.Validate("Base Calendar Code", BaseCalendar.Code);
+        Evaluate(DateFormula, '<3D>');
+        Location.Validate("Outbound Whse. Handling Time", DateFormula);
+        Location.Modify(true);
+
+        // [GIVEN] Create Shipping Agent and Shipping Agent Service with ShippingTime as 10 Days.
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        Evaluate(DateFormula, '<10D>');
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, DateFormula);
+
+        // [GIVEN] Create Customer and assign Shipment method, Shipping Agent and Shipping Agent Service.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Location Code", Location.Code);
+        Customer.Validate("Shipment Method Code", CreateShipmentMethodCode());
+        Customer.Validate("Shipping Agent Code", ShippingAgent.Code);
+        Customer.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Sales Header with Document Type Order.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] Create Sales Line.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Verify Planned Delivery Date with is calculated from Shipping Time.
+        Assert.AreEqual(
+            SalesLine.CalcPlannedDeliveryDate(SalesLine.FieldNo("Shipment Date")),
+            SalesLine."Planned Delivery Date",
+            StrSubstNo(
+                PlannedDeliveryDateErr,
+                SalesLine.CalcPlannedDate(),
+                SalesLine.TableCaption()));
+    end;
+
+    local procedure CreateShipmentMethodCode(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), DATABASE::"Shipment Method");
+        ShipmentMethod.Insert();
+        exit(ShipmentMethod.Code);
+    end;
+
+    local procedure CreateNonWorkingBaseCalendarChange(BaseCalendarCode: code[10]; Day: Option; var BaseCalendarChange: Record "Base Calendar Change")
+    begin
+        LibraryInventory.CreateBaseCalendarChange(
+          BaseCalendarChange, BaseCalendarCode, BaseCalendarChange."Recurring System"::"Weekly Recurring", 0D, Day);
+        BaseCalendarChange.Validate(Nonworking, true);
+        BaseCalendarChange.Modify(true);
     end;
 
     local procedure CreateCustomerWithCustomizedCalendar(var Customer: Record Customer): Code[10]
