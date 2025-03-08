@@ -355,6 +355,8 @@ page 31025 "VAT LCY Correction CZL"
             repeat
                 Rec.InsertFromVATEntry(VATEntry);
             until VATEntry.Next() = 0;
+
+        OnAfterGetDocumentVATEntries(Rec, DocumentNo, PostingDate, TransactionNo);
     end;
 
     local procedure CheckMaxVATDifferenceAllowed()
@@ -391,6 +393,11 @@ page 31025 "VAT LCY Correction CZL"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitGlobals(DocRecordRef: RecordRef; var NewDocumentNo: Code[20]; var NewPostingDate: Date; var NewTransactionNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDocumentVATEntries(var VATLCYCorrectionBufferCZL: Record "VAT LCY Correction Buffer CZL" temporary; DocumentNo: Code[20]; PostingDate: Date; TransactionNo: Integer)
     begin
     end;
 }
