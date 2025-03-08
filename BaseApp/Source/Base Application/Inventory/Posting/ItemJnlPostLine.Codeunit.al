@@ -1224,20 +1224,20 @@ codeunit 22 "Item Jnl.-Post Line"
             if GlobalItemLedgEntry."Entry Type" = GlobalItemLedgEntry."Entry Type"::Transfer then
                 GlobalItemLedgEntry."Completely Invoiced" := true;
 
-        if GlobalItemLedgEntry.Quantity > 0 then
-            if GlobalItemLedgEntry."Entry Type" <> GlobalItemLedgEntry."Entry Type"::Transfer then
-                IsReserved :=
-                  ItemJnlLineReserve.TransferItemJnlToItemLedgEntry(
-                    ItemJnlLine, GlobalItemLedgEntry, "Quantity (Base)", true);
+            if GlobalItemLedgEntry.Quantity > 0 then
+                if GlobalItemLedgEntry."Entry Type" <> GlobalItemLedgEntry."Entry Type"::Transfer then
+                    IsReserved :=
+                      ItemJnlLineReserve.TransferItemJnlToItemLedgEntry(
+                        ItemJnlLine, GlobalItemLedgEntry, "Quantity (Base)", true);
 
-        OnItemQtyPostingOnBeforeApplyItemLedgEntry(ItemJnlLine, GlobalItemLedgEntry);
-        ApplyItemLedgEntry(GlobalItemLedgEntry, OldItemLedgEntry, GlobalValueEntry, false);
-        UpdateReservationEntryForNonInventoriableItem();
-        CheckApplFromInProduction(GlobalItemLedgEntry, "Applies-from Entry");
-        AutoTrack(GlobalItemLedgEntry, IsReserved);
+            OnItemQtyPostingOnBeforeApplyItemLedgEntry(ItemJnlLine, GlobalItemLedgEntry);
+            ApplyItemLedgEntry(GlobalItemLedgEntry, OldItemLedgEntry, GlobalValueEntry, false);
+            UpdateReservationEntryForNonInventoriableItem();
+            CheckApplFromInProduction(GlobalItemLedgEntry, "Applies-from Entry");
+            AutoTrack(GlobalItemLedgEntry, IsReserved);
 
-        if ("Entry Type" = "Entry Type"::Transfer) and AverageTransfer then
-            InsertTransferEntry(GlobalItemLedgEntry, OldItemLedgEntry, TotalAppliedQty);
+            if ("Entry Type" = "Entry Type"::Transfer) and AverageTransfer then
+                InsertTransferEntry(GlobalItemLedgEntry, OldItemLedgEntry, TotalAppliedQty);
 
             OnItemQtyPostingOnAfterInsertTransferEntry(
                 ItemJnlLine, AverageTransfer, GlobalItemLedgEntry, OldItemLedgEntry, TotalAppliedQty, TempItemEntryRelation, GlobalValueEntry); // <-- NEW EVENT
@@ -1908,6 +1908,13 @@ codeunit 22 "Item Jnl.-Post Line"
                         ItemJnlLine.SetReservationFilters(ReservEntry);
                         ReservEntry.SetRange("Item No.", ItemJnlLine."Item No.");
                     end;
+
+                if TempTrackingSpecification.IsEmpty() then
+                    if ItemJnlLine."Document Type" = ItemJnlLine."Document Type"::"Direct Transfer" then
+                        if ItemLedgEntry.Quantity < 0 then
+                            ReservEntry.SetRange("Source Subtype", 0)
+                        else
+                            ReservEntry.SetRange("Source Subtype", 1);
 
                 UseReservationApplication := ReservEntry.FindFirst();
 
