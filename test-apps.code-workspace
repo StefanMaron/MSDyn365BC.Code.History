@@ -1,7 +1,7 @@
 {
   "settings": {
-    "allint.enabled": false,
     "al.enableCodeAnalysis": false,
+    "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
     },
@@ -9,25 +9,19 @@
   },
   "folders": [
     {
-      "path": "./MasterDataManagement/Test/_Exclude_Master_Data_Management_Tests"
+      "path": "./EnforcedDigitalVouchers/Test/Enforced Digital Vouchers Tests"
     },
     {
-      "path": "./MasterDataManagement/Test Library/_Exclude_Master_Data_Management_Test_Library"
+      "path": "./EnforcedDigitalVouchers/Test Library/Enforced Digital Vouchers Test Library"
     },
     {
-      "path": "./System Application/Test/System Application Test Library"
+      "path": "./EDocument Core/Test/E-Document Core Tests"
     },
     {
-      "path": "./System Application/Test/System Application Test/DisabledTests"
+      "path": "./PlanConfiguration/Test/_Exclude_PlanConfiguration_ Tests"
     },
     {
-      "path": "./System Application/Test/System Application Test/Extension Management/testArtifacts"
-    },
-    {
-      "path": "./System Application/Source/System Application/Email/src/Test Email"
-    },
-    {
-      "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"
+      "path": "./INGST/Test/India GST Tests"
     },
     {
       "path": "./FieldServiceIntegration/Test/Field Service Integration Test"
@@ -36,7 +30,61 @@
       "path": "./FieldServiceIntegration/Test Library/Field Service Integration Test Library"
     },
     {
-      "path": "./EDocument Core/Test/E-Document Core Tests"
+      "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
+    },
+    {
+      "path": "./testframework/testlibraries"
+    },
+    {
+      "path": "./testframework/teststabilitytools"
+    },
+    {
+      "path": "./testframework/TestRunner/Test Runner"
+    },
+    {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests"
+    },
+    {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
+      "path": "./SimplifiedBankStatementImport/Test/Simplified Bank Statement Import Test"
+    },
+    {
+      "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
+    },
+    {
+      "path": "./RecommendedApps/Test/Recommended Apps Tests"
+    },
+    {
+      "path": "./SalesLinesSuggestions/Test/Sales Lines Suggestions Tests"
+    },
+    {
+      "path": "./MasterDataManagement/Test/_Exclude_Master_Data_Management_Tests"
+    },
+    {
+      "path": "./MasterDataManagement/Test Library/_Exclude_Master_Data_Management_Test_Library"
+    },
+    {
+      "path": "./INTDS/Test/India TDS Tests"
+    },
+    {
+      "path": "./INChargeGroup/Test/India Charge Group Tests"
+    },
+    {
+      "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
+    },
+    {
+      "path": "./INTaxBase/Test/India Tax Base Tests"
+    },
+    {
+      "path": "./StatisticalAccounts/Test/Statistical Accounts Tests"
+    },
+    {
+      "path": "./Shopify/test/Shopify Connector Test"
+    },
+    {
+      "path": "./BaseApp/Source/Base Application/System/DevTools/CALTest"
     },
     {
       "path": "./BaseApp/Test/Tests-Bank"
@@ -135,97 +183,37 @@
       "path": "./BaseApp/Test/Tests-Workflow"
     },
     {
-      "path": "./BaseApp/Source/Base Application/System/DevTools/CALTest"
-    },
-    {
-      "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
-    },
-    {
-      "path": "./Email - Microsoft 365 Connector/Test/Email - Microsoft 365 Connector Tests"
-    },
-    {
-      "path": "./EnforcedDigitalVouchers/Test/Enforced Digital Vouchers Tests"
-    },
-    {
-      "path": "./EnforcedDigitalVouchers/Test Library/Enforced Digital Vouchers Test Library"
-    },
-    {
-      "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
-    },
-    {
-      "path": "./INFADepreciation/Test/Fixed Asset Depreciation Tests"
-    },
-    {
-      "path": "./AuditFileExport/Test/Audit File Export Tests"
-    },
-    {
-      "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
-    },
-    {
-      "path": "./BusinessFoundation/Test/Business Foundation Test Libraries"
-    },
-    {
-      "path": "./BusinessFoundation/Test/Business Foundation Tests"
+      "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
     },
     {
       "path": "./Sustainability/Test/Sustainability Tests"
     },
     {
-      "path": "./Email - SMTP API/Test/Email - SMTP API Tests"
-    },
-    {
-      "path": "./Email - SMTP API/Test Library/Email - SMTP API Test Library"
-    },
-    {
       "path": "./INVoucherInterface/Test/India Voucher Interface Tests"
     },
     {
-      "path": "./INReports/Test/India Reports Tests"
+      "path": "./System Application/Source/System Application/Email/src/Test Email"
     },
     {
-      "path": "./EmailLogging/Test/_Exclude_Email Logging Using Graph API Tests"
+      "path": "./System Application/Test/System Application Test Library"
     },
     {
-      "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
+      "path": "./System Application/Test/System Application Test/DisabledTests"
     },
     {
-      "path": "./DataSearch/test/Data Search Tests"
-    },
-    {
-      "path": "./INTDS/Test/India TDS Tests"
-    },
-    {
-      "path": "./Shopify/test/Shopify Connector Test"
+      "path": "./System Application/Test/System Application Test/Extension Management/testArtifacts"
     },
     {
       "path": "./ErrorMessagesWithRecommendations/test/Error Messages with Recommendations Tests"
     },
     {
-      "path": "./DataArchive/test/Data Archive Tests"
-    },
-    {
-      "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
-    },
-    {
-      "path": "./INTaxBase/Test/India Tax Base Tests"
-    },
-    {
       "path": "./PaymentPractices/Test/Payment Practices Tests"
     },
     {
-      "path": "./INTaxEngine/Test/Tax Engine Test"
-    },
-    {
-      "path": "./SimplifiedBankStatementImport/Test/Simplified Bank Statement Import Test"
+      "path": "./INTCS/Test/India TCS Tests"
     },
     {
       "path": "./BankDeposits/Test/_Exclude_Bank Deposits Tests"
-    },
-    {
-      "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
-    },
-    {
-      "path": "./PlanConfiguration/Test/_Exclude_PlanConfiguration_ Tests"
     },
     {
       "path": "./ContosoCoffeeDemoDataset/Test/Contoso Coffee Demo Dataset Tests"
@@ -234,55 +222,67 @@
       "path": "./ContosoCoffeeDemoDataset/Test/Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     },
     {
-      "path": "./ReportLayouts/Test/Report Layouts Tests"
+      "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
     },
     {
-      "path": "./testframework/testlibraries"
+      "path": "./AuditFileExport/Test/Audit File Export Tests"
     },
     {
-      "path": "./testframework/teststabilitytools"
+      "path": "./DataArchive/test/Data Archive Tests"
     },
     {
-      "path": "./testframework/performancetoolkit/Performance Toolkit Tests"
+      "path": "./INReports/Test/India Reports Tests"
     },
     {
-      "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
+      "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
     },
     {
-      "path": "./testframework/TestRunner/Test Runner"
+      "path": "./BusinessFoundation/Test/Business Foundation Test Libraries"
     },
     {
-      "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
+      "path": "./BusinessFoundation/Test/Business Foundation Tests"
     },
     {
-      "path": "./INGST/Test/India GST Tests"
+      "path": "./Email - Microsoft 365 Connector/Test/Email - Microsoft 365 Connector Tests"
     },
     {
-      "path": "./RecommendedApps/Test/Recommended Apps Tests"
-    },
-    {
-      "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
-    },
-    {
-      "path": "./INTCS/Test/India TCS Tests"
-    },
-    {
-      "path": "./INChargeGroup/Test/India Charge Group Tests"
-    },
-    {
-      "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
-    },
-    {
-      "path": "./Email - Outlook REST API/Test"
-    },
-    {
-      "path": "./SalesLinesSuggestions/Test/Sales Lines Suggestions Tests"
+      "path": "./DataSearch/test/Data Search Tests"
     },
     {
       "path": "./INGateEntry/Test/India Gate Entry Tests"
     },
     {
-      "path": "./StatisticalAccounts/Test/Statistical Accounts Tests"
+      "path": "./Email - SMTP API/Test/Email - SMTP API Tests"
+    },
+    {
+      "path": "./Email - SMTP API/Test Library/Email - SMTP API Test Library"
+    },
+    {
+      "path": "./Email - Outlook REST API/Test"
+    },
+    {
+      "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"
+    },
+    {
+      "path": "./ReportLayouts/Test/Report Layouts Tests"
+    },
+    {
+      "path": "./INFADepreciation/Test/Fixed Asset Depreciation Tests"
+    },
+    {
+      "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
+    },
+    {
+      "path": "./INTaxEngine/Test/Tax Engine Test"
+    },
+    {
+      "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
+    },
+    {
+      "path": "./EmailLogging/Test/_Exclude_Email Logging Using Graph API Tests"
+    },
+    {
+      "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
     }
   ]
 }
