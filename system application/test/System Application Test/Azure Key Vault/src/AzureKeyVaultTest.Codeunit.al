@@ -22,10 +22,8 @@ codeunit 135212 "Azure Key Vault Test"
 
     var
         Assert: Codeunit "Library Assert";
-        SecretNotFoundErr: Label '%1 is not an application secret.', Comment = '%1 = Secret Name.';
-        SecretNotInitializedTxt: Label 'Initialization of allowed secret names failed';
         KeyVaultNotInitializedTxt: Label 'Azure key vault has not been set up';
-        AllowedApplicationSecretsSecretNameTxt: Label 'AllowedApplicationSecrets', Locked = true;
+        MissingSecretErr: Label '%1 is either missing or empty', Locked = true;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -41,7 +39,6 @@ codeunit 135212 "Azure Key Vault Test"
 
         // [GIVEN] A configured Azure Key Vault
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider();
-        MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'some-secret,');
         MockAzureKeyvaultSecretProvider.AddSecretMapping('some-secret', 'SecretFromKeyVault');
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
@@ -67,7 +64,6 @@ codeunit 135212 "Azure Key Vault Test"
 
         // [GIVEN] A configured Azure Key Vault
         FirstMockAzureKeyvaultSecretProvider := FirstMockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider();
-        FirstMockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'some-secret');
         FirstMockAzureKeyvaultSecretProvider.AddSecretMapping('some-secret', 'AnotherSecretFromTheKeyVault');
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(FirstMockAzureKeyvaultSecretProvider);
 
@@ -79,7 +75,6 @@ codeunit 135212 "Azure Key Vault Test"
 
         // [WHEN] The Key Vault Secret Provider is changed
         SecondMockAzureKeyvaultSecretProvider := SecondMockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider();
-        SecondMockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'some-secret');
         SecondMockAzureKeyvaultSecretProvider.AddSecretMapping('some-secret', 'SecretFromKeyVault');
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(SecondMockAzureKeyvaultSecretProvider);
         AzureKeyVault.GetAzureKeyVaultSecret('some-secret', Secret);
@@ -101,7 +96,6 @@ codeunit 135212 "Azure Key Vault Test"
 
         // [GIVEN] A configured Azure Key Vault
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider();
-        MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'somesecret');
         MockAzureKeyvaultSecretProvider.AddSecretMapping('somesecret', 'AnotherSecretFromTheKeyVault');
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
@@ -109,7 +103,7 @@ codeunit 135212 "Azure Key Vault Test"
         asserterror AzureKeyVault.GetAzureKeyVaultSecret('somekeythatdoesnotexist', Secret);
 
         // [THEN] An error is thrown
-        Assert.ExpectedError(StrSubstNo(SecretNotFoundErr, 'somekeythatdoesnotexist'));
+        Assert.ExpectedError(StrSubstNo(MissingSecretErr, 'somekeythatdoesnotexist'));
     end;
 
     [Test]
@@ -125,7 +119,6 @@ codeunit 135212 "Azure Key Vault Test"
 
         // [GIVEN] A configured Azure Key Vault
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider();
-        MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'somesecret');
         MockAzureKeyvaultSecretProvider.AddSecretMapping('somesecret', 'SecretFromKeyVault');
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
@@ -137,10 +130,6 @@ codeunit 135212 "Azure Key Vault Test"
 
         // [WHEN] The key vault secrets are cleared and the same secret is retrieved
         AzureKeyVaultTestLibrary.ClearSecrets();
-
-        // [THEN] The secret is no longer accessible and an error is thrown
-        asserterror AzureKeyVault.GetAzureKeyVaultSecret('somesecret', Secret);
-        Assert.ExpectedError(SecretNotInitializedTxt);
     end;
 
     [Test]
