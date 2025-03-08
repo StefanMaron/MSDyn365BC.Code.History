@@ -21,15 +21,8 @@ report 1093 "Job Create Sales Invoice"
 
             trigger OnAfterGetRecord()
             var
-                Job: Record "Job";
                 IsHandled: Boolean;
             begin
-                if Job.Get("Job Task"."Job No.") then
-                    if Job."Task Billing Method" = Job."Task Billing Method"::"Multiple customers" then
-                        InvoicePerTask := true
-                    else
-                        if JobChoice = JobChoice::Job then
-                            InvoicePerTask := false;
 
                 IsHandled := false;
                 OnBeforeJobTaskOnAfterGetRecord("Job Task", IsHandled);
