@@ -41,8 +41,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     begin
         DataTypeBuffer.DeleteAll(true);
         AssistedSetupTestLibrary.DeleteAll();
-        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
-        LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
+        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
 
         AssistedSetupTestLibrary.CallOnRegister();
         AccountingPeriod.DeleteAll();
