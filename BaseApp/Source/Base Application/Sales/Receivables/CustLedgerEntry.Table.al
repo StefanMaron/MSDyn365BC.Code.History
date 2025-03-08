@@ -756,6 +756,10 @@ table 21 "Cust. Ledger Entry"
         {
             IncludedFields = "Customer No.", Open, "Sales (LCY)";
         }
+        key(Key37; "Applies-to ID")
+        {
+            IncludedFields = "Accepted Payment Tolerance";
+        }
     }
 
     fieldgroups

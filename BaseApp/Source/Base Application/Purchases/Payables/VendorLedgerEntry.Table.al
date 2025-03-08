@@ -711,6 +711,7 @@ table 25 "Vendor Ledger Entry"
         }
         key(Key20; "Applies-to ID")
         {
+            IncludedFields = "Accepted Payment Tolerance";
         }
         key(Key21; "Vendor No.", "Applies-to ID")
         {
