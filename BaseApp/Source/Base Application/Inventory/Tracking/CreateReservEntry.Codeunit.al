@@ -397,7 +397,6 @@ codeunit 99000830 "Create Reserv. Entry"
                 NewReservEntry.CopyTrackingFromReservEntryNewTracking(InsertReservEntry);
                 if NewReservEntry."Qty. to Handle (Base)" = 0 then
                     NewReservEntry."Qty. to Handle (Base)" := NewReservEntry."Quantity (Base)";
-                InsertReservEntry.ClearNewTracking();
 
                 // If an order-to-order supply is being posted, item tracking must be carried to the related demand:
                 if (TransferQty >= 0) and (NewReservEntry.Binding = NewReservEntry.Binding::"Order-to-Order") then begin
@@ -527,6 +526,8 @@ codeunit 99000830 "Create Reserv. Entry"
         end;
 
         SynchronizeTransferOutboundToInboundItemTracking(NewReservEntry."Entry No.");
+
+        ClearNewItemTracking(NewType, NewSubtype, (xTransferQty - TransferQty));
 
         OnAfterTransferReservEntry(NewReservEntry, OldReservEntry);
         xTransferQty -= TransferQty;
@@ -1040,6 +1041,13 @@ codeunit 99000830 "Create Reserv. Entry"
             if DoModify then
                 ReservationEntry.Modify();
         end;
+    end;
+
+    local procedure ClearNewItemTracking(NewType: Option; NewSubtype: Integer; RemainingQty: Decimal)
+    begin
+        if ((NewType = Database::"Item Journal Line") and (NewSubtype in [3, 5, 6]) or OverruleItemTracking) and (RemainingQty = 0) then
+            if InsertReservEntry.NewTrackingExists() then
+                InsertReservEntry.ClearNewTracking();
     end;
 
     [IntegrationEvent(false, false)]
