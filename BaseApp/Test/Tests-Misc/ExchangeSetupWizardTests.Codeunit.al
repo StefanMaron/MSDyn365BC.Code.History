@@ -129,8 +129,7 @@ codeunit 139310 "Exchange Setup Tests"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         PrivacyNotice.SetApprovalState(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId(), "Privacy Notice Approval State"::Agreed);
-        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
-        LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
+        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
 
