@@ -352,7 +352,6 @@ codeunit 135215 "Item From Picture Tests"
         MockAzureKeyvaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;
     begin
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider();
-        MockAzureKeyvaultSecretProvider.AddSecretMapping('AllowedApplicationSecrets', 'cognitive-vision-params');
         MockAzureKeyvaultSecretProvider.AddSecretMapping('cognitive-vision-params', '[{"limittype":"Year","endpoint":"https://northeurope.api.cognitive.microsoft.com/vision/v1.0/analyze","key":"SUPERSECRETKEY111","limitvalue":1},{"limittype":"Year","endpoint":"https://northeurope.api.cognitive.microsoft.com/vision/v1.0/analyze","key":"SUPERSECRETKEY222","limitvalue":1}]');
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
     end;
