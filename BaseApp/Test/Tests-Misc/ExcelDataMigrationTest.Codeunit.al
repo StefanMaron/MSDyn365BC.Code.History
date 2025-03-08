@@ -557,8 +557,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         LibraryVariableStorage.Clear();
         LibraryRapidStart.SetAPIServicesEnabled(false);
-        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
-        LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
+        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
 
         ConfigPackage.Init();
         ConfigPackage.SetRange(Code, ExcelDataMigrator.GetPackageCode);
