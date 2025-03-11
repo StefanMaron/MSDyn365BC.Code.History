@@ -48,6 +48,7 @@ codeunit 134152 "ERM Intercompany II"
         GLAccountDescriptionLbl: Label 'Custom GL Account description', Locked = true;
         ItemDescriptionLbl: Label 'Custom item description', Locked = true;
         DateLbl: Label '<%1D>', Locked = true;
+        PostingDateErr: Label '%1 of %2 must be equal to blank', Comment = '%1 = date field, %2 = table name';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -6847,6 +6848,162 @@ codeunit 134152 "ERM Intercompany II"
         ICGenJournalLineWithBlockedCustomer(CreateAndUpdateICCustomerPrivacyBlocked(CreateICPartner()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseDocumentCreatedWithNoPostingDate()
+    var
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        DefaultPostingDate: Enum "Default Posting Date";
+    begin
+        // [SCENARIO 562571] Intercompany Document is accepted when Default Posting Date is set to No Date on the Purchases & Payables setup.
+        Initialize();
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddSalesDocsCreate();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddPurchDocsCreate();
+
+        // [GIVEN] Set Default Posting Date to No Date on Purchases & Payables Setup.
+        UpdatePurchasePayablesSetup(DefaultPostingDate::"No Date");
+
+        // [GIVEN] Set Default Posting Date to No Date on Sales & Receivables Setup.
+        UpdateSalesReceivablesSetup(DefaultPostingDate::"No Date");
+
+        // [WHEN] Create, Send Sales Document and Receive Purchase Document.
+        CreateSendSalesDocumentReceivePurchaseDocumentWithNoPostingDate(SalesHeader, PurchaseHeader);
+
+        // [THEN] Verify Purchase Document is created with No Posting Date.
+        Assert.AreEqual(
+               0D,
+               PurchaseHeader."Posting Date",
+               StrSubstNo(
+                 PostingDateErr,
+                 PurchaseHeader.FieldCaption("Posting Date"),
+                 PurchaseHeader.TableName));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesDocumentCreatedWithNoPostingDate()
+    var
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        DefaultPostingDate: Enum "Default Posting Date";
+    begin
+        // [SCENARIO 562571] Intercompany Document is accepted when Default Posting Date is set to No Date on the Sales & Receivables setup.
+        Initialize();
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddSalesDocsCreate();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddPurchDocsCreate();
+
+        // [GIVEN] Set Default Posting Date to No Date on Purchases & Payables Setup.
+        UpdatePurchasePayablesSetup(DefaultPostingDate::"No Date");
+
+        // [GIVEN] Set Default Posting Date to No Date on Sales & Receivables Setup.
+        UpdateSalesReceivablesSetup(DefaultPostingDate::"No Date");
+
+        // [WHEN] Create, Send Purchase Document and Receive Sales Document.
+        CreateSendPurchaseDocumentReceiveSalesDocumentWithNoPostingDate(PurchaseHeader, SalesHeader);
+
+        // [THEN] Verify Sales Document is created with No Posting Date.
+        Assert.AreEqual(
+               0D,
+               SalesHeader."Posting Date",
+               StrSubstNo(
+                 PostingDateErr,
+                 SalesHeader.FieldCaption("Posting Date"),
+                 SalesHeader.TableName));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SendMultipleICPurchaseOrder()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 563725] Send intercompany purchase order with bulk selection.
+        Initialize();
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddSalesDocsCreate();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddPurchDocsCreate();
+
+        // [GIVEN] Create IC Partner Code. 
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Create IC Vendor.
+        Vendor.Get(CreateICVendor(ICPartnerCode));
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Create Two Purchase Order with IC Partner.        
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, Vendor."No.", CreateItem());
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, Vendor."No.", CreateItem());
+
+        // [WHEN] Send IC Purchase Orders.
+        PurchaseHeaderUI.SetFilter("No.", '%1|%2', PurchaseHeader[1]."No.", PurchaseHeader[2]."No.");
+        PurchaseHeaderUI.SendICPurchaseDoc(PurchaseHeaderUI);
+
+        // [THEN] Verify Multiple Purchase Orders are sent. 
+        VerifyICOutboxTransaction(
+            ICOutboxTransaction,
+            ICOutboxTransaction."Document Type"::Order,
+            PurchaseHeaderUI.GetFilter("No."),
+            ICOutboxTransaction."Source Type"::"Purchase Document",
+            PurchaseHeaderUI.Count,
+            ICPartnerCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SendMultipleICSalesOrder()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        Customer: Record Customer;
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 563725] Send intercompany sales order with bulk selection.
+        Initialize();
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddSalesDocsCreate();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddPurchDocsCreate();
+
+        // [GIVEN] Create IC Partner Code. 
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Create IC Customer.
+        Customer.Get(CreateICCustomer(ICPartnerCode));
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Create Two Sales Order with IC Partner.        
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Order, Customer."No.", CreateItem());
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Order, Customer."No.", CreateItem());
+
+        // [WHEN] Send IC Sales Orders.
+        SalesHeaderUI.SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
+        SalesHeaderUI.SendICSalesDoc(SalesHeaderUI);
+
+        // [THEN] Verify Multiple Sales Orders are sent. 
+        VerifyICOutboxTransaction(
+            ICOutboxTransaction,
+            ICOutboxTransaction."Document Type"::Order,
+            SalesHeaderUI.GetFilter("No."),
+            ICOutboxTransaction."Source Type"::"Sales Document",
+            SalesHeaderUI.Count,
+            ICPartnerCode);
+    end;
+
     local procedure CreateAndUpdateICCustomerPrivacyBlocked(ICPartnerCode: Code[20]): Code[20]
     var
         Customer: Record Customer;
@@ -6914,6 +7071,132 @@ codeunit 134152 "ERM Intercompany II"
     begin
         Item.Get(ItemNo);
         exit(Item."Base Unit of Measure");
+    end;
+
+    local procedure UpdatePurchasePayablesSetup(DefaultPostingDate: Enum "Default Posting Date")
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default Posting Date", DefaultPostingDate);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateSalesReceivablesSetup(DefaultPostingDate: Enum "Default Posting Date")
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Default Posting Date", DefaultPostingDate);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure CreateSendSalesDocumentReceivePurchaseDocumentWithNoPostingDate(var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header")
+    var
+        DummyICPartner: Record "IC Partner";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
+        ICPartnerCode: Code[20];
+        VendorNo: Code[20];
+    begin
+        CreateSalesDocumentWithNoPostingDate(
+            SalesHeader, SalesHeader."Document Type"::Order, ICPartnerCode, VendorNo, DummyICPartner."Outbound Sales Item No. Type"::"Internal No.");
+        SendICSalesDocument(
+            SalesHeader, ICPartnerCode, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader);
+        ReceiveICPurchaseDocumentWithNoPostingDate(
+            PurchaseHeader, SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, VendorNo);
+    end;
+
+    local procedure CreateSalesDocumentWithNoPostingDate(
+        var SalesHeader: Record "Sales Header";
+        DocumentType: Enum "Sales Document Type";
+        var ICPartnerCode: Code[20];
+        var VendorNo: Code[20];
+        OutboundType: Enum "IC Outb. Sales Item No. Type")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        ICPartnerCode := CreateICPartner();
+        UpdateICPartnerWithOutboundType(ICPartnerCode, OutboundType);
+        VendorNo := CreateICVendor(ICPartnerCode);
+
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode));
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandIntInRange(10, 100));
+    end;
+
+    local procedure ReceiveICPurchaseDocumentWithNoPostingDate(
+        var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header";
+        var ICOutboxTransaction: Record "IC Outbox Transaction"; var ICInboxTransaction: Record "IC Inbox Transaction";
+        var ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; VendorNo: Code[20])
+    var
+        ICOutboxSalesLine: Record "IC Outbox Sales Line";
+    begin
+        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, 0D);
+        ICOutboxSalesLine."Document Type" := ConvertDocTypeToICOutboxSalesLine(SalesHeader."Document Type");
+        InboxICPurchaseDocument(
+            PurchaseHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, ICOutboxSalesLine, SalesHeader."No.", VendorNo);
+    end;
+
+    local procedure CreateSendPurchaseDocumentReceiveSalesDocumentWithNoPostingDate(var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header")
+    var
+        DummyICPartner: Record "IC Partner";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICPartnerCode: Code[20];
+        CustomerNo: Code[20];
+    begin
+        CreatePurchaseDocumentWithNoPostingDates(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order, ICPartnerCode, CustomerNo, DummyICPartner."Outbound Purch. Item No. Type"::"Internal No.");
+        SendICPurchaseDocument(
+            PurchaseHeader, ICPartnerCode, ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader);
+        ReceiveICSalesDocumentWithNoPostingDate(
+            SalesHeader, PurchaseHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader, CustomerNo);
+    end;
+
+    local procedure CreatePurchaseDocumentWithNoPostingDates(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; var ICPartnerCode: Code[20]; var CustomerNo: Code[20]; OutboundType: Enum "IC Outb. Sales Item No. Type")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        ICPartnerCode := CreateICPartner();
+        UpdateICPartnerWithOutboundType(ICPartnerCode, OutboundType);
+        CustomerNo := CreateICCustomer(ICPartnerCode);
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, DocumentType, CreateICVendor(ICPartnerCode));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandIntInRange(10, 100));
+    end;
+
+    local procedure ReceiveICSalesDocumentWithNoPostingDate(
+        var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header";
+        var ICOutboxTransaction: Record "IC Outbox Transaction"; var ICInboxTransaction: Record "IC Inbox Transaction";
+        var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CustomerNo: Code[20])
+    var
+        ICOutboxPurchaseLine: Record "IC Outbox Purchase Line";
+    begin
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, 0D);
+        ICOutboxPurchaseLine."Document Type" := ConvertPurchDocTypeToICOutboxPurchLine(PurchaseHeader."Document Type");
+        InboxICSalesDocument(
+            SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader, ICOutboxPurchaseLine, PurchaseHeader."No.", CustomerNo);
+    end;
+
+    local procedure VerifyICOutboxTransaction(
+        var ICOutboxTransaction: Record "IC Outbox Transaction";
+        DocumentType: Enum "IC Transaction Document Type";
+        DocumentNo: Text;
+        SourceType: Option;
+        ExpectedCount: Integer;
+        ICPartnerCode: Code[20])
+    begin
+        ICOutboxTransaction.SetFilter("Document No.", DocumentNo);
+        ICOutboxTransaction.SetRange("Document Type", DocumentType);
+        ICOutboxTransaction.SetRange("Source Type", SourceType);
+        ICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
+        Assert.RecordCount(ICOutboxTransaction, ExpectedCount);
     end;
 }
 
