@@ -2354,10 +2354,16 @@ codeunit 80 "Sales-Post"
         Factor: Decimal;
         QtyToAssign: Decimal;
         AmountToAssign: Decimal;
+        IsHandled: Boolean;
     begin
+        OnBeforePostDistributeItemCharge(SalesHeader, SalesLine, TempItemLedgEntry, NonDistrQuantity, NonDistrQtyToAssign, NonDistrAmountToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         if TempItemLedgEntry.FindSet() then
             repeat
                 Factor := Abs(TempItemLedgEntry.Quantity / NonDistrQuantity);
+                OnPostDistributeItemChargeOnAfterSetFactor(TempItemLedgEntry, Factor);
                 QtyToAssign := NonDistrQtyToAssign * Factor;
                 AmountToAssign := Round(NonDistrAmountToAssign * Factor, GLSetup."Amount Rounding Precision");
                 if Factor < 1 then begin
@@ -10836,7 +10842,7 @@ codeunit 80 "Sales-Post"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRoundAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineQty: Decimal; var CurrExchRate: Record "Currency Exchange Rate")
+    local procedure OnBeforeRoundAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesLineQty: Decimal; var CurrExchRate: Record "Currency Exchange Rate")
     begin
     end;
 
@@ -13274,6 +13280,16 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostJobContractLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var GenJnlLineDocType: Enum "Gen. Journal Document Type"; var GenJnlLineDocNo: Code[20]; var GenJnlLineExtDocNo: Code[35]; var SrcCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDistributeItemCharge(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempItemLedgerEntry: Record "Item Ledger Entry"; NonDistrQuantity: Decimal; NonDistrQtyToAssign: Decimal; NonDistrAmountToAssign: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDistributeItemChargeOnAfterSetFactor(TempItemLedgerEntry: Record "Item Ledger Entry"; var Factor: Decimal)
     begin
     end;
 }

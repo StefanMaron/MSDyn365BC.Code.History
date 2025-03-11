@@ -28,15 +28,15 @@ codeunit 7009 CopyFromToPriceListLine
     var
 #if not CLEAN25
         CheckedReferencedItemDictionary: Dictionary of [Code[20], Boolean];
-        CheckedReferencedItemVariantDictionary: Dictionary of [Dictionary of [Code[20], Code[10]], Boolean];
+        CheckedReferencedItemVariantDictionary: Dictionary of [Code[31], Boolean];
         CheckedReferencedUnitOfMeasureDictionary: Dictionary of [Code[10], Boolean];
-        CheckedReferencedItemUnitOfMeasureDictionary: Dictionary of [Dictionary of [Code[20], Code[10]], Boolean];
+        CheckedReferencedItemUnitOfMeasureDictionary: Dictionary of [Code[31], Boolean];
         CheckedReferencedCurrencyDictionary: Dictionary of [Code[10], Boolean];
         CheckedReferencedGLAccountDictionary: Dictionary of [Code[20], Boolean];
         CheckedReferencedResourceDictionary: Dictionary of [Code[20], Boolean];
         CheckedReferencedWorkTypeDictionary: Dictionary of [Code[10], Boolean];
         CheckedReferencedJobDictionary: Dictionary of [Code[20], Boolean];
-        CheckedReferencedJobTaskDictionary: Dictionary of [Dictionary of [Code[20], Code[20]], Boolean];
+        CheckedReferencedJobTaskDictionary: Dictionary of [Code[41], Boolean];
 #endif
         GenerateHeader: Boolean;
         UseDefaultPriceLists: Boolean;
@@ -144,22 +144,23 @@ codeunit 7009 CopyFromToPriceListLine
     local procedure ReferencedItemVariantRecordMissing(ItemNo: Code[20]; VariantCode: Code[10]): Boolean;
     var
         ItemVariant: Record "Item Variant";
-        ItemVariantDictionary: Dictionary of [Code[20], Code[10]];
+        ItemVariantCompositeKey: Code[31];
     begin
         if VariantCode = '' then
             exit(false);
 
-        ItemVariantDictionary.Add(ItemNo, VariantCode);
-        if CheckedReferencedItemVariantDictionary.ContainsKey(ItemVariantDictionary) then
-            exit(not CheckedReferencedItemVariantDictionary.Get(ItemVariantDictionary));
+        ItemVariantCompositeKey := PadStr(ItemNo, MaxStrLen(ItemVariant."Item No."), '_') + '*' + PadStr(ItemNo, MaxStrLen(ItemVariant.Code), '_');
+
+        if CheckedReferencedItemVariantDictionary.ContainsKey(ItemVariantCompositeKey) then
+            exit(not CheckedReferencedItemVariantDictionary.Get(ItemVariantCompositeKey));
 
         ItemVariant.SetRange("Item No.", ItemNo);
         ItemVariant.SetRange(Code, VariantCode);
         if not ItemVariant.IsEmpty() then begin
-            CheckedReferencedItemVariantDictionary.Add(ItemVariantDictionary, true);
+            CheckedReferencedItemVariantDictionary.Add(ItemVariantCompositeKey, true);
             exit(false);
         end else begin
-            CheckedReferencedItemVariantDictionary.Add(ItemVariantDictionary, false);
+            CheckedReferencedItemVariantDictionary.Add(ItemVariantCompositeKey, false);
             exit(true);
         end;
     end;
@@ -168,7 +169,7 @@ codeunit 7009 CopyFromToPriceListLine
     var
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
-        ItemUnitOfMeasureDictionary: Dictionary of [Code[20], Code[10]];
+        ItemUnitOfMeasureCompositeKey: Code[31];
     begin
         if UnitOfMeasureCode = '' then
             exit(false);
@@ -186,17 +187,18 @@ codeunit 7009 CopyFromToPriceListLine
             end;
         end;
 
-        ItemUnitOfMeasureDictionary.Add(ItemNo, UnitOfMeasureCode);
-        if CheckedReferencedItemUnitOfMeasureDictionary.ContainsKey(ItemUnitOfMeasureDictionary) then
-            exit(not CheckedReferencedItemUnitOfMeasureDictionary.Get(ItemUnitOfMeasureDictionary));
+        ItemUnitOfMeasureCompositeKey := PadStr(ItemNo, MaxStrLen(ItemUnitOfMeasure."Item No."), '_') + '*' + PadStr(UnitOfMeasureCode, MaxStrLen(ItemUnitOfMeasure.Code), '_');
+
+        if CheckedReferencedItemUnitOfMeasureDictionary.ContainsKey(ItemUnitOfMeasureCompositeKey) then
+            exit(not CheckedReferencedItemUnitOfMeasureDictionary.Get(ItemUnitOfMeasureCompositeKey));
 
         ItemUnitOfMeasure.SetRange("Item No.", ItemNo);
         ItemUnitofMeasure.SetRange(Code, UnitOfMeasureCode);
         if not ItemUnitOfMeasure.IsEmpty() then begin
-            CheckedReferencedItemUnitOfMeasureDictionary.Add(ItemUnitOfMeasureDictionary, true);
+            CheckedReferencedItemUnitOfMeasureDictionary.Add(ItemUnitOfMeasureCompositeKey, true);
             exit(false);
         end else begin
-            CheckedReferencedItemUnitOfMeasureDictionary.Add(ItemUnitOfMeasureDictionary, false);
+            CheckedReferencedItemUnitOfMeasureDictionary.Add(ItemUnitOfMeasureCompositeKey, false);
             exit(true);
         end;
     end;
@@ -295,19 +297,20 @@ codeunit 7009 CopyFromToPriceListLine
     local procedure ReferencedJobTaskRecordMissing(JobNo: Code[20]; JobTaskNo: Code[20]): Boolean;
     var
         JobTask: Record "Job Task";
-        JobTaskDictionary: Dictionary of [Code[20], Code[20]];
+        JobTaskCompositeKey: Code[41];
     begin
-        JobTaskDictionary.Add(JobNo, JobTaskNo);
-        if CheckedReferencedJobTaskDictionary.ContainsKey(JobTaskDictionary) then
-            exit(not CheckedReferencedJobTaskDictionary.Get(JobTaskDictionary));
+        JobTaskCompositeKey := PadStr(JobNo, MaxStrLen(JobTask."Job No."), '_') + '*' + PadStr(JobTaskNo, MaxStrLen(JobTask."Job Task No."), '_');
+
+        if CheckedReferencedJobTaskDictionary.ContainsKey(JobTaskCompositeKey) then
+            exit(not CheckedReferencedJobTaskDictionary.Get(JobTaskCompositeKey));
 
         JobTask.SetRange("Job No.", JobNo);
         JobTask.SetRange("Job Task No.", JobTaskNo);
         if not JobTask.IsEmpty() then begin
-            CheckedReferencedJobTaskDictionary.Add(JobTaskDictionary, true);
+            CheckedReferencedJobTaskDictionary.Add(JobTaskCompositeKey, true);
             exit(false);
         end else begin
-            CheckedReferencedJobTaskDictionary.Add(JobTaskDictionary, false);
+            CheckedReferencedJobTaskDictionary.Add(JobTaskCompositeKey, false);
             exit(true);
         end;
     end;

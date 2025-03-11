@@ -753,6 +753,32 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         VerifyGLEntry(GenJnlTemplate.Name, GenJnlBatch.Name);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure VerifyIBANNoWhenBranchNoAndBankAccountNotEmpty()
+    var
+        BankAccount: Record "Bank Account";
+        CustomerBankAccount: Record "Customer Bank Account";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+    begin
+        // [SCENARIO 562711] Verify the IBAN number when the Bank Branch number, Bank Account number, and IBAN are not empty.
+        Initialize();
+
+        // [GIVEN] Create Customer and Customer Bank Account.
+        CreateCustomerWithustomerBankAccount(CustomerBankAccount);
+
+        // [GIVEN] Create Direct Debit Collection Entry and Customer Ledger Entry.
+        CreateDirectDebitCollectionEntryWithBank(CustomerBankAccount, DirectDebitCollectionEntry, BankAccount);
+
+        // [WHEN] Export the SEPA file.
+        ExportToServerTempFile(DirectDebitCollectionEntry);
+
+        // [THEN] Verify IBAN No.
+        LibraryXMLRead.Initialize(ServerFileName);
+        LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAcct', 'IBAN', BankAccount.IBAN);
+        LibraryXMLRead.VerifyNodeValueInSubtree('DbtrAcct', 'IBAN', CustomerBankAccount.IBAN);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1255,6 +1281,51 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         repeat
             GLEntry.TestField("No. Series");
         until GLEntry.Next() = 0;
+    end;
+
+    local procedure CreateCustomerWithustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account")
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomerWithAddress(Customer);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
+        CustomerBankAccount.Validate("Bank Account No.", Format(LibraryRandom.RandIntInRange(111111111, 999999999)));
+        CustomerBankAccount."Bank Branch No." := Format(LibraryRandom.RandIntInRange(100, 200));
+        CustomerBankAccount.Validate(IBAN, Format(LibraryRandom.RandIntInRange(11111111, 99999999)));
+        CustomerBankAccount.Validate("SWIFT Code", Format(LibraryRandom.RandIntInRange(1111, 9999)));
+        CustomerBankAccount.Modify(true);
+
+        Customer.Validate("Preferred Bank Account Code", CustomerBankAccount.Code);
+        Customer.Validate("Partner Type", Customer."Partner Type"::Company);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateDirectDebitCollectionEntryWithBank(CustomerBankAccount: Record "Customer Bank Account"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var BankAccount: Record "Bank Account")
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        DirectDebitCollection: Record "Direct Debit Collection";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+    begin
+        Customer.Get(CustomerBankAccount."Customer No.");
+        LibrarySales.CreateCustomerMandate(SEPADirectDebitMandate, CustomerBankAccount."Customer No.", CustomerBankAccount.Code, Today(), WorkDate());
+        PostSalesInvoice(Customer, SEPADirectDebitMandate.ID, LibraryERM.GetCurrencyCode('EUR'));
+
+        CreateSEPABankAccount(BankAccount);
+        BankAccount.Validate("Bank Branch No.", Format(LibraryRandom.RandIntInRange(5000, 9000)));
+        BankAccount.Validate("Direct Debit Msg. Nos.", CreateNoSeries());
+        BankExportImportSetup.SetRange("Processing XMLport ID", Xmlport::"SEPA DD pain.008.001.02");
+        BankExportImportSetup.FindFirst();
+        BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
+        BankAccount.Modify(true);
+
+        if DirectDebitCollection."No." = 0 then
+            DirectDebitCollection.CreateRecord(BankAccount.GetDirectDebitMessageNo(), BankAccount."No.", Customer."Partner Type");
+        DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
+        CustLedgerEntry.FindLast();
+        DirectDebitCollectionEntry.CreateNew(DirectDebitCollection."No.", CustLedgerEntry);
+        DirectDebitCollectionEntry.Modify(true);
     end;
 
     [MessageHandler]

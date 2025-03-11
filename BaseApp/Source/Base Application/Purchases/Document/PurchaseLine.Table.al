@@ -5845,8 +5845,7 @@ table 39 "Purchase Line"
         SalesOrderLine."Unit Cost (LCY)" := "Unit Cost (LCY)" * SalesOrderLine."Qty. per Unit of Measure" / "Qty. per Unit of Measure";
         SalesOrderLine."Unit Cost" := "Unit Cost" * SalesOrderLine."Qty. per Unit of Measure" / "Qty. per Unit of Measure";
         SalesOrderLine.Validate("Unit Cost (LCY)");
-        if CurrFieldNo <> 0 then
-            SalesOrderLine.Modify();
+        SalesOrderLine.Modify();
 
         OnAfterUpdateSalesCost(Rec, SalesOrderLine);
     end;
@@ -6543,7 +6542,7 @@ table 39 "Purchase Line"
            ("Line Discount Amount" = 0) and
            (not PurchHeader."Prices Including VAT")
         then
-            ItemChargeAssgntLineAmt := "Line Amount"
+            ItemChargeAssgntLineAmt := "Line Amount" + NonDeductibleVAT.GetNonDeductibleVATAmountForItemCost(Rec)
         else
             if PurchHeader."Prices Including VAT" then
                 ItemChargeAssgntLineAmt :=

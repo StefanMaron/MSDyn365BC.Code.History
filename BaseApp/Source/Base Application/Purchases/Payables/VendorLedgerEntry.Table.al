@@ -740,6 +740,10 @@ table 25 "Vendor Ledger Entry"
         {
             IncludedFields = "Currency Code", "Amount to Apply", Open;
         }
+        key(Key26; "Applies-to ID")
+        {
+            IncludedFields = "Accepted Payment Tolerance";
+        }
     }
 
     fieldgroups

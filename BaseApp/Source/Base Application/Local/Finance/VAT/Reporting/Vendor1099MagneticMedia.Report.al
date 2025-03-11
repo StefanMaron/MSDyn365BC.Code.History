@@ -717,7 +717,34 @@ report 10115 "Vendor 1099 Magnetic Media"
                         end;
                     end;
                 until TempApplVendorLedgerEntry.Next() = 0;
+            AddAdjustments(TempIRS1099Adjustment, VendorNo, StartEndDate[1], FormTypeIndex, IRS1099CodeFilter[FormTypeIndex]);
         end;
+    end;
+
+    local procedure AddAdjustments(var TempIRS1099Adjustment: Record "IRS 1099 Adjustment" temporary; VendorNo: Code[20]; StartingDate: Date; FormTypeIndex: Integer; IRSCodeFilter: Text)
+    var
+        DummyVendorLedgerEntry: Record "Vendor Ledger Entry";
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Year: Integer;
+    begin
+        if VendorNo = '' then
+            exit;
+        if IRSCodeFilter = '' then
+            exit;
+        IRS1099FormBox.SetFilter(Code, IRSCodeFilter);
+        if not IRS1099FormBox.FindSet() then
+            exit;
+        Year := Date2DMY(StartingDate, 3);
+        repeat
+            if not TempIRS1099Adjustment.Get(VendorNo, IRS1099FormBox.Code, Year) then
+                if IRS1099Adjustment.Get(VendorNo, IRS1099FormBox.Code, Year) then begin
+                    MagMediaManagement.UpdateLines(
+                        DummyVendorLedgerEntry, FormTypeIndex, FormTypeLastNo[FormTypeIndex], IRS1099Adjustment."IRS 1099 Code", IRS1099Adjustment.Amount);
+                    TempIRS1099Adjustment := IRS1099Adjustment;
+                    TempIRS1099Adjustment.Insert();
+                end;
+        until IRS1099FormBox.Next() = 0;
     end;
 
     local procedure Calculate1099Amount(AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; FormTypeIndex: Integer)
