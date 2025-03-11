@@ -20,7 +20,7 @@ codeunit 99000889 AvailabilityManagement
         InvtSetup: Record "Inventory Setup";
         Item: Record Item;
         TempRecordBuffer: Record System.IO."Record Buffer" temporary;
-        AvailToPromise: Codeunit "Available to Promise";
+        AvailableToPromise: Codeunit "Available to Promise";
         UOMMgt: Codeunit "Unit of Measure Management";
         CaptionText: Text;
         HasGotCompanyInfo: Boolean;
@@ -138,12 +138,12 @@ codeunit 99000889 AvailabilityManagement
             AvailabilityDate := WorkDate();
 
         OrderPromisingLine."Unavailability Date" :=
-          AvailToPromise.GetPeriodEndingDate(
+          AvailableToPromise.GetPeriodEndingDate(
             CalcDate(CompanyInfo."Check-Avail. Period Calc.", AvailabilityDate), CompanyInfo."Check-Avail. Time Bucket");
 
-        AvailToPromise.SetPromisingReqShipDate(OrderPromisingLine);
+        AvailableToPromise.SetPromisingReqShipDate(OrderPromisingLine);
         exit(
-          AvailToPromise.CalcQtyAvailabletoPromise(
+          AvailableToPromise.CalcQtyAvailabletoPromise(
             Item, GrossRequirement, ScheduledReceipt, AvailabilityDate,
             CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc."));
     end;
@@ -203,7 +203,9 @@ codeunit 99000889 AvailabilityManagement
                 NeededDate := OrderPromisingLine."Requested Shipment Date"
             else
                 NeededDate := WorkDate();
-            AvailToPromise.SetOriginalShipmentDate(OrderPromisingLine);
+            AvailableToPromise.SetOriginalShipmentDate(OrderPromisingLine);
+
+            OnCalcAvailableToPromiseLineOnAfterSetOriginalShipmentDate(OrderPromisingLine, Item, CompanyInfo, AvailableToPromise);
 
             FeasibleDateFound := false;
             if OrderPromisingLine."Source Type" = OrderPromisingLine."Source Type"::Sales then
@@ -221,7 +223,7 @@ codeunit 99000889 AvailabilityManagement
 
             if not FeasibleDateFound then begin
                 GetCompanyInfo();
-                FeasibleDate := AvailToPromise.CalcEarliestAvailabilityDate(
+                FeasibleDate := AvailableToPromise.CalcEarliestAvailabilityDate(
                     Item, OrderPromisingLine.Quantity, NeededDate, OrderPromisingLine.Quantity, OrderPromisingLine."Original Shipment Date", AvailQty,
                     CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
             end;
@@ -397,6 +399,11 @@ codeunit 99000889 AvailabilityManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShouldCalculateAvailableToPromise(var OrderPromisingLine: Record "Order Promising Line"; var ShouldCalculate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailableToPromiseLineOnAfterSetOriginalShipmentDate(var OrderPromisingLine: Record "Order Promising Line"; Item: Record Item; CompanyInformation: Record "Company Information"; var AvailableToPromise: Codeunit "Available to Promise")
     begin
     end;
 }
