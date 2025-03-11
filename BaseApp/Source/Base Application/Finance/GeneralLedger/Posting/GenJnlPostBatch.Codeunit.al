@@ -1697,6 +1697,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             GenJournalLine."Document Date" := GenJournalLine."Posting Date";
             GenJournalLine."VAT Reporting Date" := GenJournalLine."Posting Date";
             GenJournalLine."Due Date" := GenJournalLine."Posting Date";
+            OnPostGenJournalLineOnBeforeMultiplyAmounts(GenJnlLine5, SavedPostingDate, SavedVATReportingDate, GenJournalLine);
             MultiplyAmounts(GenJournalLine, -1);
             TempGenJnlLine4 := GenJournalLine;
             TempGenJnlLine4."Reversing Entry" := true;
@@ -2484,6 +2485,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessBalanceOfLinesOnBeforeCheckLine(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostGenJournalLineOnBeforeMultiplyAmounts(var GenJournalLine: Record "Gen. Journal Line"; SavedPostingDate: Date; SavedVATReportingDate: Date; var PostingGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

@@ -105,6 +105,7 @@ page 591 "Payment Tolerance Warning"
     trigger OnOpenPage()
     begin
         Posting := Posting::"Remaining Amount";
+        OnOpenPageOnBeforeUpdateAmounts(Posting);
 
         UpdateAmounts();
     end;
@@ -198,5 +199,11 @@ page 591 "Payment Tolerance Warning"
                 end;
         end;
     end;
+
+    [IntegrationEvent(false,false)]
+    local procedure OnOpenPageOnBeforeUpdateAmounts(var Posting: Option " ","Payment Tolerance Accounts","Remaining Amount")
+    begin
+    end;
+
 }
 
