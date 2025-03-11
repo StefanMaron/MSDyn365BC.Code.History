@@ -24,13 +24,15 @@ report 496 "Batch Post Purchase Orders"
             var
                 PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
             begin
-                OnBeforePurchaseBatchPostMgt("Purchase Header", ReceiveReq, InvReq);
+                OnBeforePurchaseBatchPostMgt("Purchase Header", ReceiveReq, InvReq, PurchaseBatchPostMgt);
 
                 PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::Print, PrintDoc);
                 PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDateReq);
                 PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"VAT Date", VATDateReq);
                 PurchaseBatchPostMgt.RunBatch(
                   "Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ReceiveReq, InvReq);
+
+                OnAfterPurchaseBatchPostMgt("Purchase Header", PurchaseBatchPostMgt);
 
                 CurrReport.Break();
             end;
@@ -235,7 +237,12 @@ report 496 "Batch Post Purchase Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchaseBatchPostMgt(var PurchaseHeader: Record "Purchase Header"; var ReceiveReq: Boolean; var InvReq: Boolean)
+    local procedure OnBeforePurchaseBatchPostMgt(var PurchaseHeader: Record "Purchase Header"; var ReceiveReq: Boolean; var InvReq: Boolean; var PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPurchaseBatchPostMgt(var PurchaseHeader: Record "Purchase Header"; var PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.")
     begin
     end;
 }

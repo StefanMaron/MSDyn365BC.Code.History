@@ -909,6 +909,52 @@ codeunit 139180 "CRM Entity Synch Test"
         SyncChangeFromCrmThenSyncChangeToCrm(300);
     end;
 
+    [Test]
+    [HandlerFunctions('TestSyncSingleCustomerBothModifiedMessageHandler,TestSyncSingleRecordStrMenuHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure SyncSingleCustomerCRMPrimaryContactEmpty()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Customer: Record Customer;
+        Contact: Record Contact;
+        CRMAccount: Record "CRM Account";
+        CRMContact: Record "CRM Contact";
+        JobQueueEntryID: Guid;
+        EmptyGuid: Guid;
+    begin
+        // [FEATURE] [Customer]
+        // [SCENARIO] Synchronizing a single customer modified in CRM by removing primary contact
+        Init();
+
+        // [GIVEN] A customer coupled with a CRM account and since modified in CRM by removing primary contact
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
+        Customer."Primary Contact No." := Contact."No.";
+        Customer.Modify();
+        CRMAccount.PrimaryContactId := EmptyGuid;
+        CRMAccount.Modify();
+
+        // [WHEN] Synchronizing the customer
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        SynchDirection := SynchDirection::ToNAV;
+        CRMIntegrationManagement.UpdateOneNow(Customer.RecordId);
+
+        // [THEN] The user is asked to select the synchronization direction
+        // [WHEN] The user selects synchronization from CRM
+        // Happens in TestSyncSingleRecordStrMenuHandler
+        CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
+        JobQueueEntryID :=
+          LibraryCRMIntegration.RunJobQueueEntry(
+            Database::"CRM Account", CRMAccount.GetView(), IntegrationTableMapping);
+
+        // [THEN] Notification "Syncronization has been scheduled." is shown.
+        // Handled by SyncStartedNotificationHandler
+        // [THEN] The data in is overwritten with the data from CRM
+        Customer.GetBySystemId(Customer.SystemId);
+        Assert.AreEqual('', Customer."Primary Contact No.", 'Primary contact should be empty');
+    end;
+
     local procedure SyncChangeToCrmTwoTimes(CRMTimeDiffSeconds: Integer)
     var
         Contact: Record Contact;
