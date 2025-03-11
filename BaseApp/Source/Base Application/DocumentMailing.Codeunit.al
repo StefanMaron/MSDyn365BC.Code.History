@@ -353,6 +353,8 @@ codeunit 260 "Document-Mailing"
                         AttachmentFileName := StrSubstNo(PdfFileNamePluralTxt, EmailDocumentName);
             end else
                 AttachmentFileName := StrSubstNo(ReportAsPdfFileNameMsg, EmailDocumentName, PostedDocNo);
+
+        OnAfterGetAttachmentFileName(AttachmentFileName, PostedDocNo, EmailDocumentName, ReportUsage);
     end;
 
     local procedure IsPurchaseReportUsage(ReportUsage: Integer): Boolean
@@ -652,6 +654,11 @@ codeunit 260 "Document-Mailing"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetEmailSubject(PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer; var EmailSubject: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
     begin
     end;
 }

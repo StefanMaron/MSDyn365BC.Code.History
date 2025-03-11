@@ -74,6 +74,8 @@ report 5707 "Batch Post Transfer Orders"
                     ErrorMessageManagement.LogErrorMessage(0, GetLastErrorText(), TransferHeader, 0, '');
             until TransferHeader.Next() = 0;
 
+        OnRunPostBatchTransferOrderOnAfterPost(TransferHeader, TransferOrderPost, ErrorMessageHandler);
+
         if ErrorMessageHandler.HasErrors() then
             ErrorMessageHandler.NotifyAboutErrors();
 
@@ -82,6 +84,11 @@ report 5707 "Batch Post Transfer Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforePostTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferOrderPost: Enum "Transfer Order Post"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunPostBatchTransferOrderOnAfterPost(var TransferHeader: Record "Transfer Header"; var TransferOrderPost: Enum "Transfer Order Post"; var ErrorMessageHandler: Codeunit "Error Message Handler")
     begin
     end;
 }

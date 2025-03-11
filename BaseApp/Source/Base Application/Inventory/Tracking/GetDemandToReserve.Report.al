@@ -1,6 +1,10 @@
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Sales.Document;
+using System.Utilities;
 
 report 302 "Get Demand To Reserve"
 {
@@ -16,6 +20,177 @@ report 302 "Get Demand To Reserve"
                                 where(Type = const(Inventory));
             RequestFilterFields = "No.", "Variant Filter", "Location Filter", "Date Filter";
             RequestFilterHeading = 'Filters';
+        }
+        dataitem(FilterLine; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+
+            dataitem(SalesOrderLine; "Sales Line")
+            {
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.")
+                                    where("Document Type" = const(Order),
+                                        "Drop Shipment" = const(false),
+                                        Type = const(Item),
+                                        "Outstanding Qty. (Base)" = filter(<> 0));
+
+                trigger OnPreDataItem()
+                begin
+                    if not (DemandType in [Enum::"Reservation Demand Type"::All, Enum::"Reservation Demand Type"::"Sales Orders"]) then
+                        CurrReport.Break();
+
+                    SetFilter("No.", FilterItem.GetFilter("No."));
+                    SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
+                    SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
+                    SetFilter("Shipment Date", FilterItem.GetFilter("Date Filter"));
+                    SetFilter(Reserve, '<>%1', SalesOrderLine.Reserve::Never);
+
+                    FilterGroup(2);
+                    if DateFilter <> '' then
+                        SetFilter("Shipment Date", DateFilter);
+                    if VariantFilterFromBatch <> '' then
+                        SetFilter("Variant Code", VariantFilterFromBatch);
+                    if LocationFilterFromBatch <> '' then
+                        SetFilter("Location Code", LocationFilterFromBatch);
+                    FilterGroup(0);
+                end;
+
+                trigger OnAfterGetRecord()
+                var
+                    Item: Record Item;
+                    IsHandled: Boolean;
+                begin
+                    if not IsInventoriableItem() then
+                        CurrReport.Skip();
+
+                    if not CheckIfSalesLineMeetsReservedFromStockSetting(Abs("Outstanding Qty. (Base)"), ReservedFromStock)
+                    then
+                        CurrReport.Skip();
+
+                    if ItemFilterFromBatch <> '' then begin
+                        Item.SetView(ReservationWkshBatch.GetItemFilterBlobAsViewFilters());
+                        Item.FilterGroup(2);
+                        Item.SetRange("No.", "No.");
+                        Item.FilterGroup(0);
+                        if Item.IsEmpty() then
+                            CurrReport.Skip();
+                    end;
+
+                    IsHandled := false;
+                    OnSalesOrderLineOnAfterGetRecordOnBeforeSetTempSalesLine(SalesOrderLine, IsHandled);
+                    if not IsHandled then begin
+                        TempSalesLine := SalesOrderLine;
+                        TempSalesLine.Insert();
+                    end;
+                end;
+            }
+            dataitem(TransferOrderLine; "Transfer Line")
+            {
+                DataItemTableView = sorting("Document No.", "Line No.")
+                                    where("Derived From Line No." = const(0),
+                                        "Outstanding Qty. (Base)" = filter(<> 0));
+
+                trigger OnPreDataItem()
+                begin
+                    if not (DemandType in [Enum::"Reservation Demand Type"::All, Enum::"Reservation Demand Type"::"Transfer Orders"]) then
+                        CurrReport.Break();
+
+                    SetFilter("Item No.", FilterItem.GetFilter("No."));
+                    SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
+                    SetFilter("Transfer-from Code", FilterItem.GetFilter("Location Filter"));
+                    SetFilter("Shipment Date", FilterItem.GetFilter("Date Filter"));
+
+                    FilterGroup(2);
+                    if DateFilter <> '' then
+                        SetFilter("Shipment Date", DateFilter);
+                    if VariantFilterFromBatch <> '' then
+                        SetFilter("Variant Code", VariantFilterFromBatch);
+                    if LocationFilterFromBatch <> '' then
+                        SetFilter("Transfer-from Code", LocationFilterFromBatch);
+                    FilterGroup(0);
+                end;
+
+                trigger OnAfterGetRecord()
+                var
+                    Item: Record Item;
+                    IsHandled: Boolean;
+                begin
+                    if not CheckIfTransferLineMeetsReservedFromStockSetting("Outstanding Qty. (Base)", ReservedFromStock)
+                    then
+                        CurrReport.Skip();
+
+                    if ItemFilterFromBatch <> '' then begin
+                        Item.SetView(ReservationWkshBatch.GetItemFilterBlobAsViewFilters());
+                        Item.FilterGroup(2);
+                        Item.SetRange("No.", "Item No.");
+                        Item.FilterGroup(0);
+                        if Item.IsEmpty() then
+                            CurrReport.Skip();
+                    end;
+
+                    IsHandled := false;
+                    OnTransferOrderLineOnAfterGetRecordOnBeforeSetTempTransferLine(TransferOrderLine, IsHandled);
+                    if not IsHandled then begin
+                        TempTransferLine := TransferOrderLine;
+                        TempTransferLine.Insert();
+                    end;
+                end;
+            }
+            dataitem(JobPlanningLine; "Job Planning Line")
+            {
+                DataItemTableView = sorting("Job No.", "Job Task No.", "Line No.")
+                                    where(Type = const(Item),
+                                        "Remaining Qty. (Base)" = filter(<> 0));
+
+                trigger OnPreDataItem()
+                begin
+                    if not (DemandType in [Enum::"Reservation Demand Type"::All, Enum::"Reservation Demand Type"::"Job Usage"]) then
+                        CurrReport.Break();
+
+                    SetFilter("No.", FilterItem.GetFilter("No."));
+                    SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
+                    SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
+                    SetFilter("Planning Date", FilterItem.GetFilter("Date Filter"));
+                    SetFilter(Reserve, '<>%1', JobPlanningLine.Reserve::Never);
+
+                    FilterGroup(2);
+                    if DateFilter <> '' then
+                        SetFilter("Planning Date", DateFilter);
+                    if VariantFilterFromBatch <> '' then
+                        SetFilter("Variant Code", VariantFilterFromBatch);
+                    if LocationFilterFromBatch <> '' then
+                        SetFilter("Location Code", LocationFilterFromBatch);
+                    FilterGroup(0);
+                end;
+
+                trigger OnAfterGetRecord()
+                var
+                    Item: Record Item;
+                    IsHandled: Boolean;
+                begin
+                    if not IsInventoriableItem() then
+                        CurrReport.Skip();
+
+                    if not CheckIfJobPlngLineMeetsReservedFromStockSetting("Remaining Qty. (Base)", ReservedFromStock)
+                    then
+                        CurrReport.Skip();
+
+                    if ItemFilterFromBatch <> '' then begin
+                        Item.SetView(ReservationWkshBatch.GetItemFilterBlobAsViewFilters());
+                        Item.FilterGroup(2);
+                        Item.SetRange("No.", "No.");
+                        Item.FilterGroup(0);
+                        if Item.IsEmpty() then
+                            CurrReport.Skip();
+                    end;
+
+                    IsHandled := false;
+                    OnJobPlanningLineOnAfterGetRecordOnBeforeSetTempJobPlanningLine(JobPlanningLine, IsHandled);
+                    if not IsHandled then begin
+                        TempJobPlanningLine := JobPlanningLine;
+                        TempJobPlanningLine.Insert();
+                    end;
+                end;
+            }
         }
     }
 
@@ -126,74 +301,48 @@ report 302 "Get Demand To Reserve"
 
     trigger OnPreReport()
     begin
-        OnGetDemand(FilterItem, ReservationWkshBatch, DemandType, DateFilter, VariantFilterFromBatch, LocationFilterFromBatch, ItemFilterFromBatch, ReservedFromStock);
+        TempSalesLine.DeleteAll();
+        TempTransferLine.DeleteAll();
+        TempJobPlanningLine.DeleteAll();
     end;
 
     var
-        ReservationWkshBatch: Record "Reservation Wksh. Batch";
-        DemandType: Enum "Reservation Demand Type";
-        DemandTypeFromBatch: Enum "Reservation Demand Type";
-        ReservedFromStock: Enum "Reservation From Stock";
+        TempSalesLine: Record "Sales Line" temporary;
+        TempTransferLine: Record "Transfer Line" temporary;
+        TempJobPlanningLine: Record "Job Planning Line" temporary;
         BatchName: Code[10];
-        ItemFilterFromBatch: Text;
-        VariantFilterFromBatch: Text;
-        LocationFilterFromBatch: Text;
         StartDateFromBatchInText: Text;
         EndDateFromBatchInText: Text;
-        DateFilter: Text;
         StartDateFromBatch: Date;
         EndDateFromBatch: Date;
         DemandTypeEditable: Boolean;
         AutoAllocate: Boolean;
         BatchFiltersVisible: Boolean;
 
-#if not CLEAN25
-    [Obsolete('Replaced by codeunit Sales Get Demand To Reserve', '25.0')]
-    procedure GetSalesOrderLines(var TempSalesLineToReturn: Record Microsoft.Sales.Document."Sales Line" temporary)
-    begin
-        // TempSalesLineToReturn.Copy(TempSalesLine, true);
-    end;
-#endif
+    protected var
+        ReservationWkshBatch: Record "Reservation Wksh. Batch";
+        DemandType: Enum "Reservation Demand Type";
+        DemandTypeFromBatch: Enum "Reservation Demand Type";
+        ReservedFromStock: Enum "Reservation From Stock";
+        DateFilter: Text;
+        ItemFilterFromBatch: Text;
+        VariantFilterFromBatch: Text;
+        LocationFilterFromBatch: Text;
 
-#if not CLEAN25
-    [Obsolete('Replaced by codeunit Trans. Get Demand To Reserve', '25.0')]
-    procedure GetTransferOrderLines(var TempTransferLineToReturn: Record Microsoft.Inventory.Transfer."Transfer Line" temporary)
+    procedure GetSalesOrderLines(var TempSalesLineToReturn: Record "Sales Line" temporary)
     begin
-        // TempTransferLineToReturn.Copy(TempTransferLine, true);
+        TempSalesLineToReturn.Copy(TempSalesLine, true);
     end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by codeunit Serv. Get Demand To Reserve', '25.0')]
-    procedure GetServiceOrderLines(var TempServiceLineToReturn: Record Microsoft.Service.Document."Service Line" temporary)
+    procedure GetTransferOrderLines(var TempTransferLineToReturn: Record "Transfer Line" temporary)
     begin
-        // TempServiceLineToReturn.Copy(TempServiceLine, true);
+        TempTransferLineToReturn.Copy(TempTransferLine, true);
     end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by codeunit Job Planning Line Get Demand', '25.0')]
-    procedure GetJobPlanningLines(var TempJobPlanningLineToReturn: Record Microsoft.Projects.Project.Planning."Job Planning Line" temporary)
+    procedure GetJobPlanningLines(var TempJobPlanningLineToReturn: Record "Job Planning Line" temporary)
     begin
-        // TempJobPlanningLineToReturn.Copy(TempJobPlanningLine, true);
+        TempJobPlanningLineToReturn.Copy(TempJobPlanningLine, true);
     end;
-#endif
-
-#if not CLEAN25
-    [Obsolete('Replaced by codeunit Asm. Get Demand To Reserve', '25.0')]
-    procedure GetAssemblyLines(var TempAssemblyLineToReturn: Record Microsoft.Assembly.Document."Assembly Line" temporary)
-    begin
-        // TempAssemblyLineToReturn.Copy(TempAssemblyLine, true);
-    end;
-#endif
-
-#if not CLEAN25
-    [Obsolete('Replaced by codeunit Mfg. Get Demand To Reserve', '25.0')]
-    procedure GetProdOrderComponents(var TempProdOrderComponentToReturn: Record Microsoft.Manufacturing.Document."Prod. Order Component" temporary)
-    begin
-        // TempProdOrderComponentToReturn.Copy(TempProdOrderComponent, true);
-    end;
-#endif
 
     procedure GetAllocateAfterPopulate(): Boolean
     begin
@@ -255,71 +404,18 @@ report 302 "Get Demand To Reserve"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnSalesOrderLineOnAfterGetRecordOnBeforeSetTempSalesLine(var OrderSalesLine: Record Microsoft.Sales.Document."Sales Line"; var IsHandled: Boolean)
-    begin
-        OnSalesOrderLineOnAfterGetRecordOnBeforeSetTempSalesLine(OrderSalesLine, IsHandled);
-    end;
-
-    [Obsolete('Moved to codeunit SalesGetDemandToReserve as OnGetDemandOnBeforeSetTempSalesLine', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnSalesOrderLineOnAfterGetRecordOnBeforeSetTempSalesLine(var OrderSalesLine: Record Microsoft.Sales.Document."Sales Line"; var IsHandled: Boolean)
+    local procedure OnSalesOrderLineOnAfterGetRecordOnBeforeSetTempSalesLine(var OrderSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
-    internal procedure RunOnTransferOrderLineOnAfterGetRecordOnBeforeSetTempTransferLine(var TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line"; var IsHandled: Boolean)
-    begin
-        OnTransferOrderLineOnAfterGetRecordOnBeforeSetTempTransferLine(TransferLine, IsHandled);
-    end;
-
-    [Obsolete('Moved to codeunit TransGetDemandToReserve as OnGetDemandOnBeforeSetTempTransferLine', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnTransferOrderLineOnAfterGetRecordOnBeforeSetTempTransferLine(var TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line"; var IsHandled: Boolean)
+    local procedure OnTransferOrderLineOnAfterGetRecordOnBeforeSetTempTransferLine(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 
-    internal procedure RunOnServiceOrderLineOnAfterGetRecordOnBeforeSetTempServiceLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
-    begin
-        OnServiceOrderLineOnAfterGetRecordOnBeforeSetTempServiceLine(ServiceLine, IsHandled);
-    end;
-
-    [Obsolete('Moved to codeunit ServGetDemandToReserve as OnGetDemandOnBeforeSetTempServiceLine', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnServiceOrderLineOnAfterGetRecordOnBeforeSetTempServiceLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    internal procedure RunOnJobPlanningLineOnAfterGetRecordOnBeforeSetTempJobPlanningLine(var JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line"; var IsHandled: Boolean)
-    begin
-        OnJobPlanningLineOnAfterGetRecordOnBeforeSetTempJobPlanningLine(JobPlanningLine, IsHandled);
-    end;
-
-    [Obsolete('Moved to codeunit JobPlanningLineGetDemandToReserve as OnGetDemandOnBeforeSetTempJobPlanningLine', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnJobPlanningLineOnAfterGetRecordOnBeforeSetTempJobPlanningLine(var JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
-
-    internal procedure RunOnAssemblyLineOnAfterGetRecordOnBeforeSetTempAssemblyLine(var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; var IsHandled: Boolean)
-    begin
-        OnAssemblyLineOnAfterGetRecordOnBeforeSetTempAssemblyLine(AssemblyLine, IsHandled);
-    end;
-
-    [Obsolete('Moved to codeunit AsmGetDemandToReserve as OnGetDemandOnBeforeSetTempAssemblyLine', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAssemblyLineOnAfterGetRecordOnBeforeSetTempAssemblyLine(var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    internal procedure RunOnProdOrderComponentOnAfterGetRecordOnBeforeSetTempProdOrderComponent(var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var IsHandled: Boolean)
-    begin
-        OnProdOrderComponentOnAfterGetRecordOnBeforeSetTempProdOrderComponent(ProdOrderComponent, IsHandled);
-    end;
-
-    [Obsolete('Moved to codeunit MfgGetDemandToReserve as OnGetDemandOnBeforeSetTempProdOrderComponent', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnProdOrderComponentOnAfterGetRecordOnBeforeSetTempProdOrderComponent(var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 }

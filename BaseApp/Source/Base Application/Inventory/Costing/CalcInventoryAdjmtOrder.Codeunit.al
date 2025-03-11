@@ -187,7 +187,14 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     end;
 
     local procedure CalcStandardCost(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OutputQty: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcStandardCost(InvtAdjmtEntryOrder, OutputQty, IsHandled);
+        if IsHandled then
+            exit;
+
         if not InvtAdjmtEntryOrder.Find() or not InvtAdjmtEntryOrder."Completely Invoiced" then
             InvtAdjmtEntryOrder.GetCostsFromItem(OutputQty)
         else begin
@@ -345,7 +352,13 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     local procedure CalcShareOfCapCost(InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)") ShareOfCapCost: Decimal
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcShareOfCapCost(InvtAdjmtEntryOrder, ShareOfCapCost, IsHandled);
+        if IsHandled then
+            exit(ShareOfCapCost);
+
         if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Assembly then
             exit(1);
 
@@ -418,6 +431,8 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         TempItemLedgEntryInChain.SetFilter("Applies-to Entry", '<>0');
         TempItemLedgEntryInChain.CalcSums(Quantity);
         Qty := TempItemLedgEntryInChain.Quantity;
+
+        OnAfterCalcExactCostReversingQty(ItemLedgEntry, Qty);
     end;
 
     local procedure HasNewCost(NewCost: Decimal; NewCostACY: Decimal): Boolean
@@ -477,6 +492,21 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcOutputEntryCostAdjmtsOnBeforeCalculateCostForGrossOutput(var NewActInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; RemOutputQty: Decimal; OutputQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcStandardCost(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OutputQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcShareOfCapCost(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ShareOfCapCost: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcExactCostReversingQty(ItemLedgEntry: Record "Item Ledger Entry"; var Qty: Decimal)
     begin
     end;
 }

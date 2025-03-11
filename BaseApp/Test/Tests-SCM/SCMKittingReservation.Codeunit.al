@@ -217,7 +217,7 @@ codeunit 137099 "SCM Kitting Reservation"
               ReservationEntry."Reservation Status"::Reservation, AssemblyHeader."Item No.", DATABASE::"Item Ledger Entry", LotNo,
               AssemblyHeader.Quantity / 2);  // Verify Partial Reservation Quantity.
             VerifyReservationEntry(
-              ReservationEntry."Reservation Status"::Reservation, AssemblyHeader."Item No.", DATABASE::"Sales Line", '',
+              ReservationEntry."Reservation Status"::Reservation, AssemblyHeader."Item No.", DATABASE::"Sales Line", LotNo,
               -AssemblyHeader.Quantity / 2);  // Verify Partial Reservation Quantity.
         end;
 
