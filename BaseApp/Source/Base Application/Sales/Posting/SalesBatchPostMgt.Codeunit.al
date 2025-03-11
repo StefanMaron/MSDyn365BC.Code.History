@@ -138,22 +138,25 @@ codeunit 1371 "Sales Batch Post Mgt."
 
     local procedure PrepareSalesHeader(var SalesHeader: Record "Sales Header"; var BatchConfirm: Option)
     var
-        CalcInvoiceDiscont: Boolean;
+        CalcInvoiceDiscount: Boolean;
         ReplacePostingDate, ReplaceVATDate, ReplaceDocumentDate : Boolean;
+        ManualReopen: Boolean;
         PostingDate, VATDate : Date;
     begin
-        BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Calculate Invoice Discount", CalcInvoiceDiscont);
+        BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Calculate Invoice Discount", CalcInvoiceDiscount);
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate);
         BatchProcessingMgt.GetDateParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Posting Date", PostingDate);
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDate);
         BatchProcessingMgt.GetDateParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"VAT Date", VATDate);
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace Document Date", ReplaceDocumentDate);
 
-        if CalcInvoiceDiscont then
+        if CalcInvoiceDiscount then
             CalculateInvoiceDiscount(SalesHeader);
 
         SalesHeader.BatchConfirmUpdateDeferralDate(BatchConfirm, ReplacePostingDate, PostingDate, ReplaceVATDate, VATDate);
+        PerformManualReleaseOrReopenSalesHeader(SalesHeader, ManualReopen, ReplacePostingDate);
         SalesHeader.BatchConfirmUpdatePostingDate(ReplacePostingDate, PostingDate, ReplaceVATDate, VATDate, ReplaceDocumentDate);
+        PerformManualReleaseOrReopenSalesHeader(SalesHeader, ManualReopen, ReplacePostingDate);
         OnPrepareSalesHeaderOnAfterBatchConfirmUpdateDeferralDate(SalesHeader, BatchProcessingMgt);
 
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::Ship, SalesHeader.Ship);
@@ -308,6 +311,23 @@ codeunit 1371 "Sales Batch Post Mgt."
         Clear(JobQueueEntry);
         JobQueueEntry.ID := CreateGuid();
         JobQueueEntry.Insert(true);
+    end;
+
+    local procedure PerformManualReleaseOrReopenSalesHeader(var SalesHeader: Record "Sales Header"; var ManualReopen: Boolean; ReplacePostingDate: Boolean)
+    var
+        ReleaseSalesDoc: Codeunit "Release Sales Document";
+    begin
+        if (not ReplacePostingDate) or (SalesHeader."Currency Code" = '') then
+            exit;
+        if not SalesHeader.Invoice and not (SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice) then
+            exit;
+
+        if ManualReopen then
+            ReleaseSalesHeader(SalesHeader)
+        else begin
+            ReleaseSalesDoc.PerformManualReopen(SalesHeader);
+            ManualReopen := true;
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnBeforeBatchProcessing', '', false, false)]

@@ -9,7 +9,6 @@ using Microsoft.Foundation.BatchProcessing;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
-using Microsoft.Intercompany;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Inventory.Availability;
 using Microsoft.Sales.Comment;
@@ -772,11 +771,10 @@ page 9305 "Sales Order List"
 
                     trigger OnAction()
                     var
-                        ICInOutboxMgt: Codeunit ICInboxOutboxMgt;
-                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        if ApprovalsMgmt.PrePostApprovalCheckSales(Rec) then
-                            ICInOutboxMgt.SendSalesDoc(Rec, false);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        Rec.SendICSalesDoc(SalesHeader);
                     end;
                 }
                 action("Delete Invoiced")

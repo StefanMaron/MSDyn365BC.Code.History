@@ -168,7 +168,7 @@ report 99001025 "Refresh Production Order"
                         {
                             ApplicationArea = Manufacturing;
                             Caption = 'Lines';
-                            ToolTip = 'Specifies if you want the program to calculate the production order lines.';
+                            ToolTip = 'Specifies if you want to calculate the production order lines based on value of the Source No. field. If you use the Refresh function to recalculate production order lines, the old production order lines are deleted and new lines are calculated. If disabled, non-top-level lines in a Make-to-order environment will be deleted; use the Replan function to restore them.';
 
                             trigger OnValidate()
                             begin

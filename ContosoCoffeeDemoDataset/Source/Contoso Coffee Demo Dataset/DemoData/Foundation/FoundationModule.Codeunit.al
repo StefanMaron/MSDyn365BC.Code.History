@@ -26,7 +26,6 @@ codeunit 5203 "Foundation Module" implements "Contoso Demo Data Module"
         Codeunit.Run(Codeunit::"Create Doc Sending Profile");
         Codeunit.Run(Codeunit::"Create Payment Terms");
         Codeunit.Run(Codeunit::"Create Job Queue Category");
-        Codeunit.Run(Codeunit::"Create Accounting Period");
         Codeunit.Run(Codeunit::"Create No. Series");
         Codeunit.Run(Codeunit::"Create Notification Setup");
         Codeunit.Run(Codeunit::"Create Cue Setup");
@@ -40,6 +39,7 @@ codeunit 5203 "Foundation Module" implements "Contoso Demo Data Module"
     procedure CreateMasterData()
     begin
         Codeunit.Run(Codeunit::"Create Company Information");
+        Codeunit.Run(Codeunit::"Create Accounting Period");
     end;
 
     procedure CreateTransactionalData()
