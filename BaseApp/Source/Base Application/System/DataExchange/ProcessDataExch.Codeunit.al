@@ -113,7 +113,7 @@ codeunit 1201 "Process Data Exch."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeProcessAllLinesColumnMapping(DataExch, DataExchLineDef, IsHandled);
+        OnBeforeProcessAllLinesColumnMapping(DataExch, DataExchLineDef, RecRef, IsHandled);
         if IsHandled then
             exit;
 
@@ -353,7 +353,7 @@ codeunit 1201 "Process Data Exch."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcessAllLinesColumnMapping(DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def"; var IsHandled: Boolean);
+    local procedure OnBeforeProcessAllLinesColumnMapping(DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def"; RecRef: RecordRef; var IsHandled: Boolean);
     begin
     end;
 

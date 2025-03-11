@@ -6,7 +6,7 @@ namespace Microsoft.Utilities;
 
 enum 9125 "Company Demo Data Type"
 {
-    Extensible = false;
+    Extensible = true;
     AssignmentCompatibility = true;
 
     value(0; "Evaluation - Contoso Sample Data")

@@ -529,6 +529,7 @@ report 790 "Calculate Inventory"
             TempQuantityOnHandBuffer."Variant Code" := VariantCode;
             TempQuantityOnHandBuffer."Bin Code" := '';
             TempQuantityOnHandBuffer."Dimension Entry No." := 0;
+            OnInsertQuantityOnHandBufferOnBeforeInsert(TempQuantityOnHandBuffer);
             TempQuantityOnHandBuffer.Insert(true);
         end;
     end;
@@ -1144,6 +1145,11 @@ report 790 "Calculate Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeItemBinLocationIsCalculated(ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean; var IsCalculated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertQuantityOnHandBufferOnBeforeInsert(var InventoryBuffer: Record "Inventory Buffer")
     begin
     end;
 }
