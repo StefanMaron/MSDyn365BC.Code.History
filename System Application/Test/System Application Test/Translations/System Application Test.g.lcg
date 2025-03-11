@@ -815,24 +815,6 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Azure.KeyVault)(LookupHint=Codeunit Azure Key Vault Test - NamedType KeyVaultNotInitializedTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3306136526 - NamedType 1905859220" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is not an application secret.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Secret Name.]D;]A;(Namespace=System.Test.Azure.KeyVault)(LookupHint=Codeunit Azure Key Vault Test - NamedType SecretNotFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3306136526 - NamedType 417027945" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Initialization of allowed secret names failed]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Azure.KeyVault)(LookupHint=Codeunit Azure Key Vault Test - NamedType SecretNotInitializedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3042880927 - Method 3611491167 - NamedType 3185066512" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Could not create file %1 in %2..\\Response Code: 404 The specified parent path does not exist.]]></Val>

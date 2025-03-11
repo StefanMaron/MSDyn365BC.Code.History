@@ -21,6 +21,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         PostingGroupNonEditableErr: Label 'Posting Group is not editable in General Journal page';
+        VendorPostingGroupMatchErr: Label 'G/L Entry Bill Account Not Matching with Purchase Invoice Vendor Posting Group Bill Account';
 
     [Test]
     [Scope('OnPrem')]
@@ -1106,6 +1107,76 @@ codeunit 134195 "ERM Multiple Posting Groups"
         Assert.IsTrue(GenJournalPage."Posting Group".Editable(), PostingGroupNonEditableErr);
     end;
 
+    [Test]
+    procedure CheckPurchInvoicewithMultipleVendorPostingGroup()
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PaymentMethod: Record "Payment Method";
+        PaymentTerms: Record "Payment Terms";
+        GLEntry: Record "G/L Entry";
+        LibraryInventory: Codeunit "Library - Inventory";
+        InvoiceNo: Code[20];
+        CheckGLEntry: Boolean;
+    begin
+        // [SCENARIO 563038] The Bills Account is incorrectly taken from the main Vendor Posting Group even if an Alternative Vendor Posting Group 
+        //is used causing unbalance G/L Accounts posted in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Allowed multiple vendor posting groups
+        SetPurchAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Created Vendor Posting Group-1
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+
+        // [GIVEN] Created Payment Terms for Proportional VAT distribution
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        PaymentTerms.Validate("VAT distribution", PaymentTerms."VAT distribution"::Proportional);
+        PaymentTerms.Modify(true);
+
+        // [GIVEN] Created Payment Method
+        LibraryInventory.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
+        PaymentMethod.Validate("Create Bills", true);
+        PaymentMethod.Validate("Bill Type", PaymentMethod."Bill Type"::"Bill of Exchange");
+        PaymentMethod.Validate("Collection Agent", PaymentMethod."Collection Agent"::Bank);
+        PaymentMethod.Modify(true);
+
+        // [GIVEN] Created Vendor for Allow Multiple Posting Groups
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create Purchase invoices for a vendor with multiple posting groups 
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Invoice, Vendor."No.", '', 1, '', 0D);
+
+        // [GIVEN] Created Vendor Posting Group-2
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup2);
+
+        // [GIVEN] Setup Vendor Posting Group-2 as Alternative Posting Group for Vendor Posting Group-1
+        LibraryPurchase.CreateAltVendorPostingGroup(Vendor."Vendor Posting Group", VendorPostingGroup2.Code);
+
+        // [GIVEN] Modify Vendor Posting Group on Purchase Invoice
+        PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Modify(true);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Exercise: Posting purchase Document and find G/L Entrys for Bill
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        CheckGLEntry := FindGLEntry(GLEntry, VendorPostingGroup2."Bills Account", InvoiceNo);
+
+        // [THEN] For Bill G/l Entry's G/L Account Should be match with Modified Invoice Vendor Posting Group Bill Account.
+        Assert.AreEqual(True, CheckGLEntry, VendorPostingGroupMatchErr);
+
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Multiple Posting Groups");
@@ -1297,4 +1368,16 @@ codeunit 134195 "ERM Multiple Posting Groups"
             GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
             GenJournalLine."Document Type"::" ", AccountType, AccountNo, LibraryRandom.RandDec(100, 2));
     end;
+
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; GLAccNo: Code[20]; DocNo: Code[20]): Boolean
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Bill);
+        GLEntry.SetRange("Document No.", DocNo);
+        if GLEntry.FindFirst() then
+            exit(true)
+        Else
+            exit(false);
+    end;
+
 }

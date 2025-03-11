@@ -17,6 +17,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Journal;
 
 codeunit 139685 "Contract Test Library"
 {
@@ -59,13 +60,26 @@ codeunit 139685 "Contract Test Library"
 
     procedure InitContractsApp()
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ServiceContractSetup: Record "Service Contract Setup";
         SalesSetup: Record "Sales & Receivables Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
         SubBillingInstallation: Codeunit "Sub. Billing Installation";
     begin
         if ContractsAppInitialized then
             exit;
         ResetContractRecords();
         SubBillingInstallation.InitializeSetupTables();
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Journal Templ. Name Mandatory" then begin
+            ServiceContractSetup.Get();
+            LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+            LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+            ServiceContractSetup."Def. Rel. Jnl. Template Name" := GenJournalBatch."Journal Template Name";
+            ServiceContractSetup."Def. Rel. Jnl. Batch Name" := GenJournalBatch.Name;
+            ServiceContractSetup.Modify(false);
+        end;
         SalesSetup.Get();
         SalesSetup."Allow Editing Active Price" := false;
         SalesSetup.Modify(false);

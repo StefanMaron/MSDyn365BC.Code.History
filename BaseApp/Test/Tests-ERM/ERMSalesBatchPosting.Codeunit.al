@@ -1478,6 +1478,37 @@ codeunit 134391 "ERM Sales Batch Posting"
         VerifyPostedSalesOrder(SalesHeader."No.", SalesHeader."Posting Date" + 1, false);
     end;
 
+    [Test]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesInvoicesWithReplaceAllDates,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostSaleInvoiceWithReplacePostingDateAndCurrencyCode()
+    var
+        Currency: Record Currency;
+        SalesHeader: Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        Amount: Decimal;
+    begin
+        // [SCENARIO 562713] Post sales invoice with currency code via Post Batch, but the posted data has not been changed.
+        Initialize();
+
+        // [GIVEN] Set Post with Job queue on Sales & Receivables Setup
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Bind subscription and do not handle Job queue event as true
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Create Sales Invoice with Currency Code.
+        Amount := CreateSalesDocumentWithCurrency(SalesHeader, Currency, SalesHeader."Document Type"::Invoice, false);
+
+        // [WHEN] Run Post Batch with Replace Posting Date, Replace Document Date & Replace VAT Date options.
+        RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 10, false);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
+
+        // [THEN] The amount was not changed in the posted sales invoice line
+        VerifyPostedSalesInvoiceAmount(SalesHeader."No.", SalesHeader."Posting Date" + 10, Amount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1807,6 +1838,52 @@ codeunit 134391 "ERM Sales Batch Posting"
         Assert.RecordCount(JobQueueEntry, 1);
     end;
 
+    local procedure CreateSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; var Currency: Record Currency; DocumentType: Enum "Sales Document Type"; InvDisc: Boolean): Decimal
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(InvDisc));
+        CreateCurrencyWithExchangeRate(Currency);
+        SalesHeader.Validate("Currency Code", Currency.Code);
+        SalesHeader.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
+        SalesLine.Validate("Line Discount %", LibraryRandom.RandInt(20));
+        SalesLine.Modify(true);
+
+        exit(SalesLine."Amount Including VAT");
+    end;
+
+    local procedure CreateCurrencyWithExchangeRate(var Currency: Record Currency)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandInt(0));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", LibraryRandom.RandInt(0));
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDecInDecimalRange(0.6458, 0.6458, 4));
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", LibraryRandom.RandDecInDecimalRange(0.6458, 0.6458, 4));
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure VerifyPostedSalesInvoiceAmount(PreAssignedNo: Code[20]; PostingDate: Date; Amount: Decimal)
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        SalesInvoiceHeader.FindFirst();
+        Assert.Equal(SalesInvoiceHeader."Posting Date", PostingDate);
+        SalesInvoiceLine.SetFilter("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.FindFirst();
+        Assert.Equal(Amount, SalesInvoiceLine."Amount Including VAT");
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerBatchPostSalesInvoices(var BatchPostSalesInvoices: TestRequestPage "Batch Post Sales Invoices")
@@ -2097,6 +2174,27 @@ codeunit 134391 "ERM Sales Batch Posting"
             );
             Assert.AreEqual(PostBatchForm.PrintDoc.AsBoolean(), true, 'Expected value to be restored.');
         end;
+    end;
+
+    [RequestPageHandler]
+    procedure RequestPageHandlerBatchPostSalesInvoicesWithReplaceAllDates(var BatchPostSalesInvoices: TestRequestPage "Batch Post Sales Invoices")
+    var
+        SalesHeader: Record "Sales Header";
+        DocumentNoFilter: Variant;
+        PostingDate: Variant;
+        RunReplacePostingDate: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentNoFilter);
+        LibraryVariableStorage.Dequeue(PostingDate);
+
+        BatchPostSalesInvoices."Sales Header".SetFilter("No.", DocumentNoFilter);
+        BatchPostSalesInvoices."Sales Header".SetFilter("Document Type", Format(SalesHeader."Document Type"::Invoice));
+
+        BatchPostSalesInvoices.PostingDate.SetValue(PostingDate);
+        RunReplacePostingDate := Format(PostingDate) <> '';
+        BatchPostSalesInvoices.ReplacePostingDate.SetValue(RunReplacePostingDate);
+        BatchPostSalesInvoices.ReplaceVATDate.SetValue(RunReplacePostingDate);
+        BatchPostSalesInvoices.OK().Invoke();
     end;
 }
 

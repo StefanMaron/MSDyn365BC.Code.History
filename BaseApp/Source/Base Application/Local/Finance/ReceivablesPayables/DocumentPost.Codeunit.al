@@ -440,6 +440,7 @@ codeunit 7000006 "Document-Post"
                         ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
                         ClosedCarteraDoc."Amount for Collection" := 0;
                         ClosedCarteraDoc."Amt. for Collection (LCY)" := 0;
+                        OnUpdatePayableDocBeforeClosedCarteraDocInsert(ClosedCarteraDoc, GenJnlLine);
                         ClosedCarteraDoc.Insert();
                         CarteraDoc.Delete();
                         VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"Closed Documents";
@@ -1273,6 +1274,11 @@ codeunit 7000006 "Document-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateReceivableDoc(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePayableDocBeforeClosedCarteraDocInsert(var ClosedCarteraDoc: Record "Closed Cartera Doc."; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

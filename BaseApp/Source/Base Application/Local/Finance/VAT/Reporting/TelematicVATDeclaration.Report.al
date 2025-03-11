@@ -277,6 +277,7 @@ report 10715 "Telematic VAT Declaration"
                     VATEntry.Reset();
                     NoTaxableEntry.Reset();
                     IsNoTaxableEntry := false;
+                    OnCalcTotLineOnBeforeSetVATEntryFilters(VATEntry, VATStatementLine2);
 
                     if VATPostingSetup.Get(VATStatementLine2."VAT Bus. Posting Group", VATStatementLine2."VAT Prod. Posting Group") and
                        (VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"No Taxable VAT")
@@ -395,6 +396,7 @@ report 10715 "Telematic VAT Declaration"
             VATStatementLine2.Type::"EC Entry Totaling":
                 begin
                     VATEntry.Reset();
+                    OnCalcTotLineOnBeforeSetVATEntryFilters(VATEntry, VATStatementLine2);
                     if VATEntry.SetCurrentKey(
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
                     then begin
@@ -713,6 +715,11 @@ report 10715 "Telematic VAT Declaration"
             Selection::"Open and Closed":
                 NoTaxableEntry.SetRange(Closed);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTotLineOnBeforeSetVATEntryFilters(var VATEntry: Record "VAT Entry"; VATStatementLine2: Record "VAT Statement Line")
+    begin
     end;
 }
 

@@ -15,6 +15,7 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         DayDateFormulaTxt: Label '<%1D>', Locked = false, Comment = '%1 = no. of days';
 
     [Test]
@@ -410,6 +411,45 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         ItemAvailabilityByLotNo.ItemAvailLoTNoLines.ExpirationDate.AssertEquals(WorkDate());
     end;
 
+    [Test]
+    [HandlerFunctions('ItemAvailabilitybyLotNoPageHandler')]
+    procedure InItemReclassJnlItemAvailabilityByLotDisplaySelectedLineItem()
+    var
+        Item: array[5] of Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemReclassJournal: TestPage "Item Reclass. Journal";
+        i: Integer;
+    begin
+        // [SCENARIO 560479] The item that is populated in Item Availability By Lot No. should be the one selected from the Item Reclassification Journal.
+        Initialize();
+
+        // [GIVEN] Create Item Journal Template and Item Journal Batch.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+
+        // [GIVEN] Create Item Reclass Journal with multiple item lines.
+        for i := 1 to LibraryRandom.RandIntInRange(3, 5) do begin
+            CreateItem(Item[i]);
+            LibraryInventory.CreateItemJnlLineWithNoItem(
+              ItemJournalLine, ItemJournalBatch, ItemJournalTemplate.Name, ItemJournalBatch.Name, "Item Ledger Entry Type"::Transfer);
+            ItemJournalline.Validate("Item No.", Item[i]."No.");
+            ItemJournalLine.Modify(true);
+        end;
+
+        // [WHEN] In Item Reclass Jnl Select the Second created Item Line.
+        ItemReclassJournal.OpenEdit();
+        ItemReclassJournal.Filter.SetFilter("Journal Template Name", ItemJournalTemplate.Name);
+        ItemReclassJournal.Filter.SetFilter("Journal Batch Name", ItemJournalBatch.Name);
+        ItemReclassJournal.Next();
+        LibraryVariableStorage.Enqueue(Item[2]."No.");
+
+        // [THEN] Verify that the 'Item Availability by Lot No.' page has a filter for the selected Item Journal Line's Item No.
+        ItemReclassJournal.Lot.Invoke();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure CreateItem(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
@@ -565,5 +605,14 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Item Avail. by Lot No Tests");
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+    end;
+
+    [PageHandler]
+    procedure ItemAvailabilitybyLotNoPageHandler(var ItemAvailabilitybyLotNoTestPage: TestPage "Item Availability by Lot No.")
+    var
+        ItemNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ItemNo);
+        ItemAvailabilitybyLotNoTestPage.ItemFilter.AssertEquals(ItemNo);
     end;
 }
