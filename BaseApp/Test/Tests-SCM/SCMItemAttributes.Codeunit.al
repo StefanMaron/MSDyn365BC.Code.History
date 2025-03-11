@@ -2551,6 +2551,39 @@ codeunit 137413 "SCM Item Attributes"
         Assert.AreNotEqual(0, ItemAttributeValue."Numeric Value", NumericValueShouldNotBeZeroErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemAttributeValueListHandler')]
+    procedure VerifyNoBlankEntryInsertedInItemAttributeValue()
+    var
+        Item: Record Item;
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 565898] An empty attribute value was not created through the item Card
+        Initialize();
+
+        // [GIVEN] An item and a set of item attributes
+        CreateTestOptionItemAttributes();
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Open the Item Card
+        ItemCard.OpenEdit();
+        ItemCard.GotoRecord(Item);
+
+        // [WHEN] The user assigns some attribute values to the item 
+        ItemAttribute.FindFirst();
+        AssignItemAttributeViaItemCard(ItemAttribute, ItemAttributeValue, ItemCard);
+
+        // [THEN] No blank Item attribute Value Inserted in the table
+        ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
+        ItemAttributeValue.SetRange(Value, '');
+        asserterror ItemAttributeValue.FindFirst();
+
+        // [THEN] Verify there is nothing inside the filter
+        Assert.AssertNothingInsideFilter();
+    end;
+
     local procedure Initialize()
     var
         ItemAttribute: Record "Item Attribute";

@@ -347,6 +347,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure Key Vault Module Test - NamedType MachineLearningTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3808007876 - NamedType 1323046097" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is either missing or empty]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Secret Name.]D;]A;(LookupHint=Codeunit Azure Key Vault Module Test - NamedType MissingSecretErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3808007876 - NamedType 1371295958" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ml-forecast]]></Val>
@@ -354,15 +363,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure Key Vault Module Test - NamedType MLForecastTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3808007876 - NamedType 1905859220" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is not an application secret.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Secret Name. %2 = Available secrets.]D;]A;(LookupHint=Codeunit Azure Key Vault Module Test - NamedType SecretNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3808007876 - NamedType 1678356466" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

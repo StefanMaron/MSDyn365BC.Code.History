@@ -242,7 +242,7 @@ codeunit 5836 "Cost Calculation Management"
         ExpSubDirCost := ExpSubDirCost + Round(ExpSubDirCostRtng * ShareOfTotalCapCost);
         ExpCapOvhdCost := ExpCapOvhdCost + Round(ExpCapOvhdCostRtng * ShareOfTotalCapCost);
         ExpMfgDirCost := ExpMatCost + ExpCapDirCost + ExpSubDirCost + ExpCapOvhdCost;
-        ExpOvhdCost := ExpOvhdCost + ProdOrderLine."Overhead Rate" * ProdOrderLine."Quantity (Base)";
+        ExpOvhdCost := ExpMfgOvhdCost + ProdOrderLine."Overhead Rate" * ProdOrderLine."Quantity (Base)";
         ExpMfgOvhdCost := ExpOvhdCost +
           Round(CalcOvhdCost(ExpMfgDirCost, ProdOrderLine."Indirect Cost %", 0, 0));
 
