@@ -153,11 +153,8 @@ page 903 "Assembly Lines"
                     ToolTip = 'Open the document that the information on the line comes from.';
 
                     trigger OnAction()
-                    var
-                        AssemblyHeader: Record "Assembly Header";
                     begin
-                        AssemblyHeader.Get(Rec."Document Type", Rec."Document No.");
-                        PAGE.Run(PAGE::"Assembly Order", AssemblyHeader);
+                        Rec.ShowAssemblyDocument();
                     end;
                 }
                 action("Reservation Entries")

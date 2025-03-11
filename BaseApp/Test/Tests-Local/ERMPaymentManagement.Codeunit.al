@@ -1967,6 +1967,63 @@ codeunit 144049 "ERM Payment Management"
         Assert.AreEqual(PaymentLine."Document No.", NoSeriesLine."Last No. Used", StrSubstNo(DocumentNoErr, PaymentLine."Document No."));
     end;
 
+    [Test]
+    [HandlerFunctions('PaymentClassListModalPageHandler,ApplyVendorEntriesModalPageHandlerWithCancel')]
+    procedure DueDateOnPaymentSlipShouldNotClearUponClosingApplyVendorLedgerEntriesPages()
+    var
+        PaymentClass: Record "Payment Class";
+        PaymentStepLedger: Record "Payment Step Ledger";
+        PaymentLine: Record "Payment Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PaymentSlip: TestPage "Payment Slip";
+        PaymentSlipSubform: TestPage "Payment Slip Subform";
+        DueDate: Date;
+        PaymentHeaderNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 562947] Due Date on Payment Slip Line clears upon closing the Apply Vendor Entries page in the French version.
+        Initialize();
+
+        // [GIVEN] Payment Slip Setup with Line No. series defined (<> Header No. Series)
+        PaymentClass.Get(
+          SetupForPaymentSlipPost(PaymentStepLedger."Detail Level"::Account, PaymentClass.Suggestions::Vendor));
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
+        PaymentClass.Modify(true);
+
+        // [GIVEN] Posted Purchase Invoice
+        PurchInvHeader.Get(
+          CreateAndPostPurchaseInvoice(VATPostingSetup."Unrealized VAT Type"::" ", VendorNo));
+
+        // [GIVEN] Payment Slip with Payment Line with Document No. = "Y"
+        PaymentHeaderNo := CreatePaymentSlip(PaymentLine."Account Type"::Vendor, VendorNo);
+        OpenPaymentSlip(PaymentSlip, PaymentHeaderNo);
+
+        // [THEN] Set Due Date to Blank on Payment Slip Subform
+        FindPaymentLine(PaymentSlipSubform, PaymentHeaderNo);
+        DueDate := PaymentSlipSubform."Due Date".AsDate();
+        PaymentSlipSubform."Due Date".SetValue(0D);
+        PaymentSlipSubform.Close();
+
+        // [WHEN] Payment Line applied to Vendor Ledger Entry of Posted Purchase Invoice
+        LibraryVariableStorage.Enqueue(EnqueueOpt::Application);
+        PaymentSlipApplication(PaymentSlip);
+
+        // [THEN] Verify Due Date not Blank on Payment Slip Subform
+        FindPaymentLine(PaymentSlipSubform, PaymentHeaderNo);
+        PaymentSlipSubform."Due Date".AssertEquals(DueDate);
+        PaymentSlipSubform.Close();
+
+        // [WHEN] Payment Line not applied to Vendor Ledger Entry of Posted Purchase Invoice
+        LibraryVariableStorage.Enqueue(EnqueueOpt::" ");
+        PaymentSlipApplication(PaymentSlip);
+
+        // [THEN] Verify Due Date not Blank on Payment Slip Subform
+        FindPaymentLine(PaymentSlipSubform, PaymentHeaderNo);
+        PaymentSlipSubform."Due Date".AssertEquals(DueDate);
+        PaymentSlipSubform.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Management");
@@ -3290,6 +3347,37 @@ codeunit 144049 "ERM Payment Management"
     begin
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
         NoSeriesLine.FindFirst();
+    end;
+
+    local procedure FindPaymentLine(var PaymentSlipSubform: TestPage "Payment Slip Subform"; PaymentHeaderNo: Code[20])
+    var
+        PaymentLine: Record "Payment Line";
+    begin
+        PaymentLine.SetRange("No.", PaymentHeaderNo);
+        PaymentLine.FindFirst();
+        PaymentSlipSubform.OpenEdit();
+        PaymentSlipSubform.GotoRecord(PaymentLine);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesModalPageHandlerWithCancel(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    var
+        OptionValue: Variant;
+        OptionString: Option " ",Application,Verification;
+        EnqueueOption: Option;
+    begin
+        LibraryVariableStorage.Dequeue(OptionValue);
+        EnqueueOption := OptionValue;
+        case EnqueueOption of
+            OptionString::Application:
+                begin
+                    ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+                    ApplyVendorEntries.OK().Invoke();
+                end;
+            OptionString::" ":
+                ApplyVendorEntries.Cancel().Invoke();
+        end;
     end;
 
     [ModalPageHandler]

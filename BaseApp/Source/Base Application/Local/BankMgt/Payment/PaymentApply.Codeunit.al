@@ -49,14 +49,16 @@ codeunit 10861 "Payment-Apply"
         case AccType of
             AccType::Customer:
                 begin
-                    ApplyCustomer(PaymentLine);
+                    if ApplyCustomer(PaymentLine) then
+                        exit;
                     if PaymentLine.Amount <> 0 then
                         if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
                             exit;
                 end;
             AccType::Vendor:
                 begin
-                    ApplyVendor(PaymentLine);
+                    if ApplyVendor(PaymentLine) then
+                        exit;
                     if PaymentLine.Amount <> 0 then
                         if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
                             exit;
@@ -106,7 +108,7 @@ codeunit 10861 "Payment-Apply"
         AccType: Enum "Gen. Journal Account Type";
 
 
-    local procedure ApplyCustomer(PaymentLine: Record "Payment Line")
+    local procedure ApplyCustomer(PaymentLine: Record "Payment Line"): Boolean
     begin
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         CustLedgEntry.SetRange("Customer No.", AccNo);
@@ -119,7 +121,7 @@ codeunit 10861 "Payment-Apply"
         OK := ApplyCustEntries.RunModal() = ACTION::LookupOK;
         Clear(ApplyCustEntries);
         if not OK then
-            exit;
+            exit(true);
         CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         CustLedgEntry.SetRange("Customer No.", AccNo);
@@ -181,7 +183,7 @@ codeunit 10861 "Payment-Apply"
         OnAfterApplyCustomer(CustLedgEntry, GenJnlLine);
     end;
 
-    local procedure ApplyVendor(PaymentLine: Record "Payment Line")
+    local procedure ApplyVendor(PaymentLine: Record "Payment Line"): Boolean
     begin
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
         VendLedgEntry.SetRange("Vendor No.", AccNo);
@@ -194,7 +196,7 @@ codeunit 10861 "Payment-Apply"
         OK := ApplyVendEntries.RunModal() = ACTION::LookupOK;
         Clear(ApplyVendEntries);
         if not OK then
-            exit;
+            exit(true);
         VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
         VendLedgEntry.SetRange("Vendor No.", AccNo);

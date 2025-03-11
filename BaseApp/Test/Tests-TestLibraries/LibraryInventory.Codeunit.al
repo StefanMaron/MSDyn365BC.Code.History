@@ -214,6 +214,7 @@ codeunit 132201 "Library - Inventory"
         GeneralPostingSetup: Record "General Posting Setup";
         InventoryPostingGroup: Record "Inventory Posting Group";
         TaxGroup: Record "Tax Group";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
         ItemNoSeriesSetup(InventorySetup);
         Clear(Item);
@@ -224,6 +225,10 @@ codeunit 132201 "Library - Inventory"
 
         if not InventoryPostingGroup.FindFirst() then
             CreateInventoryPostingGroup(InventoryPostingGroup);
+
+        InventoryPostingSetup.SetRange("Invt. Posting Group Code", InventoryPostingGroup.Code);
+        if not InventoryPostingSetup.FindFirst() then
+            CreateInventoryPostingSetup(InventoryPostingSetup, '', InventoryPostingGroup.Code);
 
         Item.Validate(Description, Item."No.");  // Validation Description as No. because value is not important.
         Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
@@ -648,6 +653,7 @@ codeunit 132201 "Library - Inventory"
         InventoryPostingGroup: Record "Inventory Posting Group";
         TaxGroup: Record "Tax Group";
         VATPostingSetup: Record "VAT Posting Setup";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
         ItemNoSeriesSetup(InventorySetup);
         Clear(Item);
@@ -658,6 +664,10 @@ codeunit 132201 "Library - Inventory"
         LibraryERM.FindGeneralPostingSetupInvtToGL(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
         InventoryPostingGroup.FindFirst();
+
+        InventoryPostingSetup.SetRange("Invt. Posting Group Code", InventoryPostingGroup.Code);
+        if not InventoryPostingSetup.FindFirst() then
+            CreateInventoryPostingSetup(InventoryPostingSetup, '', InventoryPostingGroup.Code);
 
         Item.Validate(Description, Item."No.");  // Validation Description as No. because value is not important.
         Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
