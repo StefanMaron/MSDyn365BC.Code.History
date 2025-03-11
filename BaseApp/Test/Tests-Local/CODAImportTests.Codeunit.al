@@ -9,10 +9,13 @@ codeunit 144015 "CODA Import Tests"
 
     var
         Assert: Codeunit Assert;
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryCODADataProvider: Codeunit "Library CODA Data Provider";
+        LibraryCODAHelper: Codeunit "Library - CODA Helper";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         BBLEURTxt: Label 'BBL-EUR', Locked = true;
         WWBEURTxt: Label 'WWB-EUR', Locked = true;
         NBLTxt: Label 'NBL', Locked = true;
@@ -29,6 +32,7 @@ codeunit 144015 "CODA Import Tests"
         EnterpriseNoLbl: Label '0058315707';
         ProtocolNo300Txt: Label '300';
         SWIFTCodeBBRUBEBBTxt: Label 'BBRUBEBB';
+        CodaStatementEmptyErr: Label 'The CODA statement line table cannot be empty.';
 
     [Test]
     [HandlerFunctions('RequestPageHandlerPostCODAStatementLines,CODAStatementLineRequestPageHandler')]
@@ -740,6 +744,82 @@ codeunit 144015 "CODA Import Tests"
             InformationErr);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,RequestPageHandlerPostCODAStatementLines,PostedSalesInvUpdateUpdateOKModalPageHandler')]
+    procedure ProcessCODAStmtWithMultipleInvoicesHavingSameAmountAndStatusSetToApplied()
+    var
+        BankAccount: Record "Bank Account";
+        CustomerBankAccount: Record "Customer Bank Account";
+        CodaStatement: Record "CODA Statement";
+        CodaStatementLine: Record "CODA Statement Line";
+        TransactionCoding: Record "Transaction Coding";
+        StatementMessage: Text;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 560840] Process CODA statement lines with multiple invoices having the same amount, and verify that the status is set to "Applied."
+
+        // [GIVEN] Create New Transaction Coding.
+        TransactionCoding.DeleteAll();
+        InsertTransactionCoding(1, 50, 0, TransactionCoding."Globalisation Code"::Detail, TransactionCoding."Account Type"::Customer, '');
+        DeleteAllCODALines();
+
+        // [GIVEN] Create Bank Account and Set IBAN according to CODA file.
+        CreateBankAccounInformation(BankAccount);
+        BankAccount.Validate(IBAN, 'BE04310075819431');
+        BankAccount.Modify(true);
+
+        // [GIVEN] Create Customer Bank Account and Set IBAN according to CODA file.
+        LibraryCODAHelper.CreateCustomerBankAccount(CustomerBankAccount);
+        CustomerBankAccount.Validate(IBAN, 'BE14001021457183');
+        CustomerBankAccount.Modify(true);
+
+        // [GIVEN] Run the Processing only report to import the sample data files.
+        RunImportCodaStatementReport(BankAccount);
+
+        // [GIVEN] Create and Post Sales Invoice.
+        CreateAndPostSalesDocument(CustomerBankAccount."Customer No.");
+        EnqueueMultipleValues();
+
+        // [WHEN] Process CODA statement line via CODA Statement.
+        OpenCodaStatementPageAndProcessCodaStmtLines(BankAccount."No.");
+
+        // [THEN] Verify that the CODA statement line status is "Applied.".
+        CodaStatementLine.SetRange("Bank Account No.", BankAccount."No.");
+        CodaStatementLine.SetRange("Application Status", CodaStatementLine."Application Status"::Applied);
+        Assert.IsTrue(CodaStatementLine.FindFirst(), CodaStatementEmptyErr);
+
+        // [GIVEN] Find the statement message and Delete CODA Statement.
+        StatementMessage := CodaStatementLine."Statement Message";
+        StatementMessage := CopyStr(StatementMessage, 1, StrPos(StatementMessage, ' ') - 1);
+        CodaStatement.Get(CodaStatementLine."Bank Account No.", CodaStatementLine."Statement No.");
+        CodaStatement.Delete(true);
+
+        // [GIVEN] Create and Post Sales Invoice.
+        DocumentNo := CreateAndPostSalesDocument(CustomerBankAccount."Customer No.");
+
+        LibraryVariableStorage.Enqueue(StatementMessage);
+
+        // [GIVEN] Open Posted Sales Invoice Page and Update Payment Reference No.
+        OpenPostedSalesInvoiceAndUpdatePaymentReference(DocumentNo);
+
+        // [GIVEN] Open 
+        EnqueueMultipleValues();
+
+        // [GIVEN] Run the Processing only report to import the sample data files.
+        RunImportCodaStatementReport(BankAccount);
+
+        // [WHEN] Process CODA statement line via CODA Statement.
+        Commit();
+        OpenCodaStatementPageAndProcessCodaStmtLines(BankAccount."No.");
+
+        // [THEN] Verify that the CODA statement line status is "Applied.".
+        CodaStatementLine.SetRange("Bank Account No.", BankAccount."No.");
+        CodaStatementLine.SetRange("Application Status", CodaStatementLine."Application Status"::Applied);
+        Assert.IsTrue(CodaStatementLine.FindFirst(), CodaStatementEmptyErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerPostCODAStatementLines(var PostCODAStatementLines: TestRequestPage "Post CODA Stmt. Lines")
@@ -1077,11 +1157,75 @@ codeunit 144015 "CODA Import Tests"
         BankAccount.Modify(true);
     end;
 
+    local procedure CreateAndPostSalesDocument(CustomerNo: Code[20]): Code[20]
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        LibraryInventory.CreateItem(Item);
+        VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("VAT %", 0);
+        VATPostingSetup.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", 21.07);
+        SalesLine.Modify(true);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure EnqueueMultipleValues()
+    begin
+        LibraryVariableStorage.Enqueue(false); // Default application
+        LibraryVariableStorage.Enqueue(false); // Dont print
+    end;
+
+    local procedure OpenCodaStatementPageAndProcessCodaStmtLines(BankAccountNo: Code[20])
+    var
+        CODAStatementPage: TestPage "CODA Statement";
+    begin
+        CODAStatementPage.OpenEdit();
+        CODAStatementPage.Filter.SetFilter("Bank Account No.", BankAccountNo);
+        CODAStatementPage."Process CODA Statement Lines".Invoke();
+        CODAStatementPage.Close();
+    end;
+
+    local procedure OpenPostedSalesInvoiceAndUpdatePaymentReference(DocumentNo: Code[20])
+    var
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        PostedSalesInvoice.OpenEdit();
+        PostedSalesInvoice.Filter.SetFilter("No.", DocumentNo);
+        PostedSalesInvoice."Update Document".Invoke();
+        PostedSalesInvoice.Close();
+    end;
+
+    local procedure RunImportCodaStatementReport(BankAccount: Record "Bank Account")
+    var
+        ImportCODAStatement: Report "Import CODA Statement";
+    begin
+        ImportCODAStatement.SetBankAcc(BankAccount);
+        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.OnCODAScenario560840DataFile());
+        ImportCODAStatement.Run();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CODAStatementLineRequestPageHandler(var CODAStatementList: TestRequestPage "CODA Statement - List")
     begin
         CODAStatementList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvUpdateUpdateOKModalPageHandler(var PostedSalesInvUpdate: TestPage "Posted Sales Inv. - Update")
+    begin
+        PostedSalesInvUpdate."Payment Reference".SetValue(LibraryVariableStorage.DequeueText());
+        PostedSalesInvUpdate.OK().Invoke();
     end;
 }
 

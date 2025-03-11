@@ -527,7 +527,7 @@ codeunit 5991 "Sales Warehouse Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLine2ReceiptLine(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSalesLine2ReceiptLine(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

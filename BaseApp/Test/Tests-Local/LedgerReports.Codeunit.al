@@ -389,6 +389,49 @@ codeunit 144044 "Ledger Reports"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseLedgerReportRequestPageHandler')]
+    procedure PurchaseLedgerReportStartingDateAsGLSetupDefaultVATDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATReportingDate: Enum "VAT Reporting Date";
+    begin
+        // [SCENARIO 562005] Print Purchase Ledger report for Default VAT Date as "Document Date" on General Ledger Setup.
+        Initialize();
+
+        //[GIVEN] Update General Ledger Setup with Default VAT Date as "Document Date".
+        UpdateVATReportingDateInGLSetup(VATReportingDate::"Document Date");
+
+        // [GIVEN] Create Posting Setup.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(20));
+
+        // [GIVEN] Create Purchase Order.
+        CreatePurchaseDocument(PurchaseHeader, PurchLine, GeneralPostingSetup, VATPostingSetup, PurchaseHeader."Document Type"::Invoice);
+
+        //[GIVEN] Update Purchase Order "Posting Data" and "VAT Reporting Date".
+        PurchaseHeader.Validate("Posting Date", WorkDate());
+        PurchaseHeader.Validate("VAT Reporting Date", CalcDate('<-7D>', WorkDate()));
+        PurchaseHeader.Modify(true);
+
+        //[GIVEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Run Purchase Ledger report
+        LibraryVariableStorage.Enqueue('<2M>');
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(false);
+        Report.Run(Report::"Purchase Ledger", true, false);
+
+        // [THEN] Verify "Starting Date" is "Posting Date" on Purchase Ledger report.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('FormattedPrnDate', Format(WorkDate()));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -1160,6 +1203,15 @@ codeunit 144044 "Ledger Reports"
         Assert.AreNotEqual(-1, StrPos(ValueText, TemplateName[1]), StrSubstNo(TemplateNotFoundErr, TemplateName[1], 6, 'A', 1));
         ValueText := LibraryReportValidation.GetValueByRef('A', 59, 3);
         Assert.AreNotEqual(-1, StrPos(ValueText, TemplateName[2]), StrSubstNo(TemplateNotFoundErr, TemplateName[2], 6, 'A', 3));
+    end;
+
+    local procedure UpdateVATReportingDateInGLSetup(VATReportingDate: Enum "VAT Reporting Date")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."VAT Reporting Date" := VATReportingDate;
+        GeneralLedgerSetup.Modify();
     end;
 
     [RequestPageHandler]

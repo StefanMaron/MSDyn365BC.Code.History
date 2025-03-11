@@ -2789,7 +2789,7 @@ codeunit 408 DimensionManagement
         DefaultDimension.FindSet(true);
         repeat
             DefaultDimension.CreateDimValuePerAccountFromDimValue(DimensionValue, Confirmed);
-            if not Confirmed then
+            if Confirmed then
                 DefaultDimension.UpdateDefaultDimensionAllowedValuesFilter();
         until DefaultDimension.Next() = 0;
     end;

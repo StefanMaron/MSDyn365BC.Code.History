@@ -128,6 +128,20 @@ page 11300 "Financial Journal"
                         CurrPage.Update();
                     end;
                 }
+                field(AccountName; AccName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Account Name';
+                    Editable = false;
+                    ToolTip = 'Specifies the account name that the entry on the journal line will be posted to.';
+                }
+                field(BalAccName; BalAccName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bal. Account Name';
+                    Editable = false;
+                    ToolTip = 'Specifies the name of the balancing account that has been entered on the journal line.';
+                }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
@@ -759,6 +773,7 @@ page 11300 "Financial Journal"
 
     trigger OnAfterGetRecord()
     begin
+        GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         Rec.ShowShortcutDimCode(ShortcutDimCode);
         SetUserInteractions();
     end;
@@ -811,8 +826,6 @@ page 11300 "Financial Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
-        AccName: Text[100];
-        BalAccName: Text[100];
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         ShortcutDimCode: array[8] of Code[20];
@@ -825,6 +838,8 @@ page 11300 "Financial Journal"
         ImportBankStatementBalanceMsg: Label 'The Statement Ending Balance field may not show the actual balance according to the imported bank statement.';
 
     protected var
+        AccName: Text[100];
+        BalAccName: Text[100];
         CurrentJnlBatchName: Code[10];
         BalanceLastStatement: Decimal;
         StatementEndingBalance: Decimal;

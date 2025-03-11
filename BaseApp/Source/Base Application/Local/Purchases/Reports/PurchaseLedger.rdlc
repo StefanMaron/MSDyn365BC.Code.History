@@ -448,7 +448,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=First(Fields!VATDateCaption.Value)</Value>
+                                                    <Value>=First(Fields!DateCaption.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -757,14 +757,14 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="VATDateCaption">
+                                          <Textbox Name="DateCaption">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=First(Fields!VATDateCaption.Value)</Value>
+                                                    <Value>=First(Fields!DateCaption.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -7223,8 +7223,8 @@ End Function</Code>
         <Field Name="PurchaseLedgerSummaryCaption2">
           <DataField>PurchaseLedgerSummaryCaption2</DataField>
         </Field>
-        <Field Name="VATDateCaption">
-          <DataField>VATDateCaption</DataField>
+        <Field Name="DateCaption">
+          <DataField>DateCaption</DataField>
         </Field>
         <Field Name="DocumentNoCaption">
           <DataField>DocumentNoCaption</DataField>

@@ -254,6 +254,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
             AddFieldChangeBuffer(TempChangeLogEntry, SalesHeader.FieldNo("Gen. Bus. Posting Group"), SalesHeader."Gen. Bus. Posting Group", AltCustVATReg."Gen. Bus. Posting Group");
         if (AltCustVATReg."VAT Bus. Posting Group" <> '') and (SalesHeader."VAT Bus. Posting Group" <> AltCustVATReg."VAT Bus. Posting Group") then
             AddFieldChangeBuffer(TempChangeLogEntry, SalesHeader.FieldNo("VAT Bus. Posting Group"), SalesHeader."VAT Bus. Posting Group", AltCustVATReg."VAT Bus. Posting Group");
+        OnAfterBuildFieldChangeBuffer(TempChangeLogEntry, SalesHeader);
         exit(not TempChangeLogEntry.IsEmpty());
     end;
 
@@ -391,6 +392,11 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSetupOnBillToCustomerChangeInSalesHeader(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBuildFieldChangeBuffer(var TempChangeLogEntry: Record "Change Log Entry" temporary; SalesHeader: Record "Sales Header");
     begin
     end;
 }

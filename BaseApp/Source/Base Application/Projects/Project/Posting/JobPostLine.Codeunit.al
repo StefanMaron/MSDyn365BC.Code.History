@@ -238,7 +238,7 @@ codeunit 1001 "Job Post-Line"
     var
         JobTask: Record "Job Task";
         Txt: Text[500];
-        IsHandled: Boolean;
+        IsHandled, UnitCostLCYDifferenceExists : Boolean;
     begin
         IsHandled := false;
         OnBeforeValidateRelationship(SalesHeader, SalesLine, JobPlanningLine, IsHandled);
@@ -281,7 +281,10 @@ codeunit 1001 "Job Post-Line"
         if not IsHandled then
             if SalesLine."Line Discount %" <> JobPlanningLine."Line Discount %" then
                 SalesLine.FieldError("Line Discount %", Txt);
-        if SalesLine."Unit Cost (LCY)" <> JobPlanningLine."Unit Cost (LCY)" then
+
+        UnitCostLCYDifferenceExists := SalesLine."Unit Cost (LCY)" <> JobPlanningLine."Unit Cost (LCY)";
+        OnValidateRelationshipOnUnitCostLCYDifferenceError(SalesLine, JobPlanningLine, UnitCostLCYDifferenceExists);
+        if UnitCostLCYDifferenceExists then
             SalesLine.FieldError("Unit Cost (LCY)", Txt);
         if SalesLine.Type = SalesLine.Type::" " then
             if SalesLine."Line Amount" <> 0 then
@@ -834,6 +837,11 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertPlLineFromLedgEntry(JobLedgerEntry: Record "Job Ledger Entry"; var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateRelationshipOnUnitCostLCYDifferenceError(var SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line"; var UnitCostLCYDifferenceExists: Boolean)
     begin
     end;
 }

@@ -2883,6 +2883,36 @@ codeunit 144000 "Non-Deductible VAT Tests"
         PuchCrMemoHdr.TestField(Amount, AmountWithoutVAT + NonDeductibleVATAmount);
     end;
 
+    [Test]
+    procedure ShipmentMethodCodeBlankValidationIssue()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 562928] "Shipment Method Code" OnValidate trigger issue on "Purchase Header"
+        Initialize();
+
+        // [GIVEN] Create vendor with Shipment Method Code
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Shipment Method Code", CreateShipmentMethod());
+        Vendor.Modify(true);
+
+        // [GIVEN] Create Purchase Order
+        LibraryPurchase.CreatePurchaseOrderForVendorNo(PurchaseHeader, Vendor."No.");
+
+        // [GIVEN] Open Purchase Order
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GoToRecord(PurchaseHeader);
+
+        // [THEN] Verify Purchase Order has Shiment Method Code
+        PurchaseOrder."Shipment Method Code".AssertEquals(Vendor."Shipment Method Code");
+
+        // [THEN] Verify no validation issue when "Shipment Method Code" set to blank  
+        PurchaseOrder."Shipment Method Code".SetValue('');
+        PurchaseOrder.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3921,6 +3951,16 @@ codeunit 144000 "Non-Deductible VAT Tests"
         JobLedgerEntry.FindLast();
         Assert.AreNearlyEqual(ExpectedAmount, JobLedgerEntry."Unit Cost", 0.01, 'Invalid Unit Cost');
         Assert.AreNearlyEqual(JobLedgerEntry.Quantity * JobLedgerEntry."Unit Cost", JobLedgerEntry."Total Cost", 0.01, 'Invalid Total Cost');
+    end;
+
+    local procedure CreateShipmentMethod(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), Database::"Shipment Method");
+        ShipmentMethod.Insert();
+        exit(ShipmentMethod.Code);
     end;
 
     [ModalPageHandler]

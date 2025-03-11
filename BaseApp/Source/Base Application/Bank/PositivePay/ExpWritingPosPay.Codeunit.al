@@ -6,6 +6,9 @@ codeunit 1708 "Exp. Writing Pos. Pay"
 {
     Permissions = TableData "Data Exch." = rimd;
 
+    var
+        FileNotFoundErr: Label 'Positive Pay file was not created because there is no data to export. Ensure that there are entries for export and that the related data exchange definition is set up correctly.';
+
     trigger OnRun()
     begin
     end;
@@ -25,6 +28,8 @@ codeunit 1708 "Exp. Writing Pos. Pay"
         // Need to copy the File Name and File from the footer to the Detail record.
         ExportFile.WriteMode := true;
         ExportFile.TextMode := true;
+        if not Exists(Filename) then
+            Error(FileNotFoundErr);
         ExportFile.Open(Filename);
 
         // Copy current file contents to TempBlob

@@ -68,6 +68,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Import Tests - NamedType BankAccountNoTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4016493091 - NamedType 452007096" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The CODA statement line table cannot be empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Import Tests - NamedType CodaStatementEmptyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4016493091 - NamedType 3885116698" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[0058315707]]></Val>
