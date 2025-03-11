@@ -2822,6 +2822,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = salesperson code]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Quote - NamedType SalespersonPrivacyBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 846137257 - NamedType 613687733" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Service Line count does not match]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Quote - NamedType ServiceLineCountNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 424872407 - NamedType 3700696875" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Archive Quote no.: %1?]]></Val>

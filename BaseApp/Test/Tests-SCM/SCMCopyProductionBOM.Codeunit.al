@@ -23,6 +23,7 @@ codeunit 137210 "SCM Copy Production BOM"
         ErrBomVersionIsCertified: Label 'Status on Production BOM Version %1';
         ProdBOMNo: Code[20];
         CountError: Label 'Version Count Must Match.';
+        OverHeadCostErr: Label 'Overhead Cost must be %1 in %2.', Comment = '%1= Field Value, %2= FieldCaption.';
 
     [Normal]
     local procedure Initialize()
@@ -332,6 +333,112 @@ codeunit 137210 "SCM Copy Production BOM"
         VerifyMatrixBOMVersion(ProductionBOMHeader."No.", VersionCode, VersionCount);
     end;
 
+    [Test]
+    procedure ReleasedProductionOrderStatisticsCorrectExpectedCosts()
+    var
+        Item: array[4] of Record Item;
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+        ProductionOrderStatistics: TestPage "Production Order Statistics";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        ExpectedMfgCost: Decimal;
+        ExpectedMfgOverheadCost: Decimal;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 561759] Released Production Order Statistics shows correct Expected Costs.
+        Initialize();
+
+        // [GIVEN] Create Items with Standard Cost and Overhead Cost.
+        CreateItem(Item[1], LibraryRandom.RandIntInRange(2, 2), 0);
+        CreateItem(Item[2], LibraryRandom.RandIntInRange(6, 6), LibraryRandom.RandIntInRange(4, 4));
+        CreateItem(Item[3], LibraryRandom.RandIntInRange(7, 7), 0);
+        CreateItem(Item[4], LibraryRandom.RandIntInRange(7, 7), LibraryRandom.RandIntInRange(2, 2));
+
+        // [GIVEN] Create Work Center and Work Center Calendar.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1Y>', WorkDate()), CalcDate('<1Y>', WorkDate()));
+
+        // [GIVEN] Create Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        // [GIVEN] Create Routing Line with Work Center.
+        LibraryManufacturing.CreateRoutingLine(
+            RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)),
+            RoutingLine.Type::"Work Center", WorkCenter."No.");
+
+        // [GIVEN] Validate Setup Time, Run Time and Concurrent Capacities.
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandIntInRange(1, 1));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandIntInRange(3, 3));
+        RoutingLine.Validate("Concurrent Capacities", LibraryRandom.RandIntInRange(1, 1));
+        RoutingLine.Modify(true);
+
+        // [GIVEN] Certify the Routing Header.
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        // [GIVEN] Add Routing No. in Items.
+        Item[2].Validate("Routing No.", RoutingHeader."No.");
+        Item[2].Modify(true);
+        Item[4].Validate("Routing No.", RoutingHeader."No.");
+        Item[4].Modify(true);
+
+        // [GIVEN] Create Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[1]."Base Unit of Measure");
+
+        // [GIVEN] Create Production BOM Line with Items.
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandDec(1, 2));
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[3]."No.", LibraryRandom.RandDecInRange(3, 3, 2));
+
+        // [GIVEN] Store Quantity in Variable.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Certify the Production BOM Header.
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create Production Order.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item,
+            Item[1]."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Production Order Lines for Items.
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item[2]."No.", '', '', Quantity);
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item[4]."No.", '', '', Quantity);
+
+        // [GIVEN] Refresh Production Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, true, false);
+
+        // [GIVEN] Calculate Expected Manufacturing Cost.
+        ExpectedMfgCost := (Item[2]."Overhead Rate" + Item[4]."Overhead Rate") * Quantity;
+
+        // [WHEN] Open Production Order Statistics.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+        ProductionOrderStatistics.Trap();
+        ReleasedProductionOrder.Statistics.Invoke();
+
+        // [THEN] Store Manufacturing Overhead Expected Cost.
+        Evaluate(ExpectedMfgOverheadCost, ProductionOrderStatistics.MfgOverhead_ExpectedCost.Value());
+
+        // [THEN] Manufacturing Overhead Expected Cost is equal to Overhead cost of Items in Production Order.
+        Assert.AreEqual(
+            ExpectedMfgCost,
+            ExpectedMfgOverheadCost,
+            StrSubstNo(
+                OverHeadCostErr,
+                ExpectedMfgOverheadCost,
+                ProductionOrderStatistics.MfgOverhead_ExpectedCost.Caption()));
+    end;
+
     [Normal]
     local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header")
     var
@@ -467,6 +574,14 @@ codeunit 137210 "SCM Copy Production BOM"
             ProductionBOMVersion.SetRange("Version Code", VersionCode[VersionCount]);
             ProductionBOMVersion.FindFirst();
         end;
+    end;
+
+    local procedure CreateItem(var Item: Record Item; StandardCost: Decimal; OverheadRate: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Standard Cost", StandardCost);
+        Item.Validate("Overhead Rate", OverheadRate);
+        Item.Modify(true);
     end;
 }
 

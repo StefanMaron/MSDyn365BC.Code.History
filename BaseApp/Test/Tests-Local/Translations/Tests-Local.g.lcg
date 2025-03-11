@@ -1184,6 +1184,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption,%2 =  Field Value, %3 = Table Caption.]D;]A;(LookupHint=Codeunit ERM Payment Lines - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2799076071 - NamedType 3288670887" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Remaining Amount must be %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Field Value.]D;]A;(LookupHint=Codeunit ERM Payment Lines - NamedType RemainingAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2799076071 - NamedType 668728601" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Vendor Ledger Entries are not applied.]]></Val>

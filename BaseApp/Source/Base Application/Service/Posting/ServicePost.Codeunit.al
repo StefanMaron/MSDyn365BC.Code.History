@@ -124,11 +124,13 @@ codeunit 5980 "Service-Post"
 
             Initialize(ServiceHeader, PassedServLine, PassedShip, PassedConsume, PassedInvoice);
 
-            if Invoice then
-                Window.Open('#1#################################\\' + Text002 + Text003 + Text004 + Text005)
-            else
-                Window.Open('#1#################################\\' + Text006);
-            Window.Update(1, StrSubstNo('%1 %2', ServiceHeader."Document Type", ServiceHeader."No."));
+            if GuiAllowed() then begin
+                if Invoice then
+                    Window.Open('#1#################################\\' + Text002 + Text003 + Text004 + Text005)
+                else
+                    Window.Open('#1#################################\\' + Text006);
+                Window.Update(1, StrSubstNo('%1 %2', ServiceHeader."Document Type", ServiceHeader."No."));
+            end;
 
             if ServDocumentsMgt.SetNoSeries(ServiceHeader) then
                 ServiceHeader.Modify();
@@ -193,7 +195,8 @@ codeunit 5980 "Service-Post"
             end;
 
             if PreviewMode then begin
-                Window.Close();
+                if GuiAllowed() then
+                    Window.Close();
                 GenJnlPostPreview.ThrowError();
             end;
 
@@ -210,7 +213,8 @@ codeunit 5980 "Service-Post"
 
             OnAfterPostServiceDoc(ServiceHeader, ServShipmentNo, ServInvoiceNo, ServCrMemoNo, ServDocumentsMgt, SuppressCommit, PassedShip, PassedConsume, PassedInvoice, WhseShip);
 
-            Window.Close();
+            if GuiAllowed() then
+                Window.Close();
             UpdateAnalysisView.UpdateAll(0, true);
             UpdateItemAnalysisView.UpdateAll(0, true);
 

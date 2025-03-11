@@ -5647,7 +5647,10 @@ table 37 "Sales Line"
         case CurrFieldNo of
             FieldNo("Shipment Date"):
                 begin
-                    CustomCalendarChange[2].SetSource(CalChange."Source Type"::Customer, "Sell-to Customer No.", '', '');
+                    if CheckCustomerBaseCalendarCodeExist() then
+                        CustomCalendarChange[2].SetSource(CalChange."Source Type"::Customer, "Sell-to Customer No.", '', '')
+                    else
+                        CustomCalendarChange[2].SetSource(CalChange."Source Type"::Location, "Location Code", '', '');
                     exit(CalendarMgmt.CalcDateBOC(Format("Shipping Time"), "Planned Shipment Date", CustomCalendarChange, true));
                 end;
             FieldNo("Planned Delivery Date"):
@@ -5656,6 +5659,18 @@ table 37 "Sales Line"
                     exit(CalendarMgmt.CalcDateBOC2(Format("Shipping Time"), "Planned Delivery Date", CustomCalendarChange, true));
                 end;
         end;
+    end;
+
+    local procedure CheckCustomerBaseCalendarCodeExist(): Boolean
+    var
+        Customer: Record customer;
+    begin
+        if "Sell-to Customer No." = '' then
+            exit(false);
+            
+        Customer.SetLoadFields("Base Calendar Code");
+        if Customer.Get("Sell-to Customer No.") then
+            exit(Customer."Base Calendar Code" <> '');
     end;
 
     /// <summary>

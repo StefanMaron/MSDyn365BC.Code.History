@@ -80,6 +80,7 @@ codeunit 144164 "ERM Payment Lines"
         LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
         VendorBalanceErr: Label 'Vendor Ledger Entries are not applied.';
+        RemainingAmountErr: Label 'Remaining Amount must be %1.', Comment = 'Field Value.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1523,6 +1524,70 @@ codeunit 144164 "ERM Payment Lines"
         // [THEN] Verify Applies-to Doc. Due Date is correct on Payment Journal Line as per selected line
         GetCustLedgerEntry(CustLedgerEntry, SalesInvoiceHeader."No.", 2);
         VerifyGetAppliesToDocDueDate(GenJournalLine."Journal Batch Name", CustLedgerEntry."Due Date");
+    end;
+
+    [Test]
+    procedure AppliesToDocNoAppliesPaymentSecondOccurrenceInvoiceWhenSecondOccurrence()
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: array[2] of Record "Vendor Ledger Entry";
+        PaymentTermsCode: Code[10];
+    begin
+        // [SCENARIO 563980] Applies-to-Doc No. Applies Payment to the second Occurrence in an Invoice when selecting the second line.
+        Initialize();
+
+        // [GIVEN] Create a Payment Terms.
+        PaymentTermsCode := CreatePaymentTerms();
+
+        // [GIVEN] Create a Purchase Document.
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', PaymentTermsCode, '');
+
+        // [GIVEN] Post Purchase Invoice.
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+
+        // [GIVEN] Find Vendor Ledger Entry.
+        VendorLedgerEntry[1].SetRange("Document No.", PurchInvHeader."No.");
+        VendorLedgerEntry[1].SetRange("Document Occurrence", 2);
+        VendorLedgerEntry[1].FindFirst();
+
+        // [GIVEN] Find Detailed Vendor Ledger Entry.
+        DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry[1]."Entry No.");
+        DetailedVendorLedgEntry.FindFirst();
+
+        // [GIVEN] Create Payment Journal To Applies To Occurrence.
+        CreateGenJournalLineWithAppliesToOccurrence(
+            GenJournalLine,
+            GenJournalLine."Account Type"::Vendor,
+            PurchInvHeader."Pay-to Vendor No.",
+            -DetailedVendorLedgEntry.Amount,
+            GenJournalLine."Document Type"::Payment,
+            PurchaseHeader."Document Type"::Invoice,
+            PurchInvHeader."No.",
+            2);
+
+        // [GIVEN] Validate "Bal. Account No.", "Bal. Gen. Posting Type "and "External Document No.".
+        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount());
+        GenJournalLine.Validate("Bal. Gen. Posting Type", GenJournalLine."Bal. Gen. Posting Type"::Purchase);
+        GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Post General Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Vendor Ledger should be applied as per Occurrence selected.
+        VendorLedgerEntry[2].CalcFields("Remaining Amount");
+        VendorLedgerEntry[2].SetRange("Document No.", PurchInvHeader."No.");
+        VendorLedgerEntry[2].SetRange("Document Occurrence", 2);
+        VendorLedgerEntry[2].FindFirst();
+        Assert.AreEqual(
+            VendorLedgerEntry[2]."Remaining Amount",
+            0,
+            StrSubstNo(
+                RemainingAmountErr,
+                VendorLedgerEntry[2]."Remaining Amount"));
     end;
 
     local procedure Initialize()

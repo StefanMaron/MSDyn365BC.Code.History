@@ -1526,6 +1526,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Copy Document Mgt. - NamedType MsgCorrectedInvoiceNo)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3520103777 - NamedType 2212819999" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Type must be equal to 'Item'  in Purchase Line: Document Type=%1, Document No.=%2, Line No.=%3. Current value is '%4'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document Type, %2 = Document No., %3 = Line No., %4 = Type]D;]A;(LookupHint=Codeunit SCM Copy Document Mgt. - NamedType OverReceiveError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3520103777 - NamedType 121078139" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong dimensions in copied document]]></Val>
@@ -1569,6 +1578,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Copy Production BOM - NamedType ErrBomVersionIsCertified)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4197415477 - NamedType 1020197956" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Overhead Cost must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Value, %2= FieldCaption.]D;]A;(LookupHint=Codeunit SCM Copy Production BOM - NamedType OverHeadCostErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1549229238 - NamedType 128831888" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -14547,6 +14565,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Cubage Value, %2 = Maximum Quantity, %3 =  Maximum Cubage Caption, %4 = Maximum Cubage Value, %5 = Bin Table Caption]D;]A;(LookupHint=Codeunit SCM Warehouse - Receiving - NamedType ExceedsMaximumCubage)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3546302981 - NamedType 1003500272" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[From Bin Should be blank]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - Receiving - NamedType FromBinBlankErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3546302981 - NamedType 3741881461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

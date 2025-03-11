@@ -26,7 +26,8 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPatterns: Codeunit "Library - Patterns";
-        TrackingOption: Option AssignSerialLot,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,SetLotNoAndQty,SetSerialNoAndQty,SelectAndApplyToItemEntry,SetEntriesToInvoice,InvokeOK;
+        LibraryPlanning: Codeunit "Library - Planning";
+        TrackingOption: Option AssignSerialLot,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,SetLotNoAndQty,SetSerialNoAndQty,SelectAndApplyToItemEntry,SetEntriesToInvoice,InvokeOK,AssignLotNoManual;
         isInitialized: Boolean;
         TrackingOptionWithTwoLots: Option AssignLotNoWithQtyToHandle,ChangeQtyToInvoice,OrderDocument,ReturnOrderDocument;
         LotNoWithTwoLots: array[2] of Code[20];
@@ -3276,6 +3277,72 @@ codeunit 137262 "SCM Invt Item Tracking III"
           TrackingSpecification.FieldCaption("Qty. to Handle (Base)"), SalesLine."No.", 10, 2, '', LotNoWithTwoLots[2], ''));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandlerTrackingOption')]
+    procedure RunPlanningWorksheetBetweenPartialConsumptionInConsumptionJournalWithIT()
+    var
+        CompItem: Record Item;
+        FGItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        LotNoInfo: Record "Lot No. Information";
+        CompItemCode: Code[20];
+        TrackingCode: Code[10];
+        ProdOrderQty: Decimal;
+        PartialQty: array[4] of Decimal;
+        LotNo: Code[20];
+    begin
+        // [SCENARIO] Post partial consumption in consumption journal with item tracking and run planning worksheet.
+        Initialize();
+
+        // [GIVEN] Create Item "I" with Lot Tracking
+        TrackingCode := CreateItemTrackingCode(false, true);
+        UpdateItemTrackingExpiry(TrackingCode);
+        CompItemCode := CreateTrackedItem('', '', TrackingCode);
+        CompItem.get(CompItemCode);
+        UpdateItemReOrderPolicyForLot(CompItem);
+
+        //[GIVEN] Create Item "J" with Production BOM
+        LibraryInventory.CreateItem(FGItem);
+        CreateProdBOMWithOneComp(FGItem, CompItem);
+        UpdateParentItemForProduction(FGItem);
+
+        // [GIVEN] Generate Lot and Quantity.
+        LotNo := LibraryUtility.GenerateRandomCode(LotNoInfo.FieldNo("Lot No."), Database::"Lot No. Information");
+        PartialQty[1] := LibraryRandom.RandInt(20);
+        PartialQty[2] := LibraryRandom.RandInt(20);
+        PartialQty[3] := LibraryRandom.RandInt(20);
+        PartialQty[4] := LibraryRandom.RandInt(20);
+        ProdOrderQty := PartialQty[1] + PartialQty[2] + PartialQty[3] + PartialQty[4];
+
+        // [GIVEN] Create and Refresh Production Order for FGItem.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, FGItem."No.", ProdOrderQty);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Create and Update Item Journal Batch.
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        ItemJournalBatch.Modify(true);
+
+        // [GIVEN] Create and Post Item Journal.
+        CreateItemJournalLineWithItemTracking(ItemJournalLine, ItemJournalBatch, ProductionOrder."Location Code", CompItem."No.", PartialQty[1], LotNo);
+        CreateItemJournalLineWithItemTracking(ItemJournalLine, ItemJournalBatch, ProductionOrder."Location Code", CompItem."No.", (PartialQty[2] + PartialQty[3]), LotNo);
+        CreateItemJournalLineWithItemTracking(ItemJournalLine, ItemJournalBatch, ProductionOrder."Location Code", CompItem."No.", PartialQty[4], LotNo);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Run Planning Worksheet and Create.
+        RunCalculateRegenerativePlan(CompItem."No.");
+
+        // [WHEN] Create and Post Partial Consumption Journal.
+        CreateAndPostConsumptionJournalWithItemTracking(ProductionOrder."No.", CompItem."No.", LotNo, (PartialQty[1] + PartialQty[2]));
+
+        // [THEN] Run Planning Worksheet expecting no error.
+        RunCalculateRegenerativePlan(CompItem."No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -5033,6 +5100,79 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
+    local procedure UpdateItemTrackingExpiry(TrackingCode: Code[10])
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        ItemTrackingCode.Get(TrackingCode);
+        ItemTrackingCode.Validate("Use Expiration Dates", false);
+        ItemTrackingCode.Modify(true);
+    end;
+
+    local procedure UpdateItemReOrderPolicyForLot(var Item: Record Item)
+    begin
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateParentItemForProduction(var Item: Record Item)
+    begin
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Stock");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemJournalLineWithItemTracking(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; LocationCode: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20])
+    begin
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNoManual);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Quantity);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
+            ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Lot No.", LotNo);
+        ItemJournalLine.Modify(true);
+        ItemJournalLine.OpenItemTrackingLines(false);
+    end;
+
+    local procedure RunCalculateRegenerativePlan(ItemFilter: Text)
+    var
+        Item: Record Item;
+    begin
+        Item.SetFilter("No.", ItemFilter);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));  // Dates based on WORKDATE.
+    end;
+
+    local procedure CreateAndPostConsumptionJournalWithItemTracking(ProdOrderNo: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ConsumptionItemJournalTemplate: Record "Item Journal Template";
+        ConsumptionItemJournalBatch: Record "Item Journal Batch";
+    begin
+        ConsumptionJournalSetup(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ConsumptionItemJournalTemplate.Name,
+            ConsumptionItemJournalBatch.Name, ItemJournalLine."Entry Type"::Consumption,
+            ItemNo, Qty);
+        ItemJournalLine.Validate("Order No.", ProdOrderNo);
+        ItemJournalLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(TrackingOption::SetLotNoAndQty);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure ConsumptionJournalSetup(var ConsumptionItemJournalTemplate: Record "Item Journal Template"; var ConsumptionItemJournalBatch: Record "Item Journal Batch")
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ConsumptionItemJournalTemplate, ConsumptionItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalBatchName(ConsumptionItemJournalBatch, ConsumptionItemJournalTemplate.Type, ConsumptionItemJournalTemplate.Name);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -5236,5 +5376,30 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         ItemTrackingSummaryPage.OK().Invoke();
     end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandlerTrackingOption(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            TrackingOption::AssignLotNo:
+                ItemTrackingLines."Assign Lot No.".Invoke();
+            TrackingOption::AssignLotNoManual:
+                begin
+                    ItemTrackingLines.New();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+            TrackingOption::SetLotNoAndQty:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+        end;
+
+        ItemTrackingLines.OK().Invoke();
+    end;
+
 }
 

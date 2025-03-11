@@ -20,6 +20,7 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         isInitialized: Boolean;
         PrepaymentsWithNDVATErr: Label 'You cannot post prepayment that contains Non-Deductible VAT.';
         AmountMustBeEqualErr: Label 'Amount must be equal.';
+        CostAmountActualErr: Label '%1 must be %2 in %3', Comment = '%1 = Cost Amount (Actual), %2 = value of Cost Amount (Actual), %3 = Value Entry';
 
     [Test]
     procedure NormalVATNonDeductibleAmountsAfterPostingPurchInvEndToEnd()
@@ -304,6 +305,99 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         Assert.AreEqual(VATEntry."Non-Deductible VAT Amount", GLEntry."VAT Amount", AmountMustBeEqualErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SuggestItemChargeAssignmentPageHandler')]
+    procedure CostAmountInValueEntryHavingItemChargeNoIncludesNonDeductibleVATAmount()
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ValueEntry: Record "Value Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemNo: Code[20];
+        CostAmountActual: Decimal;
+        CheckTotal: Decimal;
+    begin
+        // [SCENARIO 542325] When Stan posts a Purchase Order having Item Charge with Non Deductible VAT Posting Setup then the 
+        // Value Entry Created for Item Charge No. will have value including Non Deductible VAT Amount in Cost Amount (Actual).
+        Initialize();
+
+        // [GIVEN] Enable "Use For Item Cost" on VAT Setup.
+        LibraryNonDeductibleVAT.SetUseForItemCost();
+
+        // [GIVEN] Create VAT Posting Setup with Non Deductible Detail.
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(
+            VATPostingSetup, LibraryRandom.RandIntInRange(25, 25), LibraryRandom.RandIntInRange(90, 90));
+
+        // [GIVEN] Create an Item with VAT Prod. Posting Group and save it in a Variable.
+        ItemNo := LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create an Item Charge and Validate VAT Prod. Posting Group.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        ItemCharge.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        ItemCharge.Modify(true);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Create a Purchase Line with Type Item.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+            ItemNo, LibraryRandom.RandInt(0));
+
+        // [GIVEN]  Validate Direct Unit Cost in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+        CheckTotal += PurchaseLine."Amount Including VAT";
+
+        // [GIVEN] Create a Purchase Line with Type Charge (Item).
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)",
+            ItemCharge."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN]  Validate Direct Unit Cost in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+        CheckTotal += PurchaseLine."Amount Including VAT";
+
+        // [GIVEN] Update Qty. to Assign on Item Charge Assignment.
+        UpdateQtyToAssignOnItemChargeAssignment(PurchaseHeader);
+
+        // [GIVEN] Post Purchase Order.
+        PurchaseHeader."Check Total" := CheckTotal;
+        PurchaseHeader.Modify();
+
+        PurchaseHeader.Receive := true;
+        PurchaseHeader.Invoice := true;
+        Codeunit.Run(Codeunit::"Purch.-Post", PurchaseHeader);
+
+        // [GIVEN] Find Value Entry of Item.
+        ValueEntry.SetRange("Document No.", PurchaseHeader."Last Posting No.");
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.FindFirst();
+
+        // [GIVEN] Save Cost Amount (Actual) in a Variable.
+        CostAmountActual := ValueEntry."Cost Amount (Actual)";
+
+        // [WHEN] Find Value Entry of Item Charge.
+        ValueEntry.SetRange("Document No.", PurchaseHeader."Last Posting No.");
+        ValueEntry.SetRange("Item Charge No.", ItemCharge."No.");
+        ValueEntry.FindFirst();
+
+        // [THEN] Cost Amount (Actual) of Item Charge Value Entry and Item Value Entry must be same.
+        Assert.AreEqual(
+            CostAmountActual,
+            ValueEntry."Cost Amount (Actual)",
+            StrSubstNo(
+                CostAmountActualErr,
+                ValueEntry.FieldCaption("Cost Amount (Actual)"),
+                CostAmountActual,
+                ValueEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -406,5 +500,24 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         Assert.AreEqual(0, VATEntry.Amount, AmountMustBeEqualErr);
         Assert.AreEqual(100.96, VATEntry."Non-Deductible VAT Base", AmountMustBeEqualErr);
         Assert.AreEqual(20.20, VATEntry."Non-Deductible VAT Amount", AmountMustBeEqualErr);
+    end;
+
+    local procedure UpdateQtyToAssignOnItemChargeAssignment(PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        PurchaseLine.FindFirst();
+        PurchaseLine.ShowItemChargeAssgnt();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestItemChargeAssignmentPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 }

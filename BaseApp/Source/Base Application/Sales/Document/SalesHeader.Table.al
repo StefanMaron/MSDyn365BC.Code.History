@@ -34,6 +34,7 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
+using Microsoft.Intercompany;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Setup;
 using Microsoft.Inventory.Availability;
@@ -1700,8 +1701,9 @@ table 36 "Sales Header"
                 UpdateVATReportingDate(FieldNo("Document Date"));
 
                 if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) then
-                    if "Document Date" > "Posting Date" then
-                        Error(Text1130018, FieldCaption("Document Date"), FieldCaption("Posting Date"));
+                    if "Posting Date" <> 0D then
+                        if "Document Date" > "Posting Date" then
+                            Error(Text1130018, FieldCaption("Document Date"), FieldCaption("Posting Date"));
                 if not CheckVATExemption() then
                     "Document Date" := xRec."Document Date";
                 GLSetup.Get();
@@ -4539,7 +4541,7 @@ table 36 "Sales Header"
             end;
             if UpdateCurrencyExchangeRates.ExchangeRatesForCurrencyExist(CurrencyDate, "Currency Code") then begin
                 "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
-                if "Currency Code" <> xRec."Currency Code" then
+                if ("Currency Code" <> xRec."Currency Code") and (xRec."No." <> '') then
                     RecreateSalesLines(FieldCaption("Currency Code"));
             end else
                 UpdateCurrencyExchangeRates.ShowMissingExchangeRatesNotification("Currency Code");
@@ -7272,7 +7274,7 @@ table 36 "Sales Header"
     var
         TotalLineAmount: Decimal;
     begin
-        TotalLineAmount := TotalingSalesLine."Unit Price" + SplitSalesLine."Amount Including VAT" - SplitSalesLine.Amount;
+        TotalLineAmount := TotalingSalesLine."Unit Price" + (SplitSalesLine."Amount Including VAT" * (SplitSalesLine."VAT %" / (SplitSalesLine."VAT %" + 100)));
         TotalingSalesLine.Validate("Unit Price", TotalLineAmount);
     end;
 
@@ -7772,9 +7774,10 @@ table 36 "Sales Header"
         if DeferralHeadersExist() then
             exit;
 
-        if ReplacePostingDate then begin
-            "Posting Date" := PostingDateReq;
-            Validate("Currency Code");
+        "Posting Date" := PostingDateReq;
+        if "Currency Code" <> '' then begin
+            UpdateCurrencyFactor();
+            UpdateSalesLinesByFieldNo(SalesHeader.FieldNo("Currency Factor"), false);
         end;
 
         if ReplaceVATDate then
@@ -10042,6 +10045,17 @@ table 36 "Sales Header"
         ContactBusinessRelation.SetRange("Contact No.", ContactNo);
         ContactBusinessRelation.SetRange(ContactBusinessRelation."Link to Table", ContactBusinessRelationLinkType);
         exit(ContactBusinessRelation.IsEmpty());
+    end;
+
+    procedure SendICSalesDoc(var SalesHeader: Record "Sales Header")
+    var
+        ICInOutboxMgt: Codeunit ICInboxOutboxMgt;
+    begin
+        if SalesHeader.FindSet() then
+            repeat
+                if ApprovalsMgmt.PrePostApprovalCheckSales(SalesHeader) then
+                    ICInOutboxMgt.SendSalesDoc(SalesHeader, false);
+            until SalesHeader.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

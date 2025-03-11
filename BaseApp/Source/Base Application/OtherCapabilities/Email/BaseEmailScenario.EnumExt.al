@@ -54,8 +54,16 @@ enumextension 8891 "Base Email Scenario" extends "Email Scenario"
     {
         Caption = 'Finance Charge';
     }
+    value(184; "Posted Vendor Remittance")
+    {
+        Caption = 'Posted Vendor Remittance';
+    }
     value(185; "Customer Statement")
     {
         Caption = 'Customer Statement';
+    }
+    value(186; "Vendor Remittance")
+    {
+        Caption = 'Vendor Remittance';
     }
 }

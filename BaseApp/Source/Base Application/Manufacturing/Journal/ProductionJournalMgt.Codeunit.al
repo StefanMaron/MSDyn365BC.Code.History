@@ -691,7 +691,7 @@ codeunit 5510 "Production Journal Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunProductionJnl(ToTemplateName: Code[10]; ToBatchName: Code[10]; ProdOrder: Record "Production Order"; ActualLineNo: Integer; PostingDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeRunProductionJnl(ToTemplateName: Code[10]; ToBatchName: Code[10]; ProdOrder: Record "Production Order"; ActualLineNo: Integer; var PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 

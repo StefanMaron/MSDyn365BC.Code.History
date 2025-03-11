@@ -2,7 +2,6 @@ namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Customer;
-using Microsoft.Inventory.Item;
 
 codeunit 99000839 "Sales Get Demand To Reserve"
 {
@@ -135,8 +134,8 @@ codeunit 99000839 "Sales Get Demand To Reserve"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Get Demand To Reserve", 'OnGetDemand', '', false, false)]
-    local procedure OnGetDemand(var FilterItem: Record Item; DemandType: Enum "Reservation Demand Type"; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock"; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DateFilter: Text; ItemFilterFromBatch: Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Worksheet Mgt.", 'OnCalculateDemandOnAfterSync', '', false, false)]
+    local procedure SyncSalesOrderLines(BatchName: Code[10]; var GetDemandToReserve: Report "Get Demand To Reserve")
     var
         Customer: Record Customer;
         ReservationWkshLine: Record "Reservation Wksh. Line";
@@ -147,14 +146,12 @@ codeunit 99000839 "Sales Get Demand To Reserve"
         AvailableQtyBase, InventoryQtyBase, ReservedQtyBase, WarehouseQtyBase : Decimal;
         LineNo: Integer;
     begin
-        GetDemand(
-            TempSalesLine, FilterItem, ReservationWkshBatch, DemandType,
-            DateFilter, VariantFilterFromBatch, LocationFilterFromBatch, ItemFilterFromBatch, ReservedFromStock);
+        GetDemandToReserve.GetSalesOrderLines(TempSalesLine);
         if TempSalesLine.IsEmpty() then
             exit;
 
         ReservationWkshLine.SetCurrentKey("Journal Batch Name", "Source Type");
-        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWkshLine.SetRange("Journal Batch Name", BatchName);
         ReservationWkshLine.SetRange("Source Type", Database::"Sales Line");
         if ReservationWkshLine.FindSet(true) then
             repeat
@@ -162,14 +159,14 @@ codeunit 99000839 "Sales Get Demand To Reserve"
                     ReservationWkshLine.Delete(true);
             until ReservationWkshLine.Next() = 0;
 
-        ReservationWkshLine."Journal Batch Name" := ReservationWkshBatch.Name;
+        ReservationWkshLine."Journal Batch Name" := BatchName;
         LineNo := ReservationWkshLine.GetLastLineNo();
 
         TempSalesLine.FindSet();
         repeat
             LineNo += 10000;
             ReservationWkshLine.Init();
-            ReservationWkshLine."Journal Batch Name" := ReservationWkshBatch.Name;
+            ReservationWkshLine."Journal Batch Name" := BatchName;
             ReservationWkshLine."Line No." := LineNo;
             ReservationWkshLine."Source Type" := Database::"Sales Line";
             ReservationWkshLine."Source Subtype" := TempSalesLine."Document Type".AsInteger();
@@ -211,73 +208,6 @@ codeunit 99000839 "Sales Get Demand To Reserve"
             then
                 ReservationWkshLine.Insert(true);
         until TempSalesLine.Next() = 0;
-    end;
-
-    local procedure GetDemand(var TempSalesLine: Record "Sales Line" temporary; var FilterItem: Record Item; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DemandType: Enum "Reservation Demand Type"; DateFilter: Text; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ItemFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock")
-    var
-        Item: Record Item;
-        SalesLine: Record "Sales Line";
-#if not CLEAN25
-        GetDemandToReserve: Report "Get Demand To Reserve";
-#endif
-        SkipItem: Boolean;
-        IsHandled: Boolean;
-    begin
-        if not (DemandType in [Enum::"Reservation Demand Type"::All, Enum::"Reservation Demand Type"::"Sales Orders"]) then
-            exit;
-
-        SalesLine.Reset();
-        SalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.SetRange("Drop Shipment", false);
-        SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.SetFilter("Outstanding Qty. (Base)", '<>%1', 0);
-
-        SalesLine.SetFilter("No.", FilterItem.GetFilter("No."));
-        SalesLine.SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
-        SalesLine.SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
-        SalesLine.SetFilter("Shipment Date", FilterItem.GetFilter("Date Filter"));
-        SalesLine.SetFilter(Reserve, '<>%1', SalesLine.Reserve::Never);
-
-        SalesLine.FilterGroup(2);
-        if DateFilter <> '' then
-            SalesLine.SetFilter("Shipment Date", DateFilter);
-        if VariantFilterFromBatch <> '' then
-            SalesLine.SetFilter("Variant Code", VariantFilterFromBatch);
-        if LocationFilterFromBatch <> '' then
-            SalesLine.SetFilter("Location Code", LocationFilterFromBatch);
-        SalesLine.FilterGroup(0);
-
-        if SalesLine.FindSet() then
-            repeat
-                if not SalesLine.IsInventoriableItem() then
-                    SkipItem := true;
-
-                if (not SkipItem) then
-                    if not SalesLine.CheckIfSalesLineMeetsReservedFromStockSetting(Abs(SalesLine."Outstanding Qty. (Base)"), ReservedFromStock) then
-                        SkipItem := true;
-
-                if (not SkipItem) and (ItemFilterFromBatch <> '') then begin
-                    Item.SetView(ReservationWkshBatch.GetItemFilterBlobAsViewFilters());
-                    Item.FilterGroup(2);
-                    Item.SetRange("No.", SalesLine."No.");
-                    Item.FilterGroup(0);
-                    if Item.IsEmpty() then
-                        SkipItem := true;
-                end;
-
-                if not SkipItem then begin
-                    IsHandled := false;
-                    OnGetDemandOnBeforeSetTempSalesLine(SalesLine, IsHandled);
-#if not CLEAN25
-                    GetDemandToReserve.RunOnSalesOrderLineOnAfterGetRecordOnBeforeSetTempSalesLine(SalesLine, IsHandled);
-#endif
-                    if not IsHandled then begin
-                        TempSalesLine := SalesLine;
-                        TempSalesLine.Insert();
-                    end;
-                end;
-            until SalesLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

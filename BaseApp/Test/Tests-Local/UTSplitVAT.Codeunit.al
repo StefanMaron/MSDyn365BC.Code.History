@@ -19,6 +19,7 @@ codeunit 144560 "UT Split VAT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibrarySplitVAT: Codeunit "Library - Split VAT";
+        LibraryERM: Codeunit "Library - ERM";
 
     [Test]
     [Scope('OnPrem')]
@@ -132,14 +133,14 @@ codeunit 144560 "UT Split VAT"
         LibrarySales.CreateSalesLine(
           TotalingSalesLine, SalesHeader, TotalingSalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
-        SalesLine."Amount Including VAT" := 1200;
+        SalesLine."Amount Including VAT" := 1100;
         SalesLine.Amount := 1000;
 
         SalesHeader.UpdateTotalingSalesLine(SalesLine, TotalingSalesLine);
-        Assert.AreEqual(200, TotalingSalesLine."Unit Price", 'Incorrect Unit Price');
+        Assert.AreEqual(100, TotalingSalesLine."Unit Price", 'Incorrect Unit Price');
 
         SalesHeader.UpdateTotalingSalesLine(SalesLine, TotalingSalesLine);
-        Assert.AreEqual(400, TotalingSalesLine."Unit Price", 'Incorrect Unit Price');
+        Assert.AreEqual(200, TotalingSalesLine."Unit Price", 'Incorrect Unit Price');
     end;
 
     [Test]
@@ -365,6 +366,29 @@ codeunit 144560 "UT Split VAT"
         Assert.RecordCount(ServiceLine, 3);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure SalesInvoiceGenerateSplitVATLinesVATCalculationShouldRoundCorrectly()
+    var
+        SplitVATSalesHeader: Record "Sales Header";
+        SalesInvoice: TestPage "Sales Invoice";
+        TotalVATAmount: Decimal;
+    begin
+        // [SCENARIO 561618] VAT calculation rounding error on a sales invoice involving split VAT lines in Italian Localization
+        // [GIVEN] Sales Invoice with multiple G/L lines
+        TotalVATAmount := CreateSalesInvoiceWithMultipleGLLines(SplitVATSalesHeader, LibraryRandom.RandDecInDecimalRange(28.85, 28.85, 0), LibraryRandom.RandIntInRange(20, 20));
+
+        // [WHEN] Invoice Generate Split VAT Lines action
+        SalesInvoice.OpenEdit();
+        SalesInvoice.GoToRecord(SplitVATSalesHeader);
+        SalesInvoice.GenerateSplitVATLines.Invoke();
+
+        // [THEN] Total VAT amount is equal to the Unit Price of the last Sales Line
+        SalesInvoice.SalesLines.Last();
+        SalesInvoice.SalesLines."Unit Price".AssertEquals(TotalVATAmount);
+        SalesInvoice.Close();
+    end;
+
     local procedure AssertMessageContains(ExpectedSubstring: Text; ActualMessage: Text)
     begin
         if StrPos(ActualMessage, ExpectedSubstring) = 0 then
@@ -451,6 +475,36 @@ codeunit 144560 "UT Split VAT"
         Assert.AreEqual(
           SplitVATPostingSetup."VAT Bus. Posting Group", TotalingServiceLine."VAT Bus. Posting Group", TotalingServiceLine.FieldCaption("VAT Bus. Posting Group"));
         Assert.AreEqual(SplitVATPostingSetup."VAT Calculation Type", TotalingServiceLine."VAT Calculation Type", TotalingServiceLine.FieldCaption("VAT Calculation Type"))
+    end;
+
+    local procedure CreateSalesInvoiceWithMultipleGLLines(var SalesHeader: Record "Sales Header"; UnitPrice: Decimal; NoOfSalesLine: Integer) TotalVATAmount: Decimal
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SplitVATPostingSetup: Record "VAT Posting Setup";
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+        i: Integer;
+    begin
+        LibrarySplitVAT.CreateVATPostingSetupForSplitVAT(VATPostingSetup, SplitVATPostingSetup, LibraryRandom.RandIntInRange(10, 20));
+        LibrarySplitVAT.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, VATPostingSetup."VAT Bus. Posting Group");
+
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+
+        for i := 1 to NoOfSalesLine do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandIntInRange(1, 1));
+            SalesLine.Validate("Unit Price", UnitPrice);
+            SalesLine.Modify(true);
+            TotalVATAmount += SalesLine."Unit Price" * SalesLine."VAT %" / 100;
+        end;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

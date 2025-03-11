@@ -174,6 +174,7 @@ codeunit 1004 "Job Transfer Line"
     var
         SourceCodeSetup: Record "Source Code Setup";
         JobTask: Record "Job Task";
+        IsHandled: Boolean;
     begin
         OnBeforeFromPlanningSalesLineToJnlLine(JobPlanningLine, SalesHeader, SalesLine, JobJnlLine, EntryType);
 
@@ -228,17 +229,19 @@ codeunit 1004 "Job Transfer Line"
                 JobJnlLine.Validate(Quantity, -SalesLine.Quantity);
         end;
 
-        OnFromPlanningSalesLineToJnlLineOnBeforeInitAmounts(JobJnlLine, SalesLine, SalesHeader);
-
-        JobJnlLine."Direct Unit Cost (LCY)" := JobPlanningLine."Direct Unit Cost (LCY)";
-        if (JobPlanningLine."Currency Code" = '') and (SalesHeader."Currency Factor" <> 0) then begin
-            GetCurrencyRounding(SalesHeader."Currency Code");
-            ValidateUnitCostAndPrice(
-              JobJnlLine, SalesLine, SalesLine."Unit Cost (LCY)",
-              JobPlanningLine."Unit Price");
-        end else
-            ValidateUnitCostAndPrice(JobJnlLine, SalesLine, SalesLine."Unit Cost", JobPlanningLine."Unit Price");
-        JobJnlLine.Validate("Line Discount %", SalesLine."Line Discount %");
+        IsHandled := false;
+        OnFromPlanningSalesLineToJnlLineOnBeforeInitAmounts(JobJnlLine, SalesLine, SalesHeader, JobPlanningLine, IsHandled);
+        if not IsHandled then begin
+            JobJnlLine."Direct Unit Cost (LCY)" := JobPlanningLine."Direct Unit Cost (LCY)";
+            if (JobPlanningLine."Currency Code" = '') and (SalesHeader."Currency Factor" <> 0) then begin
+                GetCurrencyRounding(SalesHeader."Currency Code");
+                ValidateUnitCostAndPrice(
+                  JobJnlLine, SalesLine, SalesLine."Unit Cost (LCY)",
+                  JobPlanningLine."Unit Price");
+            end else
+                ValidateUnitCostAndPrice(JobJnlLine, SalesLine, SalesLine."Unit Cost", JobPlanningLine."Unit Price");
+            JobJnlLine.Validate("Line Discount %", SalesLine."Line Discount %");
+        end;
 
         OnAfterFromPlanningSalesLineToJnlLine(JobJnlLine, JobPlanningLine, SalesHeader, SalesLine, EntryType);
     end;
@@ -1010,8 +1013,8 @@ codeunit 1004 "Job Transfer Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnFromPlanningSalesLineToJnlLineOnBeforeInitAmounts(var JobJournalLine: Record "Job Journal Line"; var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    [IntegrationEvent(true, false)]
+    local procedure OnFromPlanningSalesLineToJnlLineOnBeforeInitAmounts(var JobJournalLine: Record "Job Journal Line"; var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 
