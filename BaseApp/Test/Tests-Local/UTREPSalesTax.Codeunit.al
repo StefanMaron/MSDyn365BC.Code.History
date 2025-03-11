@@ -1739,6 +1739,47 @@ codeunit 142066 "UT REP Sales Tax"
         Assert.AreEqual(VATAmount + VATAmount2, SumTaxAmountInTestReport(), TaxAmountNotEqualTotalErr);
     end;
 
+    [Test]
+    [HandlerFunctions('SalesCrMemoXmlReportHandler')]
+    procedure CheckSalesCreditMemoNACommentLine()
+    var
+        ReportSelections: Record "Report Selections";
+        SalesCrmemoHdr: Record "Sales Cr.Memo Header";
+        SalesHeader: Record "Sales Header";
+        CrditMemoPage: TestPage "Posted Sales Credit Memo";
+        ExpectedComment: Text[81];
+    begin
+        // [SCENARIO 564884] The Sales Credit Memo only prints the first 4 comments from the Comments table.
+        Initialize();
+
+        // [GIVEN] Sales Cr. Memo Created.
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+
+        // [GIVEN] Multiple Comment lines created for Sales Cr. Memo.
+        CreateCommentLines(SalesHeader);
+
+        // [GIVEN] Sales Cr Memo Posted And Get Posted Sales Cr Memo.
+        SalesCrmemoHdr.Get(LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [GIVEN] Get Last Comment Line of Posted Sales Cr Memo.
+        ExpectedComment := GetExpectedComment(SalesCrmemoHdr);
+
+        // [GIVEN] Report 10073 is Set as Report for Sales Cr Memo-CA
+        ReportSelections.Get(ReportSelections.Usage::"S.Cr.Memo", 1);
+        ReportSelections.Validate("Report ID", Report::"Sales Credit Memo NA");
+        ReportSelections.Modify(true);
+
+        // [WHEN] Report 10073 Print From Credit Memo Page
+        CrditMemoPage.OpenEdit();
+        CrditMemoPage.GoToRecord(SalesCrmemoHdr);
+        Commit(); //Commit Required for Print
+        CrditMemoPage.Print.Invoke();
+
+        // [THEN] Verify Report DataSet with Expected Comment
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('TempSalesCrMemoLineDesc', ExpectedComment);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2493,6 +2534,39 @@ codeunit 142066 "UT REP Sales Tax"
         exit(LibraryReportDataset.Sum('SalesTaxAmountLine__Tax_Amount__Control1020000'));
     end;
 
+    local procedure GetExpectedComment(var SalesCrmemoHdr: Record "Sales Cr.Memo Header"): Text[81]
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        SalesCommentLine.Reset();
+        SalesCommentLine.SetRange("Document Type", SalesCommentLine."Document Type"::"Posted Credit Memo");
+        SalesCommentLine.SetRange("No.", SalesCrmemoHdr."No.");
+        SalesCommentLine.FindLast();
+        exit(SalesCommentLine.Comment + ' ');
+    end;
+
+    local procedure CreateCommentLines(var SalesHeader: Record "Sales Header")
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+        DocumentType: Enum "Sales Document Type";
+    begin
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, DocumentType::"Credit Memo", SalesHeader."No.", 0);
+        SalesCommentLine.Validate("Print On Credit Memo", true);
+        SalesCommentLine.Modify(true);
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, DocumentType::"Credit Memo", SalesHeader."No.", 0);
+        SalesCommentLine.Validate("Print On Credit Memo", true);
+        SalesCommentLine.Modify(true);
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, DocumentType::"Credit Memo", SalesHeader."No.", 0);
+        SalesCommentLine.Validate("Print On Credit Memo", true);
+        SalesCommentLine.Modify(true);
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, DocumentType::"Credit Memo", SalesHeader."No.", 0);
+        SalesCommentLine.Validate("Print On Credit Memo", true);
+        SalesCommentLine.Modify(true);
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, DocumentType::"Credit Memo", SalesHeader."No.", 0);
+        SalesCommentLine.Validate("Print On Credit Memo", true);
+        SalesCommentLine.Modify(true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
@@ -2806,7 +2880,7 @@ codeunit 142066 "UT REP Sales Tax"
         ServiceCreditMemo."Service Cr.Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
         ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
-    
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseDocumentTestReqPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
@@ -2841,6 +2915,12 @@ codeunit 142066 "UT REP Sales Tax"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [RequestPageHandler]
+    procedure SalesCrMemoXmlReportHandler(var SalesCrMemo: TestRequestPage "Sales Credit Memo NA")
+    begin
+        SalesCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

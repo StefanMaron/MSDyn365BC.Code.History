@@ -10,8 +10,8 @@ page 951 "Time Sheet List"
 {
     ApplicationArea = Jobs;
     Caption = 'Time Sheets';
+    AdditionalSearchTerms = 'Timesheets';
     InsertAllowed = false;
-    ModifyAllowed = false;
     PageType = List;
     CardPageID = "Time Sheet Card";
     SourceTable = "Time Sheet Header";

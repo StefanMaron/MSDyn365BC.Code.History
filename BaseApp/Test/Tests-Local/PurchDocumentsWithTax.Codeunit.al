@@ -27,7 +27,7 @@ codeunit 144024 "Purch. Documents With Tax"
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         PurchaseLine: Record "Purchase Line";
-        SalesLine: Record "Sales Line";
+        SalesLine: array[2] of Record "Sales Line";
         ValueEntry: Record "Value Entry";
         PostedPurchaseInvoiceNo: Code[20];
         PostedPurchaseInvoiceNo2: Code[20];
@@ -40,11 +40,15 @@ codeunit 144024 "Purch. Documents With Tax"
         Initialize();
         Item.Get(CreateItem());
         CreateAndPostItemJournal(ItemJournalLine, Item."No.");
-        CreateSalesOrderWithDropShipment(SalesLine, Item."No.", ItemJournalLine.Quantity);
-        GetSalesOrderAndCarryOutActionMessage(SalesLine);
+        CreateSalesOrderWithDropShipment(SalesLine[1], Item."No.", ItemJournalLine.Quantity);
+        GetSalesOrderAndCarryOutActionMessage(SalesLine[1]);
         PostedPurchaseReceiptNo := UpdateAndPostPurchaseOrder(PurchaseLine, Item."Vendor No.", Item."Unit Cost" * 2);  // Updating Unit Cost with multiple of 2.
         LibraryVariableStorage.Enqueue(PostedPurchaseReceiptNo);
-        PostedSalesInvoiceNo := PostSalesOrder(SalesLine."Document No.");
+
+        // Get Sales Line once updated from Purchase Line.
+        SalesLine[2].Get(SalesLine[1]."Document Type", SalesLine[1]."Document No.", SalesLine[1]."Line No.");
+
+        PostedSalesInvoiceNo := PostSalesOrder(SalesLine[1]."Document No.");
         PostedPurchaseInvoiceNo := PostPurchaseOrder(PurchaseLine."Document No.");
 
         // Exercise: Create and Post Purchase Invoice with Item Charge.
@@ -58,8 +62,8 @@ codeunit 144024 "Purch. Documents With Tax"
           ValueEntry."Item Ledger Entry Type"::Purchase, PostedPurchaseInvoiceNo, PurchaseLine.Quantity,
           -PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost");
         VerifyValueEntries(
-          ValueEntry."Item Ledger Entry Type"::Sale, PostedSalesInvoiceNo, -SalesLine.Quantity,
-          SalesLine.Quantity * SalesLine."Unit Cost");
+          ValueEntry."Item Ledger Entry Type"::Sale, PostedSalesInvoiceNo, -SalesLine[2].Quantity,
+          SalesLine[2].Quantity * SalesLine[2]."Unit Cost");
         VerifyValueEntries(
           ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.", ItemJournalLine."Document No.", ItemJournalLine.Quantity, 0);  // 0 value required.
         VerifyValueEntries(ValueEntry."Item Ledger Entry Type"::Purchase, PostedPurchaseInvoiceNo2, PurchaseLine.Quantity, 0);  // 0 value required.
@@ -73,7 +77,7 @@ codeunit 144024 "Purch. Documents With Tax"
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         PurchaseLine: Record "Purchase Line";
-        SalesLine: Record "Sales Line";
+        SalesLine: array[2] of Record "Sales Line";
         ItemCard: TestPage "Item Card";
     begin
         // Verify Unit Cost on Item Page after Post purchase Order with Item And Item Charge with different Unit Costs.
@@ -82,17 +86,21 @@ codeunit 144024 "Purch. Documents With Tax"
         Initialize();
         Item.Get(CreateItem());
         CreateAndPostItemJournal(ItemJournalLine, Item."No.");
-        CreateSalesOrderWithDropShipment(SalesLine, Item."No.", ItemJournalLine.Quantity);
-        GetSalesOrderAndCarryOutActionMessage(SalesLine);
+        CreateSalesOrderWithDropShipment(SalesLine[1], Item."No.", ItemJournalLine.Quantity);
+        GetSalesOrderAndCarryOutActionMessage(SalesLine[1]);
         LibraryVariableStorage.Enqueue(UpdateAndPostPurchaseOrder(PurchaseLine, Item."Vendor No.", Item."Unit Cost" * 2));  // Updating Unit Cost with multiple of 2.
-        PostSalesOrder(SalesLine."Document No.");
+
+        // Get Sales Line once updated from Purchase Line.
+        SalesLine[2].Get(SalesLine[1]."Document Type", SalesLine[1]."Document No.", SalesLine[1]."Line No.");
+
+        PostSalesOrder(SalesLine[1]."Document No.");
         PostPurchaseOrder(PurchaseLine."Document No.");
         CreateAndPostPurchaseInvoiceWithItemCharge(PurchaseLine.Quantity);
         EnqueueForAverageCostCalcOverviewPageHandler(
           ItemJournalLine."Entry Type"::"Positive Adjmt.".AsInteger(), ItemJournalLine.Quantity,
           ItemJournalLine.Quantity * ItemJournalLine."Unit Cost");
         EnqueueForAverageCostCalcOverviewPageHandler(
-          ItemJournalLine."Entry Type"::Sale.AsInteger(), -SalesLine.Quantity, -SalesLine.Quantity * SalesLine."Unit Cost");
+          ItemJournalLine."Entry Type"::Sale.AsInteger(), -SalesLine[1].Quantity, -SalesLine[1].Quantity * SalesLine[2]."Unit Cost");
 
         // Exercise: Drill down Unit Cost from Item Card Page.
         ItemCard.OpenEdit();
@@ -100,6 +108,38 @@ codeunit 144024 "Purch. Documents With Tax"
         ItemCard."Unit Cost".DrillDown();
 
         // Verify: Verification is covered in AverageCostCalcOverviewPageHandler.
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListPageHandler')]
+    procedure ChangesOnDirectUnitCostOfDropShipmentPurchaseLine()
+    var
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntryType: Enum "Item Ledger Entry Type";
+    begin
+        // [SCENARIO 557006] When the "Direct Unit Cost" of the Drop Shipment Purchase Line is modified using code or action, the Sales Line also gets updated.
+        Initialize();
+
+        // [GIVEN] Create a Drop Shipment Sales Order and Purchase Order.
+        CreateDropShipmentSalesAndPurchase(SalesHeader, PurchaseHeader);
+
+        // [GIVEN] Find and change the "Direct Unit Cost" in Purchase Line.
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Posting the Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Verify that the "Cost Amount (Expected)" of Purchase and Sales are same in Value Entries. 
+        Assert.AreEqual(
+            GetExpectedCostAmtFromValueEntry(ItemLedgerEntryType::Sale, PurchaseLine."No."),
+            -GetExpectedCostAmtFromValueEntry(ItemLedgerEntryType::Purchase, PurchaseLine."No."),
+            ValueMustEqualErr);
     end;
 
     local procedure Initialize()
@@ -292,6 +332,62 @@ codeunit 144024 "Purch. Documents With Tax"
           CostAmountExpected, ValueEntry."Cost Amount (Expected)", LibraryERM.GetAmountRoundingPrecision(), ValueMustEqualErr);
     end;
 
+    local procedure GetExpectedCostAmtFromValueEntry(ItemLedgrEntryType: enum "Item Ledger Entry Type"; ItemNo: Code[20]): Decimal
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgrEntryType);
+        ValueEntry.FindLast();
+        exit(ValueEntry."Cost Amount (Expected)");
+    end;
+
+    local procedure CreateDropShipmentSalesAndPurchase(var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header")
+    begin
+        CreateSalesOrderWithDropShipment(SalesHeader, LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo());
+        CreatePurchaseOrderWithGetDropShipment(PurchaseHeader, SalesHeader."Sell-to Customer No.");
+    end;
+
+    local procedure CreateSalesOrderWithDropShipment(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        CreateSalesLineWithPurchasingCode(
+          SalesHeader, SalesLine, ItemNo, LibraryRandom.RandDec(10, 2), CreatePurchasingCode(false, true));
+    end;
+
+    local procedure CreatePurchaseOrderWithGetDropShipment(var PurchaseHeader: Record "Purchase Header"; CustomerNo: Code[20])
+    begin
+        CreatePurchaseHeaderWithSellToCustomerNo(PurchaseHeader, '', CustomerNo);
+        LibraryPurchase.GetDropShipment(PurchaseHeader);
+    end;
+
+    local procedure CreatePurchaseHeaderWithSellToCustomerNo(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; SellToCustomerNo: Code[20])
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        PurchaseHeader.Validate("Sell-to Customer No.", SellToCustomerNo);
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure CreatePurchasingCode(SpecialOrder: Boolean; DropShipment: Boolean): Code[10]
+    var
+        Purchasing: Record Purchasing;
+    begin
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        Purchasing.Validate("Special Order", SpecialOrder);
+        Purchasing.Validate("Drop Shipment", DropShipment);
+        Purchasing.Modify(true);
+        exit(Purchasing.Code);
+    end;
+
+    local procedure CreateSalesLineWithPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal; PurchasingCode: Code[10])
+    begin
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Purchasing Code", PurchasingCode);
+        SalesLine.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AverageCostCalcOverviewPageHandler(var AverageCostCalcOverview: TestPage "Average Cost Calc. Overview")
@@ -321,6 +417,12 @@ codeunit 144024 "Purch. Documents With Tax"
         LibraryVariableStorage.Dequeue(DocumentNo);
         PurchReceiptLines.FILTER.SetFilter("Document No.", DocumentNo);
         PurchReceiptLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SalesListPageHandler(var SalesList: TestPage "Sales List")
+    begin
+        SalesList.OK().Invoke();
     end;
 }
 

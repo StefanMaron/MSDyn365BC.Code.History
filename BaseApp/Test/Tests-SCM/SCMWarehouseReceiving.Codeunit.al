@@ -78,6 +78,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ReceiptBinCodeErr: Label 'Bin Code Should be Receipt Bin Code of Location';
         PickQuantityBaseErr: Label 'Pick Quantity (Base) was Calculated incorrectly';
         WarehouseHeaderDeleteConfirmationMsg: Label 'The Whse. Receipt is not completely received.\Do you really want to delete the Whse. Receipt?';
+        FromBinBlankErr: Label 'From Bin Should be blank';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -4147,6 +4148,94 @@ codeunit 137152 "SCM Warehouse - Receiving"
         VerifyItemJournalLine(Item[2]."No.", DimensionValue[2].Code, Quantity);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SetLotItemWithQtyToHandleTrackingPageHandler,ConfirmHandlerTrue')]
+    procedure CreateMovementFromMovementWorksheetWithExpirationDateOfFEFOItem()
+    var
+        Bin: array[5] of Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Replenishmt: Codeunit Replenishment;
+        Quantity: Decimal;
+        LotNo: array[2] of Code[20];
+        ExpirationDate: array[2] of Date;
+    begin
+        // [SCENARIO 557919] With a basic Warehouse Location, the Movement Worksheet is incorrectly suggesting a From Zone/Bin, and also which is not the earlier Expiration Date of the FEFO Item]
+        Initialize();
+
+        // [GIVEN] Create Location with Require Put Away, Require Pick, Bin Mandatory, Require Shipment and Require Receive and Pick According to FEFO as True.
+
+        Quantity := LibraryRandom.RandDecInRange(50, 50, 2);
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify();
+
+        // [GIVEN] Create Warehouse Employee for Location.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create Bins with Bin Ranking. 
+        CreateBinWithBinRanking(Bin[1], Location.Code, 450);
+        CreateBinWithBinRanking(Bin[2], Location.Code, 400);
+        CreateBinWithBinRanking(Bin[3], Location.Code, 370);
+
+        // [GIVEN] Create Item Tracking with Lot and Expiration Date.
+        LibraryItemTracking.CreateItemTrackingCodeWithExpirationDate(ItemTrackingCode, false, true);
+
+        // [GIVEN] Create an Item and assign Item Tracking.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify();
+
+        // [GIVEN] Create and post Item Journal Line with LOT and Expiration Date 
+        LotNo[1] := LibraryRandom.RandText(10);
+        LotNo[2] := LibraryRandom.RandText(10);
+        ExpirationDate[1] := WorkDate() + 20;
+        ExpirationDate[2] := WorkDate() + 10;
+
+        PostItemPositiveAdjustmentWithLotTracking(Item, Location, Bin[2].code, LotNo[1], ExpirationDate[1], Quantity);
+        PostItemPositiveAdjustmentWithLotTracking(Item, Location, Bin[3].code, LotNo[2], ExpirationDate[2], Quantity);
+
+        // [GIVEN] Create and Update BinContent with Min, Max Quantity, Fixed,Default and Bin Ranking.
+        FindAndUpdateBinContent(Bin[1], Item, Quantity, Quantity, true, false, 450);
+        FindAndUpdateBinContent(Bin[2], Item, 0, 0, true, true, 0);
+
+        // [GIVEN] Create Warehouse Worksheet for Movement.
+        CreateWarehouseWorksheetNameForWarehouseLocation(WhseWorksheetName, Location.Code);
+
+        // [GIVEN] Create Movement Worksheet Line
+        Replenishmt.SetWhseWorksheet(
+                  WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, Location.Code, false);
+        BinContent.Reset();
+        BinContent.SetCurrentKey("Location Code", "Item No.", "Variant Code", "Warehouse Class Code", Fixed, "Bin Ranking");
+        BinContent.SetRange("Location Code", Location.Code);
+        BinContent.SetRange(Fixed, true);
+        if BinContent.FindSet() then
+            repeat
+                Replenishmt.ReplenishBin(BinContent, false);
+            until BinContent.Next() = 0;
+
+        Replenishmt.InsertWhseWkshLine();
+
+        // [WHEN] Create Movement from Movement Worksheet Lines.
+        WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
+        WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
+        WhseWorksheetLine.SetRange("Item No.", Item."No.");
+        Assert.RecordIsNotEmpty(WhseWorksheetLine);
+
+        WhseWorksheetLine.FindFirst();
+        Assert.AreEqual(WhseWorksheetLine."From Bin Code", '', FromBinBlankErr);
+        WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
+
+        // [THEN] Verify Warehouse Activity Lines gets sorted with Action Type and Bin Code.
+        VerifyWarehouseActivityLineWithBin(Item."No.", Bin[3].Code, Bin[1].Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6487,6 +6576,74 @@ codeunit 137152 "SCM Warehouse - Receiving"
             LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[i]);
     end;
 
+    local procedure VerifyWarehouseActivityLineWithBin(ItemNo: Code[20]; TakeBin: Code[20]; PlaceBin: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Bin Code", TakeBin);
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        Assert.RecordIsNotEmpty(WarehouseActivityLine);
+
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Bin Code", PlaceBin);
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        Assert.RecordIsNotEmpty(WarehouseActivityLine);
+    end;
+
+    local procedure CreateBinWithBinRanking(var Bin: Record Bin; LocationCode: Code[10]; BinRanking: Integer)
+    begin
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID(), '', '');
+        Bin.Validate("Bin Ranking", BinRanking);
+        Bin.Modify(true);
+    end;
+
+    local procedure FindAndUpdateBinContent(Bin: Record Bin; Item: Record Item; MinQuantity: Decimal; MaxQuantity: Decimal; "Fixed": Boolean; Default: Boolean; BinRanking: Integer)
+    var
+        BinContent: Record "Bin Content";
+    begin
+        BinContent.SetRange("Location Code", Bin."Location Code");
+        BinContent.SetRange("Bin Code", Bin.Code);
+        BinContent.SetRange("Item No.", Item."No.");
+        if not BinContent.FindFirst() then
+            LibraryWarehouse.CreateBinContent(
+              BinContent, Bin."Location Code", Bin."Zone Code", Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate("Bin Type Code", Bin."Bin Type Code");
+        BinContent.Validate("Min. Qty.", MinQuantity);
+        BinContent.Validate("Max. Qty.", MaxQuantity);
+        BinContent.Validate(Fixed, Fixed);
+        BinContent.Validate(Default, Default);
+        if BinRanking <> 0 then
+            BinContent.Validate("Bin Ranking", BinRanking);
+        BinContent.Modify(true);
+    end;
+
+    local procedure CreateWarehouseWorksheetNameForWarehouseLocation(var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+    begin
+        WhseWorksheetTemplate.SetRange(Type, WhseWorksheetTemplate.Type::Movement);
+        WhseWorksheetTemplate.FindFirst();
+        LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
+    end;
+
+    local procedure PostItemPositiveAdjustmentWithLotTracking(Item: Record Item; Location: Record Location; BinCode: Code[20]; LotNo: Code[20]; ExpirationDate: Date; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, BinCode, Qty);
+
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryVariableStorage.Enqueue(ExpirationDate);
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        LibraryInventory.PostItemJournalLine(
+          ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculateInventoryPageHandler(var CalculateInventory: TestRequestPage "Calculate Inventory")
@@ -6604,6 +6761,15 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LibraryVariableStorage.Dequeue(DequeueVariable);
         LocalMessage := DequeueVariable;
         Assert.IsTrue(StrPos(Message, LocalMessage) > 0, Message);
+    end;
+
+    [ModalPageHandler]
+    procedure SetLotItemWithQtyToHandleTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines."Expiration Date".SetValue(LibraryVariableStorage.DequeueDate());
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ConfirmHandler]

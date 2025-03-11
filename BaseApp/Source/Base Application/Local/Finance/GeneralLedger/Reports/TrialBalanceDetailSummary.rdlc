@@ -4246,7 +4246,7 @@
                                   <Value>=Sum(Fields!TotalDebitAmount.Value) - Sum(Fields!TotalCreditAmount.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!TotalCreditAmountFormat.Value</Format>
+                                    <Format>=First(Fields!CreditAmount_GLAccountFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

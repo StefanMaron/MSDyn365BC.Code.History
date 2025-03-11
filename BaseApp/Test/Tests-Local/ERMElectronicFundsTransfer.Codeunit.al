@@ -48,6 +48,7 @@
         CheckExportedErr: Label 'Check Exported must be true.';
         DocumentNoBlankErr: Label 'Document No. must be blank.';
         AppliedIsTrueErr: Label 'Applied(Yes/No) must be Yes.';
+        VendorLedgLedgerErr: Label '%1 must be exist.', Comment = '%=1 Table Caption';
         IsInitialized: Boolean;
 
     [Test]
@@ -2836,6 +2837,85 @@
         Assert.AreEqual(true, GenJournalLine.IsApplied(), AppliedIsTrueErr);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentRequestPageHandler,MessageHandler,ExportElectronicPaymentsRequestPageHandler,VoidElectronicPaymentsRequestPageHandler,ConfirmHandler')]
+    procedure SuggestVendorPaymentForMultipleVendorAndExportAndVoidElectronicPaymentFile()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        Vendor: array[2] of Record Vendor;
+        VendorBankAccount: array[2] of Record "Vendor Bank Account";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        Amount: Decimal;
+        RequestPageXML: Text;
+        VendorNo: Text;
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 563194] Verify that when the remittance is voided, the vendor documents are not unapplied from the payment.
+        Initialize();
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        // [GIVEN] Create Electronic Bank Account.
+        CreateElectronicExportBankAccount(BankAccount);
+
+        // [GIVEN] Create a General Journal Batch using Journal Template Payments.
+        CreateGeneralJournalBatchWithBalAccountType(GenJournalBatch, GenJournalTemplate.Type::Payments, BankAccount."No.");
+
+        // [GIVEN] Create Vendor & their Bank Account.
+        CreateVendorWithBankAccount(Vendor[1], VendorBankAccount[1]);
+        CreateVendorWithBankAccount(Vendor[2], VendorBankAccount[2]);
+
+        // [GIVEN] Post Multiple Vendor Ledger Entry.
+        Amount := CreateAndPostVendorLedgerEntry(Vendor[1]."No.");
+        CreateAndPostVendorLedgerEntry(Vendor[2]."No.");
+        CreateAndPostVendorLedgerEntry(Vendor[2]."No.");
+        CreateAndPostVendorLedgerEntry(Vendor[1]."No.");
+        CreateAndPostVendorLedgerEntry(Vendor[1]."No.");
+
+        VendorNo := Vendor[1]."No." + '|' + Vendor[2]."No.";
+        PaymentJournal.OpenEdit();
+
+        // [GIVEN] Suggest Vendor Payment with Summarize per Vendor  set True.
+        SuggestVendorPayment(PaymentJournal, GenJournalBatch.Name, VendorNo, BankAccount."No.");
+
+        // [GIVEN] Set Vendor Bank Account in Payment Journal Page.
+        SetVendorBankAccountInPaymentJournal(PaymentJournal, VendorBankAccount[1].Code, VendorBankAccount[2].Code);
+
+        // [GIVEN] Export Electronic File.
+        InvokeExportPaymentJournalAction(PaymentJournal, GenJournalBatch, BankAccount."No.");
+
+        Commit();
+        // [WHEN] Void the exported file.
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        PaymentJournal.VoidPayments.Invoke();
+
+        // [THEN] Vendor Ledger Entry should be contain the "Applies-to ID".
+        VendorLedgerEntry.SetFilter("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetFilter("Applies-to ID", '<>%1', '');
+        Assert.IsFalse(VendorLedgerEntry.IsEmpty(), StrSubstNo(VendorLedgLedgerErr, VendorLedgerEntry.TableCaption));
+
+        // [GIVEN] Set Request Page Parameter
+        FindGenJnlLine(GenJournalLine, GenJournalBatch);
+        EnqueueMultipleValues(BankAccount."No.", GenJournalBatch);
+
+        // [WHEN] Run Export Electronic Payments Reports 2nd time.
+        Commit();
+        RequestPageXML := Report.RunRequestPage(Report::"Export Electronic Payments", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Export Electronic Payments", GenJournalLine, RequestPageXML);
+
+        // [THEN] verify Data.
+        LibraryReportDataset.AssertElementWithValueExists('Vendor_Ledger_Entry__Document_Type_', 'Invoice');
+        LibraryReportDataset.AssertElementWithValueNotExist('Text004', 'Unapplied Amount');
+        LibraryReportDataset.AssertElementWithValueExists('AmountPaid_Control43', Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -5023,6 +5103,116 @@
         PaymentJournal.Close();
     end;
 
+    local procedure CreateElectronicExportBankAccount(var BankAccount: Record "Bank Account")
+    var
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        if CompanyInformation."Federal ID No." = '' then begin
+            CompanyInformation."Federal ID No." := LibraryUtility.GenerateGUID();
+            CompanyInformation.Modify();
+        end;
+
+        BankExportImportSetup.Init();
+        BankExportImportSetup.Code :=
+          LibraryUtility.GenerateRandomCode(BankExportImportSetup.FieldNo(Code), Database::"Bank Export/Import Setup");
+        BankExportImportSetup.Validate(Direction, BankExportImportSetup.Direction::"Export-EFT");
+        BankExportImportSetup.Validate("Data Exch. Def. Code", 'US EFT DEFAULT');
+        BankExportImportSetup.Validate("Processing Codeunit ID", Codeunit::"Exp. Launcher EFT");
+        BankExportImportSetup.Insert(true);
+
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
+        BankAccount.Validate("Export Format", BankAccount."Export Format"::US);
+        BankAccount.Validate("Transit No.", BankAccount."No.");
+        BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
+        BankAccount.Validate("Last E-Pay Export File Name", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Last Remittance Advice No.", LibraryUtility.GenerateGUID());
+        BankAccount.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalBatchWithBalAccountType(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type"; BankAccountNo: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        NoSeries: Record "No. Series";
+    begin
+        GenJournalTemplate.SetRange(Recurring, false);
+        GenJournalTemplate.SetRange(Type, TemplateType);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccountNo);
+        NoSeries.FindLast();
+        GenJournalBatch.Validate("No. Series", NoSeries.Code);
+        GenJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account")
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
+        VendorBankAccount.Validate("Use for Electronic Payments", true);
+        VendorBankAccount.Modify(true);
+    end;
+
+    local procedure CreateAndPostVendorLedgerEntry(VendorNo: Code[20]): Decimal
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        LibraryJournals: Codeunit "Library - Journals";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        exit(-GenJournalLine.Amount);
+    end;
+
+    local procedure SuggestVendorPayment(var PaymentJournal: TestPage "Payment Journal"; JournalBatchName: Code[10]; VendorNo: Text; BankAccountNo: Code[20])
+    begin
+        Commit();
+        LibraryVariableStorage.Enqueue(VendorNo);
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        PaymentJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
+        PaymentJournal.SuggestVendorPayments.Invoke();  // Opens handler - SuggestVendorPaymentRequestPageHandler.
+    end;
+
+    local procedure SetVendorBankAccountInPaymentJournal(var PaymentJournal: TestPage "Payment Journal"; VendorBankAccount: Code[20]; VendorBankAccount2: Code[20])
+    begin
+        PaymentJournal.First();
+        PaymentJournal."Recipient Bank Account".SetValue(VendorBankAccount);
+        PaymentJournal.Next();
+        PaymentJournal."Recipient Bank Account".SetValue(VendorBankAccount2);
+    end;
+
+    local procedure InvokeExportPaymentJournalAction(var PaymentJournal: TestPage "Payment Journal"; GenJournalBatch: Record "Gen. Journal Batch"; BankAccountNo: Code[20])
+    begin
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+
+        Commit();  // Commit required.
+        PaymentJournal.ExportPaymentsToFile.Invoke();
+    end;
+
+    local procedure FindGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindSet();
+        GenJournalLine.SetRecFilter();
+    end;
+
+    local procedure EnqueueMultipleValues(BankAccountNo: Code[20]; GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -5050,6 +5240,41 @@
     begin
         ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         ApplyVendorEntries.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure SuggestVendorPaymentRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccountNo: Variant;
+        VendorNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VendorNo);
+        LibraryVariableStorage.Dequeue(BankAccountNo);
+        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());  // Using Random for Months.
+        SuggestVendorPayments.SummarizePerVendor.SetValue(true);
+        SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
+        SuggestVendorPayments.BalAccountType.SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
+        SuggestVendorPayments.BankPaymentType.SetValue(GenJournalLine."Bank Payment Type"::"Electronic Payment");
+        SuggestVendorPayments.BalAccountNo.SetValue(BankAccountNo);
+        SuggestVendorPayments.Vendor.SetFilter("No.", VendorNo);
+        SuggestVendorPayments.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        // Message Handler.
+    end;
+
+    [RequestPageHandler]
+    procedure VoidElectronicPaymentsRequestPageHandler(var VoidElectronicPayments: TestRequestPage "Void/Transmit Elec. Payments")
+    var
+        BankAccountNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(BankAccountNo);
+        VoidElectronicPayments."BankAccount.""No.""".SetValue(BankAccountNo); // Bank Account No.
+        VoidElectronicPayments.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnIsTestMode', '', false, false)]

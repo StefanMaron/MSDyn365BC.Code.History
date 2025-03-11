@@ -1283,6 +1283,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Jobs - Multiple Customers - NamedType LinesTransferedToInvoiceMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3185217834 - NamedType 1899778124" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 invoices are created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Invoice count]D;]A;(LookupHint=Codeunit Jobs - Multiple Customers - NamedType MultipleInvoiceCreatedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3185217834 - NamedType 2091268835" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[1 invoice is created.]]></Val>

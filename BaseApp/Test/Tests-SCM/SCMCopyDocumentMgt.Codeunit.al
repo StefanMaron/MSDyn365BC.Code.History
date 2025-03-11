@@ -29,6 +29,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         WrongDimensionsCopiedErr: Label 'Wrong dimensions in copied document';
         ItemTrackingMode: Option "Assign Lot No.","Select Entries","Assign Serial Nos.";
         CaptionNotMatchErr: Label 'Incorrect caption';
+        OverReceiveError: Label 'Type must be equal to ''Item''  in Purchase Line: Document Type=%1, Document No.=%2, Line No.=%3. Current value is ''%4''.', Comment = '%1 = Document Type, %2 = Document No., %3 = Line No., %4 = Type';
 
     local procedure CopyDocument(SourceType: Enum "Sales Document Type From"; SourceUnpostedType: Enum "Sales Document Type"; DestType: Enum "Sales Document Type")
     var
@@ -1519,6 +1520,37 @@ codeunit 137212 "SCM Copy Document Mgt."
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    procedure OverReceivingPurchaseLineWithChargeItem()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Quantity: array[2] of Decimal;
+    begin
+        // [SCENARIO 562447] Check error while Over-Receive with "Charge Item".
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Generate Quanity.
+        Quantity[1] := LibraryRandom.RandInt(10);
+        Quantity[2] := Quantity[1] + LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create Purchase Order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Line with "Charge Item".
+        CreateItemChargePurchaseLineWithoutAssignment(PurchaseLine, PurchaseHeader, Quantity[1]);
+
+        // [WHEN] Over-Receive "Charge Item".
+        asserterror UpdateQtyToReceiveOnPurchaseLines(PurchaseHeader, Quantity[2]);
+
+        // [THEN] Verify Error message.
+        Assert.ExpectedError(StrSubstNo(OverReceiveError, PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", PurchaseLine.Type));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2734,6 +2766,13 @@ codeunit 137212 "SCM Copy Document Mgt."
             Assert.AreEqual(PurchaseLine."Shortcut Dimension 1 Code", PurchaseHeader."Shortcut Dimension 1 Code", WrongDimensionsCopiedErr);
             Assert.AreEqual(PurchaseLine."Shortcut Dimension 2 Code", PurchaseHeader."Shortcut Dimension 2 Code", WrongDimensionsCopiedErr);
         until PurchaseLine.Next() = 0;
+    end;
+
+    local procedure CreateItemChargePurchaseLineWithoutAssignment(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Quantity: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", '', Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
     end;
 
     [ModalPageHandler]

@@ -6,7 +6,6 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.BatchProcessing;
 using Microsoft.Foundation.Reporting;
-using Microsoft.Intercompany;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.History;
@@ -605,11 +604,10 @@ page 9307 "Purchase Order List"
 
                     trigger OnAction()
                     var
-                        ICInOutboxMgt: Codeunit ICInboxOutboxMgt;
-                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                        PurchaseHeader: Record "Purchase Header";
                     begin
-                        if ApprovalsMgmt.PrePostApprovalCheckPurch(Rec) then
-                            ICInOutboxMgt.SendPurchDoc(Rec, false);
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        Rec.SendICPurchaseDoc(PurchaseHeader);
                     end;
                 }
                 action("Delete Invoiced")
