@@ -615,7 +615,7 @@ codeunit 99000845 "Reservation Management"
 
         case ReservSummaryType of
             Enum::"Reservation Summary Type"::"Item Ledger Entry":
-                AutoReserveItemLedgEntry(
+                AutoManageReservationItemLedgerEntry(
                     ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
             else
                 OnAfterAutoReserveOneLine(
@@ -2316,6 +2316,49 @@ codeunit 99000845 "Reservation Management"
     procedure TestItemType(SourceRecRef: RecordRef)
     begin
         OnTestItemType(SourceRecRef);
+    end;
+
+    local procedure AutoManageReservationItemLedgerEntry(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date)
+    begin
+        if not HandleItemTracking then
+            AutoReserveItemLedgerEntryFromSurplus(ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
+        if RemainingQtyToReserveBase <> 0 then
+            AutoReserveItemLedgEntry(ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
+    end;
+
+    local procedure AutoReserveItemLedgerEntryFromSurplus(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        if CalcReservEntry.TrackingExists() then
+            exit;
+
+        ReservationEntry.SetSourceFilterFromReservEntry(CalcReservEntry);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        if ReservationEntry.FindSet() then
+            repeat
+                AutoReserveFromSpecificReservEntry(ReservationEntry, ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate)
+            until ReservationEntry.Next() = 0;
+    end;
+
+    local procedure AutoReserveFromSpecificReservEntry(ReservationEntry: Record "Reservation Entry"; ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date)
+    var
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
+    begin
+        if not ReservationEntry.TrackingExists() then
+            exit;
+
+        CalcReservEntry.CopyTrackingFromReservEntry(ReservationEntry);
+        QtyToReserve := Abs(ReservationEntry.Quantity);
+        QtyToReserveBase := Abs(ReservationEntry."Qty. to Handle (Base)");
+        AutoReserveItemLedgEntry(ReservSummEntryNo, QtyToReserve, QtyToReserveBase, Description, AvailabilityDate);
+        if Abs(ReservationEntry."Qty. to Handle (Base)") = QtyToReserveBase then begin
+            CalcReservEntry.ClearTracking();
+            exit;
+        end;
+        RemainingQtyToReserve -= Abs(ReservationEntry.Quantity);
+        RemainingQtyToReserveBase -= Abs(ReservationEntry."Qty. to Handle (Base)");
     end;
 
     [IntegrationEvent(false, false)]

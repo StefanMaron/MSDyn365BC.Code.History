@@ -5,6 +5,7 @@ enum 340 "Reservation Planning Flexibility"
 #pragma warning restore AL0659
 {
     AssignmentCompatibility = true;
+    Extensible = true;
 
     value(0; "Unlimited") { Caption = 'Unlimited'; }
     value(1; "None") { Caption = 'None'; }

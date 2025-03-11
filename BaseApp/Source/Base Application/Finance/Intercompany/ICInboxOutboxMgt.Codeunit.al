@@ -910,7 +910,8 @@ codeunit 427 ICInboxOutboxMgt
             if ReplacePostingDate then
                 SalesHeader.Validate("Posting Date", PostingDate)
             else
-                SalesHeader.Validate("Posting Date", ICInboxSalesHeader."Posting Date");
+                if ICInboxSalesHeader."Posting Date" <> 0D then
+                    SalesHeader.Validate("Posting Date", ICInboxSalesHeader."Posting Date");
             GetCurrency(ICInboxSalesHeader."Currency Code");
             SalesHeader.Validate("Currency Code", ICInboxSalesHeader."Currency Code");
             SalesHeader.Validate("Document Date", ICInboxSalesHeader."Document Date");
@@ -1179,7 +1180,8 @@ codeunit 427 ICInboxOutboxMgt
             if ReplacePostingDate then
                 PurchHeader.Validate("Posting Date", PostingDate)
             else
-                PurchHeader.Validate("Posting Date", ICInboxPurchHeader."Posting Date");
+                if ICInboxPurchHeader."Posting Date" <> 0D then
+                    PurchHeader.Validate("Posting Date", ICInboxPurchHeader."Posting Date");
             GetCurrency(ICInboxPurchHeader."Currency Code");
             PurchHeader.Validate("Currency Code", ICInboxPurchHeader."Currency Code");
             PurchHeader.Validate("Document Date", ICInboxPurchHeader."Document Date");

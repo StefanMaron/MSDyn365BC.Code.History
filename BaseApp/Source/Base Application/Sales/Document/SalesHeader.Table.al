@@ -34,6 +34,7 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
+using Microsoft.Intercompany;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Setup;
 using Microsoft.Inventory.Availability;
@@ -4162,7 +4163,7 @@ table 36 "Sales Header"
 
             if UpdateCurrencyExchangeRates.ExchangeRatesForCurrencyExist(CurrencyDate, "Currency Code") then begin
                 "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
-                if "Currency Code" <> xRec."Currency Code" then
+                if ("Currency Code" <> xRec."Currency Code") and (xRec."No." <> '') then
                     RecreateSalesLines(FieldCaption("Currency Code"));
             end else
                 UpdateCurrencyExchangeRates.ShowMissingExchangeRatesNotification("Currency Code");
@@ -7028,7 +7029,10 @@ table 36 "Sales Header"
             exit;
 
         "Posting Date" := PostingDateReq;
-        Validate("Currency Code");
+        if "Currency Code" <> '' then begin
+            UpdateCurrencyFactor();
+            UpdateSalesLinesByFieldNo(SalesHeader.FieldNo("Currency Factor"), false);
+        end;
 
         if ReplaceVATDate then
             "VAT Reporting Date" := VATDateReq;
@@ -9283,6 +9287,17 @@ table 36 "Sales Header"
         ContactBusinessRelation.SetRange("Contact No.", ContactNo);
         ContactBusinessRelation.SetRange(ContactBusinessRelation."Link to Table", ContactBusinessRelationLinkType);
         exit(ContactBusinessRelation.IsEmpty());
+    end;
+
+    procedure SendICSalesDoc(var SalesHeader: Record "Sales Header")
+    var
+        ICInOutboxMgt: Codeunit ICInboxOutboxMgt;
+    begin
+        if SalesHeader.FindSet() then
+            repeat
+                if ApprovalsMgmt.PrePostApprovalCheckSales(SalesHeader) then
+                    ICInOutboxMgt.SendSalesDoc(SalesHeader, false);
+            until SalesHeader.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

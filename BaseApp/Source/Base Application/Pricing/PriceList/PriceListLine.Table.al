@@ -1061,7 +1061,7 @@ table 7001 "Price List Line"
 
         VerifySource();
         TestField("Asset Type");
-        if "Asset Type" = "Asset Type"::Item then
+        if ("Asset Type" = "Asset Type"::Item) and ("Amount Type" <> "Amount Type"::Discount) then
             TestField("Asset No.");
 
         OnAfterVerify(Rec);
