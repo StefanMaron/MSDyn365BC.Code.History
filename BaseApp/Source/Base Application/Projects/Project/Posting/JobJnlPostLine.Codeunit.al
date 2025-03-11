@@ -415,7 +415,7 @@ codeunit 1012 "Job Jnl.-Post Line"
             end;
         end;
 
-        OnPostItemOnBeforeGetJobConsumptionValueEntry(JobJnlLine);
+        OnPostItemOnBeforeGetJobConsumptionValueEntry(JobJnlLine, NextEntryNo);
         if GetJobConsumptionValueEntry(ValueEntry, JobJnlLine) then begin
             RemainingAmount := JobJnlLine2."Line Amount";
             RemainingAmountLCY := JobJnlLine2."Line Amount (LCY)";
@@ -898,7 +898,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemOnBeforeGetJobConsumptionValueEntry(var JobJournalLine: Record "Job Journal Line")
+    local procedure OnPostItemOnBeforeGetJobConsumptionValueEntry(var JobJournalLine: Record "Job Journal Line"; var NextEntryNo: Integer)
     begin
     end;
 

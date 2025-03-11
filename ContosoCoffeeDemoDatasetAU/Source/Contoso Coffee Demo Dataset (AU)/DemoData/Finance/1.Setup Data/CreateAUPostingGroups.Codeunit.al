@@ -89,7 +89,6 @@ codeunit 17138 "Create AU Posting Groups"
         ContosoGenPostingSetup.InsertGeneralPostingSetup('', CreatePostingGroups.MiscPostingGroup(), '', '', '', '', '', '', '', '', '', '', '', '', '');
         ContosoGenPostingSetup.InsertGeneralPostingSetup('', NonGst(), '', '', '', '', '', '', '', '', '', '', '', '', '');
         ContosoGenPostingSetup.InsertGeneralPostingSetup('', CreatePostingGroups.RawMatPostingGroup(), '', '', '', '', '', '', '', '', '', '', '', '', '');
-        ContosoGenPostingSetup.InsertGeneralPostingSetup('', CreatePostingGroups.ServicesPostingGroup(), '', '', '', '', '', '', '', '', '', '', '', '', '');
         ContosoGenPostingSetup.InsertGeneralPostingSetup(CreatePostingGroups.DomesticPostingGroup(), Manufact(), '', '', '', '', '', '', '', '', '', '', '', '', '');
         ContosoGenPostingSetup.InsertGeneralPostingSetup(CreatePostingGroups.DomesticPostingGroup(), CreatePostingGroups.MiscPostingGroup(), '', '', '', '', '', '', '', '', '', '', '', '', '');
         ContosoGenPostingSetup.InsertGeneralPostingSetup(CreatePostingGroups.DomesticPostingGroup(), NonGst(), '', '', '', '', '', '', '', '', '', '', '', '', '');

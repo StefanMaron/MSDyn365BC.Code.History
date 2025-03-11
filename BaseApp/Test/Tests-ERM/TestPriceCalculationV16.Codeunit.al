@@ -5374,6 +5374,28 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
 
+    [Test]
+    procedure T293_DiscountLineForAllItemsAllowed()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        OldHandler: Enum "Price Calculation Handler";
+    begin
+        // [SCENARIO 563145] It is possible to create discount line with Product Type = Item without specifying item number.
+        Initialize();
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        LibrarySales.CreateCustomer(Customer);
+        Item."No." := '';
+        Commit();
+
+        CreateDiscountLine(PriceListLine, Customer, Item);
+        PriceListLine.TestField("Asset No.", '');
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

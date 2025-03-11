@@ -150,6 +150,8 @@ codeunit 6003 "Service Transfer Ext. Text"
         if IsHandled then
             exit;
 
+        TransferExtendedText.GetTempExtTextLine(TempExtTextLine);
+
         ToServiceLine.Reset();
         ToServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ToServiceLine.SetRange("Document No.", ServiceLine."Document No.");
@@ -165,7 +167,6 @@ codeunit 6003 "Service Transfer Ext. Text"
 
         NextLineNo := ServiceLine."Line No." + LineSpacing;
 
-        TransferExtendedText.GetTempExtTextLine(TempExtTextLine);
         TempExtTextLine.Reset();
         if TempExtTextLine.Find('-') then begin
             repeat
