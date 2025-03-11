@@ -538,10 +538,16 @@ codeunit 1336 "Item Templ. Mgt."
             ItemTempl.Modify();
     end;
 
-    procedure IsOpenBlankCardConfirmed(): Boolean
+    procedure IsOpenBlankCardConfirmed() Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenBlankCardConfirmed(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(ConfirmManagement.GetResponse(OpenBlankCardQst, false));
     end;
 
@@ -706,6 +712,11 @@ codeunit 1336 "Item Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectItemTemplate(ItemTempl: Record "Item Templ."; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenBlankCardConfirmed(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

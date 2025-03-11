@@ -1956,6 +1956,41 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaShowAmountWithOnlyAdjustment()
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        AMagneticMediaMgt: Codeunit "A/P Magnetic Media Management";
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 565085] A "Vendor 1099 Magnetic Media" report shows the amount with only the adjustment
+        Initialize();
+
+        // [GIVEN] Adjustment amount equals 100 for vendor "A", code "MISC-01", Year = 2025
+        LibraryLocalFunctionality.CreateIRS1099Adjustment(
+          IRS1099Adjustment, LibraryPurchase.CreateVendorNo(), IRS1099CodeMisc,
+          Date2DMY(WorkDate(), 3), LibraryRandom.RandDecInRange(10, 100, 2));
+
+        Commit();
+        LibraryVariableStorage.Enqueue(IRS1099Adjustment."Vendor No.");
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report for 2025 and vendor "A"
+        RunVendor1099MagneticMediaReportSingleVendor(FileName, IRS1099Adjustment."Vendor No.");
+
+        // [THEN] Line has amount element with value "00000100 00"
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(IRS1099Adjustment.Amount, 12),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 67, 12), AmountErr);
+
+        LibraryVariableStorage.AssertEmpty();
+
+        FileManagement.DeleteServerFile(FileName);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

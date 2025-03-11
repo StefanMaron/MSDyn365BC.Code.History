@@ -4372,32 +4372,25 @@ codeunit 10145 "E-Invoice Mgt."
         DocumentHeader: Record "Document Header";
         PostCode: Record "Post Code";
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        Location: Record Location;
         DataTypeManagement: Codeunit "Data Type Management";
         RecRef: RecordRef;
-        TimeZone: Text;
     begin
         DataTypeManagement.GetRecordRef(DocumentHeaderVariant, RecRef);
         if RecRef.Number = DATABASE::"Transfer Shipment Header" then begin
             RecRef.SetTable(TransferShipmentHeader);
             if PostCode.Get(TransferShipmentHeader."Transfer-from Post Code", TransferShipmentHeader."Transfer-from City") then
                 exit(PostCode."Time Zone");
-            PostCode.Get(CompanyInfo."Post Code", CompanyInfo.City);
-            exit(PostCode."Time Zone");
+            exit(GetTimeZoneFromCompany());
         end;
 
         DocumentHeader.TransferFields(DocumentHeaderVariant);
-        if PostCode.Get(DocumentHeader."Ship-to/Buy-from Post Code", DocumentHeader."Ship-to/Buy-from City") then
-            exit(PostCode."Time Zone");
+        Location.SetLoadFields("Post Code", City);
+        if Location.Get(DocumentHeader."Location Code") then
+            if PostCode.Get(Location."Post Code", Location.City) then
+                exit(PostCode."Time Zone");
 
-        if PostCode.Get(DocumentHeader."Sell-to/Buy-from Post Code", DocumentHeader."Sell-to/Buy-From City") then
-            exit(PostCode."Time Zone");
-        TimeZone := GetTimeZoneFromCustomer(DocumentHeader."Sell-to/Buy-from No.");
-        if TimeZone <> '' then
-            exit(TimeZone);
-
-        if PostCode.Get(DocumentHeader."Bill-to/Pay-To Post Code", DocumentHeader."Bill-to/Pay-To City") then
-            exit(PostCode."Time Zone");
-        exit(GetTimeZoneFromCustomer(DocumentHeader."Bill-to/Pay-To No."));
+        exit(GetTimeZoneFromCompany());
     end;
 
     local procedure GetTimeZoneFromCustomer(CustomerNo: Code[20]): Text
@@ -4407,6 +4400,16 @@ codeunit 10145 "E-Invoice Mgt."
     begin
         Customer.Get(CustomerNo);
         if PostCode.Get(Customer."Post Code", Customer.City) then
+            exit(PostCode."Time Zone");
+        exit('');
+    end;
+
+    local procedure GetTimeZoneFromCompany(): Text
+    var
+        PostCode: Record "Post Code";
+    begin
+        GetCompanyInfo();
+        if PostCode.Get(CompanyInfo."Post Code", CompanyInfo.City) then
             exit(PostCode."Time Zone");
         exit('');
     end;

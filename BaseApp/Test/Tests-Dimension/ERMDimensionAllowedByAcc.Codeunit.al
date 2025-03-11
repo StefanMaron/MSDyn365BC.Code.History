@@ -18,6 +18,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarySales: Codeunit "Library - Sales";
         IsInitialized: Boolean;
         DimValueNotAllowedForAccountErr: Label 'Dimension value %1, %2 is not allowed for %3, %4.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption, %4 - account number.';
         DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';
@@ -1202,6 +1203,9 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         // [WHEN] Create new Dimension Value
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionValue."Dimension Code");
 
+        // [GIVEN] Mock set for dim value per account allowed for G/L Account "A"
+        CreateDimValuePerAccount(DimensionValue, Database::"G/L Account", GLAccount."No.", true);
+
         // [THEN] Verify new Dimension Value is allowed
         VerifyNewDimensionValueIsAllowed(GLAccount, DimensionValue);
     end;
@@ -1248,6 +1252,59 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         // [VERIFY] Verify Dimension Values not set on Allowed Values Filter field 
         // are not applied as Allowed in DimValuePerAccount for GL Account.
         asserterror VerifyNewDimensionValueIsAllowed(GLAccount, DimensionValue[1]);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure NewDimValueAddedToAllowedDimensionValuesPerAccountAtomatically()
+    var
+        Customer: Record "Customer";
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+        DimensionValue: array[4] of Record "Dimension Value";
+        DimValuePerAccount: Record "Dim. Value per Account";
+        Dimensions: TestPage "Dimensions";
+        DimensionValues: TestPage "Dimension Values";
+    begin
+        // [SCENARIO 565211] New Dimension Value is not added to the Allowed Dimension Values per Account automatically
+        Initialize();
+
+        // [GIVEN] Created Dimension "DIM01" with Value "DV1", "DV2" and "DV3"
+        CreateDimensionWithThreeValues(
+            Dimension, DimensionValue,
+            Format(LibraryRandom.RandIntInRange(1, 1)),
+            Format(LibraryRandom.RandIntInRange(3, 3)),
+            Format(LibraryRandom.RandIntInRange(4, 4)));
+
+        // [GIVEN] Create Customer "C"
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] New mandatory Default Dimension for the Customer "C" - "Dimension Code" = "DIM01"
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::Customer, Customer."No.", Dimension.Code);
+
+        // [GIVEN] Mock set both dim value per account allowed for Customer "C"
+        CreateDimValuePerAccount(DimensionValue[1], Database::Customer, Customer."No.", true);
+        CreateDimValuePerAccount(DimensionValue[2], Database::Customer, Customer."No.", true);
+
+        // [GIVEN] Set "Allowed Values Filter" = "DV1" .. "DV3" for Customer "C"
+        DefaultDimension.Validate("Allowed Values Filter", DimensionValue[1].Code + '..' + DimensionValue[2].Code);
+        DefaultDimension.Modify(true);
+
+        // [WHEN] New dimension value "DV4" is being created using Page "Dimension Values"
+        Dimensions.OpenEdit();
+        DimensionValues.Trap();
+        Dimensions.GoToRecord(Dimension);
+        Dimensions."Dimension &Values".Invoke();
+        DimensionValues.New();
+        DimensionValues.Code.SetValue(Format(LibraryRandom.RandIntInRange(2, 2)));
+        DimensionValue[4].Code := DimensionValues.Code.Value;
+        DimensionValues.OK().Invoke();
+        Dimensions.OK().Invoke();
+
+        // [THEN] Verify Allowed dimension for account "DV4" creaetd with "Allowed" = "Yes"
+        DimValuePerAccount.Get(Database::Customer, Customer."No.", Dimension.Code, DimensionValue[4].Code);
+        Assert.IsTrue(DimValuePerAccount.Allowed, DefDimensionIsNotAllowedMsg);
     end;
 
     local procedure Initialize()
@@ -1374,6 +1431,19 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         DimValuePerAccount.SetRange("No.", DefaultDimension."No.");
         DimValuePerAccount.SetRange("Dimension Code", DefaultDimension."Dimension Code");
         Assert.RecordIsEmpty(DimValuePerAccount);
+    end;
+
+    local procedure CreateDimensionWithThreeValues(
+        var Dimension: Record Dimension;
+        var DimensionValue: array[2] of Record "Dimension Value";
+        DimensionValueCode1: Code[20];
+        DimensionValueCode2: Code[20];
+        DimensionValueCode3: Code[20])
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue[1], DimensionValueCode1, Dimension.Code);
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue[2], DimensionValueCode2, Dimension.Code);
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue[3], DimensionValueCode3, Dimension.Code);
     end;
 
     [Scope('OnPrem')]

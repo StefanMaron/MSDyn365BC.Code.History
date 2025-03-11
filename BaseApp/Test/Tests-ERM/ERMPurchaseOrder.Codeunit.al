@@ -100,6 +100,7 @@
         GrossWeightErr: Label '%1 must be calculated in %2.', Comment = '%1=Field Caption; %2 Page Caption.';
         QuantityMustBeZeroLbl: Label '%1 must be 0', Comment = '%1=Field Caption';
         GlobalDimensionCodeErr: Label '%1 must be blank in %2.', Comment = '%1=Field Caption; %2 Page Caption.';
+        SourceCurrencyErr: Label '%1 must be negative.', Comment = '%1=Field Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -8631,6 +8632,80 @@
                 ValueEntry.TableCaption));
     end;
 
+    [Test]
+    procedure SourceCurrencyAmountReflectCorrectInGLEntryWhenVATCalculationTypeReverseChargeTax()
+    var
+        Currency: Record Currency;
+        GLEntry: Record "G/L Entry";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        InvocieNo: Code[20];
+    begin
+        // [SCENARIO 559286] Calculation in Source Currency Amount with right Sign when VAT calculation type is Reverse Charge Tax in VAT Posting Setup.
+        Initialize();
+
+        // [GIVEN] Create Reverse Charge VAT in VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup,
+            VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT",
+            LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Validate Reverse Chrg. VAT Acc. in VAT Posting Setup.
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Unreal. Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Create Currency With Exchange Rate.
+        Currency.Get(
+            LibraryERM.CreateCurrencyWithExchangeRate(
+                WorkDate(),
+                LibraryRandom.RandDecInRange(100, 110, 2),
+                LibraryRandom.RandDecInRange(111, 120, 2)));
+
+        // [GIVEN] Create an Item, Validate VAT Prod. Posting Group and Last Direct Cost.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Validate("Last Direct Cost", LibraryRandom.RandInt(100));
+        Item.Modify(true);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Validate Vendor Invoice No., VAT Bus. Posting Group and Currency Code.
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Validate("Currency Code", Currency.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line and Validate VAT Product Posting Group.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Order.
+        InvocieNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Source Currency Amount in General Ledger Entry must have same sign as Amount.
+        GLEntry.SetRange("Document No.", InvocieNo);
+        GLEntry.SetRange("G/L Account No.", VATPostingSetup."Reverse Chrg. VAT Acc.");
+        GLEntry.FindFirst();
+        Assert.IsTrue(
+            GLEntry."Source Currency Amount" < 0,
+            StrSubstNo(
+                SourceCurrencyErr,
+                GLEntry.FieldCaption("Source Currency Amount")));
+    end;
+    
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

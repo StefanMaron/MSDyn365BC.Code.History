@@ -3842,16 +3842,16 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 323341] Request Stamp for Sales Invoice in 'Ship-to' Time Zone
+        // [SCENARIO 540218] Request Stamp for Sales Invoice in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Sales Invoice Header";
 
-        // [GIVEN] Sales Invoice has 'Ship-To City' and 'Ship-to Post Code' with Time Zone offset = 2h
+        // [GIVEN] Sales Invoice has Location with City and Post Code with Time Zone offset = 2h
         DocumentNo := CreateAndPostDoc(TableNo, CreatePaymentMethodForSAT());
         FindTimeZone(TimeZoneID, TimeZoneOffset, UserOffset);
         UpdateDocumentWithTimeZone(
           TableNo, SalesInvoiceHeader.FieldNo("No."), DocumentNo,
-          SalesInvoiceHeader.FieldNo("Ship-to City"), SalesInvoiceHeader.FieldNo("Ship-to Post Code"), TimeZoneID);
+          SalesInvoiceHeader.FieldNo("Location Code"), TimeZoneID);
 
         // [WHEN] Request stamp for the Sales Invoice
         RequestStamp(TableNo, DocumentNo, ResponseOption::Success, ActionOption::"Request Stamp");
@@ -3875,16 +3875,16 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 323341] Request Stamp for Sales Credit Memo in 'Sell-to' Time Zone
+        // [SCENARIO 540218] Request Stamp for Sales Credit Memo in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Sales Cr.Memo Header";
 
-        // [GIVEN] Sales Credit memo has 'Sell-To City' and 'Sell-to Post Code' with Time Zone offset = 2h
+        // [GIVEN] Sales Credit memo has Location with City and Post Code with Time Zone offset = 2h
         DocumentNo := CreateAndPostDoc(TableNo, CreatePaymentMethodForSAT());
         FindTimeZone(TimeZoneID, TimeZoneOffset, UserOffset);
         UpdateDocumentWithTimeZone(
           TableNo, SalesCrMemoHeader.FieldNo("No."), DocumentNo,
-          SalesCrMemoHeader.FieldNo("Ship-to City"), SalesCrMemoHeader.FieldNo("Ship-to Post Code"), TimeZoneID);
+          SalesCrMemoHeader.FieldNo("Location Code"), TimeZoneID);
 
         // [WHEN] Request stamp for the Sales Credit Memo
         RequestStamp(TableNo, DocumentNo, ResponseOption::Success, ActionOption::"Request Stamp");
@@ -3908,16 +3908,16 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 323341] Request Stamp for Service Invoice in 'Bill-to' Time Zone
+        // [SCENARIO 540218] Request Stamp for Service Invoice in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Service Invoice Header";
 
-        // [GIVEN] Service Invoice has 'Bill-To City' and 'Bill-to Post Code' with Time Zone offset = 2h
+        // [GIVEN] Service Invoice has Location with City and Post Code with Time Zone offset = 2h
         DocumentNo := CreateAndPostDoc(TableNo, CreatePaymentMethodForSAT());
         FindTimeZone(TimeZoneID, TimeZoneOffset, UserOffset);
         UpdateDocumentWithTimeZone(
           TableNo, ServiceInvoiceHeader.FieldNo("No."), DocumentNo,
-          ServiceInvoiceHeader.FieldNo("Ship-to City"), ServiceInvoiceHeader.FieldNo("Ship-to Post Code"), TimeZoneID);
+          ServiceInvoiceHeader.FieldNo("Location Code"), TimeZoneID);
 
         // [WHEN] Request stamp for the Service Invoice
         RequestStamp(TableNo, DocumentNo, ResponseOption::Success, ActionOption::"Request Stamp");
@@ -3941,17 +3941,16 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 323341] Request Stamp for Service Credit Memo for customer with defined Time Zone
+        // [SCENARIO 540218] Request Stamp for Service Credit Memo for Location with defined Time Zone
         Initialize();
         TableNo := DATABASE::"Service Cr.Memo Header";
 
-        // [GIVEN] Service Credit Memo  has Customer with Post Code of Time Zone offset = 2h
+        // [GIVEN] Service Credit Memo  has Location with City and Post Code with Time Zone offset = 2h
         DocumentNo := CreateAndPostDoc(TableNo, CreatePaymentMethodForSAT());
         FindTimeZone(TimeZoneID, TimeZoneOffset, UserOffset);
         UpdateDocumentWithTimeZone(
           TableNo, ServiceCrMemoHeader.FieldNo("No."), DocumentNo,
-          ServiceCrMemoHeader.FieldNo("Ship-to City"), ServiceCrMemoHeader.FieldNo("Ship-to Post Code"),
-          TimeZoneID);
+          ServiceCrMemoHeader.FieldNo("Location Code"), TimeZoneID);
 
         // [WHEN] Request stamp for the Service Credit Memo
         RequestStamp(TableNo, DocumentNo, ResponseOption::Success, ActionOption::"Request Stamp");
@@ -4013,11 +4012,11 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 323341] Send document for Sales Invoice in 'Ship-to' Time Zone
+        // [SCENARIO 540218] Send document for Sales Invoice in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Sales Invoice Header";
 
-        // [GIVEN] Stamped Sales Invoice has 'Ship-To City' and 'Ship-to Post Code' with Time Zone offset = 2h
+        // [GIVEN] Stamped Sales Invoice has Location with City and Post Code with Time Zone offset = 2h
         DocumentNo := CreateAndPostDoc(TableNo, CreatePaymentMethodForSAT());
         UpdateDocumentFieldValue(
           TableNo, SalesInvoiceHeader.FieldNo("No."), DocumentNo,
@@ -4025,7 +4024,7 @@
         FindTimeZone(TimeZoneID, TimeZoneOffset, UserOffset);
         UpdateDocumentWithTimeZone(
           TableNo, SalesInvoiceHeader.FieldNo("No."), DocumentNo,
-          SalesInvoiceHeader.FieldNo("Ship-to City"), SalesInvoiceHeader.FieldNo("Ship-to Post Code"), TimeZoneID);
+          SalesInvoiceHeader.FieldNo("Location Code"), TimeZoneID);
 
         // [WHEN] Send Electronic Document for the Sales Invoice
         RequestStamp(TableNo, DocumentNo, ResponseOption::Success, ActionOption::Send);
@@ -4089,11 +4088,11 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 323341] Cancel Sales Invoice in 'Ship-to' Time Zone
+        // [SCENARIO 540218] Cancel Sales Invoice in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Sales Invoice Header";
 
-        // [GIVEN] Stamped Sales Invoice has 'Ship-To City' and 'Ship-to Post Code' with Time Zone offset = 2h
+        // [GIVEN] Stamped Sales Invoice has Location with City and Post Code with Time Zone offset = 2h
         DocumentNo := CreateAndPostDoc(TableNo, CreatePaymentMethodForSAT());
         UpdateDocumentFieldValue(
           TableNo, SalesInvoiceHeader.FieldNo("No."), DocumentNo,
@@ -4101,7 +4100,7 @@
         FindTimeZone(TimeZoneID, TimeZoneOffset, UserOffset);
         UpdateDocumentWithTimeZone(
           TableNo, SalesInvoiceHeader.FieldNo("No."), DocumentNo,
-          SalesInvoiceHeader.FieldNo("Ship-to City"), SalesInvoiceHeader.FieldNo("Ship-to Post Code"), TimeZoneID);
+          SalesInvoiceHeader.FieldNo("Location Code"), TimeZoneID);
 
         // [WHEN] Cancel Sales Invoice
         Cancel(TableNo, DocumentNo, ResponseOption::Success);
@@ -6263,7 +6262,7 @@
         SalesHeader.Validate(SalesHeader."Prepayment %", LibraryRandom.RandIntInRange(10, 50));
         SalesHeader.Modify(true);
         CreateSalesLineItem(SalesLine, SalesHeader, CreateItem(), LibraryRandom.RandIntInRange(2, 5), 0, 16, false, false);
-        
+
         // [GIVEN] Posted prepayment invoice, Amount Including VAT = 2320, VAT = 16%
         SalesInvoiceHeader.Get(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader));
 
@@ -8846,16 +8845,14 @@
         PostedHeaderRecRef.Modify();
     end;
 
-    local procedure UpdateDocumentPostCode(TableNo: Integer; FieldNoDocumentNo: Integer; DocumentNo: Code[20]; FieldNoCity: Integer; FieldNoPostCode: Integer; City: Variant; PostCode: Variant)
+    local procedure UpdateDocumentLocation(TableNo: Integer; FieldNoDocumentNo: Integer; DocumentNo: Code[20]; FieldNoLocation: Integer; LocationCode: Variant)
     var
         PostedHeaderRecRef: RecordRef;
         ChangeFieldRef: FieldRef;
     begin
         FindPostedHeader(PostedHeaderRecRef, TableNo, FieldNoDocumentNo, DocumentNo);
-        ChangeFieldRef := PostedHeaderRecRef.Field(FieldNoCity);
-        ChangeFieldRef.Value := City;
-        ChangeFieldRef := PostedHeaderRecRef.Field(FieldNoPostCode);
-        ChangeFieldRef.Value := PostCode;
+        ChangeFieldRef := PostedHeaderRecRef.Field(FieldNoLocation);
+        ChangeFieldRef.Value := LocationCode;
         PostedHeaderRecRef.Modify();
     end;
 
@@ -8879,13 +8876,17 @@
         Customer.Modify();
     end;
 
-    local procedure UpdateDocumentWithTimeZone(TableID: Integer; FieldNoDocumentNo: Integer; DocumentNo: Code[20]; FieldNoCity: Integer; FieldNoPostCode: Integer; TimeZoneID: Text[180])
+    local procedure UpdateDocumentWithTimeZone(TableID: Integer; FieldNoDocumentNo: Integer; DocumentNo: Code[20]; FieldNoLocation: Integer; TimeZoneID: Text[180])
     var
         PostCode: Record "Post Code";
+        Location: Record Location;
     begin
         CreatePostCode(PostCode, TimeZoneID);
-        UpdateDocumentPostCode(
-          TableID, FieldNoDocumentNo, DocumentNo, FieldNoCity, FieldNoPostCode, PostCode.City, PostCode.Code);
+        LibraryWarehouse.CreateLocation(Location);
+        Location."Post Code" := PostCode.Code;
+        Location.City := PostCode.City;
+        Location.Modify();
+        UpdateDocumentLocation(TableID, FieldNoDocumentNo, DocumentNo, FieldNoLocation, Location.Code);
     end;
 
     local procedure UpdateSalesInvoiceCancellation(var SalesInvoiceHeader: Record "Sales Invoice Header")

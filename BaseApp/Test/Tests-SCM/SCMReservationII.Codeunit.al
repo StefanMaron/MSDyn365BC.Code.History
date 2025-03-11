@@ -2833,6 +2833,67 @@ codeunit 137065 "SCM Reservation II"
         asserterror ExecuteGetActionMessageFromPlanningWorksheet(Item."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    procedure NewLineOnProductionOrderComponentWhenWarehouseActivityLineExists()
+    var
+        Item: Record Item;
+        CompItem: array[2] of Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: array[2] of Record "Prod. Order Component";
+        ComponentsAtLocation: Code[10];
+        PurchaseQuantity: Integer;
+        Quantity: Integer;
+    begin
+        // [SCENARIO 557039] No error of Line No. must not be changed when a Warehouse Activity Line for this Prod. Order Component exists.
+        Initialize();
+
+        // [GIVEN] Set Location to WHITE.
+        ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
+
+        // [GIVEN] Set quantity and PurchaseQuantity.
+        PurchaseQuantity := LibraryRandom.RandInt(100);
+        Quantity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create Component items and Produce item.
+        CreateItemSetupWithSameLotTracking(Item, CompItem);
+
+        // [GIVEN] Update Inventory and assign Tracking in Warehouse Item Journal.
+        UpdateInventoryAndAssignTrackingInWhseItemJournal(LocationWhite, CompItem[1], CompItem[2], PurchaseQuantity);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            Item."No.",
+            Quantity,
+            LocationWhite.Code,
+            LocationWhite."To-Production Bin Code");
+
+        // [GIVEN] Create Warehouse Pick from Production Order.
+        CreateWarehousePickfromProductionOrderSetup(CompItem, ProductionOrder, Quantity / 2);
+
+        // [GIVEN] Find the last Production Order Component.
+        ProdOrderComponent[1].SetRange(Status, ProdOrderComponent[1].Status::Released);
+        ProdOrderComponent[1].SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent[1].FindLast();
+
+        // [WHEN] Insert new line in Production Order Component.
+        ProdOrderComponent[2].Init();
+        ProdOrderComponent[2].Validate(Status, ProdOrderComponent[2].Status::Released);
+        ProdOrderComponent[2].Validate("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent[2].Validate("Prod. Order Line No.", ProdOrderComponent[1]."Prod. Order Line No.");
+        ProdOrderComponent[2].Validate("Line No.", ProdOrderComponent[1]."Line No." + LibraryRandom.RandInt(10000));
+        ProdOrderComponent[2].Validate(ProdOrderComponent[2]."Item No.", Item."No.");
+        ProdOrderComponent[2].Insert(true);
+
+        // [THEN] New Production Order Component should be available.
+        Assert.RecordIsNotEmpty(ProdOrderComponent[2]);
+
+        // [THEN] Clear Manufacturing Setup Components At Location.
+        UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";

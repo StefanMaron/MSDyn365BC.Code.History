@@ -385,7 +385,7 @@ report 10073 "Sales Credit Memo NA"
                             else
                                 UnitPriceToPrint := Round(AmountExclInvDisc / TempSalesCrMemoLine.Quantity, 0.00001);
 
-                            if OnLineNumber = NumberOfLines then
+                            if OnLineNumber > NumberOfLines then
                                 PrintFooter := true;
                         end;
 

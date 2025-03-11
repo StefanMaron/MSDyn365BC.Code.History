@@ -32,6 +32,8 @@ codeunit 8891 "Email Scenario Mapping"
                 exit(EmailScenario::"Reminder");
             ReportSelectionUsage::"Fin.Charge":
                 exit(EmailScenario::"Finance Charge");
+            ReportSelectionUsage::"P.V.Remit.":
+                exit(EmailScenario::"Posted Vendor Remittance");
             ReportSelectionUsage::"C.Statement":
                 exit(EmailScenario::"Customer Statement");
             ReportSelectionUsage::"V.Remittance":

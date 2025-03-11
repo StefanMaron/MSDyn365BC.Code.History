@@ -1,7 +1,6 @@
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Manufacturing.Document;
-using Microsoft.Inventory.Item;
 
 codeunit 99000858 "Mfg. Get Demand To Reserve"
 {
@@ -133,9 +132,8 @@ codeunit 99000858 "Mfg. Get Demand To Reserve"
         end;
     end;
 
-
-    [EventSubscriber(ObjectType::Report, Report::"Get Demand To Reserve", 'OnGetDemand', '', false, false)]
-    local procedure OnGetDemand(var FilterItem: Record Item; DemandType: Enum "Reservation Demand Type"; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock"; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DateFilter: Text; ItemFilterFromBatch: Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Worksheet Mgt.", 'OnCalculateDemandOnAfterSync', '', false, false)]
+    local procedure SyncProdOrderComponents(BatchName: Code[10]; var GetDemandToReserve: Report "Get Demand To Reserve")
     var
         ReservationWkshLine: Record "Reservation Wksh. Line";
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
@@ -144,14 +142,12 @@ codeunit 99000858 "Mfg. Get Demand To Reserve"
         AvailableQtyBase, InventoryQtyBase, ReservedQtyBase, WarehouseQtyBase : Decimal;
         LineNo: Integer;
     begin
-        GetDemand(
-            TempProdOrderComponent, FilterItem, ReservationWkshBatch, DemandType,
-            DateFilter, VariantFilterFromBatch, LocationFilterFromBatch, ItemFilterFromBatch, ReservedFromStock);
+        GetDemandToReserve.GetProdOrderComponents(TempProdOrderComponent);
         if TempProdOrderComponent.IsEmpty() then
             exit;
 
         ReservationWkshLine.SetCurrentKey("Journal Batch Name", "Source Type");
-        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWkshLine.SetRange("Journal Batch Name", BatchName);
         ReservationWkshLine.SetRange("Source Type", Database::"Prod. Order Component");
         if ReservationWkshLine.FindSet(true) then
             repeat
@@ -159,14 +155,14 @@ codeunit 99000858 "Mfg. Get Demand To Reserve"
                     ReservationWkshLine.Delete(true);
             until ReservationWkshLine.Next() = 0;
 
-        ReservationWkshLine."Journal Batch Name" := ReservationWkshBatch.Name;
+        ReservationWkshLine."Journal Batch Name" := BatchName;
         LineNo := ReservationWkshLine.GetLastLineNo();
 
         TempProdOrderComponent.FindSet();
         repeat
             LineNo += 10000;
             ReservationWkshLine.Init();
-            ReservationWkshLine."Journal Batch Name" := ReservationWkshBatch.Name;
+            ReservationWkshLine."Journal Batch Name" := BatchName;
             ReservationWkshLine."Line No." := LineNo;
             ReservationWkshLine."Source Type" := Database::"Prod. Order Component";
             ReservationWkshLine."Source Subtype" := TempProdOrderComponent.Status.AsInteger();
@@ -201,70 +197,6 @@ codeunit 99000858 "Mfg. Get Demand To Reserve"
             then
                 ReservationWkshLine.Insert(true);
         until TempProdOrderComponent.Next() = 0;
-    end;
-
-    local procedure GetDemand(var TempProdOrderComponent: Record "Prod. Order Component" temporary; var FilterItem: Record Item; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DemandType: Enum "Reservation Demand Type"; DateFilter: Text; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ItemFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock")
-    var
-        Item: Record Item;
-        ProdOrderComponent: Record "Prod. Order Component";
-#if not CLEAN25
-        GetDemandToReserve: Report "Get Demand To Reserve";
-#endif
-        SkipItem: Boolean;
-        IsHandled: Boolean;
-    begin
-        if not (DemandType in [Enum::"Reservation Demand Type"::All, Enum::"Reservation Demand Type"::"Production Components"]) then
-            exit;
-
-        ProdOrderComponent.Reset();
-        ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Line No.");
-        ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
-        ProdOrderComponent.SetFilter("Remaining Qty. (Base)", '<>%1', 0);
-
-        ProdOrderComponent.SetFilter("Item No.", FilterItem.GetFilter("No."));
-        ProdOrderComponent.SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
-        ProdOrderComponent.SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
-        ProdOrderComponent.SetFilter("Due Date", FilterItem.GetFilter("Date Filter"));
-
-        ProdOrderComponent.FilterGroup(2);
-        if DateFilter <> '' then
-            ProdOrderComponent.SetFilter("Due Date", DateFilter);
-        if VariantFilterFromBatch <> '' then
-            ProdOrderComponent.SetFilter("Variant Code", VariantFilterFromBatch);
-        if LocationFilterFromBatch <> '' then
-            ProdOrderComponent.SetFilter("Location Code", LocationFilterFromBatch);
-        ProdOrderComponent.FilterGroup(0);
-
-        if ProdOrderComponent.FindSet() then
-            repeat
-                if not ProdOrderComponent.IsInventoriableItem() then
-                    SkipItem := true;
-
-                if (not SkipItem) then
-                    if not ProdOrderComponent.CheckIfProdOrderCompMeetsReservedFromStockSetting(ProdOrderComponent."Remaining Qty. (Base)", ReservedFromStock) then
-                        SkipItem := true;
-
-                if (not SkipItem) and (ItemFilterFromBatch <> '') then begin
-                    Item.SetView(ReservationWkshBatch.GetItemFilterBlobAsViewFilters());
-                    Item.FilterGroup(2);
-                    Item.SetRange("No.", ProdOrderComponent."Item No.");
-                    Item.FilterGroup(0);
-                    if Item.IsEmpty() then
-                        SkipItem := true;
-                end;
-
-                if not SkipItem then begin
-                    IsHandled := false;
-                    OnGetDemandOnBeforeSetTempProdOrderComponent(ProdOrderComponent, IsHandled);
-#if not CLEAN25
-                    GetDemandToReserve.RunOnProdOrderComponentOnAfterGetRecordOnBeforeSetTempProdOrderComponent(ProdOrderComponent, IsHandled);
-#endif
-                    if not IsHandled then begin
-                        TempProdOrderComponent := ProdOrderComponent;
-                        TempProdOrderComponent.Insert();
-                    end;
-                end;
-            until ProdOrderComponent.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

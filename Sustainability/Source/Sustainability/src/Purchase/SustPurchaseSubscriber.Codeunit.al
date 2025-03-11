@@ -153,6 +153,7 @@ codeunit 6225 "Sust. Purchase Subscriber"
         SustainabilityJnlLine.Validate("Emission CH4", CH4ToPost);
         SustainabilityJnlLine.Validate("Emission N2O", N2OToPost);
         SustainabilityJnlLine.Validate("Country/Region Code", PurchaseHeader."Buy-from Country/Region Code");
+        OnPostSustainabilityLineOnBeforeInsertLedgerEntry(SustainabilityJnlLine, PurchaseHeader, PurchaseLine);
         SustainabilityPostMgt.InsertLedgerEntry(SustainabilityJnlLine);
     end;
 
@@ -226,4 +227,9 @@ codeunit 6225 "Sust. Purchase Subscriber"
 
     var
         EmissionMustNotBeZeroErr: Label 'The Emission fields must have a value that is not 0.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSustainabilityLineOnBeforeInsertLedgerEntry(var SustainabilityJnlLine: Record "Sustainability Jnl. Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
 }

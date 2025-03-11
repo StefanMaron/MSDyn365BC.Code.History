@@ -185,6 +185,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Electronic Funds Transfer - NamedType TransitNoTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 784540059 - NamedType 4043454242" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%=1 Table Caption]D;]A;(LookupHint=Codeunit ERM Electronic Funds Transfer - NamedType VendorLedgLedgerErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 784540059 - Method 4099443662 - NamedType 3147547846" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Error in EFT CA file output]]></Val>
