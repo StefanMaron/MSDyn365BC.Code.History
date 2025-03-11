@@ -21,7 +21,7 @@ codeunit 6324 "Power BI Url Mgt"
         if UrlHelper.IsPPE() then
             exit('https://analysis.windows-int.net/powerbi/api');
 
-        exit('https://analysis.windows.net/powerbi/api');
+        exit('https://api.fabric.microsoft.com');
     end;
 
     /// <summary>

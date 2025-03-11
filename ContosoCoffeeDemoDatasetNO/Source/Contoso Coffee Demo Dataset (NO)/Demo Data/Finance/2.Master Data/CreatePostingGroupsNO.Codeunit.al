@@ -65,6 +65,7 @@ codeunit 10708 "Create Posting Groups NO"
         ContosoGenPostingSetup.SetOverwriteData(true);
         ContosoGenPostingSetup.InsertGeneralPostingSetup('', NoVatPostingGroup(), '', '', '7170', '7170', '', '', '', '', '', '', '7190', '2112', '5510');
         ContosoGenPostingSetup.InsertGeneralPostingSetup('', CreatePostingGroups.RetailPostingGroup(), '', '', '7170', '7170', '', '', '', '', '', '', '7190', '2112', '5510');
+        ContosoGenPostingSetup.InsertGeneralPostingSetup('', CreatePostingGroups.ServicesPostingGroup(), '', '', '7170', '7170', '', '', '', '', '', '', '7190', '2112', '5510');
 
         ContosoGenPostingSetup.InsertGeneralPostingSetup(CustDom(), NoVatPostingGroup(), '6210', '', '7170', '7170', '', '', '6910', '6910', '7140', '7140', '7190', '2112', '5510');
         ContosoGenPostingSetup.InsertGeneralPostingSetup(CustDom(), CreatePostingGroups.RetailPostingGroup(), '6110', '', '7170', '7170', '', '', '6910', '6910', '7140', '7140', '7190', '2112', '5510');
