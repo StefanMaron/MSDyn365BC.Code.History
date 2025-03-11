@@ -329,7 +329,7 @@ codeunit 7308 Replenishment
         if not ItemTrackingMgt.GetWhseItemTrkgSetup(ItemNo) then
             exit(false);
 
-        if Location."Directed Put-away and Pick" then
+        if Location."Directed Put-away and Pick" or (Location."Require Receive" and Location."Require Shipment") then
             if ItemTrackingMgt.ExistingExpirationDate(ItemNo, VariantCode, DummyItemTrackingSetup, false, EntriesExist) <> 0D then
                 exit(true);
 

@@ -56,6 +56,8 @@ codeunit 5530 "Calc. Item Availability"
 
     procedure GetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
     begin
+        OnBeforeGetDocumentEntries(InvtEventBuf, Item);
+
         TryGetSalesOrdersDemandEntries(InvtEventBuf, Item);
         TryGetPurchRetOrderDemandEntries(InvtEventBuf, Item);
         TryGetProdOrderCompDemandEntries(InvtEventBuf, Item);
@@ -1076,6 +1078,11 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var CurrEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDocumentEntries(var InventoryEventBuffer: Record "Inventory Event Buffer"; var Item: Record Item)
     begin
     end;
 

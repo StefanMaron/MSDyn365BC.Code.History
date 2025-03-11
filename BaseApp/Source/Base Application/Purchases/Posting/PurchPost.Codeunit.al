@@ -511,7 +511,7 @@ codeunit 90 "Purch.-Post"
                 TempPurchLine.Insert();
             until PurchLine.Next() = 0;
 
-        OnAfterCopyToTempLines(TempPurchLine);
+        OnAfterCopyToTempLines(TempPurchLine, PurchHeader);
     end;
 
     /// <summary>
@@ -1053,7 +1053,7 @@ codeunit 90 "Purch.-Post"
                 InsertReceiptLine(PurchRcptHeader, PurchLine, CostBaseAmount);
 
         IsHandled := false;
-        OnPostPurchLineOnBeforeInsertReturnShipmentLine(PurchHeader, PurchLine, IsHandled, ReturnShptHeader, TempPurchLineGlobal, RoundingLineInserted, xPurchLine);
+        OnPostPurchLineOnBeforeInsertReturnShipmentLine(PurchHeader, PurchLine, IsHandled, ReturnShptHeader, TempPurchLineGlobal, RoundingLineInserted, xPurchLine, PurchRcptHeader);
         if not IsHandled then
             if (ReturnShptHeader."No." <> '') and (PurchLine."Return Shipment No." = '') and
                not RoundingLineInserted
@@ -1222,10 +1222,14 @@ codeunit 90 "Purch.-Post"
         if UseLegacyInvoicePosting() then
             PostVendorEntry(
                 PurchHeader, TotalPurchLine, TotalPurchLineLCY, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode)
-        else
+        else begin
 #endif
+            InvoicePostingInterface.SetParameters(InvoicePostingParameters);
+            InvoicePostingInterface.SetTotalLines(TotalPurchLine, TotalPurchLineLCY);
             InvoicePostingInterface.PostLedgerEntry(PurchHeader, GenJnlPostLine);
-
+#if not CLEAN23
+        end;
+#endif
         UpdatePurchaseHeader(VendLedgEntry, PurchHeader);
 
         // Balancing account
@@ -2368,6 +2372,7 @@ codeunit 90 "Purch.-Post"
         if TempItemLedgEntry.FindSet() then
             repeat
                 Factor := TempItemLedgEntry.Quantity / NonDistrQuantity;
+                OnPostDistributeItemChargeOnAfterSetFactor(TempItemLedgEntry, Factor);
                 QtyToAssign := NonDistrQtyToAssign * Factor;
                 AmountToAssign := Round(NonDistrAmountToAssign * Factor, GLSetup."Amount Rounding Precision");
                 OnPostDistributeItemChargeOnAfterCalcAmountToAssign(PurchLine, TempItemLedgEntry, QtyToAssign, AmountToAssign, Sign, Factor);
@@ -2420,7 +2425,7 @@ codeunit 90 "Purch.-Post"
                 TransferReservToItemJnlLine(SalesOrderLine, ItemJnlLine, PurchLine, QtyToBeShippedBase, true);
                 OnBeforePostAssocItemJnlLine(ItemJnlLine, SalesOrderLine, SuppressCommit, PurchLine);
                 RunItemJnlPostLine(ItemJnlLine);
-                OnAfterPostAssocItemJnlLine(ItemJnlLine, ItemJnlPostLine);
+                OnAfterPostAssocItemJnlLine(ItemJnlLine, ItemJnlPostLine, SalesOrderLine);
                 // Handle Item Tracking
                 if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification2) then begin
                     if TempHandlingSpecification2.FindSet() then
@@ -2844,7 +2849,7 @@ codeunit 90 "Purch.-Post"
         DropShipment := not TempPurchaseLine.IsEmpty();
 
         IsHandled := false;
-        OnBeforeUpdateAssosOrderPostingNos(TempPurchaseLine, PurchaseHeader, DropShipment, IsHandled);
+        OnBeforeUpdateAssosOrderPostingNos(TempPurchaseLine, PurchaseHeader, DropShipment, IsHandled, PreviewMode);
         if IsHandled then
             exit(DropShipment);
 
@@ -9810,7 +9815,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostAssocItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    local procedure OnAfterPostAssocItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var SalesLineOrder: Record "Sales Line")
     begin
     end;
 
@@ -11345,7 +11350,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostPurchLineOnBeforeInsertReturnShipmentLine(var PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; ReturnShptHeader: Record "Return Shipment Header"; TempPurchLineGlobal: Record "Purchase Line"; RoundingLineInserted: Boolean; xPurchaseLine: Record "Purchase Line");
+    local procedure OnPostPurchLineOnBeforeInsertReturnShipmentLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; ReturnShptHeader: Record "Return Shipment Header"; TempPurchLineGlobal: Record "Purchase Line"; RoundingLineInserted: Boolean; xPurchaseLine: Record "Purchase Line"; var PurchRcptHeader: Record "Purch. Rcpt. Header");
     begin
     end;
 
@@ -11860,7 +11865,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAssosOrderPostingNos(var TempPurchLine: Record "Purchase Line" temporary; var PurchHeader: Record "Purchase Header"; var DropShipment: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateAssosOrderPostingNos(var TempPurchLine: Record "Purchase Line" temporary; var PurchHeader: Record "Purchase Header"; var DropShipment: Boolean; var IsHandled: Boolean; PreviewMode: Boolean)
     begin
     end;
 
@@ -12005,7 +12010,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyToTempLines(var TempPurchLine: Record "Purchase Line" temporary)
+    local procedure OnAfterCopyToTempLines(var TempPurchLine: Record "Purchase Line" temporary; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -12353,6 +12358,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProcedurePostAssocItemJnlLine(var SalesOrderLine: Record "Sales Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempHandlingSpecification: Record "Tracking Specification" temporary; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal; var ItemShptEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDistributeItemChargeOnAfterSetFactor(TempItemLedgerEntry: Record "Item Ledger Entry"; var Factor: Decimal)
     begin
     end;
 }

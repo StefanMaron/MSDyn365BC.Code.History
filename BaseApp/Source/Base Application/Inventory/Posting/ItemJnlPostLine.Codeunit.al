@@ -20,7 +20,6 @@ using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Finance.VAT.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.History;
@@ -3274,13 +3273,11 @@ codeunit 22 "Item Jnl.-Post Line"
             if GLSetup."Additional Reporting Currency" <> '' then
                 CostAmtACY := ACYMgt.CalcACYAmt(CostAmt, ValueEntry."Posting Date", false);
         end else begin
-            if IsNondeductibleAndUseItemCost() then begin
-                CostAmt := ItemJnlLine.Amount;
-                CostAmtACY := ACYMgt.CalcACYAmt(CostAmt, ValueEntry."Posting Date", false);
-            end else begin
-                CostAmt := ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity";
-                CostAmtACY := ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
-            end;
+            CostAmt :=
+              ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity";
+            CostAmtACY :=
+              ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
+
             if MustConsiderUnitCostRoundingOnRevaluation(ItemJnlLine) then begin
                 CostAmt += RoundingResidualAmount;
                 CostAmtACY += RoundingResidualAmountACY;
@@ -6331,8 +6328,8 @@ codeunit 22 "Item Jnl.-Post Line"
 
         exit(JobPlanningLineReserve.FindReservEntry(JobPlanningLine, ReservationEntry));
     end;
-    
-    local procedure GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"): Integer
+
+    local procedure GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"): Decimal
     var
         ReservationEntry: Record "Reservation Entry";
         ReservationEntry2: Record "Reservation Entry";
@@ -6972,7 +6969,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal; var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemLedgerEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -7696,22 +7693,6 @@ codeunit 22 "Item Jnl.-Post Line"
             exit;
 
         Error(Text027);
-    end;
-
-    local procedure IsNondeductibleAndUseItemCost(): Boolean
-    var
-        VATSetup: Record "VAT Setup";
-    begin
-        if (VATSetup.Get()) and (VATSetup."Enable Non-Deductible VAT") and
-           (VATSetup."Use For Item Cost") and
-           (Item."Costing Method" <> Item."Costing Method"::Standard) and
-           (ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::"Direct Cost") and
-           (ItemJnlLine."Item Charge No." = '') and
-           (ItemJnlLine."Applies-from Entry" = 0) and
-           not ItemJnlLine.Adjustment then
-            exit(true);
-
-        exit(false);
     end;
 
     /// <summary>

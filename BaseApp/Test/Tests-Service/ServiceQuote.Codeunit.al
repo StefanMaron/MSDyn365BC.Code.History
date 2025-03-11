@@ -5,8 +5,10 @@
 namespace Microsoft.Service.Test;
 
 using Microsoft.CRM.Team;
+using Microsoft.Foundation.ExtendedText;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
+using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
 using Microsoft.Service.Document;
@@ -38,6 +40,7 @@ codeunit 136115 "Service Quote"
         CustomerBlockedAllErr: Label 'You cannot create this type of document when Customer %1 is blocked with type All', Comment = '%1 = customer code';
         CustomerPrivacyBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked for privacy.', Comment = '%1 = customer code';
         SalespersonPrivacyBlockedErr: Label 'You cannot create this document because Salesperson %1 is blocked due to privacy.', Comment = '%1 = salesperson code';
+        ServiceLineCountNotMatchErr: Label 'Service Line count does not match';
 
     [Test]
     [HandlerFunctions('StringMenuHandlerOptionThree')]
@@ -346,6 +349,54 @@ codeunit 136115 "Service Quote"
         Assert.AreEqual('Service Quote', ServiceHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
     end;
 
+    [Test]
+    procedure InsertExtendedTextInBetweenTheServiceQuoteLines()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceLine: Record "Service Line";
+        LibraryResource: Codeunit "Library - Resource";
+        ServiceLines: TestPage "Service Quote Lines";
+        ResourceNo: Code[20];
+        ExtendedText: Text;
+    begin
+        // [SCENARIO 561634] Adding a Service Line in Service Quote Lines with type resource that have extended text.
+        Initialize();
+
+        // [GIVEN] Create Item and Resource with Extended Text
+        ResourceNo := LibraryResource.CreateResourceNo();
+        ExtendedText := CreateExtendedTextForResource(ResourceNo);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Customer and Service Item
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+
+        // [GIVEN] Create Service Quote and insert Service Lines.
+        CreateServiceQuote(ServiceHeader, Customer."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+
+        // [WHEN] Open Service Quote Lines page and insert a Service Line with type Resource inbetween Item Lines
+        ServiceLines.OpenEdit();
+        ServiceLines.Filter.SetFilter("Document Type", Format(ServiceLine."Document Type"));
+        ServiceLines.Filter.SetFilter("Document No.", ServiceLine."Document No.");
+        ServiceLines.First();
+        ServiceLines.Next();
+        ServiceLines.New();
+        ServiceLines.Type.SetValue(ServiceLine.Type::Resource);
+        ServiceLines."No.".SetValue(ResourceNo);
+        ServiceLines.Close();
+
+        // [THEN] Verified the error was not occured while inserted Extended Text
+        ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
+        ServiceLine.SetRange(Description, ExtendedText);
+        Assert.IsFalse(ServiceLine.IsEmpty(), ServiceLineCountNotMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -447,6 +498,53 @@ codeunit 136115 "Service Quote"
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindFirst();
         ServiceLine.TestField("Posting Date", ExpectedPostingDate);
+    end;
+
+    local procedure CreateServiceQuote(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]): Integer
+    var
+        ServiceItemLine: Record "Service Item Line";
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, CustomerNo);
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        exit(ServiceItemLine."Line No.");
+    end;
+
+    procedure CreateExtendedTextForResource(ResourceNo: Code[20]): Text
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: Record "Extended Text Line";
+        Resource: Record Resource;
+    begin
+        CreateExtendedTextHeaderResource(ExtendedTextHeader, ResourceNo);
+        CreateExtendedTextLineResource(ExtendedTextLine, ExtendedTextHeader);
+        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
+        ExtendedTextLine.Modify();
+        Resource.Get(ResourceNo);
+        Resource.Validate("Automatic Ext. Texts", true);
+        Resource.Modify(true);
+        exit(ExtendedTextLine.Text);
+    end;
+
+    procedure CreateExtendedTextHeaderResource(var ExtendedTextHeader: Record "Extended Text Header"; ResourceNo: Code[20])
+    begin
+        ExtendedTextHeader.Init();
+        ExtendedTextHeader.Validate("Table Name", ExtendedTextHeader."Table Name"::Resource);
+        ExtendedTextHeader.Validate("No.", ResourceNo);
+        ExtendedTextHeader.Insert(true);
+    end;
+
+    procedure CreateExtendedTextLineResource(var ExtendedTextLine: Record "Extended Text Line"; ExtendedTextHeader: Record "Extended Text Header")
+    var
+        RecRef: RecordRef;
+    begin
+        ExtendedTextLine.Init();
+        ExtendedTextLine.Validate("Table Name", ExtendedTextHeader."Table Name");
+        ExtendedTextLine.Validate("No.", ExtendedTextHeader."No.");
+        ExtendedTextLine.Validate("Language Code", ExtendedTextHeader."Language Code");
+        ExtendedTextLine.Validate("Text No.", ExtendedTextHeader."Text No.");
+        RecRef.GetTable(ExtendedTextLine);
+        ExtendedTextLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ExtendedTextLine.FieldNo("Line No.")));
+        ExtendedTextLine.Insert(true);
     end;
 
     [StrMenuHandler]

@@ -350,12 +350,12 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 // except if the original contact is coupled. in this case, we know that the Primary Contact No. was updated, so this change (blanking it) is valid
                 ContactNo := OriginalDestinationFieldValue;
                 if Contact.Get(ContactNo) then
-                    if CRMIntegrationRecord.FindByRecordID(Contact.RecordId) then
+                    if not CRMIntegrationRecord.FindByRecordID(Contact.RecordId) then begin
+                        NewValue := OriginalDestinationFieldValue;
+                        IsValueFound := true;
+                        NeedsConversion := false;
                         exit;
-                NewValue := OriginalDestinationFieldValue;
-                IsValueFound := true;
-                NeedsConversion := false;
-                exit;
+                    end;
             end;
         end;
 

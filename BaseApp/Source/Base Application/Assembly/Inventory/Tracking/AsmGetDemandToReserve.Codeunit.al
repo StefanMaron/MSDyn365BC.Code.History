@@ -1,7 +1,6 @@
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Assembly.Document;
-using Microsoft.Inventory.Item;
 
 codeunit 929 "Asm. Get Demand To Reserve"
 {
@@ -134,24 +133,22 @@ codeunit 929 "Asm. Get Demand To Reserve"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Get Demand To Reserve", 'OnGetDemand', '', false, false)]
-    local procedure OnGetDemand(var FilterItem: Record Item; DemandType: Enum "Reservation Demand Type"; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock"; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DateFilter: Text; ItemFilterFromBatch: Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Worksheet Mgt.", 'OnCalculateDemandOnAfterSync', '', false, false)]
+    local procedure SyncAssemblyOrderLines(BatchName: Code[10]; var GetDemandToReserve: Report "Get Demand To Reserve")
     var
         ReservationWkshLine: Record "Reservation Wksh. Line";
-        ReservationWorksheetMgt: Codeunit "Reservation Worksheet Mgt.";
         TempAssemblyLine: Record "Assembly Line" temporary;
+        ReservationWorksheetMgt: Codeunit "Reservation Worksheet Mgt.";
         RemainingQty, RemainingQtyBase : Decimal;
         AvailableQtyBase, InventoryQtyBase, ReservedQtyBase, WarehouseQtyBase : Decimal;
         LineNo: Integer;
     begin
-        GetDemand(
-            TempAssemblyLine, FilterItem, ReservationWkshBatch, DemandType,
-            DateFilter, VariantFilterFromBatch, LocationFilterFromBatch, ItemFilterFromBatch, ReservedFromStock);
+        GetDemandToReserve.GetAssemblyLines(TempAssemblyLine);
         if TempAssemblyLine.IsEmpty() then
             exit;
 
         ReservationWkshLine.SetCurrentKey("Journal Batch Name", "Source Type");
-        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWkshLine.SetRange("Journal Batch Name", BatchName);
         ReservationWkshLine.SetRange("Source Type", Database::"Assembly Line");
         if ReservationWkshLine.FindSet(true) then
             repeat
@@ -159,14 +156,14 @@ codeunit 929 "Asm. Get Demand To Reserve"
                     ReservationWkshLine.Delete(true);
             until ReservationWkshLine.Next() = 0;
 
-        ReservationWkshLine."Journal Batch Name" := ReservationWkshBatch.Name;
+        ReservationWkshLine."Journal Batch Name" := BatchName;
         LineNo := ReservationWkshLine.GetLastLineNo();
 
         TempAssemblyLine.FindSet();
         repeat
             LineNo += 10000;
             ReservationWkshLine.Init();
-            ReservationWkshLine."Journal Batch Name" := ReservationWkshBatch.Name;
+            ReservationWkshLine."Journal Batch Name" := BatchName;
             ReservationWkshLine."Line No." := LineNo;
             ReservationWkshLine."Source Type" := Database::"Assembly Line";
             ReservationWkshLine."Source Subtype" := TempAssemblyLine."Document Type".AsInteger();
@@ -201,72 +198,6 @@ codeunit 929 "Asm. Get Demand To Reserve"
             then
                 ReservationWkshLine.Insert(true);
         until TempAssemblyLine.Next() = 0;
-    end;
-
-    local procedure GetDemand(var TempAssemblyLine: Record "Assembly Line" temporary; var FilterItem: Record Item; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DemandType: Enum "Reservation Demand Type"; DateFilter: Text; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ItemFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock")
-    var
-        Item: Record Item;
-        AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line";
-#if not CLEAN25
-        GetDemandToReserve: Report "Get Demand To Reserve";
-#endif
-        SkipItem: Boolean;
-        IsHandled: Boolean;
-    begin
-        if not (DemandType in [Enum::"Reservation Demand Type"::All, Enum::"Reservation Demand Type"::"Assembly Components"]) then
-            exit;
-
-        AssemblyLine.Reset();
-        AssemblyLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
-        AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
-        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        AssemblyLine.SetFilter("Remaining Quantity (Base)", '<>%1', 0);
-
-        AssemblyLine.SetFilter("No.", FilterItem.GetFilter("No."));
-        AssemblyLine.SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
-        AssemblyLine.SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
-        AssemblyLine.SetFilter("Due Date", FilterItem.GetFilter("Date Filter"));
-        AssemblyLine.SetFilter(Reserve, '<>%1', AssemblyLine.Reserve::Never);
-
-        AssemblyLine.FilterGroup(2);
-        if DateFilter <> '' then
-            AssemblyLine.SetFilter("Due Date", DateFilter);
-        if VariantFilterFromBatch <> '' then
-            AssemblyLine.SetFilter("Variant Code", VariantFilterFromBatch);
-        if LocationFilterFromBatch <> '' then
-            AssemblyLine.SetFilter("Location Code", LocationFilterFromBatch);
-        AssemblyLine.FilterGroup(0);
-
-        if AssemblyLine.FindSet() then
-            repeat
-                if not AssemblyLine.IsInventoriableItem() then
-                    SkipItem := true;
-
-                if (not SkipItem) then
-                    if not AssemblyLine.CheckIfAssemblyLineMeetsReservedFromStockSetting(AssemblyLine."Remaining Quantity (Base)", ReservedFromStock) then
-                        SkipItem := true;
-
-                if (not SkipItem) and (ItemFilterFromBatch <> '') then begin
-                    Item.SetView(ReservationWkshBatch.GetItemFilterBlobAsViewFilters());
-                    Item.FilterGroup(2);
-                    Item.SetRange("No.", AssemblyLine."No.");
-                    Item.FilterGroup(0);
-                    if Item.IsEmpty() then
-                        SkipItem := true;
-                end;
-
-                if not SkipItem then begin
-                    IsHandled := false;
-                    OnGetDemandOnBeforeSetTempAssemblyLine(AssemblyLine, IsHandled);
-#if not CLEAN25
-                    GetDemandToReserve.RunOnAssemblyLineOnAfterGetRecordOnBeforeSetTempAssemblyLine(AssemblyLine, IsHandled);
-#endif
-                    if not IsHandled then begin
-                        TempAssemblyLine := AssemblyLine;
-                        TempAssemblyLine.Insert();
-                    end;
-                end;
-            until AssemblyLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
