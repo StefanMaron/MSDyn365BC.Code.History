@@ -3725,13 +3725,9 @@ table 81 "Gen. Journal Line"
                 if GenJnlLine2."Document No." = FirstDocNo then
                     exit;
                 GetCustVendNo(CurrCustVendNo, GenJnlLine2);
-                if not First and
-                    ((GenJnlLine2."Document No." <> PrevDocNo) or
-                      (GenJnlLine2."Posting Date" <> PrevPostingDate) or
-                      ((PrevCustVendNo <> '') and (CurrCustVendNo <> '') and (CurrCustVendNo <> PrevCustVendNo)) or
-                    ((GenJnlLine2."Bal. Account No." <> '') and (GenJnlLine2."Document No." = ''))) and
-                    not LastGenJnlLine.EmptyLine()
-                then begin
+#pragma warning disable AA0205
+                if ShouldChangeDocNo(GenJnlLine2, LastGenJnlLine, First, PrevDocNo, PrevPostingDate, PrevCustVendNo, CurrCustVendNo) then begin
+#pragma warning restore AA0205
                     DocNo := IncStr(DocNo);
                     PrevCustVendNo := '';
                 end;
@@ -3757,6 +3753,19 @@ table 81 "Gen. Journal Line"
             until GenJnlLine2.Next() = 0;
 
         OnAfterRenumberDocNoOnLines(DocNo, GenJnlLine2);
+    end;
+
+    local procedure ShouldChangeDocNo(GenJnlLineForChange: Record "Gen. Journal Line"; LastGenJnlLine: Record "Gen. Journal Line"; First: Boolean; PrevDocNo: Code[20]; PrevPostingDate: Date; PrevCustVendNo: Code[20]; CurrCustVendNo: Code[20]): Boolean
+    begin
+        if First or LastGenJnlLine.EmptyLine() then
+            exit(false);
+        if (GenJnlLineForChange."Bal. Account No." <> '') and (GenJnlLineForChange."Document No." = '') then
+            exit(true);
+        if (GenJnlLineForChange."Document No." <> PrevDocNo) or (GenJnlLineForChange."Posting Date" <> PrevPostingDate) then
+            exit(true);
+        if GenJnlLineForChange."Document Type" = GenJnlLineForChange."Document Type"::" " then
+            exit(false);
+        exit((PrevCustVendNo <> '') and (CurrCustVendNo <> '') and (CurrCustVendNo <> PrevCustVendNo));
     end;
 
     local procedure GetTempRenumberDocumentNo(): Code[20]

@@ -78,6 +78,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         ApplyAdditionalSourceDocFilters: Boolean;
         HasExpiredItems: Boolean;
         SuppressCommit: Boolean;
+        HideDialogForTracking: Boolean;
         NothingToHandleErr: Label 'There is nothing to handle.';
         QtyNotSufficientOnSalesErr: Label 'Quantity available to pick is not sufficient to fulfill shipping advise %1 for sales line with Document Type %2, Document No. %3, Line No. %4.', Comment = '%1=Shipping advise no., %2=Document Type, %3=Document No., %4=Line No.';
         QtyNotSufficientOnTransferErr: Label 'Quantity available to pick is not sufficient to fulfill shipping advise %1 for transfer line with Document No. %2, Line No. %3.', Comment = '%1=Shipping advise no., %2=Document No., %3=Line No.';
@@ -1150,7 +1151,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         if IsBlankInvtMovement then begin
             // inventory movement without source document, created from Internal Movement
-            FromBinContent.SetRange("Bin Code", FromBinCode);
+            if not CurrLocation."Pick According to FEFO" then
+                FromBinContent.SetRange("Bin Code", FromBinCode);
             FromBinContent.SetRange(Default);
         end;
 
@@ -1800,7 +1802,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
             if CurrLocation."Bin Mandatory" then
                 NewWarehouseActivityLine."Action Type" := NewWarehouseActivityLine."Action Type"::Take;
             NewWarehouseActivityLine."Location Code" := WhseWorksheetLine2."Location Code";
-            WhseWorksheetLine2.TestField(WhseWorksheetLine2."From Bin Code");
+            if not CurrLocation."Pick According to FEFO" then
+                WhseWorksheetLine2.TestField(WhseWorksheetLine2."From Bin Code");
             FromBinCode := WhseWorksheetLine2."From Bin Code";
             WhseWorksheetLine2.TestField(WhseWorksheetLine2."To Bin Code");
             WhseWorksheetLine2.CheckBin(WhseWorksheetLine2."Location Code", WhseWorksheetLine2."From Bin Code", false);
@@ -1832,7 +1835,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             if not HideDialog then
                 Message(ActivityCreatedMsg, CurrWarehouseActivityHeader.Type, CurrWarehouseActivityHeader."No.");
         end else
-            if not HideDialog then
+            if (not HideDialog) and (not HideDialogForTracking) then
                 Message(TrackingNotFullyAppliedMsg, CurrWarehouseActivityHeader.Type, CurrWarehouseActivityHeader."No.");
     end;
 
@@ -2424,6 +2427,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
             exit(WarehouseActivityLine."Source Line No.");
 
         exit(-1);
+    end;
+
+    procedure SetHideDialogForTracking(NewHideDialogForTracking: Boolean)
+    begin
+        HideDialogForTracking := NewHideDialogForTracking;
     end;
 
     [IntegrationEvent(false, false)]
