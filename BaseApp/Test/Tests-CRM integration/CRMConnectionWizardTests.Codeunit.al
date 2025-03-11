@@ -671,7 +671,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         LibraryVariableStorage.Clear();
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
-        LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
         CRMConnectionSetup.DeleteAll();
