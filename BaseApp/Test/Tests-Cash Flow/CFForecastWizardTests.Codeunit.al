@@ -25,7 +25,6 @@ codeunit 139315 "CF Forecast Wizard Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"CF Forecast Wizard Tests");
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
-        LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
         DeleteCashFlowSetup();

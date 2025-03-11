@@ -1,7 +1,7 @@
 namespace Microsoft.PowerBIReports;
 
 using System.Integration.PowerBI;
-using System.Reflection;
+using System.Globalization;
 using System.Environment.Configuration;
 
 codeunit 36961 "Setup Helper"
@@ -27,7 +27,7 @@ codeunit 36961 "Setup Helper"
     procedure GetReportIdAndEnsureSetup(ReportName: Text; FieldId: Integer): Guid
     var
         PowerBiReportsSetup: Record "PowerBI Reports Setup";
-        AssistedSetup: Page "Assisted Setup";
+        AssistedSetup: Page "PowerBI Assisted Setup";
 
         RecRef: RecordRef;
         FldRef: FieldRef;
@@ -100,11 +100,10 @@ codeunit 36961 "Setup Helper"
     procedure InitializeEmbeddedAddin(PowerBIManagement: ControlAddIn PowerBIManagement; ReportId: Guid; ReportPageTok: Text)
     var
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
-        TypeHelper: Codeunit "Type Helper";
         PowerBIEmbedReportUrlTemplateTxt: Label 'https://app.powerbi.com/reportEmbed?reportId=%1', Locked = true;
     begin
         PowerBiServiceMgt.InitializeAddinToken(PowerBIManagement);
-        PowerBIManagement.SetLocale(TypeHelper.GetCultureName());
+        PowerBIManagement.SetLocale(GetUserLanguageTag());
         PowerBIManagement.SetSettings(false, true, ReportPageTok = '', false, false, false, true);
         PowerBIManagement.EmbedPowerBIReport(
             StrSubstNo(PowerBIEmbedReportUrlTemplateTxt, ReportId),
@@ -123,5 +122,15 @@ codeunit 36961 "Setup Helper"
         Notify.Message(StrSubstNo(ErrorNotificationMsg, ErrorCategory, ErrorMessage));
         Notify.Scope := NotificationScope::LocalScope;
         NotificationLifecycleMgt.SendNotification(Notify, PowerBIContextSettings.RecordId());
+    end;
+
+    local procedure GetUserLanguageTag(): Text
+    var
+        WindowsLanguage: Record "Windows Language";
+    begin
+        if WindowsLanguage.Get(GlobalLanguage()) then
+            exit(WindowsLanguage."Language Tag");
+
+        exit('en-US');
     end;
 }

@@ -1018,6 +1018,7 @@ table 7326 "Whse. Worksheet Line"
             GetLocation(WhseWkshLine."Location Code");
             if not Location."Directed Put-away and Pick" then begin
                 FeatureTelemetry.LogUsage('0000JNP', 'Warehouse Movement', 'create movement document for basic warehouse');
+                CreateInventoryPickMovement.SetHideDialogForTracking(true);
                 CreateInventoryPickMovement.CreateInvtMvntWithoutSource(WhseWkshLine);
                 exit;
             end;

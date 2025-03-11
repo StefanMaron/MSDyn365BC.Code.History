@@ -16,6 +16,10 @@ codeunit 137023 "SCM Reservation Worksheet"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryPatterns: Codeunit "Library - Patterns";
+        LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -998,6 +1002,38 @@ codeunit 137023 "SCM Reservation Worksheet"
         Assert.IsTrue(ReservationWkshLine.IsEmpty, 'Reservation Worksheet line for the item with "Reserve" = "Never" should not be created.');
     end;
 
+    [Test]
+    [HandlerFunctions('GetDemandToReserveRequestPageHandler,CarryOutReservationRequestPageHandler')]
+    procedure MakingReservationForSalesLineItemTrackingExist()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LotNo: array[4] of Code[50];
+    begin
+        // [SCENARIO 563476] Reservation worksheet reserve when Item Tracking was previously assigned to Sales Lines
+        Initialize();
+
+        // [GIVEN] Create Item with Lot tracking 
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create Location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Prepare Inventory with different lots on Location X
+        PrepareInventory(LotNo, Item."No.", Location.Code);
+
+        // [GIVEN] Create Sales Order with Item tracking defined on first line
+        CreateSalesOrderWithItemTracking(SalesHeader, SalesLine, Item, Location.Code, LotNo);
+
+        // [WHEN] Make reservation from reservation worksheet by Create Demand
+        MakeReservationOnReservationWorkSheet(SalesHeader."No.", Item."No.");
+
+        //  [THEN] Verify each Sales Line have reservation
+        VerifySalesLineQuantityIsReserved(SalesHeader);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Reservation Worksheet");
@@ -1114,6 +1150,86 @@ codeunit 137023 "SCM Reservation Worksheet"
         SalesLine.SetRange("Document No.", SalesOrderNo);
         SalesLine.FindFirst();
         exit(SalesLine."Outstanding Quantity");
+    end;
+
+    local procedure CreateSalesOrderWithItemTracking(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; LotNo: array[4] of Code[50])
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, LocationCode, '', LibraryRandom.RandIntInRange(10, 10), WorkDate(), LibraryRandom.RandIntInRange(100, 200));
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', LotNo[1], LibraryRandom.RandIntInRange(4, 4));
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', LotNo[2], LibraryRandom.RandIntInRange(3, 3));
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', LotNo[3], LibraryRandom.RandIntInRange(3, 3));
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(3, 3));
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify();
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(2, 2));
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify();
+    end;
+
+    local procedure PrepareInventory(LotNo: array[4] of Code[50]; ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(LotNo) do
+            LotNo[i] := LibraryUtility.GenerateGUID();
+
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', LibraryRandom.RandIntInRange(20, 20));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo[1], LibraryRandom.RandIntInRange(6, 6));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo[2], LibraryRandom.RandIntInRange(7, 7));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo[3], LibraryRandom.RandIntInRange(3, 3));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo[4], LibraryRandom.RandIntInRange(4, 4));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure MakeReservationOnReservationWorkSheet(SourceId: Code[20]; ItemNo: Code[20])
+    var
+        ReservationWkshBatch: Record "Reservation Wksh. Batch";
+        ReservationWkshLine: Record "Reservation Wksh. Line";
+        ReservationWorksheetMgt: Codeunit "Reservation Worksheet Mgt.";
+    begin
+        ReservationWkshBatch.FindFirst();
+        GetDemand(ReservationWkshBatch.Name, ItemNo);
+
+        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWkshLine.SetRange("Source ID", SourceId);
+        if ReservationWkshLine.FindSet() then
+            repeat
+                ReservationWkshLine.Validate("Qty. to Reserve", ReservationWkshLine."Remaining Qty. to Reserve");
+                ReservationWkshLine.Validate(Accept, true);
+                ReservationWkshLine.Modify();
+            until ReservationWkshLine.Next() = 0;
+
+        Commit();
+        ReservationWkshLine.Reset();
+        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWorksheetMgt.CarryOutAction(ReservationWkshLine);
+    end;
+
+    local procedure GetDemand(ReservationWkshBatchName: Code[10]; ItemNo: Code[20])
+    var
+        ReservationWorksheetMgt: Codeunit "Reservation Worksheet Mgt.";
+    begin
+        Commit();
+        LibraryVariableStorage.Enqueue(ItemNo);
+        ReservationWorksheetMgt.CalculateDemand(ReservationWkshBatchName);
+    end;
+
+    local procedure VerifySalesLineQuantityIsReserved(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        repeat
+            SalesLine.CalcFields("Reserved Quantity");
+            Assert.AreEqual(SalesLine."Reserved Quantity", SalesLine."Outstanding Quantity", '');
+        until SalesLine.Next() = 0;
     end;
 
     [RequestPageHandler]

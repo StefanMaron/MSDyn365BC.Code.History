@@ -1,7 +1,7 @@
 namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Inventory.Item;
 using Microsoft.Service.Document;
+using Microsoft.Sales.Customer;
 
 codeunit 6485 "Serv. Get Demand To Reserve"
 {
@@ -134,26 +134,24 @@ codeunit 6485 "Serv. Get Demand To Reserve"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Get Demand To Reserve", 'OnGetDemand', '', false, false)]
-    local procedure OnGetDemand(var FilterItem: Record Item; DemandType: Enum "Reservation Demand Type"; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock"; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DateFilter: Text; ItemFilterFromBatch: Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Worksheet Mgt.", 'OnCalculateDemandOnAfterSync', '', false, false)]
+    local procedure SyncServiceOrderLines(BatchName: Code[10]; var GetDemandToReserve: Report "Get Demand To Reserve")
     var
         ReservationWkshLine: Record "Reservation Wksh. Line";
         TempServiceLine: Record "Service Line" temporary;
         ServiceHeader: Record "Service Header";
-        Customer: Record Microsoft.Sales.Customer.Customer;
+        Customer: Record Customer;
         ReservationWorksheetMgt: Codeunit "Reservation Worksheet Mgt.";
         RemainingQty, RemainingQtyBase : Decimal;
         AvailableQtyBase, InventoryQtyBase, ReservedQtyBase, WarehouseQtyBase : Decimal;
         LineNo: Integer;
     begin
-        GetDemand(
-            TempServiceLine, FilterItem, ReservationWkshBatch, DemandType,
-            DateFilter, VariantFilterFromBatch, LocationFilterFromBatch, ItemFilterFromBatch, ReservedFromStock);
+        GetDemandToReserve.GetServiceOrderLines(TempServiceLine);
         if TempServiceLine.IsEmpty() then
             exit;
 
         ReservationWkshLine.SetCurrentKey("Journal Batch Name", "Source Type");
-        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWkshLine.SetRange("Journal Batch Name", BatchName);
         ReservationWkshLine.SetRange("Source Type", Database::"Service Line");
         if ReservationWkshLine.FindSet(true) then
             repeat
@@ -161,14 +159,14 @@ codeunit 6485 "Serv. Get Demand To Reserve"
                     ReservationWkshLine.Delete(true);
             until ReservationWkshLine.Next() = 0;
 
-        ReservationWkshLine."Journal Batch Name" := ReservationWkshBatch.Name;
+        ReservationWkshLine."Journal Batch Name" := BatchName;
         LineNo := ReservationWkshLine.GetLastLineNo();
 
         TempServiceLine.FindSet();
         repeat
             LineNo += 10000;
             ReservationWkshLine.Init();
-            ReservationWkshLine."Journal Batch Name" := ReservationWkshBatch.Name;
+            ReservationWkshLine."Journal Batch Name" := BatchName;
             ReservationWkshLine."Line No." := LineNo;
             ReservationWkshLine."Source Type" := Database::"Service Line";
             ReservationWkshLine."Source Subtype" := TempServiceLine."Document Type".AsInteger();
@@ -210,74 +208,6 @@ codeunit 6485 "Serv. Get Demand To Reserve"
             then
                 ReservationWkshLine.Insert(true);
         until TempServiceLine.Next() = 0;
-
-        TempServiceLine.DeleteAll();
-    end;
-
-    local procedure GetDemand(var TempServiceLine: Record "Service Line" temporary; var FilterItem: Record Item; var ReservationWkshBatch: Record "Reservation Wksh. Batch"; DemandType: Enum "Reservation Demand Type"; DateFilter: Text; VariantFilterFromBatch: Text; LocationFilterFromBatch: Text; ItemFilterFromBatch: Text; ReservedFromStock: Enum "Reservation From Stock")
-    var
-        Item: Record Item;
-        ServiceLine: Record Microsoft.Service.Document."Service Line";
-#if not CLEAN25
-        GetDemandToReserve: Report "Get Demand To Reserve";
-#endif
-        SkipItem: Boolean;
-        IsHandled: Boolean;
-    begin
-        if not (DemandType in [Enum::"Reservation Demand Type"::All, Enum::"Reservation Demand Type"::"Service Orders"]) then
-            exit;
-
-        ServiceLine.Reset();
-        ServiceLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
-        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
-        ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.SetFilter("Outstanding Qty. (Base)", '<>%1', 0);
-
-        ServiceLine.SetFilter("No.", FilterItem.GetFilter("No."));
-        ServiceLine.SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
-        ServiceLine.SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
-        ServiceLine.SetFilter("Needed by Date", FilterItem.GetFilter("Date Filter"));
-        ServiceLine.SetFilter(Reserve, '<>%1', ServiceLine.Reserve::Never);
-
-        ServiceLine.FilterGroup(2);
-        if DateFilter <> '' then
-            ServiceLine.SetFilter("Needed by Date", DateFilter);
-        if VariantFilterFromBatch <> '' then
-            ServiceLine.SetFilter("Variant Code", VariantFilterFromBatch);
-        if LocationFilterFromBatch <> '' then
-            ServiceLine.SetFilter("Location Code", LocationFilterFromBatch);
-        ServiceLine.FilterGroup(0);
-
-        if ServiceLine.FindSet() then
-            repeat
-                if not ServiceLine.IsInventoriableItem() then
-                    SkipItem := true;
-
-                if (not SkipItem) then
-                    if not ServiceLine.CheckIfServiceLineMeetsReservedFromStockSetting(Abs(ServiceLine."Outstanding Qty. (Base)"), ReservedFromStock) then
-                        SkipItem := true;
-
-                if (not SkipItem) and (ItemFilterFromBatch <> '') then begin
-                    Item.SetView(ReservationWkshBatch.GetItemFilterBlobAsViewFilters());
-                    Item.FilterGroup(2);
-                    Item.SetRange("No.", ServiceLine."No.");
-                    Item.FilterGroup(0);
-                    if Item.IsEmpty() then
-                        SkipItem := true;
-                end;
-
-                if not SkipItem then begin
-                    IsHandled := false;
-                    OnGetDemandOnBeforeSetTempServiceLine(ServiceLine, IsHandled);
-#if not CLEAN25
-                    GetDemandToReserve.RunOnServiceOrderLineOnAfterGetRecordOnBeforeSetTempServiceLine(ServiceLine, IsHandled);
-#endif
-                    if not IsHandled then begin
-                        TempServiceLine := ServiceLine;
-                        TempServiceLine.Insert();
-                    end;
-                end;
-            until ServiceLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

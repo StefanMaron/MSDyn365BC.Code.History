@@ -31,10 +31,10 @@ pageextension 9206 "User Personalization" extends "User Personalization"
                 ToolTip = 'View the list of pages that have been customized for the user role.';
                 trigger OnAction()
                 var
-                    TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
+                    AllProfilePageMetadata: Record "All Profile Page Metadata";
                 begin
-                    TenantProfilePageMetadata.SetFilter("Profile ID", Rec."Profile ID");
-                    Page.RunModal(Page::"Profile Customization List", TenantProfilePageMetadata);
+                    AllProfilePageMetadata.SetFilter("Profile ID", Rec."Profile ID");
+                    Page.RunModal(Page::"Profile Customization List", AllProfilePageMetadata);
                 end;
             }
         }
