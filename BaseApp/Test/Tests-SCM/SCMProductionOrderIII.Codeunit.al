@@ -1521,6 +1521,16 @@
           Item."No.", -ProductionOrder.Quantity, RoutingLine."Operation No.", SetAppliesToEntry);
     end;
 
+    local procedure ModifyLocation(Location: Record Location)
+    begin
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Validate("Asm. Consump. Whse. Handling", Location."Asm. Consump. Whse. Handling"::"No Warehouse Handling");
+        Location.Validate("Job Consump. Whse. Handling", Location."Job Consump. Whse. Handling"::"No Warehouse Handling");
+        Location.Modify(true);
+    end;
+
     [Test]
     [HandlerFunctions('ItemTrackingHandler,ItemTrackingSummaryPageHandler')]
     [Scope('OnPrem')]
@@ -5295,6 +5305,43 @@
         VerifyReservationEntry(Item."No.", ProductionOrder.Quantity, ReservationEntry."Reservation Status"::Surplus, LocationBlue.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('SourceDocumentsPageHandler')]
+    procedure WarehouseShipmentGetSourceDocumentsNotShowProdConsumptionLine()
+    var
+        Item: array[2] of Record Item;
+        ProductionOrder: Record "Production Order";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipment: TestPage "Warehouse Shipment";
+    begin
+        // [SCENARIO 563482] The production order component line should not be displayed when retrieving source documents from a warehouse shipment.
+        Initialize();
+
+        // [GIVEN] Create Production BOM.
+        CreateItemsSetup(Item[1], Item[2], LibraryRandom.RandInt(2));
+
+        // [GIVEN] Modify Green Location.
+        ModifyLocation(LocationBlue);
+
+        // [GIVEN] Post Postive Adjustment.
+        CreateAndPostItemJournalLine(Item[2]."No.", LibraryRandom.RandIntInRange(5, 10), LocationBlue.Code, '');
+
+        // [GIVEN] Create Released Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item[1]."No.", 1, LocationBlue.Code, '');
+
+        // [GIVEN] Create Warehouse Shipment Header.
+        LibraryWarehouse.CreateWarehouseShipmentHeader(WarehouseShipmentHeader);
+        WarehouseShipmentHeader.Validate("Location Code", LocationBlue.Code);
+        WarehouseShipmentHeader.Modify(true);
+
+        // [WHEN] Open Warehouse Shipment Page.
+        WarehouseShipment.OpenEdit();
+        WarehouseShipment.GoToRecord(WarehouseShipmentHeader);
+
+        // [THEN] verify production order component line should not be displayed When 'Get Source Documents' was invoke.
+        WarehouseShipment."Get Source Documents".Invoke();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -5351,6 +5398,7 @@
 
         LibraryWarehouse.CreateLocationWMS(LocationSilver, true, true, true, false, false);  // Location Silver.
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationSilver.Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationBlue.Code, false);
         LibraryWarehouse.CreateNumberOfBins(LocationSilver.Code, '', '', LibraryRandom.RandInt(3) + 2, false);  // Value required for Number of Bins.
     end;
 
@@ -7800,6 +7848,13 @@
         ProdOrderRouting.Type.SetValue(ProdOrderRoutingLine.Type::"Work Center");
         ProdOrderRouting."No.".SetValue(LibraryVariableStorage.DequeueText());
         ProdOrderRouting.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SourceDocumentsPageHandler(var SourceDocuments: TestPage "Source Documents")
+    begin
+        SourceDocuments.First();
+        SourceDocuments."Source No.".AssertEquals('');
     end;
 }
 
