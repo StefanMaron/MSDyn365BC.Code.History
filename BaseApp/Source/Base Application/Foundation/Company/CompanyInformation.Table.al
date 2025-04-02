@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Company;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Company;
 
 using Microsoft.Bank.Setup;
 using Microsoft.EServices.OnlineMap;
@@ -8,7 +12,6 @@ using Microsoft.Finance.VAT.Registration;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Enums;
-using Microsoft.Intercompany.GLAccount;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Utilities;
@@ -28,6 +31,7 @@ table 79 "Company Information"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; Name; Text[100])
@@ -325,41 +329,6 @@ table 79 "Company Information"
         {
             Caption = 'Industrial Classification';
         }
-        field(41; "IC Partner Code"; Code[20])
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'IC Partner Code';
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(42; "IC Inbox Type"; Option)
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'IC Inbox Type';
-            InitValue = Database;
-            OptionCaption = 'File Location,Database';
-            OptionMembers = "File Location",Database;
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(43; "IC Inbox Details"; Text[250])
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'IC Inbox Details';
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(44; "Auto. Send Transactions"; Boolean)
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'Auto. Send Transactions';
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(46; "System Indicator"; Option)
         {
             Caption = 'System Indicator';
@@ -485,27 +454,6 @@ table 79 "Company Information"
             Caption = 'Cal. Convergence Time Frame';
             InitValue = '1Y';
         }
-        field(7602; "Show Chart On RoleCenter"; Boolean)
-        {
-            Caption = 'Show Chart On RoleCenter';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
-            ObsoleteTag = '18.0';
-        }
-        field(7603; "Sync with O365 Bus. profile"; Boolean)
-        {
-            Caption = 'Sync with O365 Bus. profile';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
-            ObsoleteTag = '20.0';
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(10005; "Ship-to UPS Zone"; Code[2])
         {
             Caption = 'Ship-to UPS Zone';
@@ -540,6 +488,7 @@ table 79 "Company Information"
         {
             Caption = 'Software Identification Code';
         }
+#if not CLEANSCHEMA25
         field(10023; "RFC No."; Code[12])
         {
             Caption = 'RFC No.';
@@ -547,6 +496,7 @@ table 79 "Company Information"
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
         }
+#endif
         field(10024; "CURP No."; Code[18])
         {
             Caption = 'CURP No.';
@@ -584,6 +534,7 @@ table 79 "Company Information"
         {
             Caption = 'SAT Postal Code';
         }
+#if not CLEANSCHEMA25
         field(27002; "SCT Permission Type"; Code[10])
         {
             Caption = 'SCT Permission Type';
@@ -599,6 +550,7 @@ table 79 "Company Information"
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
         }
+#endif
     }
 
     keys
@@ -790,32 +742,6 @@ table 79 "Company Information"
             exit('');
         exit(FieldCaption("VAT Registration No."));
     end;
-
-#if not CLEAN23
-    [Obsolete('The procedure is not used and will be obsoleted', '23.0')]
-    procedure GetLegalOffice(): Text
-    begin
-        exit('');
-    end;
-
-    [Obsolete('The procedure is not used and will be obsoleted', '23.0')]
-    procedure GetLegalOfficeLbl(): Text
-    begin
-        exit('');
-    end;
-
-    [Obsolete('The procedure is not used and will be obsoleted', '23.0')]
-    procedure GetCustomGiro(): Text
-    begin
-        exit('');
-    end;
-
-    [Obsolete('The procedure is not used and will be obsoleted', '23.0')]
-    procedure GetCustomGiroLbl(): Text
-    begin
-        exit('');
-    end;
-#endif
 
     procedure GetRecordOnce()
     begin
@@ -1013,4 +939,3 @@ table 79 "Company Information"
     begin
     end;
 }
-

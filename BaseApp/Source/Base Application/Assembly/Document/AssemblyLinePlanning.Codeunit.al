@@ -1,5 +1,18 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Assembly.Document;
+
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Tracking;
+
 codeunit 99000851 "Assembly Line-Planning"
 {
+    Permissions = TableData "Assembly Header" = r,
+                  TableData "Assembly Line" = r;
+
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyTxt: Label 'Assembly';

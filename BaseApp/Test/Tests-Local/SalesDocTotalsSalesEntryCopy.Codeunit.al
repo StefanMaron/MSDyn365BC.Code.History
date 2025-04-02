@@ -1048,13 +1048,12 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         DefaultDimension: Record "Default Dimension";
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
-        LibraryService: Codeunit "Library - Service";
     begin
         Item.Get(CreateItemWithDimension(DimensionCode, DefaultDimension."Value Posting"::" ", TaxGroupCode));
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify(true);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
     end;
 
     local procedure CreateStandardSalesLine(var StandardSalesLine: Record "Standard Sales Line"; StandardSalesCode: Code[10]; Type: Enum "Sales Line Type"; No: Code[20])

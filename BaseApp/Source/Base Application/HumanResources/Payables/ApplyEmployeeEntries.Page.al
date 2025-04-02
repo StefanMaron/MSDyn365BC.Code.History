@@ -732,13 +732,19 @@ page 234 "Apply Employee Entries"
     end;
 
     procedure CheckEmplApplId(var EmplLedgerEntry: Record "Employee Ledger Entry")
+    var
+        RaiseError: Boolean;
     begin
         if EmplLedgerEntry.FindSet() then
             repeat
-                if (CalcType = CalcType::"Gen. Jnl. Line") and (TempApplyingEmplLedgEntry."Posting Date" < EmplLedgerEntry."Posting Date") then
-                    Error(
-                        EarlierPostingDateErr, TempApplyingEmplLedgEntry."Document Type", TempApplyingEmplLedgEntry."Document No.",
-                        EmplLedgerEntry."Document Type", EmplLedgerEntry."Document No.");
+                if CalcType = CalcType::"Gen. Jnl. Line" then begin
+                    RaiseError := TempApplyingEmplLedgEntry."Posting Date" < EmplLedgerEntry."Posting Date";
+                    OnCheckEmplApplIdOnBeforeEarlierPostingDateError(TempApplyingEmplLedgEntry, EmplLedgerEntry, RaiseError, CalcType);
+                    if RaiseError then
+                        Error(
+                            EarlierPostingDateErr, TempApplyingEmplLedgEntry."Document Type", TempApplyingEmplLedgEntry."Document No.",
+                            EmplLedgerEntry."Document Type", EmplLedgerEntry."Document No.");
+                end;
             until EmplLedgerEntry.Next() = 0;
     end;
 
@@ -1208,6 +1214,11 @@ page 234 "Apply Employee Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterExchangeLedgerEntryAmounts(var CalcEmployeeLedgerEntry: Record "Employee Ledger Entry"; EmployeeLedgerEntry: Record "Employee Ledger Entry"; CurrencyCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckEmplApplIdOnBeforeEarlierPostingDateError(var ApplyingEmplLedgEntry: Record "Employee Ledger Entry"; EmplLedgerEntry: Record "Employee Ledger Entry"; var RaiseError: Boolean; CalcType: Enum "Vendor Apply Calculation Type")
     begin
     end;
 }

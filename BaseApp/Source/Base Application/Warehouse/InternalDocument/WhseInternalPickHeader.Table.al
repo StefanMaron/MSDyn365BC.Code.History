@@ -171,13 +171,13 @@ table 7333 "Whse. Internal Pick Header"
 
             trigger OnValidate()
             var
-                WhsePickRqst: Record "Whse. Pick Request";
+                WhsePickRequest: Record "Whse. Pick Request";
             begin
                 if "Document Status" <> xRec."Document Status" then begin
-                    WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::"Internal Pick");
-                    WhsePickRqst.SetRange("Document No.", "No.");
-                    if not WhsePickRqst.IsEmpty() then
-                        WhsePickRqst.ModifyAll(
+                    WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::"Internal Pick");
+                    WhsePickRequest.SetRange("Document No.", "No.");
+                    if not WhsePickRequest.IsEmpty() then
+                        WhsePickRequest.ModifyAll(
                           "Completely Picked", "Document Status" = "Document Status"::"Completely Picked");
                 end;
             end;
@@ -316,30 +316,28 @@ table 7333 "Whse. Internal Pick Header"
         end;
     end;
 
-    procedure GetDocumentStatus(LineNo: Integer): Integer
+    procedure GetDocumentStatus(SkipLineNo: Integer): Integer
     var
         WhseInternalPickLine: Record "Whse. Internal Pick Line";
     begin
         WhseInternalPickLine.SetRange("No.", "No.");
-        if LineNo <> 0 then
-            WhseInternalPickLine.SetFilter("Line No.", '<>%1', LineNo);
-        if not WhseInternalPickLine.FindFirst() then
-            exit(WhseInternalPickLine.Status::" ");
-
-        WhseInternalPickLine.SetRange(Status, WhseInternalPickLine.Status::"Partially Picked");
-        if WhseInternalPickLine.FindFirst() then
-            exit(WhseInternalPickLine.Status);
+        if SkipLineNo <> 0 then
+            WhseInternalPickLine.SetFilter("Line No.", '<>%1', SkipLineNo);
 
         WhseInternalPickLine.SetRange(Status, WhseInternalPickLine.Status::"Completely Picked");
-        if WhseInternalPickLine.FindFirst() then begin
-            WhseInternalPickLine.SetFilter(Status, '<%1', WhseInternalPickLine.Status::"Completely Picked");
-            if WhseInternalPickLine.FindFirst() then
+        if not WhseInternalPickLine.IsEmpty() then begin
+            WhseInternalPickLine.SetFilter(Status, '<>%1', WhseInternalPickLine.Status::"Completely Picked");
+            if not WhseInternalPickLine.IsEmpty() then
                 exit(WhseInternalPickLine.Status::"Partially Picked");
 
-            exit(WhseInternalPickLine.Status);
+            exit(WhseInternalPickLine.Status::"Completely Picked");
+        end else begin
+            WhseInternalPickLine.SetRange(Status, WhseInternalPickLine.Status::"Partially Picked");
+            if not WhseInternalPickLine.IsEmpty() then
+                exit(WhseInternalPickLine.Status::"Partially Picked");
         end;
 
-        exit(WhseInternalPickLine.Status);
+        exit(WhseInternalPickLine.Status::" ");
     end;
 
     procedure MessageIfInternalPickLinesExist(ChangedFieldName: Text[80])
@@ -394,16 +392,16 @@ table 7333 "Whse. Internal Pick Header"
     procedure DeleteRelatedLines()
     var
         WhseInternalPickLine: Record "Whse. Internal Pick Line";
-        WhsePickRqst: Record "Whse. Pick Request";
+        WhsePickRequest: Record "Whse. Pick Request";
         WhseCommentLine: Record "Warehouse Comment Line";
     begin
         WhseInternalPickLine.SetRange("No.", "No.");
         WhseInternalPickLine.DeleteAll();
 
-        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::"Internal Pick");
-        WhsePickRqst.SetRange("Document No.", "No.");
-        if not WhsePickRqst.IsEmpty() then
-            WhsePickRqst.DeleteAll();
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::"Internal Pick");
+        WhsePickRequest.SetRange("Document No.", "No.");
+        if not WhsePickRequest.IsEmpty() then
+            WhsePickRequest.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Internal Pick");
         WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");

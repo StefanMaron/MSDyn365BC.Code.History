@@ -22,8 +22,10 @@ codeunit 139183 "CRM Integration Mapping"
         NoFieldMappingRowsErr: Label 'There are no field mapping rows for the Integration Table Mapping Name';
         InsertIsNotAllowedErr: Label 'New method failed because Insert is not allowed.';
         NotNullIsApplicableForGUIDErr: Label 'The Not Null value is applicable for GUID fields only.';
+#if not CLEAN24
         FieldRelationShipErr: Label 'The field %1 must not have a relationship with another table.', Comment = '%1 - a field name';
         FieldClassNormalErr: Label 'The field %1 must have the field class set to "Normal"', comment = '%1 = field name';
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2089,7 +2091,9 @@ codeunit 139183 "CRM Integration Mapping"
         Assert.AreEqual(1, ManIntegrationTableMapping.Count, 'the record set should include 1 record');
     end;
 
+#if not CLEAN24
     [Test]
+    [Obsolete('This table Man. Integration Field Mapping is obsolete.', '24.0')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CheckIfFieldTypeIsTheSame()
@@ -2109,8 +2113,11 @@ codeunit 139183 "CRM Integration Mapping"
         // [THEN] the table ID is inserted in the Manual Integration Table Mapping
         Assert.AreEqual(1, ManIntegrationFieldMapping.Count, 'the record set should include 1 record');
     end;
+#endif
 
+#if not CLEAN24
     [Test]
+    [Obsolete('This table Man. Integration Field Mapping is obsolete.', '24.0')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CheckIfThereIsATableRelationThenError()
@@ -2131,8 +2138,11 @@ codeunit 139183 "CRM Integration Mapping"
         Field.Get(18, 12);
         Assert.ExpectedError(StrSubstNo(FieldRelationShipErr, Field.FieldName));
     end;
+#endif
 
+#if not CLEAN24
     [Test]
+    [Obsolete('This table Man. Integration Field Mapping is obsolete.', '24.0')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CheckIfTheFieldTypeIsNotNormalThenError()
@@ -2155,6 +2165,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [THEN] Expect an error that there is a table relation
         Assert.ExpectedError(StrSubstNo(FieldClassNormalErr, Field.FieldName));
     end;
+#endif
 
     [Test]
     procedure IntegrationTableMappingTestIsEnabledForBidirectionalTableAndField()
@@ -2304,6 +2315,7 @@ codeunit 139183 "CRM Integration Mapping"
         ManIntegrationTableMapping.Insert();
     end;
 
+#if not CLEAN24
     local procedure InsertIntegrationFieldMapping(TableId: Integer; FieldId: Integer; IntegrationTableId: Integer; IntegrationFieldId: Integer)
     var
         ManIntegrationFieldMapping: Record "Man. Integration Field Mapping";
@@ -2318,6 +2330,7 @@ codeunit 139183 "CRM Integration Mapping"
             ManIntegrationFieldMapping.Validate("Integration Table Field ID", IntegrationFieldId);
         ManIntegrationFieldMapping.Insert();
     end;
+#endif
 
     local procedure GetFieldOfType(TableId: Integer; var field: Record Field)
     begin

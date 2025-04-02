@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
@@ -470,6 +470,12 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Project Currency Code';
         }
+        field(1019; "Job Planning Line No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
+        }
         field(1700; "Deferral Code"; Code[10])
         {
             Caption = 'Deferral Code';
@@ -564,36 +570,6 @@ table 125 "Purch. Cr. Memo Line"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-        field(5705; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
-        {
-            Caption = 'Unit of Measure (Cross Ref.)';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5707; "Cross-Reference Type"; Option)
-        {
-            Caption = 'Cross-Reference Type';
-            OptionCaption = ' ,Customer,Vendor,Bar Code';
-            OptionMembers = " ",Customer,Vendor,"Bar Code";
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5708; "Cross-Reference Type No."; Code[30])
-        {
-            Caption = 'Cross-Reference Type No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5709; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
@@ -607,13 +583,6 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
-        }
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5725; "Item Reference No."; Code[50])
         {
@@ -790,30 +759,29 @@ table 125 "Purch. Cr. Memo Line"
             0, "Document No.", '', 0, "Line No."));
     end;
 
-    procedure GetReturnShptLines(var TempReturnShptLine: Record "Return Shipment Line" temporary)
+    procedure GetReturnShptLines(var TempReturnShipmentLine: Record "Return Shipment Line" temporary)
     var
-        ReturnShptLine: Record "Return Shipment Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ReturnShipmentLine: Record "Return Shipment Line";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
-        TempReturnShptLine.Reset();
-        TempReturnShptLine.DeleteAll();
+        TempReturnShipmentLine.Reset();
+        TempReturnShipmentLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLineValueEntries(ValueEntry);
-        ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet() then
-            repeat
-                ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Return Shipment" then
-                    if ReturnShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempReturnShptLine.Init();
-                        TempReturnShptLine := ReturnShptLine;
-                        if TempReturnShptLine.Insert() then;
-                    end;
-            until ValueEntry.Next() = 0;
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Purchase Credit Memo");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetFilter(Value_Entry_Invoiced_Qty, '<>0');
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Purchase Return Shipment");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if ReturnShipmentLine.Get(ValueItemLedgerEntries.Item_Ledg_Document_No, ValueItemLedgerEntries.Item_Ledg_Document_Line_No) then begin
+                TempReturnShipmentLine.Init();
+                TempReturnShipmentLine := ReturnShipmentLine;
+                if TempReturnShipmentLine.Insert() then;
+            end;
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
@@ -975,6 +943,12 @@ table 125 "Purch. Cr. Memo Line"
                 Currency.InitRoundingPrecision();
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromPurchLine(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     begin
@@ -994,5 +968,9 @@ table 125 "Purch. Cr. Memo Line"
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var VATPct: Decimal)
+    begin
+    end;
+}

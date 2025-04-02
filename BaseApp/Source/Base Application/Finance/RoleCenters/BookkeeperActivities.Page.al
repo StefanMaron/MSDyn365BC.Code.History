@@ -120,18 +120,6 @@ page 9036 "Bookkeeper Activities"
                     DrillDownPageID = "Bank Acc. Reconciliation List";
                     ToolTip = 'Specifies bank account reconciliations that are ready to post. ';
                 }
-#if not CLEAN23
-                field("Bank Reconciliations to Post"; Rec."Bank Reconciliations to Post")
-                {
-                    ApplicationArea = All;
-                    DrillDownPageID = "Bank Acc. Reconciliation List";
-                    ToolTip = 'Specifies that the bank reconciliations are ready to post.';
-                    Visible = false;
-                    ObsoleteReason = 'Duplicated field, use Bank Acc. Reconciliations instead';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
 
                 actions
                 {

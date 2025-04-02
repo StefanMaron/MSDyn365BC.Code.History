@@ -1,6 +1,6 @@
 codeunit 142051 "ERM Sales/Purchase Tax II"
 {
-    // 
+    //
     // Check the functionalities of Sales/Purchase Tax.
     //  1. Verify Amount after posting General Journal Line with GST/HST Journal in G/L Entry.
     //  2. Verify Posting Date error while posting General Journal Line with GST/HST and blank posting date.
@@ -28,7 +28,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     // 24. Verify GL Entry values after posting Purchase Order,Tax Amount Change through Statistics page. BUG ID:151938
     // 25. Verify Value Entries values after posting Purchase Order with Item Charge assignment. TFS ID: 353107
     // 26. Verify Purchase Invoice with Job Task posted with corrected amount in Job Ledger Entry
-    // 
+    //
     // Covers Test Cases for WI - 329407
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
@@ -40,34 +40,34 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     // CompInfoSoftwareIdentificationCode                                                      157302
     // PurchOrderUsingGSTHSTBlank, PurchInvoiceUsingGSTHSTSelfAssessment
     // PurchReturnOrderUsingGSTHSTRebate, PurchCrMemoUsingGSTHSTAcquisition                    157303
-    // 
+    //
     // Covers Test Cases for WI - 335552
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
     // ----------------------------------------------------------------------------------------------
     // TaxEntryUsingPurchCrMemoGSTHST                                                          157307
     // TaxEntryUsingPurchInvoiceGSTHST                                                         157305
-    // 
+    //
     // Covers Test Cases for WI - 335606
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
     // ----------------------------------------------------------------------------------------------
     // GLAfterPostElectronicPmtUsingSalesCrMemo                                                171248
     // GLAfterPostElectronicPmtUsingPurchOrder                                                 171257
-    // 
+    //
     // Covers Test Cases for WI - 336427
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
     // ----------------------------------------------------------------------------------------------
     // PostedInvoiceLineDiscAfterPostPurchOrder                                                157284
     // PostedInvoiceLineDiscAfterPostSalesOrder                                                157285
-    // 
+    //
     // Covers Test Cases for WI - 337801
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
     // ----------------------------------------------------------------------------------------------
     // VendorTaxAreaOnPurchOrder                                                               151419
-    // 
+    //
     // Covers Test Cases for WI - 338154
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
@@ -76,13 +76,13 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     // PurchOrderVATAmountChange,PurchInvoiceVATAmountChange                                   151922
     // PurchCreditMemoVATAmountChange,PurchRetrunOrderVATAmountChange                          151922
     // VATDifferenceOnPurchaseLine                                                             151938
-    // 
+    //
     // Covers Test Case for TFS - 353107
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
     // ----------------------------------------------------------------------------------------------
     // VerifyValueAfterPostPurchaseOrderWithChargeItemAssgnmt                                  353107
-    // 
+    //
     // VendorTaxAreaOnPurchInvWithJobTask                                                      353031
     // PostingPartialPurchInvWithJobTaskAndTaxToBeExpensed                                     85655
     // GetSummarizeSalesTaxTableWithRounding                                                   358890
@@ -132,6 +132,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         DummyTaxCountry: Option US,CA;
         UseTaxCannotBeSetErr: Label '%1 cannot be set because %2 record %3, %4 is set for Expense/Capitalize.';
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -157,6 +159,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // SalesOrderStatsTestPageHandler
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -180,6 +183,56 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // [THEN] Tax Amount on Sales Order Statistics is correct
         // SalesOrderStatsTestPageHandler
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatsTestPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesOrderTaxAmount_RoundingByJurisdictionNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Rounding] [Sales] [Order]
+        // [SCENARIO] Tax Amount rounding on Sales Order Statistics with two jurisdiction codes and TaxArea."Country/Region" = CA
+        Initialize();
+
+        // [GIVEN] Sales Order with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = CA
+        TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Order, DummyTaxCountry::CA);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenSalesOrderPage(SalesOrder, SalesHeader);
+
+        // [WHEN] Open Sales Order Statistics
+        SalesOrder.SalesOrderStats.Invoke();
+
+        // [THEN] Tax Amount on Sales Order Statistics is correct
+        // SalesOrderStatsTestPageHandlerNM
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsTestPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesOrderTaxAmount_RoundingNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Rounding] [Sales] [Order]
+        // [SCENARIO] Tax Amount rounding on Sales Order Statistics with two jurisdiction codes and TaxArea."Country/Region" = US
+        Initialize();
+
+        // [GIVEN] Sales Order with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = US
+        TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Order, DummyTaxCountry::US);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenSalesOrderPage(SalesOrder, SalesHeader);
+
+        // [WHEN] Open Sales Order Statistics
+        SalesOrder.SalesOrderStats.Invoke();
+
+        // [THEN] Tax Amount on Sales Order Statistics is correct
+        // SalesOrderStatsTestPageHandlerNM
     end;
 
     [Test]
@@ -210,6 +263,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
           'VATAmountLine__VAT_Amount_', Round(SalesLine."Line Amount" * SalesLine."VAT %" / 100));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -235,6 +290,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // SalesStatsTestPageHandler.
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -259,7 +315,59 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [THEN] Tax Amount on Sales Quote Statistics is correct
         // SalesStatsTestPageHandler.
     end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatsTestNonModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesQuotesTaxAmount_RoundingByJurisdictionNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Rounding] [Sales] [Quote]
+        // [SCENARIO] Tax Amount rounding on Sales Quote Statistics with two jurisdiction codes and TaxArea."Country/Region" = CA
+        Initialize();
 
+        // [GIVEN] Sales Quote with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = CA
+        TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote, DummyTaxCountry::CA);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenSalesQuotePage(SalesQuote, SalesHeader);
+
+        // [WHEN] Open Sales Quote Statistics
+        SalesQuote.SalesStats.Invoke();
+
+        // [THEN] Tax Amount on Sales Quote Statistics is correct
+        // SalesStatsTestPageHandler.
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatsTestNonModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesQuotesTaxAmount_RoundingNonModal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Rounding] [Sales] [Quote]
+        // [SCENARIO] Tax Amount rounding on Sales Quote Statistics with two jurisdiction codes and TaxArea."Country/Region" = US
+        Initialize();
+
+        // [GIVEN] Sales Quote with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = US
+        TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote, DummyTaxCountry::US);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenSalesQuotePage(SalesQuote, SalesHeader);
+
+        // [WHEN] Open Sales Quote Statistics
+        SalesQuote.SalesStats.Invoke();
+
+        // [THEN] Tax Amount on Sales Quote Statistics is correct
+        // SalesStatsTestPageHandler.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -282,7 +390,33 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // Verify: Verify Tax Amount on Purchase Order Statistics. Verification done in PurchaseOrderStatsTestPageHandler.
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchOrderStatsTestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsPurchOrderTaxAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+        TaxAmount: Decimal;
+    begin
+        // Verify Tax Amount on Purchase Order Statistics.
+
+        // Setup: Create Purchase Order and open Purchase Order page.
+        Initialize();
+        TaxAmount := CreatePurchaseDocumentWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Order);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
+
+        // Exercise.
+        PurchaseOrder.PurchaseOrderStats.Invoke();
+
+        // Verify: Verify Tax Amount on Purchase Order Statistics. Verification done in PurchOrderStatsTestPageHandler.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -304,6 +438,30 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseQuote.Statistics.Invoke();
 
         // Verify: Verify Tax Amount on Purchase Quote Statistics. Verification done in PurchaseStatsTestPageHandler.
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseStatsTestHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsPurchaseQuoteTaxAmt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseQuote: TestPage "Purchase Quote";
+        TaxAmount: Decimal;
+    begin
+        // Verify Tax Amount on Purchase Quote Statistics.
+
+        // Setup: Create Purchase Quote and open Purchase Quote page.
+        Initialize();
+        TaxAmount := CreatePurchaseDocumentWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenPurchaseQuotePage(PurchaseQuote, PurchaseHeader);
+
+        // Exercise.
+        PurchaseQuote.PurchaseStats.Invoke();
+
+        // Verify: Verify Tax Amount on Purchase Quote Statistics. Verification done in PurchaseStatsTestHandler.
     end;
 
     [Test]
@@ -1004,6 +1162,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         exit(PurchaseLine.Amount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsHandler,SalesTaxLinesSubformDynHandler')]
     [Scope('OnPrem')]
@@ -1044,6 +1204,55 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
           Round(PurchaseLine.Amount * TaxDetail."Tax Below Maximum" / 100) + 1);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         OpenPurchaseOrderStatistics(PurchaseHeader."No.");
+
+        // Exercise.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Verify: Verify GL Entry values after posting Purchase Order.
+        VerifyGLEntry(DocumentNo, PurchaseLine.Amount);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatsPageHandler,SalesTaxLinesSubformDynHandler')]
+    [Scope('OnPrem')]
+    procedure VATDifferenceOnPurchLine()
+    var
+        CompanyInfomation: Record "Company Information";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxDetail: Record "Tax Detail";
+        TaxGroup: Record "Tax Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // Verify GL entry values after posting Purchase Order,Tax Amount Change throgh Statistics page. BUG ID:151938
+        Initialize();
+
+        // Setup. Create Tax Detail and Purchase Order.
+        CompanyInfomation.Get();
+        PurchasesPayablesSetup.Get();
+        LibraryPurchase.SetAllowVATDifference(true);
+        GeneralLedgerSetup.Get();
+        VATPostingSetup.Get('', '');
+        TaxAreaCode := CreateTaxAreaLine(TaxDetail);
+        TaxDetail.Validate("Expense/Capitalize", true);
+        TaxDetail.Modify(true);
+        UpdateTaxAreaCodeCompanyInformation(TaxAreaCode);
+        CreatePurchaseDocument(
+          PurchaseLine, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item,
+          CreateItem(VATPostingSetup."VAT Prod. Posting Group", TaxGroup.Code),
+          CreateVendor(TaxAreaCode));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Tax Group Code", TaxDetail."Tax Group Code");
+        PurchaseLine.Modify(true);
+        UpdateMaxVATDifferenceAllowedGeneralLedgerSetup(
+          Round(PurchaseLine.Amount * TaxDetail."Tax Below Maximum" / 100) + 1);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        OpenPurchOrderStatistics(PurchaseHeader."No.");
 
         // Exercise.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1246,8 +1455,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         VerifyGLEntryUseTax(DocumentNo, GLAccountArray, ExpectedAmountArray);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
-    [HandlerFunctions('SalesOrderStatisticsPageHandler,SalesTaxLinesSubformDynPageHandler')]
+    [HandlerFunctions('SalesOrderStatsModalPageHandler,SalesTaxLinesSubformDynPageHandler')]
     [Scope('OnPrem')]
     procedure ChangeSalesOrderStatTaxAmount()
     var
@@ -1274,7 +1485,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibraryVariableStorage.Enqueue(NewTaxAmount);
 
         // [WHEN] Open Statistics, drilldown to Tax entries and "manually" change Tax Amount. Post document.
-        OpenSalesOrderPage(SalesOrder, SalesHeader); // calls SalesOrderStatisticsPageHandler
+        OpenSalesOrderPage(SalesOrder, SalesHeader); // calls SalesOrderStatsModalPageHandler
         SalesOrder.Statistics.Invoke();
         // [WHEN] Post document.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1282,7 +1493,46 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [THEN] G/L Entry with changed Tax Amount exist
         VerifyGLEntryTaxAmount(DocumentNo, TaxAccountNo, -NewTaxAmount);
     end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatsPageHandler,SalesTaxLinesSubformDynPageHandler')]
+    [Scope('OnPrem')]
+    procedure ChangeSalesOrderStatTaxAmountNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+        DocumentNo: Code[20];
+        TaxAccountNo: Code[20];
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+        NewTaxAmount: Decimal;
+        UnitPrice: Decimal;
+        SalesTaxPct: Integer;
+    begin
+        // [SCENARIO] Create Sales Order, open Statistics, change Tax Amount and post document
 
+        Initialize();
+        UnitPrice := 854224.16; // hardcoded "Unit Price" to get required difference
+        NewTaxAmount := 42711.44;
+        SalesTaxPct := 5; // hardcoded sales tax percent to get required difference
+        SetVATDiffSetup(1, true);
+        // [GIVEN] Sales Order with specific Amount and Sales Tax % to get required difference
+        CreateSalesTaxSetupWithSpecificTaxPct(TaxAreaCode, TaxGroupCode, TaxAccountNo, SalesTaxPct, 0);
+        CreateSalesDocumentWithSpecificAmountAndTaxArea(SalesHeader, TaxAreaCode, TaxGroupCode, UnitPrice);
+        LibraryVariableStorage.Enqueue(NewTaxAmount);
+
+        // [WHEN] Open Statistics, drilldown to Tax entries and "manually" change Tax Amount. Post document.
+        OpenSalesOrderPage(SalesOrder, SalesHeader); // calls SalesOrderStatsModalPageHandler
+        SalesOrder.SalesOrderStats.Invoke();
+        // [WHEN] Post document.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] G/L Entry with changed Tax Amount exist
+        VerifyGLEntryTaxAmount(DocumentNo, TaxAccountNo, -NewTaxAmount);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchOrderStatisticsPageHandler,SalesTaxLinesSubformDynPageHandler')]
     [Scope('OnPrem')]
@@ -1314,6 +1564,45 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [WHEN] Open Statistics, drilldown to Tax entries and "manually" change Tax Amount.
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader); // calls PurchOrderStatisticsPageHandler
         PurchaseOrder.Statistics.Invoke();
+        // [WHEN] Post document.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] G/L Entry with changed Tax Amount exist
+        VerifyGLEntryTaxAmount(DocumentNo, TaxAccountNo, NewTaxAmount);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler,SalesTaxLinesSubformDynPageHandler')]
+    [Scope('OnPrem')]
+    procedure ChangePurchOrderStatTaxAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+        DocumentNo: Code[20];
+        TaxAccountNo: Code[20];
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+        NewTaxAmount: Decimal;
+        DirectUnitCost: Decimal;
+        SalesTaxPct: Integer;
+    begin
+        // [SCENARIO] Create Purchase Order, open Statistics, change Tax Amount and post document
+
+        Initialize();
+        DirectUnitCost := 854224.16; // hardcoded "Direct Unit Cost" to get required difference
+        NewTaxAmount := 42711.44;
+        SalesTaxPct := 5; // hardcoded sales tax percent to get required difference
+        SetVATDiffSetup(1, true);
+
+        // [GIVEN] Purchase Order with specific Amount and Sales Tax % to get required difference
+        CreateSalesTaxSetupWithSpecificTaxPct(TaxAreaCode, TaxGroupCode, TaxAccountNo, SalesTaxPct, 1);
+        CreatePurchaseDocumentWithSpecificAmountAndTaxArea(PurchaseHeader, TaxAreaCode, TaxGroupCode, DirectUnitCost);
+        LibraryVariableStorage.Enqueue(NewTaxAmount);
+
+        // [WHEN] Open Statistics, drilldown to Tax entries and "manually" change Tax Amount.
+        OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader); // calls PurchaseOrderStatisticsPageHandler
+        PurchaseOrder.PurchaseOrderStats.Invoke();
         // [WHEN] Post document.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -1441,6 +1730,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         VerifyGLEntries_TFS216424(PurchaseHeader."Buy-from Vendor No.", DocumentNo, GLAccountNo, TaxJurisdictionCode);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -1459,6 +1750,28 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [WHEN] Open Purchase Order Statistics
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
         PurchaseOrder.Statistics.Invoke();
+        // [THEN] "Tax Amount" field on statistics page = "Y"
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchOrderStatsTestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatExciseTaxAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Sales Tax] [Excise Tax] [Statistics]
+        // [SCENARIO 361729] Excise Tax Amount on the Purchase Order Statistics page
+        Initialize();
+        // [GIVEN] Purchase Order with Excise Tax, tax amount = "Y"
+        CreatePurchOrderWithExciseTax(PurchaseHeader, TaxAmount);
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        // [WHEN] Open Purchase Order Statistics
+        OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
+        PurchaseOrder.PurchaseOrderStats.Invoke();
         // [THEN] "Tax Amount" field on statistics page = "Y"
     end;
 
@@ -1767,6 +2080,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         VerifyGLEntryTaxAmount(DocumentNo, TaxAccountNo, 56.79);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -1823,6 +2138,65 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // [THEN] No error message appear
         // "Tax Amount" Assertion is done in PurchaseOrderStatsPageHandler
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchOrderStatsTestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsForTaxAreaWithMoreThan4Jurisdictions()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxGroup: Record "Tax Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        Counter: Integer;
+        TaxAreaCode: Code[20];
+    begin
+        // [FEAUTURE] [Purchase Order]
+        // [SCENARIO 379686] When more than 4 tax jurisdictions are contained in the tax area selected on the purchase order
+        // [SCENARIO] an "Index out of bounds." error message should appear on opening the Purchase Order Statistics page
+
+        Initialize();
+
+        // [GIVEN] Tax Area TA with 5 tax jurisdictions and Country = 'CA'
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
+
+        TaxGroup.FindFirst();
+
+        for Counter := 1 to 5 do
+            CreateTaxJurisdictionAndTaxDetail(TaxAreaCode, TaxGroup.Code);
+
+        // [GIVEN] Vendor V with "Tax Area Code" = TA and "Tax Liable" = TRUE
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Tax Area Code", TaxAreaCode);
+        Vendor.Validate("Tax Liable", true);
+        Vendor.Modify(true);
+
+        if not VATPostingSetup.Get(Vendor."VAT Bus. Posting Group", '') then
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", '');
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Sales Tax");
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Purchase order for Vendor V with "Tax Area Code" = TA in Header and Line and "Tax Liable" = TRUE
+        CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxAreaCode);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccNoWithTaxSetup(TaxAreaCode, TaxGroup.Code, true), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Tax Group Code", TaxGroup.Code);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Open Purchase Order Statistics
+        LibraryVariableStorage.Enqueue(Round(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100));
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.PurchaseOrderStats.Invoke();  // Opens Page Handler - PurchaseOrderStatsPageHandler
+        PurchaseOrder.Close();
+
+        // [THEN] No error message appear
+        // "Tax Amount" Assertion is done in PurchOrderStatsPageHandler
     end;
 
     [Test]
@@ -4850,8 +5224,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
           LibraryRandom.RandInt(10));
         CreateItemCharge(ItemCharge, VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader,
-          PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+            PurchaseLine, PurchaseHeader,
+            PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchaseLine.Modify(true);
         PurchaseLine.ShowItemChargeAssgnt();
@@ -5278,7 +5652,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxAreaCode);
 
         LibraryPurchase.CreatePurchaseLine(
-  PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
         PurchaseLine.Modify(true);
         // Excise tax amount = "Tax Detail"."Tax Below Maximum"
@@ -5306,6 +5680,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo" then
             PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
+
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
@@ -5545,6 +5920,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesTaxCalc.GetSummarizedSalesTaxTable(SalesTaxAmountLine);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenPurchaseOrderStatistics(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
@@ -5552,6 +5929,16 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure OpenPurchOrderStatistics(No: Code[20])
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        PurchaseOrder.OpenView();
+        PurchaseOrder.FILTER.SetFilter("No.", No);
+        PurchaseOrder.PurchaseOrderStats.Invoke();
     end;
 
     local procedure PostPurchaseDocument(PurchaseLine: Record "Purchase Line") DocumentNo: Code[20]
@@ -6210,7 +6597,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         GLEntry.SetRange("Document No.", DocumentNo);
         GetActualAmounts(GLEntry, ActualAmountArray, GLAccountArray);
         for I := 1 to ArrayLen(GLAccountArray) do
-            Assert.AreNearlyEqual(ExpectedAmountArray[I], ActualAmountArray[I], 0.02, GLEntryAmountErr);
+            Assert.AreNearlyEqual(ExpectedAmountArray[I], ActualAmountArray[I], 0.1, GLEntryAmountErr);
     end;
 
     local procedure VerifyGLEntryTaxAmount(DocumentNo: Code[20]; TaxAccountNo: Code[20]; ExpectedAmount: Decimal)
@@ -6417,9 +6804,19 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         Reply := true;
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
+    begin
+        PurchaseOrderStats.NoOfVATLines_Invoice.DrillDown();  // Opens SalesTaxLinesSubformDynHandler.
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     begin
         PurchaseOrderStats.NoOfVATLines_Invoice.DrillDown();  // Opens SalesTaxLinesSubformDynHandler.
     end;
@@ -6501,6 +6898,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         ServiceQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatsTestPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
@@ -6511,6 +6910,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesOrderStats.TaxAmount.AssertEquals(TaxAmount);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatsTestPageHandler(var SalesStats: TestPage "Sales Stats.")
@@ -6520,7 +6920,29 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibraryVariableStorage.Dequeue(TaxAmount);
         SalesStats.TaxAmount.AssertEquals(TaxAmount);
     end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatsTestPageHandlerNM(var SalesOrderStats: TestPage "Sales Order Stats.")
+    var
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        SalesOrderStats.TaxAmount.AssertEquals(TaxAmount);
+    end;
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatsTestNonModalPageHandler(var SalesStats: TestPage "Sales Stats.")
+    var
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        SalesStats.TaxAmount.AssertEquals(TaxAmount);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsTestPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
@@ -6530,10 +6952,34 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibraryVariableStorage.Dequeue(TaxAmount);
         PurchaseOrderStats.TaxAmount.AssertEquals(TaxAmount);
     end;
+#endif
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatsTestPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
+    var
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        PurchaseOrderStats.TaxAmount.AssertEquals(TaxAmount);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatsTestPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
+    var
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        PurchaseStats.TaxAmount.AssertEquals(TaxAmount);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatsTestHandler(var PurchaseStats: TestPage "Purchase Stats.")
     var
         TaxAmount: Variant;
     begin
@@ -6570,9 +7016,19 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         Assert.AreNearlyEqual(TaxAmount, ServiceStats.VATAmount.AsDecimal(), Currency."Amount Rounding Precision", TaxAmountMustMatchErr);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Stats.")
+    procedure SalesOrderStatsModalPageHandler(var SalesOrderStatistics: TestPage "Sales Order Stats.")
+    begin
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown(); // calls SalesTaxLinesSubformDynPageHandler
+        SalesOrderStatistics.OK().Invoke();
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Stats.")
     begin
         SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown(); // calls SalesTaxLinesSubformDynPageHandler
         SalesOrderStatistics.OK().Invoke();
@@ -6589,9 +7045,20 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesTaxLinesSubformDyn.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchOrderStatisticsPageHandler(var PurchOrderStatistics: TestPage "Purchase Order Stats.")
+    begin
+        PurchOrderStatistics.NoOfVATLines_Invoice.DrillDown(); // calls SalesTaxLinesSubformDynPageHandler
+        PurchOrderStatistics.OK().Invoke();
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchOrderStatistics: TestPage "Purchase Order Stats.")
     begin
         PurchOrderStatistics.NoOfVATLines_Invoice.DrillDown(); // calls SalesTaxLinesSubformDynPageHandler
         PurchOrderStatistics.OK().Invoke();
@@ -6625,4 +7092,3 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesOrder.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
-

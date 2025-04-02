@@ -28,13 +28,6 @@ table 318 "Tax Area"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(10010; "Country/Region"; Option)
         {
             BlankZero = false;

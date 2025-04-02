@@ -36,7 +36,6 @@ codeunit 137159 "SCM Warehouse VII"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJob: Codeunit "Library - Job";
-        LibraryPatterns: Codeunit "Library - Patterns";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -2204,7 +2203,7 @@ codeunit 137159 "SCM Warehouse VII"
 
         // [GIVEN] Create Items
         CreateCompItem(CompItem, CompItem."Flushing Method"::Backward);
-        LibraryPatterns.MAKEItemSimple(ProdItem, ProdItem."Costing Method"::FIFO, 0);
+        LibraryInventory.CreateItemSimple(ProdItem, ProdItem."Costing Method"::FIFO, 0);
 
         // [GIVEN] Create Released Production Order
         CreateReleasedProdOrder(ProdItem, CompItem, Location, 1);
@@ -4435,8 +4434,8 @@ codeunit 137159 "SCM Warehouse VII"
         ProdBOMHeader: Record "Production BOM Header";
         ProdOrder: Record "Production Order";
     begin
-        LibraryPatterns.MAKEProductionBOM(ProdBOMHeader, ProdItem, CompItem, 1, '');
-        LibraryPatterns.MAKEProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdItem, Location.Code, '', Qty, WorkDate());
+        LibraryManufacturing.CreateProductionBOM(ProdBOMHeader, ProdItem, CompItem, 1, '');
+        LibraryManufacturing.CreateProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdItem, Location.Code, '', Qty, WorkDate());
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; WorksheetTemplateName: Code[10]; JournalBatchName: Code[10])

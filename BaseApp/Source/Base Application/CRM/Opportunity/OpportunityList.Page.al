@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Opportunity;
 
 using Microsoft.CRM.Campaign;
@@ -8,6 +12,7 @@ using Microsoft.CRM.Reports;
 using Microsoft.CRM.Segment;
 using Microsoft.CRM.Task;
 using Microsoft.CRM.Team;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Integration.Dataverse;
 
 page 5123 "Opportunity List"
@@ -119,17 +124,6 @@ page 5123 "Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the current calculated value of the opportunity.';
                 }
-#if not CLEAN23
-                field("Coupled to CRM"; Rec."Coupled to CRM")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies that the opportunity is coupled to an opportunity in Dynamics 365 Sales.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
@@ -161,6 +155,14 @@ page 5123 "Opportunity List"
             {
                 ApplicationArea = RelationshipMgmt;
                 SubPageLink = "No." = field("No.");
+            }
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::Opportunity),
+                              "No." = field("No.");
             }
             systempart(Control1900383207; Links)
             {

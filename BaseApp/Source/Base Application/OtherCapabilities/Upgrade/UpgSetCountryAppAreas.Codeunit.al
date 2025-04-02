@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Upgrade;
 
-using Microsoft.Bank.BankAccount;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Upgrade;
@@ -25,7 +24,6 @@ codeunit 104010 "Upg Set Country App Areas"
             exit;
 
         SetCountryAppAreas();
-        MoveGLBankAccountNoToGLAccountNo();
     end;
 
     local procedure SetCountryAppAreas()
@@ -44,25 +42,6 @@ codeunit 104010 "Upg Set Country App Areas"
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag());
-    end;
-
-    local procedure MoveGLBankAccountNoToGLAccountNo()
-    var
-        BankAccountPostingGroup: Record "Bank Account Posting Group";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag()) then
-            exit;
-
-        BankAccountPostingGroup.SETFILTER("G/L Bank Account No.", '<>%1', '');
-        if BankAccountPostingGroup.FINDSET(true) then
-            repeat
-                BankAccountPostingGroup."G/L Account No." := BankAccountPostingGroup."G/L Bank Account No.";
-                BankAccountPostingGroup.Modify();
-            until BankAccountPostingGroup.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag());
     end;
 }
 

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Posting;
 
 using Microsoft.FixedAssets.Depreciation;
@@ -6,6 +10,8 @@ table 5604 "FA Posting Type Setup"
 {
     Caption = 'FA Posting Type Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "FA Posting Type Setup";
+    LookupPageID = "FA Posting Type Setup";
 
     fields
     {

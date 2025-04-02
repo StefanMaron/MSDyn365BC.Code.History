@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Projects.Resources.Resource;
+namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Assembly.Document;
 using Microsoft.EServices.OnlineMap;
@@ -462,14 +462,6 @@ table 156 Resource
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
-        field(52; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
         field(53; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -559,19 +551,16 @@ table 156 Resource
                     Blocked := false;
             end;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -668,14 +657,6 @@ table 156 Resource
         key(Key8; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key9; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     fieldgroups
@@ -1072,4 +1053,3 @@ table 156 Resource
     begin
     end;
 }
-

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Assembly.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Assembly.Document;
 
 using Microsoft.Assembly.Comment;
 using Microsoft.Assembly.History;
@@ -9,7 +13,6 @@ using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Activity;
@@ -265,6 +268,11 @@ page 900 "Assembly Order"
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
+                }
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
+                {
+                    ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the code for the General Business Posting Group that applies to the entry.';
                 }
             }
         }
@@ -551,7 +559,7 @@ page 900 "Assembly Order"
                         ApplicationArea = Manufacturing;
                         Caption = 'Capacity Ledger Entries';
                         Image = CapacityLedger;
-                        RunObject = Page "Capacity Ledger Entries";
+                        RunObject = Page Microsoft.Manufacturing.Capacity."Capacity Ledger Entries";
                         RunPageLink = "Order Type" = const(Assembly),
                                       "Order No." = field("No.");
                         RunPageView = sorting("Order Type", "Order No.");

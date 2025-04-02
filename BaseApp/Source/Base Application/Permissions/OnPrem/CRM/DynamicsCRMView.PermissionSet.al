@@ -67,7 +67,9 @@ permissionset 4737 "Dynamics CRM - View"
                   tabledata "Integration Synch. Job" = R,
                   tabledata "Integration Synch. Job Errors" = R,
                   tabledata "Integration Table Mapping" = R,
+#if not CLEAN24
                   tabledata "Man. Integration Field Mapping" = R,
+#endif
                   tabledata "Man. Integration Table Mapping" = R,
                   tabledata "Man. Int. Field Mapping" = R;
 }

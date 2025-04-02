@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory;
@@ -40,7 +44,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderRoutingLine2: Record "Prod. Order Routing Line";
         ProdBOMLine: array[99] of Record "Production BOM Line";
         UOMMgt: Codeunit "Unit of Measure Management";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         VersionMgt: Codeunit VersionManagement;
         ProdOrderRouteMgt: Codeunit "Prod. Order Route Management";
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
@@ -133,7 +137,7 @@ codeunit 99000773 "Calculate Prod. Order"
         end;
 
         OnTransferRoutingOnBeforeCalcRoutingCostPerUnit(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
-        CostCalcMgt.CalcRoutingCostPerUnit(
+        MfgCostCalcMgt.CalcRoutingCostPerUnit(
             ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.",
             ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
             ProdOrderRoutingLine."Unit Cost per", ProdOrderRoutingLine."Unit Cost Calculation");
@@ -287,13 +291,11 @@ codeunit 99000773 "Calculate Prod. Order"
             ProdOrderComp."Line No." := NextProdOrderCompLineNo;
             ProdOrderComp.Validate("Item No.", ProdBOMLine[Level]."No.");
             ProdOrderComp."Variant Code" := ProdBOMLine[Level]."Variant Code";
-            if Item2.Get(ProdOrderComp."Item No.") then
-                if Item2.IsInventoriableType() then
-                    ProdOrderComp."Location Code" := SKU."Components at Location";
+            ProdOrderComp."Location Code" := SKU."Components at Location";
             ProdOrderComp."Bin Code" := GetDefaultBin();
             ProdOrderComp.Description := ProdBOMLine[Level].Description;
             ProdOrderComp.Validate("Unit of Measure Code", ProdBOMLine[Level]."Unit of Measure Code");
-            if ProdOrderComp."Item No." <> '' then
+            if (ProdOrderComp."Item No." <> '') and Item2.Get(ProdOrderComp."Item No.") then
                 QtyRoundPrecision := UOMMgt.GetQtyRoundingPrecision(Item2, ProdBOMLine[Level]."Unit of Measure Code");
             if QtyRoundPrecision <> 0 then
                 ProdOrderComp."Quantity per" := Round(ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM, QtyRoundPrecision)
@@ -524,6 +526,7 @@ codeunit 99000773 "Calculate Prod. Order"
             ProdOrderLine."Starting Time" := ProdOrderRoutingLine."Starting Time";
         end;
 
+        LeadTimeMgt.SetManualScheduling(ProdOrderLine."Manual Scheduling");
         IsHandled := false;
         OnCalculateProdOrderDatesOnSetBeforeDueDate(ProdOrderLine, IsHandled);
         if not IsHandled then begin
@@ -536,7 +539,8 @@ codeunit 99000773 "Calculate Prod. Order"
                 NewDueDate := ProdOrderLine."Ending Date";
 
             if LetDueDateDecrease or (NewDueDate > ProdOrderLine."Due Date") then
-                ProdOrderLine."Due Date" := NewDueDate;
+                if ProdOrderLine.ConfirmUpdateDueDateAndEndingDate(ProdOrderLine.FieldCaption("Due Date"), NewDueDate) then
+                    ProdOrderLine."Due Date" := NewDueDate;
         end;
 
         OnCalculateProdOrderDatesOnBeforeUpdateDatetime(ProdOrderLine, NewDueDate, LetDueDateDecrease);
@@ -546,6 +550,7 @@ codeunit 99000773 "Calculate Prod. Order"
         OnBeforeUpdateProdOrderDates(ProdOrder, ProdOrderLine, ProdOrderModify);
 
         if not ProdOrderModify then begin
+            ProdOrder.Validate("Manual Scheduling", ProdOrderLine."Manual Scheduling");
             ProdOrder.AdjustStartEndingDate();
             ProdOrder.Modify();
         end;
@@ -562,6 +567,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ErrorOccured: Boolean;
         IsHandled: Boolean;
         ShouldCheckIfEntriesExist: Boolean;
+        SkipCalcComponents: Boolean;
     begin
         ProdOrderLine := ProdOrderLine2;
 
@@ -644,7 +650,9 @@ codeunit 99000773 "Calculate Prod. Order"
                         until ProdOrderRoutingLine3.Next() = 0;
                 end;
 
-        if CalcComponents then
+        SkipCalcComponents := false;
+        OnCalculateOnBeforeCalcComponents(ProdOrderLine, CalcComponents, SkipCalcComponents);
+        if CalcComponents and not SkipCalcComponents then
             if ProdOrderLine."Production BOM No." <> '' then begin
                 Item.Get(ProdOrderLine."Item No.");
                 GetPlanningParameters.AtSKU(
@@ -937,6 +945,7 @@ codeunit 99000773 "Calculate Prod. Order"
     begin
         ProdOrderLine := ProdOrderLine2;
 
+        LeadTimeMgt.SetManualScheduling(ProdOrderLine2."Manual Scheduling");
         LeadTime :=
           LeadTimeMgt.ManufacturingLeadTime(
             ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code");
@@ -1221,6 +1230,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckProdOrderLineQuantity(ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnBeforeCalcComponents(ProdOrderLine: Record "Prod. Order Line"; CalcComponents: Boolean; var SkipCalcComponents: Boolean)
     begin
     end;
 }

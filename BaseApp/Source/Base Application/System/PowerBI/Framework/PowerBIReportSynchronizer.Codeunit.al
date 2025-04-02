@@ -23,25 +23,11 @@ codeunit 6325 "Power BI Report Synchronizer"
             exit;
         PageId := CopyStr(Rec."Parameter String", 1, MaxStrLen(PageId));
 
-#if not CLEAN23
-        PowerBIServiceMgt.SetIsSynchronizing(true);
-
-        if PageId = '' then begin
-            Session.LogMessage('0000KWT', LegacyDeploymentTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata,
-                TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
-            PageId := GetPageId();
-        end;
-#endif
-
         IsLastAttempt := Rec."No. of Attempts to Run" >= Rec."Maximum No. of Attempts to Run";
 
         DeleteMarkedDefaultReports();
         UploadOutOfTheBoxReport(PageId, IsLastAttempt);
         UploadCustomerReports(PageId, IsLastAttempt);
-
-#if not CLEAN23
-        PowerBIServiceMgt.SetIsSynchronizing(false);
-#endif
 
         Commit(); // Persist information on which synchronization steps were performed
 
@@ -105,68 +91,6 @@ codeunit 6325 "Power BI Report Synchronizer"
 
         exit(false)
     end;
-
-#if not CLEAN23
-    [Scope('OnPrem')]
-    [Obsolete('This procedure will be marked as local.', '23.0')]
-    procedure SelectDefaultReports()
-    var
-        PowerBIDefaultSelection: Record "Power BI Default Selection";
-        PowerBIReportConfiguration: Record "Power BI Report Configuration";
-        PowerBIReportUploads: Record "Power BI Report Uploads";
-        IntelligentCloud: Record "Intelligent Cloud";
-        PageId: Text[50];
-        NullGuid: Guid;
-    begin
-        // Finds all recently uploaded default reports and enables/selects them on the appropriate pages
-        // per table 2000000145.
-        // (Note that each report only gets auto-selection done one time - if the user later deselects it
-        // we won't keep reselecting it.)
-
-        // If the GP flag is set in TAB2000000146, the report for the selected page/role center is removed
-        // and we select the GP report
-
-        // Get a page ID for a page where configuration exists (=user has clicked get started) but no default report is selected
-        PageId := GetPageId();
-
-        Session.LogMessage('0000ED3', StrSubstNo(PageIdTelemetryMsg, PageId), Verbosity::Normal, DataClassification::SystemMetadata,
-            TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
-
-        if PageId = '' then
-            exit;
-
-        PowerBIReportUploads.Reset();
-        PowerBIReportUploads.SetRange("User ID", UserSecurityId());
-        PowerBIReportUploads.SetFilter("Uploaded Report ID", '<>%1', NullGuid);
-        PowerBIReportUploads.SetRange("Report Upload Status", PowerBIReportUploads."Report Upload Status"::DataRefreshed);
-
-        if not IntelligentCloud.Get() then
-            PowerBIReportUploads.SetFilter(IsGP, '%1', false);
-
-        if PowerBIReportUploads.FindSet() then
-            repeat
-                PowerBIReportUploads.Validate("Report Upload Status", PowerBIReportUploads."Report Upload Status"::Completed);
-                PowerBIReportUploads.Modify(true);
-
-                if PowerBIDefaultSelection.Get(PowerBIReportUploads."PBIX BLOB ID", PageId) then begin
-                    if not PowerBIReportConfiguration.Get(UserSecurityId(), PowerBIReportUploads."Uploaded Report ID", PowerBIDefaultSelection.Context) then begin
-                        PowerBIReportConfiguration."User Security ID" := UserSecurityId();
-                        PowerBIReportConfiguration."Report ID" := PowerBIReportUploads."Uploaded Report ID";
-                        PowerBIReportConfiguration.Validate(ReportEmbedUrl, PowerBIReportUploads."Report Embed Url");
-                        PowerBIReportConfiguration.Context := PowerBIDefaultSelection.Context;
-                        PowerBIReportConfiguration.Insert(true);
-                    end else
-                        if (PowerBIReportConfiguration.ReportEmbedUrl <> PowerBIReportUploads."Report Embed Url") then begin
-                            PowerBIReportConfiguration.Validate(ReportEmbedUrl, PowerBIReportUploads."Report Embed Url");
-                            PowerBIReportConfiguration.Modify(true);
-                        end;
-
-                    if PowerBIDefaultSelection.Selected then
-                        SelectReportIfNoneSelected(PowerBIReportUploads."Uploaded Report ID", PowerBIDefaultSelection.Context);
-                end;
-            until PowerBIReportUploads.Next() = 0;
-    end;
-#endif
 
     local procedure SelectDefaultReports(var PowerBIReportUploads: Record "Power BI Report Uploads"; Context: Text[50]; ReportName: Text)
     var
@@ -263,25 +187,6 @@ codeunit 6325 "Power BI Report Synchronizer"
 
         exit(NullGuid);
     end;
-
-#if not CLEAN23
-    local procedure GetPageId(): Text[50]
-    var
-        PowerBIUserConfiguration: Record "Power BI User Configuration";
-        NullGuid: Guid;
-    begin
-        // Get a page ID for a page where configuration exists (=user has clicked get started) but no default report is selected
-        PowerBIUserConfiguration.Reset();
-        PowerBIUserConfiguration.SetRange("User Security ID", UserSecurityId());
-        PowerBIUserConfiguration.SetRange("Profile ID", PowerBIServiceMgt.GetEnglishContext());
-        PowerBIUserConfiguration.SetRange("Selected Report ID", NullGuid);
-
-        if not PowerBIUserConfiguration.FindFirst() then
-            exit('');
-
-        exit(PowerBIUserConfiguration."Page ID");
-    end;
-#endif
 
     local procedure UploadOutOfTheBoxReportForContext(Context: Text[50]; IsLastAttempt: Boolean)
     var
@@ -612,7 +517,4 @@ codeunit 6325 "Power BI Report Synchronizer"
         GettingDatasourceForDatasetTelemetryMsg: Label 'Getting datasource for dataset %1.', Locked = true;
         RefreshingDatasetTelemetryMsg: Label 'Refreshing dataset %1.', Locked = true;
         NoProgressOnUploadTelemetryMsg: Label 'Upload was not modified.', Locked = true;
-#if not CLEAN23
-        LegacyDeploymentTelemetryTxt: Label 'Legacy synchronization started.', Locked = true;
-#endif
 }

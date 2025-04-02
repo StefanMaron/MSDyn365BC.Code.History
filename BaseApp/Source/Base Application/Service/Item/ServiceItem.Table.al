@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Item;
 
 using Microsoft.Finance.Currency;
@@ -609,7 +613,6 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Item Description';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -617,7 +620,6 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer.Name where("No." = field("Customer No.")));
             Caption = 'Name';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -625,7 +627,6 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer.Address where("No." = field("Customer No.")));
             Caption = 'Address';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -633,7 +634,6 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer."Address 2" where("No." = field("Customer No.")));
             Caption = 'Address 2';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -648,7 +648,6 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer.City where("No." = field("Customer No.")));
             Caption = 'City';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
             TableRelation = "Post Code".City;
@@ -658,7 +657,6 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer.Contact where("No." = field("Customer No.")));
             Caption = 'Contact';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -666,7 +664,6 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer."Phone No." where("No." = field("Customer No.")));
             Caption = 'Phone No.';
-            OptimizeForTextSearch = true;
             Editable = false;
             ExtendedDatatype = PhoneNo;
             FieldClass = FlowField;
@@ -676,7 +673,6 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address".Name where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to Name';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -685,7 +681,6 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address".Address where("Customer No." = field("Customer No."),
                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Address';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -694,7 +689,6 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address"."Address 2" where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Address 2';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -711,7 +705,6 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address".City where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to City';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
             TableRelation = "Post Code".City;
@@ -722,7 +715,6 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address".Contact where("Customer No." = field("Customer No."),
                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Contact';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -731,7 +723,6 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address"."Phone No." where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Phone No.';
-            OptimizeForTextSearch = true;
             Editable = false;
             ExtendedDatatype = PhoneNo;
             FieldClass = FlowField;
@@ -840,7 +831,6 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Vendor.Name where("No." = field("Vendor No.")));
             Caption = 'Vendor Name';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -908,7 +898,6 @@ table 5940 "Service Item"
             CalcFormula = lookup(Customer.County where("No." = field("Customer No.")));
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -918,7 +907,6 @@ table 5940 "Service Item"
                                                                  Code = field("Ship-to Code")));
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -952,7 +940,6 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer."Name 2" where("No." = field("Customer No.")));
             Caption = 'Name 2';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -961,7 +948,6 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address"."Name 2" where("Customer No." = field("Customer No."),
                                                                    Code = field("Ship-to Code")));
             Caption = 'Ship-to Name 2';
-            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1060,11 +1046,11 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup("Ship-to Address"."E-Mail" where("Customer No." = field("Customer No."), Code = field("Ship-to Code")));
             Caption = 'Ship-to Email';
-            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA28
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -1080,6 +1066,7 @@ table 5940 "Service Item"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
     }
 
     keys
@@ -1249,7 +1236,7 @@ table 5940 "Service Item"
         end;
     end;
 
-    local procedure ServItemLinesExist() Result: Boolean
+    procedure ServItemLinesExist() Result: Boolean
     begin
         ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Service Item No.");

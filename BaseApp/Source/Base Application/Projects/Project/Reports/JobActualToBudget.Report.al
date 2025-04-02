@@ -339,6 +339,8 @@ report 1009 "Job Actual To Budget"
 
     requestpage
     {
+        AboutTitle = 'About Project Actual To Budget';
+        AboutText = 'Get an overview of actual vs. budgeted amounts for selected projects.\\Note: This report is not available in the US, Canada, and Mexico. Instead, use the Project Actual to Budget (Cost) (10210) or Project Actual to Budget (Price) (10211) reports.';
         SaveValues = true;
 
         layout

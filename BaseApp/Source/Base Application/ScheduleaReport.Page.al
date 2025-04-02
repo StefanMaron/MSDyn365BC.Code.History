@@ -150,6 +150,12 @@ page 682 "Schedule a Report"
         exit(ScheduleAReport.RunModal() = ACTION::OK);
     end;
 
+    procedure Schedule(ReportId: Integer; RequestPageXml: Text): Boolean
+    begin
+        SetParameters(ReportId, RequestPageXml);
+        exit(CurrPage.RunModal() = ACTION::OK);
+    end;
+
     procedure SetParameters(ReportId: Integer; RequestPageXml: Text)
     var
         ReportDescription: Text[250];

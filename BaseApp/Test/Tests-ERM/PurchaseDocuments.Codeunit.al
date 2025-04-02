@@ -47,11 +47,11 @@ codeunit 134099 "Purchase Documents"
         VendorNo: Code[20];
     begin
         // [FEATURE] [External Document No.] [UI]
-        // [SCENARIO 223191] Notificaiton appears it the purchase invoice page in case of Vendor Invoice No. already used for another invoice
+        // [SCENARIO 223191] Notification appears in the purchase invoice page in case of Vendor Invoice No. already used for another invoice
         Initialize();
         LibraryERM.SetEnableDataCheck(false);
 
-        // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
+        // [GIVEN] Enable "Show purchase document with same external document number already exists" Notification
         EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase invoice with Vendor Invoice No. = XXX
@@ -86,11 +86,11 @@ codeunit 134099 "Purchase Documents"
         VendorNo: Code[20];
     begin
         // [FEATURE] [External Document No.] [UI]
-        // [SCENARIO 223191] Notificaiton appears it the purchase order page in case of Vendor Invoice No. already used for another invoice
+        // [SCENARIO 223191] Notification appears it the purchase order page in case of Vendor Invoice No. already used for another invoice
         Initialize();
         LibraryERM.SetEnableDataCheck(false);
 
-        // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
+        // [GIVEN] Enable "Show purchase document with same external document number already exists" Notification
         EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase order with Vendor Invoice No. = XXX
@@ -125,11 +125,11 @@ codeunit 134099 "Purchase Documents"
         VendorNo: Code[20];
     begin
         // [FEATURE] [External Document No.] [UI]
-        // [SCENARIO 223191] Notificaiton appears it the purchase credit memo page in case of Vendor Cr. Memo No. already used for another credit memo
+        // [SCENARIO 223191] Notification appears it the purchase credit memo page in case of Vendor Cr. Memo No. already used for another credit memo
         Initialize();
         LibraryERM.SetEnableDataCheck(false);
 
-        // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
+        // [GIVEN] Enable "Show purchase document with same external document number already exists" Notification
         EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase credit memo with Vendor Cr. Memo No. = XXX
@@ -164,12 +164,12 @@ codeunit 134099 "Purchase Documents"
         VendorNo: Code[20];
     begin
         // [FEATURE] [External Document No.] [UI]
-        // [SCENARIO 223191] Notificaiton appears it the purchase return order page in case of Vendor Cr. Memo No. already used for another return order
+        // [SCENARIO 223191] Notification appears it the purchase return order page in case of Vendor Cr. Memo No. already used for another return order
         Initialize();
         LibraryERM.SetEnableDataCheck(false);
         UpdateNoSeriesOnPurchaseSetup();
 
-        // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
+        // [GIVEN] Enable "Show purchase document with same external document number already exists" Notification
         EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase return order with Vendor Cr. Memo No. = XXX
@@ -204,11 +204,11 @@ codeunit 134099 "Purchase Documents"
         VendorNo: Code[20];
     begin
         // [FEATURE] [External Document No.] [UI]
-        // [SCENARIO 300997] Notificaiton appears it the purchase invoice page in case of Vendor Invoice No. already used for another invoice when there are no My Notification records
+        // [SCENARIO 300997] Notification appears it the purchase invoice page in case of Vendor Invoice No. already used for another invoice when there are no My Notification records
         Initialize();
         LibraryERM.SetEnableDataCheck(false);
 
-        // [GIVEN] Delete all My Notificaiton records
+        // [GIVEN] Delete all My Notification records
         ClearMyNotification();
 
         // [GIVEN] Create and post purchase invoice with Vendor Invoice No. = XXX
@@ -243,14 +243,14 @@ codeunit 134099 "Purchase Documents"
         VendorNo: Code[20];
     begin
         // [FEATURE] [External Document No.] [UI]
-        // [SCENARIO 300997] Notificaiton appears it the purchase credit memo page in case of Vendor Cr. Memo No. already used for another credit memo when there are no My Notification records
+        // [SCENARIO 300997] Notification appears it the purchase credit memo page in case of Vendor Cr. Memo No. already used for another credit memo when there are no My Notification records
         Initialize();
         LibraryERM.SetEnableDataCheck(false);
 
-        // [GIVEN] Delete all My Notificaiton records
+        // [GIVEN] Delete all My Notification records
         ClearMyNotification();
 
-        // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
+        // [GIVEN] Enable "Show purchase document with same external document number already exists" Notification
         EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase credit memo with Vendor Cr. Memo No. = XXX
@@ -320,7 +320,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [FEATURE] [Credit Memo]
-        // [SCENARIO 261555] COD351.DefaultPurchaseDcouments handle "Purchase Header".INSERT event only when "RunTrigger" is TRUE
+        // [SCENARIO 261555] COD351.DefaultPurchaseDocuments handle "Purchase Header".INSERT event only when "RunTrigger" is TRUE
         Initialize();
 
         VerifyTransactionTypeWhenInsertPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo");
@@ -782,7 +782,7 @@ codeunit 134099 "Purchase Documents"
         MessageText: Text;
     begin
         // [FEATURE] [UT] [Message] [FCY]
-        // [SCENARIO 282342] Warning message that Purchase Lines were not updated do not unclude currency related text when currency is not used
+        // [SCENARIO 282342] Warning message that Purchase Lines were not updated do not include currency related text when currency is not used
         Initialize();
 
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
@@ -1654,6 +1654,279 @@ codeunit 134099 "Purchase Documents"
         PurchaseLine.TestField("Planned Receipt Date", PurchaseLine."Requested Receipt Date");
     end;
 
+    [Test]
+    procedure PurchaseInvoiceCheckDocTotalAmountsVATAmountHigherThenDocAmountInclVAT()
+    var
+        PurchasePayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Check Doc. Total Amounts]
+        // [SCENARIO] When on Purchase Invoice "VAT Amount" is higher than "Document Amount (Incl. VAT)" then error is shown
+        Initialize();
+
+        // [GIVEN] Enable "Check Doc. Total Amounts" in Purchases & Payables Setup
+        PurchasePayablesSetup.Get();
+        PurchasePayablesSetup."Check Doc. Total Amounts" := true;
+        PurchasePayablesSetup.Modify(true);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        // [WHEN] Doc. Amount Incl VAT is set
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", LibraryRandom.RandDec(1000, 0));
+        PurchaseHeader.Modify();
+
+        // [THEN] Error is shown
+        asserterror PurchaseHeader.Validate("Doc. Amount VAT", PurchaseHeader."Doc. Amount Incl. VAT" + LibraryRandom.RandDec(10, 0));
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
+    [Test]
+    [HandlerFunctions('PurchaseInvoiceStatisticsUpdateVATAmountModalPageHandler')]
+    procedure PurchaseInvoiceCheckDocTotalAmountsVATInVATDifference()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
+        DirectUnitCost: Decimal;
+        MaxAllowedVATDifference: Decimal;
+    begin
+        // [FEATURE] [Check Doc. Total Amounts]
+        // [SCENARIO] When on Purchase Invoice "VAT Amount" is higher then sum of lines then error is shown
+        Initialize();
+
+        // [GIVEN] Allow VAT Difference
+        MaxAllowedVATDifference := 1;
+        LibraryERM.SetMaxVATDifferenceAllowed(MaxAllowedVATDifference);
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Line
+        DirectUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] VAT Amount Increased on Statistics page
+        LibraryVariableStorage.Enqueue(MaxAllowedVATDifference / 3);
+        PurchaseInvoicePage.OpenEdit();
+        PurchaseInvoicePage.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoicePage.Statistics.Invoke();
+        PurchaseInvoicePage.Close();
+        Commit();
+
+        // [GIVEN] Set Doc. Amount Incl. VAT
+        PurchaseHeader.CalcFields("Amount Including VAT", Amount);
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
+        PurchaseHeader.Modify();
+
+        // [WHEN] Set Doc Amount VAT
+        PurchaseHeader.Validate("Doc. Amount VAT",
+            (PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount)
+            + MaxAllowedVATDifference / 3);
+
+        // [THEN] Nothing is happen
+        Assert.IsTrue(PurchaseHeader."Doc. Amount Incl. VAT" > PurchaseHeader."Doc. Amount VAT", 'Doc. Amount VAT is higher then Doc. Amount Incl. VAT');
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseInvoiceStatisticsUpdateVATAmountPageHandler')]
+    procedure PurchaseInvoiceCheckDocTotalAmountsVATInVATDiff()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
+        DirectUnitCost: Decimal;
+        MaxAllowedVATDifference: Decimal;
+    begin
+        // [FEATURE] [Check Doc. Total Amounts]
+        // [SCENARIO] When on Purchase Invoice "VAT Amount" is higher then sum of lines then error is shown
+        Initialize();
+
+        // [GIVEN] Allow VAT Difference
+        MaxAllowedVATDifference := 1;
+        LibraryERM.SetMaxVATDifferenceAllowed(MaxAllowedVATDifference);
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Line
+        DirectUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] VAT Amount Increased on Statistics page
+        LibraryVariableStorage.Enqueue(MaxAllowedVATDifference / 3);
+        PurchaseInvoicePage.OpenEdit();
+        PurchaseInvoicePage.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoicePage.PurchaseStatistics.Invoke();
+        PurchaseInvoicePage.Close();
+        Commit();
+
+        // [GIVEN] Set Doc. Amount Incl. VAT
+        PurchaseHeader.CalcFields("Amount Including VAT", Amount);
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
+        PurchaseHeader.Modify();
+
+        // [WHEN] Set Doc Amount VAT
+        PurchaseHeader.Validate("Doc. Amount VAT",
+            (PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount)
+            + MaxAllowedVATDifference / 3);
+
+        // [THEN] Nothing is happen
+        Assert.IsTrue(PurchaseHeader."Doc. Amount Incl. VAT" > PurchaseHeader."Doc. Amount VAT", 'Doc. Amount VAT is higher then Doc. Amount Incl. VAT');
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceCheckDocTotalAmountsVATAmountSmallerThenDocAmountInclVAT()
+    var
+        PurchasePayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Check Doc. Total Amounts]
+        // [SCENARIO] When on Purchase Invoice "VAT Amount" is smaller than "Document Amount (Incl. VAT)" nothing happens
+        Initialize();
+
+        // [GIVEN] Enable "Check Doc. Total Amounts" in Purchases & Payables Setup
+        PurchasePayablesSetup.Get();
+        PurchasePayablesSetup."Check Doc. Total Amounts" := true;
+        PurchasePayablesSetup.Modify(true);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        // [WHEN] Doc. Amount Incl. VAT is set
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", LibraryRandom.RandDec(1000, 0));
+        PurchaseHeader.Modify();
+
+        // [THEN] Nothing has happen
+        Assert.IsTrue(PurchaseHeader."Doc. Amount Incl. VAT" > PurchaseHeader."Doc. Amount VAT", 'Doc. Amount VAT is higher then Doc. Amount Incl. VAT');
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceCheckDocTotalAmountsVATAmountHigherThenLines()
+    var
+        PurchasePayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DirectUnitCost: Decimal;
+    begin
+        // [FEATURE] [Check Doc. Total Amounts]
+        // [SCENARIO] When on Purchase Invoice "VAT Amount" is higher then sum of lines then error is shown
+        Initialize();
+
+        // [GIVEN] Enable "Check Doc. Total Amounts" in Purchases & Payables Setup
+        PurchasePayablesSetup.Get();
+        PurchasePayablesSetup."Check Doc. Total Amounts" := true;
+        PurchasePayablesSetup.Modify(true);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Set Doc. Amount Incl. VAT
+        DirectUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", DirectUnitCost);
+        PurchaseHeader.Modify();
+
+        // [THEN] An error is thrown when validating Doc. Amount VAT with a higher amount then the lines
+        asserterror PurchaseHeader.Validate("Doc. Amount VAT", DirectUnitCost + LibraryRandom.RandDec(10, 0));
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceCheckDocTotalAmountsLinesDifferenceDocAmountInclVATOnPosting()
+    var
+        PurchasePayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ErrorMessage: Record "Error Message";
+        ErrorMessages: TestPage "Error Messages";
+        DirectUnitCost: Decimal;
+    begin
+        // [FEATURE] [Check Doc. Total Amounts]
+        // [SCENARIO] When on Purchase Invoice "Doc. Amount Incl. VAT" is higher then sum of lines then error is shown
+        Initialize();
+
+        // [GIVEN] Enable "Check Doc. Total Amounts" in Purchases & Payables Setup
+        PurchasePayablesSetup.Get();
+        PurchasePayablesSetup."Check Doc. Total Amounts" := true;
+        PurchasePayablesSetup.Modify(true);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Set Doc. Amount Incl. VAT and VAT Amount
+        DirectUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", DirectUnitCost + LibraryRandom.RandDec(5, 0));
+        PurchaseHeader.Validate("Doc. Amount VAT", DirectUnitCost - LibraryRandom.RandDec(1, 0));
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Create Purchase Line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Posting purchase invoice
+        ErrorMessages.Trap();
+        PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post");
+
+        // [THEN] Exactly one error is thrown
+        ErrorMessage.SetRange("Context Record ID", PurchaseHeader.RecordId);
+        Assert.RecordCount(ErrorMessage, 1);
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceCheckDocTotalAmountsLinesDifferenceDocAmountVATOnPosting()
+    var
+        PurchasePayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ErrorMessage: Record "Error Message";
+        ErrorMessages: TestPage "Error Messages";
+        DirectUnitCost: Decimal;
+    begin
+        // [FEATURE] [Check Doc. Total Amounts]
+        // [SCENARIO] When on Purchase Invoice "VAT Amount" is higher then sum of lines then error is shown
+        Initialize();
+
+        // [GIVEN] Enable "Check Doc. Total Amounts" in Purchases & Payables Setup
+        PurchasePayablesSetup.Get();
+        PurchasePayablesSetup."Check Doc. Total Amounts" := true;
+        PurchasePayablesSetup.Modify(true);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Set Doc. Amount Incl. VAT and VAT Amount
+        DirectUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", DirectUnitCost);
+        PurchaseHeader.Validate("Doc. Amount VAT", DirectUnitCost - LibraryRandom.RandDec(1, 0));
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Create Purchase Line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Posting purchase invoice
+        ErrorMessages.Trap();
+        PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post");
+
+        // [THEN] Exactly one error is thrown  
+        ErrorMessage.SetRange("Context Record ID", PurchaseHeader.RecordId);
+        Assert.RecordCount(ErrorMessage, 1);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -1891,7 +2164,7 @@ codeunit 134099 "Purchase Documents"
         Assert.AreEqual(
           StrSubstNo(PurchaseAlreadyExistsTxt, DocumentType, ExternalDocumentNo),
           LibraryVariableStorage.DequeueText(),
-          'Unexpected notificaiton message');
+          'Unexpected Notification message');
     end;
 
     local procedure VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeader: Record "Purchase Header"; ChargeItemNo: Code[20]; ExpectedQtyToAssign: Decimal)
@@ -1988,5 +2261,26 @@ codeunit 134099 "Purchase Documents"
     begin
         ContactList.GotoKey(LibraryVariableStorage.DequeueText());
         ContactList.OK().Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceStatisticsUpdateVATAmountModalPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    begin
+        PurchaseStatistics.SubForm.Last();
+        PurchaseStatistics.SubForm."VAT Amount".SetValue(
+          PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceStatisticsUpdateVATAmountPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    begin
+        PurchaseStatistics.SubForm.Last();
+        PurchaseStatistics.SubForm."VAT Amount".SetValue(
+          PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
     end;
 }

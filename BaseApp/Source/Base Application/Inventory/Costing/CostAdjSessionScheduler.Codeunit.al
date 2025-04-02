@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Inventory.Item;
@@ -41,7 +45,7 @@ codeunit 5809 "Cost Adj. Session Scheduler"
                     CostAdjItemBucket.Modify();
 
                     if (CostAdjItemBucket.Status in [CostAdjItemBucket.Status::Failed, CostAdjItemBucket.Status::"Timed out"]) and
-                       (CostAdjItemBucket."Reschedule Count" > 0)
+                       (CostAdjItemBucket."Reschedule Count" > 0) and not CostAdjItemBucket.Trace
                     then
                         Reschedule(CostAdjItemBucket);
                 end;

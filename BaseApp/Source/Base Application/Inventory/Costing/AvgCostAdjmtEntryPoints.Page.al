@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 page 5815 "Avg. Cost Adjmt. Entry Points"
@@ -40,6 +44,28 @@ page 5815 "Avg. Cost Adjmt. Entry Points"
                     ToolTip = 'Specifies whether the cost is adjusted on the valuation date';
                 }
             }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action("Run Until Date")
+            {
+                Caption = 'Adjust cost until Valuation Date';
+                Image = Start;
+                ToolTip = 'Run the cost adjustment until the selected valuation date.';
+
+                trigger OnAction()
+                begin
+                    Rec.RunCostAdjustmentUntilValuationDate();
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref("Run Until Date_Promoted"; "Run Until Date") { }
         }
     }
 }

@@ -2520,6 +2520,38 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         WarehouseActivityLine.TestField("Serial No.", SerialNo[3]);
     end;
 
+    [Test]
+    procedure ItemTrackingNumbersRequireItemTrackingCode()
+    var
+        Item: Record Item;
+        ItemJournalPage: TestPage "Item Journal";
+    begin
+        // [SCENARIO 562516] User should not be able to enter tracking numbers without an item tracking code on the Item Journal page
+        Initialize();
+
+        // Create Tracked item
+        CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(false, true, false));
+
+        // Add tracking numbers
+        ItemJournalPage.OpenEdit();
+        ItemJournalPage."Item No.".SetValue(Item."No.");
+
+        // [WHEN] Adding tracking numbers to a tracked item with an item tracking code
+        // [THEN] No error
+        ItemJournalPage."Serial No.".SetValue(LibraryRandom.RandText(10));
+        ItemJournalPage."Lot No.".SetValue(LibraryRandom.RandText(10));
+        ItemJournalPage."Package No.".SetValue(LibraryRandom.RandText(10));
+
+        // [WHEN] Removing the item tracking code
+        Item.Validate("Item Tracking Code", '');
+        Item.Modify();
+
+        // [THEN] The same fields are not editable
+        asserterror ItemJournalPage."Serial No.".SetValue(LibraryRandom.RandText(10));
+        asserterror ItemJournalPage."Lot No.".SetValue(LibraryRandom.RandText(10));
+        asserterror ItemJournalPage."Package No.".SetValue(LibraryRandom.RandText(10));
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -3819,6 +3851,8 @@ codeunit 137261 "SCM Inventory Item Tracking II"
             until ItemJournalLine.Next() = 0;
 
         LibraryInventory.PostItemJournalLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name);
+
+        ItemJnlTemplate.Delete();
     end;
 
     local procedure CreateAndPostProductionJnlWithLotNo(ProductionOrder: Record "Production Order"; ProdOrderLineNo: Integer; LotNo: Code[20])
@@ -3848,7 +3882,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         ProdOrderComponent.Validate("Item No.", ItemNo);
         ProdOrderComponent.Validate("Quantity per", 1);
         ProdOrderComponent.Validate("Location Code", LocationCode);
-        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
+        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::"Pick + Manual");
         ProdOrderComponent.Modify(true);
     end;
 

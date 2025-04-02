@@ -89,7 +89,7 @@ report 1090 "Job Calc. Remaining Usage"
                         Lookup = false;
                         ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the journal is based on.';
 
-                        trigger OnLookup(var Text: Text): Boolean
+                        trigger OnAssistEdit()
                         begin
                             if TemplateName = '' then
                                 Error(Text000, JobJnlLine.FieldCaption("Journal Template Name"));

@@ -301,6 +301,7 @@ page 9309 "Purchase Credit Memos"
             {
                 Caption = '&Credit Memo';
                 Image = CreditMemo;
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Suite;
@@ -308,11 +309,58 @@ page 9309 "Purchase Credit Memos"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     begin
                         Rec.OpenDocumentStatistics();
                     end;
+                }
+#endif
+                action(PurchaseStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = not SalesTaxStatisticsVisible;
+#else
+                    Visible = false;
+#endif                    
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Purchase Statistics";
+                    RunPageOnRec = true;
+                }
+                action(PurchaseStats)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = SalesTaxStatisticsVisible;
+#else
+                    Visible = false;
+#endif                    
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Purchase Stats.";
+                    RunPageOnRec = true;
+                }
+                action(VendorStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Statistics';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
+                    Image = Statistics;
+                    RunObject = Page "Vendor Statistics";
+                    RunPageLink = "No." = field("Buy-from Vendor No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the buy-from vendor on the purchase document.';
                 }
                 action("Co&mments")
                 {
@@ -663,9 +711,21 @@ page 9309 "Purchase Credit Memos"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else                
+                actionref(PurchaseStatistics_Promoted; PurchaseStatistics)
+                {
+                }
+                actionref(PurchaseStats_Promoted; PurchaseStats)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -710,6 +770,7 @@ page 9309 "Purchase Credit Memos"
         IsOfficeAddin := OfficeMgt.IsAvailable();
 
         Rec.CopyBuyFromVendorFilter();
+        SalesTaxStatisticsVisible := Rec.GetStatisticsPageID() = Page::"Purchase Order Stats.";
     end;
 
     var
@@ -724,6 +785,9 @@ page 9309 "Purchase Credit Memos"
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         StatusStyleTxt: Text;
+
+    protected var
+        SalesTaxStatisticsVisible: Boolean;
 
     local procedure SetControlAppearance()
     var
@@ -806,4 +870,3 @@ page 9309 "Purchase Credit Memos"
     begin
     end;
 }
-

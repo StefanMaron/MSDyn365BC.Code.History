@@ -94,16 +94,12 @@ page 634 "Chart of Accounts Overview"
                     Editable = false;
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     var
                         GLaccList: Page "G/L Account List";
                     begin
                         GLaccList.LookupMode(true);
-                        if not (GLaccList.RunModal() = ACTION::LookupOK) then
-                            exit(false);
-
-                        Text := GLaccList.GetSelectionFilter();
-                        exit(true);
+                        GLaccList.RunModal();
                     end;
                 }
                 field("Gen. Posting Type"; Rec."Gen. Posting Type")

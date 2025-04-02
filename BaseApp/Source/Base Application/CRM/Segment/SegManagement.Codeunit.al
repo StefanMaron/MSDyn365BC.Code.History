@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Segment;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Segment;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Campaign;
@@ -33,6 +37,7 @@ codeunit 5051 SegManagement
         InteractionTemplateAssignedLanguageErr: Label 'Interaction Template %1 has assigned Interaction Template Language %2.\It is not allowed to have languages assigned to templates used for system document logging.', Comment = '%1 - Interaction Template Code, %2 - Interaction Template Language Code';
         InteractionsLbl: Label 'Interactions';
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Interaction Log Entry", 'r')]
     procedure LogSegment(SegmentHeader: Record "Segment Header"; Deliver: Boolean; Followup: Boolean)
     var
         SegmentLine: Record "Segment Line";
@@ -174,6 +179,7 @@ codeunit 5051 SegManagement
         OnAfterLogSegment(TempDeliverySorter, LoggedSegment, SegmentHeader, SegmentNo, InteractionLogEntry."Entry No.");
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Interaction Log Entry", 'r')]
     procedure LogInteraction(SegmentLine: Record "Segment Line"; var AttachmentTemp: Record Attachment; var TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; Deliver: Boolean; Postponed: Boolean) NextInteractLogEntryNo: Integer
     var
         InteractionTemplate: Record "Interaction Template";
@@ -499,21 +505,6 @@ codeunit 5051 SegManagement
         case SegmentLine."Correspondence Type" of
             "Correspondence Type"::Email:
                 AssignCorrespondenceTypeForEmail(SegmentLine, Contact, ContactAltAddress, Deliver);
-#if not CLEAN23
-            "Correspondence Type"::Fax:
-                begin
-                    if Contact."Fax No." = '' then
-                        SegmentLine."Correspondence Type" := "Correspondence Type"::" ";
-
-                    if ContactAltAddress.Get(SegmentLine."Contact No.", SegmentLine."Contact Alt. Address Code") then begin
-                        if ContactAltAddress."Fax No." <> '' then
-                            SegmentLine."Correspondence Type" := "Correspondence Type"::Fax;
-                    end else
-                        if (Deliver and (Contact."Fax No." = '')) then
-                            Error(SegmentSendContactEmailFaxMissingErr, Contact.FieldCaption("Fax No."), Contact."No.")
-
-                end;
-#endif
             else
                 OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(SegmentLine, Contact);
         end;

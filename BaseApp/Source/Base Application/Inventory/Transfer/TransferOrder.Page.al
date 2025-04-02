@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Transfer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
@@ -1003,10 +1007,8 @@ page 5740 "Transfer Order"
     trigger OnOpenPage()
     begin
         SetDocNoVisible();
-#if not CLEAN23
         EnableTransferFields := not IsPartiallyShipped();
         ActivateFields();
-#endif
     end;
 
     var

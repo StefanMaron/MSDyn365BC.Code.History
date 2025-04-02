@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.RoleCenters;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Foundation.Navigate;

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Consolidation;
 
 using Microsoft.Finance.GeneralLedger.Account;
@@ -19,11 +23,9 @@ table 1829 "Consolidation Account"
         {
             Caption = 'Name';
         }
-        field(3; "Income/Balance"; Option)
+        field(3; "Income/Balance"; Enum "G/L Account Report Type")
         {
             Caption = 'Income/Balance';
-            OptionCaption = 'Income Statement,Balance Sheet';
-            OptionMembers = "Income Statement","Balance Sheet";
         }
         field(4; Blocked; Boolean)
         {
@@ -328,7 +330,7 @@ table 1829 "Consolidation Account"
     end;
 
     [Scope('OnPrem')]
-    procedure PopulateaccountsForUS()
+    procedure PopulateAccountsForUS()
     begin
         InsertData('10100', 'Checking account', 1, true);
         InsertData('10200', 'Savings account', 1, true);
@@ -399,7 +401,7 @@ table 1829 "Consolidation Account"
         InsertData('10100', 'Checking account', 1, true);
     end;
 
-    local procedure InsertData(AccountNo: Code[20]; AccountName: Text[100]; IncomeBalance: Option; DirectPosting: Boolean)
+    local procedure InsertData(AccountNo: Code[20]; AccountName: Text[100]; IncomeBalance: Integer; DirectPosting: Boolean)
     var
         ConsolidationAccount: Record "Consolidation Account";
     begin
@@ -407,7 +409,7 @@ table 1829 "Consolidation Account"
         ConsolidationAccount.Validate("No.", AccountNo);
         ConsolidationAccount.Validate(Name, AccountName);
         ConsolidationAccount.Validate("Direct Posting", DirectPosting);
-        ConsolidationAccount.Validate("Income/Balance", IncomeBalance);
+        ConsolidationAccount.Validate("Income/Balance", "G/L Account Report Type".FromInteger(IncomeBalance));
         ConsolidationAccount.Insert();
     end;
 
@@ -420,7 +422,7 @@ table 1829 "Consolidation Account"
         GLAccount.SetFilter("Account Type", Format(GLAccount."Account Type"::Posting));
         if GLAccount.Find('-') then
             repeat
-                InsertData(GLAccount."No.", GLAccount.Name, GLAccount."Income/Balance", GLAccount."Direct Posting");
+                InsertData(GLAccount."No.", GLAccount.Name, GLAccount."Income/Balance".AsInteger(), GLAccount."Direct Posting");
             until GLAccount.Next() = 0;
     end;
 

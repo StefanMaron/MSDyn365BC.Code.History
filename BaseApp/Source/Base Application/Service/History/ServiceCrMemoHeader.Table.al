@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -33,11 +37,9 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
+using System.Reflection;
 using System.Security.AccessControl;
-using System.Utilities;
 using System.Security.User;
-using System.IO;
-using Microsoft.eServices.EDocument;
 
 table 5994 "Service Cr.Memo Header"
 {
@@ -489,6 +491,11 @@ table 5994 "Service Cr.Memo Header"
             Caption = 'VAT Date';
             Editable = false;
         }
+        field(200; "Work Description"; BLOB)
+        {
+            Caption = 'Work Description';
+            DataClassification = CustomerContent;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -789,173 +796,6 @@ table 5994 "Service Cr.Memo Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
-        }	
-        field(10018; "STE Transaction ID"; Text[20])
-        {
-            Caption = 'STE Transaction ID';
-            Editable = false;
-        }
-        field(10019; "Electronic Document Sent"; Boolean)
-        {
-            Caption = 'Electronic Document Sent';
-            Editable = false;
-        }
-        field(10020; "Original Document XML"; BLOB)
-        {
-            Caption = 'Original Document XML';
-        }
-        field(10021; "No. of E-Documents Sent"; Integer)
-        {
-            Caption = 'No. of E-Documents Sent';
-            Editable = false;
-        }
-        field(10022; "Original String"; BLOB)
-        {
-            Caption = 'Original String';
-        }
-        field(10023; "Digital Stamp SAT"; BLOB)
-        {
-            Caption = 'Digital Stamp SAT';
-        }
-        field(10024; "Certificate Serial No."; Text[250])
-        {
-            Caption = 'Certificate Serial No.';
-            Editable = false;
-        }
-        field(10025; "Signed Document XML"; BLOB)
-        {
-            Caption = 'Signed Document XML';
-        }
-        field(10026; "Digital Stamp PAC"; BLOB)
-        {
-            Caption = 'Digital Stamp PAC';
-        }
-        field(10030; "Electronic Document Status"; Option)
-        {
-            Caption = 'Electronic Document Status';
-            Editable = false;
-            OptionCaption = ' ,Stamp Received,Sent,Canceled,Stamp Request Error,Cancel Error,Cancel In Progress';
-            OptionMembers = " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
-        }
-        field(10031; "Date/Time Stamped"; Text[50])
-        {
-            Caption = 'Date/Time Stamped';
-            Editable = false;
-        }
-        field(10032; "Date/Time Sent"; Text[50])
-        {
-            Caption = 'Date/Time Sent';
-            Editable = false;
-        }
-        field(10033; "Date/Time Canceled"; Text[50])
-        {
-            Caption = 'Date/Time Canceled';
-            Editable = false;
-        }
-        field(10035; "Error Code"; Code[10])
-        {
-            Caption = 'Error Code';
-            Editable = false;
-        }
-        field(10036; "Error Description"; Text[250])
-        {
-            Caption = 'Error Description';
-            Editable = false;
-        }
-        field(10037; "Date/Time Stamp Received"; DateTime)
-        {
-            Caption = 'Date/Time Stamp Received';
-            Editable = false;
-        }
-        field(10038; "Date/Time Cancel Sent"; DateTime)
-        {
-            Caption = 'Date/Time Cancel Sent';
-            Editable = false;
-        }
-        field(10040; "PAC Web Service Name"; Text[50])
-        {
-            Caption = 'PAC Web Service Name';
-            Editable = false;
-        }
-        field(10041; "QR Code"; BLOB)
-        {
-            Caption = 'QR Code';
-        }
-        field(10042; "Fiscal Invoice Number PAC"; Text[50])
-        {
-            Caption = 'Fiscal Invoice Number PAC';
-            Editable = false;
-        }
-        field(10043; "Date/Time First Req. Sent"; Text[50])
-        {
-            Caption = 'Date/Time First Req. Sent';
-            Editable = false;
-        }
-        field(10050; "Foreign Trade"; Boolean)
-        {
-            Caption = 'Foreign Trade';
-        }
-        field(10059; "SAT International Trade Term"; Code[10])
-        {
-            Caption = 'SAT International Trade Term';
-            TableRelation = "SAT International Trade Term";
-        }
-        field(10060; "Exchange Rate USD"; Decimal)
-        {
-            Caption = 'Exchange Rate USD';
-            DecimalPlaces = 0 : 6;
-        }
-        field(27000; "CFDI Purpose"; Code[10])
-        {
-            Caption = 'CFDI Purpose';
-            TableRelation = "SAT Use Code";
-        }
-        field(27001; "CFDI Relation"; Code[10])
-        {
-            Caption = 'CFDI Relation';
-            TableRelation = "SAT Relationship Type";
-        }
-        field(27002; "CFDI Cancellation Reason Code"; Code[10])
-        {
-            Caption = 'CFDI Cancellation Reason';
-            TableRelation = "CFDI Cancellation Reason";
-        }
-        field(27003; "Substitution Document No."; Code[20])
-        {
-            Caption = 'Substitution Document No.';
-            TableRelation = "Service Cr.Memo Header" where("Electronic Document Status" = filter("Stamp Received"));
-        }
-        field(27004; "CFDI Export Code"; Code[10])
-        {
-            Caption = 'CFDI Export Code';
-            TableRelation = "CFDI Export Code";
-        }
-        field(27005; "CFDI Period"; Option)
-        {
-            Caption = 'CFDI Period';
-            OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
-            OptionMembers = "Diario","Semanal","Quincenal","Mensual";
-        }
-        field(27007; "CFDI Cancellation ID"; Text[50])
-        {
-            Caption = 'CFDI Cancellation ID';
-        }
-        field(27008; "Marked as Canceled"; Boolean)
-        {
-            Caption = 'Marked as Canceled';
-        }
-        field(27009; "SAT Address ID"; Integer)
-        {
-            Caption = 'SAT Address ID';
-            TableRelation = "SAT Address";
-
-            trigger OnLookup()
-            var
-                SATAddress: Record "SAT Address";
-            begin
-                if SATAddress.LookupSATAddress(SATAddress, Rec."Ship-to Country/Region Code", Rec."Bill-to Country/Region Code") then
-                    Rec."SAT Address ID" := SATAddress.Id;
-            end;
         }
     }
 
@@ -1010,7 +850,6 @@ table 5994 "Service Cr.Memo Header"
         ServCrMemoLine: Record "Service Cr.Memo Line";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
-        Text10000: Label 'There is no electronic stamp for document no. %1.';
 
     procedure Navigate()
     var
@@ -1060,7 +899,6 @@ table 5994 "Service Cr.Memo Header"
 
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
         IsHandled: Boolean;
@@ -1070,7 +908,6 @@ table 5994 "Service Cr.Memo Header"
         if IsHandled then
             exit;
 
-        EInvoiceMgt.EDocPrintValidation("Electronic Document Status", "No.");
         DocumentSendingProfile.TrySendToPrinter(
           DummyReportSelections.Usage::"SM.Credit Memo".AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestForm);
     end;
@@ -1116,53 +953,6 @@ table 5994 "Service Cr.Memo Header"
         Page.RunModal(StatPageID, Rec);
     end;
 
-    procedure ExportEDocument()
-    var
-        TempBlob: Codeunit "Temp Blob";
-        RBMgt: Codeunit "File Management";
-    begin
-        CalcFields("Signed Document XML");
-        if "Signed Document XML".HasValue() then begin
-            TempBlob.FromRecord(Rec, FieldNo("Signed Document XML"));
-            RBMgt.BLOBExport(TempBlob, "No." + '.xml', true);
-        end else
-            Error(Text10000, "No.");
-    end;
-
-    procedure ExportEDocumentPDF()
-    var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        FileManagement: Codeunit "File Management";
-        FilePath: Text;
-    begin
-        if "Electronic Document Status" in ["Electronic Document Status"::Sent, "Electronic Document Status"::"Stamp Received"] then begin
-            ServiceCrMemoHeader := Rec;
-            ServiceCrMemoHeader.SetRecFilter();
-            FilePath := FileManagement.ServerTempFileName('pdf');
-            REPORT.SaveAsPdf(REPORT::"Elec. Service Cr Memo MX", FilePath, ServiceCrMemoHeader);
-            FileManagement.DownloadHandler(FilePath, '', '', '', "No." + '.pdf');
-        end else
-            Error(Text10000, "No.");
-    end;
-
-    procedure RequestStampEDocument()
-    var
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
-        LoCRecRef: RecordRef;
-    begin
-        LoCRecRef.GetTable(Rec);
-        EInvoiceMgt.RequestStampDocument(LoCRecRef, false);
-    end;
-
-    procedure CancelEDocument()
-    var
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
-        LoCRecRef: RecordRef;
-    begin
-        LoCRecRef.GetTable(Rec);
-        EInvoiceMgt.CancelDocument(LoCRecRef);
-    end;
-
     procedure GetDocExchStatusStyle(): Text
     begin
         case "Document Exchange Status" of
@@ -1203,6 +993,16 @@ table 5994 "Service Cr.Memo Header"
 
         ReportSelections.SaveAsDocumentAttachment(
             ReportSelections.Usage::"SM.Credit Memo".AsInteger(), ServiceCrMemoHeader, ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Bill-to Customer No.", ShowNotificationAction);
+    end;
+
+    procedure GetWorkDescription(): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        CalcFields("Work Description");
+        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
     [IntegrationEvent(false, false)]

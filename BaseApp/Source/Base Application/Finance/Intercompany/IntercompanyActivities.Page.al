@@ -78,12 +78,20 @@ page 9071 "Intercompany Activities"
         ICOutboxTransaction: Record "IC Outbox Transaction";
         TotalInbox: Integer;
     begin
+        ICInboxTransaction.ReadIsolation(IsolationLevel::ReadUncommitted);
         TotalInbox := ICInboxTransaction.Count();
-        ToSendCount := ICOutboxTransaction.Count();
-        ICInboxTransaction.SetRange("Transaction Source", ICInboxTransaction."Transaction Source"::"Returned by Partner");
-        RejectedCount := ICInboxTransaction.Count();
+
+        if TotalInbox <> 0 then begin
+            ICInboxTransaction.SetRange("Transaction Source", ICInboxTransaction."Transaction Source"::"Returned by Partner");
+            RejectedCount := ICInboxTransaction.Count();
+        end else
+            RejectedCount := 0;
+
         NewIncomingCount := TotalInbox - RejectedCount;
+
+        ICOutboxTransaction.ReadIsolation(IsolationLevel::ReadUncommitted);
         ToSendCount := ICOutboxTransaction.Count();
+
         SetStyle(NewIncomingCount, NewIncomingStyle);
         SetStyle(ToSendCount, ToSendStyle);
         SetStyle(RejectedCount, RejectedStyle);

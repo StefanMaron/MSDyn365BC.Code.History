@@ -168,6 +168,8 @@ report 1008 "Job Analysis"
 
     requestpage
     {
+        AboutTitle = 'About Project Analysis';
+        AboutText = 'Get a financial overview of your projects based on your input.';
         SaveValues = true;
 
         layout

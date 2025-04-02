@@ -33,15 +33,6 @@ table 1512 "Notification Setup"
             Caption = 'Schedule';
             FieldClass = FlowField;
         }
-        field(6; "Display Target"; Option)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The Windows client is discontinued.';
-            Caption = 'Display Target';
-            OptionCaption = 'Web,Windows';
-            OptionMembers = Web,Windows;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -83,4 +74,3 @@ table 1512 "Notification Setup"
         GetNotificationTypeSetup(NotificationType);
     end;
 }
-

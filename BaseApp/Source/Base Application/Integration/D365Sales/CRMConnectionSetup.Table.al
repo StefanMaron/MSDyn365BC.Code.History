@@ -33,6 +33,7 @@ table 5330 "CRM Connection Setup"
     {
         field(1; "Primary Key"; Code[20])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Server Address"; Text[250])
@@ -78,14 +79,6 @@ table 5330 "CRM Connection Setup"
                         xRec.DeletePassword();
             end;
         }
-        field(5; "Last Update Invoice Entry No."; Integer)
-        {
-            Caption = 'Last Update Invoice Entry No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved this field to Table 5328 - CRM Synch Status as this field is getting updated by job queue and it is blocking the record. ';
-            ObsoleteTag = '15.0';
-        }
         field(59; "Restore Connection"; Boolean)
         {
             Caption = 'Restore Connection';
@@ -122,31 +115,23 @@ table 5330 "CRM Connection Setup"
                 end;
             end;
         }
+#if not CLEANSCHEMA26
         field(61; "Is User Mapping Required"; Boolean)
         {
             ObsoleteReason = 'This functionality is not in use and not supported';
-#if not CLEAN23
-            ObsoleteTag = '20.0';
-            ObsoleteState = Pending;
-#else
             ObsoleteTag = '26.0';
             ObsoleteState = Removed;
-#endif
             Caption = 'Business Central Users Must Map to Dynamics 365 Sales Users';
 
         }
         field(62; "Is User Mapped To CRM User"; Boolean)
         {
-#if not CLEAN23
-            ObsoleteTag = '20.0';
-            ObsoleteState = Pending;
-#else
             ObsoleteTag = '26.0';
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'This functionality is not in use and not supported';
             Caption = 'Is User Mapped To CRM User';
         }
+#endif
         field(63; "CRM Version"; Text[30])
         {
             Caption = 'CRM Version';
@@ -195,18 +180,15 @@ table 5330 "CRM Connection Setup"
         {
             Caption = 'Is CRM Solution Installed';
         }
+#if not CLEANSCHEMA26
         field(68; "Is Enabled For User"; Boolean)
         {
-#if not CLEAN23
-            ObsoleteTag = '20.0';
-            ObsoleteState = Pending;
-#else
             ObsoleteTag = '26.0';
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'Use field "Is Enabled" instead.';
             Caption = 'Is Enabled For User';
         }
+#endif
         field(69; "Dynamics NAV URL"; Text[250])
         {
             Caption = 'Dynamics NAV URL';
@@ -215,28 +197,6 @@ table 5330 "CRM Connection Setup"
             begin
                 CRMIntegrationManagement.SetCRMNAVConnectionUrl("Dynamics NAV URL");
             end;
-        }
-        field(70; "Dynamics NAV OData URL"; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-            Caption = 'Dynamics NAV OData URL';
-        }
-        field(71; "Dynamics NAV OData Username"; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-            Caption = 'Dynamics NAV OData Username';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(72; "Dynamics NAV OData Accesskey"; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-            Caption = 'Dynamics NAV OData Accesskey';
         }
         field(75; "Default CRM Price List ID"; Guid)
         {
@@ -1563,4 +1523,3 @@ table 5330 "CRM Connection Setup"
     begin
     end;
 }
-

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Availability;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Availability;
 
 enum 5531 "Inventory Page Data Type"
 {

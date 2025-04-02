@@ -20,6 +20,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         FieldMustHaveAValueErr: Label '%1 must have a value in %2';
@@ -547,7 +548,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMInvoicedetail: Record "CRM Invoicedetail";
         CRMSalesorder: Record "CRM Salesorder";
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
@@ -1180,6 +1180,40 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     end;
 
     [Test]
+    procedure SynchHTMLCRMSalesOrderNoteToSalesOrderNote()
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMAnnotation: Record "CRM Annotation";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        SalesHeader: Record "Sales Header";
+        AnnotationText: Text;
+        RandomText: Text;
+        RandomText2: Text;
+        LF: Char;
+    begin
+        // CRM Sales Order note is used as Business Central Sales Order note
+        Initialize(false);
+
+        // [GIVEN] CRM Salesorder in local currency with item
+        CreateCRMSalesorderInLCY(CRMSalesorder);
+        LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail);
+
+        // [GIVEN] A CRM note bound to the sales order with HTML content
+        RandomText := LibraryRandom.RandText(25);
+        RandomText2 := LibraryRandom.RandText(25);
+        LF := 10;
+        AnnotationText := '<div class="ck-content" data-wrapper="true" dir="ltr" style="--ck-image-style-spacing: 1.5em; --ck-inline-image-style-spacing: calc(var(--ck-image-style-spacing) / 2); --ck-color-selector-caption-background: hsl(0, 0%, 97%); --ck-color-selector-caption-text: hsl(0, 0%, 20%); font-family: Segoe UI; font-size: 11pt;"><p style="margin: 0;">'
+        + RandomText + '</p><p style="margin: 0;">' + RandomText2 + '</p></div>';
+        MockCRMSalesOrderNote(CRMAnnotation, CRMSalesorder, AnnotationText);
+
+        // [WHEN] NAV Order is being created from CRM Order
+        CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
+
+        // [THEN] Created NAV Sales Order has a note with the mocked note text without HTML tags
+        VerifySalesOrderNote(SalesHeader, RandomText + Format(LF) + RandomText2);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure SynchModifiedCRMSalesOrderNoteToSalesOrderNote()
     var
@@ -1725,6 +1759,94 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Assert.AreNotEqual(SalesLineArchive."Quantity Shipped", 0, 'Quantity shipped should not be equal to zero.');
     end;
 
+    [Test]
+    [HandlerFunctions('SyncEntityStrMenuHandler')]
+    procedure BidirectionalSalesOrderFulfillOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        JobQueueEntryId: Guid;
+    begin
+        // [SCENARIO] Bidirectional sales order fulfills fully shipped orders
+        Initialize(true);
+        ClearCRMData();
+
+        // [GIVEN] A coupled sales order
+        LibraryCRMIntegration.CreateCoupledSalesHeaderAndSalesorder(SalesHeader, CRMSalesorder);
+
+        // [WHEN] Sales order is shipped and synced
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindFirst() then begin
+            SalesLine."Completely Shipped" := true;
+            SalesLine.Modify();
+        end;
+        CRMIntegrationManagement.UpdateOneNow(SalesHeader.RecordId);
+        GetIntegrationTableMapping(IntegrationTableMapping, SalesHeader.RecordId);
+        SalesHeader.SetRange(SystemId, SalesHeader.SystemId);
+        JobQueueEntryId := LibraryCRMIntegration.RunJobQueueEntry(Database::"Sales Header", SalesHeader.GetView(), IntegrationTableMapping);
+
+        // [THEN] CRM sales order is fulfilled
+        CRMIntegrationRecord.FindByRecordID(SalesHeader.RecordId);
+        CRMSalesorder.Get(CRMIntegrationRecord."CRM ID");
+        Assert.AreEqual(CRMSalesorder.StateCode, CRMSalesorder.StateCode::Fulfilled, 'CRM sales order should be fulfilled.');
+    end;
+
+    [Test]
+    procedure BidirectionalSalesOrderReservationEntry()
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        Item: Record Item;
+        CRMProduct: Record "CRM Product";
+        CRMSalesorder: Record "CRM Salesorder";
+        SalesLine: Record "Sales Line";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        ItemJournalLine: Record "Item Journal Line";
+        LibraryInventory: Codeunit "Library - Inventory";
+
+    begin
+        // [SCENARIO] Bidirectional sales order creates reservation entry
+        Initialize(true);
+        ClearCRMData();
+
+        // [GIVEN] A coupled customer and item with auto reservation
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        Customer.Reserve := Customer.Reserve::Always;
+        Customer.Modify();
+        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        Item.Reserve := Item.Reserve::Always;
+        Item.Modify();
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(10, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        // A CRM sales order
+        LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder);
+        CRMSalesorder.OrderNumber := LibraryUtility.GenerateGUID();
+        CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
+        CRMSalesorder.StatusCode := CRMSalesorder.StatusCode::InProgress;
+        CRMSalesorder.CustomerId := CRMAccount.AccountId;
+        CRMSalesorder.CustomerIdType := CRMSalesorder.CustomerIdType::account;
+        CRMSalesorder.Modify();
+        LibraryCRMIntegration.PrepareCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail, CRMProduct.ProductId);
+
+        // [WHEN] CRM sales order is synced
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        CRMSalesorder.SetRange(SalesOrderId, CRMSalesorder.SalesOrderId);
+        CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMSalesorder);
+        LibraryCRMIntegration.RunJobQueueEntry(Database::"CRM Salesorder", CRMSalesorder.GetView(), IntegrationTableMapping);
+
+        // [THEN] Reservation entry is created
+        CRMIntegrationRecord.SetRange("CRM ID", CRMSalesorderdetail.SalesOrderDetailId);
+        CRMIntegrationRecord.FindFirst();
+        SalesLine.GetBySystemId(CRMIntegrationRecord."Integration ID");
+        SalesLine.CalcFields("Reserved Quantity");
+        Assert.AreNotEqual(SalesLine."Reserved Quantity", 0, 'Reserved quantity should not be equal to zero.');
+    end;
+
     local procedure Initialize(BidirectionalSOIntegrationEnabled: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
@@ -1971,16 +2093,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         exit(Currency.Code);
     end;
 
-    local procedure IsCRMOrderVisibleInListPage(CRMSalesorder: Record "CRM Salesorder") OrderIsVisible: Boolean
-    var
-        CRMSalesOrderListPage: TestPage "CRM Sales Order List";
-    begin
-        CRMSalesOrderListPage.OpenView();
-        if CRMSalesOrderListPage.First() then
-            OrderIsVisible := CRMSalesOrderListPage.OrderNumber.Value = CRMSalesorder.OrderNumber;
-        CRMSalesOrderListPage.Close();
-    end;
-
     local procedure VerifySalesLineFromCRM(CRMSalesOrderId: Guid; SalesHeaderNo: Code[20])
     var
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
@@ -2136,6 +2248,12 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
+    local procedure GetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; RecordId: RecordId)
+    begin
+        CRMIntegrationManagement.GetIntegrationTableMapping(IntegrationTableMapping, RecordId);
+        IntegrationTableMapping.Reset();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
@@ -2153,6 +2271,13 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     [Scope('OnPrem')]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
     begin
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure SyncEntityStrMenuHandler(Options: Text; var Choice: Integer; Instruction: Text)
+    begin
+        Choice := 1;
     end;
 }
 

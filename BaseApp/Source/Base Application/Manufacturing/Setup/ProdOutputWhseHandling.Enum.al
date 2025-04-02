@@ -16,4 +16,8 @@ enum 99000701 "Prod. Output Whse. Handling"
     {
         Caption = 'Inventory Put-away';
     }
+    value(40; "Warehouse Put-away")
+    {
+        Caption = 'Warehouse Put-away';
+    }
 }

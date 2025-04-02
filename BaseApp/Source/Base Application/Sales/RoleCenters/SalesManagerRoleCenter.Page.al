@@ -10,11 +10,11 @@ using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Inventory.Item;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Pricing.Worksheet;
 #endif
 using Microsoft.Purchases.Vendor;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Analysis;
@@ -338,7 +338,7 @@ page 9005 "Sales Manager Role Center"
                     ApplicationArea = Suite;
                     Caption = 'Salespeople/Purchasers';
                     RunObject = Page "Salespersons/Purchasers";
-                    ToolTip = 'View a list of your sales people and your purchasers.';
+                    ToolTip = 'View a list of salespeople and purchasers.';
                 }
                 action("Cust. Invoice Discounts")
                 {
@@ -370,7 +370,7 @@ page 9005 "Sales Manager Role Center"
                 Caption = 'Tasks';
                 IsHeader = true;
             }
-#if not CLEAN23
+#if not CLEAN25
             action("Sales Price &Worksheet")
             {
                 ApplicationArea = RelationshipMgmt;

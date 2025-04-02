@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Outlook;
 
 table 1602 "Exchange Object"
@@ -69,16 +73,6 @@ table 1602 "Exchange Object"
             OptionCaption = 'InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments';
             OptionMembers = InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments;
         }
-
-        field(14; VendorNo; Code[50])
-        {
-            Caption = 'VendorNo';
-            Description = 'Vendor Number of the current Vendor';
-            ObsoleteReason = 'Use the field RecId instead';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-
         field(15; IsInline; Boolean)
         {
             Caption = 'IsInline';
@@ -154,4 +148,3 @@ table 1602 "Exchange Object"
         CopyStream(OutStream, NewContent);
     end;
 }
-

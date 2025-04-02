@@ -335,9 +335,6 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "Document Entry" = IMD,
                   tabledata "Document Search Result" = IMD,
                   tabledata "Document Sending Profile" = IMD,
-#if not CLEAN23
-                  tabledata "Document Service Cache" = imd,
-#endif
                   tabledata "Drop Shpt. Post. Buffer" = IMD,
                   tabledata "Dtld. Price Calculation Setup" = im,
                   tabledata "Duplicate Price Line" = im,
@@ -398,9 +395,6 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "Inventory Adjustment Buffer" = imd,
                   tabledata "Inventory Buffer" = imd,
                   tabledata "Inventory Event Buffer" = IMD,
-#if not CLEAN23
-                  tabledata "Invoice Post. Buffer" = imd,
-#endif
                   tabledata "Invoice Posting Buffer" = imd,
                   tabledata "Invoiced Booking Item" = IMD,
                   tabledata "Invt. Post to G/L Test Buffer" = IMD,
@@ -507,11 +501,6 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "Posted Docs. With No Inc. Buf." = IMD,
                   tabledata "Posted Gen. Journal Batch" = IMD,
                   tabledata "Posted Gen. Journal Line" = IMD,
-#if not CLEAN23
-                  tabledata "Power BI User Configuration" = IMD,
-                  tabledata "Power BI Report Configuration" = IMD,
-                  tabledata "Power BI User Status" = IMD,
-#endif
                   tabledata "Power BI Chart Buffer" = IMD,
                   tabledata "Power BI Context Settings" = IMD,
                   tabledata "Power BI Customer Reports" = IMD,

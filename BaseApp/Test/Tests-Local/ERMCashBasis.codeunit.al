@@ -19,7 +19,6 @@
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
 
     [Test]
     [Scope('OnPrem')]
@@ -408,7 +407,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('ExchRateAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedPercentageVATAdjustExchPaymentFCYtoPurchInvoiceFCY()
     var
@@ -442,11 +440,8 @@
             LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
 
         // [GIVEN] Run Adjust Exch. Rates report with new posting date (Exch Rate = Y)
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, PostingDate, PostingDate);
-#else
         LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, PostingDate, PostingDate);
-#endif
+
         // [WHEN] Post Payment in FCY (Exch Rate = Y) and apply to Invoice (fully paid)
         CreatePaymentGenJournalLineWithAppln(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, InvoiceNo,
@@ -476,7 +471,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('ExchRateAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedPercentageVATAdjustExchPaymentFCYtoSalesInvoiceFCY()
     var
@@ -510,11 +504,8 @@
             LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
 
         // [GIVEN] Run Adjust Exch. Rates report with new posting date (Exch Rate = Y)
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, PostingDate, PostingDate);
-#else
         LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, PostingDate, PostingDate);
-#endif
+
         // [WHEN] Post Payment in FCY (Exch Rate = Y) and apply to Invoice (fully paid)
         CreatePaymentGenJournalLineWithAppln(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, InvoiceNo,
@@ -806,13 +797,6 @@
         VATEntry.FindFirst();
         VATEntry.TestField("Remaining Unrealized Amount", VATAmount);
         VATEntry.TestField("Remaining Unrealized Base", VATBase);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure ExchRateAdjustedMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 }
 

@@ -15,11 +15,94 @@ codeunit 130512 "Library - Purchase"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         WrongDocumentTypeErr: Label 'Document type not supported: %1', Locked = true;
+
+    procedure AssignPurchChargeToPurchRcptLine(PurchaseHeader: Record "Purchase Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; Qty: Decimal; DirectUnitCost: Decimal)
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        LibraryPurchase: Codeunit "Library - Purchase";
+    begin
+        CreateItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, Qty, DirectUnitCost);
+
+        PurchRcptLine.TestField(Type, PurchRcptLine.Type::Item);
+
+        LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine, ItemCharge,
+          ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
+          PurchRcptLine."Document No.", PurchRcptLine."Line No.",
+          PurchRcptLine."No.", Qty, DirectUnitCost);
+        ItemChargeAssignmentPurch.Insert();
+    end;
+
+    procedure AssignPurchChargeToPurchInvoiceLine(PurchaseHeader: Record "Purchase Header"; PurchInvLine: Record "Purch. Inv. Line"; Qty: Decimal; DirectUnitCost: Decimal)
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        LibraryPurchase: Codeunit "Library - Purchase";
+    begin
+        CreateItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, Qty, DirectUnitCost);
+
+        PurchInvLine.TestField(Type, PurchInvLine.Type::Item);
+
+        LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine, ItemCharge,
+          ItemChargeAssignmentPurch."Applies-to Doc. Type"::Invoice,
+          PurchInvLine."Document No.", PurchInvLine."Line No.",
+          PurchInvLine."No.", Qty, DirectUnitCost);
+        ItemChargeAssignmentPurch.Insert();
+    end;
+
+    procedure AssignPurchChargeToPurchaseLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Qty: Decimal; DirectUnitCost: Decimal)
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseLine1: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        LibraryPurchase: Codeunit "Library - Purchase";
+    begin
+        CreateItemChargePurchaseLine(PurchaseLine1, ItemCharge, PurchaseHeader, Qty, DirectUnitCost);
+
+        PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
+
+        LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine1, ItemCharge,
+          ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order,
+          PurchaseLine."Document No.", PurchaseLine."Line No.",
+          PurchaseLine."No.", Qty, DirectUnitCost);
+        ItemChargeAssignmentPurch.Insert();
+    end;
+
+    procedure AssignPurchChargeToPurchReturnLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Qty: Decimal; DirectUnitCost: Decimal)
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseLine1: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        LibraryPurchase: Codeunit "Library - Purchase";
+    begin
+        CreateItemChargePurchaseLine(PurchaseLine1, ItemCharge, PurchaseHeader, Qty, DirectUnitCost);
+
+        PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
+
+        LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine1, ItemCharge,
+          ItemChargeAssignmentPurch."Applies-to Doc. Type"::"Return Order",
+          PurchaseLine."Document No.", PurchaseLine."Line No.",
+          PurchaseLine."No.", Qty, DirectUnitCost);
+        ItemChargeAssignmentPurch.Insert();
+    end;
+
+    procedure CreateItemChargePurchaseLine(var PurchaseLine: Record "Purchase Line"; var ItemCharge: Record "Item Charge"; PurchaseHeader: Record "Purchase Header"; Qty: Decimal; DirectUnitCost: Decimal)
+    var
+        LibraryPurchase: Codeunit "Library - Purchase";
+    begin
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", Qty);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+    end;
 
     procedure BlanketPurchaseOrderMakeOrder(var PurchaseHeader: Record "Purchase Header"): Code[20]
     var
@@ -266,7 +349,6 @@ codeunit 130512 "Library - Purchase"
         PurchaseLine.Modify(true);
     end;
 
-
     procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
     begin
         CreatePurchaseOrderForVendorNo(PurchaseHeader, CreateVendorNo());
@@ -329,6 +411,60 @@ codeunit 130512 "Library - Purchase"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
+    end;
+
+    procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
+    begin
+        CreatePurchHeader(PurchaseHeader, DocType, '');
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Qty);
+        PurchaseLine."Location Code" := LocationCode;
+        PurchaseLine."Variant Code" := VariantCode;
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+    end;
+
+    procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
+    begin
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item, LocationCode, VariantCode, Qty, PostingDate,
+          DirectUnitCost);
+    end;
+
+    procedure CreatePurchaseQuote(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
+    begin
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote,
+          Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
+    end;
+
+    procedure CreatePurchaseBlanketOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
+    begin
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order",
+          Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
+    end;
+
+    procedure CreatePurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
+    begin
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", Item, LocationCode, VariantCode, Qty, PostingDate,
+          DirectUnitCost);
+    end;
+
+    procedure CreatePurchaseCreditMemo(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
+    begin
+        CreatePurchaseDocument(
+            PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo",
+            Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
+    end;
+
+    procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
+    begin
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, Item, LocationCode, VariantCode, Qty, PostingDate,
+          DirectUnitCost);
     end;
 
     procedure CreatePurchCommentLine(var PurchCommentLine: Record "Purch. Comment Line"; DocumentType: Enum "Purchase Comment Document Type"; No: Code[20]; DocumentLineNo: Integer)
@@ -714,6 +850,39 @@ codeunit 130512 "Library - Purchase"
             10));
     end;
 
+    procedure PostPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal; Receive: Boolean; Invoice: Boolean)
+    begin
+        PostPurchaseOrderPartially(PurchaseHeader, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost, Receive, Qty, Invoice, Qty);
+    end;
+
+    procedure PostPurchaseOrderWithItemTracking(var PurchaseHeader: Record "Purchase Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal; Receive: Boolean; Invoice: Boolean; SerialNo: Code[50]; LotNo: Code[50])
+    var
+        PurchaseLine: Record "Purchase Line";
+        ReservEntry: Record "Reservation Entry";
+    begin
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
+        PurchaseLine.Validate("Qty. to Receive", Qty);
+        PurchaseLine.Validate("Qty. to Invoice", Qty);
+        PurchaseLine.Modify();
+        LibraryItemTracking.CreatePurchOrderItemTracking(ReservEntry, PurchaseLine, SerialNo, LotNo, Qty);
+        if Invoice then
+            SetVendorDocNo(PurchaseHeader);
+        PostPurchaseDocument(PurchaseHeader, Receive, Invoice);
+    end;
+
+    procedure PostPurchaseOrderPartially(var PurchaseHeader: Record "Purchase Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal; Receive: Boolean; ReceiveQty: Decimal; Invoice: Boolean; InvoiceQty: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
+        PurchaseLine.Validate("Qty. to Receive", ReceiveQty);
+        PurchaseLine.Validate("Qty. to Invoice", InvoiceQty);
+        PurchaseLine.Modify();
+        if Invoice then
+            SetVendorDocNo(PurchaseHeader);
+        PostPurchaseDocument(PurchaseHeader, Receive, Invoice);
+    end;
+
     procedure PostPurchasePrepaymentCrMemo(var PurchaseHeader: Record "Purchase Header")
     var
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
@@ -1040,6 +1209,13 @@ codeunit 130512 "Library - Purchase"
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Copy Comments Order to Invoice", CopyCommentsOrderToInvoice);
         PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure SetVendorDocNo(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
+        PurchaseHeader.Modify();
     end;
 
     procedure SelectPmtJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")

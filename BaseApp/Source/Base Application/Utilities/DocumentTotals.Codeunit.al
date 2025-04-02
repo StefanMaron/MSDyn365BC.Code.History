@@ -966,7 +966,7 @@ codeunit 57 "Document Totals"
     procedure PurchaseCalculateTotalsNoRounding(var TempCurrentPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var TempTotalPurchaseLine: Record "Purchase Line"; var TaxAreaCode: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
-        IsHandled: Boolean;
+		IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforePurchaseCalculateTotalsNoRounding(TempCurrentPurchaseLine, VATAmount, TempTotalPurchaseLine, TaxAreaCode, IsHandled);
@@ -1229,12 +1229,12 @@ codeunit 57 "Document Totals"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchaseCalculateTotalsNoRounding(var TempCurrentPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var TempTotalPurchaseLine: Record "Purchase Line"; var TaxAreaCode: Code[20]; var IsHandled: Boolean)
+    local procedure OnAfterSalesCalculateTotalsWithInvoiceRounding(var SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSalesCalculateTotalsWithInvoiceRounding(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforePurchaseCalculateTotalsNoRounding(var TempCurrentPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var TempTotalPurchaseLine: Record "Purchase Line"; var TaxAreaCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

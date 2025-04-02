@@ -1,4 +1,4 @@
-codeunit 136902 "Resource Reports"
+﻿codeunit 136902 "Resource Reports"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -686,7 +686,7 @@ codeunit 136902 "Resource Reports"
         ResourceList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ResourcePriceListReportHandler(var ResourcePriceList: TestRequestPage "Resource - Price List")

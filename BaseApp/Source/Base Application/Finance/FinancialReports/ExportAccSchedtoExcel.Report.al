@@ -4,6 +4,7 @@ using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Utilities;
 using System.Environment;
 using System.IO;
 using System.Utilities;
@@ -29,8 +30,11 @@ report 29 "Export Acc. Sched. to Excel"
                 RowNo: Integer;
                 ColumnNo: Integer;
                 CompanyDisplayName, ClientFileName : Text;
+                IntroductionParagraph, ClosingParagraph : Text;
             begin
-                if DoUpdateExistingWorksheet then
+                if DoUseExistingTemplate then
+                    UploadExistingTemplate(ClientFileName);
+                if (not DoUseExistingTemplate) and DoUpdateExistingWorksheet then
                     if not UploadClientFile(ClientFileName, ServerFileName) then
                         exit;
 
@@ -72,6 +76,12 @@ report 29 "Export Acc. Sched. to Excel"
                 EnterFilterInCell(
                   RowNo, AccSchedLine.GetFilter("Cash Flow Forecast Filter"), AccSchedLine.FieldCaption("Cash Flow Forecast Filter"),
                   '', TempExcelBuffer."Cell Type"::Text);
+
+                IntroductionParagraph := FinancialReport.GetIntroductoryParagraph();
+                if IntroductionParagraph <> '' then begin
+                    RowNo += 1;
+                    EnterCellBlobValue(RowNo, 1, IntroductionParagraph, TempExcelBuffer."Cell Type"::Text);
+                end;
 
                 if ((AccSchedName."Analysis View Name" = '') and (GLSetup."Global Dimension 1 Code" <> '')) or
                    ((AccSchedName."Analysis View Name" <> '') and (AnalysisView."Dimension 1 Code" <> ''))
@@ -141,6 +151,12 @@ report 29 "Export Acc. Sched. to Excel"
                     until AccSchedLine.Next() = 0;
                 end;
 
+                ClosingParagraph := FinancialReport.GetClosingParagraph();
+                if ClosingParagraph <> '' then begin
+                    RowNo += 1;
+                    EnterCellBlobValue(RowNo, 1, ClosingParagraph, TempExcelBuffer."Cell Type"::Text);
+                end;
+
                 Window.Close();
 
                 Company.Get(CompanyName());
@@ -148,18 +164,18 @@ report 29 "Export Acc. Sched. to Excel"
                 if CompanyDisplayName = '' then
                     CompanyDisplayName := Company.Name;
 
-                if DoUpdateExistingWorksheet then begin
+                if DoUpdateExistingWorksheet or DoUseExistingTemplate then begin
                     TempExcelBuffer.UpdateBookExcel(ServerFileName, SheetName, false);
                     TempExcelBuffer.WriteSheet('', CompanyDisplayName, UserId);
                     TempExcelBuffer.CloseBook();
-                    if not TestMode then
+                    if not TestMode and not SaveToStream then
                         TempExcelBuffer.OpenExcelWithName(ClientFileName);
                 end else begin
                     TempExcelBuffer.CreateBook(ServerFileName, AccSchedName.Name);
                     TempExcelBuffer.WriteSheet(AccSchedName.Description, CompanyDisplayName, UserId);
                     TempExcelBuffer.CloseBook();
-                    if not TestMode then
-                        TempExcelBuffer.OpenExcel();
+                    if not TestMode and not SaveToStream then
+                        TempExcelBuffer.OpenExcelWithName(FileMgt.CreateFileNameWithExtension(AccSchedName.Name, ExcelFileExtensionTok));
                 end;
             end;
         }
@@ -189,14 +205,18 @@ report 29 "Export Acc. Sched. to Excel"
         GLSetup: Record "General Ledger Setup";
         AnalysisView: Record "Analysis View";
         Currency: Record Currency;
+        FinancialReport: Record "Financial Report";
         AccSchedManagement: Codeunit AccSchedManagement;
         MatrixMgt: Codeunit "Matrix Management";
         FileMgt: Codeunit "File Management";
         UseAmtsInAddCurr: Boolean;
         ColumnValue: Decimal;
+        ExistingTemplateName: Text;
         ServerFileName: Text;
         SheetName: Text[250];
         DoUpdateExistingWorksheet: Boolean;
+        DoUseExistingTemplate: Boolean;
+        SaveToStream: Boolean;
         TestMode: Boolean;
 
 #pragma warning disable AA0074
@@ -208,9 +228,16 @@ report 29 "Export Acc. Sched. to Excel"
 
     procedure SetOptions(var AccSchedLine2: Record "Acc. Schedule Line"; ColumnLayoutName2: Code[10]; UseAmtsInAddCurr2: Boolean)
     begin
+        SetOptions(AccSchedLine2, ColumnLayoutName2, UseAmtsInAddCurr2, '');
+    end;
+
+    procedure SetOptions(var AccSchedLine2: Record "Acc. Schedule Line"; ColumnLayoutName2: Code[10]; UseAmtsInAddCurr2: Boolean; FinancialReportName: Code[10])
+    begin
         AccSchedLine.CopyFilters(AccSchedLine2);
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName2);
         UseAmtsInAddCurr := UseAmtsInAddCurr2;
+        if FinancialReportName <> '' then
+            FinancialReport.Get(FinancialReportName);
     end;
 
     local procedure CalcColumnValue()
@@ -269,6 +296,19 @@ report 29 "Export Acc. Sched. to Excel"
             AccSchedLine."Totaling Type"::"Set Base For Percent"]));
     end;
 
+    local procedure EnterCellBlobValue(RowNo: Integer; ColumnNo: Integer; CellValue: Text; CellType: Option)
+    var
+        OutStream: OutStream;
+    begin
+        TempExcelBuffer.Init();
+        TempExcelBuffer.Validate("Row No.", RowNo);
+        TempExcelBuffer.Validate("Column No.", ColumnNo);
+        TempExcelBuffer."Cell Value as Blob".CreateOutStream(OutStream);
+        OutStream.WriteText(CellValue);
+        TempExcelBuffer."Cell Type" := CellType;
+        TempExcelBuffer.Insert();
+    end;
+
     local procedure GetDimFilterCaption(DimFilterNo: Integer): Text[80]
     var
         Dimension: Record Dimension;
@@ -307,6 +347,56 @@ report 29 "Export Acc. Sched. to Excel"
     procedure SetTestMode(NewTestMode: Boolean)
     begin
         TestMode := NewTestMode;
+    end;
+
+    procedure SetUseExistingTemplate(var FinReportExcelTemplate: Record "Fin. Report Excel Template")
+    var
+        InStream: InStream;
+    begin
+        FinReportExcelTemplate.CalcFields(Template);
+        if not FinReportExcelTemplate.Template.HasValue() then
+            exit;
+
+        FinReportExcelTemplate.Template.CreateInStream(InStream);
+        ServerFileName := FileMgt.InStreamExportToServerFile(InStream, ExcelFileExtensionTok);
+        DoUseExistingTemplate := ServerFileName <> '';
+        if FinReportExcelTemplate."File Name" <> '' then
+            ExistingTemplateName := FinReportExcelTemplate."File Name"
+        else
+            ExistingTemplateName := FinancialReport.Description;
+        ExistingTemplateName := FileMgt.CreateFileNameWithExtension(ExistingTemplateName, ExcelFileExtensionTok);
+    end;
+
+    procedure SetSaveToStream(NewSaveToStream: Boolean)
+    begin
+        SaveToStream := NewSaveToStream;
+    end;
+
+    procedure GetSavedStream(var OutStream: OutStream)
+    begin
+        TempExcelBuffer.SaveToStream(OutStream, true);
+    end;
+
+    local procedure UploadExistingTemplate(var ClientFileName: Text)
+    var
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+    begin
+        ClientFileName := ExistingTemplateName;
+
+        FileMgt.IsAllowedPath(ServerFileName, false);
+        FileMgt.BLOBImportFromServerFile(TempBlob, ServerFileName);
+        TempBlob.CreateInStream(InStream);
+        TempExcelBuffer.GetSheetsNameListFromStream(InStream, TempNameValueBuffer);
+
+        DoUseExistingTemplate := false;
+        TempNameValueBuffer.SetRange(Value, FinancialReport."Financial Report Row Group");
+        if not TempNameValueBuffer.FindFirst() then
+            exit;
+
+        SheetName := TempNameValueBuffer.Value;
+        DoUseExistingTemplate := SheetName <> '';
     end;
 
     local procedure UploadClientFile(var ClientFileName: Text; var ServerFileName: Text): Boolean

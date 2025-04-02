@@ -25,27 +25,33 @@ table 222 "Ship-to Address"
             Caption = 'Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the customer number.';
         }
         field(2; "Code"; Code[10])
         {
             Caption = 'Code';
             NotBlank = true;
+            ToolTip = 'Specifies a ship-to address code.';
         }
         field(3; Name; Text[100])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name associated with the ship-to address.';
         }
         field(4; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            ToolTip = 'Specifies an additional part of the name.';
         }
         field(5; Address; Text[100])
         {
             Caption = 'Address';
+            ToolTip = 'Specifies the ship-to address.';
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
+            ToolTip = 'Specifies additional address information.';
         }
         field(7; City; Text[30])
         {
@@ -54,6 +60,7 @@ table 222 "Ship-to Address"
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the city the items are being shipped to.';
 
             trigger OnLookup()
             begin
@@ -78,11 +85,13 @@ table 222 "Ship-to Address"
         field(8; Contact; Text[100])
         {
             Caption = 'Contact';
+            ToolTip = 'Specifies the name of the person you contact about orders shipped to this address.';
         }
         field(9; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
             ExtendedDatatype = PhoneNo;
+            ToolTip = 'Specifies the recipient''s telephone number.';
         }
         field(10; "Telex No."; Text[30])
         {
@@ -92,6 +101,7 @@ table 222 "Ship-to Address"
         {
             Caption = 'Salesperson Code';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
+            ToolTip = 'Specifies a code for the salesperson who normally handles this customer''s recipient.';
 
             trigger OnValidate()
             begin
@@ -102,12 +112,14 @@ table 222 "Ship-to Address"
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+            ToolTip = 'Specifies a code for the shipment method to be used for the recipient.';
         }
         field(31; "Shipping Agent Code"; Code[10])
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
+            ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
 
             trigger OnValidate()
             begin
@@ -123,6 +135,7 @@ table 222 "Ship-to Address"
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
+            ToolTip = 'Specifies the country/region of the address.';
 
             trigger OnValidate()
             begin
@@ -134,15 +147,18 @@ table 222 "Ship-to Address"
         {
             Caption = 'Last Date Modified';
             Editable = false;
+            ToolTip = 'Specifies when the ship-to address was last modified.';
         }
         field(83; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location where("Use As In-Transit" = const(false));
+            ToolTip = 'Specifies the location code to be used for the recipient.';
         }
         field(84; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
+            ToolTip = 'Specifies the recipient''s fax number.';
         }
         field(85; "Telex Answer Back"; Text[20])
         {
@@ -151,6 +167,7 @@ table 222 "Ship-to Address"
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
+            ToolTip = 'Specifies the recipient''s GLN code.';
 
             trigger OnValidate()
             var
@@ -167,6 +184,7 @@ table 222 "Ship-to Address"
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the postal code.';
 
             trigger OnLookup()
             begin
@@ -192,11 +210,13 @@ table 222 "Ship-to Address"
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            ToolTip = 'Specifies the state, province, or county as a part of the address.';
         }
         field(102; "E-Mail"; Text[80])
         {
             Caption = 'Email';
             ExtendedDatatype = EMail;
+            ToolTip = 'Specifies the recipient''s email address.';
 
             trigger OnValidate()
             begin
@@ -211,6 +231,7 @@ table 222 "Ship-to Address"
             ObsoleteReason = 'Field length will be increased to 255.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
+            ToolTip = 'Specifies the recipient''s web site.';
         }
 #else
 #pragma warning disable AS0086
@@ -218,6 +239,7 @@ table 222 "Ship-to Address"
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ToolTip = 'Specifies the recipient''s web site.';
         }
 #pragma warning restore AS0086
 #endif
@@ -234,6 +256,7 @@ table 222 "Ship-to Address"
         {
             Caption = 'Shipping Agent Service Code';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
+            ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
         }
         field(10004; "UPS Zone"; Code[2])
         {

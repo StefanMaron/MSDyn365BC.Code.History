@@ -5,6 +5,7 @@
 namespace Microsoft.Foundation.Reporting;
 
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Setup;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 
@@ -93,6 +94,39 @@ codeunit 6463 "Serv. Report Distribution Mgt."
                     ServiceHeader := DocumentVariant;
                     Customer.Get(ServiceHeader."Bill-to Customer No.");
                 end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Customer Report Selections", OnValidateUsage2OnCaseElse, '', false, false)]
+    local procedure CustomerReportSelections_OnValidateUsage2OnCaseElse(ReportUsage: Option; var CustomReportSelection: Record "Custom Report Selection")
+    var
+        CustomReportSelectionSales: Enum "Custom Report Selection Sales";
+    begin
+        CustomReportSelectionSales := Enum::"Custom Report Selection Sales".FromInteger(ReportUsage);
+        case CustomReportSelectionSales of
+            CustomReportSelectionSales::"Service Quote":
+                CustomReportSelection.Usage := Enum::"Report Selection Usage"::"SM.Quote";
+            CustomReportSelectionSales::"Service Order":
+                CustomReportSelection.Usage := Enum::"Report Selection Usage"::"SM.Order";
+            CustomReportSelectionSales::"Service Invoice":
+                CustomReportSelection.Usage := Enum::"Report Selection Usage"::"SM.Invoice";
+            CustomReportSelectionSales::"Service Credit Memo":
+                CustomReportSelection.Usage := Enum::"Report Selection Usage"::"SM.Credit Memo";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Customer Report Selections", OnAfterOnMapTableUsageValueToPageValue, '', false, false)]
+    local procedure CustomerReportSelections_OnAfterOnMapTableUsageValueToPageValue(CustomReportSelection: Record "Custom Report Selection"; var Usage2: Enum "Custom Report Selection Sales")
+    begin
+        case CustomReportSelection.Usage of
+            CustomReportSelection.Usage::"SM.Quote":
+                Usage2 := Enum::"Custom Report Selection Sales"::"Service Quote";
+            CustomReportSelection.Usage::"SM.Order":
+                Usage2 := Enum::"Custom Report Selection Sales"::"Service Order";
+            CustomReportSelection.Usage::"SM.Invoice":
+                Usage2 := Enum::"Custom Report Selection Sales"::"Service Invoice";
+            CustomReportSelection.Usage::"SM.Credit Memo":
+                Usage2 := Enum::"Custom Report Selection Sales"::"Service Credit Memo";
         end;
     end;
 

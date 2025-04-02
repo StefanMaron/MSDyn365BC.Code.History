@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Posting;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Calculation;
@@ -779,7 +783,6 @@ codeunit 5912 "ServLedgEntries-Post"
         if ServLine.Type = ServLine.Type::" " then
             exit;
 
-        ServHeader.Get(ServLine."Document Type", ServLine."Document No.");
         if ServHeader."Document Type" <> ServHeader."Document Type"::"Credit Memo" then
             exit;
 

@@ -553,6 +553,86 @@ codeunit 136351 "UT T Job Journal Line"
                         JobJournalLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure RenumberDocNoOneLine()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        OldDocNo: Code[20];
+    begin
+        // [FEATURE] [Job Journal] [Renumber documents]
+        // [SCENARIO 257226] Generate one line in the Job Journal and renumber the document number.
+        Initialize();
+
+        // [GIVEN] Create random Jobs and Job Tasks
+        CreateJobWithApplyUsageLink(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create one Job Journal line with the created Job Task
+        JobJournalLine.DeleteAll();
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::Budget, JobTask, JobJournalLine);
+
+        OldDocNo := JobJournalLine."Document No.";
+        SetNewDocNo(JobJournalLine);
+
+        // [WHEN] Enable the functionality renumber document no. on Job journal
+        Commit();
+        JobJournalLine.RenumberDocumentNo();
+
+        // [THEN] The lines must have the first value from the No. Series
+        VerifyJobJnlLineDocNo(JobJournalLine."Journal Template Name", JobJournalLine."Journal Batch Name",
+          JobJournalLine."Line No.", OldDocNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure RenumberDocNoMultipleLines()
+    var
+        Job, Job2 : Record Job;
+        JobTask, JobTask2 : Record "Job Task";
+        JobJournalLine, JobJournalLine2 : Record "Job Journal Line";
+        NoSeries: Codeunit "No. Series";
+        NoSeriesCode: Code[20];
+        NewDocNo: Code[20];
+        JobJnlBatch: Record "Job Journal Batch";
+    begin
+        // [FEATURE] [Job Journal] [Renumber documents]
+        // [SCENARIO 257227] Generate multiple lines in the Job Journal and renumber the "Document No.".
+        Initialize();
+
+        // [GIVEN] Create two random Jobs and Job Tasks
+        CreateJobWithApplyUsageLink(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobWithApplyUsageLink(Job2);
+        LibraryJob.CreateJobTask(Job2, JobTask2);
+
+        // [GIVEN] Create multiple Job Journal lines with the created Jobs and a random "Document No."
+        JobJournalLine.DeleteAll();
+        LibraryJob.CreateJobJournalLine(JobJournalLine2."Line Type"::Budget, JobTask, JobJournalLine2);
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::Budget, JobTask2, JobJournalLine);
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::Budget, JobTask2, JobJournalLine);
+
+        // [WHEN] Enable the functionality renumber "Document No." on Job journal
+        Commit();
+        JobJournalLine.RenumberDocumentNo();
+
+        // [THEN] All the lines must have the same "Document No."
+        if JobJnlBatch.Get(JobJournalLine."Journal Template Name", JobJournalLine."Journal Batch Name") then
+            NoSeriesCode := JobJnlBatch."No. Series";
+
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
+        VerifyJobJnlLineDocNo(JobJournalLine."Journal Template Name", JobJournalLine."Journal Batch Name",
+          1, NewDocNo);
+        VerifyJobJnlLineDocNo(JobJournalLine."Journal Template Name", JobJournalLine."Journal Batch Name",
+          2, NewDocNo);
+        VerifyJobJnlLineDocNo(JobJournalLine."Journal Template Name", JobJournalLine2."Journal Batch Name",
+          1, NewDocNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -651,6 +731,24 @@ codeunit 136351 "UT T Job Journal Line"
         PurchLine."Job Line Discount %" := LibraryRandom.RandInt(100);
         PurchLine."Job Line Disc. Amount (LCY)" := LibraryRandom.RandDec(200, 2);
         PurchLine.Insert();
+    end;
+
+    local procedure VerifyJobJnlLineDocNo(TemplateName: Code[20]; BatchName: Code[20]; LineNo: Integer; DocNo: Code[20])
+    var
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        JobJournalLine.Get(TemplateName, BatchName, LineNo);
+        JobJournalLine.TestField("Document No.", DocNo)
+    end;
+
+    local procedure SetNewDocNo(var JobJournalLine: Record "Job Journal Line"): Code[20]
+    var
+        i: Integer;
+    begin
+        for i := 1 to LibraryRandom.RandIntInRange(2, 10) do
+            JobJournalLine."Document No." := IncStr(JobJournalLine."Document No.");
+        JobJournalLine.Modify();
+        exit(JobJournalLine."Document No.")
     end;
 
     [ConfirmHandler]

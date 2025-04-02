@@ -620,14 +620,14 @@ page 207 "Resource Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
         ResJournalErrorsMgt: Codeunit "Res. Journal Errors Mgt.";
-        CurrentJnlBatchName: Code[10];
-        ResName: Text[50];
         IsSaaSExcelAddinEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
+        CurrentJnlBatchName: Code[10];
+        ResName: Text[50];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

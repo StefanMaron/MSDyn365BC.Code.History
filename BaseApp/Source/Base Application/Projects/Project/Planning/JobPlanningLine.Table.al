@@ -1524,7 +1524,7 @@ table 1003 "Job Planning Line"
         NegativeQtyToAssembleErr: Label ' must be positive.', Comment = 'Qty. to Assemble can''t be negative';
         DifferentQtyToAssembleErr: Label ' must be equal to %1.', Comment = 'Qty. to Assemble must be equal to Quantity, %1 = Quantity';
         CannotBeMoreErr: Label 'cannot be more than %1', Comment = '%1 = Quantity';
-        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption("Qty. Posted"), %4 = "Qty. Posted", %5 = TableCaption';
+        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption("Qty. Posted"), %4 = "Qty. Posted", %5 = TableCaption';
 
     protected var
         Job: Record Job;
@@ -2242,7 +2242,7 @@ table 1003 "Job Planning Line"
         OnAfterUpdateUnitPrice(Rec, xRec, AmountRoundingPrecision, AmountRoundingPrecisionFCY);
     end;
 
-    local procedure RecalculateAmounts(JobExchCalculation: Option "Fixed FCY","Fixed LCY"; xAmount: Decimal; var Amount: Decimal; var AmountLCY: Decimal)
+    procedure RecalculateAmounts(JobExchCalculation: Option "Fixed FCY","Fixed LCY"; xAmount: Decimal; var Amount: Decimal; var AmountLCY: Decimal)
     var
         IsHandled: Boolean;
     begin
@@ -3299,7 +3299,13 @@ table 1003 "Job Planning Line"
         if CalledFromHeader then
             exit;
 
-        if "Qty. Posted" < "Qty. Picked" then
+        if "Qty. Posted" < "Qty. Picked" then begin
+            if "Location Code" <> '' then begin
+                GetLocation("Location Code");
+                if Location."Job Consump. Whse. Handling" = Location."Job Consump. Whse. Handling"::"No Warehouse Handling" then
+                    exit;
+            end;
+
             if not Confirm(
                 StrSubstNo(
                     ConfirmDeleteQst,
@@ -3311,6 +3317,7 @@ table 1003 "Job Planning Line"
                 false)
             then
                 Error('');
+        end;
     end;
 
     procedure SuspendDeletionCheck(Suspend: Boolean)

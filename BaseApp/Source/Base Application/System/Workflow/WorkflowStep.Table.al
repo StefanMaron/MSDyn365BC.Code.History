@@ -230,17 +230,17 @@ table 1502 "Workflow Step"
         WorkflowStepArgument: Record "Workflow Step Argument";
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        WorkflowStepInstance.Init();
+        Rec.TestField(Rec.ID);
         WorkflowStepInstance.ID := WorkflowInstanceID;
         WorkflowStepInstance."Workflow Code" := WorkflowCode;
-        WorkflowStepInstance."Workflow Step ID" := ID;
-        WorkflowStepInstance.Description := Description;
-        WorkflowStepInstance."Entry Point" := "Entry Point";
+        WorkflowStepInstance."Workflow Step ID" := Rec.ID;
+        WorkflowStepInstance.Description := Rec.Description;
+        WorkflowStepInstance."Entry Point" := Rec."Entry Point";
         WorkflowStepInstance."Previous Workflow Step ID" := PreviousWorkflowStepID;
-        WorkflowStepInstance."Next Workflow Step ID" := "Next Workflow Step ID";
-        WorkflowStepInstance.Type := Type;
-        WorkflowStepInstance."Function Name" := "Function Name";
-        WorkflowStepInstance."Sequence No." := "Sequence No.";
+        WorkflowStepInstance."Next Workflow Step ID" := Rec."Next Workflow Step ID";
+        WorkflowStepInstance.Type := Rec.Type;
+        WorkflowStepInstance."Function Name" := Rec."Function Name";
+        WorkflowStepInstance."Sequence No." := Rec."Sequence No.";
 
         // Avoid a deadlock when two processes are executting the following code
         // at same time (Get / Insert on the WorkflowStepArgument table)

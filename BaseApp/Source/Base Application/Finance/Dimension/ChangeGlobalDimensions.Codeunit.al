@@ -18,8 +18,6 @@ using Microsoft.Inventory.Counting.History;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.History;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.WIP;
 using Microsoft.Projects.Resources.Ledger;
@@ -73,17 +71,19 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Job WIP G/L Entry" = rm,
                   TableData "Employee Ledger Entry" = rm,
                   TableData "Detailed Employee Ledger Entry" = rm,
-                  TableData "Production Order" = rm,
-                  TableData "Prod. Order Line" = rm,
-                  TableData "Prod. Order Component" = rm,
-                  TableData "Prod. Order Routing Line" = rm,
-                  TableData "Prod. Order Capacity Need" = rm,
-                  TableData "Prod. Order Routing Tool" = rm,
-                  TableData "Prod. Order Routing Personnel" = rm,
-                  TableData "Prod. Order Rtng Qlty Meas." = rm,
-                  TableData "Prod. Order Comment Line" = rm,
-                  TableData "Prod. Order Rtng Comment Line" = rm,
-                  TableData "Prod. Order Comp. Cmt Line" = rm,
+#if not CLEAN26
+                  TableData Microsoft.Manufacturing.Document."Production Order" = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Line" = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Component" = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Routing Line" = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Capacity Need" = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Routing Tool" = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Routing Personnel" = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Rtng Qlty Meas." = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Comment Line" = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Rtng Comment Line" = rm,
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Comp. Cmt Line" = rm,
+#endif
                   TableData "Invt. Receipt Header" = rm,
                   TableData "Invt. Receipt Line" = rm,
                   TableData "Invt. Shipment Header" = rm,
@@ -92,7 +92,7 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Maintenance Ledger Entry" = rm,
                   TableData "Ins. Coverage Ledger Entry" = rm,
                   TableData "Value Entry" = rm,
-                  TableData "Capacity Ledger Entry" = rm,
+                  TableData Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = rm,
 #if not CLEAN25
                   TableData Microsoft.Service.Document."Service Header" = rm,
                   TableData Microsoft.Service.Document."Service Item Line" = rm,

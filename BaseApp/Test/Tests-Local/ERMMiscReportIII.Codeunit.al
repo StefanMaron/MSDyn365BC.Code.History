@@ -123,7 +123,6 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         FileManagement: Codeunit "File Management";
-        LibraryService: Codeunit "Library - Service";
         BalancesCap: Label 'Balances';
         ColHeadCap: Label 'ColHead';
         CompanyAddress: Label 'CompanyAddress1';
@@ -2883,8 +2882,8 @@ codeunit 142062 "ERM Misc. Report III"
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify(true);
 
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
 
         exit(Item."No.");
     end;

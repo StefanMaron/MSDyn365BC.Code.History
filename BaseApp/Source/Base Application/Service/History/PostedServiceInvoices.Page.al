@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.EServices.EDocument;
@@ -50,10 +54,25 @@ page 5977 "Posted Service Invoices"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a document number that refers to the customer''s numbering system.';
                 }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies when the related invoice must be paid.';
+                }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the currency code for the amounts on the invoice.';
+                }
+                field(Amount; Rec.Amount)
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the total invoice amount excluding VAT.';
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the total invoice amount including VAT.';
                 }
                 field("Post Code"; Rec."Post Code")
                 {
@@ -163,45 +182,10 @@ page 5977 "Posted Service Invoices"
                     ToolTip = 'Specifies the location, such as warehouse or distribution center, from which the service was shipped.';
                     Visible = true;
                 }
-                field("Electronic Document Status"; Rec."Electronic Document Status")
-                {
-                    ToolTip = 'Specifies the status of the document.';
-                }
-                field("Date/Time Stamped"; Rec."Date/Time Stamped")
-                {
-                    ToolTip = 'Specifies the date and time that the document received a digital stamp from the authorized service provider.';
-                    Visible = false;
-                }
-                field("Date/Time Sent"; Rec."Date/Time Sent")
-                {
-                    ToolTip = 'Specifies the date and time that the document was sent to the customer.';
-                    Visible = false;
-                }
-                field("Date/Time Canceled"; Rec."Date/Time Canceled")
-                {
-                    ToolTip = 'Specifies the date and time that the document was canceled.';
-                    Visible = false;
-                }
-                field("Error Code"; Rec."Error Code")
-                {
-                    ToolTip = 'Specifies the error code that the authorized service provider, PAC, has returned to Business Central.';
-                    Visible = false;
-                }
-                field("Error Description"; Rec."Error Description")
-                {
-                    ToolTip = 'Specifies the error message that the authorized service provider, PAC, has returned to Business Central.';
-                    Visible = false;
-                }
                 field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
-                    Visible = false;
-                }
-                field("Due Date"; Rec."Due Date")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies when the related invoice must be paid.';
                     Visible = false;
                 }
                 field("Document Exchange Status"; Rec."Document Exchange Status")
@@ -236,6 +220,7 @@ page 5977 "Posted Service Invoices"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Invoice Header"),
                               "No." = field("No.");
             }
@@ -279,9 +264,6 @@ page 5977 "Posted Service Invoices"
 
                     trigger OnAction()
                     begin
-#if not CLEAN25
-                        OnBeforeCalculateSalesTaxStatistics(Rec);
-#endif
                         Rec.OpenStatistics();
                     end;
                 }
@@ -315,87 +297,6 @@ page 5977 "Posted Service Invoices"
         }
         area(processing)
         {
-            group("&Electronic Document")
-            {
-                Caption = '&Electronic Document';
-                action("S&end")
-                {
-                    Caption = 'S&end';
-                    Ellipsis = true;
-                    Image = SendTo;
-                    ToolTip = 'Send an email to the customer with the electronic service invoice attached as an XML file.';
-
-                    trigger OnAction()
-                    var
-                        ServiceInvoiceHeader: Record "Service Invoice Header";
-                        ProgressWindow: Dialog;
-                    begin
-                        CurrPage.SetSelectionFilter(ServiceInvoiceHeader);
-                        ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if ServiceInvoiceHeader.FindSet() then
-                            repeat
-                                ServiceInvoiceHeader.RequestStampEDocument();
-                                ProgressWindow.Update(1, ServiceInvoiceHeader."No.");
-                            until ServiceInvoiceHeader.Next() = 0;
-                        ProgressWindow.Close();
-                    end;
-                }
-                action("Export E-Document as &XML")
-                {
-                    Caption = 'Export E-Document as &XML';
-                    Image = ExportElectronicDocument;
-                    ToolTip = 'Export the posted sales service invoice as an electronic service invoice, an XML file, and save it to a specified location.';
-
-                    trigger OnAction()
-                    begin
-                        Rec.ExportEDocument();
-                    end;
-                }
-                action(ExportEDocumentPDF)
-                {
-                    Caption = 'Export E-Document as PDF';
-                    Image = ExportToBank;
-                    ToolTip = 'Export the posted sales service invoice as an electronic service invoice, a PDF document, when the stamp is received.';
-
-                    trigger OnAction()
-                    begin
-                        Rec.ExportEDocumentPDF();
-                    end;
-                }
-                action("&Cancel")
-                {
-                    Caption = '&Cancel';
-                    Image = Cancel;
-                    ToolTip = 'Cancel the sending of the electronic service invoice.';
-
-                    trigger OnAction()
-                    var
-                        ServiceInvoiceHeader: Record "Service Invoice Header";
-                        ProgressWindow: Dialog;
-                    begin
-                        CurrPage.SetSelectionFilter(ServiceInvoiceHeader);
-                        ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if ServiceInvoiceHeader.FindSet() then
-                            repeat
-                                ServiceInvoiceHeader.CancelEDocument();
-                                ProgressWindow.Update(1, ServiceInvoiceHeader."No.");
-                            until ServiceInvoiceHeader.Next() = 0;
-                        ProgressWindow.Close();
-                    end;
-                }
-                action(CFDIRelationDocuments)
-                {
-                    ApplicationArea = BasicMX;
-                    Caption = 'CFDI Relation Documents';
-                    Image = Allocations;
-                    RunObject = Page "CFDI Relation Documents";
-                    RunPageLink = "Document Table ID" = const(5992),
-                                  "Document No." = field("No."),
-                                  "Customer No." = field("Bill-to Customer No.");
-                    RunPageMode = View;
-                    ToolTip = 'View or add CFDI relation documents for the record.';
-                }
-            }
             action(SendCustom)
             {
                 ApplicationArea = Service;
@@ -541,14 +442,5 @@ page 5977 "Posted Service Invoices"
         ServiceInvHeader: Record "Service Invoice Header";
         DocExchStatusStyle: Text;
         DocExchStatusVisible: Boolean;
-        ProcessingInvoiceMsg: Label 'Processing record #1#######', Comment = '%1 = Record no';
-
-#if not CLEAN25
-    [Obsolete('Moved to procedure OpenStatistics in table ServiceInvoiceHeader', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceInvoiceHeader: Record "Service Invoice Header")
-    begin
-    end;
-#endif
 }
 

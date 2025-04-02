@@ -736,15 +736,14 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         DefaultDimension: Record "Default Dimension";
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
-        LibraryService: Codeunit "Library - Service";
     begin
         Item.Get(CreateItemWithDimension(DimensionCode, DefaultDimension."Value Posting"::" ", TaxGroupCode));
         Item.Validate("Automatic Ext. Texts", true);
         Item.Validate("VAT Prod. Posting Group", '');
 
         Item.Modify(true);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
     end;
 
     local procedure CreateStandardPurchaseLine(var StandardPurchaseLine: Record "Standard Purchase Line"; StandardPurchaseCode: Code[10]; Type: Enum "Purchase Line Type"; No: Code[20])

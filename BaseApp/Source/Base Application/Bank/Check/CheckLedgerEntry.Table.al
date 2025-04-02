@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.Check;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.Check;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Ledger;
@@ -156,6 +160,7 @@ table 272 "Check Ledger Entry"
         {
             Caption = 'Positive Pay Exported';
         }
+#if not CLEANSCHEMA27
         field(26; "Record ID to Print"; RecordId)
         {
             Caption = 'Record ID to Print';
@@ -170,6 +175,7 @@ table 272 "Check Ledger Entry"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
         field(27; "Print Gen Jnl Line SystemId"; Guid)
         {
             Caption = 'SystemId to Print';

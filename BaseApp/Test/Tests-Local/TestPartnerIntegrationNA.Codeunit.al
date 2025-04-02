@@ -13,7 +13,9 @@
         LibrarySales: Codeunit "Library - Sales";
         ErrorEventSuscriptionErr: Label 'There are %1 events with error:%2.';
         OnBeforeCalculateSalesTaxStatisticsTxt: Label 'OnBeforeCalculateSalesTaxStats';
+#if not CLEAN26
         LibraryPurchase: Codeunit "Library - Purchase";
+#endif
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
@@ -131,8 +133,10 @@
             Error(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
-    [HandlerFunctions('SalesStatsPageHandler')]
+    [HandlerFunctions('SalesStatsModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesQuoteOnBeforeCalculateSalesTaxStatistics()
     var
@@ -160,8 +164,9 @@
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
-    [HandlerFunctions('SalesStatsPageHandler')]
+    [HandlerFunctions('SalesStatsModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesQuotesOnBeforeCalculateSalesTaxStatistics()
     var
@@ -189,6 +194,7 @@
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -216,6 +222,7 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler,SalesDocumentTestRequestPageHandler')]
@@ -255,6 +262,8 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -283,6 +292,7 @@
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler,SalesDocumentTestRequestPageHandler')]
     [Scope('OnPrem')]
@@ -320,6 +330,7 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -348,6 +359,7 @@
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -375,7 +387,7 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
-
+#endif
     [Test]
     [HandlerFunctions('SalesInvoiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -427,6 +439,8 @@
         VerifyDataTypeBuffer(OnBeforePostUpdateOrderLineTxt);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -510,7 +524,7 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
-
+#endif
     [Test]
     [HandlerFunctions('SalesCreditMemoStatsPageHandler')]
     [Scope('OnPrem')]
@@ -596,6 +610,8 @@
         VerifyDataTypeBuffer(OnBeforeUpdateSalesTaxOnLinesTxt);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -624,6 +640,7 @@
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -651,6 +668,7 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
         VerifyDataTypeBuffer(SalesStatsTxt);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SalesBlanketOrderRequestPageHandler')]
@@ -768,6 +786,8 @@
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -795,7 +815,10 @@
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -823,7 +846,10 @@
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseInvoiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -852,6 +878,7 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseInvoiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -879,7 +906,10 @@
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -912,6 +942,7 @@
         VerifyDataTypeBuffer(SalesStatsValidateTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -944,6 +975,7 @@
         VerifyDataTypeBuffer(SalesStatsValidateTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -975,6 +1007,7 @@
         VerifyDataTypeBuffer(SalesStatsValidateTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1006,6 +1039,7 @@
         VerifyDataTypeBuffer(SalesStatsValidateTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1037,6 +1071,7 @@
         VerifyDataTypeBuffer(SalesStatsValidateTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1068,6 +1103,7 @@
         VerifyDataTypeBuffer(SalesStatsValidateTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceInvoiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1097,6 +1133,7 @@
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceInvoiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1126,6 +1163,7 @@
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1157,6 +1195,7 @@
         VerifyDataTypeBuffer(SalesStatsValidateTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1188,6 +1227,7 @@
         VerifyDataTypeBuffer(SalesStatsValidateTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceCreditMemoStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1217,6 +1257,7 @@
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [Test]
     [HandlerFunctions('ServiceCreditMemoStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1244,7 +1285,7 @@
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
-
+#endif
     [Test]
     [HandlerFunctions('ServiceOrderRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1273,37 +1314,6 @@
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
-
-#if not CLEAN23
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestServAmountsMgtOnFillInvPostingBuffer()
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        ServiceLineACY: Record "Service Line";
-        TestPartnerIntegrationNA: Codeunit "Test Partner Integration NA";
-        ServicePostInvoice: Codeunit "Service Post Invoice";
-    begin
-        // [SCENARIO] Calling Serv-Amounts Mgt.FillInvPostingBuffer will trigger OnFillInvPostingBuffer.
-
-        LibraryLowerPermissions.SetO365Basic();
-        LibraryLowerPermissions.SetOutsideO365Scope();
-
-        // [GIVEN] Service Header
-        Initialize();
-        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice);
-        CreateServiceLine(ServiceLine, ServiceHeader);
-
-        BindSubscription(TestPartnerIntegrationNA);
-
-        // [WHEN] InvoicePostingBuffer.OnAfterPrepareService
-        ServicePostInvoice.PrepareLine(ServiceHeader, ServiceLine, ServiceLineACY);
-
-        // [THEN] Integration Events have fired.
-        VerifyDataTypeBuffer(OnFillInvPostingBufferServAmtsMgtTxt);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('ServiceQuoteRequestPageHandler')]
@@ -1361,101 +1371,119 @@
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Quote", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesQuote(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Quotes", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesQuotes(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Order", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesOrder(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Order Shipment", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesOrderShipment(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Order List", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesOrders(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Blanket Sales Order", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsBlanketSalesOrder(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Blanket Sales Orders", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsBlanketSalesOrders(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Order Invoice", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesOrderInvoice(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Invoice", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesInvoice(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Invoice List", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesInvoices(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Posted Sales Invoice", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsPostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Credit Memo", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesCreditMemo(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Return Order", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesReturnOrder(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Sales Return Order List", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsSalesReturnOrders(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Posted Sales Credit Memo", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsPostedSalesCreditMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Posted Sales Credit Memos", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsPostedSalesCreditMemos(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
     [EventSubscriber(ObjectType::Page, Page::"Sales Credit Memo Stats.", 'OnAfterCalculateSalesTax', '', false, false)]
     local procedure OnAfterCalculateSalesTaxSalesCreditMemoStats(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var SalesTaxAmountLine2: Record "Sales Tax Amount Line"; var SalesTaxCalculationOverridden: Boolean)
@@ -1475,6 +1503,7 @@
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Purchase Invoice", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; ShowDialog: Boolean)
     begin
@@ -1486,55 +1515,65 @@
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Service Quote", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceQuote(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Service Quotes", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceQuotes(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Service Order", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceOrder(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Service Orders", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceOrders(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Service Invoice", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceInvoice(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Service Invoices", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceInvoices(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Service Credit Memo", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceCreditMemo(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [EventSubscriber(ObjectType::Page, Page::"Service Credit Memos", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsServiceCreditMemos(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
-
+#endif
     [EventSubscriber(ObjectType::Page, Page::"Service Invoice Stats.", 'OnAfterCalculateSalesTax', '', false, false)]
     local procedure OnAfterCalculateSalesTaxServiceInvoice(var ServiceInvoiceLine: Record "Service Invoice Line"; var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var SalesTaxAmountLine2: Record "Sales Tax Amount Line"; var SalesTaxCalculationOverridden: Boolean)
     begin
@@ -1733,6 +1772,8 @@
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
@@ -1746,6 +1787,7 @@
         PurchaseLine."Tax Group Code" := 'X';
         PurchaseLine.Modify();
     end;
+#endif
 
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     begin
@@ -1764,6 +1806,8 @@
         ServiceLine.Modify();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure CreateServiceInvoice(var ServiceHeader: Record "Service Header")
     var
         ServiceItem: Record "Service Item";
@@ -1783,7 +1827,10 @@
 
         CODEUNIT.Run(CODEUNIT::"Service-Post", ServiceHeader);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure CreateServiceCreditMemo(var ServiceHeader: Record "Service Header")
     var
         ServiceItem: Record "Service Item";
@@ -1806,6 +1853,7 @@
 
         CODEUNIT.Run(CODEUNIT::"Service-Post", ServiceHeader);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure VerifyDataTypeBuffer(VerifyText: Text)
@@ -1832,7 +1880,7 @@
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure SalesStatsPageHandler(var SalesStatistics: TestPage "Sales Stats.")
+    procedure SalesStatsModalPageHandler(var SalesStatistics: TestPage "Sales Stats.")
     begin
         SalesStatistics.OK().Invoke();
     end;
@@ -1844,19 +1892,32 @@
         SalesOrderStats.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     begin
         PurchaseOrderStats.OK().Invoke();
     end;
+#endif
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
+    begin
+        PurchaseOrderStats.OK().Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceStatsPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
     begin
         PurchaseStats.OK().Invoke();
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -1872,6 +1933,8 @@
         SalesCreditMemoStats.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceStatsPageHandler(var ServiceStats: TestPage "Service Stats.")
@@ -1879,6 +1942,7 @@
         ServiceStats.OK().Invoke();
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceOrderStatsPageHandler(var ServiceOrderStats: TestPage "Service Order Stats.")
@@ -1886,6 +1950,7 @@
         ServiceOrderStats.OK().Invoke();
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceInvoiceStatsPageHandler(var ServiceInvoiceStats: TestPage "Service Invoice Stats.")
@@ -1893,13 +1958,14 @@
         ServiceInvoiceStats.OK().Invoke();
     end;
 
+    [Obsolete('Use events in OpenStatistics() procedure in table Service Header', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceCreditMemoStatsPageHandler(var ServiceCreditMemoStats: TestPage "Service Credit Memo Stats.")
     begin
         ServiceCreditMemoStats.OK().Invoke();
     end;
-
+#endif
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesBlanketOrderRequestPageHandler(var SalesBlanketOrder: TestRequestPage "Sales Blanket Order")
@@ -1949,4 +2015,3 @@
         ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

@@ -188,6 +188,10 @@
 			"path": "../Tests/SCM"
 		},
 		{
+			"name": "Service",
+			"path": "../Tests/Service"
+		},
+		{
 			"name": "SINGLESERVER",
 			"path": "../Tests/SINGLESERVER"
 		},

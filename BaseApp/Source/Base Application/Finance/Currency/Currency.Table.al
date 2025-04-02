@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.Currency;
+namespace Microsoft.Finance.Currency;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -480,32 +480,22 @@ table 4 Currency
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
             Caption = 'Coupled to Dataverse';
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Currency)));
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
     }
 
@@ -518,14 +508,6 @@ table 4 Currency
         key(Key2; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key3; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     fieldgroups
@@ -925,4 +907,3 @@ table 4 Currency
     begin
     end;
 }
-

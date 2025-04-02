@@ -1490,12 +1490,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
         Item: Record Item;
-        LibraryInventory: Codeunit "Library - Inventory";
-        LibraryService: Codeunit "Library - Service";
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, Item."No.");
         ExtendedTextLine.Modify(true);
         exit(Item."No.");
