@@ -306,7 +306,7 @@ report 208 "Sales - Shipment"
                         DataItemLink = "Document No." = field("No.");
                         DataItemLinkReference = "Sales Shipment Header";
                         DataItemTableView = sorting("Document No.", "Line No.");
-                        column(Desc_SalesShipLine; Description)
+                        column(Description_SalesShptLine; Description)
                         {
                         }
                         column(ShowInternalInfo; ShowInternalInfo)
@@ -315,16 +315,16 @@ report 208 "Sales - Shipment"
                         column(ShowCorrectionLines; ShowCorrectionLines)
                         {
                         }
-                        column(Type_SalesShipLine; Format("Sales Shipment Line".Type, 0, 2))
-                        {
-                        }
-                        column(LinNo; LinNo)
+                        column(Type_SalesShptLine; Format(Type, 0, 2))
                         {
                         }
                         column(AsmHeaderExists; AsmHeaderExists)
                         {
                         }
-                        column(DocNo_SalesShipLine; "Document No.")
+                        column(DocNo_SalesShptLine; "Document No.")
+                        {
+                        }
+                        column(LinNo; LinNo)
                         {
                         }
                         column(ItemReferenceNo_Line; "Item Reference No.")
@@ -333,28 +333,28 @@ report 208 "Sales - Shipment"
                         column(ItemReferenceNo_Line_Lbl; FieldCaption("Item Reference No."))
                         {
                         }
-                        column(Quantity_SalesShipLine; Quantity)
+                        column(Qty_SalesShptLine; Quantity)
                         {
                         }
-                        column(UnitofMeasure_SalesShipLine; "Unit of Measure")
+                        column(UnitofMeasure_SalesShptLine; "Unit of Measure")
                         {
                         }
-                        column(No_SalesShipLine; "No.")
+                        column(No_SalesShptLine; "No.")
                         {
                         }
-                        column(LineNo_SalesShipLine; "Line No.")
+                        column(LineNo_SalesShptLine; "Line No.")
                         {
                         }
-                        column(Desc_SalesShipLineCaption; FieldCaption(Description))
+                        column(Description_SalesShptLineCaption; FieldCaption(Description))
                         {
                         }
-                        column(Quantity_SalesShipLineCaption; FieldCaption(Quantity))
+                        column(Qty_SalesShptLineCaption; FieldCaption(Quantity))
                         {
                         }
-                        column(UnitofMeasure_SalesShipLineCaption; FieldCaption("Unit of Measure"))
+                        column(UnitofMeasure_SalesShptLineCaption; FieldCaption("Unit of Measure"))
                         {
                         }
-                        column(No_SalesShipLineCaption; FieldCaption("No."))
+                        column(No_SalesShptLineCaption; FieldCaption("No."))
                         {
                         }
                         dataitem(DimensionLoop2; "Integer")

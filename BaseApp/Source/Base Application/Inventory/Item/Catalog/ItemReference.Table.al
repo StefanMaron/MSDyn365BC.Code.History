@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item.Catalog;
 
 using Microsoft.Inventory.Item;
@@ -46,6 +50,7 @@ table 5777 "Item Reference"
         field(5; "Reference Type No."; Code[20])
         {
             Caption = 'Reference Type No.';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Reference Type" = const(Customer)) Customer."No."
             else
             if ("Reference Type" = const(Vendor)) Vendor."No.";
@@ -53,6 +58,7 @@ table 5777 "Item Reference"
         field(6; "Reference No."; Code[50])
         {
             Caption = 'Reference No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = Barcode;
             NotBlank = true;
         }
@@ -60,13 +66,6 @@ table 5777 "Item Reference"
         {
             Caption = 'Description';
             OptimizeForTextSearch = true;
-        }
-        field(8; "Discontinue Bar Code"; Boolean)
-        {
-            Caption = 'Discontinue Bar Code';
-            ObsoleteReason = 'Not used in base application.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
         }
         field(9; "Description 2"; Text[50])
         {
@@ -264,11 +263,13 @@ table 5777 "Item Reference"
         exit(not ItemReference2.IsEmpty);
     end;
 
+#if not CLEAN26
     [Obsolete('Use another implementation of FindItemDescription.', '23.0')]
     procedure FindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]) Result: Boolean
     begin
         exit(FindItemDescription(ItemDescription, ItemDescription2, ItemNo, VariantCode, UnitOfMeasureCode, 0D, ReferenceType, ReferenceTypeNo));
     end;
+#endif
 
     procedure FindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ToDate: Date; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]) Result: Boolean
     var
@@ -377,4 +378,3 @@ table 5777 "Item Reference"
     begin
     end;
 }
-

@@ -347,7 +347,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer."Global Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
         InvoicePostingBuffer."Dimension Set ID" := SalesLine."Dimension Set ID";
         InvoicePostingBuffer."Job No." := SalesLine."Job No.";
-        InvoicePostingBuffer."VAT %" := SalesLine."VAT %";
+        InvoicePostingBuffer."VAT %" := SalesLine.GetVATPct();
         if VATPostingSetup.IsEUService(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then begin
             InvoicePostingBuffer."Service Tariff No." := SalesLine."Service Tariff No.";
             InvoicePostingBuffer."Transport Method" := SalesLine."Transport Method";
@@ -389,12 +389,12 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         SalesHeader: Record "Sales Header";
     begin
         SalesSetup.Get();
-        SalesHeader.get(SalesLine."Document Type", SalesLine."Document No.");
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         InvoicePostingBuffer.UpdateEntryDescription(
             SalesSetup."Copy Line Descr. to G/L Entry",
             SalesLine."Line No.",
             SalesLine.Description,
-            SalesHeader."Posting Description", SalesSetup."Copy Line Descr. to G/L Entry");
+            SalesHeader."Posting Description");
     end;
 
     local procedure UpdateInvoicePostingBuffer(InvoicePostingBuffer: Record "Invoice Posting Buffer"; ForceGLAccountType: Boolean)

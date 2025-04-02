@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Sales.Setup;
@@ -87,11 +91,10 @@ report 6001 "Batch Post Service Orders"
 
                         trigger OnValidate()
                         begin
-                            if ReplacePostingDate then begin
+                            if ReplacePostingDate then
                                 Message(Text003);
-                                Message(Text1130000, "Service Header".FieldCaption("Document Date"), "Service Header".FieldCaption("Operation Occurred Date"),
-                                  "Service Header".FieldCaption("Posting Date"));
-                            end;
+
+                            OnAfterValidateReplacePostingDate("Service Header", ReplacePostingDate);
                         end;
                     }
                     field(ReplaceDocumentDate_Option; ReplaceDocumentDate)
@@ -165,8 +168,7 @@ report 6001 "Batch Post Service Orders"
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
-        PostInvoiceEditable: Boolean;	
-        Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
+        PostInvoiceEditable: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
@@ -240,5 +242,9 @@ report 6001 "Batch Post Service Orders"
     local procedure OnBeforePreReport()
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateReplacePostingDate(var ServiceHeader: Record "Service Header"; ReplacePostingDate: Boolean)
+    begin
+    end;
+}

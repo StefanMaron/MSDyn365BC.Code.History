@@ -1282,11 +1282,6 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [THEN] "Posting Date is not within your range of allowed posting dates." error thrown
         PurchaseHeader.Find();
         Assert.ExpectedError(PostingDateNotAllowedErr);
-
-        // [THEN] "PO".Receive = FALSE
-        PurchaseHeader.TestField(Receive, false);
-        // [THEN] "PO".Invoice = FALSE
-        PurchaseHeader.TestField(Invoice, false);
     end;
 
     [Test]
@@ -1324,11 +1319,6 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [THEN] "Posting Date is not within your range of allowed posting dates." error thrown
         PurchaseHeader.Find();
         Assert.ExpectedError(PostingDateNotAllowedErr);
-
-        // [THEN] "PO".Receive = TRUE
-        PurchaseHeader.TestField(Receive, true);
-        // [THEN] "PO".Invoice = FALSE
-        PurchaseHeader.TestField(Invoice, false);
     end;
 
     [Test]

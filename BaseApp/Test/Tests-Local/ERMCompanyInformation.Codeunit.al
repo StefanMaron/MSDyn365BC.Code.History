@@ -51,7 +51,7 @@ codeunit 144168 "ERM Company Information"
         CompanyInformationOnAccountBookPrint(GLAccount."Income/Balance"::"Income Statement");
     end;
 
-    local procedure CompanyInformationOnAccountBookPrint(IncomeBalance: Option)
+    local procedure CompanyInformationOnAccountBookPrint(IncomeBalance: Enum "G/L Account Report Type")
     var
         GLAccountNo: Code[20];
     begin
@@ -165,7 +165,7 @@ codeunit 144168 "ERM Company Information"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGLAccount(IncomeBalance: Option): Code[20]
+    local procedure CreateGLAccount(IncomeBalance: Enum "G/L Account Report Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         BusinessUnit: Record "Business Unit";

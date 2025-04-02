@@ -135,6 +135,8 @@ report 1015 "Job Register"
 
     requestpage
     {
+        AboutTitle = 'About Project Register';
+        AboutText = 'Document a project register''s contents for internal or external audits.';
 
         layout
         {

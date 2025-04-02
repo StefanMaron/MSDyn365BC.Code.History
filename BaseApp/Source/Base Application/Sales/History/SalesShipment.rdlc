@@ -1557,7 +1557,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!No_SalesShipLineCaption.Value</Value>
+                                                    <Value>=Fields!No_SalesShptLineCaption.Value</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -1588,7 +1588,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Desc_SalesShipLineCaption.Value</Value>
+                                                    <Value>=Fields!Description_SalesShptLineCaption.Value</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -1620,7 +1620,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Quantity_SalesShipLineCaption.Value</Value>
+                                                    <Value>=Fields!Qty_SalesShptLineCaption.Value</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -1653,7 +1653,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!UnitofMeasure_SalesShipLineCaption.Value</Value>
+                                                    <Value>=Fields!UnitofMeasure_SalesShptLineCaption.Value</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -1802,7 +1802,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Desc_SalesShipLine.Value</Value>
+                                                    <Value>=Fields!Description_SalesShptLine.Value</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -1840,7 +1840,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!No_SalesShipLine.Value</Value>
+                                                    <Value>=Fields!No_SalesShptLine.Value</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -1855,7 +1855,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                             </Paragraphs>
                                             <ZIndex>33</ZIndex>
                                             <Visibility>
-                                              <Hidden>=IIF((Fields!Type_SalesShipLine.Value = "1") AND (NOT Fields!ShowInternalInfo.Value),True,False)</Hidden>
+                                              <Hidden>=IIF((Fields!Type_SalesShptLine.Value = "1") AND (NOT Fields!ShowInternalInfo.Value),True,False)</Hidden>
                                             </Visibility>
                                             <DataElementOutput>NoOutput</DataElementOutput>
                                             <Style>
@@ -1874,7 +1874,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Desc_SalesShipLine.Value</Value>
+                                                    <Value>=Fields!Description_SalesShptLine.Value</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -1904,7 +1904,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!Quantity_SalesShipLine.Value)</Value>
+                                                    <Value>=Code.BlankZero(Fields!Qty_SalesShptLine.Value)</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -1934,7 +1934,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!UnitofMeasure_SalesShipLine.Value</Value>
+                                                    <Value>=Fields!UnitofMeasure_SalesShptLine.Value</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -1984,7 +1984,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                             </Paragraphs>
                                             <ZIndex>15</ZIndex>
                                             <Visibility>
-                                              <Hidden>=IIF(Fields!Quantity_SalesShipLine.Value &lt;&gt; 0,False,True)</Hidden>
+                                              <Hidden>=IIF(Fields!Qty_SalesShptLine.Value &lt;&gt; 0,False,True)</Hidden>
                                             </Visibility>
                                             <DataElementOutput>NoOutput</DataElementOutput>
                                             <Style>
@@ -2188,22 +2188,22 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                                   <TablixMember>
                                     <Group Name="table2_Group1">
                                       <GroupExpressions>
-                                        <GroupExpression>=Fields!DocNo_SalesShipLine.Value</GroupExpression>
+                                        <GroupExpression>=Fields!DocNo_SalesShptLine.Value</GroupExpression>
                                         <GroupExpression>=Fields!OutputNo.Value</GroupExpression>
-                                        <GroupExpression>=Fields!LineNo_SalesShipLine.Value</GroupExpression>
+                                        <GroupExpression>=Fields!LineNo_SalesShptLine.Value</GroupExpression>
                                       </GroupExpressions>
                                     </Group>
                                     <TablixMembers>
                                       <TablixMember>
                                         <Visibility>
-                                          <Hidden>=Iif(Fields!Type_SalesShipLine.Value = "0", false, true)</Hidden>
+                                          <Hidden>=Iif(Fields!Type_SalesShptLine.Value = "0", false, true)</Hidden>
                                         </Visibility>
                                         <KeepWithGroup>After</KeepWithGroup>
                                         <KeepTogether>true</KeepTogether>
                                       </TablixMember>
                                       <TablixMember>
                                         <Visibility>
-                                          <Hidden>=IIF(Fields!Type_SalesShipLine.Value = "2" OR Fields!Type_SalesShipLine.Value = "4" OR Fields!Type_SalesShipLine.Value = "1" OR Fields!Type_SalesShipLine.Value = "3",False,True)</Hidden>
+                                          <Hidden>=IIF(Fields!Type_SalesShptLine.Value = "2" OR Fields!Type_SalesShptLine.Value = "4" OR Fields!Type_SalesShptLine.Value = "1" OR Fields!Type_SalesShptLine.Value = "3",False,True)</Hidden>
                                         </Visibility>
                                         <KeepWithGroup>After</KeepWithGroup>
                                       </TablixMember>
@@ -2234,7 +2234,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                               <KeepTogether>true</KeepTogether>
                               <Filters>
                                 <Filter>
-                                  <FilterExpression>=Fields!LineNo_SalesShipLine.Value</FilterExpression>
+                                  <FilterExpression>=Fields!LineNo_SalesShptLine.Value</FilterExpression>
                                   <Operator>GreaterThan</Operator>
                                   <FilterValues>
                                     <FilterValue>=0</FilterValue>
@@ -2245,7 +2245,7 @@ fields!TDDPreparedBy_SalesShipHdr.Value</Value>
                               <Width>18.13027cm</Width>
                               <ZIndex>1</ZIndex>
                               <Visibility>
-                                <Hidden>=IIF(Fields!LineNo_SalesShipLine.Value &lt;&gt; 0,False,True)</Hidden>
+                                <Hidden>=IIF(Fields!LineNo_SalesShptLine.Value &lt;&gt; 0,False,True)</Hidden>
                               </Visibility>
                               <DataElementOutput>NoOutput</DataElementOutput>
                               <Style />
@@ -5729,8 +5729,8 @@ End Function</Code>
         <Field Name="HeaderDimensionsCaption">
           <DataField>HeaderDimensionsCaption</DataField>
         </Field>
-        <Field Name="Desc_SalesShipLine">
-          <DataField>Desc_SalesShipLine</DataField>
+        <Field Name="Description_SalesShptLine">
+          <DataField>Description_SalesShptLine</DataField>
         </Field>
         <Field Name="ShowInternalInfo">
           <DataField>ShowInternalInfo</DataField>
@@ -5738,8 +5738,8 @@ End Function</Code>
         <Field Name="ShowCorrectionLines">
           <DataField>ShowCorrectionLines</DataField>
         </Field>
-        <Field Name="Type_SalesShipLine">
-          <DataField>Type_SalesShipLine</DataField>
+        <Field Name="Type_SalesShptLine">
+          <DataField>Type_SalesShptLine</DataField>
         </Field>
         <Field Name="LinNo">
           <DataField>LinNo</DataField>
@@ -5747,8 +5747,8 @@ End Function</Code>
         <Field Name="AsmHeaderExists">
           <DataField>AsmHeaderExists</DataField>
         </Field>
-        <Field Name="DocNo_SalesShipLine">
-          <DataField>DocNo_SalesShipLine</DataField>
+        <Field Name="DocNo_SalesShptLine">
+          <DataField>DocNo_SalesShptLine</DataField>
         </Field>
         <Field Name="ItemReferenceNo_Line">
           <DataField>ItemReferenceNo_Line</DataField>
@@ -5756,32 +5756,32 @@ End Function</Code>
         <Field Name="ItemReferenceNo_Line_Lbl">
           <DataField>ItemReferenceNo_Line_Lbl</DataField>
         </Field>
-        <Field Name="Quantity_SalesShipLine">
-          <DataField>Quantity_SalesShipLine</DataField>
+        <Field Name="Qty_SalesShptLine">
+          <DataField>Qty_SalesShptLine</DataField>
         </Field>
-        <Field Name="Quantity_SalesShipLineFormat">
-          <DataField>Quantity_SalesShipLineFormat</DataField>
+        <Field Name="Qty_SalesShptLineFormat">
+          <DataField>Qty_SalesShptLineFormat</DataField>
         </Field>
-        <Field Name="UnitofMeasure_SalesShipLine">
-          <DataField>UnitofMeasure_SalesShipLine</DataField>
+        <Field Name="UnitofMeasure_SalesShptLine">
+          <DataField>UnitofMeasure_SalesShptLine</DataField>
         </Field>
-        <Field Name="No_SalesShipLine">
-          <DataField>No_SalesShipLine</DataField>
+        <Field Name="No_SalesShptLine">
+          <DataField>No_SalesShptLine</DataField>
         </Field>
-        <Field Name="LineNo_SalesShipLine">
-          <DataField>LineNo_SalesShipLine</DataField>
+        <Field Name="LineNo_SalesShptLine">
+          <DataField>LineNo_SalesShptLine</DataField>
         </Field>
-        <Field Name="Desc_SalesShipLineCaption">
-          <DataField>Desc_SalesShipLineCaption</DataField>
+        <Field Name="Description_SalesShptLineCaption">
+          <DataField>Description_SalesShptLineCaption</DataField>
         </Field>
-        <Field Name="Quantity_SalesShipLineCaption">
-          <DataField>Quantity_SalesShipLineCaption</DataField>
+        <Field Name="Qty_SalesShptLineCaption">
+          <DataField>Qty_SalesShptLineCaption</DataField>
         </Field>
-        <Field Name="UnitofMeasure_SalesShipLineCaption">
-          <DataField>UnitofMeasure_SalesShipLineCaption</DataField>
+        <Field Name="UnitofMeasure_SalesShptLineCaption">
+          <DataField>UnitofMeasure_SalesShptLineCaption</DataField>
         </Field>
-        <Field Name="No_SalesShipLineCaption">
-          <DataField>No_SalesShipLineCaption</DataField>
+        <Field Name="No_SalesShptLineCaption">
+          <DataField>No_SalesShptLineCaption</DataField>
         </Field>
         <Field Name="DimText1">
           <DataField>DimText1</DataField>

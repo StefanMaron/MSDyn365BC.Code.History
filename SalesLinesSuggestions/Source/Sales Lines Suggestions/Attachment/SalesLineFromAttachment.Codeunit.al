@@ -34,7 +34,7 @@ codeunit 7292 "Sales Line From Attachment"
         ALSearch: DotNet ALSearch;
         FileName: Text;
     begin
-        SalesHeader.TestStatusOpen();
+        SalesHeader.TestStatusOpen(true);
         if not AzureOpenAI.IsEnabled(Enum::"Copilot Capability"::"Sales Lines Suggestions") then
             exit;
 

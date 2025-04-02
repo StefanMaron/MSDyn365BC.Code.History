@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -116,6 +116,7 @@ table 12159 "Company Officials"
         {
             Caption = 'E-Mail';
         }
+#if not CLEANSCHEMA28
         field(19; Picture; BLOB)
         {
             Caption = 'Picture';
@@ -129,6 +130,7 @@ table 12159 "Company Officials"
             ObsoleteTag = '18.0';
 #endif
         }
+#endif
         field(25; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';

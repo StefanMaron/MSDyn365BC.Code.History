@@ -22,11 +22,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Journal;
-using Microsoft.Manufacturing.Reports;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Archive;
@@ -86,23 +81,11 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Purchase Return Orders';
                     RunObject = page "Purchase Return Order List";
                 }
-                action("Subcontracting Orders")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Subcontracting Orders';
-                    RunObject = page "Subcontracting Order List";
-                }
                 action("Transfer Orders")
                 {
                     ApplicationArea = Location;
                     Caption = 'Transfer Orders';
                     RunObject = page "Transfer Orders";
-                }
-                action("Subcontracting Transfer Orders")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Subcontracting Transfer Orders';
-                    RunObject = page "Subcontracting Transfer List";
                 }
                 action("Invoices")
                 {
@@ -121,12 +104,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Certificates of Supply';
                     RunObject = page "Certificates of Supply";
-                }
-                action("Subcontracting Worksheet")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Subcontracting Worksheets';
-                    RunObject = page "Subcontracting Worksheet";
                 }
                 action("Purchase Journals")
                 {
@@ -351,12 +328,6 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Vendors';
                     RunObject = page "Vendor List";
                 }
-                action("Production Forecasts")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Production Forecasts';
-                    RunObject = page "Demand Forecast Names";
-                }
                 action("Orders1")
                 {
                     ApplicationArea = Suite;
@@ -368,12 +339,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Orders';
                     RunObject = page "Sales Order List";
-                }
-                action("Subcontracting Orders1")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Subcontracting Orders';
-                    RunObject = page "Subcontracting Order List";
                 }
                 action("Blanket Orders1")
                 {
@@ -393,29 +358,11 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Projects';
                     RunObject = page "Job List";
                 }
-                action("Planned Prod. Orders")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Planned Production Orders';
-                    RunObject = page "Planned Production Orders";
-                }
-                action("Firm Planned Prod. Orders")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Firm Planned Prod. Orders';
-                    RunObject = page "Firm Planned Prod. Orders";
-                }
                 action("Transfer Orders1")
                 {
                     ApplicationArea = Location;
                     Caption = 'Transfer Orders';
                     RunObject = page "Transfer Orders";
-                }
-                action("Subcontracting Transfer Orders1")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Subcontracting Transfer Orders';
-                    RunObject = page "Subcontracting Transfer List";
                 }
                 action("Requisition Worksheets")
                 {
@@ -455,18 +402,6 @@ page 8905 "Purchasing Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Item/Vendor Catalog';
                         RunObject = report "Item/Vendor Catalog";
-                    }
-                    action("Prod. Order - Shortage List")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Prod. Order - Shortage List';
-                        RunObject = report "Prod. Order - Shortage List";
-                    }
-                    action("Prod. Order - Mat. Requisition")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Prod. Order - Mat. Requisition';
-                        RunObject = report "Prod. Order - Mat. Requisition";
                     }
                     action("Purchase Statistics")
                     {
@@ -617,7 +552,7 @@ page 8905 "Purchasing Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Standard Costs Worksheet';
-                    RunObject = page "Standard Cost Worksheet";
+                    RunObject = page Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet";
                 }
                 action("Adjust Item Costs/Prices")
                 {

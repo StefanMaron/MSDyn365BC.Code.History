@@ -112,48 +112,6 @@ codeunit 12179 "Export FatturaPA Document"
         Session.LogMessage('0000CQC', GenerateXMLSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
     end;
 
-#if not CLEAN23
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by GenerateXMLFile with TempBlob parameter.', '20.0')]
-    procedure GenerateXMLFile(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary; ClientFileName: Text[250]): Text[250]
-    var
-        FileManagement: Codeunit "File Management";
-        ExportFatturaPADocument: Codeunit "Export FatturaPA Document";
-        DirectoryName: Text;
-        ServerFileName: Text[250];
-        FileName: Text;
-    begin
-        Session.LogMessage('0000CQ9', GenerateXMLMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
-
-        CompanyInformation.Get();
-        BindSubscription(ExportFatturaPADocument);
-        // prepare files
-        ServerFileName := CopyStr(FileManagement.ServerTempFileName('xml'), 1, MaxStrLen(ServerFileName));
-        DirectoryName := FileManagement.GetDirectoryName(ServerFileName);
-        FileName := DirectoryName + '\' + ClientFileName;
-
-        // create file
-        if not TryCreateFatturaElettronicaHeader(TempFatturaHeader) then begin
-            Session.LogMessage('0000CQA', StrSubstNo(HeaderErrMsg, GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
-            Error(GetLastErrorText());
-        end;
-
-        if not TryCreateFatturaElettronicaBody(TempFatturaLine, TempFatturaHeader) then begin
-            Session.LogMessage('0000CQB', StrSubstNo(BodyErrMsg, GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
-            Error(GetLastErrorText());
-        end;
-
-        // update Buffer
-        FileManagement.DeleteServerFile(FileName);
-        TempXMLBuffer.FindFirst();
-        TempXMLBuffer.Save(FileName);
-        OnAfterCreateXML(TempXMLBuffer, FileName);
-
-        Session.LogMessage('0000CQC', GenerateXMLSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
-        exit(CopyStr(FileName, 1, 250))
-    end;
-#endif
-
     [TryFunction]
     local procedure TryCreateFatturaElettronicaHeader(TempFatturaHeader: Record "Fattura Header" temporary)
     var
@@ -800,14 +758,6 @@ codeunit 12179 "Export FatturaPA Document"
     local procedure OnAfterCreateBlobXML(var TempXMLBuffer: Record "XML Buffer" temporary; var TempBlob: Codeunit "Temp Blob"; ClientFileName: Text[250])
     begin
     end;
-
-#if not CLEAN23
-    [IntegrationEvent(false, false)]
-    [Obsolete('Not used after removal of procedure GenerateXMLFile()', '23.0')]
-    local procedure OnAfterCreateXML(var TempXMLBuffer: Record "XML Buffer" temporary; FileName: Text)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var RecordExportBuffer: Record "Record Export Buffer"; var IsHandled: Boolean)

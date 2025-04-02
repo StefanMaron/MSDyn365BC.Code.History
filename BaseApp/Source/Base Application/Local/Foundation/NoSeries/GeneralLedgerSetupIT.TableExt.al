@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA27
 tableextension 12147 GeneralLedgerSetupIT extends "General Ledger Setup"
 {
     fields
@@ -19,3 +20,4 @@ tableextension 12147 GeneralLedgerSetupIT extends "General Ledger Setup"
         }
     }
 }
+#endif

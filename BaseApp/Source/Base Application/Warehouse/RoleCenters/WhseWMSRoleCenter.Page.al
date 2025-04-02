@@ -14,7 +14,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -38,6 +37,7 @@ using System.Email;
 using System.Threading;
 using System.Visualization;
 using Microsoft.Foundation.Task;
+using Microsoft.Manufacturing.Document;
 
 page 9000 "Whse. WMS Role Center"
 {
@@ -274,13 +274,6 @@ page 9000 "Whse. WMS Role Center"
                 Caption = 'Subcontracting Transfers';
                 RunObject = Page "Subcontracting Transfer List";
                 ToolTip = 'View the list of subcontracting transfers.';
-            }
-            action(ReleasedProductionOrders)
-            {
-                ApplicationArea = Manufacturing;
-                Caption = 'Released Production Orders';
-                RunObject = Page "Released Production Orders";
-                ToolTip = 'View the list of released production order that are ready for warehouse activities.';
             }
             action(AssemblyOrders)
             {

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -13,7 +17,6 @@ using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
@@ -25,7 +28,6 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Inventory.Journal;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Receivables;
@@ -36,9 +38,9 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
-using Microsoft.EServices.EDocument;
 
 table 5990 "Service Shipment Header"
 {
@@ -159,6 +161,11 @@ table 5990 "Service Shipment Header"
         field(26; "Pmt. Discount Date"; Date)
         {
             Caption = 'Pmt. Discount Date';
+        }
+        field(12107; "Shipment Method Code"; Code[10])
+        {
+            Caption = 'Shipment Method Code';
+            TableRelation = "Shipment Method";
         }
         field(28; "Location Code"; Code[10])
         {
@@ -412,6 +419,11 @@ table 5990 "Service Shipment Header"
             Caption = 'Payment Method Code';
             TableRelation = "Payment Method";
         }
+        field(12106; "Shipping Agent Code"; Code[10])
+        {
+            Caption = 'Shipping Agent Code';
+            TableRelation = "Shipping Agent";
+        }
         field(109; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -459,6 +471,11 @@ table 5990 "Service Shipment Header"
         {
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
+        }
+        field(200; "Work Description"; BLOB)
+        {
+            Caption = 'Work Description';
+            DataClassification = CustomerContent;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -752,92 +769,6 @@ table 5990 "Service Shipment Header"
         {
             Caption = 'Quote No.';
         }
-        field(12106; "Shipping Agent Code"; Code[10])
-        {
-            Caption = 'Shipping Agent Code';
-            TableRelation = "Shipping Agent";
-
-            trigger OnValidate()
-            begin
-                if "Shipment Method Code" <> '' then
-                    CheckShipAgentMethodComb();
-                UpdateTDDPreparedBy();
-            end;
-        }
-        field(12107; "Shipment Method Code"; Code[10])
-        {
-            Caption = 'Shipment Method Code';
-            TableRelation = "Shipment Method";
-
-            trigger OnValidate()
-            begin
-                if "Shipping Agent Code" <> '' then
-                    CheckShipAgentMethodComb();
-                if not ShipmentMethod.ThirdPartyLoader("Shipment Method Code") and
-                  ("3rd Party Loader Type" <> "3rd Party Loader Type"::" ")
-                then begin
-                    "3rd Party Loader Type" := "3rd Party Loader Type"::" ";
-                    "3rd Party Loader No." := '';
-                end;
-            end;
-        }
-        field(12174; "3rd Party Loader Type"; Option)
-        {
-            Caption = '3rd Party Loader Type';
-            OptionCaption = ' ,Vendor,Contact';
-            OptionMembers = " ",Vendor,Contact;
-
-            trigger OnValidate()
-            begin
-                if "3rd Party Loader Type" <> "3rd Party Loader Type"::" " then
-                    ShipmentMethod.CheckShipMethod3rdPartyLoader("Shipment Method Code");
-                if "3rd Party Loader Type" <> xRec."3rd Party Loader Type" then
-                    "3rd Party Loader No." := '';
-            end;
-        }
-        field(12175; "3rd Party Loader No."; Code[20])
-        {
-            Caption = '3rd Party Loader No.';
-            TableRelation = if ("3rd Party Loader Type" = const(Vendor)) Vendor
-            else
-            if ("3rd Party Loader Type" = const(Contact)) Contact where(Type = filter(Company));
-
-            trigger OnValidate()
-            begin
-                ShipmentMethod.CheckShipMethod3rdPartyLoader("Shipment Method Code");
-            end;
-        }
-        field(12176; "Additional Information"; Text[50])
-        {
-            Caption = 'Additional Information';
-        }
-        field(12177; "Additional Notes"; Text[50])
-        {
-            Caption = 'Additional Notes';
-        }
-        field(12178; "Additional Instructions"; Text[50])
-        {
-            Caption = 'Additional Instructions';
-        }
-        field(12179; "TDD Prepared By"; Text[50])
-        {
-            Caption = 'TDD Prepared By';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(12182; "Fattura Project Code"; Code[15])
-        {
-            Caption = 'Fattura Project Code';
-            TableRelation = "Fattura Project Info".Code where(Type = filter(Project));
-        }
-        field(12183; "Fattura Tender Code"; Code[15])
-        {
-            Caption = 'Fattura Tender Code';
-            TableRelation = "Fattura Project Info".Code where(Type = filter(Tender));
-        }
-        field(12184; "Customer Purchase Order No."; Text[35])
-        {
-            Caption = 'Customer Purchase Order No.';
-        }
     }
 
     keys
@@ -908,8 +839,6 @@ table 5990 "Service Shipment Header"
         ServShptLine: Record "Service Shipment Line";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
-        Text12100: Label ' %1 %2 must be Vendor/Contact for %3 %4 3rd-Party Loader.';
-        ShipmentMethod: Record "Shipment Method";
 
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
@@ -1017,6 +946,25 @@ table 5990 "Service Shipment Header"
         end
     end;
 
+    procedure IsCompletelyInvoiced(): Boolean
+    var
+        ServiceShipmentLine: Record "Service Shipment Line";
+    begin
+        ServiceShipmentLine.SetRange("Document No.", "No.");
+        ServiceShipmentLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
+        exit(ServiceShipmentLine.IsEmpty());
+    end;
+
+    procedure GetWorkDescription(): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        CalcFields("Work Description");
+        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceShipmentHeader: Record "Service Shipment Header")
     begin
@@ -1035,67 +983,6 @@ table 5990 "Service Shipment Header"
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceShipmentHeader: Record "Service Shipment Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
     begin
-    end;
-
-    local procedure UpdateTDDPreparedBy()
-    var
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        if ShippingAgent.ShippingAgentVendorOrContact("Shipping Agent Code") then begin
-            if "TDD Prepared By" = '' then
-                "TDD Prepared By" := UserId;
-        end else
-            "TDD Prepared By" := '';
-    end;
-
-    local procedure CheckShipAgentMethodComb()
-    var
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        if ShipmentMethod.ThirdPartyLoader("Shipment Method Code") and
-          not ShippingAgent.ShippingAgentVendorOrContact("Shipping Agent Code")
-        then
-            Error(
-              Text12100, FieldCaption("Shipping Agent Code"), "Shipping Agent Code",
-              FieldCaption("Shipment Method Code"), "Shipment Method Code");
-    end;
-
-    [Scope('OnPrem')]
-    procedure CheckTDDData(): Boolean
-    var
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        CheckShipAgentMethodComb();
-        if ShipmentMethod.ThirdPartyLoader("Shipment Method Code") then begin
-            TestField("3rd Party Loader Type");
-            TestField("3rd Party Loader No.");
-        end else begin
-            TestField("3rd Party Loader Type", "3rd Party Loader Type"::" ");
-            TestField("3rd Party Loader No.", '');
-        end;
-        if ShippingAgent.ShippingAgentVendorOrContact("Shipping Agent Code") then begin
-            TestField("TDD Prepared By");
-            exit(true);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetTDDAddr(var ShippingAgentAddr: array[8] of Text[100]; var LoaderAddr: array[8] of Text[100])
-    var
-        CompanyInfo: Record "Company Information";
-        Vendor: Record Vendor;
-        Contact: Record Contact;
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        ShippingAgent.GetTDDAddr("Shipping Agent Code", ShippingAgentAddr);
-        case "3rd Party Loader Type" of
-            "3rd Party Loader Type"::Vendor:
-                Vendor.GetTDDAddr("3rd Party Loader No.", LoaderAddr);
-            "3rd Party Loader Type"::Contact:
-                Contact.GetTDDAddr("3rd Party Loader No.", LoaderAddr);
-            "3rd Party Loader Type"::" ":
-                CompanyInfo.GetTDDAddr(LoaderAddr);
-        end;
     end;
 
     [IntegrationEvent(false, false)]

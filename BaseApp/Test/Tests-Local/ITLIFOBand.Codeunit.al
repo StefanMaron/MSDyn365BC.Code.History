@@ -31,7 +31,6 @@ codeunit 144194 "IT - LIFO Band"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryPatterns: Codeunit "Library - Patterns";
         Assert: Codeunit Assert;
         LibraryReportDataset: Codeunit "Library - Report Dataset";
 
@@ -185,8 +184,8 @@ codeunit 144194 "IT - LIFO Band"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::LIFO, LibraryPatterns.RandCost(Item));
-        LibraryPatterns.MAKEPurchaseOrder(
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::LIFO, LibraryRandom.RandDec(100, 2));
+        LibraryPurchase.CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, Item, '', '', LibraryRandom.RandIntInRange(100, 200), WorkDate(), Item."Unit Cost");
     end;
 

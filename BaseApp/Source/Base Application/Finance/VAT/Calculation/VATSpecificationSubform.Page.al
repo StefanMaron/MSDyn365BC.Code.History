@@ -223,7 +223,6 @@ page 576 "VAT Specification Subform"
         Currency: Record Currency;
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         SourceHeader: Variant;
-        CurrencyCode: Code[10];
         AllowVATDifference: Boolean;
         AllowVATDifferenceOnThisTab: Boolean;
         PricesIncludingVAT: Boolean;
@@ -244,6 +243,7 @@ page 576 "VAT Specification Subform"
 
     protected var
         AllowInvDisc, InvoiceDiscountAmountEditable : Boolean;
+        CurrencyCode: Code[10];
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin

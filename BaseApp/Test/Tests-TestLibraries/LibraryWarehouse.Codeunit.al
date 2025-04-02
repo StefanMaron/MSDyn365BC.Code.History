@@ -675,6 +675,20 @@
         PutAwayTemplateLine.Insert(true);
     end;
 
+    procedure CreateStockkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
+    var
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+    begin
+        Clear(StockkeepingUnit);
+        CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", ItemVariant.Code);
+        StockkeepingUnit."Unit Cost" := Item."Unit Cost";
+        StockkeepingUnit."Standard Cost" := Item."Standard Cost";
+        StockkeepingUnit.Modify();
+    end;
+
     procedure CreateTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10]; InTransitCode: Text[10])
     var
         Handled: Boolean;

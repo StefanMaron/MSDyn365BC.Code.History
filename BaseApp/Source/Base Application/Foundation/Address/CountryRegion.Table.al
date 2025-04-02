@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Address;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Address;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Registration;
@@ -99,18 +103,12 @@ table 9 "Country/Region"
         {
             Caption = 'County Name';
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(12100; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
         }
+#if not CLEANSCHEMA25
         field(12101; Blacklisted; Boolean)
         {
             Caption = 'Blacklisted';
@@ -118,6 +116,7 @@ table 9 "Country/Region"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(12102; "Foreign Country/Region Code"; Code[3])
         {
             Caption = 'Foreign Country/Region Code';
@@ -343,4 +342,3 @@ table 9 "Country/Region"
     begin
     end;
 }
-

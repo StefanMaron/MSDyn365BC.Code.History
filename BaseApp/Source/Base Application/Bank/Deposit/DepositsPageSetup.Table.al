@@ -1,3 +1,8 @@
+#if not CLEANSCHEMA27 
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Deposit;
 
 table 500 "Deposits Page Setup"
@@ -32,3 +37,5 @@ table 500 "Deposits Page Setup"
         }
     }
 }
+ 
+#endif

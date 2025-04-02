@@ -315,9 +315,9 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         PurchaseLine: Record "Purchase Line";
         ValueEntry: Record "Value Entry";
         VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
         ItemNo: Code[20];
         CostAmountActual: Decimal;
-        CheckTotal: Decimal;
     begin
         // [SCENARIO 542325] When Stan posts a Purchase Order having Item Charge with Non Deductible VAT Posting Setup then the 
         // Value Entry Created for Item Charge No. will have value including Non Deductible VAT Amount in Cost Amount (Actual).
@@ -351,7 +351,6 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         // [GIVEN]  Validate Direct Unit Cost in Purchase Line.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
         PurchaseLine.Modify(true);
-        CheckTotal += PurchaseLine."Amount Including VAT";
 
         // [GIVEN] Create a Purchase Line with Type Charge (Item).
         LibraryPurchase.CreatePurchaseLine(
@@ -361,21 +360,15 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         // [GIVEN]  Validate Direct Unit Cost in Purchase Line.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
         PurchaseLine.Modify(true);
-        CheckTotal += PurchaseLine."Amount Including VAT";
 
         // [GIVEN] Update Qty. to Assign on Item Charge Assignment.
         UpdateQtyToAssignOnItemChargeAssignment(PurchaseHeader);
 
         // [GIVEN] Post Purchase Order.
-        PurchaseHeader."Check Total" := CheckTotal;
-        PurchaseHeader.Modify();
-
-        PurchaseHeader.Receive := true;
-        PurchaseHeader.Invoice := true;
-        Codeunit.Run(Codeunit::"Purch.-Post", PurchaseHeader);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [GIVEN] Find Value Entry of Item.
-        ValueEntry.SetRange("Document No.", PurchaseHeader."Last Posting No.");
+        ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.FindFirst();
 
@@ -383,8 +376,7 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         CostAmountActual := ValueEntry."Cost Amount (Actual)";
 
         // [WHEN] Find Value Entry of Item Charge.
-        ValueEntry.SetRange("Document No.", PurchaseHeader."Last Posting No.");
-        ValueEntry.SetRange("Item Charge No.", ItemCharge."No.");
+        ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.FindFirst();
 
         // [THEN] Cost Amount (Actual) of Item Charge Value Entry and Item Value Entry must be same.
@@ -518,6 +510,5 @@ codeunit 134283 "Non-Deductible Purch. Posting"
     procedure SuggestItemChargeAssignmentPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
         ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
-        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 }

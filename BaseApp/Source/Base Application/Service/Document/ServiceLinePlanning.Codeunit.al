@@ -1,5 +1,17 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Document;
+
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Tracking;
+
 codeunit 99000853 "Service Line-Planning"
 {
+    Permissions = tabledata "Service Header" = r;
+
     var
         ServiceTxt: Label 'Service';
 
@@ -147,7 +159,6 @@ codeunit 99000853 "Service Line-Planning"
                 -ServiceLine.SignedXX(ServiceLine."Outstanding Qty. (Base)" - ServiceLine."Reserved Qty. (Base)"))
         end;
     end;
-
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Order Planning Mgt.", 'OnInsertDemandLinesOnCopyItemTracking', '', false, false)]
     local procedure OnInsertDemandLinesOnCopyItemTracking(var RequisitionLine: Record "Requisition Line"; UnplannedDemand: Record "Unplanned Demand")

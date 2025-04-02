@@ -27,6 +27,7 @@ codeunit 364 "PostPurch-Delete"
         MoveEntries: Codeunit MoveEntries;
         DocumentDeletionErr: Label 'You cannot delete posted purchase documents that are posted after %1. \\The date is defined by the Allow Document Deletion Before field in the Purchases & Payables Setup window.', Comment = '%1 - Posting Date';
         NotAllowedToDeletePostedDocsErr: Label 'You are not allowed to delete posted documents.';
+        AllowDocumentDeletionBeforeBlankErr: Label 'The date %1 must be set on the page %2 before deleting purchase documents.', Comment = '%1 = Field name, %2 = Page name';
 
     procedure DeleteHeader(PurchHeader: Record "Purchase Header"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ReturnShptHeader: Record "Return Shipment Header"; var PurchInvHeaderPrepmt: Record "Purch. Inv. Header"; var PurchCrMemoHdrPrepmt: Record "Purch. Cr. Memo Hdr.")
     var
@@ -308,7 +309,8 @@ codeunit 364 "PostPurch-Delete"
         PurchSetup.Get();
         if PurchSetup."Prevent Posted Doc. Deletion" then
             Error(NotAllowedToDeletePostedDocsErr);
-        PurchSetup.TestField("Allow Document Deletion Before");
+        if PurchSetup."Allow Document Deletion Before" = 0D then
+            Error(AllowDocumentDeletionBeforeBlankErr, PurchSetup.FieldCaption("Allow Document Deletion Before"), PurchSetup.TableCaption);
         if PostingDate >= PurchSetup."Allow Document Deletion Before" then
             Error(DocumentDeletionErr, PurchSetup."Allow Document Deletion Before");
     end;

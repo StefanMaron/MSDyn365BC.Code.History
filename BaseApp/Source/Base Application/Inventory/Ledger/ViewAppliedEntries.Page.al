@@ -433,7 +433,7 @@ page 522 "View Applied Entries"
         ItemLedgEntry2: Record "Item Ledger Entry";
     begin
         if ItemLedgEntry."Remaining Quantity" <> 0 then begin
-            ItemLedgEntry2.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+            ItemLedgEntry2.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.");
             ItemLedgEntry2.SetRange("Item No.", ItemLedgEntry."Item No.");
             ItemLedgEntry2.SetRange("Location Code", ItemLedgEntry."Location Code");
             ItemLedgEntry2.SetRange(Positive, not ItemLedgEntry.Positive);

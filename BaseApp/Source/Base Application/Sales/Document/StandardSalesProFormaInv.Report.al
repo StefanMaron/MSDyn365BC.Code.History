@@ -458,12 +458,6 @@ report 1302 "Standard Sales - Pro Forma Inv"
 
         IsHandled := false;
         OnInitReportForGlobalVariable(IsHandled, LegalOfficeTxt, LegalOfficeLbl);
-#if not CLEAN23
-        if not IsHandled then begin
-            LegalOfficeTxt := CompanyInformation.GetLegalOffice();
-            LegalOfficeLbl := CompanyInformation.GetLegalOfficeLbl();
-        end;
-#endif
     end;
 
     var

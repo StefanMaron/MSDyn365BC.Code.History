@@ -227,6 +227,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           CashFlowForecast, Customer, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
         LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
         // Payment should be done before pmt dsct tol date
+        Evaluate(PmtDiscountGracePeriod, '-' + Format(PmtDiscountGracePeriod));
         LibraryCashFlowHelper.CreateAndApplySalesInvPayment(GenJournalLine, Customer."No.", Amount, -DiscountedAmount,
           DiscountDateCalculation, PmtDiscountGracePeriod, MinusOneDayFormula);
 
@@ -557,6 +558,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           CashFlowForecast, Vendor, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
         LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
         // Payment should be done before pmt dsct tol date
+        Evaluate(PmtDiscountGracePeriod, '-' + Format(PmtDiscountGracePeriod));
         LibraryCashFlowHelper.CreateAndApplyVendorInvPmt(GenJournalLine, Vendor."No.", -Amount, DiscountedAmount,
           DiscountDateCalculation, PmtDiscountGracePeriod, MinusOneDayFormula);
 

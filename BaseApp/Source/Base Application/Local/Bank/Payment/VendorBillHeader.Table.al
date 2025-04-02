@@ -254,7 +254,6 @@ table 12181 "Vendor Bill Header"
         Text1130010: Label '%1 must not be greater than %2.';
         ExportAgainQst: Label 'The selected vendor bill list has already been exported. Do you want to export again?';
 
-    [Scope('OnPrem')]
     procedure AssistEdit(OldVendorBillHeader: Record "Vendor Bill Header"): Boolean
     var
         NoSeries: Codeunit "No. Series";

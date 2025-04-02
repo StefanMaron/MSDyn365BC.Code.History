@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Planning;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Planning;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Finance.Dimension;
@@ -9,14 +13,8 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
-using System.Security.AccessControl;
 
 table 99000829 "Planning Component"
 {
@@ -141,81 +139,6 @@ table 99000829 "Planning Component"
         {
             Caption = 'Lead-Time Offset';
         }
-        field(19; "Routing Link Code"; Code[10])
-        {
-            Caption = 'Routing Link Code';
-            TableRelation = "Routing Link";
-
-            trigger OnValidate()
-            var
-                PlanningRtngLine: Record "Planning Routing Line";
-                SKU: Record "Stockkeeping Unit";
-                Vendor: Record Vendor;
-                SubcontractingManagement: Codeunit SubcontractingManagement;
-                GetPlanningParameters: Codeunit "Planning-Get Parameters";
-                LicensePermission: Record "License Permission";
-                IsHandled: Boolean;
-            begin
-                if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
-                    Validate("Expected Quantity", Quantity)
-                else
-                    UpdateExpectedQuantityForPlanningNeeds();
-
-                "Due Date" := ReqLine."Starting Date";
-                "Due Time" := ReqLine."Starting Time";
-                if "Routing Link Code" <> '' then begin
-                    PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
-                    PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
-                    PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
-                    PlanningRtngLine.SetRange("Routing Link Code", "Routing Link Code");
-                    if PlanningRtngLine.FindFirst() then begin
-                        "Due Date" := PlanningRtngLine."Starting Date";
-                        "Due Time" := PlanningRtngLine."Starting Time";
-                        if (PlanningRtngLine.Type = PlanningRtngLine.Type::"Work Center") then
-                            if LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::SubcontractingManagement) then
-                                if LicensePermission."Execute Permission" <> LicensePermission."Execute Permission"::" " then
-                                    if SubcontractingManagement.GetSubcontractor(PlanningRtngLine."No.", Vendor) then begin
-                                        IsHandled := false;
-                                        OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(Rec, Vendor, IsHandled);
-                                        if not IsHandled then
-                                            if Vendor."Subcontractor Procurement" then
-                                                Validate("Location Code", Vendor."Subcontracting Location Code");
-                                    end;
-                    end;
-                end else
-                    if xRec."Routing Link Code" <> '' then begin
-                        GetPlanningParameters.AtSKU(
-                          SKU,
-                          "Item No.",
-                          "Variant Code",
-                          "Location Code");
-                        Validate("Location Code", SKU."Components at Location");
-                    end;
-                if Format("Lead-Time Offset") <> '' then begin
-                    if "Due Date" = 0D then
-                        "Due Date" := ReqLine."Ending Date";
-                    "Due Date" :=
-                      "Due Date" -
-                      (CalcDate("Lead-Time Offset", WorkDate()) - WorkDate());
-                    "Due Time" := 0T;
-                end;
-
-                OnValidateRoutingLinkCodeOnBeforeValidateDueDate(Rec, ReqLine, PlanningRtngLine);
-                Validate("Due Date");
-            end;
-        }
-        field(20; "Scrap %"; Decimal)
-        {
-            BlankNumbers = BlankNeg;
-            Caption = 'Scrap %';
-            DecimalPlaces = 0 : 5;
-            MaxValue = 100;
-
-            trigger OnValidate()
-            begin
-                UpdateExpectedQuantityForPlanningNeeds();
-            end;
-        }
         field(21; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
@@ -295,10 +218,6 @@ table 99000829 "Planning Component"
                 "Direct Cost Amount" := Round("Expected Quantity" * "Direct Unit Cost");
             end;
         }
-        field(28; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-        }
         field(30; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
@@ -360,7 +279,7 @@ table 99000829 "Planning Component"
             Caption = 'Planning Level Code';
             Editable = false;
         }
-        field(37; "Ref. Order Status"; Enum "Production Order Status")
+        field(37; "Ref. Order Status"; Enum Microsoft.Manufacturing.Document."Production Order Status")
         {
             Caption = 'Ref. Order Status';
         }
@@ -445,9 +364,9 @@ table 99000829 "Planning Component"
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
                 "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
                 if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
-                    Validate("Expected Quantity", "Quantity per")
-                else
-                    UpdateExpectedQuantityForPlanningNeeds();
+                    Validate("Expected Quantity", "Quantity per");
+
+                OnAfterValidateCalculationFormula(Rec);
             end;
         }
         field(45; "Quantity per"; Decimal)
@@ -480,7 +399,7 @@ table 99000829 "Planning Component"
                 if Item."Costing Method" = Item."Costing Method"::Standard then begin
                     if CurrFieldNo = FieldNo("Unit Cost") then
                         Error(
-                          Text001,
+                          CannotChangeErr,
                           FieldCaption("Unit Cost"), Item.FieldCaption("Costing Method"), Item."Costing Method");
 
                     "Unit Cost" :=
@@ -569,7 +488,9 @@ table 99000829 "Planning Component"
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
         }
+#pragma warning disable AA0232
         field(63; "Reserved Qty. (Base)"; Decimal)
+#pragma warning restore AA0232
         {
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Worksheet Template Name"),
                                                                             "Source Ref. No." = field("Line No."),
@@ -707,46 +628,43 @@ table 99000829 "Planning Component"
 
     trigger OnModify()
     var
-        Item: Record Item;
+        Item2: Record Item;
     begin
         ReservePlanningComponent.VerifyChange(Rec, xRec);
 
         if "Location Code" <> '' then
-            if Item.Get("Item No.") and (Item.Type = Item.Type::"Non-Inventory") then
+            if Item2.Get("Item No.") and (Item2.Type = Item2.Type::"Non-Inventory") then
                 Error(LocationCodeMustBeBlankErr);
     end;
 
     trigger OnRename()
     begin
-        Error(Text000, TableCaption);
+        Error(CannotRenameErr, TableCaption());
     end;
 
     var
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text000: Label 'You cannot rename a %1.';
-        Text001: Label 'You cannot change %1 when %2 is %3.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
         Item: Record Item;
         ReservEntry: Record "Reservation Entry";
         GLSetup: Record "General Ledger Setup";
-        ReqLine: Record "Requisition Line";
-        Location: Record Location;
         ReservePlanningComponent: Codeunit "Plng. Component-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
         Reservation: Page Reservation;
         GLSetupRead: Boolean;
+        CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - Planning Component';
+        CannotChangeErr: Label 'You cannot change %1 when %2 is %3.', Comment = '%1 - FieldCaption("Unit Cost"), %2 - Item.FieldCaption("Costing Method"), %3 - Item."Costing Method"';
         LocationCodeMustBeBlankErr: Label 'The Location Code field must be blank for items of type Non-Inventory.';
         WrongPrecisionItemAndUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page, and %3 field on the %4 page, are causing the rounding precision for the %5 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption, %4 = table caption, %5 = field caption';
         WrongPrecOnUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page is causing the rounding precision for the %3 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption';
 
+    protected var
+        ReqLine: Record "Requisition Line";
+        Location: Record Location;
 
     procedure Caption(): Text
     var
         ReqWkshName: Record "Requisition Wksh. Name";
-        ReqLine: Record "Requisition Line";
+        ReqLine2: Record "Requisition Line";
     begin
         if GetFilters = '' then
             exit('');
@@ -754,48 +672,12 @@ table 99000829 "Planning Component"
         if not ReqWkshName.Get("Worksheet Template Name", "Worksheet Batch Name") then
             exit('');
 
-        if not ReqLine.Get("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.") then
-            Clear(ReqLine);
+        if not ReqLine2.Get("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.") then
+            Clear(ReqLine2);
 
         exit(
           StrSubstNo('%1 %2 %3 %4 %5',
-            "Worksheet Batch Name", ReqWkshName.Description, ReqLine.Type, ReqLine."No.", ReqLine.Description));
-    end;
-
-    procedure PlanningNeeds(): Decimal
-    var
-        PlanningRtngLine: Record "Planning Routing Line";
-        NeededQty: Decimal;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforePlanningNeeds(Rec, NeededQty, IsHandled);
-        if IsHandled then
-            exit(NeededQty);
-
-        GetReqLine();
-
-        "Due Date" := ReqLine."Starting Date";
-
-        PlanningRtngLine.Reset();
-        PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
-        PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
-        PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
-        if "Routing Link Code" <> '' then
-            PlanningRtngLine.SetRange("Routing Link Code", "Routing Link Code");
-        if PlanningRtngLine.FindFirst() then
-            NeededQty :=
-              ReqLine.Quantity * (1 + ReqLine."Scrap %" / 100) *
-              (1 + PlanningRtngLine."Scrap Factor % (Accumulated)") * (1 + "Scrap %" / 100) +
-              PlanningRtngLine."Fixed Scrap Qty. (Accum.)"
-        else
-            if ReqLine."Replenishment System" = ReqLine."Replenishment System"::Assembly then
-                NeededQty := ReqLine.Quantity
-            else
-                NeededQty := ReqLine.Quantity * (1 + ReqLine."Scrap %" / 100) * (1 + "Scrap %" / 100);
-
-        OnAfterPlanningNeeds(Rec, ReqLine, PlanningRtngLine, NeededQty);
-        exit(NeededQty);
+            "Worksheet Batch Name", ReqWkshName.Description, ReqLine2.Type, ReqLine2."No.", ReqLine2.Description));
     end;
 
     procedure ShowReservation()
@@ -821,56 +703,6 @@ table 99000829 "Planning Component"
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
             PAGE.Run(PAGE::"Reservation Entries", ReservEntry);
-    end;
-
-    procedure TransferFromComponent(var ProdOrderComp: Record "Prod. Order Component")
-    begin
-        "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-        "Ref. Order Status" := ProdOrderComp.Status;
-        "Ref. Order No." := ProdOrderComp."Prod. Order No.";
-        "Ref. Order Line No." := ProdOrderComp."Prod. Order Line No.";
-        "Line No." := ProdOrderComp."Line No.";
-        "Item No." := ProdOrderComp."Item No.";
-        Description := ProdOrderComp.Description;
-        "Unit of Measure Code" := ProdOrderComp."Unit of Measure Code";
-        "Quantity per" := ProdOrderComp."Quantity per";
-        Quantity := ProdOrderComp.Quantity;
-        Position := ProdOrderComp.Position;
-        "Position 2" := ProdOrderComp."Position 2";
-        "Position 3" := ProdOrderComp."Position 3";
-        "Lead-Time Offset" := ProdOrderComp."Lead-Time Offset";
-        "Routing Link Code" := ProdOrderComp."Routing Link Code";
-        "Scrap %" := ProdOrderComp."Scrap %";
-        "Variant Code" := ProdOrderComp."Variant Code";
-        "Expected Quantity" := ProdOrderComp."Expected Quantity";
-        "Location Code" := ProdOrderComp."Location Code";
-        "Dimension Set ID" := ProdOrderComp."Dimension Set ID";
-        "Shortcut Dimension 1 Code" := ProdOrderComp."Shortcut Dimension 1 Code";
-        "Shortcut Dimension 2 Code" := ProdOrderComp."Shortcut Dimension 2 Code";
-        "Bin Code" := ProdOrderComp."Bin Code";
-        Length := ProdOrderComp.Length;
-        Width := ProdOrderComp.Width;
-        Weight := ProdOrderComp.Weight;
-        Depth := ProdOrderComp.Depth;
-        "Calculation Formula" := ProdOrderComp."Calculation Formula";
-        "Planning Level Code" := ProdOrderComp."Planning Level Code";
-        "Unit Cost" := ProdOrderComp."Unit Cost";
-        "Cost Amount" := ProdOrderComp."Cost Amount";
-        "Due Date" := ProdOrderComp."Due Date";
-        "Direct Unit Cost" := ProdOrderComp."Direct Unit Cost";
-        "Indirect Cost %" := ProdOrderComp."Indirect Cost %";
-        "Overhead Rate" := ProdOrderComp."Overhead Rate";
-        "Direct Cost Amount" := ProdOrderComp."Direct Cost Amount";
-        "Overhead Amount" := ProdOrderComp."Overhead Amount";
-        "Qty. per Unit of Measure" := ProdOrderComp."Qty. per Unit of Measure";
-        "Qty. Rounding Precision" := ProdOrderComp."Qty. Rounding Precision";
-        "Qty. Rounding Precision (Base)" := ProdOrderComp."Qty. Rounding Precision (Base)";
-        "Quantity (Base)" := ProdOrderComp."Quantity (Base)";
-        "Expected Quantity (Base)" := ProdOrderComp."Expected Qty. (Base)";
-        "Original Expected Qty. (Base)" := ProdOrderComp."Expected Qty. (Base)";
-        UpdateDatetime();
-
-        OnAfterTransferFromComponent(Rec, ProdOrderComp);
     end;
 
     procedure TransferFromAsmLine(var AsmLine: Record "Assembly Line")
@@ -920,7 +752,8 @@ table 99000829 "Planning Component"
             exit;
 
         GetPlanningParameters.AtSKU(SKU, "Item No.", "Variant Code", "Location Code");
-        Validate("Flushing Method", SKU."Flushing Method");
+
+        OnAfterGetUpdateFromSKU(Rec, SKU);
     end;
 
     procedure BlockDynamicTracking(SetBlock: Boolean)
@@ -928,21 +761,9 @@ table 99000829 "Planning Component"
         ReservePlanningComponent.Block(SetBlock);
     end;
 
-    local procedure UpdateDatetime()
+    procedure UpdateDatetime()
     begin
         "Due Date-Time" := CreateDateTime("Due Date", "Due Time");
-    end;
-
-    local procedure UpdateExpectedQuantityForPlanningNeeds()
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdateExpectedQuantityForPlanningNeeds(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        Validate("Expected Quantity", Quantity * PlanningNeeds());
     end;
 
     procedure OpenItemTrackingLines()
@@ -977,14 +798,14 @@ table 99000829 "Planning Component"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    local procedure GetGLSetup()
+    procedure GetGLSetup()
     begin
         if not GLSetupRead then
             GLSetup.Get();
         GLSetupRead := true;
     end;
 
-    local procedure GetItem()
+    procedure GetItem()
     begin
         if "Item No." = Item."No." then
             exit;
@@ -993,7 +814,7 @@ table 99000829 "Planning Component"
         OnAfterGetItem(Item, Rec);
     end;
 
-    local procedure GetReqLine()
+    procedure GetReqLine()
     begin
         if (ReqLine."Worksheet Template Name" = "Worksheet Template Name") and
            (ReqLine."Journal Batch Name" = "Worksheet Batch Name") and
@@ -1004,7 +825,7 @@ table 99000829 "Planning Component"
         ReqLine.Get("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
     end;
 
-    local procedure GetLocation(LocationCode: Code[10])
+    procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
             Clear(Location)
@@ -1050,69 +871,49 @@ table 99000829 "Planning Component"
         exit(StrSubstNo('%1 %2 %3 %4', "Worksheet Template Name", "Worksheet Batch Name", ReqLine.Type, ReqLine."No."));
     end;
 
-    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    procedure SetReservationEntry(var ReservationEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(Database::"Planning Component", 0, "Worksheet Template Name", "Line No.", "Worksheet Batch Name", "Worksheet Line No.");
-        ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
-        ReservEntry."Expected Receipt Date" := "Due Date";
-        ReservEntry."Shipment Date" := "Due Date";
+        ReservationEntry.SetSource(Database::"Planning Component", 0, "Worksheet Template Name", "Line No.", "Worksheet Batch Name", "Worksheet Line No.");
+        ReservationEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        ReservationEntry."Expected Receipt Date" := "Due Date";
+        ReservationEntry."Shipment Date" := "Due Date";
     end;
 
-    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    procedure SetReservationFilters(var ReservationEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSourceFilter(Database::"Planning Component", 0, "Worksheet Template Name", "Line No.", false);
-        ReservEntry.SetSourceFilter("Worksheet Batch Name", "Worksheet Line No.");
+        ReservationEntry.SetSourceFilter(Database::"Planning Component", 0, "Worksheet Template Name", "Line No.", false);
+        ReservationEntry.SetSourceFilter("Worksheet Batch Name", "Worksheet Line No.");
 
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
 
     procedure ReservEntryExist(): Boolean
     var
-        ReservEntry: Record "Reservation Entry";
+        ReservationEntry: Record "Reservation Entry";
     begin
-        ReservEntry.InitSortingAndFilters(false);
-        SetReservationFilters(ReservEntry);
-        exit(not ReservEntry.IsEmpty);
+        ReservationEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservationEntry);
+        exit(not ReservationEntry.IsEmpty());
     end;
 
-    local procedure FindFirstRtngLine(var PlanningRoutingLine: Record "Planning Routing Line"; ReqLine: Record "Requisition Line"): Boolean
-    begin
-        PlanningRoutingLine.Reset();
-        PlanningRoutingLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
-        PlanningRoutingLine.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
-        PlanningRoutingLine.SetRange("Worksheet Line No.", ReqLine."Line No.");
-        PlanningRoutingLine.SetFilter("No.", '<>%1', '');
-        PlanningRoutingLine.SetRange("Previous Operation No.", '');
-        if "Routing Link Code" <> '' then begin
-            PlanningRoutingLine.SetRange("Routing Link Code", "Routing Link Code");
-            PlanningRoutingLine.SetRange("Previous Operation No.");
-            if PlanningRoutingLine.Count = 0 then begin
-                PlanningRoutingLine.SetRange("Routing Link Code");
-                PlanningRoutingLine.SetRange("Previous Operation No.", '');
-            end;
-        end;
-
-        exit(PlanningRoutingLine.FindFirst());
-    end;
-
-    procedure FilterLinesWithItemToPlan(var Item: Record Item)
+    procedure FilterLinesWithItemToPlan(var Item2: Record Item)
     begin
         Reset();
         SetCurrentKey("Item No.");
-        SetRange("Item No.", Item."No.");
-        SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-        SetFilter("Location Code", Item.GetFilter("Location Filter"));
-        SetFilter("Due Date", Item.GetFilter("Date Filter"));
-        Item.CopyFilter("Global Dimension 1 Filter", "Shortcut Dimension 1 Code");
-        Item.CopyFilter("Global Dimension 2 Filter", "Shortcut Dimension 2 Code");
+        SetRange("Item No.", Item2."No.");
+        SetFilter("Variant Code", Item2.GetFilter("Variant Filter"));
+        SetFilter("Location Code", Item2.GetFilter("Location Filter"));
+        SetFilter("Due Date", Item2.GetFilter("Date Filter"));
+        Item2.CopyFilter("Global Dimension 1 Filter", "Shortcut Dimension 1 Code");
+        Item2.CopyFilter("Global Dimension 2 Filter", "Shortcut Dimension 2 Code");
         SetFilter("Quantity (Base)", '<>0');
-        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
-        OnAfterFilterLinesWithItemToPlan(Rec, Item);
+        SetFilter("Unit of Measure Code", Item2.GetFilter("Unit of Measure Filter"));
+        OnAfterFilterLinesWithItemToPlan(Rec, Item2);
     end;
 
-    procedure FindLinesWithItemToPlan(var Item: Record Item): Boolean
+    procedure FindLinesWithItemToPlan(var Item2: Record Item): Boolean
     begin
-        FilterLinesWithItemToPlan(Item);
+        FilterLinesWithItemToPlan(Item2);
         exit(Find('-'));
     end;
 
@@ -1130,21 +931,6 @@ table 99000829 "Planning Component"
             SetFilter("Net Quantity (Base)", '>0');
 
         OnAfterFindLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
-    end;
-
-    procedure FindCurrForecastName(var ForecastName: Code[10]): Boolean
-    var
-        UntrackedPlanningElement: Record "Untracked Planning Element";
-    begin
-        UntrackedPlanningElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
-        UntrackedPlanningElement.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
-        UntrackedPlanningElement.SetRange("Item No.", "Item No.");
-        UntrackedPlanningElement.SetRange("Source Type", Database::"Production Forecast Entry");
-        UntrackedPlanningElement.SetLoadFields("Source ID");
-        if UntrackedPlanningElement.FindFirst() then begin
-            ForecastName := CopyStr(UntrackedPlanningElement."Source ID", 1, 10);
-            exit(true);
-        end;
     end;
 
     procedure SetRequisitionLine(RequisitionLine: Record "Requisition Line")
@@ -1167,52 +953,11 @@ table 99000829 "Planning Component"
     begin
         GetLocation("Location Code");
         GetReqLine();
-        BinCode := GetRefOrderTypeBin();
+        OnGetToBinOnbeforeGetWMSDefaultCode(Rec, BinCode);
         if BinCode <> '' then
             exit;
+
         exit(GetWMSDefaultBin());
-    end;
-
-    local procedure GetRefOrderTypeBin() BinCode: Code[20]
-    var
-        PlanningRoutingLine: Record "Planning Routing Line";
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeGetRefOrderTypeBin(Rec, ReqLine, Location, BinCode, IsHandled);
-        if IsHandled then
-            exit;
-
-        case ReqLine."Ref. Order Type" of
-            ReqLine."Ref. Order Type"::"Prod. Order":
-                begin
-                    if "Location Code" = ReqLine."Location Code" then
-                        if FindFirstRtngLine(PlanningRoutingLine, ReqLine) then
-                            BinCode :=
-                                ProdOrderWarehouseMgt.GetProdCenterBinCode(
-                                    PlanningRoutingLine.Type, PlanningRoutingLine."No.", "Location Code", true, "Flushing Method");
-                    OnGetRefOrderTypeBinOnAfterGetBinCodeFromRoutingLine(Rec, PlanningRoutingLine, ReqLine, BinCode);
-                    if BinCode <> '' then
-                        exit(BinCode);
-                    BinCode := GetFlushingMethodBin();
-                end;
-            ReqLine."Ref. Order Type"::Assembly:
-                BinCode := Location."To-Assembly Bin Code";
-        end;
-    end;
-
-    local procedure GetFlushingMethodBin(): Code[20]
-    begin
-        case "Flushing Method" of
-            "Flushing Method"::Manual,
-          "Flushing Method"::"Pick + Forward",
-          "Flushing Method"::"Pick + Backward":
-                exit(Location."To-Production Bin Code");
-            "Flushing Method"::Forward,
-          "Flushing Method"::Backward:
-                exit(Location."Open Shop Floor Bin Code");
-        end;
     end;
 
     local procedure GetWMSDefaultBin(): Code[20]
@@ -1254,6 +999,75 @@ table 99000829 "Planning Component"
         CreateDim(DefaultDimSource);
     end;
 
+    /// <summary>
+    /// Opens a page for selecting multiple items to add to the document.
+    /// Selected items are added to the document.
+    /// </summary>
+    procedure SelectMultipleItems()
+    var
+        ItemListPage: Page "Item List";
+        SelectionFilter: Text;
+    begin
+        SelectionFilter := ItemListPage.SelectActiveItems();
+
+        if SelectionFilter <> '' then
+            AddItems(SelectionFilter);
+    end;
+
+    /// <summary>
+    /// Adds items to the document based on the provided selection filter.
+    /// </summary>
+    /// <param name="SelectionFilter">The filter to use for selecting items.</param>
+    procedure AddItems(SelectionFilter: Text)
+    var
+        Item: Record Item;
+        PlanningComponent: Record "Planning Component";
+    begin
+        InitNewLine(PlanningComponent);
+        Item.SetLoadFields("No.");
+        Item.SetFilter("No.", SelectionFilter);
+        if Item.FindSet() then
+            repeat
+                AddItem(PlanningComponent, Item."No.");
+            until Item.Next() = 0;
+    end;
+
+    /// <summary>
+    /// Adds an item to the document.
+    /// </summary>
+    /// <remarks>
+    /// After the line is added, assembly order is automatically created if required.
+    /// If the item has extended text, the text is added as a line.
+    /// </remarks>
+    /// <param name="PlanningComponent">Return value: New Planning Component Record. Planning Component must have the number set.</param>
+    /// <param name="ItemNo">Return value: The number of the item to add.</param>
+    procedure AddItem(var PlanningComponent: Record "Planning Component"; ItemNo: Code[20])
+    begin
+        PlanningComponent.Init();
+        PlanningComponent."Line No." += 10000;
+        PlanningComponent.Validate("Item No.", ItemNo);
+        PlanningComponent.Insert(true);
+    end;
+
+    /// <summary>
+    /// Initializes a new Planning Component based on the current Planning Component.
+    /// </summary>
+    /// <param name="NewPlanningComponent">Return value: The new Planning Component.</param>
+    procedure InitNewLine(var NewPlanningComponent: Record "Planning Component")
+    var
+        PlanningComponent: Record "Planning Component";
+    begin
+        NewPlanningComponent.Copy(Rec);
+        PlanningComponent.SetLoadFields("Line No.");
+        PlanningComponent.SetRange("Worksheet Template Name", NewPlanningComponent."Worksheet Template Name");
+        PlanningComponent.SetRange("Worksheet Batch Name", NewPlanningComponent."Worksheet Batch Name");
+        PlanningComponent.SetRange("Worksheet Line No.", NewPlanningComponent."Worksheet Line No.");
+        if PlanningComponent.FindLast() then
+            NewPlanningComponent."Line No." := PlanningComponent."Line No."
+        else
+            NewPlanningComponent."Line No." := 0;
+    end;
+
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
@@ -1288,17 +1102,7 @@ table 99000829 "Planning Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPlanningNeeds(PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line"; PlanningRoutingLine: Record "Planning Routing Line"; var NeededQty: Decimal)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; PlanningComponent: Record "Planning Component");
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromComponent(var PlanningComponent: Record "Planning Component"; var ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 
@@ -1343,16 +1147,6 @@ table 99000829 "Planning Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePlanningNeeds(var PlanningComponent: Record "Planning Component"; var NeededQty: Decimal; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateExpectedQuantityForPlanningNeeds(var PlanningComponent: Record "Planning Component"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnItemNoOnValidateOnAfterInitFromItem(var PlanningComponent: Record "Planning Component"; Item: Record Item)
     begin
     end;
@@ -1368,27 +1162,22 @@ table 99000829 "Planning Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateRoutingLinkCodeOnBeforeValidateDueDate(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line"; var PlanningRoutingLine: Record "Planning Routing Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromRequisitionLine(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetRefOrderTypeBin(PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line"; Location: Record Location; var BinCode: Code[20]; var IsHandled: Boolean)
+    local procedure OnAfterGetUpdateFromSKU(var PlanningComponent: Record "Planning Component"; StockeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetRefOrderTypeBinOnAfterGetBinCodeFromRoutingLine(var PlanningComponent: Record "Planning Component"; var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line"; var BinCode: Code[20])
+    local procedure OnAfterValidateCalculationFormula(var PlanningComponent: Record "Planning Component")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(var PlanningComponent: Record "Planning Component"; Vendor: Record Vendor; var IsHandled: Boolean)
+    local procedure OnGetToBinOnBeforeGetWMSDefaultCode(var PlanningComponent: Record "Planning Component"; var BinCode: Code[20])
     begin
     end;
 }

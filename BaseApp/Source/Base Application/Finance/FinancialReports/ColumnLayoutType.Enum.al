@@ -33,13 +33,8 @@ enum 331 "Column Layout Type"
     {
         Caption = 'Entire Fiscal Year';
     }
-#if not CLEAN23
-    value(7; "Subsidiary")
+    value(7; "Month to Date")
     {
-        Caption = 'Subsidiary';
-        ObsoleteReason = 'Value Subsidiary is unused.';
-        ObsoleteState = Pending;
-        ObsoleteTag = '23.0';
+        Caption = 'Month to Date';
     }
-#endif
 }

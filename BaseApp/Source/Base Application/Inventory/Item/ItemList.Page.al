@@ -1,6 +1,9 @@
-﻿namespace Microsoft.Inventory.Item;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Item;
 
-using Microsoft.Assembly.Reports;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Comment;
@@ -22,9 +25,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Reports;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Reports;
@@ -42,7 +42,6 @@ using System.Environment.Configuration;
 using System.Integration.PowerBI;
 using System.Reflection;
 using System.Text;
-using Microsoft.Manufacturing.Document;
 
 #pragma warning disable AS0106 // Protected variable PowerBIVisible was removed before AS0106 was introduced.
 page 31 "Item List"
@@ -317,17 +316,6 @@ page 31 "Item List"
                     Importance = Additional;
                     ToolTip = 'Specifies the default template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
-#if not CLEAN23
-                field("Coupled to CRM"; Rec."Coupled to CRM")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies that the item is coupled to a product in Dynamics 365 Sales.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
@@ -414,6 +402,7 @@ page 31 "Item List"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::Item), "No." = field("No.");
             }
@@ -530,7 +519,7 @@ page 31 "Item List"
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
-#if not CLEAN23
+#if not CLEAN25
                 action(Prices_Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -638,7 +627,7 @@ page 31 "Item List"
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
-#if not CLEAN23
+#if not CLEAN25
                 action("Set Special Prices")
                 {
                     ApplicationArea = Suite;
@@ -1066,20 +1055,12 @@ page 31 "Item List"
             group(AssemblyProduction)
             {
                 Caption = 'Assembly/Production';
-                action("Assemble to Order - Sales")
-                {
-                    ApplicationArea = Assembly;
-                    Caption = 'Assemble to Order - Sales';
-                    Image = "Report";
-                    RunObject = Report "Assemble to Order - Sales";
-                    ToolTip = 'View key sales figures for assembly components that may be sold either as part of assembly items in assemble-to-order sales or as separate items directly from inventory. Use this report to analyze the quantity, cost, sales, and profit figures of assembly components to support decisions, such as whether to price a kit differently or to stop or start using a particular item in assemblies.';
-                }
                 action("Where-Used (Top Level)")
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Where-Used (Top Level)';
                     Image = "Report";
-                    RunObject = Report "Where-Used (Top Level)";
+                    RunObject = Report Microsoft.Manufacturing.Reports."Where-Used (Top Level)";
                     ToolTip = 'View where and in what quantities the item is used in the product structure. The report only shows information for the top-level item. For example, if item "A" is used to produce item "B", and item "B" is used to produce item "C", the report will show item B if you run this report for item A. If you run this report for item B, then item C will be shown as where-used.';
                 }
                 action("Quantity Explosion of BOM")
@@ -1087,7 +1068,7 @@ page 31 "Item List"
                     ApplicationArea = Assembly;
                     Caption = 'Quantity Explosion of BOM';
                     Image = "Report";
-                    RunObject = Report "Quantity Explosion of BOM";
+                    RunObject = Report Microsoft.Manufacturing.Reports."Quantity Explosion of BOM";
                     ToolTip = 'View an indented BOM listing for the item or items that you specify in the filters. The production BOM is completely exploded for all levels.';
                 }
                 group(Costing)
@@ -1102,43 +1083,19 @@ page 31 "Item List"
                         RunObject = Report "Inventory Valuation - WIP";
                         ToolTip = 'View inventory valuation for selected production orders in your WIP inventory. The report also shows information about the value of consumption, capacity usage and output in WIP. The printed report only shows invoiced amounts, that is, the cost of entries that have been posted as invoiced.';
                     }
-                    action("Cost Shares Breakdown")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Cost Shares Breakdown';
-                        Image = "Report";
-                        RunObject = Report "Cost Shares Breakdown";
-                        ToolTip = 'View the item''s cost broken down in inventory, WIP, or COGS, according to purchase and material cost, capacity cost, capacity overhead cost, manufacturing overhead cost, subcontracted cost, variance, indirect cost, revaluation, and rounding. The report breaks down cost at a single BOM level and does not roll up the costs from lower BOM levels. The report does not calculate the cost share from items that use the Average costing method.';
-                    }
-                    action("Detailed Calculation")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Detailed Calculation';
-                        Image = "Report";
-                        RunObject = Report "Detailed Calculation";
-                        ToolTip = 'View the list of all costs for the item taking into account any scrap during production.';
-                    }
-                    action("Rolled-up Cost Shares")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Rolled-up Cost Shares';
-                        Image = "Report";
-                        RunObject = Report "Rolled-up Cost Shares";
-                        ToolTip = 'View the cost shares of all items in the parent item''s product structure, their quantity and their cost shares specified in material, capacity, overhead, and total cost. Material cost is calculated as the cost of all items in the parent item''s product structure. Capacity and subcontractor costs are calculated as the costs related to produce all of the items in the parent item''s product structure. Material cost is calculated as the cost of all items in the item''s product structure. Capacity and subcontractor costs are the cost related to the parent item only.';
-                    }
-                    action("Single-Level Cost Shares")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Single-Level Cost Shares';
-                        Image = "Report";
-                        RunObject = Report "Single-level Cost Shares";
-                        ToolTip = 'View the cost shares of all items in the item''s product structure, their quantity and their cost shares specified in material, capacity, overhead, and total cost. Material cost is calculated as the cost of all items in the parent item''s product structure. Capacity and subcontractor costs are calculated as the costs related to produce all of the items in the parent item''s product structure.';
-                    }
                 }
             }
             group(Inventory)
             {
                 Caption = 'Inventory';
+                action("Inventory by Location")
+                {
+                    ApplicationArea = InventoryAnalysis;
+                    Caption = 'Analyze Inventory by Location';
+                    Image = NonStockItem;
+                    RunObject = Query "Inventory by Location";
+                    ToolTip = 'Analyze (group, summarize, pivot) your Item Ledger Entries with related Location master data.';
+                }
                 action("Inventory - List")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1187,7 +1144,7 @@ page 31 "Item List"
                     RunObject = Report "Item Substitutions";
                     ToolTip = 'View substitute items that are set up to be sold instead of the items in the filter. A detailed overview also includes description, unit cost, quantity on hand, base unit of measure, information about interchangeability and additional conditions.';
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Price List")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1266,14 +1223,6 @@ page 31 "Item List"
                         Image = "Report";
                         RunObject = Report "Invt. Valuation - Cost Spec.";
                         ToolTip = 'View an overview of the current inventory value of selected items and specifies the cost of these items as of the date specified in the Valuation Date field. The report includes all costs, both those posted as invoiced and those posted as expected. For each of the items that you specify when setting up the report, the printed report shows quantity on stock, the cost per unit and the total amount. For each of these columns, the report specifies the cost as the various value entry types.';
-                    }
-                    action("Compare List")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Compare List';
-                        Image = "Report";
-                        RunObject = Report "Compare List";
-                        ToolTip = 'View a comparison of components for two items. The printout compares the components, their unit cost, cost share and cost per component.';
                     }
                 }
                 group("Inventory Details")
@@ -1862,8 +1811,10 @@ page 31 "Item List"
                         ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
 
                         trigger OnAction()
+                        var
+                            CalculateAssemblyCost: Codeunit Microsoft.Assembly.Costing."Calculate Assembly Cost";
                         begin
-                            CalculateStdCost.CalcItem(Rec."No.", true);
+                            CalculateAssemblyCost.CalcItem(Rec."No.");
                         end;
                     }
                     action("Calc. Unit Price")
@@ -1875,51 +1826,10 @@ page 31 "Item List"
                         ToolTip = 'Calculate the unit price based on the unit cost and the profit percentage.';
 
                         trigger OnAction()
-                        begin
-                            CalculateStdCost.CalcAssemblyItemPrice(Rec."No.");
-                        end;
-                    }
-                }
-                group(Production)
-                {
-                    Caption = 'Production';
-                    Image = Production;
-                    action("Production BOM")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Production BOM';
-                        Image = BOM;
-                        RunObject = Page "Production BOM";
-                        RunPageLink = "No." = field("Production BOM No.");
-                        ToolTip = 'Open the item''s production bill of material to view or edit its components.';
-                    }
-                    action(Action29)
-                    {
-                        AccessByPermission = TableData "BOM Component" = R;
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Where-Used';
-                        Image = "Where-Used";
-                        ToolTip = 'View a list of production BOMs in which the item is used.';
-
-                        trigger OnAction()
                         var
-                            ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
+                            CalculateAssemblyCost: Codeunit Microsoft.Assembly.Costing."Calculate Assembly Cost";
                         begin
-                            ProdBOMWhereUsed.SetItem(Rec, WorkDate());
-                            ProdBOMWhereUsed.RunModal();
-                        end;
-                    }
-                    action(Action24)
-                    {
-                        AccessByPermission = TableData "Production BOM Header" = R;
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Calc. Production Std. Cost';
-                        Image = CalculateCost;
-                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s production BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
-
-                        trigger OnAction()
-                        begin
-                            CalculateStdCost.CalcItem(Rec."No.", false);
+                            CalculateAssemblyCost.CalcAssemblyItemPrice(Rec."No.");
                         end;
                     }
                 }
@@ -2112,7 +2022,7 @@ page 31 "Item List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Subcontracting Prices';
                     Image = Price;
-                    RunObject = Page "Subcontracting Prices";
+                    RunObject = Page Microsoft.Manufacturing.Document."Subcontracting Prices";
                     RunPageLink = "Item No." = field("No.");
                     RunPageView = sorting("Vendor No.", "Item No.", "Standard Task Code", "Work Center No.", "Variant Code", "Start Date", "Unit of Measure Code", "Minimum Quantity", "Currency Code");
                     ToolTip = 'View or edit the list of subcontracting prices.';
@@ -2374,6 +2284,10 @@ page 31 "Item List"
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Inventory by Location_Promoted"; "Inventory by Location")
+                {
+                }
 #if not CLEAN25
                 actionref("Price List_Promoted"; "Price List")
                 {
@@ -2511,11 +2425,8 @@ page 31 "Item List"
     end;
 
     var
-        TempFilterItemAttributesBuffer: Record "Filter Item Attributes Buffer" temporary;
-        TempItemFilteredFromAttributes: Record Item temporary;
         TempItemFilteredFromPickItem: Record Item temporary;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        CalculateStdCost: Codeunit "Calculate Standard Cost";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         ClientTypeManagement: Codeunit "Client Type Management";
@@ -2523,6 +2434,8 @@ page 31 "Item List"
         IsInventoryAdjmtAllowed: Boolean;
 
     protected var
+        TempFilterItemAttributesBuffer: Record "Filter Item Attributes Buffer" temporary;
+        TempItemFilteredFromAttributes: Record Item temporary;
         IsFoundationEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;

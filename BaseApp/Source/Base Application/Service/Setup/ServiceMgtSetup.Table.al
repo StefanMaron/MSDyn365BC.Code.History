@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Setup;
 
 using Microsoft.CRM.Setup;
 using Microsoft.CRM.Team;
@@ -6,28 +10,23 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.NoSeries;
-using Microsoft.Foundation.Reporting;
-using Microsoft.Sales.Setup;
 using Microsoft.Service.Archive;
 using Microsoft.Service.Contract;
-using Microsoft.Service.Posting;
 using Microsoft.Service.Pricing;
 using Microsoft.Utilities;
-#if not CLEAN23
-using System.Environment.Configuration;
-using System.Telemetry;
-#endif
 
 table 5911 "Service Mgt. Setup"
 {
     Caption = 'Service Mgt. Setup';
-    DrillDownPageID = "Service Mgt. Setup";
     DataClassification = CustomerContent;
+    DrillDownPageID = "Service Mgt. Setup";
+    LookupPageID = "Service Mgt. Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(4; "Fault Reporting Level"; Option)
@@ -318,20 +317,6 @@ table 5911 "Service Mgt. Setup"
         {
             Caption = 'Allow Multiple Posting Groups';
             DataClassification = SystemMetadata;
-
-            trigger OnValidate()
-#if not CLEAN23
-            var
-                FeatureTelemetry: Codeunit "Feature Telemetry";
-                FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
-            begin
-#if not CLEAN23
-                if "Allow Multiple Posting Groups" then
-                    FeatureTelemetry.LogUptake(
-                        '0000JRB', FeatureKeyManagement.GetAllowMultipleCustVendPostingGroupsFeatureKey(), Enum::"Feature Uptake Status"::Discovered);
-#endif
-            end;
         }
         field(176; "Check Multiple Posting Groups"; enum "Posting Group Change Method")
         {
@@ -376,13 +361,6 @@ table 5911 "Service Mgt. Setup"
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
         }
-        field(810; "Invoice Posting Setup"; Enum "Service Invoice Posting")
-        {
-            Caption = 'Invoice Posting Setup';
-            ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(950; "Copy Time Sheet to Order"; Boolean)
         {
             Caption = 'Copy Time Sheet to Order';
@@ -397,27 +375,6 @@ table 5911 "Service Mgt. Setup"
             AccessByPermission = TableData "Service Contract Line" = R;
             Caption = 'Contract Credit Memo Nos.';
             TableRelation = "No. Series";
-        }
-        field(12100; "Validate Document On Posting"; Boolean)
-        {
-            Caption = 'Validate Document On Posting';
-
-            trigger OnValidate()
-            var
-                SalesReceivablesSetup: Record "Sales & Receivables Setup";
-                ElectronicDocumentFormat: Record "Electronic Document Format";
-            begin
-                if "Validate Document On Posting" then begin
-                    SalesReceivablesSetup.Get();
-                    SalesReceivablesSetup.TestField("Fattura PA Electronic Format");
-                    ElectronicDocumentFormat.Get(
-                        SalesReceivablesSetup."Fattura PA Electronic Format", ElectronicDocumentFormat.Usage::"Service Validation");
-                end;
-            end;
-        }
-        field(12182; "Notify On Occur. Date Change"; Boolean)
-        {
-            Caption = 'Notify On Occur. Date Change';
         }
     }
 
@@ -449,4 +406,3 @@ table 5911 "Service Mgt. Setup"
         RecordHasBeenRead := true;
     end;
 }
-

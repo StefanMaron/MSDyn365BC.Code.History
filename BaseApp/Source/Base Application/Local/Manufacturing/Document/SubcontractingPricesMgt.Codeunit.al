@@ -211,14 +211,12 @@ codeunit 12153 SubcontractingPricesMgt
                 PricelistUOM := FixedUOM;
                 GetUOMPrice(ReqLine."No.", ReqLine.GetQtyBase());
             end;
-            ProdOrderRtngLine.Get(
-              ProdOrderRtngLine.Status::Released,
-              ReqLine."Prod. Order No.",
-              ReqLine."Routing Reference No.",
-              ReqLine."Routing No.", ReqLine."Operation No.");
-            ProdOrderRtngLine.TestField(Type,
-              ProdOrderRtngLine.Type::"Work Center");
-            DirectCost := ProdOrderRtngLine."Direct Unit Cost";
+            if ProdOrderRtngLine.Get(
+                ProdOrderRtngLine.Status::Released, ReqLine."Prod. Order No.", ReqLine."Routing Reference No.", ReqLine."Routing No.", ReqLine."Operation No.")
+            then begin
+                ProdOrderRtngLine.TestField(Type, ProdOrderRtngLine.Type::"Work Center");
+                DirectCost := ProdOrderRtngLine."Direct Unit Cost";
+            end;
         end;
         ReqLine."Direct Unit Cost" := DirectCost;
         ReqLine."Pricelist Cost" := PricelistCost;

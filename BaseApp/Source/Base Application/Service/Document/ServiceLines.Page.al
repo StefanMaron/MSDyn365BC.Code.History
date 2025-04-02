@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
@@ -69,11 +73,6 @@ page 5905 "Service Lines"
                     ToolTip = 'Specifies the service item serial number linked to this line.';
                     Visible = false;
                 }
-                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the entry must be included in the VAT transaction report.';
-                }
                 field("Service Item Line Description"; Rec."Service Item Line Description")
                 {
                     ApplicationArea = Service;
@@ -110,7 +109,7 @@ page 5905 "Service Lines"
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Service, ItemReferences;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a sales or purchase document.';
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a service document.';
                     Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -121,11 +120,6 @@ page 5905 "Service Lines"
                         NoOnAfterValidate();
                         CurrPage.Update();
                     end;
-                }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the service order.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
@@ -229,6 +223,24 @@ page 5905 "Service Lines"
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
+                }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = true;
+                    ToolTip = 'Specifies that items, resources, or costs on the current service line are liable for sales tax.';
+                    Visible = true;
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                    Visible = true;
+                }
+                field("Tax Group Code"; Rec."Tax Group Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
@@ -613,11 +625,11 @@ page 5905 "Service Lines"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Line"),
                               "No." = field("Document No."),
                               "Document Type" = field("Document Type"),
                               "Line No." = field("Line No.");
-                Visible = false;
             }
 #endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")

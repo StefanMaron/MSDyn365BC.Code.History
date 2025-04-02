@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Customer;
 
 using Microsoft.Sales.Customer;
@@ -29,6 +33,15 @@ pageextension 6451 "Serv. Customer List" extends "Customer List"
                               "Date Filter" = field("Date Filter"),
                               "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
                               "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
+                Visible = false;
+            }
+        }
+        addafter("Combine Shipments")
+        {
+            field("Combine Service Shipments"; Rec."Combine Service Shipments")
+            {
+                ApplicationArea = Service;
+                ToolTip = 'Specifies if several orders delivered to the customer can appear on the same service invoice.';
                 Visible = false;
             }
         }

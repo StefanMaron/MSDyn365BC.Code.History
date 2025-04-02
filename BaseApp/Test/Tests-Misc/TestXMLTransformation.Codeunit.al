@@ -442,19 +442,20 @@ codeunit 139149 "Test XML Transformation"
 
     local procedure CreateExpectedFormattedXMLText(): Text
     var
-        Environment: DotNet Environment;
+        SystemEnvironment: DotNet SystemEnvironment;
     begin
+        SystemEnvironment := SystemEnvironment.SystemEnvironment();
         exit(
-          '<?xml version="1.0" encoding="utf-8"?>' + Environment.NewLine +
-          '<transform>' + Environment.NewLine +
-          '  <record>' + Environment.NewLine +
-          '    <username>MP123456</username>' + Environment.NewLine +
-          '    <fullname>Ester Henderson</fullname>' + Environment.NewLine +
-          '  </record>' + Environment.NewLine +
-          '  <record>' + Environment.NewLine +
-          '    <username>PK123456</username>' + Environment.NewLine +
-          '    <fullname>Benjamin Chiu</fullname>' + Environment.NewLine +
-          '  </record>' + Environment.NewLine +
+          '<?xml version="1.0" encoding="utf-8"?>' + SystemEnvironment.NewLine() +
+          '<transform>' + SystemEnvironment.NewLine() +
+          '  <record>' + SystemEnvironment.NewLine() +
+          '    <username>MP123456</username>' + SystemEnvironment.NewLine() +
+          '    <fullname>Ester Henderson</fullname>' + SystemEnvironment.NewLine() +
+          '  </record>' + SystemEnvironment.NewLine() +
+          '  <record>' + SystemEnvironment.NewLine() +
+          '    <username>PK123456</username>' + SystemEnvironment.NewLine() +
+          '    <fullname>Benjamin Chiu</fullname>' + SystemEnvironment.NewLine() +
+          '  </record>' + SystemEnvironment.NewLine() +
           '</transform>');
     end;
 

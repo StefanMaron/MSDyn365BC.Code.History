@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.Dimension;
@@ -175,13 +179,6 @@ table 5747 "Transfer Receipt Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(7301; "Transfer-To Bin Code"; Code[20])
         {
             Caption = 'Transfer-To Bin Code';
@@ -304,4 +301,3 @@ table 5747 "Transfer Receipt Line"
     begin
     end;
 }
-

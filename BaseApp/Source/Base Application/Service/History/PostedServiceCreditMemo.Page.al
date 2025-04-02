@@ -1,14 +1,18 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Document;
-using Microsoft.Foundation.PaymentTerms;
 
 page 5972 "Posted Service Credit Memo"
 {
@@ -136,8 +140,9 @@ page 5972 "Posted Service Credit Memo"
                 {
                     ApplicationArea = VAT;
                     Importance = Promoted;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the VAT date on the invoice.';
-                    Visible = false;
                 }
                 field("Document Date"; Rec."Document Date")
                 {
@@ -195,6 +200,25 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies how many times the document has been printed.';
                 }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
+                }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(GetWorkDescription; Rec.GetWorkDescription())
+                    {
+                        ApplicationArea = Service;
+                        Editable = false;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or services being offered.';
+                    }
+                }
             }
             part(ServCrMemoLines; "Posted Serv. Cr. Memo Subform")
             {
@@ -210,12 +234,6 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
-                }
-                field("Fattura Document Type"; Rec."Fattura Document Type")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
                 }
                 group("Bill-to")
                 {
@@ -328,17 +346,17 @@ page 5972 "Posted Service Credit Memo"
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     Visible = false;
                 }
-                field("Payment Method Code"; Rec."Payment Method Code")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = SalesTax;
                     Editable = false;
-                    ToolTip = 'Specifies the payment method code for the document.';
+                    ToolTip = 'Specifies that items, resources, or costs on the current credit memo line are liable to sales tax.';
                 }
-                field("Refers to Period"; Rec."Refers to Period")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = SalesTax;
                     Editable = false;
-                    ToolTip = 'Specifies the period of time that is used to group and filter the transaction.';
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
             }
             group(Shipping)
@@ -359,6 +377,15 @@ page 5972 "Posted Service Credit Memo"
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -489,57 +516,6 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the service credit memo.';
-                }
-                field("Transport Method"; Rec."Transport Method")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the code for the transport method used for the item on this line.';
-                }
-            }
-            group(Individual)
-            {
-                Caption = 'Individual';
-                field("Individual Person"; Rec."Individual Person")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies if the customer is an individual person.';
-                }
-                field(Resident; Rec.Resident)
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies if the individual is a resident or non-resident of Italy.';
-                }
-                field("First Name"; Rec."First Name")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the first name of the individual person.';
-                }
-                field("Last Name"; Rec."Last Name")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the last name of the individual person.';
-                }
-                field("Date of Birth"; Rec."Date of Birth")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the date of birth of the individual person.';
-                }
-                field("Fiscal Code"; Rec."Fiscal Code")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the fiscal identification code that is assigned by the government to interact with state and public offices and tax authorities.';
-                }
             }
         }
         area(factboxes)
@@ -552,6 +528,7 @@ page 5972 "Posted Service Credit Memo"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
                               "No." = field("No.");
             }
@@ -670,20 +647,6 @@ page 5972 "Posted Service Credit Memo"
                         PAGE.Run(0, TempServDocLog);
                     end;
                 }
-                separator(Action1130001)
-                {
-                }
-                action("Pa&yments")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Pa&yments';
-                    Image = Payment;
-                    RunObject = Page "Posted Payments";
-                    RunPageLink = "Sales/Purchase" = const(Service),
-                                  Type = const("Credit Memo"),
-                                  Code = field("No.");
-                    ToolTip = 'View the related payments.';
-                }
             }
         }
         area(processing)
@@ -758,22 +721,6 @@ page 5972 "Posted Service Credit Memo"
                     Rec.ShowActivityLog();
                 end;
             }
-            action("Update Document")
-            {
-                ApplicationArea = Service;
-                Caption = 'Update Document';
-                Image = Edit;
-                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
-
-                trigger OnAction()
-                var
-                    PostedServCrMemoUpdate: Page "Posted Serv. Cr. Memo - Update";
-                begin
-                    PostedServCrMemoUpdate.LookupMode := true;
-                    PostedServCrMemoUpdate.SetRec(Rec);
-                    PostedServCrMemoUpdate.RunModal();
-                end;
-            }
         }
         area(Promoted)
         {
@@ -781,9 +728,6 @@ page 5972 "Posted Service Credit Memo"
             {
                 Caption = 'Process';
 
-                actionref("Update Document_Promoted"; "Update Document")
-                {
-                }
                 group(Category_CategoryPrint)
                 {
                     ShowAs = SplitButton;
@@ -868,12 +812,16 @@ page 5972 "Posted Service Credit Memo"
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         IsBillToCountyVisible: Boolean;
+        VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 }
 

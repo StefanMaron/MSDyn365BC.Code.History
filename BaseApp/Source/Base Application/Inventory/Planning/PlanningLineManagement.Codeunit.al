@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Planning;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Planning;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory;
@@ -49,7 +53,7 @@ codeunit 99000809 "Planning Line Management"
         TempPlanningErrorLog: Record "Planning Error Log" temporary;
         CalcPlanningRtngLine: Codeunit "Calculate Planning Route Line";
         UOMMgt: Codeunit "Unit of Measure Management";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         PlanningRoutingMgt: Codeunit PlanningRoutingManagement;
         VersionMgt: Codeunit VersionManagement;
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
@@ -111,6 +115,7 @@ codeunit 99000809 "Planning Line Management"
         OnBeforeTransferRoutingLine(PlanningRoutingLine, ReqLine, RoutingLine, IsHandled);
         if IsHandled then
             exit;
+
         PlanningRoutingLine.TransferFromReqLine(ReqLine);
         PlanningRoutingLine.TransferFromRoutingLine(RoutingLine);
 
@@ -133,7 +138,7 @@ codeunit 99000809 "Planning Line Management"
               PlanningRoutingLine."Direct Unit Cost", PlanningRoutingLine."Indirect Cost %", PlanningRoutingLine."Overhead Rate", PlanningRoutingLine."Unit Cost per", PlanningRoutingLine."Unit Cost Calculation",
               ReqLine.Quantity, ReqLine."Qty. per Unit of Measure", ReqLine."Quantity (Base)");
         end else
-            CostCalcMgt.CalcRoutingCostPerUnit(
+            MfgCostCalcMgt.CalcRoutingCostPerUnit(
               PlanningRoutingLine.Type, PlanningRoutingLine."No.", PlanningRoutingLine."Direct Unit Cost", PlanningRoutingLine."Indirect Cost %", PlanningRoutingLine."Overhead Rate", PlanningRoutingLine."Unit Cost per", PlanningRoutingLine."Unit Cost Calculation");
 
         OnTransferRoutingLineOnBeforeValidateDirectUnitCost(ReqLine, RoutingLine, PlanningRoutingLine);
@@ -333,8 +338,7 @@ codeunit 99000809 "Planning Line Management"
                                 PlanningComponent."Line No." := NextPlanningCompLineNo;
                                 PlanningComponent.Validate("Item No.", AsmBOMComp[Level]."No.");
                                 PlanningComponent."Variant Code" := AsmBOMComp[Level]."Variant Code";
-                                if IsInventoryItem(AsmBOMComp[Level]."No.") then
-                                    PlanningComponent."Location Code" := SKU."Components at Location";
+                                PlanningComponent."Location Code" := SKU."Components at Location";
                                 PlanningComponent.Description := CopyStr(AsmBOMComp[Level].Description, 1, MaxStrLen(PlanningComponent.Description));
                                 PlanningComponent."Planning Line Origin" := ReqLine."Planning Line Origin";
                                 PlanningComponent.Validate("Unit of Measure Code", AsmBOMComp[Level]."Unit of Measure Code");
@@ -628,8 +632,7 @@ codeunit 99000809 "Planning Line Management"
         PlanningComponent."Line No." := NextPlanningCompLineNo;
         PlanningComponent.Validate("Item No.", ProdBOMLine."No.");
         PlanningComponent."Variant Code" := ProdBOMLine."Variant Code";
-        if IsInventoryItem(ProdBOMLine."No.") then
-            PlanningComponent."Location Code" := SKU."Components at Location";
+        PlanningComponent."Location Code" := SKU."Components at Location";
         PlanningComponent.Description := ProdBOMLine.Description;
         PlanningComponent."Planning Line Origin" := ReqLine."Planning Line Origin";
         PlanningComponent.Validate("Unit of Measure Code", ProdBOMLine."Unit of Measure Code");

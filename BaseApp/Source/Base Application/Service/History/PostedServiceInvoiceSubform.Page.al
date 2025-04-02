@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
@@ -36,11 +40,6 @@ page 5979 "Posted Service Invoice Subform"
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Service, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the posted service invoice.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
@@ -84,11 +83,6 @@ page 5979 "Posted Service Invoice Subform"
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to include the entry in the VAT transaction report.';
-                }
                 field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = Service;
@@ -123,6 +117,23 @@ page 5979 "Posted Service Invoice Subform"
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
+                }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies that the bill-to customer is liable for sales tax. If the field is blank, the program does not calculate the sales tax.';
+                    Visible = false;
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                    Visible = false;
+                }
+                field("Tax Group Code"; Rec."Tax Group Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {

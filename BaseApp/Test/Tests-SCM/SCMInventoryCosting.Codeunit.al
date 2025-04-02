@@ -1012,7 +1012,7 @@ codeunit 137007 "SCM Inventory Costing"
         // [GIVEN] Assembly item "A" with BOM that includes "C".
         CreateItemWithCostingMethod(AsmItem, AsmItem."Costing Method"::Standard);
         AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
 
         // [WHEN] Calculate Standard Cost by "One Level" for the item "A".
@@ -1084,7 +1084,7 @@ codeunit 137007 "SCM Inventory Costing"
         // [GIVEN] Assembly item "A" with BOM that includes "C".
         CreateItemWithCostingMethod(AsmItem, AsmItem."Costing Method"::Standard);
         AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
 
         // [WHEN] Calculate Standard Cost by "One Level" for the item "A".
@@ -1166,9 +1166,9 @@ codeunit 137007 "SCM Inventory Costing"
         CreateItemWithCostingMethod(AsmItem, AsmItem."Costing Method"::Standard);
         AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
         AsmItem.Modify(true);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, NonInvtCompItem."No.", 1, NonInvtCompItem."Base Unit of Measure");
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
 
         // [WHEN] Calculate standard cost of the assembly item.

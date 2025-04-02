@@ -206,7 +206,7 @@ codeunit 139152 DocSendingProfileCRUDTests
 
         ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := AdditionalElectronicFormatCode;
-        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Export Sales Inv. - PEPPOL 2.1";
+        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0";
         ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Sales Invoice";
         ElectronicDocumentFormat.Description := AdditionalElectronicFormatDescription;
         ElectronicDocumentFormat.Insert(true);
@@ -299,7 +299,7 @@ codeunit 139152 DocSendingProfileCRUDTests
         ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
 
-        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Export Sales Inv. - PEPPOL 2.1";
+        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0";
         ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Sales Invoice";
         ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID();
         ElectronicDocumentFormat.Insert(true);

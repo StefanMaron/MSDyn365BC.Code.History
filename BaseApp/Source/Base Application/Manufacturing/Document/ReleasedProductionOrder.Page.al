@@ -1,6 +1,13 @@
-﻿namespace Microsoft.Manufacturing.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Requisition;
@@ -131,6 +138,18 @@ page 99000831 "Released Production Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies when the production order card was last modified.';
                 }
+                field(Reopened; Rec."Reopened")
+                {
+                    ApplicationArea = Manufacturing;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if the production order is reopened.';
+                }
+                field("Manual Scheduling"; Rec."Manual Scheduling")
+                {
+                    ApplicationArea = Manufacturing;
+                    Importance = Additional;
+                }
             }
             part(ProdOrderLines; "Released Prod. Order Lines")
             {
@@ -215,6 +234,12 @@ page 99000831 "Released Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies a bin to which you want to post the finished items.';
                 }
+                field("Document Put-away Status"; Rec."Document Put-away Status")
+                {
+                    ApplicationArea = Warehouse;
+                    Visible = false;
+                    ToolTip = 'Specifies the status of the warehouse put-away.';
+                }
             }
         }
         area(factboxes)
@@ -228,6 +253,15 @@ page 99000831 "Released Production Order"
             {
                 ApplicationArea = Notes;
                 Visible = true;
+            }
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Production Order"),
+                              "Document Type" = const("Released Production Order"),
+                              "No." = field("No.");
             }
         }
     }
@@ -353,6 +387,23 @@ page 99000831 "Released Production Order"
                                   "Prod. Order No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
                 action("Put-away/Pick Lines/Movement Lines")
                 {
                     ApplicationArea = Warehouse;
@@ -388,6 +439,19 @@ page 99000831 "Released Production Order"
                                   "Source No." = field("No.");
                     RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
                     ToolTip = 'View the list of inventory movements that have been made for the order.';
+                }
+                action("Registered Put-away Lines")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Registered Put-away Lines';
+                    Image = RegisteredDocs;
+                    RunObject = Page "Registered Whse. Act.-Lines";
+                    RunPageLink = "Whse. Document Type" = const(Production),
+                                  "Source Document" = const("Prod. Output"),
+                                  "Whse. Document No." = field("No.");
+                    RunPageView = sorting("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.")
+                                  where("Activity Type" = const("Put-away"));
+                    ToolTip = 'View the list of completed put-away activities.';
                 }
             }
         }
@@ -556,6 +620,20 @@ page 99000831 "Released Production Order"
                         Rec.CreatePick(CopyStr(UserId, 1, 50), 0, false, false, false);
                     end;
                 }
+                action("Create Warehouse Put-Away")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Create Warehouse Put-Away';
+                    Image = CreatePutAway;
+                    ToolTip = 'Create warehouse put-away documents for the production order lines.';
+
+                    trigger OnAction()
+                    var
+                        CreatePutAway: Codeunit "Create Put-away";
+                    begin
+                        CreatePutAway.CreateWhsePutAwayForProdOrder(Rec);
+                    end;
+                }
             }
             group("&Print")
             {
@@ -598,6 +676,23 @@ page 99000831 "Released Production Order"
                     trigger OnAction()
                     begin
                         ManuPrintReport.PrintProductionOrder(Rec, 2);
+                    end;
+                }
+                action(PrintLabel)
+                {
+                    ApplicationArea = Manufacturing;
+                    Image = Print;
+                    Caption = 'Print Label';
+                    ToolTip = 'Print labels for the items on the order lines.';
+
+                    trigger OnAction()
+                    var
+                        ItemLedgerEntry: Record "Item Ledger Entry";
+                        ReportSelections: Record "Report Selections";
+                    begin
+                        ItemLedgerEntry.SetRange("Order Type", Enum::"Inventory Order Type"::Production);
+                        ItemLedgerEntry.SetRange("Order No.", Rec."No.");
+                        ReportSelections.PrintWithCheckForCust(Enum::"Report Selection Usage"::"Prod. Output Item Label", ItemLedgerEntry, 0);
                     end;
                 }
             }
@@ -665,6 +760,9 @@ page 99000831 "Released Production Order"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }

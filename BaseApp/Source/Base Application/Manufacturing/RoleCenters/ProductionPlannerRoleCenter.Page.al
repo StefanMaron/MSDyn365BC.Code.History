@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.RoleCenters;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.RoleCenters;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
@@ -419,7 +423,7 @@ page 9010 "Production Planner Role Center"
                 }
                 action(SubcontractingWorksheets)
                 {
-                    ApplicationArea = Planning;
+                    ApplicationArea = Manufacturing;
                     Caption = 'Subcontracting Worksheets';
                     RunObject = Page "Req. Wksh. Names";
                     RunPageView = where("Template Type" = const("For. Labor"),
@@ -721,7 +725,7 @@ page 9010 "Production Planner Role Center"
                     ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
                     Enabled = false;
                     Visible = false;
-                    ObsoleteReason = 'Page Item Availability by Timeline obsoleted and removed in 24.0, temporaroly replace by page Item Avail. by Location Lines';
+                    ObsoleteReason = 'Page Item Availability by Timeline obsoleted and removed in 24.0, temporarily replaced by page Item Avail. by Location Lines';
                     ObsoleteState = Pending;
                     ObsoleteTag = '24.0';
                 }

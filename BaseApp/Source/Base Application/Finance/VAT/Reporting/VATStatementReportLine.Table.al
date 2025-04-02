@@ -57,18 +57,6 @@ table 742 "VAT Statement Report Line"
         {
             Caption = 'Note';
         }
-        field(4800; RepresentativeAmount; Decimal)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4700 Representative Amount';
-            ObsoleteTag = '18.0';
-        }
-        field(4801; GroupAmount; Decimal)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4701 Group Amount';
-            ObsoleteTag = '18.0';
-        }
     }
 
     keys

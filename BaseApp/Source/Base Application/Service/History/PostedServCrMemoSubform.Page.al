@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
@@ -36,11 +40,6 @@ page 5973 "Posted Serv. Cr. Memo Subform"
                     ApplicationArea = Service, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                 }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the service credit memo.';
-                }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
@@ -76,16 +75,6 @@ page 5973 "Posted Serv. Cr. Memo Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
-                }
-                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to include the entry in the VAT transaction report.';
-                }
-                field("Refers to Period"; Rec."Refers to Period")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the time period that is used to process and filter the transactions.';
                 }
                 field(Description; Rec.Description)
                 {
@@ -145,6 +134,23 @@ page 5973 "Posted Serv. Cr. Memo Subform"
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
+                }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies that items, resources, or costs on the current credit memo line are liable to sales tax.';
+                    Visible = false;
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                    Visible = false;
+                }
+                field("Tax Group Code"; Rec."Tax Group Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                 }
                 field("Line Amount"; Rec."Line Amount")
                 {

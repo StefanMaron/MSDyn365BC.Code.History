@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Dimension;
@@ -222,6 +226,19 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies how many times the document has been printed.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(GetWorkDescription; Rec.GetWorkDescription())
+                    {
+                        ApplicationArea = Service;
+                        Editable = false;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or services being offered.';
+                    }
+                }
             }
             part(ServShipmentItemLines; "Posted Service Shpt. Subform")
             {
@@ -386,6 +403,15 @@ page 5975 "Posted Service Shipment"
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {

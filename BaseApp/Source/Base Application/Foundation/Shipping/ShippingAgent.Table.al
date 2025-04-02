@@ -60,19 +60,16 @@ table 291 "Shipping Agent"
             else
             if ("Shipping Agent Type" = const(Contact)) Contact."No." where(Type = filter(Company));
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by page control Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
     }
 
     keys

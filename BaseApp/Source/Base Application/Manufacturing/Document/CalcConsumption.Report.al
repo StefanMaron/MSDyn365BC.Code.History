@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
@@ -185,16 +189,29 @@ report 5405 "Calc. Consumption"
         SubcontractingMgt: Codeunit SubcontractingManagement;
         WorkCenter: Record "Work Center";
         ProdOrdRoutLine: Record "Prod. Order Routing Line";
+#if not CLEAN26
+        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+#endif
         QtyToPost: Decimal;
         ShouldModifyItemJnlLine: Boolean;
+        ShouldAdjustQty: Boolean;
     begin
         QtyToPost := OriginalQtyToPost;
         OnBeforeCreateConsumpJnlLine(LocationCode, BinCode, QtyToPost);
 
         Window.Update(3, QtyToPost);
 
-        if Location.Get(LocationCode) and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
-            "Prod. Order Component".AdjustQtyToQtyPicked(QtyToPost);
+#if not CLEAN26
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+            ShouldAdjustQty := "Prod. Order Component"."Flushing Method" in ["Prod. Order Component"."Flushing Method"::Manual, "Prod. Order Component"."Flushing Method"::"Pick + Manual", "Prod. Order Component"."Flushing Method"::Forward, "Prod. Order Component"."Flushing Method"::"Pick + Forward"]
+        else
+#endif
+            ShouldAdjustQty := "Prod. Order Component"."Flushing Method" in ["Prod. Order Component"."Flushing Method"::"Pick + Manual", "Prod. Order Component"."Flushing Method"::Forward, "Prod. Order Component"."Flushing Method"::"Pick + Forward"];
+        if ShouldAdjustQty then begin
+            Location.SetLoadFields("Prod. Consump. Whse. Handling");
+            if Location.Get(LocationCode) and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
+                "Prod. Order Component".AdjustQtyToQtyPicked(QtyToPost);
+        end;
 
         ShouldModifyItemJnlLine :=
             (ItemJnlLine."Item No." = "Prod. Order Component"."Item No.") and

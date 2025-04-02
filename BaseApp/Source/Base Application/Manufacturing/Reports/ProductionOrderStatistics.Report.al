@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Reports;
 
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -156,7 +160,7 @@ report 99000791 "Production Order Statistics"
                 Clear(StdCost);
                 Clear(ExpCost);
                 Clear(ActCost);
-                Clear(CostCalcMgt);
+                Clear(MfgCostCalcMgt);
 
                 GLSetup.Get();
 
@@ -165,14 +169,14 @@ report 99000791 "Production Order Statistics"
                 ProdOrderLine.SetRange("Planning Level Code", 0);
                 if ProdOrderLine.FindSet() then
                     repeat
-                        CostCalcMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
-                        CostCalcMgt.CalcProdOrderLineStdCost(
+                        MfgCostCalcMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
+                        MfgCostCalcMgt.CalcProdOrderLineStdCost(
                           ProdOrderLine, 1, GLSetup."Amount Rounding Precision",
                           StdCost[1], StdCost[2], StdCost[3], StdCost[4], StdCost[5]);
-                        CostCalcMgt.CalcProdOrderLineExpCost(
+                        MfgCostCalcMgt.CalcProdOrderLineExpCost(
                           ProdOrderLine, ShareOfTotalCapCost,
                           ExpCost[1], ExpCost[2], ExpCost[3], ExpCost[4], ExpCost[5]);
-                        CostCalcMgt.CalcProdOrderLineActCost(
+                        MfgCostCalcMgt.CalcProdOrderLineActCost(
                           ProdOrderLine,
                           ActCost[1], ActCost[2], ActCost[3], ActCost[4], ActCost[5],
                           DummyVar, DummyVar, DummyVar, DummyVar, DummyVar);
@@ -217,7 +221,7 @@ report 99000791 "Production Order Statistics"
 
     var
         GLSetup: Record "General Ledger Setup";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         ProdOrderFilter: Text;
         ShareOfTotalCapCost: Decimal;
         ExpCost: array[6] of Decimal;

@@ -6,7 +6,6 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Purchases.Vendor;
 using Microsoft.RoleCenters;
 using Microsoft.Sales.Customer;
@@ -22,9 +21,9 @@ using Microsoft.Warehouse.Worksheet;
 using System.Automation;
 using System.Email;
 using System.Threading;
-using Microsoft.Manufacturing.Document;
 using System.Visualization;
 using Microsoft.Foundation.Task;
+using Microsoft.Manufacturing.Document;
 
 page 9009 "Whse. Worker WMS Role Center"
 {
@@ -110,14 +109,6 @@ page 9009 "Whse. Worker WMS Role Center"
                 Image = "Report";
                 RunObject = Report "Whse. Phys. Inventory List";
                 ToolTip = 'View or print the list of the lines that you have calculated in the Warehouse Physical Inventory Journal window. You can use this report during the physical inventory count to mark down actual quantities on hand in the warehouse and compare them to what is recorded in the program.';
-            }
-            action("Prod. &Order Picking List")
-            {
-                ApplicationArea = Manufacturing;
-                Caption = 'Prod. &Order Picking List';
-                Image = "Report";
-                RunObject = Report "Prod. Order - Picking List";
-                ToolTip = 'View a detailed list of items that must be picked for a particular production order, from which location (and bin, if the location uses bins) they must be picked, and when the items are due for production.';
             }
             action("Customer &Labels")
             {

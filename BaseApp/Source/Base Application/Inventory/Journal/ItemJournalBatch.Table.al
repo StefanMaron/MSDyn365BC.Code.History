@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Journal;
 
 using Microsoft.Foundation.AuditCodes;
@@ -102,7 +106,10 @@ table 233 "Item Journal Batch"
                 if IsHandled then
                     exit;
                 ItemJnlTemplate.Get("Journal Template Name");
-                ItemJnlTemplate.TestField(Type, ItemJnlTemplate.Type::Item);
+
+                if not (ItemJnlTemplate.Type in ["Item Journal Template Type"::Item, "Item Journal Template Type"::Output, "Item Journal Template Type"::Consumption]) then
+                    ItemJnlTemplate.FieldError(Type, ItemJournalTemplateTypeErrorLbl);
+
                 ItemJnlTemplate.TestField(Recurring, false);
             end;
         }
@@ -151,6 +158,7 @@ table 233 "Item Journal Batch"
         Text001: Label 'must not be %1';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        ItemJournalTemplateTypeErrorLbl: Label 'can only be Item, Output, or Consumption';
 
     procedure SetupNewBatch()
     var

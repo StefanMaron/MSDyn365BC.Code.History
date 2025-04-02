@@ -1522,7 +1522,7 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DepreciationBookCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; FAPostingCategory: Option)
+    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DepreciationBookCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; FAPostingCategory: Enum "FA Ledger Posting Category")
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("Depreciation Book Code", DepreciationBookCode);

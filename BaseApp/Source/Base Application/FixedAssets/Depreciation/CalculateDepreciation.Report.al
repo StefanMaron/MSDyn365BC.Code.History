@@ -1,4 +1,8 @@
-﻿namespace Microsoft.FixedAssets.Depreciation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.FixedAssets.Depreciation;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -305,7 +309,7 @@ report 5692 "Calculate Depreciation"
                         Caption = 'Force No. of Days';
                         Importance = Additional;
                         MinValue = 0;
-                        ToolTip = 'Specifies if you want the program to use the number of days, as specified in the field below, in the depreciation calculation.';
+                        ToolTip = 'Specifies the number of days, to use for the depreciation calculation.';
 
                         trigger OnValidate()
                         begin
@@ -743,10 +747,12 @@ report 5692 "Calculate Depreciation"
     begin
     end;
 
+#pragma warning disable AS0025
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeActivateErrorMessageHandling(varFixedAsset: Record "Fixed Asset"; var ErrorMessageMgt: Codeunit "Error Message Management"; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorContextElement: Codeunit "Error Context Element"; var IsHandled: Boolean)
+    local procedure OnBeforeActivateErrorMessageHandling(var FixedAsset: Record "Fixed Asset"; var ErrorMessageMgt: Codeunit "Error Message Management"; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorContextElement: Codeunit "Error Context Element"; var IsHandled: Boolean)
     begin
     end;
+#pragma warning restore AS0025
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateDepreciation(FANo: Code[20]; var TempGenJournalLine: Record "Gen. Journal Line" temporary; var TempFAJournalLine: Record "FA Journal Line" temporary; var DeprAmount: Decimal; var NumberOfDays: Integer; DeprBookCode: Code[10]; DeprUntilDate: Date; EntryAmounts: array[4] of Decimal; DaysInPeriod: Integer)

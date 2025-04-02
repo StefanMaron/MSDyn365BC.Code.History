@@ -2369,13 +2369,13 @@ codeunit 144200 "FatturaPA Test"
     local procedure VerifyXMLDefinitionPublicCompany(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
         Assert.AreEqual(TempXMLBuffer.GetElementName(), 'p:FatturaElettronica', '');
-        Assert.AreEqual(TempXMLBuffer.GetAttributeValue('versione'), 'FPA12', '');
+        Assert.AreEqual(TempXMLBuffer.GetAttributeValueAsText('versione'), 'FPA12', '');
     end;
 
     local procedure VerifyXMLDefinitionPrivateCompany(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
         Assert.AreEqual(TempXMLBuffer.GetElementName(), 'p:FatturaElettronica', '');
-        Assert.AreEqual(TempXMLBuffer.GetAttributeValue('versione'), 'FPR12', '');
+        Assert.AreEqual(TempXMLBuffer.GetAttributeValueAsText('versione'), 'FPR12', '');
     end;
 
     local procedure VerifyFileName(ActualFileName: Text)

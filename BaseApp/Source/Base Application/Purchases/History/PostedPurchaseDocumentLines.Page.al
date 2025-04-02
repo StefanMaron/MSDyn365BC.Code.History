@@ -183,7 +183,6 @@ page 5855 "Posted Purchase Document Lines"
     var
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         OldMenuType: Integer;
-        CurrentMenuType: Integer;
         LinesNotCopied: Integer;
         MissingExCostRevLink: Boolean;
 #pragma warning disable AA0074
@@ -203,6 +202,7 @@ page 5855 "Posted Purchase Document Lines"
         ToPurchHeader: Record "Purchase Header";
         ShowRevLineEnable: Boolean;
         ShowRevLinesOnly: Boolean;
+        CurrentMenuType: Integer;
 
     [Scope('OnPrem')]
     procedure CopyLineToDoc()
@@ -257,7 +257,7 @@ page 5855 "Posted Purchase Document Lines"
         ShowLinesNotCopiedMessage();
     end;
 
-    local procedure ChangeSubMenu(NewMenuType: Integer)
+    procedure ChangeSubMenu(NewMenuType: Integer)
     begin
         if OldMenuType <> NewMenuType then
             SetSubMenu(OldMenuType, false);

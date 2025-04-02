@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA25 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -64,10 +65,22 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
+#if not CLEANSCHEMA29
+#pragma warning disable AS0105        
         field(11; "Source Type"; Enum "Intrastat Source Type")
         {
             Caption = 'Source Type';
+#if CLEAN26
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#endif
+            ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
         }
+#pragma warning restore AS0105
+#endif
         field(12; "Source Entry No."; Integer)
         {
             Caption = 'Source Entry No.';
@@ -249,9 +262,11 @@ table 263 "Intrastat Jnl. Line"
         {
             Clustered = true;
         }
+#if not CLEAN26
         key(Key2; "Source Type", "Source Entry No.")
         {
         }
+#endif
         key(Key4; "Internal Ref. No.")
         {
         }
@@ -268,3 +283,5 @@ table 263 "Intrastat Jnl. Line"
     }
 }
 
+ 
+#endif

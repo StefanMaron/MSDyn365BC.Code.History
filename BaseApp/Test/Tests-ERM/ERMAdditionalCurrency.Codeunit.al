@@ -1,4 +1,4 @@
-codeunit 134043 "ERM Additional Currency"
+﻿codeunit 134043 "ERM Additional Currency"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -918,9 +918,6 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionSales()
     var
@@ -962,13 +959,8 @@ codeunit 134043 "ERM Additional Currency"
             VATPostingSetup[2], GenJournalLine."Bal. Gen. Posting Type"::Sale);
 
         // [WHEN] Adjust Exchange Rate from Date "D1" to "D3" for Currency "FCY"
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRates(
-          Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
-#else
         LibraryERM.RunExchRateAdjustment(
           Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
-#endif
 
         // [THEN] Description of G/L Entry for Currency VAT Adjustment of Invoice "I1" contains its VAT Amount "V1"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
@@ -980,9 +972,6 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionPurch()
     var
@@ -1024,13 +1013,8 @@ codeunit 134043 "ERM Additional Currency"
             VATPostingSetup[2], GenJournalLine."Bal. Gen. Posting Type"::Purchase);
 
         // [WHEN] Adjust Exchange Rate from Date "D1" to "D3" for Currency "FCY"
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRates(
-          Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
-#else
         LibraryERM.RunExchRateAdjustment(
           Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
-#endif
 
         // [THEN] Description of G/L Entry for Currency VAT Adjustment of Invoice "I1" contains its VAT Amount "V1"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
@@ -1648,22 +1632,9 @@ codeunit 134043 "ERM Additional Currency"
     local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
     var
         Currency: Record Currency;
-#if not CLEAN23
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
-#else
         ExchRateAdjustment: Report "Exch. Rate Adjustment";
-#endif
     begin
         Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
-#if not CLEAN23
-        Clear(AdjustExchangeRates);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(
-          CurrencyExchangeRate."Starting Date", WorkDate(), 'Test', CurrencyExchangeRate."Starting Date",
-          DocumentNo, true, true);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
-#else
         Clear(ExchRateAdjustment);
         ExchRateAdjustment.SetTableView(Currency);
         ExchRateAdjustment.InitializeRequest2(
@@ -1671,7 +1642,6 @@ codeunit 134043 "ERM Additional Currency"
           DocumentNo, true, true);
         ExchRateAdjustment.UseRequestPage(false);
         ExchRateAdjustment.Run();
-#endif
     end;
 
     local procedure RunCloseIncomeStatementBatchJob(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
@@ -1937,22 +1907,9 @@ codeunit 134043 "ERM Additional Currency"
     local procedure RunAdjustExchangeRatesWithAdjGLAccOnly(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
     var
         Currency: Record Currency;
-#if not CLEAN23
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
-#else
         ExchRateAdjustment: Report "Exch. Rate Adjustment";
-#endif
     begin
         Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
-#if not CLEAN23
-        Clear(AdjustExchangeRates);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(
-            CurrencyExchangeRate."Starting Date", WorkDate(), LibraryRandom.RandText(100),
-            CurrencyExchangeRate."Starting Date", DocumentNo, false, true);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
-#else
         Clear(ExchRateAdjustment);
         ExchRateAdjustment.SetTableView(Currency);
         ExchRateAdjustment.InitializeRequest2(
@@ -1960,7 +1917,6 @@ codeunit 134043 "ERM Additional Currency"
             CurrencyExchangeRate."Starting Date", DocumentNo, false, true);
         ExchRateAdjustment.UseRequestPage(false);
         ExchRateAdjustment.Run();
-#endif
     end;
 
     local procedure CreateAndPostJournalLineForBank(

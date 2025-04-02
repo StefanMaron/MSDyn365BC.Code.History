@@ -72,7 +72,6 @@ codeunit 144123 "ERM Details Purchase"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
         AmountLCYCap: Label 'AmountLCY';
-        NothingToAdjustTxt: Label 'There is nothing to adjust.';
         IntegerNumberCap: Label 'Integer_Number';
         VendorBalanceLCYCap: Label 'Vendor__Balance__LCY__Caption';
         VendoNoCap: Label 'No_Vendor';
@@ -367,7 +366,7 @@ codeunit 144123 "ERM Details Purchase"
     end;
 
     [Test]
-    [HandlerFunctions('VendorSheetPrintRequestPageHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('VendorSheetPrintRequestPageHandler')]
     [Scope('OnPrem')]
     procedure VendorSheetPrintForPayment()
     var
@@ -379,11 +378,7 @@ codeunit 144123 "ERM Details Purchase"
     begin
         // Setup: Create Currency with Exchange rate, create and post Purchase Invoice with that Currency and Apply payment for Invoice on next year.
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());  // Ending Date, Posting Date - WORKDATE.
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());  // Ending Date, Posting Date - WORKDATE.
-#endif
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, WorkDate(), CurrencyCode);  // Expected Receipt Date.
 
         PostedPurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -646,13 +641,6 @@ codeunit 144123 "ERM Details Purchase"
     procedure VendorSheetPrintRequestPageHandler(var VendorSheetPrint: TestRequestPage "Vendor Sheet - Print")
     begin
         VendorSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure NothingAdjustedMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(NothingToAdjustTxt, Message);
     end;
 }
 

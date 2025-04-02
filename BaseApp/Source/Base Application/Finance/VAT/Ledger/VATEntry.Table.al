@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.VAT.Ledger;
+namespace Microsoft.Finance.VAT.Ledger;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Contact;
@@ -54,38 +54,45 @@ table 254 "VAT Entry"
         {
             Caption = 'Entry No.';
             Editable = false;
+            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
         }
         field(2; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
             Editable = false;
             TableRelation = "Gen. Business Posting Group";
+            ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
         }
         field(3; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
             Editable = false;
             TableRelation = "Gen. Product Posting Group";
+            ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
         }
         field(4; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
             Editable = false;
+            ToolTip = 'Specifies the VAT entry''s posting date.';
         }
         field(5; "Document No."; Code[20])
         {
             Caption = 'Document No.';
             Editable = false;
+            ToolTip = 'Specifies the document number on the VAT entry.';
         }
         field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
+            ToolTip = 'Specifies the document type that the VAT entry belongs to.';
         }
         field(7; Type; Enum "General Posting Type")
         {
             Caption = 'Type';
             Editable = false;
+            ToolTip = 'Specifies the type of the VAT entry.';
 
             trigger OnValidate()
             begin
@@ -98,17 +105,20 @@ table 254 "VAT Entry"
             AutoFormatType = 1;
             Caption = 'Base';
             Editable = false;
+            ToolTip = 'Specifies the amount that the VAT amount (the amount shown in the Amount field) is calculated from.';
         }
         field(9; Amount; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Amount';
             Editable = false;
+            ToolTip = 'Specifies the amount of the VAT entry in LCY.';
         }
         field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
+            ToolTip = 'Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.';
         }
         field(12; "Bill-to/Pay-to No."; Code[20])
         {
@@ -147,7 +157,8 @@ table 254 "VAT Entry"
         field(13; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
-
+            ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
+            
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -177,17 +188,20 @@ table 254 "VAT Entry"
             Caption = 'Closed by Entry No.';
             Editable = false;
             TableRelation = "VAT Entry";
+            ToolTip = 'Specifies the number of the VAT entry that has closed the entry, if the VAT entry was closed with the Calc. and Post VAT Settlement batch job.';
         }
         field(18; Closed; Boolean)
         {
             Caption = 'Closed';
             Editable = false;
+            ToolTip = 'Specifies whether the VAT entry has been closed by the Calc. and Post VAT Settlement batch job.';
         }
         field(19; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
-
+            ToolTip = 'Specifies the country/region of the address.';
+            
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -198,6 +212,7 @@ table 254 "VAT Entry"
         {
             Caption = 'Internal Ref. No.';
             Editable = false;
+            ToolTip = 'Specifies the internal reference number for the line.';
         }
         field(21; "Transaction No."; Integer)
         {
@@ -209,24 +224,28 @@ table 254 "VAT Entry"
             AutoFormatType = 1;
             Caption = 'Unrealized Amount';
             Editable = false;
+            ToolTip = 'Specifies the unrealized VAT amount for this line if you use unrealized VAT.';
         }
         field(23; "Unrealized Base"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Unrealized Base';
             Editable = false;
+            ToolTip = 'Specifies the unrealized base amount if you use unrealized VAT.';
         }
         field(24; "Remaining Unrealized Amount"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Remaining Unrealized Amount';
             Editable = false;
+            ToolTip = 'Specifies the amount that remains unrealized in the VAT entry.';
         }
         field(25; "Remaining Unrealized Base"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Remaining Unrealized Base';
             Editable = false;
+            ToolTip = 'Specifies the amount of base that remains unrealized in the VAT entry.';
         }
         field(26; "External Document No."; Code[35])
         {
@@ -301,12 +320,14 @@ table 254 "VAT Entry"
             Caption = 'VAT Bus. Posting Group';
             Editable = false;
             TableRelation = "VAT Business Posting Group";
+            ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
         }
         field(40; "VAT Prod. Posting Group"; Code[20])
         {
             Caption = 'VAT Prod. Posting Group';
             Editable = false;
             TableRelation = "VAT Product Posting Group";
+            ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
         }
         field(43; "Additional-Currency Amount"; Decimal)
         {
@@ -315,6 +336,7 @@ table 254 "VAT Entry"
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
             Editable = false;
+            ToolTip = 'Specifies the amount of the VAT entry. The amount is in the additional reporting currency.';
         }
         field(44; "Additional-Currency Base"; Decimal)
         {
@@ -323,6 +345,7 @@ table 254 "VAT Entry"
             AutoFormatType = 1;
             Caption = 'Additional-Currency Base';
             Editable = false;
+            ToolTip = 'Specifies the amount that the VAT amount is calculated from if you post in an additional reporting currency.';
         }
         field(45; "Add.-Currency Unrealized Amt."; Decimal)
         {
@@ -365,6 +388,7 @@ table 254 "VAT Entry"
             AutoFormatType = 1;
             Caption = 'VAT Difference';
             Editable = false;
+            ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
         }
         field(52; "Add.-Curr. VAT Difference"; Decimal)
         {
@@ -373,6 +397,7 @@ table 254 "VAT Entry"
             AutoFormatType = 1;
             Caption = 'Add.-Curr. VAT Difference';
             Editable = false;
+            ToolTip = 'Specifies, in the additional reporting currency, the VAT difference that arises when you make a correction to a VAT amount on a sales or purchase document.';
         }
         field(53; "Ship-to/Order Address Code"; Code[10])
         {
@@ -380,16 +405,19 @@ table 254 "VAT Entry"
             TableRelation = if (Type = const(Purchase)) "Order Address".Code where("Vendor No." = field("Bill-to/Pay-to No."))
             else
             if (Type = const(Sale)) "Ship-to Address".Code where("Customer No." = field("Bill-to/Pay-to No."));
+            ToolTip = 'Specifies the address code of the ship-to customer or order-from vendor that the entry is linked to.';
         }
         field(54; "Document Date"; Date)
         {
             Caption = 'Document Date';
             Editable = false;
+            ToolTip = 'Specifies the date when the related document was created.';
         }
         field(55; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-
+            ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
+            
             trigger OnValidate()
             var
                 VATRegNoFormat: Record "VAT Registration No. Format";
@@ -400,23 +428,27 @@ table 254 "VAT Entry"
         field(56; Reversed; Boolean)
         {
             Caption = 'Reversed';
+            ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
         }
         field(57; "Reversed by Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed by Entry No.';
             TableRelation = "VAT Entry";
+            ToolTip = 'Specifies the number of the correcting entry. If the field Specifies a number, the entry cannot be reversed again.';
         }
         field(58; "Reversed Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed Entry No.';
             TableRelation = "VAT Entry";
+            ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
         }
         field(59; "EU Service"; Boolean)
         {
             Caption = 'EU Service';
             Editable = false;
+            ToolTip = 'Specifies if this VAT entry is to be reported as a service in the periodic VAT reports.';
         }
         field(60; "Base Before Pmt. Disc."; Decimal)
         {
@@ -491,6 +523,7 @@ table 254 "VAT Entry"
         field(86; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
+            ToolTip = 'Specifies the VAT date on the VAT entry. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
 
             trigger OnValidate()
             var
@@ -519,29 +552,34 @@ table 254 "VAT Entry"
             AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base';
             Editable = false;
+            ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
         }
         field(6202; "Non-Deductible VAT Amount"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount';
             Editable = false;
+            ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
         }
         field(6203; "Non-Deductible VAT Base ACY"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base ACY';
             Editable = false;
+            ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased. The amount is in the additional reporting currency.';
         }
         field(6204; "Non-Deductible VAT Amount ACY"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount ACY';
             Editable = false;
+            ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased. The amount is in the additional reporting currency.';
         }
         field(6205; "Non-Deductible VAT Diff."; Decimal)
         {
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
+            ToolTip = 'Specifies the difference between the calculated Non-Deductible VAT amount and a Non-Deductible VAT amount that you have entered manually.';
         }
         field(6206; "Non-Deductible VAT Diff. ACY"; Decimal)
         {
@@ -622,6 +660,7 @@ table 254 "VAT Entry"
         {
             Caption = 'Plafond Entry';
         }
+#if not CLEANSCHEMA25
         field(12130; Blacklisted; Boolean)
         {
             Caption = 'Blacklisted';
@@ -630,6 +669,8 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
+#if not CLEANSCHEMA25
         field(12131; "Blacklist Amount"; Decimal)
         {
             Caption = 'Blacklist Amount';
@@ -638,6 +679,7 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(12132; "Related Entry No."; Integer)
         {
             Caption = 'Related Entry No.';

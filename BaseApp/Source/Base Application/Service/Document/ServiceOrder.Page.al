@@ -27,7 +27,6 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Request;
 using System.Security.User;
-using Microsoft.Foundation.PaymentTerms;
 
 page 5900 "Service Order"
 {
@@ -241,31 +240,29 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order status, which reflects the repair or maintenance status of all service items on the service order.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Work Description';
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or service being offered.';
+                        MultiLine = true;
+                        Importance = Additional;
+
+                        trigger OnValidate()
+                        begin
+                            Rec.SetWorkDescription(WorkDescription);
+                        end;
+                    }
+                }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
-                }
-                field("Operation Occurred Date"; Rec."Operation Occurred Date")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the date when the VAT operation occurred on the transaction.';
-
-                    trigger OnValidate()
-                    begin
-                        OperationOccurredDateOnAfterValidate();
-                    end;
-                }
-                field("Operation Type"; Rec."Operation Type")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the operation type that is assigned to the posted service shipment.';
-                }
-                field("Activity Code"; Rec."Activity Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Assigned User ID"; Rec."Assigned User ID")
                 {
@@ -471,25 +468,26 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies when the related invoice must be paid.';
+                }
                 field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage of payment discount given, if the customer pays by the date entered in the Pmt. Discount Date field.';
                 }
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
-                }
-                field("Bank Account"; Rec."Bank Account")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the customer''s bank account that is associated with the service order.';
-                }
-                field("Cumulative Bank Receipts"; Rec."Cumulative Bank Receipts")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the customer bill entry is included in a cumulative bank receipt.';
                 }
                 field("Direct Debit Mandate ID"; Rec."Direct Debit Mandate ID")
                 {
@@ -544,36 +542,6 @@ page 5900 "Service Order"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("Customer Purchase Order No."; Rec."Customer Purchase Order No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the number of the customer''s purchase order.';
-                }
-                field("Fattura Project Code"; Rec."Fattura Project Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for the Fattura project.';
-                }
-                field("Fattura Tender Code"; Rec."Fattura Tender Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for the Fattura tender.';
-                }
-                field("Fattura Document Type"; Rec."Fattura Document Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value to export in TipoDocument XML node of the Fattura document.';
-                }
-                field("Fattura Stamp"; Rec."Fattura Stamp")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the value to export in BolloVirtuale XML node of the Fattura document.';
-                }
-                field("Fattura Stamp Amount"; Rec."Fattura Stamp Amount")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the value to export in ImportoBollo XML node of the Fattura document.';
-                }
             }
             group(Shipping)
             {
@@ -597,6 +565,14 @@ page 5900 "Service Order"
                         ApplicationArea = Service;
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -679,26 +655,6 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the email address at the address that the items are shipped to.';
                 }
-                field("Additional Information"; Rec."Additional Information")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies additional declaration information that is needed for this shipment.';
-                }
-                field("Additional Notes"; Rec."Additional Notes")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies additional notes that are needed for this shipment.';
-                }
-                field("Additional Instructions"; Rec."Additional Instructions")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies additional instructions that are needed for this shipment.';
-                }
-                field("TDD Prepared By"; Rec."TDD Prepared By")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the user ID of the transport delivery document (TDD) for the service order.';
-                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
@@ -729,15 +685,11 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                 }
-                field("3rd Party Loader Type"; Rec."3rd Party Loader Type")
+                field("Combine Shipments"; Rec."Combine Shipments")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the type of third party that is responsible for loading the items for this document.';
-                }
-                field("3rd Party Loader No."; Rec."3rd Party Loader No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the vendor or contact that is responsible for loading the items for this document.';
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether the order will be included when you use the Combine Shipments function.';
                 }
             }
             group(Details)
@@ -864,45 +816,6 @@ page 5900 "Service Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the service order or service invoice.';
-                }
-            }
-            group(Individual)
-            {
-                Caption = 'Individual';
-                field("Individual Person"; Rec."Individual Person")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the customer is an individual person.';
-                }
-                field(Resident; Rec.Resident)
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the individual is a resident or non-resident of Italy.';
-                }
-                field("First Name"; Rec."First Name")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the first name of the individual person.';
-                }
-                field("Last Name"; Rec."Last Name")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the last name of the individual person.';
-                }
-                field("Date of Birth"; Rec."Date of Birth")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the date of birth of the individual person.';
-                }
-                field("Fiscal Code"; Rec."Fiscal Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the fiscal identification code that is assigned by the government to interact with state and public offices and tax authorities.';
-                }
             }
         }
         area(factboxes)
@@ -923,6 +836,7 @@ page 5900 "Service Order"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -1241,17 +1155,6 @@ page 5900 "Service Order"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-                action("Pa&yments")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Pa&yments';
-                    Image = Payment;
-                    RunObject = Page "Payment Date Lines";
-                    RunPageLink = "Sales/Purchase" = const(Service),
-                                  Type = field("Document Type"),
-                                  Code = field("No.");
-                    ToolTip = 'View the related payments.';
-                }
                 action("Create Customer")
                 {
                     ApplicationArea = Service;
@@ -1578,11 +1481,6 @@ page 5900 "Service Order"
         exit(Rec.ConfirmDeletion());
     end;
 
-    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
-    begin
-        Rec.CheckCreditMaxBeforeInsert(false);
-    end;
-
     trigger OnNewRecord(BelowxRec: Boolean)
     var
         UserMgt: Codeunit "User Setup Management";
@@ -1614,6 +1512,7 @@ page 5900 "Service Order"
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
         SellToContact.GetOrClear(Rec."Contact No.");
         ActivateFields();
+        WorkDescription := Rec.GetWorkDescription();
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
@@ -1636,6 +1535,7 @@ page 5900 "Service Order"
         SellToContact: Record Contact;
         ServiceMgtSetup: Record "Service Mgt. Setup";
         ChangeExchangeRate: Page "Change Exchange Rate";
+        WorkDescription: Text;
         DocumentIsPosted: Boolean;
         OpenPostedServiceOrderQst: Label 'The order is posted as number %1 and moved to the Posted Service Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         IsBillToCountyVisible: Boolean;
@@ -1701,11 +1601,6 @@ page 5900 "Service Order"
     begin
         ServiceMgtSetup.GetRecordOnce();
         ExternalDocNoMandatory := ServiceMgtSetup."Ext. Doc. No. Mandatory";
-    end;
-
-    local procedure OperationOccurredDateOnAfterValidate()
-    begin
-        CurrPage.Update();
     end;
 
     local procedure BilltoCustomerNoOnAfterValidat()

@@ -16,7 +16,6 @@ using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -43,6 +42,7 @@ using System.Integration.PowerBI;
 using System.Threading;
 using System.Visualization;
 using Microsoft.Foundation.Task;
+using Microsoft.Manufacturing.Document;
 
 page 9008 "Whse. Basic Role Center"
 {
@@ -171,13 +171,6 @@ page 9008 "Whse. Basic Role Center"
                 Caption = 'Subcontracting Transfers';
                 RunObject = Page "Subcontracting Transfer List";
                 ToolTip = 'View the list of subcontracting transfers.';
-            }
-            action(ReleasedProductionOrders)
-            {
-                ApplicationArea = Manufacturing;
-                Caption = 'Released Production Orders';
-                RunObject = Page "Released Production Orders";
-                ToolTip = 'View the list of released production order that are ready for warehouse activities.';
             }
             action(AssemblyOrders)
             {

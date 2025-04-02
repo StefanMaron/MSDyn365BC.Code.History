@@ -2234,7 +2234,7 @@
 
     local procedure CreateExtendedTextHeader(var ExtendedTextHeader: Record "Extended Text Header"; ItemNo: Code[20])
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         ExtendedTextHeader.Validate("Starting Date", WorkDate());
         ExtendedTextHeader.Validate("Ending Date", WorkDate());
         ExtendedTextHeader.Validate("Sales Invoice", true);
@@ -2248,7 +2248,7 @@
     var
         ExtendedTextLine: Record "Extended Text Line";
     begin
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, CopyStr(TextValue, 1, MaxStrLen(ExtendedTextLine.Text)));
         ExtendedTextLine.Modify(true);
     end;

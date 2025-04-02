@@ -1168,11 +1168,11 @@ codeunit 99000832 "Sales Line-Reserve"
         if not SalesLine.ReadPermission then
             exit;
 
+        SalesLine.SetAutoCalcFields("Reserved Qty. (Base)");
         AvailabilityFilter := ReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         SalesLine.FilterLinesForReservation(ReservationEntry, DocumentType, AvailabilityFilter, Positive);
         if SalesLine.FindSet() then
             repeat
-                SalesLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= SalesLine."Reserved Qty. (Base)";
                 TotalQuantity += SalesLine."Outstanding Qty. (Base)";
             until SalesLine.Next() = 0;
@@ -1255,12 +1255,12 @@ codeunit 99000832 "Sales Line-Reserve"
         if IsReserved then
             exit;
 
+        SalesLine.SetAutoCalcFields("Reserved Qty. (Base)");
         SalesLine.FilterLinesForReservation(
           CalcReservEntry, Enum::"Sales Document Type".FromInteger(ReservSummEntryNo - Enum::"Reservation Summary Type"::"Sales Quote".AsInteger()),
           sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if SalesLine.Find(Search) then
             repeat
-                SalesLine.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := SalesLine."Outstanding Quantity";
                 QtyThisLineBase := SalesLine."Outstanding Qty. (Base)";
                 if ReservSummEntryNo = Enum::"Reservation Summary Type"::"Sales Return Order".AsInteger() then // Return Order

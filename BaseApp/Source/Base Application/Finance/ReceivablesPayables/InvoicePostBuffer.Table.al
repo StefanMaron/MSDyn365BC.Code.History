@@ -1,19 +1,17 @@
-﻿namespace Microsoft.Finance.ReceivablesPayables;
+#if not CLEANSCHEMA26 
+namespace Microsoft.Finance.ReceivablesPayables;
 
-#if not CLEAN23
+#if not CLEAN24
 using Microsoft.Finance.Currency;
 #endif
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
-#if not CLEAN23
+#if not CLEAN24
 using Microsoft.Finance.GeneralLedger.Journal;
 #endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
-#if not CLEAN23
-using Microsoft.Finance.VAT.Calculation;
-#endif
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
@@ -23,9 +21,8 @@ using Microsoft.FixedAssets.Posting;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Projects.Project.Job;
-#if not CLEAN23
+#if not CLEAN24
 using Microsoft.Purchases.Document;
-using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
@@ -38,9 +35,9 @@ table 49 "Invoice Post. Buffer"
 #pragma warning disable AS0074
     TableType = Temporary;
     ObsoleteReason = 'This table will be replaced by table Invoice Posting Buffer in new Invoice Posting implementation.';
-#if CLEAN23
+#if CLEAN24
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '27.0';
 #else
     ObsoleteState = Pending;
     ObsoleteTag = '20.0';
@@ -368,9 +365,6 @@ table 49 "Invoice Post. Buffer"
             BlankZero = true;
             Caption = 'Related Entry No.';
             DataClassification = SystemMetadata;
-#if not CLEAN23
-            TableRelation = "Vendor Ledger Entry" where("Document Type" = const(Invoice));
-#endif
         }
         field(12138; "Refers to Period"; Option)
         {
@@ -403,10 +397,9 @@ table 49 "Invoice Post. Buffer"
     {
     }
 
-#if not CLEAN23
+#if not CLEAN24
     var
         TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary;
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         DimMgt: Codeunit DimensionManagement;
 
 #pragma warning disable AS0072
@@ -460,9 +453,6 @@ table 49 "Invoice Post. Buffer"
             "VAT Base Amount (ACY)" := 0;
             "VAT Amount" := 0;
             "VAT Amount (ACY)" := 0;
-#if not CLEAN23
-            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
-#endif
         end;
 
         OnAfterInvPostBufferPrepareSales(SalesLine, Rec);
@@ -506,9 +496,6 @@ table 49 "Invoice Post. Buffer"
         Amount := "VAT Base Amount";
         "Amount (ACY)" := "VAT Base Amount (ACY)";
         "VAT Base Before Pmt. Disc." := "VAT Base Amount";
-#if not CLEAN23
-        NonDeductibleVAT.Calculate(Rec);
-#endif        
     end;
 
     local procedure CalcVATAmount(ValueInclVAT: Boolean; Value: Decimal; VATPercent: Decimal): Decimal
@@ -573,9 +560,6 @@ table 49 "Invoice Post. Buffer"
         "Job No." := PurchLine."Job No.";
         "VAT %" := PurchLine."VAT %";
         "VAT Difference" := PurchLine."VAT Difference";
-#if not CLEAN23
-        NonDeductibleVAT.Copy(Rec, PurchLine);
-#endif        
         if Type = Type::"Fixed Asset" then begin
             "FA Posting Date" := PurchLine."FA Posting Date";
             "Depreciation Book Code" := PurchLine."Depreciation Book Code";
@@ -604,9 +588,6 @@ table 49 "Invoice Post. Buffer"
             "VAT Base Amount (ACY)" := 0;
             "VAT Amount" := 0;
             "VAT Amount (ACY)" := 0;
-#if not CLEAN23
-            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
-#endif            
         end;
 
         OnAfterInvPostBufferPreparePurchase(PurchLine, Rec);
@@ -658,9 +639,6 @@ table 49 "Invoice Post. Buffer"
         "VAT Base Amount (ACY)" := -"VAT Base Amount (ACY)";
         "VAT Amount" := -"VAT Amount";
         "VAT Amount (ACY)" := -"VAT Amount (ACY)";
-#if not CLEAN23
-        NonDeductibleVAT.Reverse(Rec);
-#endif        
     end;
 
     [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
@@ -725,7 +703,7 @@ table 49 "Invoice Post. Buffer"
     end;
 #endif
 
-#if not CLEAN23
+#if not CLEAN24
     [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
     procedure PreparePrepmtAdjBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; GLAccountNo: Code[20]; AdjAmount: Decimal; RoundingEntry: Boolean)
     var
@@ -782,9 +760,6 @@ table 49 "Invoice Post. Buffer"
             "VAT Amount (ACY)" += InvoicePostBuffer."VAT Amount (ACY)";
             "VAT Difference" += InvoicePostBuffer."VAT Difference";
             "VAT Base Amount (ACY)" += InvoicePostBuffer."VAT Base Amount (ACY)";
-#if not CLEAN23
-            NonDeductibleVAT.Increment(Rec, InvoicePostBuffer);
-#endif            
             Quantity += InvoicePostBuffer.Quantity;
             "VAT Base Before Pmt. Disc." += InvoicePostBuffer."VAT Base Before Pmt. Disc.";
             if not InvoicePostBuffer."System-Created Entry" then
@@ -887,9 +862,7 @@ table 49 "Invoice Post. Buffer"
         AdjustRoundingFieldsPair(TempInvoicePostBufferRounding.Amount, Amount, "Amount (ACY)");
         AdjustRoundingFieldsPair(TempInvoicePostBufferRounding."VAT Amount", "VAT Amount", "VAT Amount (ACY)");
         AdjustRoundingFieldsPair(TempInvoicePostBufferRounding."VAT Base Amount", "VAT Base Amount", "VAT Base Amount (ACY)");
-#if not CLEAN23
-        NonDeductibleVAT.AdjustRoundingForInvoicePostBufferUpdate(TempInvoicePostBufferRounding, Rec);
-#endif        
+
         OnAfterAdjustRoundingForUpdate(Rec, TempInvoicePostBufferRounding);
     end;
 
@@ -906,9 +879,7 @@ table 49 "Invoice Post. Buffer"
         ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding.Amount, Amount);
         ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding."VAT Amount", "VAT Amount");
         ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding."VAT Base Amount", "VAT Base Amount");
-#if not CLEAN23
-        NonDeductibleVAT.ApplyRoundingForFinalPostingFromInvoicePostBuffer(TempInvoicePostBufferRounding, Rec);
-#endif        
+
         OnAfterApplyRoundingForFinalPosting(Rec, TempInvoicePostBufferRounding);
     end;
 
@@ -948,9 +919,6 @@ table 49 "Invoice Post. Buffer"
         GenJnlLine."Source Curr. VAT Amount" := Rec."VAT Amount (ACY)";
         GenJnlLine."VAT Difference" := Rec."VAT Difference";
         GenJnlLine."VAT Base Before Pmt. Disc." := Rec."VAT Base Before Pmt. Disc.";
-#if not CLEAN23
-        NonDeductibleVAT.Copy(GenJnlLine, Rec);
-#endif        
 
         OnAfterCopyToGenJnlLine(GenJnlLine, Rec);
     end;
@@ -973,103 +941,103 @@ table 49 "Invoice Post. Buffer"
         OnAfterCopyToGenJnlLineFA(GenJnlLine, Rec);
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInvPostBufferPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillInvPostingBufferPrimaryKey(var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInvPostBufferModify(var InvoicePostBuffer: Record "Invoice Post. Buffer"; FromInvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInvPostBufferUpdate(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var FromInvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetAmountsNoVAT(var InvoicePostBuffer: Record "Invoice Post. Buffer"; TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal)
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcDiscount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcDiscountNoVAT(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInvPostBufferUpdate(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var FromInvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInvPostBufferModify(var InvoicePostBuffer: Record "Invoice Post. Buffer"; FromInvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrepareSales(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var SalesLine: Record "Sales Line")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(var PrepmtAdjInvPostBuffer: Record "Invoice Post. Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; InvoicePostBuffer: Record "Invoice Post. Buffer");
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyToGenJnlLineFA(var GenJnlLine: Record "Gen. Journal Line"; InvoicePostBuffer: Record "Invoice Post. Buffer");
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterAdjustRoundingForUpdate(var InvoicePostBuffer: Record "Invoice Post. Buffer"; TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary)
     begin
     end;
 
-    [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
+    [Obsolete('This procedure is no longer invoked. Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyRoundingForFinalPosting(var InvoicePostBuffer: Record "Invoice Post. Buffer"; TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary)
     begin
@@ -1077,3 +1045,4 @@ table 49 "Invoice Post. Buffer"
 #endif
 #pragma warning restore AS0072
 }
+#endif

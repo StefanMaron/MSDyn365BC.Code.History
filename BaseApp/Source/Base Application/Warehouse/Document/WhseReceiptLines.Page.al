@@ -159,25 +159,6 @@ page 7342 "Whse. Receipt Lines"
             {
                 Caption = '&Line';
                 Image = Line;
-                action("Show &Whse. Document")
-                {
-                    ApplicationArea = Warehouse;
-                    Caption = 'Show &Whse. Document';
-                    Image = ViewOrder;
-                    ShortCutKey = 'Shift+F7';
-                    ToolTip = 'View the related warehouse document.';
-                    ObsoleteReason = 'Replaced by "Show Document" action';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-
-                    trigger OnAction()
-                    var
-                        WhseRcptHeader: Record "Warehouse Receipt Header";
-                    begin
-                        WhseRcptHeader.Get(Rec."No.");
-                        PAGE.Run(PAGE::"Warehouse Receipt", WhseRcptHeader);
-                    end;
-                }
                 action(ShowDocument)
                 {
                     ApplicationArea = Warehouse;

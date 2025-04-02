@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
@@ -28,7 +32,6 @@ page 5934 "Service Invoice Subform"
         {
             repeater(Control1)
             {
-                Editable = Rec."Automatically Generated" = false;
                 ShowCaption = false;
                 field(Type; Rec.Type)
                 {
@@ -38,7 +41,6 @@ page 5934 "Service Invoice Subform"
                     trigger OnValidate()
                     begin
                         NoOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption(Type), 1, 100));
                     end;
                 }
                 field("No."; Rec."No.")
@@ -52,7 +54,6 @@ page 5934 "Service Invoice Subform"
                     begin
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("No."), 1, 100));
                         if Rec."Variant Code" = '' then
                             VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                     end;
@@ -62,7 +63,7 @@ page 5934 "Service Invoice Subform"
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Service, ItemReferences;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a sales or purchase document.';
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a service document.';
                     Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -73,11 +74,6 @@ page 5934 "Service Invoice Subform"
                         NoOnAfterValidate();
                         CurrPage.Update();
                     end;
-                }
-                field("Service Tariff No."; Rec."Service Tariff No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the ID of the service tariff that is associated with the service order.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
@@ -93,11 +89,6 @@ page 5934 "Service Invoice Subform"
                         if Rec."Variant Code" = '' then
                             VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                     end;
-                }
-                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if the entry must be included in the VAT transaction report.';
                 }
                 field(Nonstock; Rec.Nonstock)
                 {
@@ -128,11 +119,6 @@ page 5934 "Service Invoice Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("VAT Prod. Posting Group"), 1, 100));
-                    end;
                 }
                 field(Description; Rec.Description)
                 {
@@ -172,7 +158,6 @@ page 5934 "Service Invoice Subform"
                     trigger OnValidate()
                     begin
                         QuantityOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption(Quantity), 1, 100));
                     end;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
@@ -183,7 +168,6 @@ page 5934 "Service Invoice Subform"
                     trigger OnValidate()
                     begin
                         UnitofMeasureCodeOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Unit of Measure Code"), 1, 100));
                     end;
                 }
                 field("Unit of Measure"; Rec."Unit of Measure")
@@ -203,11 +187,6 @@ page 5934 "Service Invoice Subform"
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Unit Price"), 1, 100));
-                    end;
                 }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
@@ -233,33 +212,18 @@ page 5934 "Service Invoice Subform"
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Line Discount %"), 1, 100));
-                    end;
                 }
                 field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Line Amount"), 1, 100));
-                    end;
                 }
                 field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                     Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Line Discount Amount"), 1, 100));
-                    end;
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
@@ -409,13 +373,6 @@ page 5934 "Service Invoice Subform"
                     begin
                         Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
-                }
-                field("Automatically Generated"; Rec."Automatically Generated")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies if the document has been automatically generated.';
-                    Visible = false;
                 }
             }
         }
@@ -704,11 +661,6 @@ page 5934 "Service Invoice Subform"
         end;
     end;
 
-    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
-    begin
-        Rec.UpdateSplitVATLines(Rec.TableCaption);
-    end;
-
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.Type := xRec.Type;
@@ -825,12 +777,6 @@ page 5934 "Service Invoice Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
-    end;
-
-    local procedure UpdateSplitVATLinesPage(ChangedFieldName: Text[100])
-    begin
-        CurrPage.SaveRecord();
-        Rec.UpdateSplitVATLines(ChangedFieldName);
     end;
 
     [IntegrationEvent(false, false)]

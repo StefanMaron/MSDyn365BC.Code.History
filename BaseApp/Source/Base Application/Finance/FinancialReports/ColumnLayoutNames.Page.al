@@ -21,17 +21,18 @@ page 488 "Column Layout Names"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the unique name (code) of the financial report column definition. You can use up to 10 characters.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the financial report columns definition. The description is not shown on the final report but is used to provide more context when using the definition.';
                 }
                 field("Analysis View Name"; Rec."Analysis View Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the analysis view you want the column definition to use. This field is optional.';
+                }
+                field("Internal Description"; Rec."Internal Description")
+                {
+                    ApplicationArea = Suite;
                 }
             }
         }
@@ -114,7 +115,7 @@ page 488 "Column Layout Names"
                 end;
             }
         }
-        
+
         area(Promoted)
         {
             group(Category_Process)
@@ -129,10 +130,10 @@ page 488 "Column Layout Names"
                 {
                     Caption = 'Copy/Export/Import';
 
-                    actionref(CopyColumnLayout_Promoted; CopyColumnLayout){}
-                    actionref(ImportColumnDefinition_Promoted; ImportColumnDefinition){}
-                    actionref(ExportColumnDefinition_Promoted; ExportColumnDefinition){}
-                }                           
+                    actionref(CopyColumnLayout_Promoted; CopyColumnLayout) { }
+                    actionref(ImportColumnDefinition_Promoted; ImportColumnDefinition) { }
+                    actionref(ExportColumnDefinition_Promoted; ExportColumnDefinition) { }
+                }
             }
         }
     }

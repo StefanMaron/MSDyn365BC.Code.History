@@ -1932,7 +1932,6 @@ report 202 "Sales Document - Test"
         ShipReceiveOnNextPostReq: Boolean;
         VATNoError: Boolean;
         ApplNoError: Boolean;
-        ShowDim: Boolean;
         Continue: Boolean;
         ShowCostAssignment: Boolean;
 #pragma warning disable AA0074
@@ -2019,6 +2018,9 @@ report 202 "Sales Document - Test"
         TotalCaption_Control220Lbl: Label 'Total';
         ContinuedCaption_Control223Lbl: Label 'Continued';
         SalesLineHidden: Boolean;
+
+    protected var
+        ShowDim: Boolean;
 
     local procedure AddError(Text: Text)
     begin

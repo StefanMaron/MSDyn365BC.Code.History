@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Transfer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -852,13 +856,6 @@ table 5741 "Transfer Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(5750; "Whse. Inbnd. Otsdg. Qty (Base)"; Decimal)
         {
             BlankZero = true;
@@ -1117,13 +1114,16 @@ table 5741 "Transfer Line"
         key(Key6; "Transfer-from Code", "Shipment Date", "Item No.", "Variant Code")
         {
         }
-        key(Key7; "Subcontr. Purch. Order No.", "Subcontr. Purch. Order Line", "Prod. Order No.", "Prod. Order Line No.", "Prod. Order Comp. Line No.", "Return Order", "Derived From Line No.")
+        key(Key7; "Document No.", "Item No.", "Transfer-from Code", "Transfer-from Bin Code")
         {
-            SumIndexFields = "Qty. in Transit (Base)", "Outstanding Qty. (Base)";
         }
-        key(Key8; "Prod. Order No.", "Routing No.", "Routing Reference No.", "Operation No.", "Subcontr. Purch. Order No.", "Derived From Line No.")
+        key(Key70; "Subcontr. Purch. Order No.", "Subcontr. Purch. Order Line", "Prod. Order No.", "Prod. Order Line No.", "Prod. Order Comp. Line No.", "Return Order", "Derived From Line No.")
         {
-            SumIndexFields = "WIP Outstanding Qty. (Base)";
+            IncludedFields = "Qty. in Transit (Base)", "Outstanding Qty. (Base)";
+        }
+        key(Key80; "Prod. Order No.", "Routing No.", "Routing Reference No.", "Operation No.", "Subcontr. Purch. Order No.", "Derived From Line No.")
+        {
+            IncludedFields = "WIP Outstanding Qty. (Base)";
         }
     }
 
@@ -2683,4 +2683,3 @@ table 5741 "Transfer Line"
     begin
     end;
 }
-

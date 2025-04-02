@@ -17,7 +17,6 @@ codeunit 144208 "FatturaPA Unit Tests"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryITLocalization: Codeunit "Library - IT Localization";
-        LibraryService: Codeunit "Library - Service";
         IsInitialized: Boolean;
 
     [Test]
@@ -293,7 +292,7 @@ codeunit 144208 "FatturaPA Unit Tests"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Rename(PadStr(Item."No.", MaxStrLen(Item."No."), 'X'));
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
         ExtendedTextHeader.Validate("Starting Date", WorkDate());
         ExtendedTextHeader.Validate("Ending Date", WorkDate());
         ExtendedTextHeader.Validate("Sales Invoice", true);
@@ -301,7 +300,7 @@ codeunit 144208 "FatturaPA Unit Tests"
         ExtendedTextHeader.Validate("Service Invoice", true);
         ExtendedTextHeader.Validate("Service Credit Memo", true);
         ExtendedTextHeader.Modify(true);
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(ExtendedTextLine.Text)));
         ExtendedTextLine.Modify(true);
         exit(Item."No.");

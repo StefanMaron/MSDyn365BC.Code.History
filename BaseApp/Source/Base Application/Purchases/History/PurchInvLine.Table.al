@@ -22,9 +22,6 @@ using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
@@ -484,6 +481,12 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Project Currency Code';
         }
+        field(1019; "Job Planning Line No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
+        }
         field(1700; "Deferral Code"; Code[10])
         {
             Caption = 'Deferral Code';
@@ -493,12 +496,6 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Allocation Account No.';
             DataClassification = CustomerContent;
-        }
-        field(5401; "Prod. Order No."; Code[20])
-        {
-            Caption = 'Prod. Order No.';
-            TableRelation = "Production Order"."No." where(Status = filter(Released | Finished));
-            ValidateTableRelation = false;
         }
         field(5402; "Variant Code"; Code[10])
         {
@@ -585,37 +582,6 @@ table 123 "Purch. Inv. Line"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-        field(5705; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
-        {
-            Caption = 'Unit of Measure (Cross Ref.)';
-            TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."));
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5707; "Cross-Reference Type"; Option)
-        {
-            Caption = 'Cross-Reference Type';
-            OptionCaption = ' ,Customer,Vendor,Bar Code';
-            OptionMembers = " ",Customer,Vendor,"Bar Code";
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5708; "Cross-Reference Type No."; Code[30])
-        {
-            Caption = 'Cross-Reference Type No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5709; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
@@ -629,13 +595,6 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
-        }
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5725; "Item Reference No."; Code[50])
         {
@@ -705,37 +664,10 @@ table 123 "Purch. Inv. Line"
             Editable = false;
             TableRelation = "Vendor Ledger Entry" where("Document Type" = const(Invoice));
         }
-        field(99000750; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header";
-        }
-        field(99000751; "Operation No."; Code[10])
-        {
-            Caption = 'Operation No.';
-            TableRelation = "Prod. Order Routing Line"."Operation No." where(Status = filter(Released ..),
-                                                                              "Prod. Order No." = field("Prod. Order No."),
-                                                                              "Routing No." = field("Routing No."));
-        }
-        field(99000752; "Work Center No."; Code[20])
-        {
-            Caption = 'Work Center No.';
-            TableRelation = "Work Center";
-        }
-        field(99000754; "Prod. Order Line No."; Integer)
-        {
-            Caption = 'Prod. Order Line No.';
-            TableRelation = "Prod. Order Line"."Line No." where(Status = filter(Released ..),
-                                                                 "Prod. Order No." = field("Prod. Order No."));
-        }
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
-        }
-        field(99000759; "Routing Reference No."; Integer)
-        {
-            Caption = 'Routing Reference No.';
         }
     }
 
@@ -856,8 +788,7 @@ table 123 "Purch. Inv. Line"
     procedure GetPurchRcptLines(var TempPurchRcptLine: Record "Purch. Rcpt. Line" temporary)
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
         TempPurchRcptLine.Reset();
         TempPurchRcptLine.DeleteAll();
@@ -865,18 +796,18 @@ table 123 "Purch. Inv. Line"
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLineValueEntries(ValueEntry);
-        ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet() then
-            repeat
-                ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Receipt" then
-                    if PurchRcptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempPurchRcptLine.Init();
-                        TempPurchRcptLine := PurchRcptLine;
-                        if TempPurchRcptLine.Insert() then;
-                    end;
-            until ValueEntry.Next() = 0;
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Purchase Invoice");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetFilter(Value_Entry_Invoiced_Qty, '<>0');
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Purchase Receipt");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if PurchRcptLine.Get(ValueItemLedgerEntries.Item_Ledg_Document_No, ValueItemLedgerEntries.Item_Ledg_Document_Line_No) then begin
+                TempPurchRcptLine.Init();
+                TempPurchRcptLine := PurchRcptLine;
+                if TempPurchRcptLine.Insert() then;
+            end;
     end;
 
     procedure CalcReceivedPurchNotReturned(var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
@@ -929,6 +860,7 @@ table 123 "Purch. Inv. Line"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
+        ShouldExit: Boolean;
     begin
         if SetQuantity then begin
             TempItemLedgEntry.Reset();
@@ -936,7 +868,10 @@ table 123 "Purch. Inv. Line"
 
             if Type <> Type::Item then
                 exit;
-            if "Work Center No." <> '' then
+
+            ShouldExit := false;
+            OnGetItemLedgEntryOnShouldExit(Rec, ShouldExit);
+            if ShouldExit then
                 exit;
         end;
 
@@ -1059,6 +994,12 @@ table 123 "Purch. Inv. Line"
         end;
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQty(var PurchInvLine: Record "Purch. Inv. Line"; QtyBase: Decimal; var Result: Decimal)
     begin
@@ -1083,5 +1024,14 @@ table 123 "Purch. Inv. Line"
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemLedgEntryOnShouldExit(var PurchInvLine: Record "Purch. Inv. Line"; var ShouldExit: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var PurchInvLine: Record "Purch. Inv. Line"; var VATPct: Decimal)
+    begin
+    end;
+}

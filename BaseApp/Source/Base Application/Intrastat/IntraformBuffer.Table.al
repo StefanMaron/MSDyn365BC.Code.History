@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA25 
 table 12118 "Intra - form Buffer"
 {
     Caption = 'Intra - form Buffer';
@@ -205,3 +206,5 @@ table 12118 "Intra - form Buffer"
     }
 }
 
+ 
+#endif

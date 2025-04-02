@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Interaction;
 
 enum 5076 "Correspondence Type"
@@ -16,13 +20,4 @@ enum 5076 "Correspondence Type"
     {
         Caption = 'Email';
     }
-#if not CLEAN23
-    value(3; Fax)
-    {
-        ObsoleteReason = 'Not supported since moving to WebClient.';
-        ObsoleteState = Pending;
-        ObsoleteTag = '23.0';
-        Caption = 'Fax';
-    }
-#endif
 }

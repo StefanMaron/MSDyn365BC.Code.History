@@ -196,11 +196,6 @@ page 6050 "Service Contract"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if a service contract or contract quote is locked or open for changes.';
                 }
-                field("Activity Code"; Rec."Activity Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the code for the company''s primary activity.';
-                }
             }
             part(ServContractLines; "Service Contract Subform")
             {
@@ -392,6 +387,15 @@ page 6050 "Service Contract"
                         Caption = 'Name';
                         DrillDown = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the customer that the items are shipped to.';
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -683,6 +687,7 @@ page 6050 "Service Contract"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
                               "Document Type" = const("Service Contract"),
                               "No." = field("Contract No.");

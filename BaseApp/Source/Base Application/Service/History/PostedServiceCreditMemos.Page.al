@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.EServices.EDocument;
@@ -183,6 +187,7 @@ page 5971 "Posted Service Credit Memos"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
                               "No." = field("No.");
             }
@@ -316,22 +321,6 @@ page 5971 "Posted Service Credit Memos"
                     ActivityLog.ShowEntries(Rec.RecordId);
                 end;
             }
-            action("Update Document")
-            {
-                ApplicationArea = Service;
-                Caption = 'Update Document';
-                Image = Edit;
-                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
-
-                trigger OnAction()
-                var
-                    PostedServCrMemoUpdate: Page "Posted Serv. Cr. Memo - Update";
-                begin
-                    PostedServCrMemoUpdate.LookupMode := true;
-                    PostedServCrMemoUpdate.SetRec(Rec);
-                    PostedServCrMemoUpdate.RunModal();
-                end;
-            }
         }
         area(Promoted)
         {
@@ -339,9 +328,6 @@ page 5971 "Posted Service Credit Memos"
             {
                 Caption = 'Process';
 
-                actionref("Update Document_Promoted"; "Update Document")
-                {
-                }
                 group(Category_CategoryPrint)
                 {
                     ShowAs = SplitButton;

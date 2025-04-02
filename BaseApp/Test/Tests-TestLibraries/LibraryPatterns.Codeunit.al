@@ -1,4 +1,4 @@
-codeunit 132212 "Library - Patterns"
+﻿codeunit 132212 "Library - Patterns"
 {
 
     trigger OnRun()
@@ -9,551 +9,374 @@ codeunit 132212 "Library - Patterns"
         LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
+#if not CLEAN26
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+#endif
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         TXTIncorrectEntry: Label 'Incorrect %1 in Entry No. %2.';
         TXTUnexpectedLine: Label 'Unexpected line after getting posted line to reverse.';
         TXTLineCountMismatch: Label 'Line count mismatch in revaluation for Item %1.';
-        LibraryService: Codeunit "Library - Service";
 
+#if not CLEAN26
+    [Obsolete('Replaced by LibraryItemTracking.AddSerialNoTrackingInfo()', '26.0')]
     procedure ADDSerialNoTrackingInfo(ItemNo: Code[20])
     var
         Item: Record Item;
-        ItemTrackingCode: Record "Item Tracking Code";
     begin
         Item.Get(ItemNo);
-
-        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
-        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-        Item.Modify(true);
+        LibraryItemTracking.AddSerialNoTrackingInfo(Item);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to Library Purchase', '26.0')]
     procedure ASSIGNPurchChargeToPurchRcptLine(PurchaseHeader: Record "Purchase Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; Qty: Decimal; DirectUnitCost: Decimal)
-    var
-        ItemCharge: Record "Item Charge";
-        PurchaseLine: Record "Purchase Line";
-        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        MAKEItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, Qty, DirectUnitCost);
-
-        PurchRcptLine.TestField(Type, PurchRcptLine.Type::Item);
-
-        LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine, ItemCharge,
-          ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
-          PurchRcptLine."Document No.", PurchRcptLine."Line No.",
-          PurchRcptLine."No.", Qty, DirectUnitCost);
-        ItemChargeAssignmentPurch.Insert();
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(PurchaseHeader, PurchRcptLine, Qty, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to Library Purchase', '26.0')]
     procedure ASSIGNPurchChargeToPurchInvoiceLine(PurchaseHeader: Record "Purchase Header"; PurchInvLine: Record "Purch. Inv. Line"; Qty: Decimal; DirectUnitCost: Decimal)
-    var
-        ItemCharge: Record "Item Charge";
-        PurchaseLine: Record "Purchase Line";
-        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        MAKEItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, Qty, DirectUnitCost);
-
-        PurchInvLine.TestField(Type, PurchInvLine.Type::Item);
-
-        LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine, ItemCharge,
-          ItemChargeAssignmentPurch."Applies-to Doc. Type"::Invoice,
-          PurchInvLine."Document No.", PurchInvLine."Line No.",
-          PurchInvLine."No.", Qty, DirectUnitCost);
-        ItemChargeAssignmentPurch.Insert();
+        LibraryPurchase.AssignPurchChargeToPurchInvoiceLine(PurchaseHeader, PurchInvLine, Qty, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to Library Purchase', '26.0')]
     procedure ASSIGNPurchChargeToPurchaseLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Qty: Decimal; DirectUnitCost: Decimal)
-    var
-        ItemCharge: Record "Item Charge";
-        PurchaseLine1: Record "Purchase Line";
-        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        MAKEItemChargePurchaseLine(PurchaseLine1, ItemCharge, PurchaseHeader, Qty, DirectUnitCost);
-
-        PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
-
-        LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine1, ItemCharge,
-          ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order,
-          PurchaseLine."Document No.", PurchaseLine."Line No.",
-          PurchaseLine."No.", Qty, DirectUnitCost);
-        ItemChargeAssignmentPurch.Insert();
+        LibraryPurchase.AssignPurchChargeToPurchaseLine(PurchaseHeader, PurchaseLine, Qty, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to Library Purchase', '26.0')]
     procedure ASSIGNPurchChargeToPurchReturnLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Qty: Decimal; DirectUnitCost: Decimal)
-    var
-        ItemCharge: Record "Item Charge";
-        PurchaseLine1: Record "Purchase Line";
-        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        MAKEItemChargePurchaseLine(PurchaseLine1, ItemCharge, PurchaseHeader, Qty, DirectUnitCost);
-
-        PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
-
-        LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine1, ItemCharge,
-          ItemChargeAssignmentPurch."Applies-to Doc. Type"::"Return Order",
-          PurchaseLine."Document No.", PurchaseLine."Line No.",
-          PurchaseLine."No.", Qty, DirectUnitCost);
-        ItemChargeAssignmentPurch.Insert();
+        LibraryPurchase.AssignPurchChargeToPurchReturnLine(PurchaseHeader, PurchaseLine, Qty, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to Library Sales', '26.0')]
     procedure ASSIGNSalesChargeToSalesShptLine(SalesHeader: Record "Sales Header"; SalesShptLine: Record "Sales Shipment Line"; Qty: Decimal; UnitCost: Decimal)
-    var
-        ItemCharge: Record "Item Charge";
-        SalesLine: Record "Sales Line";
-        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
     begin
-        MAKEItemChargeSalesLine(SalesLine, ItemCharge, SalesHeader, Qty, UnitCost);
-
-        SalesShptLine.TestField(Type, SalesShptLine.Type::Item);
-
-        LibrarySales.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine, ItemCharge,
-          ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
-          SalesShptLine."Document No.", SalesShptLine."Line No.",
-          SalesShptLine."No.", Qty, UnitCost);
-        ItemChargeAssignmentSales.Insert();
+        LibrarySales.AssignSalesChargeToSalesShptLine(SalesHeader, SalesShptLine, Qty, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to Library Sales', '26.0')]
     procedure ASSIGNSalesChargeToSalesLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Qty: Decimal; UnitCost: Decimal)
-    var
-        ItemCharge: Record "Item Charge";
-        SalesLine1: Record "Sales Line";
-        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
     begin
-        MAKEItemChargeSalesLine(SalesLine1, ItemCharge, SalesHeader, Qty, UnitCost);
-
-        SalesLine.TestField(Type, SalesLine.Type::Item);
-
-        LibrarySales.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine1, ItemCharge,
-          ItemChargeAssignmentSales."Applies-to Doc. Type"::Order,
-          SalesLine."Document No.", SalesLine."Line No.",
-          SalesLine."No.", Qty, UnitCost);
-        ItemChargeAssignmentSales.Insert();
+        LibrarySales.AssignSalesChargeToSalesLine(SalesHeader, SalesLine, Qty, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to Library Sales', '26.0')]
     procedure ASSIGNSalesChargeToSalesReturnLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Qty: Decimal; UnitCost: Decimal)
-    var
-        ItemCharge: Record "Item Charge";
-        SalesLine1: Record "Sales Line";
-        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
     begin
-        MAKEItemChargeSalesLine(SalesLine1, ItemCharge, SalesHeader, Qty, UnitCost);
-
-        SalesLine.TestField(Type, SalesLine.Type::Item);
-
-        LibrarySales.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine1, ItemCharge,
-          ItemChargeAssignmentSales."Applies-to Doc. Type"::"Return Order",
-          SalesLine."Document No.", SalesLine."Line No.",
-          SalesLine."No.", Qty, UnitCost);
-        ItemChargeAssignmentSales.Insert();
+        LibrarySales.ASSIGNSalesChargeToSalesReturnLine(SalesHeader, SalesLine, Qty, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKEConsumptionJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; ComponentItem: Record Item; PostingDate: Date; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; UnitCost: Decimal)
-    var
-        ItemJournalLine: Record "Item Journal Line";
-        EntryType: Enum "Item Ledger Entry Type";
     begin
-        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption);
-        EntryType := ItemJournalLine."Entry Type"::"Negative Adjmt.";
-        if ComponentItem.IsNonInventoriableType() then
-            EntryType := ItemJournalLine."Entry Type"::Consumption;
-        MAKEItemJournalLine(
-          ItemJournalLine, ItemJournalBatch, ComponentItem, LocationCode, VariantCode, PostingDate,
-          EntryType, Qty, 0);
-        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Consumption);
-        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
-        ItemJournalLine.Validate("Order No.", ProdOrderLine."Prod. Order No.");
-        ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
-        if ItemJournalLine."Location Code" <> LocationCode then // required for CH
-            ItemJournalLine.Validate("Location Code", LocationCode);
-        ItemJournalLine.Validate("Unit Cost", UnitCost);
-        ItemJournalLine.Modify(true);
+        LibraryManufacturing.CreateConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, ComponentItem, PostingDate, LocationCode, VariantCode, Qty, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure MAKEItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; OverheadRate: Decimal; IndirectCostPercent: Decimal; ItemTrackingCode: Code[10])
     begin
-        LibraryInventory.CreateItem(Item);
-        Item."Costing Method" := CostingMethod;
-        if Item."Costing Method" = Item."Costing Method"::Standard then
-            Item."Standard Cost" := UnitCost;
-        Item."Unit Cost" := UnitCost;
-        Item."Overhead Rate" := OverheadRate;
-        Item."Indirect Cost %" := IndirectCostPercent;
-        Item."Item Tracking Code" := ItemTrackingCode;
-        Item.Description := Item."No.";
-        Item.Modify();
+        LibraryInventory.CreateItem(Item, CostingMethod, UnitCost, OverheadRate, IndirectCostPercent, ItemTrackingCode);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure MAKEItemSimple(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal)
     begin
-        MAKEItem(Item, CostingMethod, UnitCost, 0, 0, '');
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure MAKEItemWithExtendedText(var Item: Record Item; ExtText: Text; CostingMethod: Enum "Costing Method"; UnitCost: Decimal)
-    var
-        ExtendedTextHeader: Record "Extended Text Header";
-        ExtendedTextLine: Record "Extended Text Line";
     begin
-        // Create Item.
-        MAKEItem(Item, CostingMethod, UnitCost, 0, 0, '');
-        Item.Validate("Automatic Ext. Texts", true);
-        Item.Modify();
-
-        // Create Extended Text Header and Line.
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        ExtendedTextHeader.Validate("All Language Codes", true);
-        ExtendedTextHeader.Modify();
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
-        ExtendedTextLine.Validate(Text, CopyStr(ExtText, 1, MaxStrLen(ExtendedTextLine.Text)));
-        ExtendedTextLine.Modify();
+        LibraryInventory.CreateItemWithExtendedText(Item, ExtText, CostingMethod, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Replaced by LibraryInventory.CreateItemUnitOfMeasureCode', '26.0')]
     procedure MAKEAdditionalItemUOM(var NewItemUOM: Record "Item Unit of Measure"; ItemNo: Code[20]; QtyPer: Decimal)
     begin
         LibraryInventory.CreateItemUnitOfMeasureCode(NewItemUOM, ItemNo, QtyPer);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to Library Purchase', '26.0')]
     procedure MAKEItemChargePurchaseLine(var PurchaseLine: Record "Purchase Line"; var ItemCharge: Record "Item Charge"; PurchaseHeader: Record "Purchase Header"; Qty: Decimal; DirectUnitCost: Decimal)
     begin
-        LibraryInventory.CreateItemCharge(ItemCharge);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", Qty);
-        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
-        PurchaseLine.Modify(true);
+        LibraryPurchase.CreateItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, Qty, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to Library Purchase', '26.0')]
     procedure MAKEItemChargeSalesLine(var SalesLine: Record "Sales Line"; var ItemCharge: Record "Item Charge"; SalesHeader: Record "Sales Header"; Qty: Decimal; UnitCost: Decimal)
     begin
-        LibraryInventory.CreateItemCharge(ItemCharge);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", ItemCharge."No.", Qty);
-        SalesLine.Validate("Unit Price", UnitCost);
-        SalesLine.Validate("Unit Cost", UnitCost);
-        SalesLine.Modify(true);
+        LibrarySales.CreateItemChargeSalesLine(SalesLine, ItemCharge, SalesHeader, Qty, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory as CreateItemJournalLine', '26.0')]
     procedure MAKEItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; PostingDate: Date; EntryType: Enum "Item Ledger Entry Type"; Qty: Decimal; UnitAmount: Decimal)
     begin
-        LibraryInventory.MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, EntryType, Qty);
-        ItemJournalLine."Location Code" := LocationCode;
-        ItemJournalLine."Variant Code" := VariantCode;
-        ItemJournalLine.Validate("Unit Amount", UnitAmount);
-        ItemJournalLine.Insert();
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate, EntryType, Qty, UnitAmount);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure MAKEItemJournalLineWithApplication(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; PostingDate: Date; EntryType: Enum "Item Ledger Entry Type"; Qty: Decimal; UnitAmount: Decimal; AppltoEntryNo: Integer)
     begin
-        LibraryInventory.MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, EntryType, Qty);
-        ItemJournalLine."Location Code" := LocationCode;
-        ItemJournalLine."Variant Code" := VariantCode;
-        ItemJournalLine.Validate("Unit Amount", UnitAmount);
-        ItemJournalLine.Validate("Applies-to Entry", AppltoEntryNo);
-        ItemJournalLine.Insert();
+        LibraryInventory.CreateItemJournalLineWithApplication(
+            ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate, EntryType, Qty, UnitAmount, AppltoEntryNo);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure MAKEItemReclassificationJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; NewLocationCode: Code[10]; BinCode: Code[20]; NewBinCode: Code[20]; PostingDate: Date; Quantity: Decimal)
     begin
-        LibraryInventory.MakeItemJournalLine(
-          ItemJournalLine, ItemJournalBatch, Item, PostingDate, ItemJournalLine."Entry Type"::Transfer, Quantity);
-        ItemJournalLine."Location Code" := LocationCode;
-        ItemJournalLine."Variant Code" := VariantCode;
-        ItemJournalLine."New Location Code" := NewLocationCode;
-        ItemJournalLine."Bin Code" := BinCode;
-        ItemJournalLine."New Bin Code" := NewBinCode;
-        ItemJournalLine.Insert();
+        LibraryInventory.CreateItemReclassificationJournalLine(ItemJournalLine, ItemJournalBatch, Item, VariantCode, LocationCode, NewLocationCode, BinCode, NewBinCode, PostingDate, Quantity);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKEOutputJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; PostingDate: Date; Qty: Decimal; UnitCost: Decimal)
-    var
-        ItemJournalLine: Record "Item Journal Line";
-        Item: Record Item;
-        RoutingLine: Record "Routing Line";
     begin
-        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Output);
-        Item.Get(ProdOrderLine."Item No.");
-        MAKEItemJournalLine(
-          ItemJournalLine, ItemJournalBatch, Item, ProdOrderLine."Location Code", ProdOrderLine."Variant Code", PostingDate,
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", 0, 0);
-        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Output);
-        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
-        ItemJournalLine.Validate("Order No.", ProdOrderLine."Prod. Order No.");
-        ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
-        ItemJournalLine.Validate("Item No.", ProdOrderLine."Item No.");
-        RoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-        if RoutingLine.FindFirst() then
-            ItemJournalLine.Validate("Operation No.", RoutingLine."Operation No.");
-        ItemJournalLine.Validate("Output Quantity", Qty);
-        ItemJournalLine.Validate("Unit Cost", UnitCost);
-        ItemJournalLine.Modify();
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, PostingDate, Qty, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKEProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ParentItem: Record Item; ChildItem: Record Item; ChildItemQtyPer: Decimal; RoutingLinkCode: Code[10])
-    var
-        ProductionBOMLine: Record "Production BOM Line";
     begin
-        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ParentItem."Base Unit of Measure");
-        LibraryManufacturing.CreateProductionBOMLine(
-          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ChildItem."No.", ChildItemQtyPer);
-        ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
-        ProductionBOMLine.Modify();
-
-        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify();
-
-        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        ParentItem.Modify();
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, ChildItemQtyPer, RoutingLinkCode);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKEProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; DueDate: Date)
-    var
-        ProdOrderLine: Record "Prod. Order Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
-        NoSeries: Codeunit "No. Series";
-        ProdNoSeries: Code[20];
     begin
-        ProdNoSeries := LibraryUtility.GetGlobalNoSeriesCode();
-        ManufacturingSetup.Get();
-        case ProdOrderStatus of
-            ProductionOrder.Status::Simulated:
-                if ManufacturingSetup."Simulated Order Nos." <> ProdNoSeries then begin
-                    ManufacturingSetup."Simulated Order Nos." := ProdNoSeries;
-                    ManufacturingSetup.Modify();
-                end;
-            ProductionOrder.Status::Planned:
-                if ManufacturingSetup."Planned Order Nos." <> ProdNoSeries then begin
-                    ManufacturingSetup."Planned Order Nos." := ProdNoSeries;
-                    ManufacturingSetup.Modify();
-                end;
-            ProductionOrder.Status::"Firm Planned":
-                if ManufacturingSetup."Firm Planned Order Nos." <> ProdNoSeries then begin
-                    ManufacturingSetup."Firm Planned Order Nos." := ProdNoSeries;
-                    ManufacturingSetup.Modify();
-                end;
-            ProductionOrder.Status::Released:
-                if ManufacturingSetup."Released Order Nos." <> ProdNoSeries then begin
-                    ManufacturingSetup."Released Order Nos." := ProdNoSeries;
-                    ManufacturingSetup.Modify();
-                end;
-        end;
-
-        Clear(ProductionOrder);
-        ProductionOrder."No." := NoSeries.GetNextNo(ProdNoSeries);
-        ProductionOrder.Status := ProdOrderStatus;
-        ProductionOrder.Validate("Source Type", ProductionOrder."Source Type"::Item);
-        ProductionOrder.Validate("Source No.", Item."No.");
-        ProductionOrder.Validate(Quantity, Qty);
-        ProductionOrder.Validate("Location Code", LocationCode);
-        ProductionOrder.Validate("Due Date", DueDate);
-        ProductionOrder.Insert(true);
-        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, true);
-        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.ModifyAll("Variant Code", VariantCode);
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProdOrderStatus, Item, LocationCode, VariantCode, Qty, DueDate);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKEPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
-    var
-        Vendor: Record Vendor;
     begin
-        MakeVendor(Vendor);
-        MakePurchaseHeader(PurchaseHeader, DocType, PostingDate, Vendor);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Qty);
-        PurchaseLine."Location Code" := LocationCode;
-        PurchaseLine."Variant Code" := VariantCode;
-        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
-        PurchaseLine.Modify(true);
+        LibraryPurchase.CreatePurchaseDocument(
+            PurchaseHeader, PurchaseLine, DocType, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Purchase', '26.0')]
     procedure MAKEPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
     begin
-        MAKEPurchaseDoc(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item, LocationCode, VariantCode, Qty, PostingDate,
-          DirectUnitCost);
+        LibraryPurchase.CreatePurchaseOrder(
+          PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Purchase', '26.0')]
     procedure MAKEPurchaseQuote(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
     begin
-        MAKEPurchaseDoc(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote,
-          Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
+        LibraryPurchase.CreatePurchaseQuote(
+            PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Purchase', '26.0')]
     procedure MAKEPurchaseBlanketOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
     begin
-        MAKEPurchaseDoc(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order",
-          Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
+        LibraryPurchase.CreatePurchaseBlanketOrder(
+          PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Purchase', '26.0')]
     procedure MAKEPurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
     begin
-        MAKEPurchaseDoc(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", Item, LocationCode, VariantCode, Qty, PostingDate,
-          DirectUnitCost);
+        LibraryPurchase.CreatePurchaseReturnOrder(
+          PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Purchase', '26.0')]
     procedure MAKEPurchaseCreditMemo(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
     begin
-        MAKEPurchaseDoc(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo",
-          Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
+        LibraryPurchase.CreatePurchaseCreditMemo(
+            PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Purchase', '26.0')]
     procedure MAKEPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
     begin
-        MAKEPurchaseDoc(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, Item, LocationCode, VariantCode, Qty, PostingDate,
-          DirectUnitCost);
+        LibraryPurchase.CreatePurchaseInvoice(
+          PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure MAKERevaluationJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var Item: Record Item; NewPostingDate: Date; NewCalculatePer: Enum "Inventory Value Calc. Per"; NewByLocation: Boolean; NewByVariant: Boolean; NewUpdStdCost: Boolean; NewCalcBase: Enum "Inventory Value Calc. Base")
-    var
-        ItemJournalLine: Record "Item Journal Line";
-        NewDocNo: Code[20];
     begin
-        NewDocNo := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Document No."), DATABASE::"Item Journal Line");
-        RevaluationJournalCalcInventory(
-          ItemJournalBatch, Item, NewPostingDate, NewDocNo, NewCalculatePer, NewByLocation, NewByVariant, NewUpdStdCost, NewCalcBase);
+        LibraryInventory.CreateRevaluationJournalLine(ItemJournalBatch, Item, NewPostingDate, NewCalculatePer, NewByLocation, NewByVariant, NewUpdStdCost, NewCalcBase);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKERouting(var RoutingHeader: Record "Routing Header"; var Item: Record Item; RoutingLinkCode: Code[10]; DirectUnitCost: Decimal)
-    var
-        RoutingLine: Record "Routing Line";
-        WorkCenter: Record "Work Center";
     begin
-        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
-
-        WorkCenter.FindFirst();
-        WorkCenter.Validate("Direct Unit Cost", DirectUnitCost);
-        WorkCenter.Modify();
-
-        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '', RoutingLine.Type::"Work Center", WorkCenter."No.");
-        RoutingLine.Validate("Routing Link Code", RoutingLinkCode);
-        RoutingLine.Validate("Run Time", 1);
-        RoutingLine.Modify();
-
-        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
-        RoutingHeader.Modify();
-
-        Item.Validate("Routing No.", RoutingHeader."No.");
-        Item.Modify();
+        LibraryManufacturing.CreateRouting(RoutingHeader, Item, RoutingLinkCode, DirectUnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKERoutingforWorkCenter(var RoutingHeader: Record "Routing Header"; var Item: Record Item; WorkCenterNo: Code[20])
-    var
-        RoutingLine: Record "Routing Line";
     begin
-        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
-
-        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '', RoutingLine.Type::"Work Center", WorkCenterNo);
-        RoutingLine.Validate("Run Time", 1);
-        RoutingLine.Modify();
-
-        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
-        RoutingHeader.Modify();
-
-        Item.Validate("Routing No.", RoutingHeader."No.");
-        Item.Modify();
+        LibraryManufacturing.CreateRoutingforWorkCenter(RoutingHeader, Item, WorkCenterNo);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales procedure CreateSalesDocument()', '26.0')]
     procedure MAKESalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, '');
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
-        SalesLine."Location Code" := LocationCode;
-        SalesLine."Variant Code" := VariantCode;
-        SalesLine.Validate("Unit Price", UnitPrice);
-        SalesLine.Modify(true);
+        LibrarySales.CreateSalesDocument(
+            SalesHeader, SalesLine, DocType, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales procedure CreateSalesDocument()', '26.0')]
     procedure MAKESalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
     begin
-        MAKESalesDoc(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+        LibrarySales.CreateSalesOrder(
+            SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales procedure CreateSalesInvoice()', '26.0')]
     procedure MAKESalesInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
     begin
-        MAKESalesDoc(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+        LibrarySales.CreateSalesInvoice(
+            SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales procedure CreateSalesQuote()', '26.0')]
     procedure MAKESalesQuote(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
     begin
-        MAKESalesDoc(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Quote, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+        LibrarySales.CreateSalesQuote(
+          SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales procedure CreateBlanketSalesOrder()', '26.0')]
     procedure MAKESalesBlanketOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
     begin
-        MAKESalesDoc(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+        LibrarySales.CreateSalesBlanketOrder(
+          SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales procedure CreateSalesReturnOrder()', '26.0')]
     procedure MAKESalesReturnOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal; UnitPrice: Decimal)
     begin
-        MAKESalesDoc(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
-        SalesLine.Validate("Unit Cost (LCY)", UnitCost);
-        SalesLine.Modify();
+        LibrarySales.CreateSalesReturnOrder(
+          SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost, UnitPrice);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales procedure CreateSalesCreditMemo()', '26.0')]
     procedure MAKESalesCreditMemo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal; UnitPrice: Decimal)
     begin
-        MAKESalesDoc(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", Item,
-          LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
-        SalesLine.Validate("Unit Cost (LCY)", UnitCost);
-        SalesLine.Modify();
+        LibrarySales.CreateSalesCreditMemo(
+            SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost, UnitPrice);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Warehouse procedure CreateStockkeepingUnit', '26.0')]
     procedure MAKEStockkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
-    var
-        Location: Record Location;
-        ItemVariant: Record "Item Variant";
     begin
-        Clear(StockkeepingUnit);
-        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", ItemVariant.Code);
-        StockkeepingUnit."Unit Cost" := Item."Unit Cost";
-        StockkeepingUnit."Standard Cost" := Item."Standard Cost";
-        StockkeepingUnit.Modify();
+        LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory procedure CreateTransferOrder', '26.0')]
     procedure MAKETransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; Item: Record Item; FromLocation: Record Location; ToLocation: Record Location; InTransitLocation: Record Location; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; ShipmentDate: Date)
     begin
-        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
-        TransferHeader.Validate("Posting Date", PostingDate);
-        TransferHeader.Validate("Shipment Date", ShipmentDate);
-        TransferHeader.Modify();
-        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
-        TransferLine.Validate("Shipment Date", ShipmentDate);
-        TransferLine.Validate("Variant Code", VariantCode);
-        TransferLine.Modify();
+        LibraryInventory.CreateTransferOrder(
+            TransferHeader, TransferLine, Item, FromLocation, ToLocation, InTransitLocation, VariantCode, Qty, PostingDate, ShipmentDate);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure POSTConsumption(ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
-    var
-        ItemJournalBatch: Record "Item Journal Batch";
     begin
-        MAKEConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, Item, PostingDate, LocationCode, VariantCode, Qty, UnitCost);
-        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure POSTItemJournalLine(TemplateType: Enum "Item Journal Template Type"; EntryType: Enum "Item Ledger Entry Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
-    var
-        ItemJournalLine: Record "Item Journal Line";
-        ItemJournalBatch: Record "Item Journal Batch";
     begin
-        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, TemplateType);
-        MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate, EntryType, Qty, UnitAmount);
-        ItemJournalLine."Bin Code" := BinCode;
-        ItemJournalLine.Modify();
-        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(TemplateType, EntryType, Item, LocationCode, VariantCode, BinCode, Qty, PostingDate, UnitAmount);
     end;
+#endif
 
     procedure POSTItemJournalLineWithApplication(TemplateType: Enum "Item Journal Template Type"; EntryType: Enum "Item Ledger Entry Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal; AppltoEntryNo: Integer)
     var
@@ -561,26 +384,20 @@ codeunit 132212 "Library - Patterns"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, TemplateType);
-        MAKEItemJournalLineWithApplication(
+        LibraryInventory.CreateItemJournalLineWithApplication(
           ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate, EntryType, Qty, UnitAmount, AppltoEntryNo);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure POSTNegativeAdjustment(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
-    var
-        ItemJournalTemplate: Record "Item Journal Template";
-        ItemJournalLine: Record "Item Journal Line";
     begin
-        POSTItemJournalLine(ItemJournalTemplate.Type::Item,
-          ItemJournalLine."Entry Type"::"Negative Adjmt.",
-          Item,
-          LocationCode,
-          VariantCode,
-          BinCode,
-          Qty,
-          PostingDate,
-          UnitAmount);
+        LibraryInventory.PostItemJournalLine(
+            "Item Journal Template Type"::Item, "Item Ledger Entry Type"::"Negative Adjmt.", Item,
+            LocationCode, VariantCode, BinCode, Qty, PostingDate, UnitAmount);
     end;
+#endif
 
     procedure POSTNegativeAdjustmentWithItemTracking(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; SerialNo: Code[50]; LotNo: Code[50])
     var
@@ -590,7 +407,7 @@ codeunit 132212 "Library - Patterns"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
-        MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
           ItemJournalLine."Entry Type"::"Negative Adjmt.", Qty, 0);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -603,56 +420,36 @@ codeunit 132212 "Library - Patterns"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
-        MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
           ItemJournalLine."Entry Type"::"Negative Adjmt.", Qty, 0);
         ItemJournalLine.Validate(Amount, Amount);
         ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure POSTOutput(ProdOrderLine: Record "Prod. Order Line"; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
-    var
-        ItemJournalBatch: Record "Item Journal Batch";
-        Item: Record Item;
     begin
-        Item.Get(ProdOrderLine."Item No.");
-        MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, PostingDate, Qty, UnitCost);
-        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        LibraryManufacturing.POSTOutput(ProdOrderLine, Qty, PostingDate, UnitCost);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure POSTOutputWithItemTracking(ProdOrderLine: Record "Prod. Order Line"; Qty: Decimal; RunTime: Decimal; PostingDate: Date; UnitCost: Decimal; SerialNo: Code[50]; LotNo: Code[50])
-    var
-        ItemJournalBatch: Record "Item Journal Batch";
-        ItemJournalLine: Record "Item Journal Line";
-        Item: Record Item;
-        ReservEntry: Record "Reservation Entry";
     begin
-        Item.Get(ProdOrderLine."Item No.");
-        MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, PostingDate, Qty, UnitCost);
-        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
-        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst();
-        ItemJournalLine.Validate("Run Time", RunTime);
-        ItemJournalLine.Modify();
-        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
-        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        LibraryManufacturing.POSTOutputWithItemTracking(ProdOrderLine, Qty, RunTime, PostingDate, UnitCost, SerialNo, LotNo);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure POSTPositiveAdjustment(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
-    var
-        ItemJournalTemplate: Record "Item Journal Template";
-        ItemJournalLine: Record "Item Journal Line";
     begin
-        POSTItemJournalLine(ItemJournalTemplate.Type::Item,
-          ItemJournalLine."Entry Type"::"Positive Adjmt.",
-          Item,
-          LocationCode,
-          VariantCode,
-          BinCode,
-          Qty,
-          PostingDate,
-          UnitAmount);
+        LibraryInventory.PostPositiveAdjustment(Item, LocationCode, VariantCode, BinCode, Qty, PostingDate, UnitAmount);
     end;
+#endif
 
     procedure POSTPositiveAdjustmentAmount(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; Amount: Decimal)
     var
@@ -661,127 +458,102 @@ codeunit 132212 "Library - Patterns"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
-        MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty, 0);
         ItemJournalLine.Validate(Amount, Amount);
         ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Item Tracking', '26.0')]
     procedure POSTPositiveAdjustmentWithItemTracking(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; SerialNo: Code[50]; LotNo: Code[50])
-    var
-        ReservEntry: Record "Reservation Entry";
-        ItemJournalTemplate: Record "Item Journal Template";
-        ItemJournalLine: Record "Item Journal Line";
-        ItemJournalBatch: Record "Item Journal Batch";
     begin
-        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
-        MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty, 0);
-        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
-        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        LibraryItemTracking.PostPositiveAdjustmentWithItemTracking(Item, LocationCode, VariantCode, Qty, PostingDate, SerialNo, LotNo);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Replaced by LibraryInventory.PostItemJournalLine()', '26.0')]
     procedure POSTPurchaseJournal(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
-    var
-        ItemJournalTemplate: Record "Item Journal Template";
-        ItemJournalLine: Record "Item Journal Line";
     begin
-        POSTItemJournalLine(ItemJournalTemplate.Type::Item,
-          ItemJournalLine."Entry Type"::Purchase,
-          Item,
-          LocationCode,
-          VariantCode,
-          BinCode,
-          Qty,
-          PostingDate,
-          UnitAmount);
+        LibraryInventory.PostItemJournalLine(
+            "Item Journal Template Type"::Item, "Item Ledger Entry Type"::Purchase, Item,
+            LocationCode, VariantCode, BinCode, Qty, PostingDate, UnitAmount);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Purchase', '26.0')]
     procedure POSTPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal; Receive: Boolean; Invoice: Boolean)
     begin
-        POSTPurchaseOrderPartially(PurchaseHeader, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost, Receive, Qty, Invoice, Qty);
+        LibraryPurchase.PostPurchaseOrderPartially(
+            PurchaseHeader, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost, Receive, Qty, Invoice, Qty);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Purchase', '26.0')]
     procedure POSTPurchaseOrderWithItemTracking(var PurchaseHeader: Record "Purchase Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal; Receive: Boolean; Invoice: Boolean; SerialNo: Code[50]; LotNo: Code[50])
-    var
-        PurchaseLine: Record "Purchase Line";
-        ReservEntry: Record "Reservation Entry";
     begin
-        MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
-        PurchaseLine.Validate("Qty. to Receive", Qty);
-        PurchaseLine.Validate("Qty. to Invoice", Qty);
-        PurchaseLine.Modify();
-        LibraryItemTracking.CreatePurchOrderItemTracking(ReservEntry, PurchaseLine, SerialNo, LotNo, Qty);
-        if Invoice then
-            SetVendorDocNo(PurchaseHeader);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Receive, Invoice);
+        LibraryPurchase.PostPurchaseOrderWithItemTracking(
+            PurchaseHeader, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost, Receive, Invoice, SerialNo, LotNo);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Purchase', '26.0')]
     procedure POSTPurchaseOrderPartially(var PurchaseHeader: Record "Purchase Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal; Receive: Boolean; ReceiveQty: Decimal; Invoice: Boolean; InvoiceQty: Decimal)
-    var
-        PurchaseLine: Record "Purchase Line";
     begin
-        MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
-        PurchaseLine.Validate("Qty. to Receive", ReceiveQty);
-        PurchaseLine.Validate("Qty. to Invoice", InvoiceQty);
-        PurchaseLine.Modify();
-        if Invoice then
-            SetVendorDocNo(PurchaseHeader);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Receive, Invoice);
+        LibraryPurchase.PostPurchaseOrderPartially(
+            PurchaseHeader, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost, Receive, ReceiveQty, Invoice, InvoiceQty);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure POSTReclassificationJournalLine(Item: Record Item; StartDate: Date; FromLocationCode: Code[10]; ToLocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; NewBinCode: Code[20]; Quantity: Decimal)
-    var
-        ItemJnlBatch: Record "Item Journal Batch";
-        ItemJnlLine: Record "Item Journal Line";
     begin
-        LibraryInventory.CreateItemJournalBatchByType(ItemJnlBatch, ItemJnlBatch."Template Type"::Transfer);
-        MAKEItemReclassificationJournalLine(ItemJnlLine, ItemJnlBatch, Item, VariantCode, FromLocationCode, ToLocationCode,
-          BinCode, NewBinCode, StartDate, Quantity);
-        LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
+        LibraryInventory.PostReclassificationJournalLine(Item, StartDate, FromLocationCode, ToLocationCode, VariantCode, BinCode, NewBinCode, Quantity);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Replaced by LibraryInventory.PostItemJournalLine()', '26.0')]
     procedure POSTSaleJournal(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
-    var
-        ItemJournalTemplate: Record "Item Journal Template";
-        ItemJournalLine: Record "Item Journal Line";
     begin
-        POSTItemJournalLine(ItemJournalTemplate.Type::Item,
-          ItemJournalLine."Entry Type"::Sale,
-          Item,
-          LocationCode,
-          VariantCode,
-          BinCode,
-          Qty,
-          PostingDate,
-          UnitAmount);
+        LibraryInventory.PostItemJournalLine(
+            "Item Journal Template Type"::Item, "Item Ledger Entry Type"::Sale, Item,
+            LocationCode, VariantCode, BinCode, Qty, PostingDate, UnitAmount);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales', '26.0')]
     procedure POSTSalesOrder(var SalesHeader: Record "Sales Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal; Ship: Boolean; Invoice: Boolean)
     begin
-        POSTSalesOrderPartially(SalesHeader, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost, Ship, Qty, Invoice, Qty);
+        LibrarySales.PostSalesOrder(
+            SalesHeader, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost, Ship, Invoice);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales', '26.0')]
     procedure POSTSalesOrderPartially(var SalesHeader: Record "Sales Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal; Ship: Boolean; ShipQty: Decimal; Invoice: Boolean; InvoiceQty: Decimal)
-    var
-        SalesLine: Record "Sales Line";
     begin
-        MAKESalesOrder(SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost);
-        SalesLine.Validate("Qty. to Ship", ShipQty);
-        SalesLine.Validate("Qty. to Invoice", InvoiceQty);
-        SalesLine.Modify();
-        LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice);
+        LibrarySales.PostSalesOrderPartially(
+            SalesHeader, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost, Ship, ShipQty, Invoice, InvoiceQty);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory procedure CreateAndPostTransferOrder()', '26.0')]
     procedure POSTTransferOrder(var TransferHeader: Record "Transfer Header"; Item: Record Item; FromLocation: Record Location; ToLocation: Record Location; InTransitLocation: Record Location; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; ShipmentDate: Date; Ship: Boolean; Receive: Boolean)
-    var
-        TransferLine: Record "Transfer Line";
     begin
-        MAKETransferOrder(
-          TransferHeader, TransferLine, Item, FromLocation, ToLocation, InTransitLocation, VariantCode, Qty, PostingDate, ShipmentDate);
-        LibraryWarehouse.PostTransferOrder(TransferHeader, Ship, Receive);
+        LibraryInventory.CreateAndPostTransferOrder(
+            TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, VariantCode, Qty, PostingDate, ShipmentDate, Ship, Receive);
     end;
+#endif
 
     procedure SETInventorySetup(AutomaticCostAdjustment: Option; AvgCostCalcType: Option; AvgCostPeriod: Option)
     var
@@ -878,16 +650,17 @@ codeunit 132212 "Library - Patterns"
         Day1 := WorkDate();
 
         OutboundQty := LibraryRandom.RandInt(10);
-        POSTNegativeAdjustment(Item, LocationCode, VariantCode, '', OutboundQty, Day1, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostNegativeAdjustment(
+            Item, LocationCode, VariantCode, '', OutboundQty, Day1, LibraryRandom.RandDec(100, 2));
         InsertTempILEFromLast(TempItemLedgerEntry);
 
-        POSTPurchaseOrder(
+        LibraryPurchase.PostPurchaseOrder(
           PurchaseHeader1, Item, LocationCode, VariantCode,
           LibraryRandom.RandIntInRange(OutboundQty, OutboundQty + LibraryRandom.RandInt(10)), Day1,
           LibraryRandom.RandDec(100, 2), true, InvoicePurchase);
         InsertTempILEFromLast(TempItemLedgerEntry);
 
-        MAKEPurchaseOrder(
+        LibraryPurchase.CreatePurchaseOrder(
           PurchaseHeader2, PurchaseLine, Item, LocationCode, VariantCode, LibraryRandom.RandInt(10), Day1,
           LibraryRandom.RandDec(100, 2));
     end;
@@ -914,7 +687,7 @@ codeunit 132212 "Library - Patterns"
 
         // Receive partially the Purchase Line, with or without invoicing.
         InboundQty := LibraryRandom.RandIntInRange(10, 20);
-        MAKEPurchaseOrder(
+        LibraryPurchase.CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, InboundQty, Day1, LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandInt(PurchaseLine."Outstanding Quantity" - 5));
         PurchaseLine.Modify();
@@ -935,7 +708,7 @@ codeunit 132212 "Library - Patterns"
         InsertTempILEFromLast(TempItemLedgerEntry);
 
         // Create Purchase Return Header and Line with 0 quantity. Actual qty to be added in calling test.
-        MAKEPurchaseReturnOrder(
+        LibraryPurchase.CreatePurchaseReturnOrder(
           PurchaseHeader1, PurchaseLine1, Item, LocationCode, VariantCode, 0, Day1, LibraryRandom.RandDec(100, 5));
     end;
 
@@ -949,7 +722,7 @@ codeunit 132212 "Library - Patterns"
         Day1 := WorkDate();
 
         InboundQty := LibraryRandom.RandInt(10);
-        MAKEPurchaseOrder(
+        LibraryPurchase.CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, InboundQty, Day1, LibraryRandom.RandDec(100, 2));
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservEntry, PurchaseLine, '',
           CopyStr(LibraryUtility.GenerateRandomCode(ReservEntry.FieldNo("Lot No."), DATABASE::"Reservation Entry"), 1, 10), InboundQty);
@@ -970,7 +743,7 @@ codeunit 132212 "Library - Patterns"
         Day1 := WorkDate();
 
         OutboundQty := LibraryRandom.RandInt(ReservEntry.Quantity);
-        MAKESalesOrder(SalesHeader, SalesLine, Item, LocationCode, VariantCode, OutboundQty, Day1, LibraryRandom.RandDec(100, 2));
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, LocationCode, VariantCode, OutboundQty, Day1, LibraryRandom.RandDec(100, 2));
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry2, SalesLine, '', ReservEntry."Lot No.", OutboundQty);
 
         LibrarySales.PostSalesDocument(SalesHeader, true, Invoice);
@@ -1062,7 +835,7 @@ codeunit 132212 "Library - Patterns"
         MAKEInbound(Item, Qty, WorkDate(), TempItemJournalLine);
 
         SHIPSales(SalesLine, Item, Qty / 2, WorkDate());
-        POSTSalesLine(SalesLine, true, true);
+        LibrarySales.PostSalesLine(SalesLine, true, true);
 
         RECEIVESalesReturn(SalesLineReturn, SalesLine, WorkDate());
         SHIPSales(SalesLine, Item, Qty, WorkDate());
@@ -1535,13 +1308,13 @@ codeunit 132212 "Library - Patterns"
         MAKEXBound(Item, Qty, Date, ItemJournalLine."Entry Type"::Sale, TempItemJournalLine);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Sales', '26.0')]
     procedure POSTSalesLine(SalesLine: Record "Sales Line"; Ship: Boolean; Invoice: Boolean)
-    var
-        SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice);
+        LibrarySales.PostSalesLine(SalesLine, Ship, Invoice);
     end;
+#endif
 
     procedure Minimum(Value1: Decimal; Value2: Decimal): Decimal
     begin
@@ -1551,40 +1324,13 @@ codeunit 132212 "Library - Patterns"
         exit(Value2);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure RevaluationJournalCalcInventory(var ItemJournalBatch: Record "Item Journal Batch"; var Item: Record Item; NewPostingDate: Date; NewDocNo: Code[20]; NewCalculatePer: Enum "Inventory Value Calc. Per"; NewByLocation: Boolean; NewByVariant: Boolean; NewUpdStdCost: Boolean; NewCalcBase: Enum "Inventory Value Calc. Base")
-    var
-        TmpItem: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        CalculateInventoryValue: Report "Calculate Inventory Value";
-        ItemJnlMgt: Codeunit ItemJnlManagement;
-        JnlSelected: Boolean;
     begin
-        Commit();
-        CalculateInventoryValue.SetParameters(
-            NewPostingDate, NewDocNo, true, NewCalculatePer, NewByLocation, NewByVariant,
-            NewUpdStdCost, NewCalcBase, true);
-
-        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
-
-        ItemJournalLine.Init();
-        ItemJnlMgt.TemplateSelection(PAGE::"Revaluation Journal", 3, false, ItemJournalLine, JnlSelected); // 3 = FormTemplate::Revaluation
-        ItemJnlMgt.OpenJnl(ItemJournalBatch.Name, ItemJournalLine);
-
-        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
-        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.SetUpNewLine(ItemJournalLine);
-        CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
-
-        if Item.HasFilter then
-            TmpItem.CopyFilters(Item)
-        else begin
-            Item.Get(Item."No.");
-            TmpItem.SetRange("No.", Item."No.");
-        end;
-        CalculateInventoryValue.SetTableView(TmpItem);
-        CalculateInventoryValue.UseRequestPage(false);
-        CalculateInventoryValue.RunModal();
+        LibraryInventory.RevaluationJournalCalcInventory(ItemJournalBatch, Item, NewPostingDate, NewDocNo, NewCalculatePer, NewByLocation, NewByVariant, NewUpdStdCost, NewCalcBase);
     end;
+#endif
 
     local procedure SetVendorDocNo(var PurchaseHeader: Record "Purchase Header")
     begin
@@ -1593,103 +1339,26 @@ codeunit 132212 "Library - Patterns"
         PurchaseHeader.Modify();
     end;
 
+#if not CLEAN26
+    [Obsolete('Move to codeunit Library Purchase', '26.0')]
     [Scope('OnPrem')]
     procedure MakePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; PostingDate: Date; Vendor: Record Vendor)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeries: Codeunit "No. Series";
-        PurchaseNoSeries: Code[20];
     begin
-        PurchaseNoSeries := LibraryUtility.GetGlobalNoSeriesCode();
-        PurchasesPayablesSetup.Get();
-        case DocType of
-            PurchaseHeader."Document Type"::Quote:
-                if PurchasesPayablesSetup."Quote Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Quote Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify();
-                end;
-            PurchaseHeader."Document Type"::Order:
-                if PurchasesPayablesSetup."Order Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Order Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify();
-                end;
-            PurchaseHeader."Document Type"::Invoice:
-                if PurchasesPayablesSetup."Invoice Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Invoice Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify();
-                end;
-            PurchaseHeader."Document Type"::"Credit Memo":
-                if PurchasesPayablesSetup."Credit Memo Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Credit Memo Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify();
-                end;
-            PurchaseHeader."Document Type"::"Return Order":
-                if PurchasesPayablesSetup."Return Order Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Return Order Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify();
-                end;
-        end;
-
-        Clear(PurchaseHeader);
-        PurchaseHeader."No." := NoSeries.GetNextNo(PurchaseNoSeries, PostingDate);
-        PurchaseHeader."Document Type" := DocType;
-        PurchaseHeader.InitRecord();
-        PurchaseHeader.Validate("Posting Date", PostingDate);
-        PurchaseHeader.Validate("Order Date", PurchaseHeader."Posting Date");
-        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
-        if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::"Return Order",
-                                              PurchaseHeader."Document Type"::"Credit Memo"]
-        then begin
-            PurchaseHeader.Validate("Reason Code", GetReasonCode());
-            PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
-        end else
-            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-        PurchaseHeader.Insert();
+        LibraryPurchase.MakePurchaseHeader(PurchaseHeader, DocType, PostingDate, Vendor);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Move to codeunit Library Purchase', '26.0')]
     [Scope('OnPrem')]
     procedure MakeVendor(var Vendor: Record Vendor)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-        PaymentMethod: Record "Payment Method";
-        VATBusPostingGroup: Record "VAT Business Posting Group";
-        NoSeriesLine: Record "No. Series Line";
-        NoSeries: Codeunit "No. Series";
-        LibraryERM: Codeunit "Library - ERM";
-        VendorNoSeries: Code[20];
     begin
-        VendorNoSeries := LibraryUtility.GetGlobalNoSeriesCode();
-        PurchasesPayablesSetup.Get();
-        if PurchasesPayablesSetup."Vendor Nos." <> VendorNoSeries then begin
-            PurchasesPayablesSetup.Validate("Vendor Nos.", VendorNoSeries);
-            PurchasesPayablesSetup.Modify();
-        end;
-        LibraryERM.FindPaymentMethod(PaymentMethod);
-
-        Clear(Vendor);
-        Vendor."No." := NoSeries.GetNextNo(VendorNoSeries);
-        Vendor.Validate("Payment Method Code", PaymentMethod.Code);  // Mandatory for ES
-        Vendor.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode());  // Mandatory for ES
-        Vendor.Validate("Gen. Bus. Posting Group", GetGenBusPostingGroup());
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        VATBusPostingGroup.Get(Vendor."VAT Bus. Posting Group");
-        NoSeriesLine.SetCurrentKey("Series Code", "Starting Date");
-        NoSeriesLine.SetRange("Series Code", VATBusPostingGroup."Default Sales Operation Type");
-        NoSeriesLine.SetRange("Starting Date", 0D, WorkDate());
-        NoSeriesLine.FindLast();
-        NoSeriesLine.Validate("Last Date Used", WorkDate());
-        NoSeriesLine.Modify();
-        NoSeriesLine.SetRange("Series Code", VATBusPostingGroup."Default Purch. Operation Type");
-        NoSeriesLine.SetRange("Starting Date", 0D, WorkDate());
-        NoSeriesLine.FindLast();
-        NoSeriesLine.Validate("Last Date Used", WorkDate());
-        NoSeriesLine.Modify();
-        Vendor.Validate("Vendor Posting Group", LibraryPurchase.FindVendorPostingGroup());
-        Vendor.Insert();
+        LibraryPurchase.MakeVendor(Vendor);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Replaced by LibraryERM.CreateReasonCode()', '26.0')]
     [Scope('OnPrem')]
     procedure GetReasonCode(): Code[10]
     var
@@ -1698,7 +1367,10 @@ codeunit 132212 "Library - Patterns"
         if ReasonCode.FindFirst() then;
         exit(ReasonCode.Code);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Replaced by LibraryERM.FindGeneralPostingSetupInvtFull', '26.0')]
     [Scope('OnPrem')]
     procedure GetGenBusPostingGroup(): Code[20]
     var
@@ -1722,5 +1394,6 @@ codeunit 132212 "Library - Patterns"
         GeneralPostingSetup.SetFilter("Purchase Variance Account", '<>%1', '');
         GeneralPostingSetup.FindLast();
     end;
+#endif
 }
 

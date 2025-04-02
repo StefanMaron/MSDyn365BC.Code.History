@@ -271,7 +271,6 @@ page 12175 "Customer Bill Card"
         Balance: Decimal;
         TotalPayments: Decimal;
 
-    [Scope('OnPrem')]
     procedure GetBillCode()
     var
         PaymentMethod: Record "Payment Method";
@@ -280,7 +279,6 @@ page 12175 "Customer Bill Card"
         Bill.Get(PaymentMethod."Bill Code");
     end;
 
-    [Scope('OnPrem')]
     procedure CalcBalance()
     var
         BankAcc: Record "Bank Account";

@@ -15,11 +15,14 @@ table 189 "VAT Setup"
 {
     Caption = 'VAT Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "VAT Setup";
+    LookupPageID = "VAT Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Enable Non-Deductible VAT"; Boolean)

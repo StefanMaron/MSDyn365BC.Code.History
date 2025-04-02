@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Location;
@@ -6,15 +10,16 @@ using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
+using Microsoft.Warehouse.CrossDock;
+using Microsoft.Inventory.Journal;
 
 codeunit 5997 "Assembly Warehouse Mgt."
 {
     var
-#if not CLEAN23
-        WMSManagement: Codeunit "WMS Management";
-#endif
         WhseManagement: Codeunit "Whse. Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
+
+        CannotPostConsumptionErr: Label 'You cannot post consumption for order no. %1 because a quantity of %2 remains to be picked.', Comment = '%1 - order number, %2 - quantity';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocLine', '', false, false)]
     local procedure OnShowSourceDocLine(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
@@ -27,9 +32,6 @@ codeunit 5997 "Assembly Warehouse Mgt."
             AssemblyLine.SetRange("Document No.", SourceNo);
             AssemblyLine.SetRange("Line No.", SourceLineNo);
             IsHandled := false;
-#if not CLEAN23
-            WMSManagement.RunOnShowSourceDocLineOnBeforeShowAssemblyLines(AssemblyLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
-#endif
             OnBeforeShowAssemblyLines(AssemblyLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
             if not IsHandled then
                 PAGE.RunModal(PAGE::"Assembly Lines", AssemblyLine);
@@ -101,9 +103,6 @@ codeunit 5997 "Assembly Warehouse Mgt."
             WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewAssemblyLine.FieldNo("Quantity to Consume"));
 
         OnAfterAssemblyLineVerifyChange(NewRecordRef, OldRecordRef);
-#if not CLEAN23
-        WhseValidateSourceLine.RunOnAfterAssemblyLineVerifyChange(NewRecordRef, OldRecordRef);
-#endif
     end;
 
     procedure AssemblyLineDelete(var AssemblyLine: Record "Assembly Line")
@@ -118,9 +117,6 @@ codeunit 5997 "Assembly Warehouse Mgt."
             WhseValidateSourceLine.RaiseCannotBeDeletedErr(AssemblyLine.TableCaption());
 
         OnAfterAssemblyLineDelete(AssemblyLine);
-#if not CLEAN23
-        WhseValidateSourceLine.RunOnAfterAssemblyLineDelete(AssemblyLine);
-#endif
     end;
 
     [IntegrationEvent(false, false)]
@@ -211,5 +207,82 @@ codeunit 5997 "Assembly Warehouse Mgt."
             Database::"Assembly Line":
                 BinType.AllowPutawayOrQCBinsOnly();
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Whse. Cross-Dock Opportunity", 'OnShowReservation', '', false, false)]
+    local procedure OnShowReservation(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity")
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        case WhseCrossDockOpportunity."To Source Type" of
+            Database::"Assembly Line":
+                begin
+                    AssemblyLine.Get(WhseCrossDockOpportunity."To Source Subtype", WhseCrossDockOpportunity."To Source No.", WhseCrossDockOpportunity."To Source Line No.");
+                    AssemblyLine.ShowReservation();
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Whse. Pick Request", 'OnLookupDocumentNo', '', false, false)]
+    local procedure OnLookupDocumentNo(var WhsePickRequest: Record "Whse. Pick Request")
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyOrders: Page "Assembly Orders";
+    begin
+        case WhsePickRequest."Document Type" of
+            WhsePickRequest."Document Type"::Assembly:
+                begin
+                    if AssemblyHeader.Get(WhsePickRequest."Document Subtype", WhsePickRequest."Document No.") then
+                        AssemblyOrders.SetRecord(AssemblyHeader);
+                    AssemblyOrders.RunModal();
+                    Clear(AssemblyOrders);
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Validate Source Line", 'OnItemLineVerifyChangeOnCheckEntryType', '', false, false)]
+    local procedure OnItemLineVerifyChangeOnCheckEntryType(NewItemJnlLine: Record "Item Journal Line"; OldItemJnlLine: Record "Item Journal Line"; var LinesExist: Boolean; var QtyChecked: Boolean)
+    var
+        AssemblyLine: Record "Assembly Line";
+        Location: Record Location;
+        QtyRemainingToBePicked: Decimal;
+    begin
+        case NewItemJnlLine."Entry Type" of
+            NewItemJnlLine."Entry Type"::"Assembly Consumption":
+                begin
+                    NewItemJnlLine.TestField("Order Type", NewItemJnlLine."Order Type"::Assembly);
+                    if Location.Get(NewItemJnlLine."Location Code") and (Location."Asm. Consump. Whse. Handling" = Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
+                        if AssemblyLine.Get(AssemblyLine."Document Type"::Order, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.") and
+                           (NewItemJnlLine.Quantity >= 0)
+                        then begin
+                            QtyRemainingToBePicked := NewItemJnlLine.Quantity - AssemblyLine."Qty. Picked";
+                            CheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, QtyRemainingToBePicked);
+                            QtyChecked := true;
+                        end;
+
+                    LinesExist := false;
+                end;
+        end;
+    end;
+
+    local procedure CheckQtyRemainingToBePickedForAssemblyConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; QtyRemainingToBePicked: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, QtyRemainingToBePicked);
+#if not CLEAN26
+        WhseValidateSourceLine.RunOnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, QtyRemainingToBePicked);
+#endif
+        if IsHandled then
+            exit;
+
+        if QtyRemainingToBePicked > 0 then
+            Error(CannotPostConsumptionErr, NewItemJnlLine."Order No.", QtyRemainingToBePicked);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; var QtyRemainingToBePicked: Decimal)
+    begin
     end;
 }

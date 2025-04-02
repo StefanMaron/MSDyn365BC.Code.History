@@ -36,7 +36,6 @@ codeunit 391 "Shipment Header - Edit"
     var
         SalesShptHeader: Record "Sales Shipment Header";
 
-    [Scope('OnPrem')]
     procedure ModifyReturnShipment(var ReturnShptHeader2: Record "Return Shipment Header")
     var
         ReturnShptHeader: Record "Return Shipment Header";
@@ -57,7 +56,6 @@ codeunit 391 "Shipment Header - Edit"
         ReturnShptHeader2 := ReturnShptHeader;
     end;
 
-    [Scope('OnPrem')]
     procedure ModifyTransferShipment(var TransferShptHeader2: Record "Transfer Shipment Header")
     var
         TransferShptHeader: Record "Transfer Shipment Header";

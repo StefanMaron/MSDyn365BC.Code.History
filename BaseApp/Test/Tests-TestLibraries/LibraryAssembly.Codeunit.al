@@ -13,7 +13,6 @@ codeunit 132207 "Library - Assembly"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
         LibraryDimension: Codeunit "Library - Dimension";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryResource: Codeunit "Library - Resource";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
@@ -28,7 +27,6 @@ codeunit 132207 "Library - Assembly"
         ErrorPostingSetup: Label 'The General Posting Setup does not exist. ';
         ErrorInvtPostingSetup: Label 'The Inventory Posting Setup does not exist.';
 
-    [Normal]
     procedure AddCompInventory(AssemblyHeader: Record "Assembly Header"; PostingDate: Date; QtySupplement: Decimal)
     var
         AssemblyLine: Record "Assembly Line";
@@ -47,7 +45,6 @@ codeunit 132207 "Library - Assembly"
             until AssemblyLine.Next() = 0;
     end;
 
-    [Normal]
     procedure AddCompInventoryToBin(AssemblyHeader: Record "Assembly Header"; PostingDate: Date; QtySupplement: Decimal; LocationCode: Code[10]; BinCode: Code[20])
     var
         AssemblyLine: Record "Assembly Line";
@@ -119,7 +116,6 @@ codeunit 132207 "Library - Assembly"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    [Normal]
     procedure AddItemInventory(AssemblyLine: Record "Assembly Line"; PostingDate: Date; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -175,7 +171,6 @@ codeunit 132207 "Library - Assembly"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    [Normal]
     procedure AddAssemblyHeaderComment(AssemblyHeader: Record "Assembly Header"; AssemblyLineNo: Integer)
     var
         AssemblyCommentLine: Record "Assembly Comment Line";
@@ -205,7 +200,6 @@ codeunit 132207 "Library - Assembly"
         AssemblyCommentLine.Modify(true);
     end;
 
-    [Normal]
     procedure AddEntityDimensions(Type: Enum "BOM Component Type"; No: Code[20])
     var
         TempDimension: Record Dimension temporary;
@@ -227,7 +221,6 @@ codeunit 132207 "Library - Assembly"
         until TempDimension.Next() = 0;
     end;
 
-    [Normal]
     procedure BatchPostAssemblyHeaders(var AssemblyHeader: Record "Assembly Header"; PostingDate: Date; ReplacePostingDate: Boolean; ExpectedError: Text[1024])
     var
         BatchPostAssemblyOrders: Report "Batch Post Assembly Orders";
@@ -244,7 +237,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure BlockDimensions(TableID: Integer; DimBlockType: Option; EntityNo: Code[20]; OrderNo: Code[20]; LineNo: Text[30]): Text[1024]
     var
         Dimension: Record Dimension;
@@ -290,7 +282,6 @@ codeunit 132207 "Library - Assembly"
         exit(ExpectedError);
     end;
 
-    [Normal]
     procedure BlockOrderDimensions(AssemblyHeader: Record "Assembly Header"; HeaderBlockType: Option; CompBlockType: Option): Text[1024]
     var
         AssemblyLine: Record "Assembly Line";
@@ -417,7 +408,6 @@ codeunit 132207 "Library - Assembly"
         exit(Round(ExpectedPrice, LibraryERM.GetUnitAmountRoundingPrecision()));
     end;
 
-    [Normal]
     procedure CalcOrderCostAmount(var MaterialCost: Decimal; var ResourceCost: Decimal; var ResourceOvhd: Decimal; var AssemblyOvhd: Decimal; AssemblyHeaderNo: Code[20]): Decimal
     var
         Item: Record Item;
@@ -469,7 +459,6 @@ codeunit 132207 "Library - Assembly"
         exit(Round(ExpectedCost, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
-    [Normal]
     procedure ChangeResourceUsage(AssemblyHeaderNo: Code[20])
     var
         AssemblyLine: Record "Assembly Line";
@@ -486,7 +475,6 @@ codeunit 132207 "Library - Assembly"
             AssemblyLine.Validate("Resource Usage Type", AssemblyLine."Resource Usage Type"::Fixed)
     end;
 
-    [Normal]
     procedure ClearOrderPostingSetup(OrderClearType: Option; InvtPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; LocationCode: Code[10]): Text[1024]
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
@@ -517,7 +505,6 @@ codeunit 132207 "Library - Assembly"
         exit(ExpectedError);
     end;
 
-    [Normal]
     local procedure CreateAssemblyHeaderLocal(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ParentItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DocumentType: Enum "Assembly Document Type"; VariantCode: Code[10]): Code[20]
     begin
         Clear(AssemblyHeader);
@@ -534,7 +521,6 @@ codeunit 132207 "Library - Assembly"
         exit(AssemblyHeader."No.");
     end;
 
-    [Normal]
     procedure CreateAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ParentItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; VariantCode: Code[10]): Code[20]
     begin
         exit(
@@ -542,7 +528,6 @@ codeunit 132207 "Library - Assembly"
             AssemblyHeader, DueDate, ParentItemNo, LocationCode, Quantity, AssemblyHeader."Document Type"::Order, VariantCode));
     end;
 
-    [Normal]
     procedure CreateAssemblyQuote(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ParentItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; VariantCode: Code[10]): Code[20]
     begin
         exit(
@@ -572,7 +557,6 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.Modify(true);
     end;
 
-    [Normal]
     procedure CreateAssemblyLines(CostingMethod: Enum "Costing Method"; AssemblyHeaderNo: Code[20]; NoOfItems: Integer; NoOfResources: Integer)
     var
         AssemblyHeader: Record "Assembly Header";
@@ -596,7 +580,6 @@ codeunit 132207 "Library - Assembly"
             until TempResource.Next() = 0;
     end;
 
-    [Normal]
     procedure CreateAssemblyList(CostingMethod: Enum "Costing Method"; ParentItemNo: Code[20]; UseBaseUnitOfMeasure: Boolean; NoOfItems: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPerFactor: Integer; GenProdPostingGroup: Code[20]; InventoryPostingGroup: Code[20])
     var
         BOMComponent: Record "BOM Component";
@@ -635,8 +618,8 @@ codeunit 132207 "Library - Assembly"
     var
         BOMComponent: Record "BOM Component";
     begin
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, Qty,
-          GetUnitOfMeasureCode(ComponentType, ComponentNo, UseBaseUnitOfMeasure));
+        LibraryInventory.CreateBOMComponent(
+            BOMComponent, ParentItemNo, ComponentType, ComponentNo, Qty, GetUnitOfMeasureCode(ComponentType, ComponentNo, UseBaseUnitOfMeasure));
         if ComponentType = BOMComponent.Type::Resource then
             BOMComponent.Validate("Resource Usage Type", ResourceUsage);
         BOMComponent.Validate("Variant Code", VariantCode);
@@ -646,7 +629,6 @@ codeunit 132207 "Library - Assembly"
         Commit();
     end;
 
-    [Normal]
     procedure CreateAssemblySetup(var AssemblySetup: Record "Assembly Setup"; LocationCode: Code[10]; DimensionsFrom: Option; PostedOrdersNo: Code[20])
     begin
         if AssemblySetup."Assembly Order Nos." = '' then
@@ -664,64 +646,26 @@ codeunit 132207 "Library - Assembly"
         AssemblySetup.Modify(true);
     end;
 
-    [Normal]
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing as CreateProductionBOM', '26.0')]
     procedure CreateBOM(var Item: Record Item; NoOfComps: Integer)
     var
-        Item1: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProductionBOMLine: Record "Production BOM Line";
-        "count": Integer;
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
-
-        for count := 1 to NoOfComps do begin
-            CreateItem(Item1, Item."Costing Method"::Standard, Item."Replenishment System"::Purchase, '', '');
-            LibraryManufacturing.CreateProductionBOMLine(
-              ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item1."No.", 1);
-        end;
-
-        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify(true);
-        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        Item.Modify(true);
+        LibraryManufacturing.CreateProductionBOM(Item, NoOfComps);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Manufacturing as CreateProductionRouting', '26.0')]
     procedure CreateRouting(var Item: Record Item; NoOfLines: Integer)
     var
-        MachineCenter: Record "Machine Center";
-        WorkCenter: Record "Work Center";
-        RoutingHeader: Record "Routing Header";
-        RoutingLine: Record "Routing Line";
-        "count": Integer;
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
-        LibraryManufacturing.CreateWorkCenter(WorkCenter);
-
-        for count := 1 to NoOfLines do
-            if count mod 2 = 0 then begin
-                RoutingLine.Validate(Type, RoutingLine.Type::"Work Center");
-                LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, WorkCenter."No.",
-                  CopyStr(
-                    LibraryUtility.GenerateRandomCode(RoutingLine.FieldNo("Operation No."), DATABASE::"Routing Line"), 1,
-                    LibraryUtility.GetFieldLength(DATABASE::"Routing Line", RoutingLine.FieldNo("Operation No."))),
-                  LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
-            end else begin
-                LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandInt(5));
-                RoutingLine.Validate(Type, RoutingLine.Type::"Machine Center");
-                LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, MachineCenter."No.",
-                  CopyStr(
-                    LibraryUtility.GenerateRandomCode(RoutingLine.FieldNo("Operation No."), DATABASE::"Routing Line"), 1,
-                    LibraryUtility.GetFieldLength(DATABASE::"Routing Line", RoutingLine.FieldNo("Operation No."))),
-                  LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
-            end;
-
-        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
-        RoutingHeader.Modify(true);
-        Item.Validate("Routing No.", RoutingHeader."No.");
-        Item.Modify(true);
+        LibraryManufacturing.CreateProductionRouting(Item, NoOfLines);
     end;
+#endif
 
-    [Normal]
     procedure CreateDimensionSetup(var TempDimension: Record Dimension temporary; var TempDimensionValue: Record "Dimension Value" temporary)
     var
         DimensionValue: Record "Dimension Value";
@@ -742,8 +686,7 @@ codeunit 132207 "Library - Assembly"
         LibraryDimension.CreateDimensionCombination(DimensionCombination, DimensionCode[1], DimensionCode[2]);
     end;
 
-    [Normal]
-    procedure CreateGLAccount(var GLAccount: Record "G/L Account"; IncomeBalance: Option; Name: Text[30])
+    procedure CreateGLAccount(var GLAccount: Record "G/L Account"; IncomeBalance: Enum "G/L Account Report Type"; Name: Text[30])
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Income/Balance", IncomeBalance);
@@ -753,7 +696,6 @@ codeunit 132207 "Library - Assembly"
         GLAccount.Modify(true);
     end;
 
-    [Normal]
     procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentMethod: Enum "Replenishment System"; GenProdPostingGroup: Code[20]; InventoryPostingGroup: Code[20]): Code[20]
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -797,7 +739,6 @@ codeunit 132207 "Library - Assembly"
         exit(Item."No.");
     end;
 
-    [Normal]
     procedure CreateInvtPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; LocationCode: Code[10]; InvtPostingGroupCode: Code[20]; InvtAccount: Code[20]; MatVarAccount: Code[20]; CapVarAcc: Code[20]; CapOvhdVarAcc: Code[20]; MfgOvhdVarAcc: Code[20]; InvtAccInterim: Code[20])
     var
         GLAccount: Record "G/L Account";
@@ -889,11 +830,12 @@ codeunit 132207 "Library - Assembly"
         BOMComponent: Record "BOM Component";
         Item2: Record Item;
         Depth: Integer;
+        BOMCreated: Boolean;
     begin
         CreateItem(Item, CostingMethod, ReplenishmentMethod, '', '');
-        if ReplenishmentMethod = Item."Replenishment System"::"Prod. Order" then
-            CreateBOM(Item, NoOfComps)
-        else
+        BOMCreated := false;
+        OnCreateMultipleLvlTreeOnCreateBOM(Item, NoOfComps, BOMCreated);
+        if not BOMCreated then
             CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, NoOfComps, NoOfComps, NoOfComps, 1, '', '');
 
         CreateItem(Item1, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
@@ -912,13 +854,11 @@ codeunit 132207 "Library - Assembly"
             Item.Find();
             Item.Validate("Replenishment System", ReplenishmentMethod);
             Item.Modify(true);
-            if ReplenishmentMethod = Item."Replenishment System"::"Prod. Order" then
-                CreateBOM(Item, NoOfComps);
+            OnCreateMultipleLvlTreeOnCreateBOM(Item, NoOfComps, BOMCreated);
         end;
         Commit();
     end;
 
-    [Normal]
     procedure CreateItemSubstitution(var ItemSubstitution: Record "Item Substitution"; ItemNo: Code[20])
     var
         Item1: Record Item;
@@ -933,7 +873,6 @@ codeunit 132207 "Library - Assembly"
         ItemSubstitution.Insert();
     end;
 
-    [Normal]
     procedure CreateAdjustmentSource(AssemblyHeader: Record "Assembly Header"; PostingDate: Date; AdjustHeader: Boolean; AdjustmentSource: Option; ItemNo: Code[20]; ResourceNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -986,7 +925,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure CreateItemWithSKU(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; CreatePer: Enum "SKU Creation Method"; GenProdPostingGr: Code[20]; InvtPostingGr: Code[20]; LocationCode: Code[10])
     var
         ItemVariant: Record "Item Variant";
@@ -1002,7 +940,6 @@ codeunit 132207 "Library - Assembly"
         UpdateSKUCards(Item);
     end;
 
-    [Normal]
     procedure CheckOrderDimensions(AssemblyHeader: Record "Assembly Header"; DimensionsFrom: Option)
     var
         AssemblyLine: Record "Assembly Line";
@@ -1066,7 +1003,6 @@ codeunit 132207 "Library - Assembly"
         exit(Resource."No.")
     end;
 
-    [Normal]
     procedure DeleteAssemblyLine(ComponentType: Enum "BOM Component Type"; AssemblyHeaderNo: Code[20])
     var
         AssemblyLine: Record "Assembly Line";
@@ -1081,7 +1017,6 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.Delete();
     end;
 
-    [Normal]
     procedure DeleteAssemblyLines(AssemblyHeaderNo: Code[20])
     var
         AssemblyLine: Record "Assembly Line";
@@ -1160,7 +1095,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure EditAssemblyLine(ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; NewComponentNo: Code[20]; AssemblyHeaderNo: Code[20]; Qty: Decimal; UseBaseUnitOfMeasure: Boolean)
     var
         AssemblyLine: Record "Assembly Line";
@@ -1190,7 +1124,6 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.Modify(true);
     end;
 
-    [Normal]
     procedure EditAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; NewComponentNo: Code[20]; AssemblyHeaderNo: Code[20]; UseBaseUnitOfMeasure: Boolean)
     var
         AssemblyHeader: Record "Assembly Header";
@@ -1220,7 +1153,6 @@ codeunit 132207 "Library - Assembly"
         Commit();
     end;
 
-    [Normal]
     procedure EditOrderDimensions(AssemblyHeader: Record "Assembly Header")
     var
         TempDimension: Record Dimension temporary;
@@ -1231,7 +1163,6 @@ codeunit 132207 "Library - Assembly"
           LibraryDimension.CreateDimSet(AssemblyHeader."Dimension Set ID", TempDimension.Code, TempDimensionValue.Code));
     end;
 
-    [Normal]
     local procedure FindHeaderValueEntries(var ValueEntry: Record "Value Entry"; PostedAssemblyHeader: Record "Posted Assembly Header"; EntryType: Enum "Cost Entry Type"; ItemLedgerEntryType: Enum "Item Ledger Entry Type")
     begin
         ValueEntry.Reset();
@@ -1251,7 +1182,6 @@ codeunit 132207 "Library - Assembly"
         ValueEntry.SetRange("Order Line No.", 0);
     end;
 
-    [Normal]
     local procedure FindLineValueEntries(var ValueEntry: Record "Value Entry"; PostedAssemblyLine: Record "Posted Assembly Line"; EntryType: Enum "Cost Entry Type"; ItemLedgerEntryType: Enum "Item Ledger Entry Type")
     begin
         ValueEntry.Reset();
@@ -1302,7 +1232,6 @@ codeunit 132207 "Library - Assembly"
         PostedAssemblyHeader.SetRange("Item No.", AssemblyHeader."Item No.");
     end;
 
-    [Normal]
     procedure GetBOMComponentLines(var TempBOMComponent: Record "BOM Component" temporary; ParentItemNo: Code[20])
     var
         BOMComponent: Record "BOM Component";
@@ -1329,7 +1258,6 @@ codeunit 132207 "Library - Assembly"
             until BOMComponent.Next() = 0;
     end;
 
-    [Normal]
     procedure GetCostInformation(var UnitCost: Decimal; var Overhead: Decimal; var IndirectCost: Decimal; Type: Enum "BOM Component Type"; No: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]): Boolean
     var
         Resource: Record Resource;
@@ -1393,7 +1321,6 @@ codeunit 132207 "Library - Assembly"
         exit('');
     end;
 
-    [Normal]
     procedure GetAdjAmounts(var VarianceAmount: Decimal; var AdjAmount: Decimal; PostedAssemblyHeader: Record "Posted Assembly Header")
     var
         ValueEntry: Record "Value Entry";
@@ -1425,7 +1352,6 @@ codeunit 132207 "Library - Assembly"
         VarianceAmount := DirectCostAmount + PostedAssemblyHeader."Cost Amount";
     end;
 
-    [Normal]
     procedure GetCompsToAdjust(var ItemNo: array[10] of Code[20]; var ResourceNo: array[10] of Code[20]; AssemblyHeader: Record "Assembly Header"): Text[250]
     var
         AssemblyLine: Record "Assembly Line";
@@ -1480,7 +1406,6 @@ codeunit 132207 "Library - Assembly"
         exit(Amount);
     end;
 
-    [Normal]
     procedure GetPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; var InventoryPostingSetup: Record "Inventory Posting Setup"; GenProdPostingGr: Code[20]; InvtPostingGroup: Code[20]; LocationCode: Code[10])
     begin
         GeneralPostingSetup.Get('', GenProdPostingGr);
@@ -1531,7 +1456,6 @@ codeunit 132207 "Library - Assembly"
         Item.Modify(true);
     end;
 
-    [Normal]
     procedure ModifyOrderCostParams(AssemblyHeaderNo: Code[20]; CostAdjNeeded: Boolean; IndirectCost: Decimal; Overhead: Decimal)
     var
         Resource: Record Resource;
@@ -1594,7 +1518,6 @@ codeunit 132207 "Library - Assembly"
         exit(ValueEntry."Cost per Unit");
     end;
 
-    [Normal]
     procedure PostAssemblyHeader(AssemblyHeader: Record "Assembly Header"; ExpectedError: Text[1024])
     var
         AssemblyPost: Codeunit "Assembly-Post";
@@ -1629,7 +1552,6 @@ codeunit 132207 "Library - Assembly"
         PostInventoryCostToGL.SaveAsPdf(PreviewDumpFilePath);
     end;
 
-    [Normal]
     procedure PrepareOrderPosting(var AssemblyHeader: Record "Assembly Header"; var TempAssemblyLine: Record "Assembly Line" temporary; HeaderQtyFactor: Integer; CompQtyFactor: Integer; UpdateAllComps: Boolean; PostingDate: Date)
     var
         AssemblyLine: Record "Assembly Line";
@@ -1703,7 +1625,6 @@ codeunit 132207 "Library - Assembly"
         SalesLine.RollupAsmPrice();
     end;
 
-    [Normal]
     procedure SetupComponents(var TempItem: Record Item temporary; var TempResource: Record Resource temporary; CostingMethod: Enum "Costing Method"; NoOfItems: Integer; NoOfResources: Integer; GenProdPostingGroup: Code[20]; InventoryPostingGroup: Code[20])
     var
         Item: Record Item;
@@ -1730,7 +1651,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure CreateAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; LocationCode: Code[10]; NoOfItems: Integer)
     var
         Item: Record Item;
@@ -1754,7 +1674,6 @@ codeunit 132207 "Library - Assembly"
         AssemblySetup.Modify(true);
     end;
 
-    [Normal]
     procedure SetupAssemblyData(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; LocationCode: Code[10]; UpdateUnitCost: Boolean)
     var
         Item: Record Item;
@@ -1764,7 +1683,6 @@ codeunit 132207 "Library - Assembly"
         CreateAssemblyHeader(AssemblyHeader, DueDate, Item."No.", LocationCode, LibraryRandom.RandDec(10, 2), '');
     end;
 
-    [Normal]
     procedure SetupAssemblyItem(var Item: Record Item; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; LocationCode: Code[10]; UpdateUnitCost: Boolean; NoOfItems: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPerFactor: Integer)
     var
         AssemblyLine: Record "Assembly Line";
@@ -1785,7 +1703,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure SetupItemJournal(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
     var
         NoSeries: Record "No. Series";
@@ -1806,7 +1723,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure SetupPostingToGL(var GenProdPostingGr: Code[20]; var AsmInvtPostingGr: Code[20]; var CompInvtPostingGr: Code[20]; LocationCode: Code[10])
     var
         InventoryPostingGroup: Record "Inventory Posting Group";
@@ -1896,7 +1812,6 @@ codeunit 132207 "Library - Assembly"
         Commit();
     end;
 
-    [Normal]
     procedure UpdateAssemblySetup(var AssemblySetup: Record "Assembly Setup"; LocationCode: Code[10]; DimensionsFrom: Option; PostedOrdersNos: Code[20])
     begin
         AssemblySetup.Get();
@@ -1919,7 +1834,6 @@ codeunit 132207 "Library - Assembly"
         InventorySetup.Modify(true);
     end;
 
-    [Normal]
     procedure UpdateAssemblyLine(var AssemblyLine: Record "Assembly Line"; FieldNo: Integer; Value: Variant)
     var
         RecRef: RecordRef;
@@ -1932,7 +1846,6 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.Modify(true);
     end;
 
-    [Normal]
     procedure UpdateAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; FieldNo: Integer; Value: Variant)
     var
         RecRef: RecordRef;
@@ -1945,7 +1858,6 @@ codeunit 132207 "Library - Assembly"
         AssemblyHeader.Modify(true);
     end;
 
-    [Normal]
     procedure UpdateInvtPeriod(var InventoryPeriod: Record "Inventory Period"; ReOpen: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -1964,7 +1876,6 @@ codeunit 132207 "Library - Assembly"
             InventoryPeriod.Delete();
     end;
 
-    [Normal]
     procedure UpdateSKUCards(Item: Record Item)
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -2050,7 +1961,6 @@ codeunit 132207 "Library - Assembly"
         exit(ReservationEntry."Entry No.");
     end;
 
-    [Normal]
     procedure VerifyEntityDimensions(TableID: Integer; EntityNo: Code[20]; ParentItemNo: Code[20]; CopyFromHeader: Boolean; DimensionSetID: Integer)
     var
         DefaultDimension: Record "Default Dimension";
@@ -2071,13 +1981,11 @@ codeunit 132207 "Library - Assembly"
         until DefaultDimension.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyILEs(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header"; AssembledQty: Decimal)
     begin
         VerifyILEsGeneric(TempAssemblyLine, AssemblyHeader, AssembledQty, false);
     end;
 
-    [Normal]
     procedure VerifyILEsGeneric(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header"; AssembledQty: Decimal; IsATO: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -2141,13 +2049,11 @@ codeunit 132207 "Library - Assembly"
             until TempAssemblyLine.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyILEsForAsmOnATO(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header"; AssembledQty: Decimal)
     begin
         VerifyILEsGeneric(TempAssemblyLine, AssemblyHeader, AssembledQty, true);
     end;
 
-    [Normal]
     procedure VerifyILEsUndo(var TempPostedAssemblyHeader: Record "Posted Assembly Header" temporary; var TempPostedAssemblyLine: Record "Posted Assembly Line" temporary; UndoEntries: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -2223,7 +2129,6 @@ codeunit 132207 "Library - Assembly"
             until TempPostedAssemblyLine.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyILEATOAndSale(AssemblyHeader: Record "Assembly Header"; SalesLine: Record "Sales Line"; AssembledQty: Decimal; Invoiced: Boolean; NoOfLines: Integer)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -2258,7 +2163,6 @@ codeunit 132207 "Library - Assembly"
             until ItemLedgerEntry.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyILESale(SalesLine: Record "Sales Line"; AssembledQty: Decimal; EntryNo: Integer; IsAto: Boolean; Invoiced: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -2294,7 +2198,6 @@ codeunit 132207 "Library - Assembly"
         Assert.AreEqual(1, ItemLedgerEntry.Count, 'Wrong no. of sale entries for item ' + SalesLine."No.");
     end;
 
-    [Normal]
     procedure VerifySKUCost(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header")
     var
         Item: Record Item;
@@ -2319,13 +2222,11 @@ codeunit 132207 "Library - Assembly"
             until TempAssemblyLine.Next() = 0
     end;
 
-    [Normal]
     procedure VerifyValueEntries(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header"; AssembledQty: Decimal)
     begin
         VerifyValueEntriesAsm(TempAssemblyLine, AssemblyHeader, AssembledQty);
     end;
 
-    [Normal]
     procedure VerifyValueEntriesAsm(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header"; AssembledQty: Decimal)
     var
         ValueEntry: Record "Value Entry";
@@ -2406,14 +2307,12 @@ codeunit 132207 "Library - Assembly"
             until TempAssemblyLine.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyValueEntriesATO(var TempAssemblyLine: Record "Assembly Line" temporary; SalesHeader: Record "Sales Header"; AssemblyHeader: Record "Assembly Header"; AssembledQty: Decimal)
     begin
         VerifyValueEntriesAsm(TempAssemblyLine, AssemblyHeader, AssembledQty);
         VerifyValueEntriesSale(SalesHeader, AssemblyHeader, AssembledQty);
     end;
 
-    [Normal]
     procedure VerifyValueEntriesSale(SalesHeader: Record "Sales Header"; AssemblyHeader: Record "Assembly Header"; AssembledQty: Decimal)
     var
         ValueEntry: Record "Value Entry";
@@ -2442,7 +2341,6 @@ codeunit 132207 "Library - Assembly"
           ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), 'Wrong value entry cost amount for header.');
     end;
 
-    [Normal]
     procedure VerifyValueEntriesUndo(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header"; AssembledQty: Decimal)
     var
         ValueEntry: Record "Value Entry";
@@ -2523,19 +2421,16 @@ codeunit 132207 "Library - Assembly"
             until TempAssemblyLine.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyResEntries(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header")
     begin
         VerifyResEntriesGeneric(TempAssemblyLine, AssemblyHeader, false);
     end;
 
-    [Normal]
     procedure VerifyResEntriesATO(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header")
     begin
         VerifyResEntriesGeneric(TempAssemblyLine, AssemblyHeader, true);
     end;
 
-    [Normal]
     procedure VerifyResEntriesGeneric(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header"; IsATO: Boolean)
     var
         ResLedgerEntry: Record "Res. Ledger Entry";
@@ -2574,19 +2469,16 @@ codeunit 132207 "Library - Assembly"
             until TempAssemblyLine.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyCapEntries(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header")
     begin
         VerifyCapEntriesGeneric(TempAssemblyLine, AssemblyHeader, false);
     end;
 
-    [Normal]
     procedure VerifyCapEntriesATO(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header")
     begin
         VerifyCapEntriesGeneric(TempAssemblyLine, AssemblyHeader, true);
     end;
 
-    [Normal]
     procedure VerifyCapEntriesGeneric(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header"; IsATO: Boolean)
     var
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
@@ -2624,7 +2516,6 @@ codeunit 132207 "Library - Assembly"
             until TempAssemblyLine.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyCapEntriesUndo(var TempPostedAssemblyHeader: Record "Posted Assembly Header" temporary; var TempPostedAssemblyLine: Record "Posted Assembly Line" temporary; IsUndo: Boolean)
     var
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
@@ -2674,7 +2565,6 @@ codeunit 132207 "Library - Assembly"
             until AssemblyLine.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyLineComment(AssemblyHeader: Record "Assembly Header"; AssemblyLineNo: Integer)
     var
         AssemblyCommentLine: Record "Assembly Comment Line";
@@ -2688,7 +2578,6 @@ codeunit 132207 "Library - Assembly"
         Assert.AreEqual(1, AssemblyCommentLine.Count, 'Wrong no. of comment lines.');
     end;
 
-    [Normal]
     procedure VerifyItemRegister(AssemblyHeader: Record "Assembly Header")
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -2743,7 +2632,6 @@ codeunit 132207 "Library - Assembly"
         ItemRegister.FindFirst();
     end;
 
-    [Normal]
     procedure VerifyApplicationEntry(ItemLedgerEntry: Record "Item Ledger Entry")
     var
         ItemApplicationEntry: Record "Item Application Entry";
@@ -2765,7 +2653,6 @@ codeunit 132207 "Library - Assembly"
           'Wrong no. of application entries for ILE no ' + Format(ItemLedgerEntry."Entry No."));
     end;
 
-    [Normal]
     procedure VerifyApplicationEntryUndo(ItemLedgerEntry: Record "Item Ledger Entry")
     var
         ItemApplicationEntry: Record "Item Application Entry";
@@ -2811,7 +2698,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure VerifyPostedLineComment(PostedAssemblyHeader: Record "Posted Assembly Header"; PostedAssemblyLineNo: Integer)
     var
         AssemblyCommentLine: Record "Assembly Comment Line";
@@ -2825,7 +2711,6 @@ codeunit 132207 "Library - Assembly"
         Assert.AreEqual(1, AssemblyCommentLine.Count, 'Wrong no. of comment lines.');
     end;
 
-    [Normal]
     procedure VerifyGLEntries(PostedAssemblyHeader: Record "Posted Assembly Header"; PerPostingGroup: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -2957,7 +2842,6 @@ codeunit 132207 "Library - Assembly"
         Assert.AreEqual(0, TotalAmount, 'Transaction must be balanced:' + PostedAssemblyHeader."No.");
     end;
 
-    [Normal]
     procedure VerifyGLEntry(DocumentNo: Code[20]; AccountNo: Code[20]; PostingDate: Date; Amount: Decimal; Sign: Text[30])
     var
         GLEntry: Record "G/L Entry";
@@ -2976,7 +2860,6 @@ codeunit 132207 "Library - Assembly"
         Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision(), 'Account:' + AccountNo);
     end;
 
-    [Normal]
     procedure VerifyLineAdjustmentEntry(PostedAssemblyLine: Record "Posted Assembly Line"; FinalAdjSource: Option)
     var
         Item: Record Item;
@@ -3010,7 +2893,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure VerifyAdjustmentEntries(AssemblyHeader: Record "Assembly Header"; FinalAdjSource: Option)
     var
         PostedAssemblyHeader: Record "Posted Assembly Header";
@@ -3048,7 +2930,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure VerifyHeaderAdjustmentEntry(PostedAssemblyHeader: Record "Posted Assembly Header"; AdjAmount: Decimal)
     var
         ValueEntry: Record "Value Entry";
@@ -3071,7 +2952,6 @@ codeunit 132207 "Library - Assembly"
             Assert.IsTrue(ValueEntry.IsEmpty, 'Unexpected adj. entries for header ' + PostedAssemblyHeader."No.");
     end;
 
-    [Normal]
     procedure VerifyHeaderVarianceEntry(PostedAssemblyHeader: Record "Posted Assembly Header"; VarianceAmount: Decimal)
     var
         ValueEntry: Record "Value Entry";
@@ -3092,7 +2972,6 @@ codeunit 132207 "Library - Assembly"
             Assert.IsTrue(ValueEntry.IsEmpty, 'Unexpected variance entry for ' + PostedAssemblyHeader."No.");
     end;
 
-    [Normal]
     procedure VerifyIndirectCostEntries(AssemblyHeader: Record "Assembly Header")
     var
         ValueEntry: Record "Value Entry";
@@ -3144,7 +3023,6 @@ codeunit 132207 "Library - Assembly"
             until PostedAssemblyLine.Next() = 0;
     end;
 
-    [Normal]
     procedure VerifyPartialPosting(AssemblyHeader: Record "Assembly Header"; HeaderQtyFactor: Decimal)
     var
         AssemblyLine: Record "Assembly Line";
@@ -3176,7 +3054,6 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    [Normal]
     procedure VerifyPostedAssemblyHeader(var TempAssemblyLine: Record "Assembly Line" temporary; AssemblyHeader: Record "Assembly Header"; AssembledQty: Decimal)
     var
         PostedAssemblyLine: Record "Posted Assembly Line";
@@ -3442,6 +3319,11 @@ codeunit 132207 "Library - Assembly"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateMultipleLvlTreeOnCreateBOM(var Item: Record Item; NoOfComps: Integer; var BOMCreated: Boolean)
     begin
     end;
 }

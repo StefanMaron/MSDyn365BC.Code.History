@@ -37,6 +37,13 @@ page 138 "Posted Purchase Invoice"
                     Importance = Additional;
                     ToolTip = 'Specifies the posted invoice number.';
                 }
+                field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor No.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -445,6 +452,15 @@ page 138 "Posted Purchase Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the name of the company at the address to which the items in the purchase order were shipped.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the company at the address to which the items in the purchase order were shipped.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Basic, Suite;
@@ -718,6 +734,7 @@ page 138 "Posted Purchase Invoice"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Purch. Inv. Header"),
                               "No." = field("No.");

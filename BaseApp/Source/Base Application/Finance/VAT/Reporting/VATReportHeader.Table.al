@@ -176,24 +176,6 @@ table 740 "VAT Report Header"
             Caption = 'Amounts in Add. Rep. Currency';
             Editable = false;
         }
-        field(4800; "VATGroup Return"; Boolean)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4700 VAT Group Return';
-            ObsoleteTag = '18.0';
-        }
-        field(4801; "VATGroup Status"; Text[20])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4701 VAT Group Status';
-            ObsoleteTag = '18.0';
-        }
-        field(4802; "VATGroup Settlement Posted"; Boolean)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4702 VAT Group Settlement Posted';
-            ObsoleteTag = '18.0';
-        }
         field(12100; "Tax Auth. Receipt No."; Code[17])
         {
             Caption = 'Tax Auth. Receipt No.';
@@ -203,13 +185,6 @@ table 740 "VAT Report Header"
                 if Status = Status::Submitted then
                     Error(Text002, Format(Status));
             end;
-        }
-        field(12101; "Tax Auth. Doc. No."; Code[6])
-        {
-            Caption = 'Tax Auth. Doc. No.';
-            ObsoleteReason = 'Replaced by Tax Auth. Document No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
         }
         field(12102; "Tax Auth. Document No."; Code[18])
         {
@@ -427,4 +402,3 @@ table 740 "VAT Report Header"
     begin
     end;
 }
-

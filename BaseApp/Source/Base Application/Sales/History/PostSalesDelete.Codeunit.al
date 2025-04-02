@@ -27,6 +27,7 @@ codeunit 363 "PostSales-Delete"
         MoveEntries: Codeunit MoveEntries;
         DocumentDeletionErr: Label 'You cannot delete posted sales documents that are posted after %1. \\The date is defined by the Allow Document Deletion Before field in the Sales & Receivables Setup window.', Comment = '%1 - Posting Date';
         NotAllowedToDeletePostedDocumentsErr: Label 'You are not allowed to delete posted documents.';
+        AllowDocumentDeletionBeforeBlankErr: Label 'The date %1 must be set on the page %2 before deleting sales documents.', Comment = '%1 = Field name, %2 = Page name';
 
     procedure DeleteHeader(SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnRcptHeader: Record "Return Receipt Header"; var SalesInvHeaderPrePmt: Record "Sales Invoice Header"; var SalesCrMemoHeaderPrePmt: Record "Sales Cr.Memo Header")
     var
@@ -304,7 +305,8 @@ codeunit 363 "PostSales-Delete"
         SalesSetup.Get();
         if SalesSetup."Prevent Posted Doc. Deletion" then
             Error(NotAllowedToDeletePostedDocumentsErr);
-        SalesSetup.TestField("Allow Document Deletion Before");
+        if SalesSetup."Allow Document Deletion Before" = 0D then
+            Error(AllowDocumentDeletionBeforeBlankErr, SalesSetup.FieldCaption("Allow Document Deletion Before"), SalesSetup.TableCaption);
         if PostingDate >= SalesSetup."Allow Document Deletion Before" then
             Error(DocumentDeletionErr, SalesSetup."Allow Document Deletion Before");
     end;

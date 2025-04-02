@@ -218,48 +218,6 @@ table 5351 "CRM Quote"
             ExternalName = 'requestdeliveryby';
             ExternalType = 'DateTime';
         }
-        field(26; ShippingMethodCode; Option)
-        {
-            Caption = 'Shipping Method';
-            Description = 'Select a shipping method for deliveries sent to this address.';
-            ExternalName = 'shippingmethodcode';
-            ExternalType = 'Picklist';
-            InitValue = " ";
-            OptionCaption = ' ,Airborne,DHL,FedEx,UPS,Postal Mail,Full Load,Will Call';
-            OptionOrdinalValues = -1, 1, 2, 3, 4, 5, 6, 7;
-            OptionMembers = " ",Airborne,DHL,FedEx,UPS,PostalMail,FullLoad,WillCall;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by field 100 ShippingMethodCodeEnum';
-            ObsoleteTag = '19.0';
-        }
-        field(27; PaymentTermsCode; Option)
-        {
-            Caption = 'Payment Terms';
-            Description = 'Select the payment terms to indicate when the customer needs to pay the total amount.';
-            ExternalName = 'paymenttermscode';
-            ExternalType = 'Picklist';
-            InitValue = " ";
-            OptionCaption = ' ,Net 30,2% 10; Net 30,Net 45,Net 60';
-            OptionOrdinalValues = -1, 1, 2, 3, 4;
-            OptionMembers = " ",Net30,"2%10Net30",Net45,Net60;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by field 99 PaymentTermsCodeEnum';
-            ObsoleteTag = '19.0';
-        }
-        field(28; FreightTermsCode; Option)
-        {
-            Caption = 'Freight Terms';
-            Description = 'Select the freight terms to make sure shipping charges are processed correctly.';
-            ExternalName = 'freighttermscode';
-            ExternalType = 'Picklist';
-            InitValue = " ";
-            OptionCaption = ' ,FOB,No Charge';
-            OptionOrdinalValues = -1, 1, 2;
-            OptionMembers = " ",FOB,NoCharge;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by field 101 FreightTermsCodeEnum';
-            ObsoleteTag = '19.0';
-        }
         field(29; CreatedBy; Guid)
         {
             Caption = 'Created By';
@@ -867,4 +825,3 @@ table 5351 "CRM Quote"
         }
     }
 }
-

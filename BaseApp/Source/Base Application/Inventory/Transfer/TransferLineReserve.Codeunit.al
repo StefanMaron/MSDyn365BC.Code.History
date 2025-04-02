@@ -1,3 +1,7 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Foundation.Enums;
@@ -358,7 +362,8 @@ codeunit 99000836 "Transfer Line-Reserve"
         if not FindReservEntry(TransferLine, OldReservationEntry, Direction) then
             exit;
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.Locktable();
+        OldReservationEntry.FindLast();
 
         case Direction of
             Direction::Outbound:
@@ -418,7 +423,8 @@ codeunit 99000836 "Transfer Line-Reserve"
         WarehouseShipmentLine.GetWhseShptLine(
           WarehouseShipmentHeader."No.", Database::"Transfer Line", 0, TransferLine."Document No.", TransferLine."Line No.");
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
         if ReservationEngineMgt.InitRecordSet(OldReservationEntry) then
             repeat
                 OldReservationEntry.TestItemFields(TransferLine."Item No.", TransferLine."Variant Code", TransferLine."Transfer-from Code");

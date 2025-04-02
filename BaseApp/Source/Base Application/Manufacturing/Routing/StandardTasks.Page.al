@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
 
 page 99000799 "Standard Tasks"
@@ -85,6 +89,26 @@ page 99000799 "Standard Tasks"
                     RunObject = Page "Standard Task Qlty Measures";
                     RunPageLink = "Standard Task Code" = field(Code);
                     ToolTip = 'View or edit information about quality measures that apply to operations that represent the standard task.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Task)
+            {
+                Caption = 'Task';
+
+                actionref(Tools_Promoted; Tools)
+                {
+                }
+                actionref(Personnel_Promoted; Personnel)
+                {
+                }
+                actionref(Description_Promoted; Description)
+                {
+                }
+                actionref("Quality Measures_Promoted"; "Quality Measures")
+                {
                 }
             }
         }

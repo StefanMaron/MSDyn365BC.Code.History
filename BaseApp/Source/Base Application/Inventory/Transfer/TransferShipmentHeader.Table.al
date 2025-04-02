@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Transfer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Dimension;
@@ -492,7 +496,6 @@ table 5744 "Transfer Shipment Header"
               FieldCaption("Shipment Method Code"), "Shipment Method Code");
     end;
 
-    [Scope('OnPrem')]
     procedure CheckTDDData(): Boolean
     var
         ShippingAgent: Record "Shipping Agent";
@@ -511,7 +514,6 @@ table 5744 "Transfer Shipment Header"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetTDDAddr(var ShippingAgentAddr: array[8] of Text[100]; var LoaderAddr: array[8] of Text[100])
     var
         CompanyInfo: Record "Company Information";

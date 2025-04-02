@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
@@ -35,9 +39,9 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
-using Microsoft.EServices.EDocument;
 
 table 5992 "Service Invoice Header"
 {
@@ -531,6 +535,11 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Payment Reference';
         }
+        field(200; "Work Description"; BLOB)
+        {
+            Caption = 'Work Description';
+            DataClassification = CustomerContent;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -837,91 +846,6 @@ table 5992 "Service Invoice Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
-        }	
-        field(12100; "Operation Type"; Code[20])
-        {
-            Caption = 'Operation Type';
-            TableRelation = "No. Series" where("No. Series Type" = filter(Sales));
-        }
-        field(12101; "Operation Occurred Date"; Date)
-        {
-            Caption = 'Operation Occurred Date';
-        }
-        field(12123; "Activity Code"; Code[6])
-        {
-            Caption = 'Activity Code';
-            TableRelation = "Activity Code".Code;
-        }
-        field(12125; "Service Tariff No."; Code[10])
-        {
-            Caption = 'Service Tariff No.';
-            Editable = false;
-            TableRelation = "Service Tariff Number";
-        }
-        field(12130; "Fiscal Code"; Code[20])
-        {
-            Caption = 'Fiscal Code';
-        }
-        field(12132; Resident; Option)
-        {
-            Caption = 'Resident';
-            OptionCaption = 'Resident,Non-Resident';
-            OptionMembers = Resident,"Non-Resident";
-        }
-        field(12133; "First Name"; Text[30])
-        {
-            Caption = 'First Name';
-        }
-        field(12134; "Last Name"; Text[30])
-        {
-            Caption = 'Last Name';
-        }
-        field(12135; "Date of Birth"; Date)
-        {
-            Caption = 'Date of Birth';
-        }
-        field(12136; "Individual Person"; Boolean)
-        {
-            Caption = 'Individual Person';
-        }
-        field(12138; "Place of Birth"; Text[30])
-        {
-            Caption = 'Place of Birth';
-        }
-        field(12172; "Bank Account"; Code[20])
-        {
-            Caption = 'Bank Account';
-        }
-        field(12173; "Cumulative Bank Receipts"; Boolean)
-        {
-            Caption = 'Cumulative Bank Receipts';
-        }
-        field(12182; "Fattura Project Code"; Code[15])
-        {
-            Caption = 'Fattura Project Code';
-            TableRelation = "Fattura Project Info".Code where(Type = filter(Project));
-        }
-        field(12183; "Fattura Tender Code"; Code[15])
-        {
-            Caption = 'Fattura Tender Code';
-            TableRelation = "Fattura Project Info".Code where(Type = filter(Tender));
-        }
-        field(12184; "Customer Purchase Order No."; Text[35])
-        {
-            Caption = 'Customer Purchase Order No.';
-        }
-        field(12185; "Fattura Stamp"; Boolean)
-        {
-            Caption = 'Fattura Stamp';
-        }
-        field(12186; "Fattura Stamp Amount"; Decimal)
-        {
-            Caption = 'Fattura Stamp Amount';
-        }
-        field(12187; "Fattura Document Type"; Code[20])
-        {
-            Caption = 'Fattura Document Type';
-            TableRelation = "Fattura Document Type";
         }
     }
 
@@ -960,14 +884,27 @@ table 5992 "Service Invoice Header"
 
     trigger OnDelete()
     begin
-        Error(Text1130000);
+        OnBeforeOnDelete(Rec);
+
+        TestField("No. Printed");
+        LockTable();
+
+        ServInvLine.Reset();
+        ServInvLine.SetRange("Document No.", "No.");
+        ServInvLine.DeleteAll();
+
+        ServCommentLine.Reset();
+        ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Invoice Header");
+        ServCommentLine.SetRange("No.", "No.");
+        ServCommentLine.DeleteAll();
     end;
 
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
+        ServCommentLine: Record "Service Comment Line";
+        ServInvLine: Record "Service Invoice Line";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
-        Text1130000: Label 'You are not allowed to delete posted invoices.';
 
     procedure Navigate()
     var
@@ -1113,6 +1050,16 @@ table 5992 "Service Invoice Header"
             ReportSelections.Usage::"SM.Invoice".AsInteger(), ServiceInvoiceHeader, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
+    procedure GetWorkDescription(): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        CalcFields("Work Description");
+        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceInvoiceHeader: Record "Service Invoice Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
     begin
@@ -1135,6 +1082,11 @@ table 5992 "Service Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceInvoiceHeader: Record "Service Invoice Header"; var StatPageID: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
     end;
 }

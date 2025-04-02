@@ -558,7 +558,7 @@ codeunit 136403 "Resource Journal"
         NoOfRecords: Integer;
     begin
         FindResourceJournalBatch(ResJournalBatch);
-        for NoOfRecords := 1 to 1 + LibraryRandom.RandInt(5) do   // Use Random Number because value is not important.
+        for NoOfRecords := 1 to 5 do
             CreateResourceJournalLine(ResJournalLine, ResJournalBatch."Journal Template Name", ResJournalBatch.Name, ResourceNo);
     end;
 

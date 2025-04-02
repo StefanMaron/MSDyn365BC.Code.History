@@ -105,11 +105,6 @@ codeunit 12164 "Create IT GL Accounts"
 
         ContosoGLAccount.AddAccountForLocalization(JobGLAccount.JobCostsAppliedName(), '7180');
         ContosoGLAccount.AddAccountForLocalization(JobGLAccount.RecognizedCostsName(), '7620');
-        ContosoGLAccount.AddAccountForLocalization(JobGLAccount.WIPInvoicedSalesName(), '');
-        ContosoGLAccount.AddAccountForLocalization(JobGLAccount.WIPJobCostsName(), '');
-        ContosoGLAccount.AddAccountForLocalization(JobGLAccount.RecognizedSalesName(), '');
-        ContosoGLAccount.AddAccountForLocalization(JobGLAccount.RecognizedCostsName(), '');
-
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create G/L Account", 'OnAfterAddGLAccountsForLocalization', '', false, false)]

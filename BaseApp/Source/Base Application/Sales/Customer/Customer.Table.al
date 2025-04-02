@@ -90,6 +90,7 @@ table 18 Customer
         {
             Caption = 'No.';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies the number of the customer. The field is either filled automatically from a defined number series, or you enter the number manually because you have enabled manual number entry in the number-series setup.';
 
             trigger OnValidate()
             begin
@@ -102,31 +103,38 @@ table 18 Customer
         {
             Caption = 'Name';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies the customer''s name that appears on all related documents. For companies, specify the company''s name here, and then add the relevant people as contacts that you link to this customer.';
 
             trigger OnValidate()
             begin
                 if ("Search Name" = UpperCase(xRec.Name)) or ("Search Name" = '') then
                     "Search Name" := Name;
+
+                UpdateMyCustomer(FieldNo(Name));
             end;
         }
         field(3; "Search Name"; Code[100])
         {
             Caption = 'Search Name';
+            ToolTip = 'Specifies an alternate name that you can use to search for a customer.';
         }
         field(4; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies an additional part of the name.';
         }
         field(5; Address; Text[100])
         {
             Caption = 'Address';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies the customer''s address. This address will appear on all sales documents for the customer.';
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies additional address information.';
         }
         field(7; City; Text[30])
         {
@@ -136,6 +144,7 @@ table 18 Customer
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the customer''s city.';
 
             trigger OnLookup()
             begin
@@ -164,6 +173,7 @@ table 18 Customer
         {
             Caption = 'Contact';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies the name of the person you regularly contact when you do business with this customer.';
 
             trigger OnLookup()
             begin
@@ -194,6 +204,7 @@ table 18 Customer
             Caption = 'Phone No.';
             OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
+            ToolTip = 'Specifies the customer''s telephone number.';
 
             trigger OnValidate()
             var
@@ -206,6 +217,8 @@ table 18 Customer
 
                 if (Rec."Phone No." <> xRec."Phone No.") then
                     SetForceUpdateContact(true);
+
+                UpdateMyCustomer(FieldNo("Phone No."));
             end;
         }
         field(10; "Telex No."; Text[20])
@@ -217,11 +230,13 @@ table 18 Customer
         {
             Caption = 'Document Sending Profile';
             TableRelation = "Document Sending Profile".Code;
+            ToolTip = 'Specifies the preferred method of sending documents to this customer, so that you do not have to select a sending option every time that you post and send a document to the customer. Sales documents to this customer will be sent using the specified sending profile and will override the default document sending profile.';
         }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
             TableRelation = "Ship-to Address".Code where("Customer No." = field("No."));
+            ToolTip = 'Specifies the code for another shipment address than the customer''s own address, which is entered by default.';
         }
         field(14; "Our Account No."; Text[20])
         {
@@ -271,16 +286,19 @@ table 18 Customer
         {
             AutoFormatType = 1;
             Caption = 'Credit Limit (LCY)';
+            Tooltip = 'Specifies the maximum amount of credit that you extend to the customer for their purchases before you issue warnings. The value 0 represents unlimited credit.';
         }
         field(21; "Customer Posting Group"; Code[20])
         {
             Caption = 'Customer Posting Group';
             TableRelation = "Customer Posting Group";
+            ToolTip = 'Specifies the customer''s market type to link business transactions to.';
         }
         field(22; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+            ToolTip = 'Specifies the default currency for the customer.';
 
             trigger OnValidate()
             begin
@@ -291,11 +309,13 @@ table 18 Customer
         {
             Caption = 'Customer Price Group';
             TableRelation = "Customer Price Group";
+            ToolTip = 'Specifies the customer price group code, which you can use to set up special sales prices in the Sales Prices window.';
         }
         field(24; "Language Code"; Code[10])
         {
             Caption = 'Language Code';
             TableRelation = Language;
+            ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
 
             trigger OnValidate()
             begin
@@ -306,6 +326,7 @@ table 18 Customer
         {
             Caption = 'Registration No.';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies the registration number of the customer. You can enter a maximum of 20 characters, both numbers and letters.';
 
             trigger OnValidate()
             var
@@ -327,6 +348,7 @@ table 18 Customer
         {
             Caption = 'Payment Terms Code';
             TableRelation = "Payment Terms";
+            ToolTip = 'Specifies a code that indicates the payment terms that you require of the customer.';
 
             trigger OnValidate()
             begin
@@ -337,11 +359,13 @@ table 18 Customer
         {
             Caption = 'Fin. Charge Terms Code';
             TableRelation = "Finance Charge Terms";
+            ToolTip = 'Specifies the code for the involved finance charges in case of late payment.';
         }
         field(29; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
+            ToolTip = 'Specifies a code for the salesperson who normally handles this customer''s account.';
 
             trigger OnValidate()
             begin
@@ -352,6 +376,7 @@ table 18 Customer
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+            ToolTip = 'Specifies which shipment method to use when you ship items to the customer.';
 
             trigger OnValidate()
             begin
@@ -363,6 +388,7 @@ table 18 Customer
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
+            ToolTip = 'Specifies which shipping company is used when you ship items to the customer.';
 
             trigger OnValidate()
             begin
@@ -379,16 +405,19 @@ table 18 Customer
             Caption = 'Invoice Disc. Code';
             TableRelation = Customer;
             ValidateTableRelation = false;
+            ToolTip = 'Specifies a code for the invoice discount terms that you have defined for the customer.';
         }
         field(34; "Customer Disc. Group"; Code[20])
         {
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
+            ToolTip = 'Specifies the customer discount group code, which you can use as a criterion to set up special discounts in the Sales Line Discounts window.';
         }
         field(35; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
+            ToolTip = 'Specifies the country/region of the address.';
 
             trigger OnValidate()
             begin
@@ -420,6 +449,7 @@ table 18 Customer
         field(39; Blocked; Enum "Customer Blocked")
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies which transactions with the customer that cannot be processed, for example, because the customer is insolvent.';
 
             trigger OnValidate()
             begin
@@ -440,24 +470,29 @@ table 18 Customer
         field(41; "Last Statement No."; Integer)
         {
             Caption = 'Last Statement No.';
+            ToolTip = 'Specifies the number of the last statement that was printed for this customer.';
         }
         field(42; "Print Statements"; Boolean)
         {
             Caption = 'Print Statements';
+            ToolTip = 'Specifies whether to include this customer when you print the Statement report.';
         }
         field(45; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
             TableRelation = Customer;
+            ToolTip = 'Specifies a different customer who will be invoiced for products that you sell to the customer in the Name field on the customer card.';
         }
         field(46; Priority; Integer)
         {
             Caption = 'Priority';
+            ToolTip = 'Specifies a number that corresponds to the priority you give the customer. The higher the number, the higher the priority.';
         }
         field(47; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
             TableRelation = "Payment Method";
+            ToolTip = 'Specifies how the customer usually submits payment, such as bank transfer or check.';
 
             trigger OnValidate()
             begin
@@ -474,6 +509,7 @@ table 18 Customer
             Caption = 'Format Region';
             OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
+            ToolTip = 'Specifies the Format Region to be used on printouts for this customer.';
         }
         field(53; "Last Modified Date Time"; DateTime)
         {
@@ -484,6 +520,7 @@ table 18 Customer
         {
             Caption = 'Last Date Modified';
             Editable = false;
+            ToolTip = 'Specifies when the customer card was last modified.';
         }
         field(55; "Date Filter"; Date)
         {
@@ -526,6 +563,7 @@ table 18 Customer
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
         }
         field(60; "Net Change"; Decimal)
         {
@@ -563,6 +601,7 @@ table 18 Customer
             Caption = 'Sales (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the total net amount of sales to the customer in LCY.';
         }
         field(63; "Profit (LCY)"; Decimal)
         {
@@ -625,6 +664,7 @@ table 18 Customer
             Caption = 'Balance Due (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies payments from the customer that are overdue per today''s date.';
         }
         field(69; Payments; Decimal)
         {
@@ -699,6 +739,7 @@ table 18 Customer
             Caption = 'Payments (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the sum of payments received from the customer.';
         }
         field(75; "Inv. Amounts (LCY)"; Decimal)
         {
@@ -773,20 +814,24 @@ table 18 Customer
         field(80; "Application Method"; Enum "Application Method")
         {
             Caption = 'Application Method';
+            ToolTip = 'Specifies how to apply payments to entries for this customer.';
         }
         field(82; "Prices Including VAT"; Boolean)
         {
             Caption = 'Prices Including VAT';
+            ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
         }
         field(83; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location where("Use As In-Transit" = const(false));
+            ToolTip = 'Specifies from which location sales to this customer will be processed by default.';
         }
         field(84; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies the customer''s fax number.';
         }
         field(85; "Telex Answer Back"; Text[20])
         {
@@ -797,6 +842,7 @@ table 18 Customer
         {
             Caption = 'VAT Registration No.';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies the customer''s VAT registration number for customers in EU countries/regions.';
 
             trigger OnValidate()
             var
@@ -826,12 +872,14 @@ table 18 Customer
         field(87; "Combine Shipments"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            Caption = 'Combine Shipments';
+            Caption = 'Combine Sales Shipments';
+            ToolTip = 'Specifies if several orders delivered to the customer can appear on the same sales invoice.';
         }
         field(88; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+            ToolTip = 'Specifies the customer''s trade type to link transactions made for this customer with the appropriate general ledger account according to the general posting setup.';
 
             trigger OnValidate()
             begin
@@ -840,18 +888,11 @@ table 18 Customer
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '19.0';
-        }
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
             Numeric = true;
+            ToolTip = 'Specifies the customer in connection with electronic document sending.';
 
             trigger OnValidate()
             var
@@ -868,6 +909,7 @@ table 18 Customer
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the post code.';
 
             trigger OnLookup()
             begin
@@ -897,15 +939,18 @@ table 18 Customer
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies the state, province or county as a part of the address.';
         }
         field(93; "EORI Number"; Text[40])
         {
             Caption = 'EORI Number';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
         }
         field(95; "Use GLN in Electronic Document"; Boolean)
         {
             Caption = 'Use GLN in Electronic Documents';
+            ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
         }
         field(97; "Debit Amount"; Decimal)
         {
@@ -970,6 +1015,7 @@ table 18 Customer
             Caption = 'Email';
             OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
+            ToolTip = 'Specifies the customer''s email address.';
 
             trigger OnValidate()
             begin
@@ -985,6 +1031,7 @@ table 18 Customer
             ObsoleteReason = 'Field length will be increased to 255.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
+            ToolTip = 'Specifies the customer''s home page address.';
         }
 #else
 #pragma warning disable AS0086
@@ -993,6 +1040,7 @@ table 18 Customer
             Caption = 'Home Page';
             OptimizeForTextSearch = true;
             ExtendedDatatype = URL;
+            ToolTip = 'Specifies the customer''s home page address.';
         }
 #pragma warning restore AS0086
 #endif
@@ -1000,6 +1048,8 @@ table 18 Customer
         {
             Caption = 'Reminder Terms Code';
             TableRelation = "Reminder Terms";
+            ToolTip = 'Specifies how reminders about late payments are handled for this customer.';
+
 #if not CLEAN25
             trigger OnLookup()
             var
@@ -1055,6 +1105,7 @@ table 18 Customer
         {
             Caption = 'Tax Area Code';
             TableRelation = "Tax Area";
+            ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
 
             trigger OnValidate()
             begin
@@ -1064,11 +1115,13 @@ table 18 Customer
         field(109; "Tax Liable"; Boolean)
         {
             Caption = 'Tax Liable';
+            ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
         }
         field(110; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
+            ToolTip = 'Specifies the customer''s VAT specification to link transactions made for this customer to.';
 
             trigger OnValidate()
             begin
@@ -1093,6 +1146,7 @@ table 18 Customer
             Caption = 'Outstanding Orders (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders.';
         }
         field(114; "Shipped Not Invoiced (LCY)"; Decimal)
         {
@@ -1106,16 +1160,19 @@ table 18 Customer
             Caption = 'Shipped Not Invoiced (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders where items have been shipped.';
         }
         field(115; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Reserve';
             InitValue = Optional;
+            ToolTip = 'Specifies whether items will never, automatically (Always), or optionally be reserved for this customer. Optional means that you must manually reserve items for this customer.';
         }
         field(116; "Block Payment Tolerance"; Boolean)
         {
             Caption = 'Block Payment Tolerance';
+            ToolTip = 'Specifies that the customer is not allowed a payment tolerance.';
 
             trigger OnValidate()
             begin
@@ -1152,6 +1209,7 @@ table 18 Customer
         {
             Caption = 'IC Partner Code';
             TableRelation = "IC Partner";
+            ToolTip = 'Specifies the customer''s intercompany partner code.';
 
             trigger OnValidate()
             var
@@ -1217,6 +1275,7 @@ table 18 Customer
                                                                                  "Currency Code" = field("Currency Filter")));
             Caption = 'Refunds (LCY)';
             FieldClass = FlowField;
+            ToolTip = 'Specifies the sum of refunds received from the customer.';
         }
         field(122; "Other Amounts"; Decimal)
         {
@@ -1248,6 +1307,7 @@ table 18 Customer
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
+            ToolTip = 'Specifies a prepayment percentage that applies to all orders for this customer, regardless of the items or services on the order lines.';
         }
         field(125; "Outstanding Invoices (LCY)"; Decimal)
         {
@@ -1261,6 +1321,7 @@ table 18 Customer
             Caption = 'Outstanding Invoices (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies your expected sales income from the customer in LCY based on unpaid sales invoices.';
         }
         field(126; "Outstanding Invoices"; Decimal)
         {
@@ -1293,23 +1354,28 @@ table 18 Customer
         field(132; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
+            ToolTip = 'Specifies for direct debit collections if the customer that the payment is collected from is a person or a company.';
         }
         field(133; "Intrastat Partner Type"; Enum "Partner Type")
         {
             Caption = 'Intrastat Partner Type';
+            ToolTip = 'Specifies for Intrastat reporting if the customer is a person or a company.';
         }
         field(134; "Exclude from Pmt. Practices"; Boolean)
         {
             Caption = 'Exclude from Payment Practices';
+            ToolTip = 'Specifies that the customer must be excluded from Payment Practices calculations.';
         }
         field(140; Image; Media)
         {
             Caption = 'Image';
             ExtendedDatatype = Person;
+            ToolTip = 'Specifies the picture of the customer, for example, a logo.';
         }
         field(150; "Privacy Blocked"; Boolean)
         {
             Caption = 'Privacy Blocked';
+            ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
 
             trigger OnValidate()
             begin
@@ -1323,46 +1389,49 @@ table 18 Customer
         {
             Caption = 'Disable Search by Name';
             DataClassification = SystemMetadata;
+            ToolTip = 'Specifies that you can change the customer name on open sales documents. The change applies only to the documents.';
         }
         field(175; "Allow Multiple Posting Groups"; Boolean)
         {
             Caption = 'Allow Multiple Posting Groups';
             DataClassification = SystemMetadata;
+            ToolTip = 'Specifies if multiple posting groups can be used for posting business transactions for this customer.';
         }
         field(288; "Preferred Bank Account Code"; Code[20])
         {
             Caption = 'Preferred Bank Account Code';
             TableRelation = "Customer Bank Account".Code where("Customer No." = field("No."));
+            ToolTip = 'Specifies the customer''s bank account that will be used by default when you process refunds to the customer and direct debit collections.';
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
             Caption = 'Coupled to Dataverse';
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Customer)));
+            ToolTip = 'Specifies that the customer is coupled to an account in Dataverse.';
         }
         field(840; "Cash Flow Payment Terms Code"; Code[10])
         {
             Caption = 'Cash Flow Payment Terms Code';
             TableRelation = "Payment Terms";
+            ToolTip = 'Specifies a payment term that will be used to calculate cash flow for the customer.';
         }
         field(5049; "Primary Contact No."; Code[20])
         {
             Caption = 'Primary Contact No.';
             TableRelation = Contact;
+            ToolTip = 'Specifies the contact number for the customer.';
 
             trigger OnLookup()
             begin
@@ -1387,8 +1456,10 @@ table 18 Customer
                     if Cont.Image.HasValue() then
                         CopyContactPicture(Cont);
 
-                    if Cont."Phone No." <> '' then
+                    if Cont."Phone No." <> '' then begin
                         "Phone No." := Cont."Phone No.";
+                        UpdateMyCustomer(FieldNo("Phone No."));
+                    end;
                     if Cont."E-Mail" <> '' then
                         "E-Mail" := Cont."E-Mail";
                     if Cont."Mobile Phone No." <> '' then
@@ -1408,6 +1479,7 @@ table 18 Customer
             Caption = 'Mobile Phone No.';
             OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
+            ToolTip = 'Specifies the customer''s mobile telephone number.';
 
             trigger OnValidate()
             var
@@ -1423,21 +1495,25 @@ table 18 Customer
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
+            ToolTip = 'Specifies the code for the responsibility center that will administer this customer by default.';
         }
         field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipping Advice';
+            ToolTip = 'Specifies if the customer accepts partial shipment of orders.';
         }
         field(5790; "Shipping Time"; DateFormula)
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Time';
+            ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
         }
         field(5792; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
+            ToolTip = 'Specifies the code for the shipping agent service to use for this customer.';
 
             trigger OnValidate()
             begin
@@ -1453,6 +1529,7 @@ table 18 Customer
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
+            ToolTip = 'Specifies the default price calculation method.';
 
             trigger OnValidate()
             var
@@ -1467,6 +1544,7 @@ table 18 Customer
         {
             Caption = 'Allow Line Disc.';
             InitValue = true;
+            ToolTip = 'Specifies if a sales line discount is calculated when a special sales price is offered according to setup in the Sales Prices window.';
         }
         field(7171; "No. of Quotes"; Integer)
         {
@@ -1637,22 +1715,17 @@ table 18 Customer
         {
             Caption = 'Base Calendar Code';
             TableRelation = "Base Calendar";
+            ToolTip = 'Specifies a customizable calendar for shipment planning that holds the customer''s working days and holidays.';
         }
         field(7601; "Copy Sell-to Addr. to Qte From"; Enum "Contact Type")
         {
             AccessByPermission = TableData Contact = R;
             Caption = 'Copy Sell-to Addr. to Qte From';
+            ToolTip = 'Specifies which customer address is inserted on sales quotes that you create for the customer.';
         }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
             Caption = 'Validate EU VAT Reg. No.';
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
         field(8001; "Currency Id"; Guid)
         {
@@ -1702,16 +1775,6 @@ table 18 Customer
             begin
                 UpdateTaxAreaCode();
             end;
-        }
-        field(9004; "Tax Area Display Name"; Text[100])
-        {
-            CalcFormula = lookup("Tax Area".Description where(Code = field("Tax Area Code")));
-            Caption = 'Tax Area Display Name';
-            OptimizeForTextSearch = true;
-            FieldClass = FlowField;
-            ObsoleteReason = 'This field is not needed and it should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(9005; "Contact ID"; Guid)
         {
@@ -1935,14 +1998,6 @@ table 18 Customer
         key(Key20; "Partner Type", "Country/Region Code")
         {
         }
-#if not CLEAN23
-        key(Key21; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
         key(Key22; "IC Partner Code")
         {
         }
@@ -1991,7 +2046,7 @@ table 18 Customer
     trigger OnInsert()
     var
         Customer: Record Customer;
-#if not CLEAN24        
+#if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
 #endif
         IsHandled: Boolean;
@@ -2008,14 +2063,14 @@ table 18 Customer
             NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Customer Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-            "No. Series" := SalesSetup."Customer Nos.";
-            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                "No. Series" := xRec."No. Series";
-            "No." := NoSeries.GetNextNo("No. Series");
-            Customer.ReadIsolation(IsolationLevel::ReadUncommitted);
-            Customer.SetLoadFields("No.");
-            while Customer.Get("No.") do
+                "No. Series" := SalesSetup."Customer Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
+                Customer.ReadIsolation(IsolationLevel::ReadUncommitted);
+                Customer.SetLoadFields("No.");
+                while Customer.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
 #if not CLEAN24
                 NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Customer Nos.", 0D, "No.");
             end;
@@ -2270,11 +2325,11 @@ table 18 Customer
         end;
     end;
 
-    local procedure LookupContactList()
+    procedure LookupContactList()
     var
         ContactBusinessRelation: Record "Contact Business Relation";
-        Cont: Record Contact;
-        TempCust: Record Customer temporary;
+        ContactForLookup: Record Contact;
+        TempCustomer: Record Customer temporary;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2282,19 +2337,19 @@ table 18 Customer
         if IsHandled then
             exit;
 
-        Cont.FilterGroup(2);
+        ContactForLookup.FilterGroup(2);
         if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "No.") then
-            Cont.SetRange("Company No.", ContactBusinessRelation."Contact No.")
+            ContactForLookup.SetRange("Company No.", ContactBusinessRelation."Contact No.")
         else
-            Cont.SetRange("Company No.", '');
+            ContactForLookup.SetRange("Company No.", '');
 
         if "Primary Contact No." <> '' then
-            if Cont.Get("Primary Contact No.") then;
-        if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
-            TempCust.Copy(Rec);
+            if ContactForLookup.Get("Primary Contact No.") then;
+        if Page.RunModal(0, ContactForLookup) = Action::LookupOK then begin
+            TempCustomer.Copy(Rec);
             Find();
-            TransferFields(TempCust, false);
-            Validate("Primary Contact No.", Cont."No.");
+            TransferFields(TempCustomer, false);
+            Validate("Primary Contact No.", ContactForLookup."No.");
         end;
     end;
 
@@ -3340,6 +3395,7 @@ table 18 Customer
     var
         Currency: Record Currency;
     begin
+        Currency.SetLoadFields(Code);
         if not IsNullGuid("Currency Id") then
             Currency.GetBySystemId("Currency Id");
 
@@ -3350,6 +3406,7 @@ table 18 Customer
     var
         PaymentTerms: Record "Payment Terms";
     begin
+        PaymentTerms.SetLoadFields(Code);
         if not IsNullGuid("Payment Terms Id") then
             PaymentTerms.GetBySystemId("Payment Terms Id");
 
@@ -3360,6 +3417,7 @@ table 18 Customer
     var
         ShipmentMethod: Record "Shipment Method";
     begin
+        ShipmentMethod.SetLoadFields(Code);
         if not IsNullGuid("Shipment Method Id") then
             ShipmentMethod.GetBySystemId("Shipment Method Id");
 
@@ -3370,6 +3428,7 @@ table 18 Customer
     var
         PaymentMethod: Record "Payment Method";
     begin
+        PaymentMethod.SetLoadFields(Code);
         if not IsNullGuid("Payment Method Id") then
             PaymentMethod.GetBySystemId("Payment Method Id");
 
@@ -3385,6 +3444,7 @@ table 18 Customer
             exit;
         end;
 
+        Currency.SetLoadFields(SystemId);
         if not Currency.Get("Currency Code") then
             exit;
 
@@ -3400,6 +3460,7 @@ table 18 Customer
             exit;
         end;
 
+        PaymentTerms.SetLoadFields(SystemId);
         if not PaymentTerms.Get("Payment Terms Code") then
             exit;
 
@@ -3415,6 +3476,7 @@ table 18 Customer
             exit;
         end;
 
+        ShipmentMethod.SetLoadFields(SystemId);
         if not ShipmentMethod.Get("Shipment Method Code") then
             exit;
 
@@ -3430,6 +3492,7 @@ table 18 Customer
             exit;
         end;
 
+        PaymentMethod.SetLoadFields(SystemId);
         if not PaymentMethod.Get("Payment Method Code") then
             exit;
 
@@ -3446,6 +3509,7 @@ table 18 Customer
         if IsHandled then
             exit;
 
+        PaymentMethod.SetLoadFields("Direct Debit", "Direct Debit Pmt. Terms Code");
         PaymentMethod.Get("Payment Method Code");
         if PaymentMethod."Direct Debit" and ("Payment Terms Code" = '') then
             Validate("Payment Terms Code", PaymentMethod."Direct Debit Pmt. Terms Code");
@@ -3464,6 +3528,7 @@ table 18 Customer
                 exit;
             end;
 
+            VATBusinessPostingGroup.SetLoadFields(SystemId);
             if not VATBusinessPostingGroup.Get("VAT Bus. Posting Group") then
                 exit;
 
@@ -3474,6 +3539,7 @@ table 18 Customer
                 exit;
             end;
 
+            TaxArea.SetLoadFields(SystemId);
             if not TaxArea.Get("Tax Area Code") then
                 exit;
 
@@ -3491,9 +3557,11 @@ table 18 Customer
             exit;
 
         if GeneralLedgerSetup.UseVat() then begin
+            VATBusinessPostingGroup.SetLoadFields(Code);
             VATBusinessPostingGroup.GetBySystemId("Tax Area ID");
             "VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
         end else begin
+            TaxArea.SetLoadFields(Code);
             TaxArea.GetBySystemId("Tax Area ID");
             "Tax Area Code" := TaxArea.Code;
         end;
@@ -3581,6 +3649,54 @@ table 18 Customer
         LanguageSelection.SetRange("Language ID", Language."Windows Language ID");
         if LanguageSelection.FindFirst() then
             Rec.Validate("Format Region", LanguageSelection."Language Tag");
+    end;
+
+    procedure GetVATRegistrationNo() VATRegNo: Text[20]
+    var
+        TaxRepContact: Record Contact;
+        TaxRepCust: Record Customer;
+    begin
+        if "VAT Registration No." <> '' then
+            VATRegNo := "VAT Registration No."
+        else
+            if "Tax Representative No." <> '' then
+                case "Tax Representative Type" of
+                    "Tax Representative Type"::Contact:
+                        begin
+                            TaxRepContact.Get("Tax Representative No.");
+                            TaxRepContact.TestField("VAT Registration No.");
+                            VATRegNo := TaxRepContact."VAT Registration No.";
+                        end;
+                    "Tax Representative Type"::Customer:
+                        begin
+                            TaxRepCust.Get("Tax Representative No.");
+                            TaxRepCust.TestField("VAT Registration No.");
+                            VATRegNo := TaxRepCust."VAT Registration No.";
+                        end;
+                end;
+
+        OnAfterGetVATRegistrationNo(Rec, VATRegNo);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"My Customer", 'rm')]
+    local procedure UpdateMyCustomer(CallingFieldNo: Integer)
+    var
+        MyCustomer: Record "My Customer";
+    begin
+        case CallingFieldNo of
+            FieldNo(Name):
+                begin
+                    MyCustomer.SetRange("Customer No.", "No.");
+                    if not MyCustomer.IsEmpty() then
+                        MyCustomer.ModifyAll(Name, Name);
+                end;
+            FieldNo("Phone No."):
+                begin
+                    MyCustomer.SetRange("Customer No.", "No.");
+                    if not MyCustomer.IsEmpty() then
+                        MyCustomer.ModifyAll("Phone No.", "Phone No.");
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -3895,6 +4011,11 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTotalAmountLCYCommon(var Customer: Record Customer; var TotalAmountLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATRegistrationNo(var Customer: Record Customer; var VATRegNo: Text[20]);
     begin
     end;
 }

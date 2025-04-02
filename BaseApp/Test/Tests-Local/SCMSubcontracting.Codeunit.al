@@ -98,6 +98,7 @@ codeunit 144081 "SCM Subcontracting"
         RowInNotInTheTestPageErr: Label 'The row does not exist on the TestPage.';
         NotShippedQtyForWIPItemErr: Label 'WIP Qty. is not Shipped.';
         CountryRegionErr: Label '%1 must be %2 in %3.', Comment = '%1=Field Caption ,%2=Value ,%3=Table Caption.';
+        ReverseCapacityLedgerEntryForSubContractingErr: Label 'Entry cannot be reversed as it is linked to the subcontracting work center.';
 
     [Test]
     [HandlerFunctions('CalculatePlanningWkshRequestPageHandler,CarryOutActionMsgPlanRequestPageHandler')]
@@ -938,6 +939,51 @@ codeunit 144081 "SCM Subcontracting"
                 TransferReceiptHeader.FieldCaption("Trsf.-to Country/Region Code"),
                 Vendor."Country/Region Code",
                 TransferReceiptHeader.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,CarryOutActionMsgRequisitionRequestPageHandler,SubcontrTransferOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyCapacityLedgerEntryMustNotBeReversedWhenSubcontractingIsTrue()
+    var
+        Item: Record Item;
+        TransferRoute: Record "Transfer Route";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
+        VendorNo: Code[20];
+        WorkCenterNo: Code[20];
+    begin
+        // [SCENARIO 562491] Verify Capacity Ledger Entry must not be reversed When "Subcontracting" is true on Capacity Ledger Entry.
+        Initialize();
+
+        // [GIVEN] Create Subcontracting Location with Transfer Route.
+        CreateSubconLocationWithTransferRoute(TransferRoute);
+
+        // [GIVEN] Create Subcontracting Vendor.
+        VendorNo := CreateSubcontractingVendorWithProcurement(TransferRoute."Transfer-to Code", true);
+
+        // [GIVEN] Create Subcontracting Work Center.
+        WorkCenterNo := CreateSubcontractingWorkCenter(VendorNo);
+
+        // [GIVEN] Create Item With Production BOM and Routing.
+        CreateItemWithProdBOMAndRouting(Item, WorkCenterNo, TransferRoute."Transfer-from Code", '', false);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateReleasedProductionOrder(Item."No.", TransferRoute."Transfer-from Code");
+
+        // [GIVEN] Create And Post Subcontracting Order.
+        CreateAndPostSubcontractingOrder(Item."No.", VendorNo, VendorNo, WorkCenterNo);
+
+        // [GIVEN] Find Capacity Ledger Entry.
+        FindCapacityLedgerEntry(CapacityLedgerEntry, WorkCenterNo);
+
+        // [WHEN] Reverse Capacity Ledger Entry.
+        CapacityLedgerEntries.OpenEdit();
+        CapacityLedgerEntries.GoToRecord(CapacityLedgerEntry);
+        asserterror CapacityLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Capacity Ledger Entry must not be reversed When "Subcontracting" is true on Capacity Ledger Entry.
+        Assert.ExpectedError(ReverseCapacityLedgerEntryForSubContractingErr)
     end;
 
     local procedure Initialize()
@@ -1796,6 +1842,12 @@ codeunit 144081 "SCM Subcontracting"
     begin
         SubcontractingTransferHeader.SetRange("Source No.", VendorNo);
         SubcontractingTransferHeader.FindFirst();
+    end;
+
+    local procedure FindCapacityLedgerEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; WorkCenterNo: Code[20])
+    begin
+        CapacityLedgerEntry.SetRange("Work Center No.", WorkCenterNo);
+        CapacityLedgerEntry.FindFirst();
     end;
 
     [RequestPageHandler]

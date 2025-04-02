@@ -15,7 +15,7 @@ codeunit 5803 "Show Avg. Calc. - Item"
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code", "Entry No.");
         ValueEntry.SetRange("Item No.", Rec."No.");
         ValueEntry.SetFilter("Valuation Date", Rec.GetFilter("Date Filter"));
         ValueEntry.SetFilter("Location Code", Rec.GetFilter("Location Filter"));

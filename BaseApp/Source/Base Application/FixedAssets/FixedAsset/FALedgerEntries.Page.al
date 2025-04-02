@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Ledger;
 
 using Microsoft.Finance.Dimension;
@@ -30,22 +34,18 @@ page 5604 "FA Ledger Entries"
                 field("FA Posting Date"; Rec."FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the posting date of the related fixed asset transaction, such as a depreciation.';
                 }
                 field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the entry document type.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the document number on the entry.';
                 }
                 field("FA No."; Rec."FA No.")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the number of the related fixed asset. ';
                 }
                 field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
@@ -55,34 +55,28 @@ page 5604 "FA Ledger Entries"
                 field("FA Posting Category"; Rec."FA Posting Category")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the posting category assigned to the entry when it was posted.';
                 }
                 field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a description of the entry.';
                 }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
                 field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the entry amount in currency.';
                 }
                 field("Debit Amount"; Rec."Debit Amount")
                 {
@@ -107,7 +101,6 @@ page 5604 "FA Ledger Entries"
                 field("Reclassification Entry"; Rec."Reclassification Entry")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies whether the entry was made to reclassify a fixed asset, for example, to change the dimension the fixed asset is linked to.';
                 }
                 field("Index Entry"; Rec."Index Entry")
                 {
@@ -178,7 +171,6 @@ page 5604 "FA Ledger Entries"
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the entry''s posting date.';
                 }
                 field("G/L Entry No."; Rec."G/L Entry No.")
                 {
@@ -200,42 +192,36 @@ page 5604 "FA Ledger Entries"
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
                 field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
                 field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
                 field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
                 field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
                 field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim8Visible;
                 }
             }

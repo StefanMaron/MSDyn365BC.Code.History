@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Contract;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Contract;
 
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
@@ -17,7 +21,6 @@ using Microsoft.Service.Item;
 using Microsoft.Service.Ledger;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
-using System.Environment.Configuration;
 using System.Reflection;
 using System.Security.User;
 using System.Utilities;
@@ -62,7 +65,6 @@ codeunit 5940 ServContractManagement
         NoSeriesMgt: Codeunit NoSeriesManagement;
 #endif
         DimMgt: Codeunit DimensionManagement;
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         NextLine: Integer;
         PostingDate: Date;
         WDate: Date;
@@ -310,7 +312,10 @@ codeunit 5940 ServContractManagement
         end else begin
             YearContractCorrection := false;
             ServLedgEntry."Moved from Prepaid Acc." := true;
-            ServLedgEntry."Posting Date" := ServHeader2."Posting Date";
+            if InvFromDate = InvToDate then
+                ServLedgEntry."Posting Date" := InvFromDate
+            else
+                ServLedgEntry."Posting Date" := ServHeader2."Posting Date";
             FilterServiceContractLine(
               ServContractLine, ServContractHeader."Contract No.", ServContractHeader."Contract Type", LineNo);
             if AddingNewLines then
@@ -494,7 +499,7 @@ codeunit 5940 ServContractManagement
         if not IsHandled then
             Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
 
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+        if CheckCustomerBusPostingGroup() then
             Cust.TestField("Gen. Bus. Posting Group");
 
         ServHeader2.Name := Cust.Name;
@@ -511,15 +516,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Bill-to Contact" := ServContract2."Bill-to Contact";
         ServHeader2."Tax Area Code" := Cust."Tax Area Code";
         ServHeader2."Tax Liable" := Cust."Tax Liable";
-        ServHeader2."Fiscal Code" := Cust."Fiscal Code";
-        ServHeader2."Individual Person" := Cust."Individual Person";
-        ServHeader2.Resident := Cust.Resident;
-        ServHeader2."First Name" := Cust."First Name";
-        ServHeader2."Last Name" := Cust."Last Name";
-        ServHeader2."Date of Birth" := Cust."Date of Birth";
-        ServHeader2."Tax Representative Type" := Cust."Tax Representative Type";
-        ServHeader2."Tax Representative No." := Cust."Tax Representative No.";
-        ServHeader2."VAT Registration No." := Cust."VAT Registration No.";
 
         OnCreateServHeaderOnAfterCopyFromCustomer(ServHeader2, ServContract2, Cust);
 
@@ -559,8 +555,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Shortcut Dimension 1 Code" := ServContract2."Shortcut Dimension 1 Code";
         ServHeader2."Shortcut Dimension 2 Code" := ServContract2."Shortcut Dimension 2 Code";
         ServHeader2."Dimension Set ID" := ServContract2."Dimension Set ID";
-        if GLSetup."Use Activity Code" then
-            ServHeader2."Activity Code" := ServContract2."Activity Code";
         OnBeforeServHeaderModify(ServHeader2, ServContract2);
         ServHeader2.Modify();
         RecordLinkManagement.CopyLinks(ServContract2, ServHeader2);
@@ -870,8 +864,10 @@ codeunit 5940 ServContractManagement
         OnCreateOrGetCreditHeaderOnBeforeCheckBlockedCustOnDocs(ServHeader2, ServContract, IsHandled);
         if not IsHandled then
             Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+
+        if CheckCustomerBusPostingGroup() then
             Cust.TestField("Gen. Bus. Posting Group");
+
         ServHeader2.Name := Cust.Name;
         ServHeader2."Name 2" := Cust."Name 2";
         ServHeader2.Address := Cust.Address;
@@ -885,15 +881,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Bill-to Contact No." := ServContract."Bill-to Contact No.";
         ServHeader2."Bill-to Contact" := ServContract."Bill-to Contact";
         ServHeader2."Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
-        ServHeader2."Fiscal Code" := Cust."Fiscal Code";
-        ServHeader2."Individual Person" := Cust."Individual Person";
-        ServHeader2.Resident := Cust.Resident;
-        ServHeader2."First Name" := Cust."First Name";
-        ServHeader2."Last Name" := Cust."Last Name";
-        ServHeader2."Date of Birth" := Cust."Date of Birth";
-        ServHeader2."Tax Representative Type" := Cust."Tax Representative Type";
-        ServHeader2."Tax Representative No." := Cust."Tax Representative No.";
-        ServHeader2."VAT Registration No." := Cust."VAT Registration No.";
         if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No." then
             ServHeader2."VAT Bus. Posting Group" := Cust."VAT Bus. Posting Group";
         OnCreateOrGetCreditHeaderOnAfterCopyFromCustomer(ServHeader2, ServContract, Cust);
@@ -917,8 +904,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Dimension Set ID" := ServContract."Dimension Set ID";
         ServHeader2.Validate("Location Code",
           UserMgt.GetLocation(2, Cust."Location Code", ServContract."Responsibility Center"));
-        if GLSetup."Use Activity Code" then
-            ServHeader2."Activity Code" := ServContract."Activity Code";
         OnBeforeServHeaderModify(ServHeader2, ServContract);
         ServHeader2.Modify();
 
@@ -2566,6 +2551,20 @@ codeunit 5940 ServContractManagement
         exit('<CM>');
     end;
 
+    local procedure CheckCustomerBusPostingGroup(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCustomer(result, IsHandled);
+        if IsHandled then
+            exit;
+
+        Result := not ApplicationAreaMgmt.IsSalesTaxEnabled();
+    end;
+
     local procedure CalcAndSetRemainingAmount(ServLedgerEntry: Record "Service Ledger Entry"; ServContractLine: Record "Service Contract Line"; var AmountLCY: Decimal; var UnitPrice: Decimal; var UnitCost: Decimal; var ContractDiscAmt: Decimal; InvFrom: Date; InvTo: Date; AmtRoundingPrecision: Decimal)
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
@@ -3162,6 +3161,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateOrGetCreditHeaderOnAfterCopyFromCustomer(var ServiceHeader: Record "Service Header"; ServiceContract: Record "Service Contract Header"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustomer(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -6,7 +6,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -277,11 +276,6 @@ table 5771 "Warehouse Source Filter"
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
             ValidateTableRelation = false;
         }
-        field(5401; "Prod. Order No."; Code[20])
-        {
-            Caption = 'Prod. Order No.';
-            TableRelation = "Production Order"."No." where(Status = const(Released));
-        }
         field(7300; "Planned Delivery Date"; Text[250])
         {
             Caption = 'Planned Delivery Date';
@@ -310,13 +304,6 @@ table 5771 "Warehouse Source Filter"
         {
             Caption = 'Sales Shipment Date';
         }
-        field(99000754; "Prod. Order Line No. Filter"; Text[100])
-        {
-            Caption = 'Prod. Order Line No. Filter';
-            TableRelation = "Prod. Order Line"."Line No." where(Status = filter(Released),
-                                                                 "Prod. Order No." = field("Prod. Order No."));
-            ValidateTableRelation = false;
-        }
     }
 
     keys
@@ -336,127 +323,67 @@ table 5771 "Warehouse Source Filter"
 
     procedure SetFilters(var GetSourceDocuments: Report "Get Source Documents"; LocationCode: Code[10])
     var
-        WhseRequest: Record "Warehouse Request";
-#if not CLEAN23
-        SalesLine: Record Microsoft.Sales.Document."Sales Line";
-        PurchLine: Record Microsoft.Purchases.Document."Purchase Line";
-        TransLine: Record "Transfer Line";
-        SalesHeader: Record Microsoft.Sales.Document."Sales Header";
-        PurchHeader: Record Microsoft.Purchases.Document."Purchase Header";
-        ServiceHeader: Record Microsoft.Service.Document."Service Header";
-        ServiceLine: Record Microsoft.Service.Document."Service Line";
-#endif
+        WarehouseRequest: Record "Warehouse Request";
     begin
         "Source Document" := '';
 
         if "Sales Orders" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Sales Order";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Sales Order";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Sales Return Orders" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Sales Return Order";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Sales Return Order";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Outbound Transfers" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Outbound Transfer";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Outbound Transfer";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Purchase Orders" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Purchase Order";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Purchase Order";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Purchase Return Orders" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Purchase Return Order";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Purchase Return Order";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
         if "Inbound Transfers" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Inbound Transfer";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Inbound Transfer";
+            AddFilter("Source Document", Format(WarehouseRequest."Source Document"));
         end;
 
-        OnSetFiltersOnAfterSetSourceFilters(Rec, WhseRequest);
+        OnSetFiltersOnAfterSetSourceFilters(Rec, WarehouseRequest);
 
         if "Source Document" = '' then
             Error(MustBeChosenErr, FieldCaption("Source Document"));
 
-        WhseRequest.SetFilter("Source Document", "Source Document");
-        WhseRequest.SetFilter("Source No.", "Source No. Filter");
-        WhseRequest.SetFilter("Shipment Method Code", "Shipment Method Code Filter");
+        WarehouseRequest.SetFilter("Source Document", "Source Document");
+        WarehouseRequest.SetFilter("Source No.", "Source No. Filter");
+        WarehouseRequest.SetFilter("Shipment Method Code", "Shipment Method Code Filter");
 
         "Shipping Advice Filter" := '';
 
         if Partial then begin
-            WhseRequest."Shipping Advice" := WhseRequest."Shipping Advice"::Partial;
-            AddFilter("Shipping Advice Filter", Format(WhseRequest."Shipping Advice"));
+            WarehouseRequest."Shipping Advice" := WarehouseRequest."Shipping Advice"::Partial;
+            AddFilter("Shipping Advice Filter", Format(WarehouseRequest."Shipping Advice"));
         end;
 
         if Complete then begin
-            WhseRequest."Shipping Advice" := WhseRequest."Shipping Advice"::Complete;
-            AddFilter("Shipping Advice Filter", Format(WhseRequest."Shipping Advice"));
+            WarehouseRequest."Shipping Advice" := WarehouseRequest."Shipping Advice"::Complete;
+            AddFilter("Shipping Advice Filter", Format(WarehouseRequest."Shipping Advice"));
         end;
 
-        WhseRequest.SetFilter("Shipping Advice", "Shipping Advice Filter");
-        WhseRequest.SetRange("Location Code", LocationCode);
+        WarehouseRequest.SetFilter("Shipping Advice", "Shipping Advice Filter");
+        WarehouseRequest.SetRange("Location Code", LocationCode);
 
-        OnSetFiltersOnSourceTables(Rec, GetSourceDocuments, WhseRequest);
+        OnSetFiltersOnSourceTables(Rec, GetSourceDocuments, WarehouseRequest);
 
-#if not CLEAN23
-        SalesHeader.SetFilter("Sell-to Customer No.", "Sell-to Customer No. Filter");
-        SalesLine.SetFilter("No.", "Item No. Filter");
-        SalesLine.SetFilter("Variant Code", "Variant Code Filter");
-        SalesLine.SetFilter("Unit of Measure Code", "Unit of Measure Filter");
-        SalesLine.SetFilter("Planned Delivery Date", "Planned Delivery Date");
-        SalesLine.SetFilter("Planned Shipment Date", "Planned Shipment Date");
-        SalesLine.SetFilter("Shipment Date", "Sales Shipment Date");
-        SalesLine.SetFilter("Shipping Agent Code", "Shipping Agent Code Filter");
-        SalesLine.SetFilter("Shipping Agent Service Code", "Shipping Agent Service Filter");
-
-        ServiceHeader.SetFilter("Customer No.", "Customer No. Filter");
-        ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.SetFilter("No.", "Item No. Filter");
-        ServiceLine.SetFilter("Variant Code", "Variant Code Filter");
-        ServiceLine.SetFilter("Unit of Measure Code", "Unit of Measure Filter");
-        ServiceLine.SetFilter("Planned Delivery Date", "Planned Delivery Date");
-        ServiceLine.SetFilter("Shipping Agent Code", "Shipping Agent Code Filter");
-        ServiceLine.SetFilter("Shipping Agent Service Code", "Shipping Agent Service Filter");
-
-        PurchHeader.SetFilter("Buy-from Vendor No.", "Buy-from Vendor No. Filter");
-        PurchLine.SetFilter("No.", "Item No. Filter");
-        PurchLine.SetFilter("Variant Code", "Variant Code Filter");
-        PurchLine.SetFilter("Unit of Measure Code", "Unit of Measure Filter");
-        PurchLine.SetFilter("Buy-from Vendor No.", "Buy-from Vendor No. Filter");
-        PurchLine.SetFilter("Expected Receipt Date", "Expected Receipt Date");
-        PurchLine.SetFilter("Planned Receipt Date", "Planned Receipt Date");
-
-        TransLine.SetFilter("Item No.", "Item No. Filter");
-        TransLine.SetFilter("Variant Code", "Variant Code Filter");
-        TransLine.SetFilter("Unit of Measure Code", "Unit of Measure Filter");
-        TransLine.SetFilter("In-Transit Code", "In-Transit Code Filter");
-        TransLine.SetFilter("Transfer-from Code", "Transfer-from Code Filter");
-        TransLine.SetFilter("Transfer-to Code", "Transfer-to Code Filter");
-        TransLine.SetFilter("Shipment Date", "Shipment Date");
-        TransLine.SetFilter("Receipt Date", "Receipt Date");
-        TransLine.SetFilter("Shipping Agent Code", "Shipping Agent Code Filter");
-        TransLine.SetFilter("Shipping Agent Service Code", "Shipping Agent Service Filter");
-
-        OnBeforeSetTableView(WhseRequest, SalesHeader, SalesLine, PurchLine, TransLine, ServiceHeader, ServiceLine, Rec, PurchHeader);
-
-        GetSourceDocuments.SetTableView(WhseRequest);
-        GetSourceDocuments.SetTableView(SalesHeader);
-        GetSourceDocuments.SetTableView(SalesLine);
-        GetSourceDocuments.SetTableView(PurchHeader);
-        GetSourceDocuments.SetTableView(PurchLine);
-        GetSourceDocuments.SetTableView(TransLine);
-        GetSourceDocuments.SetTableView(ServiceHeader);
-        GetSourceDocuments.SetTableView(ServiceLine);
-#else
-        GetSourceDocuments.SetTableView(WhseRequest);
-#endif
+        GetSourceDocuments.SetTableView(WarehouseRequest);
         GetSourceDocuments.SetDoNotFillQtytoHandle("Do Not Fill Qty. to Handle");
         GetSourceDocuments.SetReservedFromStock("Reserved From Stock");
 
@@ -502,19 +429,6 @@ table 5771 "Warehouse Source Filter"
     local procedure OnAfterSetFilters(var GetSourceBatch: Report "Get Source Documents"; var WarehouseSourceFilter: Record "Warehouse Source Filter")
     begin
     end;
-
-#if not CLEAN23
-    [Obsolete('Related code moved to codeunits [Source Table] Warehouse Mgt. This event is replaced with similar events in [Source Table] Warehouse Mgt. codeunits.', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetTableView(
-        var WarehouseRequest: Record "Warehouse Request";
-        var SalesHeader: Record Microsoft.Sales.Document."Sales Header"; var SalesLine: Record Microsoft.Sales.Document."Sales Line";
-        var PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line"; var TransferLine: Record "Transfer Line";
-        var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ServiceLine: Record Microsoft.Service.Document."Service Line";
-        var WarehouseSourceFilter: Record "Warehouse Source Filter"; var PurchaseHeader: Record Microsoft.Purchases.Document."Purchase Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSetFiltersOnSourceTables(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceDocuments: Report "Get Source Documents"; var WarehouseRequest: Record "Warehouse Request")

@@ -190,7 +190,7 @@ report 12152 "Create Subcontr.Transf. Order"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         ProdOrderComponent: Record "Prod. Order Component";
         Item: Record Item;
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
         QtyPerUom: Decimal;
     begin
@@ -223,7 +223,7 @@ report 12152 "Create Subcontr.Transf. Order"
         if ProdOrderComponent.FindSet() then
             repeat
                 Item.Get(ProdOrderComponent."Item No.");
-                QtyToPost := CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComponent,
+                QtyToPost := MfgCostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComponent,
                     Round(PurchLine.Quantity * QtyPerUom, 0.00001));
                 ProdOrderComponent.CalcFields("Qty. on Transfer Order (Base)", "Qty. in Transit (Base)",
                   "Qty. transf. to Subcontractor");

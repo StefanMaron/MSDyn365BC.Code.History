@@ -700,7 +700,6 @@ table 6650 "Return Shipment Header"
               FieldCaption("Shipment Method Code"), "Shipment Method Code");
     end;
 
-    [Scope('OnPrem')]
     procedure CheckTDDData(): Boolean
     var
         ShippingAgent: Record "Shipping Agent";
@@ -719,7 +718,6 @@ table 6650 "Return Shipment Header"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetTDDAddr(var ShippingAgentAddr: array[8] of Text[100]; var LoaderAddr: array[8] of Text[100])
     var
         CompanyInfo: Record "Company Information";

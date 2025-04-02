@@ -396,6 +396,19 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
+
+        UpdatePurchasePrepmtAccount(PurchaseHeader."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+    end;
+
+    local procedure UpdatePurchasePrepmtAccount(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchPrepaymentsGLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(PurchPrepaymentsGLAccount);
+        GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
+        GeneralPostingSetup."Purch. Prepayments Account" := PurchPrepaymentsGLAccount."No.";
+        GeneralPostingSetup.Modify(true);
     end;
 
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; VATBusPostingGroup: Code[20]; No: Code[20]; PaymentMethodCode: Code[10]; PrepaymentPercent: Decimal)

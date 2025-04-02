@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Setup;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Calendar;
@@ -153,17 +157,6 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies implementation method of checking which posting groups can be used for the customer.';
-                }
-                field("Validate Document On Posting"; Rec."Validate Document On Posting")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies that you cannot post an invoice or credit memo that has Fattura PA errors.';
-                }
-                field("Notify On Occur. Date Change"; Rec."Notify On Occur. Date Change")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Posting Date after Operation Occurred Date notification';
-                    ToolTip = 'Specifies that you will get a notification when changing the Posting Date field to a date later than currently in the Operation Occurred Date field.';
                 }
             }
             group("Mandatory Fields")
@@ -378,12 +371,12 @@ page 5919 "Service Mgt. Setup"
                 field("Archive Quotes"; Rec."Archive Quotes")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to archive service quotes when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive service quotes when: deleted, processed or printed.';
                 }
                 field("Archive Orders"; Rec."Archive Orders")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to archive service orders when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive service orders when: deleted, posted or printed.';
                 }
             }
             group("Journal Templates")

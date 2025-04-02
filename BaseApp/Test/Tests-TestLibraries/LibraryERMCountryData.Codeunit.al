@@ -120,6 +120,11 @@ codeunit 131305 "Library - ERM Country Data"
         PurchasesPayablesSetup.Modify();
     end;
 
+    procedure SetDiscountPostingInPurchasePayablesSetup()
+    begin
+        exit;
+    end;
+
     procedure UpdateSalesReceivablesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -127,6 +132,11 @@ codeunit 131305 "Library - ERM Country Data"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Prevent Posted Doc. Deletion" := false;
         SalesReceivablesSetup.Modify();
+    end;
+
+    procedure SetDiscountPostingInSalesReceivablesSetup()
+    begin
+        exit;
     end;
 
     procedure UpdateGenProdPostingGroup()

@@ -829,8 +829,8 @@ codeunit 132501 "Sales Document Posting Errors"
 
         // [THEN] Verify Campaign No. is udpated.
         Assert.AreEqual(
-            Campaign."No.", 
-            SalesOrder."Campaign No.".Value(), 
+            Campaign."No.",
+            SalesOrder."Campaign No.".Value(),
             CampaignNoErr);
     end;
 

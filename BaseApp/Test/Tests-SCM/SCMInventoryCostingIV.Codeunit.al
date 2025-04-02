@@ -2031,7 +2031,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryInventory.CreateItem(ComponentItem);
         UpdateItemParametersForPlanning(
           ComponentItem, ComponentItem."Replenishment System"::Purchase, ComponentItem."Reordering Policy"::"Lot-for-Lot", false);
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, AssemblyItemNo, BOMComponent.Type::Item, ComponentItem."No.", QtyPer, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, AssemblyItemNo, BOMComponent.Type::Item, ComponentItem."No.", QtyPer, '');
         exit(ComponentItem."No.");
     end;
 

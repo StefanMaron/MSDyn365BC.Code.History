@@ -56,7 +56,7 @@ page 7343 "Pick Selection"
                     DrillDown = false;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                 }
-                field(AssembleToOrder; GetAsmToOrder())
+                field(AssembleToOrder; GetAssembleToOrder())
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Assemble to Order';
@@ -85,19 +85,20 @@ page 7343 "Pick Selection"
     {
     }
 
-    procedure GetResult(var WhsePickRqst: Record "Whse. Pick Request")
+    procedure GetResult(var WhsePickRequest: Record "Whse. Pick Request")
     begin
-        CurrPage.SetSelectionFilter(WhsePickRqst);
+        CurrPage.SetSelectionFilter(WhsePickRequest);
     end;
 
-    local procedure GetAsmToOrder(): Boolean
+    local procedure GetAssembleToOrder(): Boolean
     var
-        AsmHeader: Record "Assembly Header";
+        AssemblyHeader: Record "Assembly Header";
     begin
         if Rec."Document Type" = Rec."Document Type"::Assembly then begin
-            AsmHeader.Get(Rec."Document Subtype", Rec."Document No.");
-            AsmHeader.CalcFields("Assemble to Order");
-            exit(AsmHeader."Assemble to Order");
+            AssemblyHeader.SetAutoCalcFields("Assemble to Order");
+            AssemblyHeader.SetLoadFields("Assemble to Order");
+            AssemblyHeader.Get(Rec."Document Subtype", Rec."Document No.");
+            exit(AssemblyHeader."Assemble to Order");
         end;
     end;
 }

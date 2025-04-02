@@ -30,12 +30,10 @@ codeunit 137158 "SCM Orders V"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
-        LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryResource: Codeunit "Library - Resource";
         LibraryITLocalization: Codeunit "Library - IT Localization";
@@ -65,6 +63,7 @@ codeunit 137158 "SCM Orders V"
         ItemTrackingNotMatchErr: Label 'Item Tracking does not match';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
         WrongLotQtyOnPurchaseLineErr: Label 'Wrong lot quantity in Item Tracking on Purchase Line.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -1435,7 +1434,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Sales & Receivable Setup with "Default G/L Account Quantity" = FALSE
         UpdateDefaultGLAccountQuantityOnSalesSetup(false);
-	
+
         // [GIVEN] G/L Account "A"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
 
@@ -1888,7 +1887,7 @@ codeunit 137158 "SCM Orders V"
         UpdateStockoutWarningOnSalesReceivableSetup(false);
         CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
-        ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(AssemblyItem."No.");
 
         // [GIVEN] Sales Order with Assembly BOM and inserted extended text
         CreateSalesOrderWithInsertedExtendedText(SalesHeader, SalesLine, AssemblyItem."No.");
@@ -1920,7 +1919,7 @@ codeunit 137158 "SCM Orders V"
         UpdateStockoutWarningOnSalesReceivableSetup(false);
         CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
-        ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(AssemblyItem."No.");
 
         // [GIVEN] Sales Order with Assembly BOM and inserted extended text
         CreateSalesOrderWithInsertedExtendedText(SalesHeader, SalesLine, AssemblyItem."No.");
@@ -1953,7 +1952,7 @@ codeunit 137158 "SCM Orders V"
         Initialize();
         CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
-        ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(AssemblyItem."No.");
 
         // [GIVEN] Purchase Order with Assembly BOM and inserted extended text
         CreatePurchOrderWithInsertedExtendedText(PurchHeader, PurchLine, AssemblyItem."No.");
@@ -1984,7 +1983,7 @@ codeunit 137158 "SCM Orders V"
         Initialize();
         CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
-        ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(AssemblyItem."No.");
 
         // [GIVEN] Purchase Order with Assembly BOM and inserted extended text
         CreatePurchOrderWithInsertedExtendedText(PurchHeader, PurchLine, AssemblyItem."No.");
@@ -3152,7 +3151,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] BOM Component for "IT01": Resource "RES01" with "Quantity per" = 30 and "Unit of Measure Code" = "MIN"
         QtyPerLine := LibraryRandom.RandDec(100, 2);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent,
           Item."No.",
           BOMComponent.Type::Resource,
@@ -3944,6 +3943,85 @@ codeunit 137158 "SCM Orders V"
         VerifyItemTrackingOnPurchaseOrderLine(PurchaseLine, PurchaseHeader, LotNo[3], Qty2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTRUE,MessageHandlerOK')]
+    procedure VerifyDueDateTimeShouldBeUpdatedInProdOrderComponentWhenRoutingLinkCodeIsUpdatedInRoutingLine()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionOrder: Record "Production Order";
+        RoutingLink: array[2] of Record "Routing Link";
+        ProdOrderComponent: Record "Prod. Order component";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        // [SENARIO 399971] Verify the "Due DateTime" is updated in Prod. Order Component When "Routing Link Code" is updated in Prod Order Routing Line.
+        Initialize();
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        // [GIVEN] Create a Routing Link.
+        LibraryManufacturing.CreateRoutingLink(RoutingLink[1]);
+
+        // [GIVEN] Create another Routing Link.
+        LibraryManufacturing.CreateRoutingLink(RoutingLink[2]);
+
+        // [GIVEN] Create a Routing Header with Status.
+        CreateRoutingHeaderWithStatus(RoutingHeader, "Routing Status"::Certified);
+
+        // [GIVEN] Create an Item with Routing No.
+        CreateItemWithRoutingNo(Item, RoutingHeader."No.");
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create a Planned Production Order with Routing No.
+        CreateProductionOrderWithRoutingNo(ProductionOrder, "Production Order Status"::Planned, Item."No.", LibraryRandom.RandInt(10), RoutingHeader."No.", Location.Code);
+
+        // [GIVEN] Create a Production Order Line.
+        CreateProdOrderlineFromProdOrder(ProdOrderLine, ProductionOrder, Item."No.", '', Location.Code);
+
+        // [GIVEN] Create two Prod. Order Routing Line with Routing Link Code.
+        CreateProdOrderRoutingLineWithRoutingLinkCode(ProdOrderLine, WorkCenter, ProdOrderRoutingLine.Type::"Work Center", RoutingLink[1].Code, 2);
+
+        // [GIVEN] Create two Prod. Order Routing Line with another Routing Link Code.
+        CreateProdOrderRoutingLineWithRoutingLinkCode(ProdOrderLine, WorkCenter, ProdOrderRoutingLine.Type::"Work Center", RoutingLink[2].Code, 2);
+
+        // [GIVEN] Create three Prod. Order Component with Routing Link Code.
+        CreateProdOrderComponentWithRountingLinkCode(ProdOrderComponent, ProdOrderLine, RoutingLink[1].Code, 3);
+
+        // [GIVEN] Create three Prod. Order Component with another Routing Link Code.
+        CreateProdOrderComponentWithRountingLinkCode(ProdOrderComponent, ProdOrderLine, RoutingLink[2].Code, 3);
+
+        // [WHEN] Update "Routing Link Code" in Prod. Order Routing Line with the same Routing Code.
+        UpdateRoutingLinkCodeInRoutingLine(ProductionOrder."No.", RoutingLink[1].Code, RoutingLink[1].Code, 0);
+        UpdateRoutingLinkCodeInRoutingLine(ProductionOrder."No.", RoutingLink[2].Code, RoutingLink[2].Code, 0);
+
+        // [VERIFY] Prod. Order Component should have "Due Date-Time" equal to the earliest "Startig Date-Time" of the Prod. Order Routing Line if the "Routing Link Code" is same.
+        FindProdOrderRoutingLineForRoutingLinkCode(ProdOrderRoutingLine, ProdOrderLine, RoutingLink[1].Code);
+        VerifyDueDateTimeInProdOrderComponent(ProdOrderRoutingLine);
+        FindProdOrderRoutingLineForRoutingLinkCode(ProdOrderRoutingLine, ProdOrderLine, RoutingLink[2].Code);
+        VerifyDueDateTimeInProdOrderComponent(ProdOrderRoutingLine);
+
+        // [WHEN] Update all the routing line records that have the second "Routing Link Code" to the first "Routing Link Code".
+        UpdateRoutingLinkCodeInRoutingLine(ProductionOrder."No.", RoutingLink[2].Code, RoutingLink[1].Code, 0);
+
+        // [VERIFY] Prod. Order Component with first "Routing Link Code" should have "Due Date-Time" equal to the earliest "Startig Date-Time" of the Prod. Order Routing Line with same first "Routing Link Code".
+        FindProdOrderRoutingLineForRoutingLinkCode(ProdOrderRoutingLine, ProdOrderLine, RoutingLink[1].Code);
+        VerifyDueDateTimeInProdOrderComponent(ProdOrderRoutingLine);
+
+        // [WHEN] Update the last routing line record, which has the first "Routing Link Code," to the second "Routing Link Code".
+        UpdateRoutingLinkCodeInRoutingLine(ProductionOrder."No.", RoutingLink[1].Code, RoutingLink[2].Code, 2);
+
+        // [VERIFY] Prod. Order Component with second "Routing Link Code" should have "Due Date-Time" equal to the earliest "Startig Date-Time" of the Prod. Order Routing Line with same second "Routing Link Code".
+        FindProdOrderRoutingLineForRoutingLinkCode(ProdOrderRoutingLine, ProdOrderLine, RoutingLink[2].Code);
+        VerifyDueDateTimeInProdOrderComponent(ProdOrderRoutingLine);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -4371,12 +4449,12 @@ codeunit 137158 "SCM Orders V"
           BOMComponent.Type::Item, CompItem, AssemblyItem."No.", '', BOMComponent."Resource Usage Type", QuantityPer, true);
     end;
 
-    local procedure CreateAssemblyItemWithMultipleBOMComponents(var CompItem: Record Item; var CompItem2: Record Item): Code[10]
+    local procedure CreateAssemblyItemWithMultipleBOMComponents(var CompItem: Record Item; var CompItem2: Record Item): Code[20]
     var
         AssemblyItem: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        LibraryPatterns.MAKEItemWithExtendedText(CompItem, ExtendedTxt, CompItem."Costing Method"::FIFO, 0);
+        LibraryInventory.CreateItemWithExtendedText(CompItem, ExtendedTxt, CompItem."Costing Method"::FIFO, 0);
         LibraryAssembly.CreateItem(CompItem2, CompItem2."Costing Method", CompItem."Replenishment System"::Purchase, '', '');
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItem."No.", LibraryRandom.RandDec(10, 2));
         LibraryAssembly.CreateAssemblyListComponent(
@@ -4388,7 +4466,6 @@ codeunit 137158 "SCM Orders V"
     local procedure CreateJobWithJobTask(var JobTask: Record "Job Task")
     var
         Job: Record Job;
-        LibraryJob: Codeunit "Library - Job";
     begin
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -5847,6 +5924,137 @@ codeunit 137158 "SCM Orders V"
         Assert.AreEqual(Qty, LibraryVariableStorage.DequeueDecimal(), WrongLotQtyOnPurchaseLineErr);
     end;
 
+    local procedure CreateProdOrderRoutingLineWithRoutingLinkCode(ProdOrderLine: Record "Prod. Order Line"; WorkCenter: Record "Work Center"; CapacityType: Enum "Capacity Type"; RoutingLinkCode: Code[10]; RoutingLineCount: Integer)
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        i: Integer;
+    begin
+        for i := 1 to RoutingLineCount do begin
+            ProdOrderRoutingLine.Init();
+            ProdOrderRoutingLine.Validate(Status, ProdOrderLine.Status);
+            ProdOrderRoutingLine.Validate("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+            ProdOrderRoutingLine.Validate("Routing No.", ProdOrderLine."Routing No.");
+            ProdOrderRoutingLine.Validate("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+            ProdOrderRoutingLine.Validate("Operation No.", Format(LibraryRandom.RandInt(100)));
+            ProdOrderRoutingLine.Insert(true);
+
+            ProdOrderRoutingLine.Validate(Type, CapacityType);
+            ProdOrderRoutingLine.Validate("Work Center No.", WorkCenter."No.");
+            ProdOrderRoutingLine.Validate("No.", WorkCenter."No.");
+            ProdOrderRoutingLine.Validate("Setup Time", LibraryRandom.RandInt(100));
+            ProdOrderRoutingLine.Validate("Run Time", LibraryRandom.RandInt(100));
+            ProdOrderRoutingLine.Validate("Wait Time", LibraryRandom.RandInt(100));
+            ProdOrderRoutingLine.Validate("Move Time", LibraryRandom.RandInt(100));
+            ProdOrderRoutingLine.Validate("Routing Link Code", RoutingLinkCode);
+            ProdOrderRoutingLine.Modify(true);
+        end;
+    end;
+
+    local procedure FindProdOrderRoutingLineForRoutingLinkCode(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: record "Prod. Order Line"; RoutingLinkCode: code[20])
+    begin
+        Clear(ProdOrderRoutingLine);
+        ProdOrderRoutingLine.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+        ProdOrderRoutingLine.SetRange("Routing Link Code", RoutingLinkCode);
+        ProdOrderRoutingLine.FindFirst();
+    end;
+
+    local procedure CreateProductionOrderWithRoutingNo(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Enum "Production Order Status"; ItemNo: Code[20]; Quantity: Decimal; RoutingNo: Code[20]; LocationCode: Code[10])
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
+        ProductionOrder.Validate("Routing No.", RoutingNo);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Modify(true);
+    end;
+
+    local procedure CreateItemWithRoutingNo(var Item: Record Item; RoutingNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateProdOrderlineFromProdOrder(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order"; ItemNo: Code[20]; ItemVariant: Code[10]; LocationCode: Code[10])
+    begin
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ItemNo, ItemVariant, LocationCode, ProductionOrder.Quantity);
+        ProdOrderLine.Validate("Routing No.", ProductionOrder."Routing No.");
+        ProdOrderLine.Modify(true);
+    end;
+
+    local procedure CreateProdOrderComponentWithRountingLinkCode(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; RoutingLinkCode: Code[20]; ComponentCount: Integer)
+    var
+        Item: Record Item;
+        i: Integer;
+    begin
+        for i := 1 to ComponentCount do begin
+            LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+            ProdOrderComponent.Validate(Status, ProdOrderLine.Status);
+            ProdOrderComponent.Validate("Item No.", LibraryInventory.CreateItem(Item));
+            ProdOrderComponent.Validate("Quantity per", LibraryRandom.RandInt(10));
+            ProdOrderComponent.Validate("Routing Link Code", RoutingLinkCode);
+            ProdOrderComponent.Modify(true);
+        end;
+    end;
+
+    local procedure CreateRoutingHeaderWithStatus(var RoutingHeader: Record "Routing Header"; RoutingStatus: Enum "Routing Status")
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        RoutingHeader.Validate(Status, RoutingStatus);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure UpdateRoutingLinkCodeInRoutingLine(ProdOrderNo: Code[20]; RoutingLinkCode: Code[20]; NewRoutingLinkCode: Code[20]; UpdateMode: Option " ","First Record","Last Record")
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderRoutingLine.SetRange("Routing Link Code", RoutingLinkCode);
+        case UpdateMode of
+            UpdateMode::" ":
+                if ProdOrderRoutingLine.FindSet() then
+                    repeat
+                        ProdOrderRoutingLine.Validate("Routing Link Code", NewRoutingLinkCode);
+                        ProdOrderRoutingLine.Modify(true);
+                    until ProdOrderRoutingLine.Next() = 0;
+            UpdateMode::"First Record":
+                if ProdOrderRoutingLine.FindFirst() then begin
+                    ProdOrderRoutingLine.Validate("Routing Link Code", NewRoutingLinkCode);
+                    ProdOrderRoutingLine.Modify(true);
+                end;
+            UpdateMode::"Last Record":
+                if ProdOrderRoutingLine.FindLast() then begin
+                    ProdOrderRoutingLine.Validate("Routing Link Code", NewRoutingLinkCode);
+                    ProdOrderRoutingLine.Modify(true);
+                end;
+        end;
+    end;
+
+    local procedure VerifyDueDateTimeInProdOrderComponent(ProdOrderRouteLine: Record "Prod. Order Routing Line")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        ProdOrderComponent.SetLoadFields("Due Date-Time", "Due Date", "Due Time");
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderRouteLine."Prod. Order No.");
+        ProdOrderComponent.SetRange("Routing Link Code", ProdOrderRouteLine."Routing Link Code");
+        if ProdOrderComponent.FindSet() then
+            repeat
+                Assert.AreEqual(
+                    ProdOrderRouteLine."Starting Date-Time",
+                    ProdOrderComponent."Due Date-Time",
+                    StrSubstNo(ValueMustBeEqualErr, ProdOrderComponent.FieldCaption("Due Date-Time"), ProdOrderRouteLine."Starting Date-Time", ProdOrderComponent.TableCaption()));
+                Assert.AreEqual(
+                    ProdOrderRouteLine."Starting Date",
+                    ProdOrderComponent."Due Date",
+                    StrSubstNo(ValueMustBeEqualErr, ProdOrderComponent.FieldCaption("Due Date"), ProdOrderRouteLine."Starting Date", ProdOrderComponent.TableCaption()));
+                Assert.AreEqual(
+                    ProdOrderRouteLine."Starting Time",
+                    ProdOrderComponent."Due Time",
+                    StrSubstNo(ValueMustBeEqualErr, ProdOrderComponent.FieldCaption("Due Time"), ProdOrderRouteLine."Starting Date", ProdOrderComponent.TableCaption()));
+            until ProdOrderComponent.Next() = 0;
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -6082,6 +6290,19 @@ codeunit 137158 "SCM Orders V"
     [SendNotificationHandler]
     [Scope('OnPrem')]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTRUE(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerOK(Message: Text[1024])
     begin
     end;
 }

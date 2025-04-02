@@ -50,7 +50,7 @@ codeunit 136312 "Job Reservation"
         // Verify Location Name assigning from Location.Name
 
         // Setup.
-        Initialize(false);
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate(Name, PadStr(Location.Name, MaxStrLen(Location.Name), '.'));
         Location.Modify(true);
@@ -78,7 +78,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Item on Purchase Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -103,7 +103,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Vairant Code on Purchase Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -127,7 +127,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Location Code on Purchase Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -150,7 +150,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Expected Receipt Date on Purchase Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -175,7 +175,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Item on Job Planning Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -200,7 +200,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Variant Code on Job Planning Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -224,7 +224,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Location Code on Job Planning Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -247,7 +247,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Planning Date on Job Planning Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -271,7 +271,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Usage Link on Job Planning Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -294,7 +294,7 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Reserve on Job Planning Line.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
@@ -319,7 +319,7 @@ codeunit 136312 "Job Reservation"
         Item: Record Item;
     begin
         // Verify after Reserving order from job planning line, it is possible to modify Bin code.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Items available on location A - bin code X and bin code Y.
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -356,7 +356,7 @@ codeunit 136312 "Job Reservation"
         // Verify Reserved Quantity on Purchase Line and Job Planning Line after modifying the various field on Purchase and Job Planning Line after Reservation.
 
         // Setup: Create and modify Purchase Order, create Job Planning Line, again modify Purchase Line after Reservation.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         ModifyPurchaseLineReceiptDate(PurchaseLine, LibraryRandom.RandDate(5));  // Using Random for calculating Expected Receipt Date.
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
@@ -386,7 +386,7 @@ codeunit 136312 "Job Reservation"
         // Verify Reserved Quantity on Job Planning Line after modifying the various field on Job Planning Line after Reservation.
 
         // Setup: Create and receive Purchase Order and create Job Planning Lines. Reserve Job Planning Line against Item Ledger Entry.
-        Initialize(false);
+        Initialize();
         CreateAndReceivePurchaseOrder(PurchaseLine, '');  // Pass blank Location Code.
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         JobPlanningLine.ShowReservation();
@@ -411,7 +411,7 @@ codeunit 136312 "Job Reservation"
         // Verify that Reservation from Requisition Line to Job Order is not allowed.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreateRequisitionLine(RequisitionLine);
         CreateJobAndPlanningLine(JobPlanningLine, RequisitionLine."No.");
 
@@ -435,7 +435,7 @@ codeunit 136312 "Job Reservation"
         // Verify Reserved Quantity on Job Planning Line after modifying the various field on Transfer Order and Job Planning Line after Reservation.
 
         // Setup: Create Purchase Order and receive it, Create Transfer Order and Job Planning Line.
-        Initialize(false);
+        Initialize();
         CreateAndReceivePurchaseOrder(PurchaseLine, LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location));
         CreateTransferOrder(TransferLine, PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
@@ -470,7 +470,7 @@ codeunit 136312 "Job Reservation"
         // Verify Reservation entry created by a Purchase Order and Job Planning Line while Reserve type is Optional.
 
         // Setup.
-        Initialize(false);
+        Initialize();
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
 
@@ -513,7 +513,7 @@ codeunit 136312 "Job Reservation"
         // Fill the Item No. and Variant Code and Vendor No. in Requisition Line - Description updated according to "Item Reference" card;
 
         // [GIVEN] Create a vendor with Location, create a item with Item Variant and Item Reference.
-        Initialize(true);
+        Initialize();
 
         CreateVendorWithLocation(Vendor);
         LibraryInventory.CreateItem(Item);
@@ -564,7 +564,7 @@ codeunit 136312 "Job Reservation"
         // [SCENARIO 378246] "Description 2" in Requisition Line should be empty when vendor with Item Reference is selected in "Vendor No."
 
         // [GIVEN] Create Item with filled "Description 2" field
-        Initialize(true);
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Description 2", LibraryUtility.GenerateGUID());
@@ -761,7 +761,7 @@ codeunit 136312 "Job Reservation"
         // Verify no Surplus Reservation Entry is created after validating the same Item No. on reserved Purchase Line.
 
         // Setup: Create Purchase Order and Sales Order. Auto Reserve the Purchase Line to Sales Line.
-        Initialize(false);
+        Initialize();
         AutoReservePurchaseLineToSalesLine(PurchaseLine);
 
         // Exercise: Validated the No. field on Purchase Line with the same Item No..
@@ -783,7 +783,7 @@ codeunit 136312 "Job Reservation"
         // [FEATURE] [Date conflict]
         // [SCENARIO 381252] The date conflict is raised when "Planned Delivery Date" in Job Planning Line reserved from Purchase Order is changed
 
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Order with "Expected Receipt Date" = 10.01
         CreatePurchaseDocument(PurchaseLine);
@@ -810,7 +810,7 @@ codeunit 136312 "Job Reservation"
     begin
         // [SCENARIO 381257] The value of field "Planned" in Job Planning Line is TRUE when Job Planning Line auto-reserved from Purchase Order
 
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Order with Item "X" and Quantity = 10
         CreatePurchaseDocument(PurchaseLine);
@@ -838,7 +838,7 @@ codeunit 136312 "Job Reservation"
     begin
         // [SCENARIO 381257] The value of field "Planned" in Job Planning Line is TRUE when Job Planning Line reserved from current Purchase Line
 
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Order with Item "X" and Quantity = 10
         CreatePurchaseDocument(PurchaseLine);
@@ -866,7 +866,7 @@ codeunit 136312 "Job Reservation"
     begin
         // [SCENARIO 381257] The value of field "Planned" in Job Planning Line is FALSE when reservation of Job Planning Line is canceled
 
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Order with Item "X" and Quantity = 10
         CreatePurchaseDocument(PurchaseLine);
@@ -898,7 +898,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine: Record "Job Planning Line";
     begin
         // [SCENARIO 380618] Job planning line for a job of "Planning" status is not automatically reserved despite always reserve item.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create an post purchase order for item "I".
         CreateAndReceivePurchaseOrder(PurchaseLine, '');
@@ -934,7 +934,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine: Record "Job Planning Line";
     begin
         // [SCENARIO 380618] Job planning line for a job of "Open" status is automatically reserved for always reserve item.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create an post purchase order for item "I".
         CreateAndReceivePurchaseOrder(PurchaseLine, '');
@@ -970,7 +970,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine: Record "Job Planning Line";
     begin
         // [SCENARIO 384812] Job status "Open" cannot be changed if reservations exist on the Job Planning Lines for it and user does not confirm reservation entry deletion
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create an post purchase order for item "I".
         CreateAndReceivePurchaseOrder(PurchaseLine, '');
@@ -1007,7 +1007,7 @@ codeunit 136312 "Job Reservation"
         ReservationEntry: Record "Reservation Entry";
     begin
         // [SCENARIO 384812] Job status "Open" changed to "Planning" deletes reservations existing on the Job Planning Lines for it if user confirms reservation entry deletion
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create an post purchase order for item "I".
         CreateAndReceivePurchaseOrder(PurchaseLine, '');
@@ -1046,7 +1046,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine: Record "Job Planning Line";
     begin
         // [SCENARIO 384812] Job status changed to "Open" fully autoreserves job planning lines for items with Reserve = Always when all quantity available
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create an post purchase order for 10 PCS of item "I".
         CreateAndReceivePurchaseOrder(PurchaseLine, '');
@@ -1083,7 +1083,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine: Record "Job Planning Line";
     begin
         // [SCENARIO 384812] Job status changed to "Open" autoreserves job planning lines for items with Reserve = Always for available quantity when full auto reservation not possible
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create an post purchase order for 10 PCS of item "I".
         CreateAndReceivePurchaseOrder(PurchaseLine, '');
@@ -1124,7 +1124,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine: array[2] of Record "Job Planning Line";
     begin
         // [SCENARIO 384812] Job status changed to "Open" autoreserves multiple job planning lines for items with Reserve = Always for quantity available to reserve
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create an post purchase order for 10 PCS of item "I".
         CreateAndReceivePurchaseOrder(PurchaseLine, '');
@@ -1158,13 +1158,13 @@ codeunit 136312 "Job Reservation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
-    local procedure Initialize(Enable: Boolean)
+    local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Reservation");
         OriginalQuantity := 0;
-        LibraryItemReference.EnableFeature(Enable);
+
         LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;

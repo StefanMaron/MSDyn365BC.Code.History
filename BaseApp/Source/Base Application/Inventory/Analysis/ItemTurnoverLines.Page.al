@@ -178,7 +178,7 @@ page 354 "Item Turnover Lines"
         PAGE.Run(0, ItemLedgEntry);
     end;
 
-    local procedure ShowValueEntries(ShowSales: Boolean)
+    procedure ShowValueEntries(ShowSales: Boolean)
     var
         ValueEntry: Record "Value Entry";
     begin

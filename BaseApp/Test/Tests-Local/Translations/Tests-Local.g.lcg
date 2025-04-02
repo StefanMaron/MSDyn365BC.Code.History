@@ -482,15 +482,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Purchase - NamedType IntegerNumberCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 874492549 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Purchase - NamedType NothingToAdjustTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 874492549 - NamedType 4004740047" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No_Vendor]]></Val>
@@ -3765,6 +3756,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Subcontracting - NamedType ReturnTrasferOrderErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2418598749 - NamedType 3517419559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Entry cannot be reversed as it is linked to the subcontracting work center.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Subcontracting - NamedType ReverseCapacityLedgerEntryForSubContractingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2418598749 - NamedType 428463962" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

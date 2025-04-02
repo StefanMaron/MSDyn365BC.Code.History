@@ -1,12 +1,10 @@
 namespace Microsoft.Warehouse.CrossDock;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Document;
 
@@ -372,31 +370,21 @@ table 5768 "Whse. Cross-Dock Opportunity"
     procedure ShowReservation()
     var
         SalesLine: Record "Sales Line";
-        ProdComp: Record "Prod. Order Component";
         TransLine: Record "Transfer Line";
-        AssemblyLine: Record "Assembly Line";
     begin
         case "To Source Type" of
-            37:
+            Database::"Sales Line":
                 begin
                     SalesLine.Get("To Source Subtype", "To Source No.", "To Source Line No.");
                     SalesLine.ShowReservation();
                 end;
-            5407:
-                begin
-                    ProdComp.Get("To Source Subtype", "To Source No.", "To Source Subline No.", "To Source Line No.");
-                    ProdComp.ShowReservation();
-                end;
-            5741:
+            Database::"Transfer Line":
                 begin
                     TransLine.Get("To Source No.", "To Source Line No.");
                     TransLine.ShowReservation();
                 end;
-            901:
-                begin
-                    AssemblyLine.Get("To Source Subtype", "To Source No.", "To Source Line No.");
-                    AssemblyLine.ShowReservation();
-                end;
+            else
+                OnShowReservation(Rec);
         end;
     end;
 
@@ -407,6 +395,11 @@ table 5768 "Whse. Cross-Dock Opportunity"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowCrossDockQtyExceedsCrossDockQtyError(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; var ErrorMessage: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowReservation(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity")
     begin
     end;
 }

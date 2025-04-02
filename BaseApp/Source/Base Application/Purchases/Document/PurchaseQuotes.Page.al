@@ -211,6 +211,7 @@ page 9306 "Purchase Quotes"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Purchase Header"),
                               "No." = field("No."),
@@ -258,6 +259,7 @@ page 9306 "Purchase Quotes"
             {
                 Caption = '&Quote';
                 Image = Quote;
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -265,11 +267,42 @@ page 9306 "Purchase Quotes"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     begin
                         Rec.OpenDocumentStatistics();
                     end;
+                }
+#endif
+                action(PurchaseStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = true;
+#else
+                    Visible = false;
+#endif                    
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Purchase Statistics";
+                    RunPageOnRec = true;
+                }
+                action(VendorStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Statistics';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
+                    Image = Statistics;
+                    RunObject = Page "Vendor Statistics";
+                    RunPageLink = "No." = field("Buy-from Vendor No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the buy-from vendor on the purchase document.';
                 }
                 action("Co&mments")
                 {
@@ -349,6 +382,21 @@ page 9306 "Purchase Quotes"
                         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
                         DocPrint.PrintPurchHeader(Rec);
+                    end;
+                }
+                action(Email)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Send by Email';
+                    Ellipsis = true;
+                    Image = Email;
+                    ToolTip = 'Finalize and prepare to email the document. The Send Email window opens prefilled with the vendor''s email address so you can add or edit information.';
+
+                    trigger OnAction()
+                    var
+                        DocPrint: Codeunit "Document-Print";
+                    begin
+                        DocPrint.EmailPurchHeader(Rec);
                     end;
                 }
                 action(Send)
@@ -485,6 +533,9 @@ page 9306 "Purchase Quotes"
             {
                 Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 4.';
 
+                actionref(Email_Promoted; Email)
+                {
+                }
                 actionref(Print_Promoted; Print)
                 {
                 }
@@ -506,9 +557,18 @@ page 9306 "Purchase Quotes"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else                
+                actionref(PurchaseStatistics_Promoted; PurchaseStatistics)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -556,4 +616,3 @@ page 9306 "Purchase Quotes"
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
     end;
 }
-

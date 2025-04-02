@@ -127,7 +127,7 @@ codeunit 12214 "Serv. Decl. Exp. Ext. IT"
         ServiceDeclarationLine.SetRange("Service Declaration No.", ServiceDeclarationHeader."No.");
         if not ServiceDeclarationLine.IsEmpty() then begin
             ServiceDeclarationLine.CalcSums(Amount);
-            Amount := Round(ServiceDeclarationLine.Amount, 1);
+            Amount := Abs(Round(ServiceDeclarationLine.Amount, 1));
         end;
 
         if ServiceDeclarationHeader."Corrective Entry" then begin

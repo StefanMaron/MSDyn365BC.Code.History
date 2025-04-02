@@ -24,9 +24,6 @@ using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
@@ -453,11 +450,11 @@ table 121 "Purch. Rcpt. Line"
         {
             Caption = 'Project Currency Code';
         }
-        field(5401; "Prod. Order No."; Code[20])
+        field(1019; "Job Planning Line No."; Integer)
         {
-            Caption = 'Prod. Order No.';
-            TableRelation = "Production Order"."No." where(Status = filter(Released | Finished));
-            ValidateTableRelation = false;
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
         }
         field(5402; "Variant Code"; Code[10])
         {
@@ -550,36 +547,6 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-        field(5705; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
-        {
-            Caption = 'Unit of Measure (Cross Ref.)';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5707; "Cross-Reference Type"; Option)
-        {
-            Caption = 'Cross-Reference Type';
-            OptionCaption = ' ,Customer,Vendor,Bar Code';
-            OptionMembers = " ",Customer,Vendor,"Bar Code";
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5708; "Cross-Reference Type No."; Code[30])
-        {
-            Caption = 'Cross-Reference Type No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;
@@ -611,13 +578,6 @@ table 121 "Purch. Rcpt. Line"
         {
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
-        }
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5714; "Special Order Sales No."; Code[20])
         {
@@ -687,15 +647,6 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Over-Receipt Quantity';
             Editable = false;
         }
-        field(8510; "Over-Receipt Code"; Code[10])
-        {
-            Caption = 'Over-Receipt Code';
-            TableRelation = "Over-Receipt Code";
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced with field 8512 due to wrong field length';
-            ObsoleteTag = '20.0';
-        }
         field(8512; "Over-Receipt Code 2"; Code[20])
         {
             Caption = 'Over-Receipt Code';
@@ -720,37 +671,10 @@ table 121 "Purch. Rcpt. Line"
             Editable = false;
             TableRelation = "Vendor Ledger Entry" where("Document Type" = const(Invoice));
         }
-        field(99000750; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header";
-        }
-        field(99000751; "Operation No."; Code[10])
-        {
-            Caption = 'Operation No.';
-            TableRelation = "Prod. Order Routing Line"."Operation No." where(Status = filter(Released ..),
-                                                                              "Prod. Order No." = field("Prod. Order No."),
-                                                                              "Routing No." = field("Routing No."));
-        }
-        field(99000752; "Work Center No."; Code[20])
-        {
-            Caption = 'Work Center No.';
-            TableRelation = "Work Center";
-        }
-        field(99000754; "Prod. Order Line No."; Integer)
-        {
-            Caption = 'Prod. Order Line No.';
-            TableRelation = "Prod. Order Line"."Line No." where(Status = filter(Released ..),
-                                                                 "Prod. Order No." = field("Prod. Order No."));
-        }
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
-        }
-        field(99000759; "Routing Reference No."; Integer)
-        {
-            Caption = 'Routing Reference No.';
         }
     }
 
@@ -1229,7 +1153,7 @@ table 121 "Purch. Rcpt. Line"
           Round("Job Line Disc. Amount (LCY)" * Factor, Currency."Amount Rounding Precision");
     end;
 
-    local procedure CalcBaseQuantities(var PurchaseLine: Record "Purchase Line"; QtyFactor: Decimal)
+    procedure CalcBaseQuantities(var PurchaseLine: Record "Purchase Line"; QtyFactor: Decimal)
     begin
         PurchaseLine."Quantity (Base)" :=
           Round(PurchaseLine.Quantity * QtyFactor, UOMMgt.QtyRndPrecision());
@@ -1288,6 +1212,7 @@ table 121 "Purch. Rcpt. Line"
             exit;
         end;
 
+        ParentPurchRcptHeader.SetLoadFields("No.", SystemId);
         if not ParentPurchRcptHeader.Get("Document No.") then
             exit;
 
@@ -1303,6 +1228,7 @@ table 121 "Purch. Rcpt. Line"
             exit;
         end;
 
+        ParentPurchRcptHeader.SetLoadFields("No.", SystemId);
         if not ParentPurchRcptHeader.GetBySystemId(Rec."Document Id") then
             exit;
 
@@ -1426,4 +1352,3 @@ table 121 "Purch. Rcpt. Line"
     begin
     end;
 }
-

@@ -43,7 +43,7 @@ codeunit 132903 UserCardTest
         ValidTestAuthenticationEmailTok: Label 'test@email.com';
         AuthenticationEmail001Err: Label 'You must specify a valid email address. (Select Refresh to discard errors)';
         AuthenticationEmail002Err: Label 'The specified authentication email address ''%1'' is already being used by another user. You must specify a unique email address. (Select Refresh to discard errors)';
-        DisableUserMsg: Label 'To permanently disable a user, go to your Microsoft 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Microsoft 365.';
+        DisableUserMsg: Label 'To permanently disable a user, go to your Microsoft 365 admin center. Disabling the user in Business Central will only be effective until the next user synchronization with Microsoft 365.';
 
     local procedure Initialize()
     var

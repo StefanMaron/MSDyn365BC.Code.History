@@ -74,6 +74,9 @@ table 1506 "Workflow Table Relation Value"
     var
         FieldRef: FieldRef;
     begin
+        if NextStepId = 0 then
+            Error(WorkflowStepIdErr);
+
         Init();
         "Workflow Step Instance ID" := WorkflowStepInstance.ID;
         "Workflow Code" := WorkflowStepInstance."Workflow Code";
@@ -101,5 +104,8 @@ table 1506 "Workflow Table Relation Value"
             Modify();
         end;
     end;
+
+    var
+        WorkflowStepIdErr: Label 'Workflow Step ID must be set.';
 }
 
