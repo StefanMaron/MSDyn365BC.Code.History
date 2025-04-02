@@ -842,6 +842,42 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Azure.Storage)(LookupHint=Codeunit Azurite Test Library - NamedType BlobStorageBaseUrlTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 2345570046 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Media Cleanup]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.DataAdministration)(LookupHint=Table Test Media Cleanup - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2345570046 - Field 1663593181 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Primary Key]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.DataAdministration)(LookupHint=Table Test Media Cleanup - Field Primary Key - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2345570046 - Field 3257186798 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Media]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.DataAdministration)(LookupHint=Table Test Media Cleanup - Field Test Media - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2345570046 - Field 2143414580 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Media Set]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.DataAdministration)(LookupHint=Table Test Media Cleanup - Field Test Media Set - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1174414513 - NamedType 2736976260" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The expiration date for this retention policy must be equal to or before %1.]]></Val>
@@ -1317,15 +1353,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Translation Value]D;]A;(Namespace=System.Test.Globalization)(LookupHint=Codeunit Translation Tests - Method TestRetrivalAndStorageThroughUIWithFieldLengthCheck - NamedType ExpectedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1522669910 - NamedType 153976994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You can't edit this page in Excel because it's not set up for it. To use the Edit in Excel feature, you must publish the web service called '%1'. Contact your system administrator for help.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Web service name]D;]A;(Namespace=System.Test.Integration.Excel)(LookupHint=Codeunit Edit in Excel Test - NamedType WebServiceHasBeenDisabledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2336214198 - NamedType 2961131606" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2820,6 +2847,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Tooling)(LookupHint=Codeunit Sampling Perf. Profiler Test - NamedType NoRecordingErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 987050733 - NamedType 2791640661" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This type of .alcpuprofile file is not supported. Please upload a sampling-based CPU profile file.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Tooling)(LookupHint=Codeunit Sampling Perf. Profiler Test - NamedType NotSupportedCpuProfileKindErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 987050733 - NamedType 1844412916" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

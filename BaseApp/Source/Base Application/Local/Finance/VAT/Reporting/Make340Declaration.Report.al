@@ -493,18 +493,6 @@ report 10743 "Make 340 Declaration"
                                 Error(WrongPreviousDeclarationNoErr, MaxStrLen(PrevDeclareNum));
                         end;
                     }
-#if not CLEAN23
-                    field(VATDateTypeField; VATDateType)
-                    {
-                        ApplicationArea = VAT;
-                        Caption = 'Period Date Type';
-                        ToolTip = 'Specifies the type of date used for the report period.';
-                        Visible = false;
-                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '23.0';
-                    }
-#endif
                 }
             }
         }
@@ -701,9 +689,6 @@ report 10743 "Make 340 Declaration"
         FilterArray: array[50] of Text[250];
         FileHeaderCreated: Boolean;
         PrevDeclarationNumEnable: Boolean;
-#if not CLEAN23
-        VATDateType: Enum "VAT Date Type";
-#endif
         FileFilterTxt: Label 'Text files (*.txt)|*.txt|All files (*.*)|*.*';
         FileNameTxt: Label 'Declaration 340 year %1 month %2.txt', Comment = '%1=declaration year,%2=declaration month';
         MissingContactNameErr: Label 'Contact Name must be entered.';

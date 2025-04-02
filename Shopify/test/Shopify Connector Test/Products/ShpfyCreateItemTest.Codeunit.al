@@ -454,10 +454,4 @@ codeunit 139567 "Shpfy Create Item Test"
                 LibraryAssert.RecordIsNotEmpty(ItemReference);
             until ShopifyVariant.Next() = 0;
     end;
-
-    [ConfirmHandler]
-    procedure DeleteAttributeConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
 }

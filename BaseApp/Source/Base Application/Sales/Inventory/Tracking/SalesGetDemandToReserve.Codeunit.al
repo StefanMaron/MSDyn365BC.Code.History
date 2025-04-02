@@ -129,7 +129,10 @@ codeunit 99000839 "Sales Get Demand To Reserve"
                 begin
                     SalesHeader.SetLoadFields("Document Type", "No.");
                     SalesHeader.Get(ReservationWkshLine."Source Subtype", ReservationWkshLine."Source ID");
-                    SalesHeader.ShowDocumentStatisticsPage();
+                    if SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::"Blanket Order", SalesHeader."Document Type"::"Return Order"] then
+                        Page.RunModal(Page::"Sales Order Statistics", SalesHeader)
+                    else
+                        Page.RunModal(Page::"Sales Statistics", SalesHeader);
                 end;
         end;
     end;

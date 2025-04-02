@@ -18,6 +18,7 @@ page 838 "Reminder Terms Setup"
         {
             group(General)
             {
+                Caption = 'General';
                 field("Code"; Rec.Code)
                 {
                     Caption = 'Reminder Terms Code';

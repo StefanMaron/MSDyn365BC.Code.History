@@ -1518,12 +1518,14 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     var
         SalesHeader: Record "Sales Header";
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
         InvoiceNo: Code[20];
     begin
         // [FEATURE] [UI] [Application Rules] [Notification]
         // [SCENARIO 413337] Stan doesn't get "Review Required" notification when system does not have any rule with "Review Required" = true
+        BankAccReconciliation.DeleteAll(true);
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesHeader.CalcFields("Amount Including VAT");
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);

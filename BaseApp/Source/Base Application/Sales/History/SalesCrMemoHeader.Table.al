@@ -53,6 +53,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Sell-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you shipped the items on the credit memo to.';
         }
         field(3; "No."; Code[20])
         {
@@ -63,6 +64,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Bill-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you send or sent the credit memo to.';
         }
         field(5; "Bill-to Name"; Text[100])
         {
@@ -558,14 +560,6 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'VAT Date';
             Editable = false;
         }
-        field(180; "Rcvd-from Country/Region Code"; Code[10])
-        {
-            Caption = 'Received-from Country/Region Code';
-            TableRelation = "Country/Region";
-            ObsoleteReason = 'Use new field on range 181';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -703,13 +697,6 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Get Return Receipt Used';
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(8001; "Draft Cr. Memo SystemId"; Guid)
         {
             Caption = 'Draft Cr. Memo System Id';
@@ -831,6 +818,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Cust. Bank Acc. Code';
             TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
         }
+#if not CLEANSCHEMA25
         field(7000003; "Pay-at Code"; Code[10])
         {
             Caption = 'Pay-at Code';
@@ -839,6 +827,7 @@ table 114 "Sales Cr.Memo Header"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys
@@ -1283,4 +1272,3 @@ table 114 "Sales Cr.Memo Header"
     begin
     end;
 }
-

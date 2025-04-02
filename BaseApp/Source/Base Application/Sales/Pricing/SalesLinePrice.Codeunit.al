@@ -147,7 +147,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Price Calculation Method" := SalesLine."Price Calculation Method";
         // Tax
         PriceCalculationBuffer."Prices Including Tax" := SalesHeader."Prices Including VAT";
-        PriceCalculationBuffer."Tax %" := SalesLine."VAT %" + SalesLine."EC %";
+        PriceCalculationBuffer."Tax %" := SalesLine.GetVATPct();
         PriceCalculationBuffer."VAT Calculation Type" := SalesLine."VAT Calculation Type".AsInteger();
         PriceCalculationBuffer."VAT Bus. Posting Group" := SalesLine."VAT Bus. Posting Group";
         PriceCalculationBuffer."VAT Prod. Posting Group" := SalesLine."VAT Prod. Posting Group";
@@ -244,7 +244,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
                             PriceCalculated := true;
                         end;
                     CurrPriceType::Purchase:
-                            SalesLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
+                        SalesLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
                 end;
             AmountType::Discount:
                 SalesLine."Line Discount %" := PriceListLine."Line Discount %";

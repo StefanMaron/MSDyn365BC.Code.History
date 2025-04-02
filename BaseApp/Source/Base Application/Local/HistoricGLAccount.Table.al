@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEANSCHEMA28 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -18,7 +19,7 @@ table 10721 "Historic G/L Account"
     Caption = 'Historic G/L Account';
     DataCaptionFields = "No.", Name;
     ObsoleteReason = 'Obsolete feature';
-#if CLEAN28
+#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
 #else
@@ -453,3 +454,5 @@ table 10721 "Historic G/L Account"
     }
 }
 
+ 
+#endif

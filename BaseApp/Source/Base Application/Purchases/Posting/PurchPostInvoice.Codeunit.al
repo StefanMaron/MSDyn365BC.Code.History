@@ -345,7 +345,7 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer."Global Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";
         InvoicePostingBuffer."Dimension Set ID" := PurchLine."Dimension Set ID";
         InvoicePostingBuffer."Job No." := PurchLine."Job No.";
-        InvoicePostingBuffer."VAT %" := PurchLine."VAT %" + PurchLine."EC %";
+        InvoicePostingBuffer."VAT %" := PurchLine.GetVATPct();
         NonDeductibleVAT.Copy(InvoicePostingBuffer, PurchLine);
         InvoicePostingBuffer."VAT Difference" := PurchLine."VAT Difference";
         if InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::"Fixed Asset" then begin
@@ -397,7 +397,7 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             PurchSetup."Copy Line Descr. to G/L Entry",
             PurchaseLine."Line No.",
             PurchaseLine.Description,
-            PurchaseHeader."Posting Description", true);
+            PurchaseHeader."Posting Description");
     end;
 
     procedure SetSalesTax(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -892,7 +892,13 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
     local procedure GetAmountsForDeferral(PurchLine: Record "Purchase Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20])
     var
         DeferralTemplate: Record "Deferral Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        PurchPostInvoiceEvents.RunOnBeforeGetAmountsForDeferral(PurchLine, AmtToDefer, AmtToDeferACY, DeferralAccount, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralTemplate.Get(PurchLine."Deferral Code");
         DeferralTemplate.TestField("Deferral Account");
         DeferralAccount := DeferralTemplate."Deferral Account";

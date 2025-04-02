@@ -824,15 +824,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Recv. Basic Scenarios - NamedType DoYouWantToKeepExistingDimensionsQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 566879035 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Recv. Basic Scenarios - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 566879035 - NamedType 3489919711" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.]]></Val>

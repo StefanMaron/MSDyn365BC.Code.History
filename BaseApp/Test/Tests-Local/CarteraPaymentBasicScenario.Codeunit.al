@@ -847,55 +847,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifyPaymentOrderGLEntryExists(PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Amount (LCY)");
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterPaymentOrderSameRateAndAdjustmentAndExchRate()
-    var
-        Vendor: Record Vendor;
-        PaymentOrder: Record "Payment Order";
-        CurrencyCode: Code[10];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        SettleAmount: Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-        AmtBank: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Purchase Invoice, Payment Order, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForPaymentOrder();
-        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[4], CurrencyExchRate[4], CurrencyExchRate[4]);
-
-        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
-        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date3
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
-
-        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
-        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4088.31 (5000/1.223)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
-        AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
-        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
-        VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -943,54 +894,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterPaymentOrderSameRateAndTwoAdjustments()
-    var
-        Vendor: Record Vendor;
-        PaymentOrder: Record "Payment Order";
-        CurrencyCode: Code[10];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        SettleAmount: Decimal;
-        AmtInv: Decimal;
-        AmtBank: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Purchase Invoice, Payment Order, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForPaymentOrder();
-        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[4], CurrencyExchRate[4], CurrencyExchRate[4]);
-
-        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
-        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
-
-        // [GIVEN] Run Adjust Exchange Rates twice: on Date3 and Date4
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[4]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
-
-        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
-        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4634.78 (5000/1.0788)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
-        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
-        VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtBank, -AmtBank);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1037,51 +940,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtBank, -AmtBank);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterPaymentOrderDiffRateAndAdjustmentAndExchRate()
-    var
-        Vendor: Record Vendor;
-        PaymentOrder: Record "Payment Order";
-        CurrencyCode: Code[10];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        SettleAmount: Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-        AmtBank: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Purchase Invoice, new Exch.Rate, Payment Order, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
-        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
-
-        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
-        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date3
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
-
-        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
-        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4634.78 (5000/1.0788)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
-        AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
-        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
-        VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1125,50 +983,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterPaymentOrderDiffRateAndTwoAdjustments()
-    var
-        Vendor: Record Vendor;
-        PaymentOrder: Record "Payment Order";
-        CurrencyCode: Code[10];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        SettleAmount: Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Purchase Invoice, new Exch.Rate, Payment Order, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
-        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
-
-        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
-        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
-
-        // [GIVEN] Run Adjust Exchange Rates twice: on Date3 and Date4
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[4]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
-
-        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
-        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4088.31 (5000/1.223)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4088.31 (-5000/1.223)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
-        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
-        VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1210,53 +1024,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifySettleGLEntries(
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
     end;
-
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterPaymentOrderDiffRateAndAdjustment()
-    var
-        Vendor: Record Vendor;
-        PaymentOrder: Record "Payment Order";
-        CurrencyCode: Code[10];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        SettleAmount: Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Purchase Invoice, new Exch.Rate, Payment Order, Adjust Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
-        CurrencyCode := CreateCurrencyForPaymentOrder();
-        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[2], CurrencyExchRate[2], CurrencyExchRate[2]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
-
-        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
-        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date3
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
-
-        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
-        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4088.31 (5000/1.223)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4088.31 (-5000/1.223)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
-        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
-        VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
@@ -1302,57 +1069,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifySettleGLEntries(
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
     end;
-
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterAdjustmentAndPaymentOrderAndTwoAdjustments()
-    var
-        Vendor: Record Vendor;
-        PaymentOrder: Record "Payment Order";
-        CurrencyCode: Code[10];
-        InvoiceNo: Code[20];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        SettleAmount: Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Purchase Invoice, Adjust Exch.Rate, Payment Order, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
-        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
-
-        // [GIVEN] Posted Purchase Invoice on Date1 with Amount = 5000.00
-        CreateAndPostInvoiceWOutVAT(Vendor, SettleAmount, InvoiceNo, PostingDate[1], CurrencyCode);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date2
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[2]);
-
-        // [GIVEN] Create Payment Order on Date2 < PostingDate < Date3
-        CreateAndPostPaymentOrder(PaymentOrder, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
-
-        // [GIVEN] Run Adjust Exchange Rates twice: on Date3 and Date4
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[4]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
-
-        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
-        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4634.78 (5000/1.0788)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
-        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
-        VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
@@ -1459,44 +1175,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         FindGLEntryByDocNoGLAccNo(GLEntry, PaymentOrder."No.", VendorPostingGroup."Bills in Payment Order Acc.");
         Assert.RecordCount(GLEntry, 2);
     end;
-
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure SettlePostedFCYPaymentOrder()
-    var
-        PaymentOrder: Record "Payment Order";
-        VendorPostingGroupCode: Code[20];
-        PostingDate: array[3] of Date;
-    begin
-        // [SCENARIO 294053] Settle posted payment order in FCY for different exchange rates
-        Initialize();
-
-        // [GIVEN] Dates: D1 = WorkDate(), D2 = WorkDate() + 1, D3 = WorkDate() + 2
-        PostingDate[1] := WorkDate();
-        PostingDate[2] := WorkDate() + 1;
-        PostingDate[3] := WorkDate() + 2;
-        // [GIVEN] Currency (CURR) with exchange rate on D1
-        // [GIVEN] Posted Purchase Invoice (PPI) in CURR on D1
-        // [GIVEN] Posted Payment Order (PPO) in CURR on D3
-        CreatePostedPaymentOrderFCY(PaymentOrder, VendorPostingGroupCode, PostingDate);
-        // [GIVEN] New exchange rate on D2
-        // [GIVEN] Adjusted PPI on D2
-        LibraryERM.CreateExchangeRate(PaymentOrder."Currency Code", PostingDate[2], 0.09, 0.09);
-        RunAdjustExchangeRates(PaymentOrder."Currency Code", PostingDate[2]);
-        // [GIVEN] New exchange rate on D3
-        LibraryERM.CreateExchangeRate(PaymentOrder."Currency Code", PostingDate[3], 0.08, 0.08);
-        // [WHEN] Settle PPO on D3
-        LibraryVariableStorage.Enqueue(PostingDate[3]);
-        Commit();
-        SettlePostedPaymentOrder(PaymentOrder."No.");
-        // [THEN] PPO is settled
-        VerifySettleGLEntries(
-          PaymentOrder."No.", VendorPostingGroupCode, PaymentOrder."Bank Account No.",
-          -Round(1000 / 0.08 - 1000 / 0.08 - 1000 / 0.09), -12500);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
@@ -1808,57 +1486,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyRemainingAmountLCYOnCarteraDoc()
-    var
-        Vendor: Record Vendor;
-        PaymentMethod: Record "Payment Method";
-        PurchaseHeader: Record "Purchase Header";
-        CarteraDoc: Record "Cartera Doc.";
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        DocumentNo: Code[20];
-        CurrencyCode: Code[10];
-    begin
-        // [SCENARIO 492832] Verify the Remaining Amount LCY in the Cartera Document match with the Vendor Ledger Entries Remaining Amount LCY in the Spanish version.
-        Initialize();
-
-        // [GIVEN] Create Currency Code with three different exchange rates
-        CurrencyCode := SetupCurrencyWithExchRates();
-
-        // [GIVEN] Vendor with Cartera Payment Method "P1"
-        CreateCarteraPaymentMethod(PaymentMethod);
-
-        // [GIVEN] Create Catera Vendor
-        LibraryCarteraPayables.CreateCarteraVendor(Vendor, CurrencyCode, PaymentMethod.Code);
-
-        // [GIVEN] Cartera Document is posted for the Vendor
-        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Run Adjust Exch. Rate Report
-        RunAdjustExchRate(CurrencyCode, WorkDate());
-        RunAdjustExchRate(CurrencyCode, CalcDate('<+1M>', WorkDate()));
-        RunAdjustExchRate(CurrencyCode, CalcDate('<+2M>', WorkDate()));
-
-        // [THEN] Find Vendor Ledger Entry
-        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.FindFirst();
-        VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
-
-        // [THEN] Find Cartera Document
-        CarteraDoc.SetRange("Document No.", DocumentNo);
-        CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
-        CarteraDoc.FindFirst();
-
-        // [VERIFY] Vendor Ledger Entry and Cartera Doc. "Remaining Amt. (LCY)" will be equal
-        Assert.AreEqual(-VendorLedgerEntry."Remaining Amt. (LCY)", CarteraDoc."Remaining Amt. (LCY)", 'Amount must be equal');
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('CarteraDocumentsModalHandler')]
     [Scope('OnPrem')]
@@ -2168,13 +1795,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryReportDataset.GetElementValueInCurrentRow('Vendor_Ledger_Entry__Due_Date_', DueDate);
         Assert.AreEqual(DueDate, Format(CarteraDoc."Due Date"), '');
     end;
-
-#if not CLEAN23
-    local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; PostingDate: Date)
-    begin
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate, PostingDate);
-    end;
-#endif
 
     local procedure RunExchRateAdjustment(CurrencyCode: Code[10]; PostingDate: Date)
     begin
@@ -2535,25 +2155,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         GLEntry.CalcSums(Amount);
         Assert.AreEqual(0, GLEntry.Amount, StrSubstNo(UnbalancedGLAccountErr, GLEntry."G/L Account No."));
     end;
-
-#if not CLEAN23
-    local procedure RunAdjustExchRate("Code": Code[10]; EndDate: Date)
-    begin
-        RunAdjustExchRateForDocNo(Code, Code, EndDate);
-    end;
-
-    local procedure RunAdjustExchRateForDocNo(DocumentNo: Code[20]; CurrencyCode: Code[10]; EndDate: Date)
-    var
-        Currency: Record Currency;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
-    begin
-        Currency.SetRange(Code, CurrencyCode);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(0D, EndDate, 'TEXT', EndDate, DocumentNo, true, false);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
-    end;
-#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

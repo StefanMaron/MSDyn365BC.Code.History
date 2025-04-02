@@ -227,10 +227,10 @@ page 7120 "Sales Analysis Lines"
                 action("Insert &Sales/Purchase Persons")
                 {
                     ApplicationArea = SalesAnalysis;
-                    Caption = 'Insert &Sales/Purchase Persons';
+                    Caption = 'Add &Salespeople/Purchasers';
                     Ellipsis = true;
                     Image = SalesPurchaseTeam;
-                    ToolTip = 'Insert one or more sales people of purchasers that you want to include in the sales analysis report.';
+                    ToolTip = 'Add one or more salespeople or purchasers that you want to include in the sales analysis report.';
 
                     trigger OnAction()
                     begin

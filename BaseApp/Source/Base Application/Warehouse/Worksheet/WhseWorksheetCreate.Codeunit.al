@@ -5,7 +5,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Warehouse.Document;
@@ -136,53 +135,15 @@ codeunit 7311 "Whse. Worksheet-Create"
             exit(true);
     end;
 
-    procedure FromProdOrderCompLine(WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; ToBinCode: Code[20]; ProdOrderCompLine: Record "Prod. Order Component"): Boolean
+#if not CLEAN26
+    [Obsolete('Moved to codeunit ProdOrderWarehouseMgt', '26.0')]
+    procedure FromProdOrderCompLine(WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; ToBinCode: Code[20]; ProdOrderCompLine: Record Microsoft.Manufacturing.Document."Prod. Order Component"): Boolean
     var
-        Bin: Record Bin;
-        WhseWkshLine: Record "Whse. Worksheet Line";
+        ProdOrderWarehouseMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Warehouse Mgt.";
     begin
-        WhseWkshLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
-        WhseWkshLine.SetRange("Source Type", Database::"Prod. Order Component");
-        WhseWkshLine.SetRange("Source Subtype", ProdOrderCompLine.Status);
-        WhseWkshLine.SetRange("Source No.", ProdOrderCompLine."Prod. Order No.");
-        WhseWkshLine.SetRange("Source Line No.", ProdOrderCompLine."Prod. Order Line No.");
-        WhseWkshLine.SetRange("Source Subline No.", ProdOrderCompLine."Line No.");
-        if not WhseWkshLine.IsEmpty() then
-            exit;
-
-        FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
-
-        WhseWkshLine.Init();
-        WhseWkshLine.SetHideValidationDialog(true);
-        WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
-        WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Production;
-        WhseWkshLine."Whse. Document No." := ProdOrderCompLine."Prod. Order No.";
-        WhseWkshLine."Whse. Document Line No." := ProdOrderCompLine."Prod. Order Line No.";
-        WhseWkshLine."Source Type" := Database::"Prod. Order Component";
-        WhseWkshLine."Source Subtype" := ProdOrderCompLine.Status.AsInteger();
-        WhseWkshLine."Source No." := ProdOrderCompLine."Prod. Order No.";
-        WhseWkshLine."Source Line No." := ProdOrderCompLine."Prod. Order Line No.";
-        WhseWkshLine."Source Subline No." := ProdOrderCompLine."Line No.";
-        WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
-        WhseWkshLine."Location Code" := ProdOrderCompLine."Location Code";
-        WhseWkshLine."Item No." := ProdOrderCompLine."Item No.";
-        WhseWkshLine."Variant Code" := ProdOrderCompLine."Variant Code";
-        WhseWkshLine."Unit of Measure Code" := ProdOrderCompLine."Unit of Measure Code";
-        WhseWkshLine."Qty. per Unit of Measure" := ProdOrderCompLine."Qty. per Unit of Measure";
-        WhseWkshLine.Description := ProdOrderCompLine.Description;
-        WhseWkshLine."Due Date" := ProdOrderCompLine."Due Date";
-        WhseWkshLine."Qty. Handled" := ProdOrderCompLine."Qty. Picked" + ProdOrderCompLine."Pick Qty.";
-        WhseWkshLine."Qty. Handled (Base)" := ProdOrderCompLine."Qty. Picked (Base)" + ProdOrderCompLine."Pick Qty. (Base)";
-        WhseWkshLine.Validate(Quantity, ProdOrderCompLine."Expected Quantity");
-        WhseWkshLine."To Bin Code" := ToBinCode;
-        if (ProdOrderCompLine."Location Code" <> '') and (ToBinCode <> '') then begin
-            Bin.Get(LocationCode, ToBinCode);
-            WhseWkshLine."To Zone Code" := Bin."Zone Code";
-        end;
-        OnAfterFromProdOrderCompLineCreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine, LocationCode, ToBinCode);
-        if CreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine) then
-            exit(true);
+        exit(ProdOrderWarehouseMgt.FromProdOrderCompLine(WhseWkshTemplateName, WhseWkshName, LocationCode, ToBinCode, ProdOrderCompLine));
     end;
+#endif
 
     procedure FromAssemblyLine(WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; AssemblyLine: Record "Assembly Line"): Boolean
     var
@@ -425,7 +386,7 @@ codeunit 7311 "Whse. Worksheet-Create"
             exit(true);
     end;
 
-    local procedure CreateWhseWkshLine(var WhseWkshLine: Record "Whse. Worksheet Line"; SourceRecord: Variant) Created: Boolean
+    procedure CreateWhseWkshLine(var WhseWkshLine: Record "Whse. Worksheet Line"; SourceRecord: Variant) Created: Boolean
     var
         Item: Record Item;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -455,7 +416,7 @@ codeunit 7311 "Whse. Worksheet-Create"
         end;
     end;
 
-    local procedure FindLastWhseWkshLine(var WhseWkshLine: Record "Whse. Worksheet Line"; WkshTemplateName: Code[10]; WkshName: Code[10]; LocationCode: Code[10])
+    procedure FindLastWhseWkshLine(var WhseWkshLine: Record "Whse. Worksheet Line"; WkshTemplateName: Code[10]; WkshName: Code[10]; LocationCode: Code[10])
     begin
         WhseWkshLine.Reset();
         WhseWkshLine."Worksheet Template Name" := WkshTemplateName;
@@ -504,10 +465,18 @@ codeunit 7311 "Whse. Worksheet-Create"
     begin
     end;
 
+#if not CLEAN26
+    internal procedure RunOnAfterFromProdOrderCompLineCreateWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; LocationCode: Code[10]; ToBinCode: Code[20])
+    begin
+        OnAfterFromProdOrderCompLineCreateWhseWkshLine(WhseWorksheetLine, ProdOrderComponent, LocationCode, ToBinCode);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderWarehouseMgt', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFromProdOrderCompLineCreateWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ProdOrderComponent: Record "Prod. Order Component"; LocationCode: Code[10]; ToBinCode: Code[20])
+    local procedure OnAfterFromProdOrderCompLineCreateWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; LocationCode: Code[10]; ToBinCode: Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFromWhseRcptLineCreateWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")

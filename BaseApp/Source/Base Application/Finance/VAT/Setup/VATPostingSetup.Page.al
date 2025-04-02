@@ -258,15 +258,9 @@ page 472 "VAT Posting Setup"
     trigger OnOpenPage()
     var
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
-#if not CLEAN23
-        NoTaxableMgt: Codeunit "No Taxable Mgt.";
-#endif
     begin
         Rec.SetAccountsVisibility(UnrealizedVATVisible, AdjustForPmtDiscVisible);
         NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
-#if not CLEAN23
-        NoTaxableMgt.CheckVATPostingSetupOnPage();
-#endif        
     end;
 
 

@@ -10,15 +10,16 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Budget;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Period;
+using System.Telemetry;
 using System.Text;
 using System.Utilities;
+using Microsoft.Foundation.Enums;
 
 report 25 "Account Schedule"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Finance/FinancialReports/AccountSchedule.rdlc';
     AdditionalSearchTerms = 'financial reporting,income statement,balance sheet';
     ApplicationArea = Basic, Suite;
+    DefaultRenderingLayout = LandscapeLayout;
     Caption = 'Run Financial Report';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
@@ -111,6 +112,12 @@ report 25 "Account Schedule"
                 {
                 }
                 column(ColumnHeader5; ColumnHeaderArrayText[5])
+                {
+                }
+                column(IntroductionParagraph; IntroductionParagraph)
+                {
+                }
+                column(ClosingParagraph; ClosingParagraph)
                 {
                 }
                 dataitem("Acc. Schedule Line"; "Acc. Schedule Line")
@@ -573,6 +580,13 @@ report 25 "Account Schedule"
                             Importance = Additional;
                             ToolTip = 'Specifies how to show amounts for empty accounts.';
                         }
+                        field(NegativeAmountFormat; NegativeAmountFormat)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Negative Amount Format';
+                            Importance = Additional;
+                            ToolTip = 'Specifies how negative amounts are displayed in the report.';
+                        }
                     }
                     group("Dimension Filters")
                     {
@@ -745,6 +759,24 @@ report 25 "Account Schedule"
         end;
     }
 
+    rendering
+    {
+        layout(LandscapeLayout)
+        {
+            Caption = 'Financial Report Landscape (RDLC)';
+            LayoutFile = './Finance/FinancialReports/AccountSchedule.rdlc';
+            Summary = 'Use this layout for financial reports that fit a landscape paper orientation.';
+            Type = RDLC;
+        }
+        layout(PortraitLayout)
+        {
+            Caption = 'Financial Report Portrait (RDLC)';
+            LayoutFile = './Finance/FinancialReports/AccountSchedulePortrait.rdlc';
+            Summary = 'Use this layout for financial reports that fit a portrait paper orientation.';
+            Type = RDLC;
+        }
+    }
+
     labels
     {
         AccSchedLineSpec_DescriptionCaptionLbl = 'Description';
@@ -758,6 +790,7 @@ report 25 "Account Schedule"
         TransferValues();
         UpdateFilters();
         InitAccSched();
+        LogUsageTelemetry();
     end;
 
     var
@@ -826,6 +859,7 @@ report 25 "Account Schedule"
         SkipEmptyLines: Boolean;
         ShowCurrencySymbol: Boolean;
         ShowEmptyAmountType: Enum "Show Empty Amount Type";
+        NegativeAmountFormatHidden: Enum "Analysis Negative Format";
         PadChar: Char;
         PadString: Text;
 
@@ -850,7 +884,9 @@ report 25 "Account Schedule"
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Account_ScheduleCaptionLbl: Label 'Financial Report';
         AnalysisView_CodeCaptionLbl: Label 'Analysis View';
+        ReportRunEventTxt: Label 'Financial Report run from request page: %1', Comment = '%1 = financial report name', Locked = true;
         ContextInitialized: Boolean;
+        IntroductionParagraph, ClosingParagraph : Text;
 
     protected var
         AccSchedManagement: Codeunit AccSchedManagement;
@@ -859,6 +895,7 @@ report 25 "Account Schedule"
         FinancialReportName: Code[10];
         LineSkipped: Boolean;
         UseAmtsInAddCurr: Boolean;
+        NegativeAmountFormat: Enum "Analysis Negative Format";
 
     local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ValueIsEmpty: Boolean): Text[30]
     var
@@ -902,6 +939,13 @@ report 25 "Account Schedule"
                         AccSchedManagement.FormatCellAsText(ColumnLayout, ColumnValuesDisplayed, UseAmtsInAddCurr);
 
                 FormatCurrencySymbol(AccScheduleLine, ColumnLayout, ColumnValuesAsText2);
+
+                if (NegativeAmountFormat = NegativeAmountFormat::Parentheses) and
+                    (ColumnValuesAsText2 <> '') and
+                    (not ColumnValuesAsText2.EndsWith('%')) and
+                    (ColumnValuesDisplayed < 0)
+                then
+                    ColumnValuesAsText2 := StrSubstNo('(%1)', ColumnValuesAsText2.TrimStart('-'));
             end;
         exit(ColumnValuesAsText2);
     end;
@@ -1054,6 +1098,11 @@ report 25 "Account Schedule"
 
     procedure SetFilters(NewDateFilter: Text; NewBudgetFilter: Text; NewCostBudgetFilter: Text; NewBusUnitFilter: Text; NewDim1Filter: Text; NewDim2Filter: Text; NewDim3Filter: Text; NewDim4Filter: Text; CashFlowFilter: Text)
     begin
+        SetFilters(NewDateFilter, NewBudgetFilter, NewCostBudgetFilter, NewBusUnitFilter, NewDim1Filter, NewDim2Filter, NewDim3Filter, NewDim4Filter, CashFlowFilter, NegativeAmountFormat);
+    end;
+
+    procedure SetFilters(NewDateFilter: Text; NewBudgetFilter: Text; NewCostBudgetFilter: Text; NewBusUnitFilter: Text; NewDim1Filter: Text; NewDim2Filter: Text; NewDim3Filter: Text; NewDim4Filter: Text; CashFlowFilter: Text; NewNegativeAmountFormat: Enum "Analysis Negative Format")
+    begin
         DateFilterHidden := NewDateFilter;
         if DateFilterHidden <> '' then begin
             "Acc. Schedule Line".SetFilter("Date Filter", DateFilterHidden);
@@ -1068,6 +1117,7 @@ report 25 "Account Schedule"
         Dim3FilterHidden := NewDim3Filter;
         Dim4FilterHidden := NewDim4Filter;
         CashFlowFilterHidden := CashFlowFilter;
+        NegativeAmountFormatHidden := NewNegativeAmountFormat;
         UseHiddenFilters := true;
         OnAfterSetFilters(AccScheduleName, CostCenterFilter, CostObjectFilter, CashFlowFilter, CurrReport.UseRequestPage());
     end;
@@ -1171,10 +1221,15 @@ report 25 "Account Schedule"
                 Dim4Filter := Dim4FilterHidden;
             if CashFlowFilterHidden <> '' then
                 CashFlowFilter := CashFlowFilterHidden;
+            if UseHiddenFilters then
+                NegativeAmountFormat := NegativeAmountFormatHidden;
         end;
 
         if FinancialReportName <> '' then
-            if not FinancialReportLocal.Get(FinancialReportName) then
+            if FinancialReportLocal.Get(FinancialReportName) then begin
+                IntroductionParagraph := FinancialReportLocal.GetIntroductoryParagraph();
+                ClosingParagraph := FinancialReportLocal.GetClosingParagraph();
+            end else
                 FinancialReportName := '';
 
         if AccSchedName = '' then
@@ -1300,6 +1355,29 @@ report 25 "Account Schedule"
         if FinancialReport.Name <> '' then
             RequestOptionsPage.Caption := FinancialReport.Description;
         RequestOptionsPage.Update(false);
+    end;
+
+    local procedure LogUsageTelemetry()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('ReportDefinitionCode', FinancialReportName);
+        TelemetryDimensions.Add('RowDefinitionCode', AccSchedName);
+        TelemetryDimensions.Add('ColumnDefinitionCode', ColumnLayoutName);
+        TelemetryDimensions.Add('StartDate', Format(StartDate, 0, 9));
+        TelemetryDimensions.Add('EndDate', Format(EndDate, 0, 9));
+        TelemetryDimensions.Add('GLBudgetName', GLBudgetName);
+        TelemetryDimensions.Add('CostBudgetFilter', CostBudgetFilter);
+        TelemetryDimensions.Add('Dim1Filter', Dim1Filter);
+        TelemetryDimensions.Add('Dim2Filter', Dim2Filter);
+        TelemetryDimensions.Add('Dim3Filter', Dim3Filter);
+        TelemetryDimensions.Add('Dim4Filter', Dim4Filter);
+
+        FeatureTelemetry.LogUsage('0000O76', 'Financial Report', StrSubstNo(ReportRunEventTxt, FinancialReportName), TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]

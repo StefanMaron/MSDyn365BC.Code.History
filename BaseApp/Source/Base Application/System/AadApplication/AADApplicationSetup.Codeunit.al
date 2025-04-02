@@ -73,23 +73,10 @@ codeunit 8821 "AAD Application Setup"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-#if not CLEAN23
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then begin
-            if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag()) then
-                exit;
-            ModifyDescriptionOfDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
-        end else begin
-            CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
-        end;
-#else
         if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then begin
             CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
             UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
         end;
-#endif
         if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultPowerPagesAADApplicationsTag()) then begin
             CreatePowerPagesAAdApplications();
             UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultPowerPagesAADApplicationsTag());

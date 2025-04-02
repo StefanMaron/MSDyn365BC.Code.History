@@ -452,14 +452,12 @@ report 7000080 "Post Payment Order"
             GenJnlPostLine.Run(GenJnlLine);
     end;
 
-    [Scope('OnPrem')]
     procedure InitReqForm(TemplName2: Code[10]; BatchName2: Code[10])
     begin
         TemplName := TemplName2;
         BatchName := BatchName2;
     end;
 
-    [Scope('OnPrem')]
     procedure GainLossManagement(Amount: Decimal; PostingDate3: Date; CurrencyCode: Code[10]): Decimal
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -476,7 +474,6 @@ report 7000080 "Post Payment Order"
         exit(CarteraManagement.GetGainLoss(PostingDate3, PmtOrd."Posting Date", Amount, CurrencyCode));
     end;
 
-    [Scope('OnPrem')]
     procedure CheckCurrFact(Doc: Record "Cartera Doc."; PmtOrd: Record "Payment Order"): Boolean
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -492,7 +489,6 @@ report 7000080 "Post Payment Order"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetHidePrintDialog(NewHidePrintDialog: Boolean)
     begin
         HidePrintDialog := NewHidePrintDialog;

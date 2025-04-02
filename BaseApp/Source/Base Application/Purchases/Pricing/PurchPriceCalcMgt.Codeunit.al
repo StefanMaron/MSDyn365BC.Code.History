@@ -66,7 +66,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
             exit;
 
         SetCurrency(PurchHeader."Currency Code", PurchHeader."Currency Factor", PurchHeaderExchDate(PurchHeader));
-        SetVAT(PurchHeader."Prices Including VAT", PurchLine."VAT %" + PurchLine."EC %", PurchLine."VAT Bus. Posting Group");
+        SetVAT(PurchHeader."Prices Including VAT", PurchLine.GetVATPct(), PurchLine."VAT Bus. Posting Group");
         SetUoM(Abs(PurchLine.Quantity), PurchLine."Qty. per Unit of Measure");
         SetLineDisc(PurchLine."Line Discount %");
 

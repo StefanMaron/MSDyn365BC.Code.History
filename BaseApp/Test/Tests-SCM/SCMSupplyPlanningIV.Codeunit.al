@@ -2649,7 +2649,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         ItemProduct.Modify(true);
 
         // [Given] Choose "Assembly BOM" and add Item Component = 1.
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ItemProduct."No.", BOMComponent.Type::Item, ItemComponent."No.",
           1, ItemComponent."Base Unit of Measure");
 
@@ -4674,10 +4674,10 @@ codeunit 137077 "SCM Supply Planning -IV"
         AssemblyItem.Validate("Maximum Inventory", LibraryRandom.RandInt(10));
         AssemblyItem.Modify(true);
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AssemblyItem."No.", BOMComponent.Type::Item, InventoryItem."No.",
           LibraryRandom.RandDec(10, 2), InventoryItem."Base Unit of Measure");
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AssemblyItem."No.", BOMComponent.Type::Item, NonInventoryItem."No.",
           LibraryRandom.RandDec(10, 2), NonInventoryItem."Base Unit of Measure");
     end;

@@ -2688,9 +2688,7 @@
     begin
         JobList.OpenEdit();
         JobList.FILTER.SetFilter("No.", JobNo);
-#if not CLEAN25
-        JobList."Attached Documents".Documents.AssertEquals(1);
-#endif
+
         JobList."Attached Documents List".First();
         Assert.AreEqual('foo', JobList."Attached Documents List".Name.Value, 'Document name is not as expected');
         Assert.AreEqual('jpeg', JobList."Attached Documents List"."File Extension".Value, 'Document extension is not as expected');

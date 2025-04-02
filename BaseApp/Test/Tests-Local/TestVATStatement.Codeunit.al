@@ -248,7 +248,7 @@ codeunit 147590 "Test VAT Statement"
     var
         AEATTransferenceFormat: Record "AEAT Transference Format";
     begin
-        TransferenceTXTCheckAccTotaling(AEATTransferenceFormat.Subtype::"Integer Part", 0, false);
+        TransferenceTXTCheckAccTotaling(AEATTransferenceFormat.Subtype::"Integer Part", 2, false);
     end;
 
     [Test]
@@ -309,7 +309,8 @@ codeunit 147590 "Test VAT Statement"
         Assert.AreEqual(
           PadDecimalToString(
             BaseAmount, Precision, Length, PadString,
-            IntegerDecimalPart = AEATTransferenceFormat.Subtype::"Decimal Part"),
+            IntegerDecimalPart = AEATTransferenceFormat.Subtype::"Decimal Part",
+            IntegerDecimalPart = AEATTransferenceFormat.Subtype::"Integer Part"),
           Format(LibraryTextFileValidation.ReadValueFromLine(FileName, 1, 1, Length)),
           'Amount is not set correctly.');
     end;
@@ -476,7 +477,7 @@ codeunit 147590 "Test VAT Statement"
         BaseAmount := Round(2 * Amount / (1 + VATPostingSetupSale."VAT+EC %" / 100), GLSetup."Amount Rounding Precision");
         BaseAmount := BaseAmount - Round(Amount / (1 + VATPostingSetupSale."VAT+EC %" / 100), GLSetup."Amount Rounding Precision");
 
-        Assert.AreEqual(PadDecimalToString(BaseAmount, 2, Length, PadString, false),
+        Assert.AreEqual(PadDecimalToString(BaseAmount, 2, Length, PadString, false, false),
           Format(LibraryTextFileValidation.ReadValueFromLine(FileName, 1, 1, Length)),
           'Amount is not set correctly.');
     end;
@@ -604,7 +605,7 @@ codeunit 147590 "Test VAT Statement"
         FileName := CopyStr(RunTelematicVATDeclaration(VATStatementLine, 0, 0, false), 1, 1024);
 
         // Verify - check the account amount printed in file
-        Assert.AreEqual(PadDecimalToString(ECAmount, 2, Length, PadString, false),
+        Assert.AreEqual(PadDecimalToString(ECAmount, 2, Length, PadString, false, false),
           Format(LibraryTextFileValidation.ReadValueFromLine(FileName, 1, 1, Length)),
           'Amount is not set correctly.');
     end;
@@ -721,7 +722,7 @@ codeunit 147590 "Test VAT Statement"
         FileName := CopyStr(RunTelematicVATDeclaration(VATStatementLine, 0, 0, false), 1, 1024);
 
         // Verify - check the account amount printed in file
-        Assert.AreEqual(PadDecimalToString(VATAmount, 2, Length, PadString, false),
+        Assert.AreEqual(PadDecimalToString(VATAmount, 2, Length, PadString, false, false),
           Format(LibraryTextFileValidation.ReadValueFromLine(FileName, 1, 1, Length)),
           'Amount is not set correctly.');
     end;
@@ -907,7 +908,7 @@ codeunit 147590 "Test VAT Statement"
 
         // [THEN] Invoice's data is exported. "VAT Amount" = "X"
         Assert.AreEqual(
-          PadDecimalToString(Amount, 2, Length, '0', false),
+          PadDecimalToString(Amount, 2, Length, '0', false, false),
           Format(LibraryTextFileValidation.ReadLine(FileName, 1)),
           WrongValueErr);
     end;
@@ -1906,7 +1907,7 @@ codeunit 147590 "Test VAT Statement"
 
         // [VERIFY] Verify amount of No Taxable Entries are taken into account in the Telematic VAT Declaration.
         Assert.AreEqual(
-          PadDecimalToString(VATAmount[1], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+          PadDecimalToString(VATAmount[1], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false, false),
           Format(
             LibraryTextFileValidation.ReadValueFromLine(
               FileName,
@@ -1916,11 +1917,11 @@ codeunit 147590 "Test VAT Statement"
           StrSubstNo(
                 ValueMustBeEqualErr,
                 AEATTransferenceFormat[1].FieldCaption(value),
-                PadDecimalToString(VATAmount[1], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+                PadDecimalToString(VATAmount[1], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false, false),
                 AEATTransferenceFormat[1].TableCaption()));
 
         Assert.AreEqual(
-          PadDecimalToString(VATAmount[2], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+          PadDecimalToString(VATAmount[2], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false, false),
           Format(
             LibraryTextFileValidation.ReadValueFromLine(
               FileName,
@@ -1930,11 +1931,11 @@ codeunit 147590 "Test VAT Statement"
           StrSubstNo(
                 ValueMustBeEqualErr,
                 AEATTransferenceFormat[2].FieldCaption(value),
-                PadDecimalToString(VATAmount[2], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+                PadDecimalToString(VATAmount[2], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false, false),
                 AEATTransferenceFormat[2].TableCaption()));
 
         Assert.AreEqual(
-          PadDecimalToString(VATAmount[3], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+          PadDecimalToString(VATAmount[3], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false, false),
           Format(
             LibraryTextFileValidation.ReadValueFromLine(
               FileName,
@@ -1943,7 +1944,7 @@ codeunit 147590 "Test VAT Statement"
           StrSubstNo(
                 ValueMustBeEqualErr,
                 AEATTransferenceFormat[3].FieldCaption(value),
-                PadDecimalToString(VATAmount[3], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+                PadDecimalToString(VATAmount[3], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false, false),
                 AEATTransferenceFormat[3].TableCaption()));
     end;
 
@@ -2431,7 +2432,7 @@ codeunit 147590 "Test VAT Statement"
         exit(VATPostingSetup."Purchase VAT Account");
     end;
 
-    local procedure PadDecimalToString(Amount: Decimal; Precision: Integer; Length: Integer; PadWith: Text[1]; IgnoreIntegerPart: Boolean): Text
+    local procedure PadDecimalToString(Amount: Decimal; Precision: Integer; Length: Integer; PadWith: Text[1]; IgnoreIntegerPart: Boolean; IgnoreDecimalPart: Boolean): Text
     var
         TextAmount: Text;
         IntegerPart: Text;
@@ -2449,6 +2450,9 @@ codeunit 147590 "Test VAT Statement"
 
         if IgnoreIntegerPart then
             IntegerPart := '';
+
+        if IgnoreDecimalPart then
+            DecimalPart := '';
 
         if PadWith = '' then // no padding
             exit(IntegerPart + DecimalPart);
@@ -2683,7 +2687,7 @@ codeunit 147590 "Test VAT Statement"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(2));
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(20));
         PurchaseHeader.Modify(true);
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(0));

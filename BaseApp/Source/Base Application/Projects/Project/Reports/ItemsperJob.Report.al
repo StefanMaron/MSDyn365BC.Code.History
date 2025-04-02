@@ -134,6 +134,8 @@ report 1013 "Items per Job"
 
     requestpage
     {
+        AboutTitle = 'About Items per Project';
+        AboutText = 'Get an overview of the items you use in your project.';
 
         layout
         {

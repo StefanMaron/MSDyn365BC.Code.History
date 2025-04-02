@@ -22,12 +22,10 @@ page 103 "Account Schedule Names"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the unique name (code) of the financial report row definition. You can use up to 10 characters.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the financial report row definition. The description is not shown on the final report but is used to provide more context when using the definition.';
                 }
                 field(Standardized; Rec.Standardized)
                 {
@@ -37,7 +35,10 @@ page 103 "Account Schedule Names"
                 field("Analysis View Name"; Rec."Analysis View Name")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the name of the analysis view you want the row definition to use. This field is optional.';
+                }
+                field("Internal Description"; Rec."Internal Description")
+                {
+                    ApplicationArea = Suite;
                 }
             }
         }

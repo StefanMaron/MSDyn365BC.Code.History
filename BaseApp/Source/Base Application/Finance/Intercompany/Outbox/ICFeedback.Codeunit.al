@@ -5,6 +5,7 @@ using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
+using Microsoft.Intercompany;
 
 codeunit 404 "IC Feedback"
 {
@@ -37,11 +38,11 @@ codeunit 404 "IC Feedback"
 
 
             if ICSetup."Auto. Send Transactions" then begin
-                if ExistsInICHandledOutbox(ICPartnerCode, ICOutboxTransaction."Source Type"::"Purchase Document", ICTransactionDocumentType, DocumentNo, PurchaseHeader."Posting Date", PurchaseHeader."Document Date") then
+                if ExistsInICHandledOutbox(ICPartnerCode, ICOutboxTransaction."IC Source Type"::"Purchase Document", ICTransactionDocumentType, DocumentNo, PurchaseHeader."Posting Date", PurchaseHeader."Document Date") then
                     Message(CreatedAndSentTransactionMsg, DocumentNo, ICPartnerCode);
             end
             else
-                if ExistsInICOutbox(ICPartnerCode, ICOutboxTransaction."Source Type"::"Purchase Document", ICTransactionDocumentType, DocumentNo, PurchaseHeader."Posting Date", PurchaseHeader."Document Date") then
+                if ExistsInICOutbox(ICPartnerCode, ICOutboxTransaction."IC Source Type"::"Purchase Document", ICTransactionDocumentType, DocumentNo, PurchaseHeader."Posting Date", PurchaseHeader."Document Date") then
                     Message(CreatedTransactionWaitingInOutboxMsg, DocumentNo);
         end;
     end;
@@ -68,11 +69,11 @@ codeunit 404 "IC Feedback"
                 exit;
 
             if ICSetup."Auto. Send Transactions" then begin
-                if ExistsInICHandledOutbox(ICPartnerCode, ICOutboxTransaction."Source Type"::"Sales Document", ICTransactionDocumentType, DocumentNo, SalesHeader."Posting Date", SalesHeader."Document Date") then
+                if ExistsInICHandledOutbox(ICPartnerCode, ICOutboxTransaction."IC Source Type"::"Sales Document", ICTransactionDocumentType, DocumentNo, SalesHeader."Posting Date", SalesHeader."Document Date") then
                     Message(CreatedAndSentTransactionMsg, DocumentNo, ICPartnerCode);
             end
             else
-                if ExistsInICOutbox(ICPartnerCode, ICOutboxTransaction."Source Type"::"Sales Document", ICTransactionDocumentType, DocumentNo, SalesHeader."Posting Date", SalesHeader."Document Date") then
+                if ExistsInICOutbox(ICPartnerCode, ICOutboxTransaction."IC Source Type"::"Sales Document", ICTransactionDocumentType, DocumentNo, SalesHeader."Posting Date", SalesHeader."Document Date") then
                     Message(CreatedTransactionWaitingInOutboxMsg, DocumentNo);
         end;
     end;
@@ -86,26 +87,26 @@ codeunit 404 "IC Feedback"
             exit;
 
         if ICSetup."Auto. Send Transactions" then begin
-            if ExistsInICHandledOutbox(GenJournalLine."IC Partner Code", ICOutboxTransaction."Source Type"::"Journal Line", "IC Transaction Document Type"::" ", GenJournalLine."Document No.", GenJournalLine."Posting Date", GenJournalLine."Document Date") then
+            if ExistsInICHandledOutbox(GenJournalLine."IC Partner Code", ICOutboxTransaction."IC Source Type"::Journal, "IC Transaction Document Type"::" ", GenJournalLine."Document No.", GenJournalLine."Posting Date", GenJournalLine."Document Date") then
                 if ICProccessedLines = 1 then
                     Message(CreatedAndSentTransactionMsg, DocumentNo, GenJournalLine."IC Partner Code")
                 else
                     Message(CreatedAndSentMultipleTransactionsMsg);
         end
         else
-            if ExistsInICOutbox(GenJournalLine."IC Partner Code", ICOutboxTransaction."Source Type"::"Journal Line", "IC Transaction Document Type"::" ", GenJournalLine."Document No.", GenJournalLine."Posting Date", GenJournalLine."Document Date") then
+            if ExistsInICOutbox(GenJournalLine."IC Partner Code", ICOutboxTransaction."IC Source Type"::Journal, "IC Transaction Document Type"::" ", GenJournalLine."Document No.", GenJournalLine."Posting Date", GenJournalLine."Document Date") then
                 if ICProccessedLines = 1 then
                     Message(CreatedTransactionWaitingInOutboxMsg, DocumentNo)
                 else
                     Message(CreatedMultipleTransactionsWaitingInOutboxMsg);
     end;
 
-    local procedure ExistsInICOutbox(ICPartnerCode: Code[20]; SourceType: Option; ICTransactionDocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; PostingDate: Date; DocumentDate: Date): Boolean
+    local procedure ExistsInICOutbox(ICPartnerCode: Code[20]; SourceType: Enum "IC Transaction Source Type"; ICTransactionDocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; PostingDate: Date; DocumentDate: Date): Boolean
     var
         ICOutboxTransaction: Record "IC Outbox Transaction";
     begin
         ICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
-        ICOutboxTransaction.SetRange("Source Type", SourceType);
+        ICOutboxTransaction.SetRange("IC Source Type", SourceType);
         ICOutboxTransaction.SetRange("Document Type", ICTransactionDocumentType);
         ICOutboxTransaction.SetRange("Document No.", DocumentNo);
         ICOutboxTransaction.SetRange("Posting Date", PostingDate);
@@ -113,7 +114,7 @@ codeunit 404 "IC Feedback"
         exit(not ICOutboxTransaction.IsEmpty());
     end;
 
-    local procedure ExistsInICHandledOutbox(ICPartnerCode: Code[20]; SourceType: Option; ICTransactionDocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; PostingDate: Date; DocumentDate: Date): Boolean
+    local procedure ExistsInICHandledOutbox(ICPartnerCode: Code[20]; SourceType: Enum "IC Transaction Source Type"; ICTransactionDocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; PostingDate: Date; DocumentDate: Date): Boolean
     var
         HandledICOutboxTransaction: Record "Handled IC Outbox Trans.";
     begin

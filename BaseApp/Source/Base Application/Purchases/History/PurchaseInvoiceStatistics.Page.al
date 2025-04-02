@@ -225,10 +225,8 @@ page 400 "Purchase Invoice Statistics"
                 VendAmount += PurchInvLine.Amount;
                 AmountInclVAT += PurchInvLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then begin
-                    InvDiscAmount +=
-                        PurchInvLine."Inv. Discount Amount" / (1 + (PurchInvLine."VAT %" + PurchInvLine."EC %") / 100);
-                    PmtDiscAmount +=
-                        PurchInvLine."Pmt. Discount Amount" / (1 + (PurchInvLine."VAT %" + PurchInvLine."EC %") / 100)
+                    InvDiscAmount += PurchInvLine."Inv. Discount Amount" / (1 + PurchInvLine.GetVATPct() / 100);
+                    PmtDiscAmount += PurchInvLine."Pmt. Discount Amount" / (1 + PurchInvLine.GetVATPct() / 100);
                 end else begin
                     InvDiscAmount += PurchInvLine."Inv. Discount Amount";
                     PmtDiscAmount += PurchInvLine."Pmt. Discount Amount";
@@ -241,7 +239,7 @@ page 400 "Purchase Invoice Statistics"
                     TotalParcels += Round(PurchInvLine.Quantity / PurchInvLine."Units per Parcel", 1, '>');
                 if PurchInvLine."VAT %" <> VATPercentage then
                     if VATPercentage = 0 then
-                        VATPercentage := PurchInvLine."VAT %" + PurchInvLine."EC %"
+                        VATPercentage := PurchInvLine.GetVATPct()
                     else
                         VATPercentage := -1;
 

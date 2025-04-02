@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Setup;
 
 using Microsoft.Inventory.BOM;
@@ -40,6 +44,10 @@ page 905 "Assembly Setup"
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies that comments on assembly order lines are copied to the resulting posted documents.';
+                }
+                field("Default Gen. Bus. Post. Group"; Rec."Default Gen. Bus. Post. Group")
+                {
+                    ApplicationArea = Assembly;
                 }
             }
             group(Numbering)

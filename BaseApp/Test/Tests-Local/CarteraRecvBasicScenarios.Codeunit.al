@@ -30,9 +30,6 @@
         CustomerNoElementNameTxt: Label 'Cust__Ledger_Entry__Customer_No__';
         RemainingAmountElementNameTxt: Label 'Cust__Ledger_Entry__Remaining_Amount_';
         PaymentMethodCodeModifyErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
-#if not CLEAN23
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-#endif
         CheckBillSituationGroupErr: Label '%1 cannot be applied because it is included in a bill group. To apply the document, remove it from the bill group and try again.', Comment = '%1 - document type and number';
         CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted bill group.', Comment = '%1 - document type and number';
         PostDocumentAppliedToBillInGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/1 from Group/Pmt. Order %2 and try again.';
@@ -712,61 +709,6 @@
         VerifyBillGroupGLEntryExists(BillGroup."No.", Customer."Customer Posting Group", BillGroup."Amount (LCY)");
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterBillGroupSameRateAndAdjustmentAndExchRate()
-    var
-        Customer: Record Customer;
-        BillGroup: Record "Bill Group";
-        CurrencyCode: Code[10];
-        InvoiceNo: Code[20];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-        SettleAmount: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Sales Invoice, Bill Group, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForBillGroup();
-        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[4], CurrencyExchRate[4], CurrencyExchRate[4]);
-
-        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
-        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
-        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
-
-        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
-        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
-        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date3
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
-        LibraryVariableStorage.Enqueue(PostingDate[4]);
-        SettleDocsInPostBillGr(BillGroup."No.");
-
-        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
-        // [THEN] 'Receivables Account' in Payment G/L Entry = -4088.31 (-5000/1.223)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
-        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
-        VerifySettleGLEntries(
-          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -819,62 +761,6 @@
         VerifySettleGLEntries(
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
-
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterBillGroupSameRateAndTwoAdjustments()
-    var
-        Customer: Record Customer;
-        BillGroup: Record "Bill Group";
-        CurrencyCode: Code[10];
-        InvoiceNo: Code[20];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-        SettleAmount: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Sales Invoice, Bill Group, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForBillGroup();
-        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[4], CurrencyExchRate[4], CurrencyExchRate[4]);
-
-        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
-        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
-        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
-
-        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
-        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
-        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date3, Date4
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[4]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
-        LibraryVariableStorage.Enqueue(PostingDate[4]);
-        SettleDocsInPostBillGr(BillGroup."No.");
-
-        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
-        // [THEN] 'Receivables Account' in Payment G/L Entry = -4634.78 (-5000/1.0788)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
-        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
-        VerifySettleGLEntries(
-          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
@@ -930,57 +816,6 @@
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterBillGroupDiffRateAndAdjustmentAndExchRate()
-    var
-        Customer: Record Customer;
-        BillGroup: Record "Bill Group";
-        CurrencyCode: Code[10];
-        InvoiceNo: Code[20];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-        SettleAmount: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Sales Invoice, new Exch.Rate, Bill Group, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
-        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
-
-        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
-        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
-        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
-
-        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
-        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
-        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date3
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
-        LibraryVariableStorage.Enqueue(PostingDate[4]);
-        SettleDocsInPostBillGr(BillGroup."No.");
-
-        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
-        // [THEN] 'Receivables Account' in Payment G/L Entry = -4088.31 (-5000/1.223)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
-        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
-        VerifySettleGLEntries(
-          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1029,58 +864,6 @@
         VerifySettleGLEntries(
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
-
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterBillGroupDiffRateAndTwoAdjustments()
-    var
-        Customer: Record Customer;
-        BillGroup: Record "Bill Group";
-        CurrencyCode: Code[10];
-        InvoiceNo: Code[20];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-        SettleAmount: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Sales Invoice, new Exch.Rate, Bill Group, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
-        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
-
-        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
-        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
-        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
-
-        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
-        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
-        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date3, Date4
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[4]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
-        LibraryVariableStorage.Enqueue(PostingDate[4]);
-        SettleDocsInPostBillGr(BillGroup."No.");
-
-        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
-        // [THEN] 'Receivables Account' in Payment G/L Entry = -4634.78 (-5000/1.0788)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
-        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
-        VerifySettleGLEntries(
-          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
@@ -1131,61 +914,6 @@
         VerifySettleGLEntries(
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
-
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterBillGroupDiffRateAndAdjustment()
-    var
-        Customer: Record Customer;
-        BillGroup: Record "Bill Group";
-        CurrencyCode: Code[10];
-        InvoiceNo: Code[20];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-        SettleAmount: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Sales Invoice, new Exch.Rate, Bill Group, Adjust Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
-        CurrencyCode := CreateCurrencyForBillGroup();
-        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[2], CurrencyExchRate[2], CurrencyExchRate[2]);
-        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
-
-        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
-        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
-        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
-
-        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
-        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
-        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date3
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
-        LibraryVariableStorage.Enqueue(PostingDate[4]);
-        SettleDocsInPostBillGr(BillGroup."No.");
-
-        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
-        // [THEN] 'Receivables Account' in Payment G/L Entry = -4088.31 (-5000/1.223)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
-        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
-        VerifySettleGLEntries(
-          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
@@ -1874,14 +1602,6 @@
         PaymentRegistration."Amount Received".SetValue(AmountToPost);
         PaymentRegistration.PostPayments.Invoke();
     end;
-
-#if not CLEAN23
-    local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; PostingDate: Date)
-    begin
-        LibraryVariableStorage.Enqueue(ExchRateWasAdjustedTxt);
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate, PostingDate);
-    end;
-#endif
 
     local procedure RunExchRateAdjustment(CurrencyCode: Code[10]; PostingDate: Date)
     begin

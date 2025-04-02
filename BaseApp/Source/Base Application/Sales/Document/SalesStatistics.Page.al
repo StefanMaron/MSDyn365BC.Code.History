@@ -238,7 +238,7 @@ page 160 "Sales Statistics"
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
                     Editable = false;
-                    ToolTip = 'Specifies the credit limit of the customer that you created the sales document for.';
+                    ToolTip = 'Specifies the credit limit of the customer on the sales document. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -273,6 +273,14 @@ page 160 "Sales Statistics"
 
     trigger OnOpenPage()
     begin
+#if not CLEAN26
+        if not Rec.SkipStatisticsPreparation() then
+            Rec.PrepareOpeningDocumentStatistics();
+        Rec.ResetSkipStatisticsPreparationFlag();
+#else
+        Rec.PrepareOpeningDocumentStatistics();
+#endif
+
         SalesSetup.Get();
         AllowInvDisc :=
           not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists(Rec."Invoice Disc. Code"));
@@ -282,6 +290,13 @@ page 160 "Sales Statistics"
         OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec, SalesSetup);
         CurrPage.Editable := AllowVATDifference or AllowInvDisc;
         SetVATSpecification();
+    end;
+
+    trigger OnClosePage()
+    var
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+    begin
+        SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -543,4 +558,3 @@ page 160 "Sales Statistics"
     begin
     end;
 }
-

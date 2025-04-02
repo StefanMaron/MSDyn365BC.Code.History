@@ -36,6 +36,23 @@ page 104 "Account Schedule"
                 begin
                     AccSchedManagement.CheckName(CurrentSchedName);
                     CurrentSchedNameOnAfterValidate();
+                    GetInternalDescription();
+                end;
+            }
+            field(InternalDescription; InternalDescription)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Internal Description';
+                MultiLine = true;
+                ToolTip = 'Specifies the internal description of row definition. The internal description is not shown on the final report but is used to provide more context when using the definition.';
+
+                trigger OnValidate()
+                var
+                    AccScheduleName: Record "Acc. Schedule Name";
+                begin
+                    AccScheduleName.Get(CurrentSchedName);
+                    AccScheduleName."Internal Description" := InternalDescription;
+                    AccScheduleName.Modify();
                 end;
             }
             repeater(Control1)
@@ -200,7 +217,7 @@ page 104 "Account Schedule"
                 field(Show; Rec.Show)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the account schedule line will be printed on the report.';
+                    ToolTip = 'Specifies whether the line will be printed on the report.';
                 }
                 field(Bold; Rec.Bold)
                 {
@@ -226,7 +243,7 @@ page 104 "Account Schedule"
                 field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether there will be a page break after the current account when the account schedule is printed.';
+                    ToolTip = 'Specifies whether there will be a page break after the current line when the financial report is exported to PDF or printed.';
                 }
                 field(HideCurrencySymbol; Rec."Hide Currency Symbol")
                 {
@@ -295,6 +312,21 @@ page 104 "Account Schedule"
                             AccScheduleLine.Modify();
                         until AccScheduleLine.Next() = 0;
                     CurrPage.Update(false);
+                end;
+            }
+            action(WhereUsed)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Where-Used';
+                ToolTip = 'View or edit financial reports in which the row definition is used.';
+                Image = Track;
+
+                trigger OnAction()
+                var
+                    FinancialReport: Record "Financial Report";
+                begin
+                    FinancialReport.SetRange("Financial Report Row Group", CurrentSchedName);
+                    Page.Run(0, FinancialReport);
                 end;
             }
             group("F&unctions")
@@ -377,6 +409,9 @@ page 104 "Account Schedule"
                 actionref(Indent_Promoted; Indent)
                 {
                 }
+                actionref(WhereUsed_Promoted; WhereUsed)
+                {
+                }
             }
             group(Category_Category4)
             {
@@ -419,6 +454,7 @@ page 104 "Account Schedule"
         AccSchedManagement.OpenAndCheckSchedule(CurrentSchedName, Rec);
         if CurrentSchedName <> OriginalSchedName then
             CurrentSchedNameOnAfterValidate();
+        GetInternalDescription();
     end;
 
     var
@@ -427,6 +463,7 @@ page 104 "Account Schedule"
         DimCaptionsInitialized: Boolean;
         CostObjectTotallingEnabled: Boolean;
         CostCenterTotallingEnabled: Boolean;
+        InternalDescription: Text[250];
         TotalingDisplayed: Text[250];
 
     procedure SetAccSchedName(NewAccSchedName: Code[10])
@@ -439,6 +476,15 @@ page 104 "Account Schedule"
         CurrPage.SaveRecord();
         AccSchedManagement.SetName(CurrentSchedName, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure GetInternalDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+    begin
+        InternalDescription := '';
+        if AccScheduleName.Get(CurrentSchedName) then
+            InternalDescription := AccScheduleName."Internal Description";
     end;
 
     local procedure FormatLines()

@@ -163,6 +163,15 @@ report 10714 "AutoInvoices List"
             column(ContinuedCaption_Control18; ContinuedCaption_Control18Lbl)
             {
             }
+            column(NonDeductibleVAT_Caption; NonDeductibleVATCaptionLbl)
+            {
+            }
+            column(NonDeductibleVATBase_Caption; NonDeductibleVATBaseCaptionLbl)
+            {
+            }
+            column(NonDeductibleVATAmt_Caption; NonDeductibleVATAmtCaptionLbl)
+            {
+            }
             dataitem(VATEntry2; "VAT Entry")
             {
                 DataItemLink = Type = field(Type), "Posting Date" = field("Posting Date"), "Document Type" = field("Document Type"), "Document No." = field("Document No.");
@@ -172,6 +181,7 @@ report 10714 "AutoInvoices List"
                 begin
                     VATBuffer."VAT %" := "VAT %";
                     VATBuffer."EC %" := "EC %";
+                    VATBuffer."Non-Deductible VAT %" := "Non-Deductible VAT %";
 
                     if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
                         if not PrintAmountsInAddCurrency then
@@ -180,22 +190,30 @@ report 10714 "AutoInvoices List"
                                 VarAmount2 := Amount;
                                 VATBuffer.Base := VATBuffer.Base + Base;
                                 VATBuffer.Amount := VATBuffer.Amount + Amount;
+                                VATBuffer."Non-Deductible VAT Base" := VATBuffer."Non-Deductible VAT Base" + "Non-Deductible VAT Base";
+                                VATBuffer."Non-Deductible VAT Amount" := VATBuffer."Non-Deductible VAT Amount" + "Non-Deductible VAT Amount";
                                 VATBuffer.Modify();
                             end else begin
                                 VarBase2 := Base;
                                 VarAmount2 := Amount;
                                 VATBuffer.Base := Base;
                                 VATBuffer.Amount := Amount;
+                                VATBuffer."Non-Deductible VAT Base" := "Non-Deductible VAT Base";
+                                VATBuffer."Non-Deductible VAT Amount" := "Non-Deductible VAT Amount";
                                 VATBuffer.Insert();
                             end
                         else
                             if VATBuffer.Find() then begin
                                 VATBuffer.Base := VATBuffer.Base + "Additional-Currency Base";
                                 VATBuffer.Amount := VATBuffer.Amount + "Additional-Currency Amount";
+                                VATBuffer."Non-Deductible VAT Base" := VATBuffer."Non-Deductible VAT Base" + "Non-Deductible VAT Base ACY";
+                                VATBuffer."Non-Deductible VAT Amount" := VATBuffer."Non-Deductible VAT Amount" + "Non-Deductible VAT Amount ACY";
                                 VATBuffer.Modify();
                             end else begin
                                 VATBuffer.Base := "Additional-Currency Base";
                                 VATBuffer.Amount := "Additional-Currency Amount";
+                                VATBuffer."Non-Deductible VAT Base" := "Non-Deductible VAT Base ACY";
+                                VATBuffer."Non-Deductible VAT Amount" := "Non-Deductible VAT Amount ACY";
                                 VATBuffer.Insert();
                             end;
 
@@ -264,6 +282,9 @@ report 10714 "AutoInvoices List"
                 column(VATBuffer2__VAT___; VATBuffer2."VAT %")
                 {
                 }
+                column(VATBuffer2__VAT___NonDeductibleVAT___; VATBuffer2."Non-Deductible VAT %")
+                {
+                }
                 column(VATEntry2__Posting_Date_; Format(VATEntry2."Posting Date"))
                 {
                 }
@@ -282,13 +303,13 @@ report 10714 "AutoInvoices List"
                 column(VATBuffer2_Amount; VATBuffer2.Amount)
                 {
                 }
-                column(VATBuffer2_Base_VATBuffer2_Amount; VATBuffer2.Base + VATBuffer2.Amount)
+                column(VATBuffer2_Base_VATBuffer2_Amount; VATBuffer2.Base + VATBuffer2.Amount + VATBuffer2."Non-Deductible VAT Base" + VATBuffer2."Non-Deductible VAT Amount")
                 {
                 }
                 column(AutoDocNo; AutoDocNo)
                 {
                 }
-                column(VATBuffer2_Base_VATBuffer2_Amount_Control53; VATBuffer2.Base + VATBuffer2.Amount)
+                column(VATBuffer2_Base_VATBuffer2_Amount_Control53; VATBuffer2.Base + VATBuffer2.Amount + VATBuffer2."Non-Deductible VAT Base" + VATBuffer2."Non-Deductible VAT Amount")
                 {
                 }
                 column(VATBuffer2_Amount_Control58; VATBuffer2.Amount)
@@ -312,13 +333,22 @@ report 10714 "AutoInvoices List"
                 column(VATBuffer2_Amount_Control63; VATBuffer2.Amount)
                 {
                 }
-                column(VATBuffer2_Base_VATBuffer2_Amount_Control64; VATBuffer2.Base + VATBuffer2.Amount)
+                column(VATBuffer2_Base_VATBuffer2_Amount_Control64; VATBuffer2.Base + VATBuffer2.Amount + VATBuffer2."Non-Deductible VAT Base" + VATBuffer2."Non-Deductible VAT Amount")
                 {
                 }
                 column(Integer_Number; Number)
                 {
                 }
                 column(TotalCaption_Control26; TotalCaption_Control26Lbl)
+                {
+                }
+                column(VATBuffer2_Non_DeductibleVAT_Control101; VATBuffer2."Non-Deductible VAT %")
+                {
+                }
+                column(VATBuffer2_NonDeductibleVATBase; VATBuffer2."Non-Deductible VAT Base")
+                {
+                }
+                column(VATBuffer2_NonDeductibleVATAmt; VATBuffer2."Non-Deductible VAT Amount")
                 {
                 }
 
@@ -478,5 +508,8 @@ report 10714 "AutoInvoices List"
         No_SerieCaption_Control1100104Lbl: Label 'No.Serie';
         ContinuedCaption_Control18Lbl: Label 'Continued';
         TotalCaption_Control26Lbl: Label 'Total';
+        NonDeductibleVATCaptionLbl: Label 'Non-Ded. VAT%';
+        NonDeductibleVATBaseCaptionLbl: Label 'Non-Ded. VAT Base';
+        NonDeductibleVATAmtCaptionLbl: Label 'Non-Ded. VAT Amount';
 }
 

@@ -1,6 +1,9 @@
-﻿namespace Microsoft.Inventory.Journal;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Journal;
 
-using Microsoft.Assembly.Document;
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Preview;
@@ -10,13 +13,8 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
-using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Warehouse.Journal;
-using Microsoft.Warehouse.Request;
 using System.Security.User;
-using Microsoft.Manufacturing.Setup;
 
 codeunit 21 "Item Jnl.-Check Line"
 {
@@ -34,38 +32,27 @@ codeunit 21 "Item Jnl.-Check Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemJnlLine2: Record "Item Journal Line";
         ItemJnlLine3: Record "Item Journal Line";
-        ProdOrderLine: Record "Prod. Order Line";
         DimMgt: Codeunit DimensionManagement;
         CalledFromInvtPutawayPick: Boolean;
         CalledFromAdjustment: Boolean;
 
 #pragma warning disable AA0074
-        Text000: Label 'cannot be a closing date';
 #pragma warning disable AA0470
+        Text000: Label 'cannot be a closing date';
         Text003: Label 'must not be negative when %1 is %2';
         Text004: Label 'must have the same value as %1';
         Text005: Label 'must be %1 or %2 when %3 is %4';
         Text006: Label 'must equal %1 - %2 when %3 is %4 and %5 is %6';
-#pragma warning restore AA0470
         Text007: Label 'You cannot post these lines because you have not entered a quantity on one or more of the lines. ';
-#pragma warning restore AA0074
-#pragma warning disable AA0470
         DimCombBlockedErr: Label 'The combination of dimensions used in item journal line %1, %2, %3 is blocked. %4.', Comment = '%1 = Journal Template Name; %2 = Journal Batch Name; %3 = Line No.';
         DimCausedErr: Label 'A dimension used in item journal line %1, %2, %3 has caused an error. %4.', Comment = '%1 = Journal Template Name; %2 = Journal Batch Name; %3 = Line No.';
-#pragma warning restore AA0470
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text011: Label '%1 must not be equal to %2';
-        Text012: Label 'Warehouse handling is required for %1 = %2, %3 = %4, %5 = %6.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0470
         UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.';
 #pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure RunCheck(var ItemJournalLine: Record "Item Journal Line")
     var
-        WorkCenter: Record "Work Center";
         Item: Record Item;
         TransportMethod: Record "Transport Method";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
@@ -73,7 +60,6 @@ codeunit 21 "Item Jnl.-Check Line"
         ShouldCheckApplication: Boolean;
         ShouldCheckDiscountAmount: Boolean;
         ShouldCheckLocationCode: Boolean;
-        ShouldCheckItemNo: Boolean;
     begin
         GLSetup.Get();
         InvtSetup.Get();
@@ -85,6 +71,7 @@ codeunit 21 "Item Jnl.-Check Line"
             if not ItemJournalLine.OnlyStopTime() then
                 ItemJournalLine.TestField("Item No.", ErrorInfo.Create());
 
+        Item.ReadIsolation(IsolationLevel::ReadUncommitted);
         IsHandled := false;
         OnBeforeGetItem(Item, IsHandled);
         if not IsHandled then
@@ -96,7 +83,8 @@ codeunit 21 "Item Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        ItemJournalLine.TestField("Document No.", ErrorInfo.Create());
+        if ItemJournalLine."Posting No. Series" = '' then
+            ItemJournalLine.TestField("Document No.", ErrorInfo.Create());
         ItemJournalLine.TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
 
         CheckDates(ItemJournalLine);
@@ -185,34 +173,7 @@ codeunit 21 "Item Jnl.-Check Line"
                         true));
         end;
 
-        if (ItemJournalLine."Entry Type" in [ItemJournalLine."Entry Type"::Consumption, ItemJournalLine."Entry Type"::Output]) and
-           not (ItemJournalLine."Value Entry Type" = ItemJournalLine."Value Entry Type"::Revaluation) and
-           not ItemJournalLine.OnlyStopTime()
-        then begin
-            ItemJournalLine.TestField("Source No.", ErrorInfo.Create());
-            ItemJournalLine.TestField("Order Type", ItemJournalLine."Order Type"::Production, ErrorInfo.Create());
-            ShouldCheckItemNo := not CalledFromAdjustment and (ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Output);
-            OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine, ProdOrderLine, CalledFromAdjustment, ShouldCheckItemNo);
-            if ShouldCheckItemNo then
-                if CheckFindProdOrderLine(ProdOrderLine, ItemJournalLine."Order No.", ItemJournalLine."Order Line No.") then begin
-                    ItemJournalLine.TestField("Item No.", ProdOrderLine."Item No.", ErrorInfo.Create());
-                    OnAfterCheckFindProdOrderLine(ItemJournalLine, ProdOrderLine);
-                end;
-
-            if ItemJournalLine.Subcontracting then begin
-                IsHandled := false;
-                OnBeforeCheckSubcontracting(ItemJournalLine, IsHandled);
-                if not IsHandled then begin
-                    WorkCenter.Get(ItemJournalLine."Work Center No.");
-                    WorkCenter.TestField("Subcontractor No.", ErrorInfo.Create());
-                end;
-            end;
-            if not CalledFromInvtPutawayPick then
-                CheckWarehouse(ItemJournalLine);
-        end;
-
-        if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::"Assembly Consumption" then
-            CheckWarehouse(ItemJournalLine);
+        OnRunOnCheckWarehouse(ItemJournalLine, CalledFromAdjustment, CalledFromInvtPutawayPick);
 
         IsHandled := false;
         OnRunCheckOnBeforeTestFieldAppliesToEntry(ItemJournalLine, IsHandled);
@@ -278,184 +239,9 @@ codeunit 21 "Item Jnl.-Check Line"
                 Location.Get(LocationCode);
     end;
 
-    local procedure CheckFindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; LineNo: Integer): Boolean
-    begin
-        ProdOrderLine.SetFilter(Status, '>=%1', ProdOrderLine.Status::Released);
-        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.SetRange("Line No.", LineNo);
-        exit(ProdOrderLine.FindFirst());
-    end;
-
     procedure SetCalledFromInvtPutawayPick(NewCalledFromInvtPutawayPick: Boolean)
     begin
         CalledFromInvtPutawayPick := NewCalledFromInvtPutawayPick;
-    end;
-
-    local procedure CheckWarehouse(ItemJnlLine: Record "Item Journal Line")
-    var
-        AssemblyLine: Record "Assembly Line";
-        ReservationEntry: Record "Reservation Entry";
-        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
-        ShowError: Boolean;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckWarehouse(ItemJnlLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        if (ItemJnlLine.Quantity = 0) or
-           (ItemJnlLine."Item Charge No." <> '') or
-           (ItemJnlLine."Value Entry Type" in
-            [ItemJnlLine."Value Entry Type"::Revaluation, ItemJnlLine."Value Entry Type"::Rounding]) or
-           ItemJnlLine.Adjustment
-        then
-            exit;
-
-        GetLocation(ItemJnlLine."Location Code");
-        if Location."Directed Put-away and Pick" then
-            exit;
-
-        case ItemJnlLine."Entry Type" of // Need to check if the item and location require warehouse handling
-            ItemJnlLine."Entry Type"::Output:
-                if WhseOrderHandlingRequired(ItemJnlLine, Location) and CheckWarehouseLastOutputOperation(ItemJnlLine) then begin
-                    if (ItemJnlLine.Quantity < 0) and (ItemJnlLine."Applies-to Entry" = 0) then begin
-                        ReservationEntry.InitSortingAndFilters(false);
-                        ItemJnlLine.SetReservationFilters(ReservationEntry);
-                        ReservationEntry.ClearTrackingFilter();
-                        if ReservationEntry.FindSet() then
-                            repeat
-                                if ReservationEntry."Appl.-to Item Entry" = 0 then
-                                    ShowError := true;
-                            until (ReservationEntry.Next() = 0) or ShowError
-                        else
-                            ShowError := CheckWarehouseLastOutputOperation(ItemJnlLine);
-                    end;
-
-                    if WhseValidateSourceLine.WhseLinesExist(
-                         Database::"Prod. Order Line", 3, ItemJnlLine."Order No.", ItemJnlLine."Order Line No.", 0, ItemJnlLine.Quantity)
-                    then
-                        ShowError := true;
-                end;
-            ItemJnlLine."Entry Type"::Consumption:
-                if WhseOrderHandlingRequired(ItemJnlLine, Location) then
-                    if WhseValidateSourceLine.WhseLinesExist(
-                         Database::"Prod. Order Component",
-                         3,
-                         ItemJnlLine."Order No.",
-                         ItemJnlLine."Order Line No.",
-                         ItemJnlLine."Prod. Order Comp. Line No.",
-                         ItemJnlLine.Quantity)
-                    then
-                        ShowError := true;
-            ItemJnlLine."Entry Type"::"Assembly Consumption":
-                if WhseOrderHandlingRequired(ItemJnlLine, Location) then
-                    if WhseValidateSourceLine.WhseLinesExist(
-                         Database::"Assembly Line",
-                         AssemblyLine."Document Type"::Order.AsInteger(),
-                         ItemJnlLine."Order No.",
-                         ItemJnlLine."Order Line No.",
-                         0,
-                         ItemJnlLine.Quantity)
-                    then
-                        ShowError := true;
-        end;
-        if ShowError then
-            Error(
-                ErrorInfo.Create(
-                    StrSubstNo(
-                        Text012,
-                        ItemJnlLine.FieldCaption("Entry Type"),
-                        ItemJnlLine."Entry Type",
-                        ItemJnlLine.FieldCaption("Order No."),
-                        ItemJnlLine."Order No.",
-                        ItemJnlLine.FieldCaption("Order Line No."),
-                        ItemJnlLine."Order Line No."),
-                    true));
-    end;
-
-    local procedure CheckWarehouseLastOutputOperation(ItemJnlLine: Record "Item Journal Line") Result: Boolean
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckWarehouseLastOutputOperation(ItemJnlLine, Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        Result := ItemJnlLine.LastOutputOperation(ItemJnlLine);
-    end;
-
-    local procedure WhseOrderHandlingRequired(ItemJnlLine: Record "Item Journal Line"; LocationToCheck: Record Location): Boolean
-    var
-        InvtPutAwayLocation: Boolean;
-        InvtPickLocation: Boolean;
-        WarehousePickLocation: Boolean;
-    begin
-        case ItemJnlLine."Entry Type" of
-            ItemJnlLine."Entry Type"::Output:
-                begin
-                    InvtPutAwayLocation := LocationToCheck."Prod. Output Whse. Handling" = Enum::"Prod. Output Whse. Handling"::"Inventory Put-away";
-                    OnAfterAssignInvtPutAwayRequired(ItemJnlLine, LocationToCheck, InvtPutAwayLocation);
-                    if InvtPutAwayLocation then
-                        if ItemJnlLine.Quantity >= 0 then
-                            exit(true);
-
-                    InvtPickLocation := LocationToCheck."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
-                    OnAfterAssignInvtPickRequired(ItemJnlLine, LocationToCheck, InvtPickLocation);
-                    if InvtPickLocation then
-                        if ItemJnlLine.Quantity < 0 then
-                            exit(true);
-
-                    WarehousePickLocation := LocationToCheck."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
-                    OnAfterAssignWhsePickRequired(ItemJnlLine, LocationToCheck, WarehousePickLocation);
-                    if WarehousePickLocation and (ItemJnlLine."Flushing Method" = ItemJnlLine."Flushing Method"::"Pick + Backward") then
-                        if ItemJnlLine.Quantity < 0 then
-                            exit(true);
-                end;
-            ItemJnlLine."Entry Type"::Consumption:
-                begin
-                    InvtPutAwayLocation := LocationToCheck."Prod. Output Whse. Handling" = Enum::"Prod. Output Whse. Handling"::"Inventory Put-away";
-                    OnAfterAssignInvtPutAwayRequired(ItemJnlLine, LocationToCheck, InvtPutAwayLocation);
-                    if InvtPutAwayLocation then
-                        if ItemJnlLine.Quantity < 0 then
-                            exit(true);
-
-                    InvtPickLocation := LocationToCheck."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
-                    OnAfterAssignInvtPickRequired(ItemJnlLine, LocationToCheck, InvtPickLocation);
-                    if InvtPickLocation then
-                        if ItemJnlLine.Quantity >= 0 then
-                            exit(true);
-
-                    WarehousePickLocation := LocationToCheck."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
-                    OnAfterAssignWhsePickRequired(ItemJnlLine, LocationToCheck, WarehousePickLocation);
-                    if WarehousePickLocation and (ItemJnlLine."Flushing Method" = ItemJnlLine."Flushing Method"::"Pick + Backward") then
-                        if ItemJnlLine.Quantity >= 0 then
-                            exit(true);
-                end;
-            ItemJnlLine."Entry Type"::"Assembly Consumption":
-                begin
-                    InvtPutAwayLocation := not LocationToCheck."Require Receive" and LocationToCheck."Require Put-away";
-                    OnAfterAssignInvtPutAwayRequired(ItemJnlLine, LocationToCheck, InvtPutAwayLocation);
-                    if InvtPutAwayLocation then
-                        if ItemJnlLine.Quantity < 0 then
-                            exit(true);
-
-                    InvtPickLocation := LocationToCheck."Asm. Consump. Whse. Handling" = Enum::"Asm. Consump. Whse. Handling"::"Inventory Movement";
-                    OnAfterAssignInvtPickRequired(ItemJnlLine, LocationToCheck, InvtPickLocation);
-                    if InvtPickLocation then
-                        if ItemJnlLine.Quantity >= 0 then
-                            exit(true);
-
-                    WarehousePickLocation := LocationToCheck."Asm. Consump. Whse. Handling" = Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
-                    OnAfterAssignWhsePickRequired(ItemJnlLine, LocationToCheck, WarehousePickLocation);
-                    if WarehousePickLocation and (ItemJnlLine."Flushing Method" = ItemJnlLine."Flushing Method"::"Pick + Backward") then
-                        if ItemJnlLine.Quantity >= 0 then
-                            exit(true);
-                end;
-        end;
-
-        exit(false);
     end;
 
     procedure SetCalledFromAdjustment(NewCalledFromAdjustment: Boolean)
@@ -582,8 +368,7 @@ codeunit 21 "Item Jnl.-Check Line"
             end;
             TableID[2] := Database::"Salesperson/Purchaser";
             No[2] := ItemJnlLine."Salespers./Purch. Code";
-            TableID[3] := Database::"Work Center";
-            No[3] := ItemJnlLine."Work Center No.";
+            OnCheckDimensionsOnAfterSetTableValues(ItemJnlLine, TableID, No);
 
             if ItemJnlLine."New Dimension Set ID" <> 0 then begin
                 TableID[4] := Database::Location;
@@ -732,25 +517,57 @@ codeunit 21 "Item Jnl.-Check Line"
         end;
     end;
 
+#if not CLEAN26
+    internal procedure RunOnAfterAssignInvtPickRequired(ItemJournalLine: Record "Item Journal Line"; Location2: Record Location; var InvtPickLocation: Boolean)
+    begin
+        OnAfterAssignInvtPickRequired(ItemJournalLine, Location2, InvtPickLocation);
+    end;
+
+    [Obsolete('Moved to codeunits Asm./Mfg. Item Jnl.-Check-Line', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignInvtPickRequired(ItemJournalLine: Record "Item Journal Line"; Location: Record Location; var InvtPickLocation: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN26
+    internal procedure RunOnAfterAssignWhsePickRequired(ItemJournalLine: Record "Item Journal Line"; Location2: Record Location; var WhsePickLocation: Boolean)
+    begin
+        OnAfterAssignWhsePickRequired(ItemJournalLine, Location2, WhsePickLocation);
+    end;
+
+    [Obsolete('Moved to codeunits Asm./Mfg. Item Jnl.-Check-Line', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignWhsePickRequired(ItemJournalLine: Record "Item Journal Line"; Location: Record Location; var WhsePickLocation: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN26
+    internal procedure RunOnAfterAssignInvtPutAwayRequired(ItemJournalLine: Record "Item Journal Line"; Location2: Record Location; var InvtPutAwayLocation: Boolean)
+    begin
+        OnAfterAssignInvtPutAwayRequired(ItemJournalLine, Location2, InvtPutAwayLocation);
+    end;
+
+    [Obsolete('Moved to codeunits Asm./Mfg. Item Jnl.-Check-Line', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignInvtPutAwayRequired(ItemJournalLine: Record "Item Journal Line"; Location: Record Location; var InvtPutAwayLocation: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN26
+    internal procedure RunOnAfterCheckFindProdOrderLine(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        OnAfterCheckFindProdOrderLine(ItemJournalLine, ProdOrderLine);
+    end;
+
+    [Obsolete('Moved to codeunits Mfg. Item Jnl.-Check-Line', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckFindProdOrderLine(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnAfterCheckFindProdOrderLine(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetItem(Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
@@ -777,20 +594,44 @@ codeunit 21 "Item Jnl.-Check Line"
     begin
     end;
 
+#if not CLEAN26
+    internal procedure RunOnBeforeCheckSubcontracting(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckSubcontracting(ItemJournalLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunits Mfg. Item Jnl.-Check-Line', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSubcontracting(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN26
+    internal procedure RunOnBeforeCheckWarehouse(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckWarehouse(ItemJournalLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunits Mfg. Item Jnl.-Check-Line', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWarehouse(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN26
+    internal procedure RunOnBeforeCheckWarehouseLastOutputOperation(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckWarehouseLastOutputOperation(ItemJournalLine, Result, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunits Mfg. Item Jnl.-Check-Line', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWarehouseLastOutputOperation(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckOutputFields(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
@@ -832,10 +673,18 @@ codeunit 21 "Item Jnl.-Check Line"
     begin
     end;
 
+#if not CLEAN26
+    internal procedure RunOnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; CalledFromAdjustment2: Boolean; var ShouldCheckItemNo: Boolean)
+    begin
+        OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine, ProdOrderLine, CalledFromAdjustment2, ShouldCheckItemNo);
+    end;
+
+    [Obsolete('Moved to codeunits Mfg. Item Jnl.-Check-Line', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; CalledFromAdjustment: Boolean; var ShouldCheckItemNo: Boolean)
+    local procedure OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; CalledFromAdjustment: Boolean; var ShouldCheckItemNo: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnRunCheckOnAfterCalcShouldCheckLocationCode(var ItemJournalLine: Record "Item Journal Line"; var ShouldCheckLocationCode: Boolean)
@@ -864,6 +713,16 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetItem(var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnCheckWarehouse(var ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimensionsOnAfterSetTableValues(ItemJournalLine: Record "Item Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 }

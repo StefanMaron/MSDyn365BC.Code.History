@@ -16,7 +16,6 @@
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPlanning: Codeunit "Library - Planning";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -664,7 +663,7 @@
         AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
         AsmItem.Modify(true);
         CreateItemWithInventory(CompItem, LibraryRandom.RandIntInRange(50, 100), '');
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');

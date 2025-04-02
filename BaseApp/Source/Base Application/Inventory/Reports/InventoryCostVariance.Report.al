@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Reports;
 
 using Microsoft.Inventory.Item;
@@ -86,7 +90,7 @@ report 721 "Inventory - Cost Variance"
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
             {
                 DataItemLink = "Item No." = field("No."), "Variant Code" = field("Variant Filter"), "Location Code" = field("Location Filter"), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter");
-                DataItemTableView = sorting("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date") where("Entry Type" = filter(Purchase | "Positive Adjmt."));
+                DataItemTableView = sorting("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date", "Entry No.") where("Entry Type" = filter(Purchase | "Positive Adjmt."));
                 PrintOnlyIfDetail = true;
                 RequestFilterFields = "Posting Date", "Source Type", "Source No.";
                 dataitem("Value Entry"; "Value Entry")

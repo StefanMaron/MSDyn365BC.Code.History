@@ -128,9 +128,6 @@ codeunit 428 "IC Mapping"
 
     procedure SynchronizeAccounts(DeleteExistingEntries: Boolean; PartnerCode: Code[20])
     var
-#if not CLEAN23
-        ICPartnerAccount: Record "IC G/L Account";
-#endif
         TempICPartnerAccount: Record "IC G/L Account" temporary;
         ICAccounts: Record "IC G/L Account";
         ICPartner: Record "IC Partner";
@@ -145,18 +142,6 @@ codeunit 428 "IC Mapping"
             Error(SyncInboxTypeNotDatabaseErr, PartnerCode, ICPartner."Inbox Type");
 
         IsChangeCompanyAllowed := true;
-#if not CLEAN23
-        OnAllowChangeCompanyForICAccounts(IsChangeCompanyAllowed, ICPartnerAccount);
-        if not IsChangeCompanyAllowed then begin
-            ICPartnerAccount.FindSet();
-            repeat
-                TempICPartnerAccount.TransferFields(ICPartnerAccount, true);
-                TempICPartnerAccount.Insert();
-            until ICPartnerAccount.Next() = 0;
-            TempICPartnerAccount.FindSet();
-        end
-        else
-#endif
         OnAllowChangeCompanyForTempICAccounts(IsChangeCompanyAllowed, TempICPartnerAccount);
         if IsChangeCompanyAllowed then begin
             // Delete existing IC Accounts if the syncronization points to a company with no IC Accounts and remove the G/L account mapping.
@@ -479,10 +464,6 @@ codeunit 428 "IC Mapping"
 
     procedure SynchronizeDimensions(DeleteExistingEntries: Boolean; PartnerCode: Code[20])
     var
-#if not CLEAN23
-        PartnersICDimensions: Record "IC Dimension";
-        PartnersICDimensionValues: Record "IC Dimension Value";
-#endif
         TempPartnersICDimension: Record "IC Dimension" temporary;
         TempPartnersICDimensionValue: Record "IC Dimension Value" temporary;
         ICDimensions: Record "IC Dimension";
@@ -500,28 +481,6 @@ codeunit 428 "IC Mapping"
             Error(SyncInboxTypeNotDatabaseErr, PartnerCode, ICPartner."Inbox Type");
 
         IsChangeCompanyAllowed := true;
-#if not CLEAN23
-        OnAllowChangeCompanyForICDimensions(IsChangeCompanyAllowed, PartnersICDimensions, PartnersICDimensionValues);
-        if not IsChangeCompanyAllowed then begin
-            PartnersICDimensions.FindSet();
-            repeat
-                TempPartnersICDimension.TransferFields(PartnersICDimensions, true);
-                TempPartnersICDimension.Insert();
-
-                PartnersICDimensionValues.SetRange("Dimension Code", PartnersICDimensions.Code);
-                if not PartnersICDimensionValues.IsEmpty() then begin
-                    PartnersICDimensionValues.FindSet();
-                    repeat
-                        TempPartnersICDimensionValue.TransferFields(PartnersICDimensionValues, true);
-                        TempPartnersICDimensionValue.Insert();
-                    until PartnersICDimensionValues.Next() = 0;
-                end;
-            until PartnersICDimensions.Next() = 0;
-            TempPartnersICDimension.FindSet();
-            TempPartnersICDimensionValue.FindSet();
-        end
-        else
-#endif
         OnAllowChangeCompanyForTempICDimensions(IsChangeCompanyAllowed, TempPartnersICDimension, TempPartnersICDimensionValue);
         if IsChangeCompanyAllowed then begin
             // Delete existing IC Dimensions if the syncronization points to a company with no IC Dimensions 
@@ -641,9 +600,6 @@ codeunit 428 "IC Mapping"
 
     internal procedure CopyBankAccountsFromPartner(PartnerCode: Code[20])
     var
-#if not CLEAN23
-        PartnersBankAccounts: Record "Bank Account";
-#endif
         TempPartnersBankAccounts: Record "Bank Account" temporary;
         ICBankAccounts: Record "IC Bank Account";
         ICPartner: Record "IC Partner";
@@ -657,18 +613,6 @@ codeunit 428 "IC Mapping"
             Error(CopyInboxTypeNotDatabaseErr, PartnerCode, ICPartner."Inbox Type");
 
         IsChangeCompanyAllowed := true;
-#if not CLEAN23
-        OnAllowChangeCompanyForBankAccounts(IsChangeCompanyAllowed, PartnersBankAccounts);
-        if not IsChangeCompanyAllowed then begin
-            PartnersBankAccounts.FindSet();
-            repeat
-                TempPartnersBankAccounts.TransferFields(PartnersBankAccounts, true);
-                TempPartnersBankAccounts.Insert();
-            until PartnersBankAccounts.Next() = 0;
-            TempPartnersBankAccounts.FindSet();
-        end
-        else
-#endif
         OnAllowChangeCompanyForTempBankAccounts(IsChangeCompanyAllowed, TempPartnersBankAccounts);
         if IsChangeCompanyAllowed then begin
             // Delete existing IC Bank Accounts if the syncronization points to a company with no IC Bank Accounts.
@@ -703,30 +647,6 @@ codeunit 428 "IC Mapping"
         SyncInboxTypeNotDatabaseErr: Label 'Syncronization is only available for partners using database as their intercompany inbox type. Partner %1 inbox type is %2', Comment = '%1 = Partner code, %2 = Partner inbox type';
         CopyInboxTypeNotDatabaseErr: Label 'Copy is only available for partners using database as their intercompany inbox type. Partner %1 inbox type is %2', Comment = '%1 = Partner code, %2 = Partner inbox type';
         NoBankAccountsWithICEnableMsg: Label 'The bank accounts for IC Partner %1 are not set up for intercompany copying. Enable bank accounts to be copied on IC Partner %1 by visiting the bank account card and selecting Enable for Intercompany transactions.', Comment = '%1 = Partner Code';
-
-#if not CLEAN23
-    [Obsolete('Replaced by OnAllowChangeCompanyForTempICAccounts.', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAllowChangeCompanyForICAccounts(var IsChangeCompanyAllowed: Boolean; var PartnersICAccounts: Record "IC G/L Account")
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by OnAllowChangeCompanyForTempICDimensions.', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAllowChangeCompanyForICDimensions(var IsChangeCompanyAllowed: Boolean; var PartnersICDimensions: Record "IC Dimension"; var PartnersICDimensionValues: Record "IC Dimension Value")
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by OnAllowChangeCompanyForTempBankAccounts.', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAllowChangeCompanyForBankAccounts(var IsChangeCompanyAllowed: Boolean; var PartnersBankAccounts: Record "Bank Account")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAllowChangeCompanyForTempICAccounts(var IsChangeCompanyAllowed: Boolean; var TempPartnersICAccounts: Record "IC G/L Account" temporary)

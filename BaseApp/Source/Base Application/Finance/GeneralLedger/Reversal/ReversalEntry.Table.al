@@ -182,12 +182,10 @@ table 179 "Reversal Entry"
             else
             if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
         }
-        field(27; "FA Posting Category"; Option)
+        field(27; "FA Posting Category"; Enum "FA Ledger Posting Category")
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Posting Category';
-            OptionCaption = ' ,Disposal,Bal. Disposal';
-            OptionMembers = " ",Disposal,"Bal. Disposal";
         }
         field(28; "FA Posting Type"; Enum "Reversal Entry FA Posting Type")
         {

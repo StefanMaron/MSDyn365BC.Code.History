@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Assembly.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Assembly.Posting;
 
 using Microsoft.Assembly.Comment;
 using Microsoft.Assembly.Document;
@@ -22,7 +26,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Sales.Document;
@@ -603,6 +606,7 @@ codeunit 900 "Assembly-Post"
         ItemJnlLine."Posting No. Series" := PostingNoSeries;
         ItemJnlLine.Type := ItemJnlLine.Type::" ";
         ItemJnlLine."Item No." := AssemblyLine."No.";
+        ItemJnlLine."Gen. Bus. Posting Group" := AssemblyLine."Gen. Bus. Posting Group";
         ItemJnlLine."Gen. Prod. Posting Group" := AssemblyLine."Gen. Prod. Posting Group";
         ItemJnlLine."Inventory Posting Group" := AssemblyLine."Inventory Posting Group";
 
@@ -669,6 +673,7 @@ codeunit 900 "Assembly-Post"
         ItemJnlLine."Posting No. Series" := PostingNoSeries;
         ItemJnlLine.Type := ItemJnlLine.Type::" ";
         ItemJnlLine."Item No." := AssemblyHeader."Item No.";
+        ItemJnlLine."Gen. Bus. Posting Group" := AssemblyHeader."Gen. Bus. Posting Group";
         ItemJnlLine."Gen. Prod. Posting Group" := AssemblyHeader."Gen. Prod. Posting Group";
         ItemJnlLine."Inventory Posting Group" := AssemblyHeader."Inventory Posting Group";
 
@@ -949,6 +954,7 @@ codeunit 900 "Assembly-Post"
         ItemJnlLine."Qty. per Unit of Measure" := AssemblyHeader."Qty. per Unit of Measure";
 
         ItemJnlLine.Validate("Location Code", AssemblyLine."Location Code");
+        ItemJnlLine."Gen. Bus. Posting Group" := AssemblyLine."Gen. Bus. Posting Group";
         ItemJnlLine."Gen. Prod. Posting Group" := AssemblyLine."Gen. Prod. Posting Group";
         ItemJnlLine."Inventory Posting Group" := AssemblyLine."Inventory Posting Group";
         ItemJnlLine."Unit Cost" := AssemblyLine."Unit Cost";
@@ -1162,7 +1168,7 @@ codeunit 900 "Assembly-Post"
 
     local procedure SumCapQtyPosted(OrderNo: Code[20]; OrderLineNo: Integer): Decimal
     var
-        CapLedgEntry: Record "Capacity Ledger Entry";
+        CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
     begin
         CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.");
         CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Assembly);
@@ -1484,14 +1490,14 @@ codeunit 900 "Assembly-Post"
 
     local procedure DeleteWhseRequest(AssemblyHeader: Record "Assembly Header")
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
-        WhseRqst.SetRange("Source Subtype", AssemblyHeader."Document Type");
-        WhseRqst.SetRange("Source No.", AssemblyHeader."No.");
-        if not WhseRqst.IsEmpty() then
-            WhseRqst.DeleteAll(true);
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetRange("Source Type", DATABASE::"Assembly Line");
+        WarehouseRequest.SetRange("Source Subtype", AssemblyHeader."Document Type");
+        WarehouseRequest.SetRange("Source No.", AssemblyHeader."No.");
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.DeleteAll(true);
     end;
 
     procedure UpdateBlanketATO(xBlanketOrderSalesLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line")

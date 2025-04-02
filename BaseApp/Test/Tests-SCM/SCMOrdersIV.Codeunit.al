@@ -65,9 +65,9 @@
         ShipmemtDateErr: Label 'Shipment Date error should not appear.';
         ApplFromItemEntryBlankErr: Label 'Appl.-from Item Entry must have a value in Sales Line';
         ApplToItemEntryBlankErr: Label 'Appl.-to Item Entry must have a value in Purchase Line';
-        PurchInvLineCountErr: label 'Expected %1 purchase invoice lines but found %2';
-        PurchInvLineQuantityErr: label 'Expected quantity of 1 on purchase invoice line but found %1';
-        PurchInvLineVendorNoErr: label 'Expected "Buy-from Vendor No." to be %1 on purchase invoice line but found %2';
+        DocumentCountErr: label 'Expected %1 purchase invoice lines but found %2.', Comment = '%1 = Expected Count, %2 = Actual Count';
+        DocumentLineQuantityErr: label 'Expected quantity of 1 on line line but found %1.', Comment = '%1 = Actual Quantity';
+        DocumentLineSourceNoErr: label 'Expected source on document line is %1 but found %2.', Comment = '%1 = Expected Source No., %2 = Actual Source No.';
 
 #if not CLEAN25
     [Test]
@@ -87,61 +87,6 @@
 
         // Verify: Verify Sales Prices Type filter on Lines.
         SalesPrices."Sales Type".AssertEquals(SalesTypeFilter);
-    end;
-
-    [Test]
-    [HandlerFunctions('CheckPurchInvLinesModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure GetInvoiceLinesPartialPurchOrder()
-    var
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-        Vendor: Record Vendor;
-        PurchRcptPage: TestPage "Posted Purchase Receipt";
-        Quantity: Decimal;
-        I: Integer;
-    begin
-        // [SLICE] [408480 Tune Base App: Fix top X repeat patterns with Query Objects]
-        // [FEATURE] [Purchase Receipt] [Get Invoice Lines]
-        // [SCENARIO] Check that the correct Purchase Invoice Lines are found by Purchase Receipt Line
-
-        // [GIVEN] Purchase Order with one line of given Quantity
-        Quantity := LibraryRandom.RandInt(10) + 5;
-        LibraryInventory.CreateItem(Item);
-        LibraryPurchase.CreateVendor(Vendor);
-        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, Vendor."No.", Item."No.", Quantity);
-
-        // [GIVEN] Order is recieved once, creating one Receipt with one line
-        PurchaseLine.Validate("Qty. to Receive", Quantity);
-        PurchaseLine.Modify();
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-
-        // [GIVEN] Order is invoiced partially in 'Quantity' iterations, creating 'Quantity' Purch. Invoice Lines
-        for I := 1 to Quantity do begin
-            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-            PurchaseHeader.Modify();
-            PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
-            PurchaseLine.Validate("Qty. to Invoice", 1);
-            PurchaseLine.Modify();
-            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
-        end;
-
-        // [GIVEN] The Purchase Receipt
-        PurchRcptHeader.SetFilter("Order No.", PurchaseHeader."No.");
-        PurchRcptHeader.FindFirst();
-
-        // [GIVEN] ItemInvoiceLines action is invoked on the created PurchReceiptLine
-        PurchRcptPage.OpenView();
-        PurchRcptPage.GoToRecord(PurchRcptHeader);
-        PurchRcptPage.PurchReceiptLines.First();
-        LibraryVariableStorage.Enqueue(Quantity);
-        LibraryVariableStorage.Enqueue(Vendor."No.");
-
-        // [THEN] Purchase Invoice Lines Page is opened modally and the lines are checked
-        PurchRcptPage.PurchReceiptLines.ItemInvoiceLines.Invoke();
     end;
 
     [Test]
@@ -213,6 +158,608 @@
         SalesLineDiscounts.SalesTypeFilter.AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
     end;
 #endif
+
+    [Test]
+    [HandlerFunctions('CheckPurchaseInvoiceLinesModalPageHandler')]
+    procedure PurchaseReceiptForMultipleInvoices_GetInvoiceLines()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [408480 Tune Base App: Fix top X repeat patterns with Query Objects]
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Purchase Receipt] [Item Invoice Lines]
+        // [SCENARIO] Check that correct Purchase Invoice Lines are found from Purchase Receipt Line
+        Initialize();
+
+        // [GIVEN] Purchase Order with one line of given Quantity
+        QuantityToProcess := LibraryRandom.RandIntInRange(2, 4);
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, Vendor."No.", Item."No.", QuantityToProcess);
+
+        // [GIVEN] Order is received once, creating one Receipt with one line
+        PurchaseLine.Validate("Qty. to Receive", QuantityToProcess);
+        PurchaseLine.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Order is invoiced partially in 'Quantity' iterations, creating 'Quantity' Purchase Invoice Lines
+        for Counter := 1 to QuantityToProcess do begin
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+            PurchaseHeader.Modify();
+            PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+            PurchaseLine.Validate("Qty. to Invoice", 1);
+            PurchaseLine.Modify();
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        end;
+
+        // [GIVEN] Find Posted Purchase Receipt
+        PurchRcptHeader.SetFilter("Order No.", PurchaseHeader."No.");
+        PurchRcptHeader.FindFirst();
+        PostedPurchaseReceipt.OpenView();
+        PostedPurchaseReceipt.GoToRecord(PurchRcptHeader);
+
+        // [WHEN] Run "Item Invoice Lines" action
+        PostedPurchaseReceipt.PurchReceiptLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        PostedPurchaseReceipt.PurchReceiptLines.ItemInvoiceLines.Invoke();
+
+        // [THEN] Verify Purchase Invoice Lines
+        // Handled by CheckPurchaseInvoiceLinesModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckPurchaseReceiptLinesModalPageHandler')]
+    procedure PurchaseInvoiceForMultipleReceipts_GetReceiptLines()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Purchase Invoice] [Item Receipt Lines]
+        // [SCENARIO] Check that correct Purchase Receipt Lines are found from Purchase Invoice Line
+        Initialize();
+
+        // [GIVEN] Purchase Order with one line of given Quantity
+        QuantityToProcess := LibraryRandom.RandIntInRange(2, 4);
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, Vendor."No.", Item."No.", QuantityToProcess);
+
+        // [GIVEN] Order is received partially in 'Quantity' iterations, creating 'Quantity' Purchase Receipt Lines
+        for Counter := 1 to QuantityToProcess do begin
+            PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+            PurchaseLine.Validate("Qty. to Receive", 1);
+            PurchaseLine.Modify();
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        end;
+
+        // [GIVEN] Order is invoiced once, creating one Invoice with one line
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify();
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+        PurchaseLine.Validate("Qty. to Invoice", QuantityToProcess);
+        PurchaseLine.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Find Posted Purchase Invoice
+        PurchInvHeader.SetFilter("Order No.", PurchaseHeader."No.");
+        PurchInvHeader.FindFirst();
+        PostedPurchaseInvoice.OpenView();
+        PostedPurchaseInvoice.GoToRecord(PurchInvHeader);
+
+        // [WHEN] Run "Item Receipt Lines" action
+        PostedPurchaseInvoice.PurchInvLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        PostedPurchaseInvoice.PurchInvLines.ItemReceiptLines.Invoke();
+
+        // [THEN] Verify Purchase Receipt Lines
+        // Handled by CheckPurchaseReceiptLinesModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckPurchaseCreditMemoLinesModalPageHandler')]
+    procedure PurchaseReturnShipmentForMultipleCreditMemos_GetCreditMemoLines()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReturnShipmentHeader: Record "Return Shipment Header";
+        PostedReturnShipment: TestPage "Posted Return Shipment";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Purchase Return Shipment] [Item Credit Memo Lines]
+        // [SCENARIO] Check that correct Purchase Credit Memo Lines are found from Purchase Return Shipment Line
+        Initialize();
+
+        // [GIVEN] Purchase Order with one line of given Quantity
+        QuantityToProcess := LibraryRandom.RandIntInRange(2, 4);
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, Vendor."No.", Item."No.", QuantityToProcess);
+
+        // [GIVEN] Post Purchase Order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Purchase Return Order with one line of given Quantity
+        Clear(PurchaseHeader);
+        Clear(PurchaseLine);
+        CreatePurchaseReturnOrder(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, Vendor."No.", Item."No.", QuantityToProcess);
+
+        // [GIVEN] Return Order is shipped once, creating one Return Shipment with one line
+        PurchaseLine.Validate("Return Qty. to Ship", QuantityToProcess);
+        PurchaseLine.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Return Order is invoiced partially in 'Quantity' iterations, creating 'Quantity' Purchase Credit Memo Lines
+        for Counter := 1 to QuantityToProcess do begin
+            PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+            PurchaseHeader.Modify();
+            PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+            PurchaseLine.Validate("Qty. to Invoice", 1);
+            PurchaseLine.Modify();
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        end;
+
+        // [GIVEN] Find Posted Purchase Return Shipment
+        ReturnShipmentHeader.SetFilter("Return Order No.", PurchaseHeader."No.");
+        ReturnShipmentHeader.FindFirst();
+        PostedReturnShipment.OpenView();
+        PostedReturnShipment.GoToRecord(ReturnShipmentHeader);
+
+        // [WHEN] Run "Item Credit Memo Lines" action
+        PostedReturnShipment.ReturnShptLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        PostedReturnShipment.ReturnShptLines.ItemCreditMemoLines.Invoke();
+
+        // [THEN] Verify Purchase Credit Memo Lines
+        // Handled by CheckPurchaseCreditMemoLinesModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckPurchaseReturnShipmentLinesModalPageHandler')]
+    procedure PurchaseCreditMemoForMultipleReturnShipments_GetReturnShipmentLines()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Purchase Credit Memo] [Item Return Shipment Lines]
+        // [SCENARIO] Check that correct Purchase Return Shipment Lines are found from Purchase Credit Memo Line
+        Initialize();
+
+        // [GIVEN] Purchase Order with one line of given Quantity
+        QuantityToProcess := LibraryRandom.RandIntInRange(2, 4);
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, Vendor."No.", Item."No.", QuantityToProcess);
+
+        // [GIVEN] Post Purchase Order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Purchase Return Order with one line of given Quantity
+        Clear(PurchaseHeader);
+        Clear(PurchaseLine);
+        CreatePurchaseReturnOrder(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, Vendor."No.", Item."No.", QuantityToProcess);
+
+        // [GIVEN] Return Order is shipped partially in 'Quantity' iterations, creating 'Quantity' Purchase Return Shipment Lines
+        for Counter := 1 to QuantityToProcess do begin
+            PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+            PurchaseLine.Validate("Return Qty. to Ship", 1);
+            PurchaseLine.Modify();
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        end;
+
+        // [GIVEN] Return Order is invoiced once, creating one Credit Memo with one line
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify();
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+        PurchaseLine.Validate("Qty. to Invoice", QuantityToProcess);
+        PurchaseLine.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Find Posted Purchase Credit Memo
+        PurchCrMemoHdr.SetFilter("Return Order No.", PurchaseHeader."No.");
+        PurchCrMemoHdr.FindFirst();
+        PostedPurchaseCreditMemo.OpenView();
+        PostedPurchaseCreditMemo.GoToRecord(PurchCrMemoHdr);
+
+        // [WHEN] Run "Item Return Shipment Lines" action
+        PostedPurchaseCreditMemo.PurchCrMemoLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        PostedPurchaseCreditMemo.PurchCrMemoLines.ItemReturnShipmentLines.Invoke();
+
+        // [THEN] Verify Purchase Return Shipment Lines
+        // Handled by CheckPurchaseReturnShipmentLinesModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckSalesInvoiceLinesModalPageHandler')]
+    procedure SalesShipmentForMultipleInvoices_GetInvoiceLines()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Sales Shipment] [Item Invoice Lines]
+        // [SCENARIO] Check that correct Sales Invoice Lines are found from Sales Shipment Line
+        Initialize();
+
+        // [GIVEN] Item with given Inventory
+        QuantityToProcess := LibraryRandom.RandIntInRange(2, 4);
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(Item."No.", QuantityToProcess, '', 0);
+
+        // [GIVEN] Sales Order with one line of given Quantity
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesOrder(SalesHeader, SalesLine, "Sales Line Type"::Item, Customer."No.", Item."No.", QuantityToProcess, '');
+
+        // [GIVEN] Order is received once, creating one Shipment with one line
+        SalesLine.Validate("Qty. to Ship", QuantityToProcess);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Order is invoiced partially in 'Quantity' iterations, creating 'Quantity' Sales Invoice Lines
+        for Counter := 1 to QuantityToProcess do begin
+            SalesLine.GetBySystemId(SalesLine.SystemId);
+            SalesLine.Validate("Qty. to Invoice", 1);
+            SalesLine.Modify();
+            SalesHeader.GetBySystemId(SalesHeader.SystemId);
+            LibrarySales.PostSalesDocument(SalesHeader, false, true);
+        end;
+
+        // [GIVEN] Find Posted Sales Shipment
+        SalesShipmentHeader.SetFilter("Order No.", SalesHeader."No.");
+        SalesShipmentHeader.FindFirst();
+        PostedSalesShipment.OpenView();
+        PostedSalesShipment.GoToRecord(SalesShipmentHeader);
+
+        // [WHEN] Run "Item Invoice Lines" action
+        PostedSalesShipment.SalesShipmLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        PostedSalesShipment.SalesShipmLines.ItemInvoiceLines.Invoke();
+
+        // [THEN] Verify Sales Invoice Lines
+        // Handled by CheckSalesInvoiceLinesModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckSalesShipmentLinesModalPageHandler')]
+    procedure SalesInvoiceForMultipleShipments_GetShipmentLines()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Sales Invoice] [Item Shipment Lines]
+        // [SCENARIO] Check that correct Sales Shipment Lines are found from Sales Invoice Line
+        Initialize();
+
+        // [GIVEN] Item with given Inventory
+        QuantityToProcess := LibraryRandom.RandIntInRange(2, 4);
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(Item."No.", QuantityToProcess, '', 0);
+
+        // [GIVEN] Sales Order with one line of given Quantity
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesOrder(SalesHeader, SalesLine, "Sales Line Type"::Item, Customer."No.", Item."No.", QuantityToProcess, '');
+
+        // [GIVEN] Order is received partially in 'Quantity' iterations, creating 'Quantity' Sales Shipment Lines
+        for Counter := 1 to QuantityToProcess do begin
+            SalesLine.GetBySystemId(SalesLine.SystemId);
+            SalesLine.Validate("Qty. to Ship", 1);
+            SalesLine.Modify();
+            LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        end;
+
+        // [GIVEN] Order is invoiced once, creating one Invoice with one line
+        SalesLine.GetBySystemId(SalesLine.SystemId);
+        SalesLine.Validate("Qty. to Invoice", QuantityToProcess);
+        SalesLine.Modify();
+        SalesHeader.GetBySystemId(SalesHeader.SystemId);
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Find Posted Sales Invoice
+        SalesInvoiceHeader.SetFilter("Order No.", SalesHeader."No.");
+        SalesInvoiceHeader.FindFirst();
+        PostedSalesInvoice.OpenView();
+        PostedSalesInvoice.GoToRecord(SalesInvoiceHeader);
+
+        // [WHEN] Run "Item Shipment Lines" action
+        PostedSalesInvoice.SalesInvLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        PostedSalesInvoice.SalesInvLines.ItemShipmentLines.Invoke();
+
+        // [THEN] Verify Sales Shipment Lines
+        // Handled by CheckSalesShipmentLinesModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckSalesCreditMemoLinesModalPageHandler')]
+    procedure SalesReturnReceiptForMultipleCreditMemos_GetCreditMemoLines()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Sales Return Receipt] [Item Credit Memo Lines]
+        // [SCENARIO] Check that correct Sales Credit Memo Lines are found from Sales Return Receipt Line
+        Initialize();
+
+        // [GIVEN] Item with given Inventory
+        QuantityToProcess := LibraryRandom.RandIntInRange(2, 4);
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(Item."No.", QuantityToProcess, '', 0);
+
+        // [GIVEN] Sales Order with one line of given Quantity
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesOrder(SalesHeader, SalesLine, "Sales Line Type"::Item, Customer."No.", Item."No.", QuantityToProcess, '');
+
+        // [GIVEN] Post Sales Order
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Sales Return Order with one line of given Quantity
+        Clear(SalesHeader);
+        Clear(SalesLine);
+        CreateSalesReturnOrder(SalesHeader, SalesLine, "Sales Line Type"::Item, Customer."No.", Item."No.", QuantityToProcess, '');
+
+        // [GIVEN] Return Order is shipped once, creating one Return Receipt with one line
+        SalesLine.Validate("Return Qty. to Receive", QuantityToProcess);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Return Order is invoiced partially in 'Quantity' iterations, creating 'Quantity' Sales Credit Memo Lines
+        for Counter := 1 to QuantityToProcess do begin
+            SalesLine.GetBySystemId(SalesLine.SystemId);
+            SalesLine.Validate("Qty. to Invoice", 1);
+            SalesLine.Modify();
+            SalesHeader.GetBySystemId(SalesHeader.SystemId);
+            LibrarySales.PostSalesDocument(SalesHeader, false, true);
+        end;
+
+        // [GIVEN] Find Posted Sales Return Receipt
+        ReturnReceiptHeader.SetFilter("Return Order No.", SalesHeader."No.");
+        ReturnReceiptHeader.FindFirst();
+        PostedReturnReceipt.OpenView();
+        PostedReturnReceipt.GoToRecord(ReturnReceiptHeader);
+
+        // [WHEN] Run "Item Credit Memo Lines" action
+        PostedReturnReceipt.ReturnRcptLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        PostedReturnReceipt.ReturnRcptLines.ItemCreditMemoLines.Invoke();
+
+        // [THEN] Verify Sales Credit Memo Lines
+        // Handled by CheckSalesCreditMemoLinesModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckSalesReturnReceiptLinesModalPageHandler')]
+    procedure SalesCreditMemoForMultipleReturnReceipts_GetReturnReceiptLines()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Sales Credit Memo] [Item Return Receipt Lines]
+        // [SCENARIO] Check that correct Sales Return Receipt Lines are found from Sales Credit Memo Line
+        Initialize();
+
+        // [GIVEN] Item with given Inventory
+        QuantityToProcess := LibraryRandom.RandIntInRange(2, 4);
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(Item."No.", QuantityToProcess, '', 0);
+
+        // [GIVEN] Sales Order with one line of given Quantity
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesOrder(SalesHeader, SalesLine, "Sales Line Type"::Item, Customer."No.", Item."No.", QuantityToProcess, '');
+
+        // [GIVEN] Post Sales Order
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Sales Return Order with one line of given Quantity
+        Clear(SalesHeader);
+        Clear(SalesLine);
+        CreateSalesReturnOrder(SalesHeader, SalesLine, "Sales Line Type"::Item, Customer."No.", Item."No.", QuantityToProcess, '');
+
+        // [GIVEN] Return Order is shipped partially in 'Quantity' iterations, creating 'Quantity' Sales Return Receipt Lines
+        for Counter := 1 to QuantityToProcess do begin
+            SalesLine.GetBySystemId(SalesLine.SystemId);
+            SalesLine.Validate("Return Qty. to Receive", 1);
+            SalesLine.Modify();
+            LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        end;
+
+        // [GIVEN] Return Order is invoiced once, creating one Credit Memo with one line
+        SalesLine.GetBySystemId(SalesLine.SystemId);
+        SalesLine.Validate("Qty. to Invoice", QuantityToProcess);
+        SalesLine.Modify();
+        SalesHeader.GetBySystemId(SalesHeader.SystemId);
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Find Posted Sales Credit Memo
+        SalesCrMemoHeader.SetFilter("Return Order No.", SalesHeader."No.");
+        SalesCrMemoHeader.FindFirst();
+        PostedSalesCreditMemo.OpenView();
+        PostedSalesCreditMemo.GoToRecord(SalesCrMemoHeader);
+
+        // [WHEN] Run "Item Return Receipt Lines" action
+        PostedSalesCreditMemo.SalesCrMemoLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        PostedSalesCreditMemo.SalesCrMemoLines.ItemReturnReceiptLines.Invoke();
+
+        // [THEN] Verify Sales Return Receipt Lines
+        // Handled by CheckSalesReturnReceiptLinesModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceShipmentLinesModalPageHandler_RunItemInvoiceLines,CheckServiceInvoiceLinesModalPageHandler')]
+    procedure ServiceShipmentForMultipleInvoices_GetInvoiceLines()
+    var
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        PostedServiceShipment: TestPage "Posted Service Shipment";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Service Shipment] [Item Invoice Lines]
+        // [SCENARIO] Check that correct Service Invoice Lines are found from Service Shipment Line
+        Initialize();
+
+        // [GIVEN] Service Order with one line of given Quantity
+        CreateRealeasedServiceOrder(ServiceHeader, '');
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindFirst();
+
+        // [GIVEN] Item with given Inventory
+        QuantityToProcess := ServiceLine.Quantity;
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(Item."No.", QuantityToProcess, '', 0);
+
+        // [GIVEN] Order is received once, creating one Shipment with one line
+        ServiceLine.Validate("Qty. to Ship", QuantityToProcess);
+        ServiceLine.Modify();
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [GIVEN] Order is invoiced partially in 'Quantity' iterations, creating 'Quantity' Service Invoice Lines
+        for Counter := 1 to QuantityToProcess do begin
+            ServiceLine.GetBySystemId(ServiceLine.SystemId);
+            ServiceLine.Validate("Qty. to Invoice", 1);
+            ServiceLine.Modify();
+            ServiceHeader.GetBySystemId(ServiceHeader.SystemId);
+            LibraryService.PostServiceOrder(ServiceHeader, false, false, true);
+        end;
+
+        // [GIVEN] Find Posted Service Shipment
+        ServiceShipmentHeader.SetFilter("Order No.", ServiceHeader."No.");
+        ServiceShipmentHeader.FindFirst();
+        PostedServiceShipment.OpenView();
+        PostedServiceShipment.GoToRecord(ServiceShipmentHeader);
+
+        // [WHEN] Run "Item Invoice Lines" action
+        PostedServiceShipment.ServShipmentItemLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(ServiceHeader."Customer No.");
+        PostedServiceShipment.ServShipmentItemLines.ServiceShipmentLines.Invoke();
+
+        // [THEN] Verify Service Invoice Lines
+        // Handled by ServiceShipmentLinesModalPageHandler_RunItemInvoiceLines, CheckServiceInvoiceLinesModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckServiceShipmentLinesModalPageHandler')]
+    procedure ServiceInvoiceForMultipleShipments_GetShipmentLines()
+    var
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        PostedServiceInvoice: TestPage "Posted Service Invoice";
+        QuantityToProcess: Decimal;
+        Counter: Integer;
+    begin
+        // [SLICE] [555144 Refactor GetPostedDocumentLines methods to use query object]
+        // [FEATURE] [Service Invoice] [Item Shipment Lines]
+        // [SCENARIO] Check that correct Service Shipment Lines are found from Service Invoice Line
+        Initialize();
+
+        // [GIVEN] Service Order with one line of given Quantity
+        CreateRealeasedServiceOrder(ServiceHeader, '');
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindFirst();
+
+        // [GIVEN] Item with given Inventory
+        QuantityToProcess := ServiceLine.Quantity;
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(Item."No.", QuantityToProcess, '', 0);
+
+        // [GIVEN] Order is received partially in 'Quantity' iterations, creating 'Quantity' Service Shipment Lines
+        for Counter := 1 to QuantityToProcess do begin
+            ServiceLine.GetBySystemId(ServiceLine.SystemId);
+            ServiceLine.Validate("Qty. to Ship", 1);
+            ServiceLine.Modify();
+            LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+        end;
+
+        // [GIVEN] Order is invoiced once, creating one Invoice with one line
+        ServiceLine.GetBySystemId(ServiceLine.SystemId);
+        ServiceLine.Validate("Qty. to Invoice", QuantityToProcess);
+        ServiceLine.Modify();
+        ServiceHeader.GetBySystemId(ServiceHeader.SystemId);
+        LibraryService.PostServiceOrder(ServiceHeader, false, false, true);
+
+        // [GIVEN] Find Posted Service Invoice
+        ServiceInvoiceHeader.SetFilter("Order No.", ServiceHeader."No.");
+        ServiceInvoiceHeader.FindFirst();
+        PostedServiceInvoice.OpenView();
+        PostedServiceInvoice.GoToRecord(ServiceInvoiceHeader);
+
+        // [WHEN] Run "Item Shipment Lines" action
+        PostedServiceInvoice.ServInvLines.First();
+        LibraryVariableStorage.Enqueue(QuantityToProcess);
+        LibraryVariableStorage.Enqueue(ServiceHeader."Customer No.");
+        PostedServiceInvoice.ServInvLines.ItemShipmentLines.Invoke();
+
+        // [THEN] Verify Service Shipment Lines
+        // Handled by CheckServiceShipmentLinesModalPageHandler
+    end;
 
     [Test]
     [HandlerFunctions('ConfirmHandler,SendNotificationHandler,RecallNotificationHandler')]
@@ -2946,8 +3493,10 @@
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase, ItemNo, Quantity);
-        ItemJournalLine.Validate("Location Code", LocationCode);
-        ItemJournalLine.Validate("Unit Amount", UnitAmount);
+        if LocationCode <> '' then
+            ItemJournalLine.Validate("Location Code", LocationCode);
+        if UnitAmount <> 0 then
+            ItemJournalLine.Validate("Unit Amount", UnitAmount);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
@@ -3294,8 +3843,8 @@
         ExtendedTextLine: Record "Extended Text Line";
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, Item."No.");
         ExtendedTextLine.Modify(true);
         exit(Item."No.");
@@ -3365,6 +3914,11 @@
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Type, VendorNo, ItemNo, Quantity);
+    end;
+
+    local procedure CreatePurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", Type, VendorNo, ItemNo, Quantity);
     end;
 
 #if not CLEAN25
@@ -3443,6 +3997,11 @@
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Type, CustomerNo, ItemNo, Quantity, LocationCode);
+    end;
+
+    local procedure CreateSalesReturnOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Type, CustomerNo, ItemNo, Quantity, LocationCode);
     end;
 
     local procedure CreateSalesOrderByPage(var SalesOrder: TestPage "Sales Order")
@@ -3599,7 +4158,8 @@
     local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
-        SalesLine.Validate("Location Code", LocationCode);
+        if LocationCode <> '' then
+            SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Modify(true);
     end;
 
@@ -3613,7 +4173,6 @@
     local procedure CreateSalesQuoteWithResponsibilityCenter(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20])
     var
         ResponsibilityCenter: Record "Responsibility Center";
-        LibraryService: Codeunit "Library - Service";
     begin
         LibraryService.CreateResponsibilityCenter(ResponsibilityCenter);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, '');
@@ -3702,7 +4261,8 @@
     begin
         Clear(ServiceHeader);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
-        ServiceHeader.Validate("Location Code", LocationCode);
+        if LocationCode <> '' then
+            ServiceHeader.Validate("Location Code", LocationCode);
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -5037,8 +5597,7 @@
     end;
 
     [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure CheckPurchInvLinesModalPageHandler(var InvLines: TestPage "Posted Purchase Invoice Lines")
+    procedure CheckPurchaseInvoiceLinesModalPageHandler(var PostedPurchaseInvoiceLines: TestPage "Posted Purchase Invoice Lines")
     var
         VendorNo: Code[20];
         LineCount: Integer;
@@ -5046,15 +5605,212 @@
     begin
         // [THEN] The 'Quantity' invoice lines are found each with the expected "Vendor No." and quantity
         Quantity := LibraryVariableStorage.DequeueInteger();
-        VendorNo := LibraryVariableStorage.DequeueText();
-        LineCount := 0;
-        InvLines.First();
+        VendorNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedPurchaseInvoiceLines.First();
         repeat
-            LineCount := LineCount + 1;
-            Assert.AreEqual(InvLines.Quantity.Value, '1', StrSubstNo(PurchInvLineQuantityErr, InvLines.Quantity.Value));
-            Assert.AreEqual(InvLines."Buy-from Vendor No.".Value, VendorNo, StrSubstNo(PurchInvLineVendorNoErr, InvLines."Buy-from Vendor No.".Value));
-        until not InvLines.Next();
-        Assert.AreEqual(LineCount, Quantity, StrSubstNo(PurchInvLineCountErr, Quantity, LineCount));
+            if PostedPurchaseInvoiceLines.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedPurchaseInvoiceLines.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedPurchaseInvoiceLines.Quantity.Value()));
+                Assert.AreEqual(VendorNo, PostedPurchaseInvoiceLines."Buy-from Vendor No.".Value(), StrSubstNo(DocumentLineSourceNoErr, VendorNo, PostedPurchaseInvoiceLines."Buy-from Vendor No.".Value()));
+            end;
+        until not PostedPurchaseInvoiceLines.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
+    end;
+
+    [ModalPageHandler]
+    procedure CheckPurchaseReceiptLinesModalPageHandler(var PostedPurchaseReceiptLines: TestPage "Posted Purchase Receipt Lines")
+    var
+        VendorNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Vendor No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        VendorNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedPurchaseReceiptLines.First();
+        repeat
+            if PostedPurchaseReceiptLines.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedPurchaseReceiptLines.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedPurchaseReceiptLines.Quantity.Value()));
+                Assert.AreEqual(VendorNo, PostedPurchaseReceiptLines."Buy-from Vendor No.".Value(), StrSubstNo(DocumentLineSourceNoErr, VendorNo, PostedPurchaseReceiptLines."Buy-from Vendor No.".Value()));
+            end;
+        until not PostedPurchaseReceiptLines.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
+    end;
+
+    [ModalPageHandler]
+    procedure CheckPurchaseCreditMemoLinesModalPageHandler(var PostedPurchaseCrMemoLines: TestPage "Posted Purchase Cr. Memo Lines")
+    var
+        VendorNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Vendor No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        VendorNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedPurchaseCrMemoLines.First();
+        repeat
+            if PostedPurchaseCrMemoLines.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedPurchaseCrMemoLines.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedPurchaseCrMemoLines.Quantity.Value()));
+                Assert.AreEqual(VendorNo, PostedPurchaseCrMemoLines."Buy-from Vendor No.".Value(), StrSubstNo(DocumentLineSourceNoErr, VendorNo, PostedPurchaseCrMemoLines."Buy-from Vendor No.".Value()));
+            end;
+        until not PostedPurchaseCrMemoLines.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
+    end;
+
+    [ModalPageHandler]
+    procedure CheckPurchaseReturnShipmentLinesModalPageHandler(var PostedReturnShipmentLines: TestPage "Posted Return Shipment Lines")
+    var
+        VendorNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Vendor No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        VendorNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedReturnShipmentLines.First();
+        repeat
+            if PostedReturnShipmentLines.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedReturnShipmentLines.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedReturnShipmentLines.Quantity.Value()));
+                Assert.AreEqual(VendorNo, PostedReturnShipmentLines."Buy-from Vendor No.".Value(), StrSubstNo(DocumentLineSourceNoErr, VendorNo, PostedReturnShipmentLines."Buy-from Vendor No.".Value()));
+            end;
+        until not PostedReturnShipmentLines.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
+    end;
+
+    [ModalPageHandler]
+    procedure CheckSalesInvoiceLinesModalPageHandler(var PostedSalesInvoiceLines: TestPage "Posted Sales Invoice Lines")
+    var
+        CustomerNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Customer No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        CustomerNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedSalesInvoiceLines.First();
+        repeat
+            if PostedSalesInvoiceLines.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedSalesInvoiceLines.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedSalesInvoiceLines.Quantity.Value()));
+                Assert.AreEqual(CustomerNo, PostedSalesInvoiceLines."Sell-to Customer No.".Value(), StrSubstNo(DocumentLineSourceNoErr, CustomerNo, PostedSalesInvoiceLines."Sell-to Customer No.".Value()));
+            end;
+        until not PostedSalesInvoiceLines.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
+    end;
+
+    [ModalPageHandler]
+    procedure CheckSalesShipmentLinesModalPageHandler(var PostedSalesShipmentLines: TestPage "Posted Sales Shipment Lines")
+    var
+        CustomerNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Customer No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        CustomerNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedSalesShipmentLines.First();
+        repeat
+            if PostedSalesShipmentLines.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedSalesShipmentLines.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedSalesShipmentLines.Quantity.Value()));
+                Assert.AreEqual(CustomerNo, PostedSalesShipmentLines."Sell-to Customer No.".Value(), StrSubstNo(DocumentLineSourceNoErr, CustomerNo, PostedSalesShipmentLines."Sell-to Customer No.".Value()));
+            end;
+        until not PostedSalesShipmentLines.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
+    end;
+
+    [ModalPageHandler]
+    procedure CheckSalesCreditMemoLinesModalPageHandler(var PostedSalesCreditMemoLines: TestPage "Posted Sales Credit Memo Lines")
+    var
+        CustomerNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Customer No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        CustomerNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedSalesCreditMemoLines.First();
+        repeat
+            if PostedSalesCreditMemoLines.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedSalesCreditMemoLines.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedSalesCreditMemoLines.Quantity.Value()));
+                Assert.AreEqual(CustomerNo, PostedSalesCreditMemoLines."Sell-to Customer No.".Value(), StrSubstNo(DocumentLineSourceNoErr, CustomerNo, PostedSalesCreditMemoLines."Sell-to Customer No.".Value()));
+            end;
+        until not PostedSalesCreditMemoLines.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
+    end;
+
+    [ModalPageHandler]
+    procedure CheckSalesReturnReceiptLinesModalPageHandler(var PostedReturnReceiptLines: TestPage "Posted Return Receipt Lines")
+    var
+        CustomerNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Customer No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        CustomerNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedReturnReceiptLines.First();
+        repeat
+            if PostedReturnReceiptLines.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedReturnReceiptLines.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedReturnReceiptLines.Quantity.Value()));
+                Assert.AreEqual(CustomerNo, PostedReturnReceiptLines."Sell-to Customer No.".Value(), StrSubstNo(DocumentLineSourceNoErr, CustomerNo, PostedReturnReceiptLines."Sell-to Customer No.".Value()));
+            end;
+        until not PostedReturnReceiptLines.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
+    end;
+
+    [ModalPageHandler]
+    procedure ServiceShipmentLinesModalPageHandler_RunItemInvoiceLines(var PostedServiceShipmentLines: TestPage "Posted Service Shipment Lines")
+    begin
+        PostedServiceShipmentLines.First();
+        PostedServiceShipmentLines.ItemInvoiceLines.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure CheckServiceInvoiceLinesModalPageHandler(var PostedServiceInvoiceLines: TestPage "Posted Service Invoice Lines")
+    var
+        CustomerNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Customer No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        CustomerNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedServiceInvoiceLines.First();
+        repeat
+            if PostedServiceInvoiceLines.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedServiceInvoiceLines.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedServiceInvoiceLines.Quantity.Value()));
+                Assert.AreEqual(CustomerNo, PostedServiceInvoiceLines."Customer No.".Value(), StrSubstNo(DocumentLineSourceNoErr, CustomerNo, PostedServiceInvoiceLines."Customer No.".Value()));
+            end;
+        until not PostedServiceInvoiceLines.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
+    end;
+
+    [ModalPageHandler]
+    procedure CheckServiceShipmentLinesModalPageHandler(var PostedServShptLineList: TestPage "Posted Serv. Shpt. Line List")
+    var
+        CustomerNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Customer No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        CustomerNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+        PostedServShptLineList.First();
+        repeat
+            if PostedServShptLineList.Quantity.Value() <> '' then begin
+                LineCount += 1;
+                Assert.AreEqual('1', PostedServShptLineList.Quantity.Value(), StrSubstNo(DocumentLineQuantityErr, PostedServShptLineList.Quantity.Value()));
+                Assert.AreEqual(CustomerNo, PostedServShptLineList."Customer No.".Value(), StrSubstNo(DocumentLineSourceNoErr, CustomerNo, PostedServShptLineList."Customer No.".Value()));
+            end;
+        until not PostedServShptLineList.Next();
+        Assert.AreEqual(Quantity, LineCount, StrSubstNo(DocumentCountErr, Quantity, LineCount));
     end;
 
     [ModalPageHandler]

@@ -182,6 +182,9 @@ codeunit 1006 "Copy Job"
                     TargetJobPlanningLine."Posted Line Amount (LCY)" := 0;
                     TargetJobPlanningLine."Qty. to Transfer to Invoice" := 0;
                     TargetJobPlanningLine."Qty. to Invoice" := 0;
+                    TargetJobPlanningLine."Qty. Picked" := 0;
+                    TargetJobPlanningLine."Qty. Picked (Base)" := 0;
+                    TargetJobPlanningLine."Completely Picked" := false;
                     TargetJobPlanningLine."Ledger Entry No." := 0;
                     TargetJobPlanningLine."Ledger Entry Type" := TargetJobPlanningLine."Ledger Entry Type"::" ";
                     OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);

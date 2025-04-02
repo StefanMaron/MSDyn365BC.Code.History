@@ -441,7 +441,7 @@ codeunit 139031 "Change Log"
         // Setup
         Initialize();
         SetTableForChangeLog(DATABASE::Contact, LogOption::" ", LogOption::" ", LogOption::"Some Fields");
-        ObsoleteFieldID := 89; // Picture
+        ObsoleteFieldID := 720; // "Coupled to CRM"
         SetFieldsForChangeLog(DATABASE::Contact, ObsoleteFieldID, false, false, true);
         LibraryMarketing.CreateCompanyContact(Contact);
         RecRef.GetTable(Contact);

@@ -207,11 +207,9 @@ table 220 "Business Unit"
             OptionCaption = 'Local Curr. (LCY),Add. Rep. Curr. (ACY)';
             OptionMembers = "Local Curr. (LCY)","Add. Rep. Curr. (ACY)";
         }
-        field(23; "File Format"; Option)
+        field(23; "File Format"; Enum "Business Unit File Format")
         {
             Caption = 'File Format';
-            OptionCaption = 'Version 4.00 or Later (.xml),Version 3.70 or Earlier (.txt)';
-            OptionMembers = "Version 4.00 or Later (.xml)","Version 3.70 or Earlier (.txt)";
         }
         field(24; "Last Run"; Date)
         {

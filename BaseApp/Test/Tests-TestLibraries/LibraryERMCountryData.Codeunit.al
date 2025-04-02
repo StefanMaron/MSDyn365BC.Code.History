@@ -121,12 +121,32 @@ codeunit 131305 "Library - ERM Country Data"
         PurchasesPayablesSetup.Modify();
     end;
 
+    procedure SetDiscountPostingInPurchasePayablesSetup()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Post Line Discount" := true;
+        PurchasesPayablesSetup."Post Invoice Discount" := true;
+        PurchasesPayablesSetup.Modify();
+    end;
+
     procedure UpdateSalesReceivablesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Correct. Doc. No. Mandatory" := false;
+        SalesReceivablesSetup.Modify();
+    end;
+
+    procedure SetDiscountPostingInSalesReceivablesSetup()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Post Line Discount" := true;
+        SalesReceivablesSetup."Post Invoice Discount" := true;
         SalesReceivablesSetup.Modify();
     end;
 

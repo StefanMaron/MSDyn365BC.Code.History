@@ -206,10 +206,32 @@ page 5935 "Service Credit Memo"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
+                }
                 field("Corrected Invoice No."; Rec."Corrected Invoice No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the posted invoice that you need to correct.';
+                }
+		        group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Service;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or services being offered.';
+
+                        trigger OnValidate()
+                        begin
+                            Rec.SetWorkDescription(WorkDescription);
+                        end;
+                    }
                 }
             }
             part(ServLines; "Service Credit Memo Subform")
@@ -523,6 +545,14 @@ page 5935 "Service Credit Memo"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
@@ -670,6 +700,7 @@ page 5935 "Service Credit Memo"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -1104,6 +1135,7 @@ page 5935 "Service Credit Memo"
 
     trigger OnAfterGetRecord()
     begin
+        WorkDescription := Rec.GetWorkDescription();
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
         UpdateDocHasRegimeCode();
@@ -1143,6 +1175,7 @@ page 5935 "Service Credit Memo"
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
+        WorkDescription: Text;
         DocumentIsPosted: Boolean;
         OpenPostedServiceCrMemoQst: Label 'The credit memo is posted as number %1 and moved to the Posted Service Credit Memos window.\\Do you want to open the posted credit memo?', Comment = '%1 = posted document number';
         IsBillToCountyVisible: Boolean;

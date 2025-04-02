@@ -72,11 +72,11 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryRandom: Codeunit "Library - Random";
-#if CLEAN23
+#if CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         ValueMustBeSameMsg: Label 'Value must be same.';
@@ -481,6 +481,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         UpdatePurchasesPayablesSetupInvRoundingAndDiscount(OldPostLineDiscount, OldPostLineDiscount, OldInvoiceRounding);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -493,6 +495,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PurchaseInvoiceStatisticsVATLine(LineNumber::First);
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -504,7 +507,34 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
         PurchaseInvoiceStatisticsVATLine(LineNumber::Second);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchInvoiceStatisticsFirstVATLine()
+    var
+        LineNumber: Option First,Second;
+    begin
+        // Test to verify that VAT Amount gets successfully updated on Purchase Invoice Statistics - First Line.
+
+        PurchInvoiceStatisticsVATLine(LineNumber::First);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchInvoiceStatisticsSecondVATLine()
+    var
+        LineNumber: Option First,Second;
+    begin
+        // Test to verify that VAT Amount gets successfully updated on Purchase Invoice Statistics - Second Line.
+
+        PurchInvoiceStatisticsVATLine(LineNumber::Second);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure PurchaseInvoiceStatisticsVATLine(PurchaseLineNumber: Option)
     var
         PurchaseLine: Record "Purchase Line";
@@ -539,6 +569,47 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify: Verify the updated VAT Amount in handler - PurchaseStatisticsModalPageHandler.
         LibraryVariableStorage.Dequeue(VATAmount);
         OpenPurchaseInvoiceStatisticsPage(PurchaseStatisticsOption::Verify, VATAmount, VATPct, PurchaseLine."Document No.");
+
+        // Tear Down.
+        UpdateGeneralLedgerSetupMaxVATDifferenceAllowed(OldVATDifferenceAllowed);
+        UpdatePurchasesPayablesSetupAllowVATDifference(OldAllowVATDifference);
+    end;
+#endif
+
+    local procedure PurchInvoiceStatisticsVATLine(PurchaseLineNumber: Option)
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        VATAmount: Variant;
+        OldAllowVATDifference: Boolean;
+        OldVATDifferenceAllowed: Decimal;
+        MaxVATDifferenceAllowed: Decimal;
+        VATPct: Decimal;
+        PurchaseStatisticsOption: Option Update,Verify;
+    begin
+        // Setup: PurchasesPayables Setup - Allow VAT Difference and General Ledger - Max. VAT Difference Allowed, Create Purchase Invoice with multiple lines having different VAT Prod. Posting Group.
+        Initialize();
+        OldAllowVATDifference := UpdatePurchasesPayablesSetupAllowVATDifference(true);  // TRUE for Allow VAT Difference.
+        MaxVATDifferenceAllowed := LibraryRandom.RandDec(0, 1);
+        OldVATDifferenceAllowed := UpdateGeneralLedgerSetupMaxVATDifferenceAllowed(MaxVATDifferenceAllowed);  // Using Random value for Max. VAT Difference Allowed.
+        UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        FindVATPostingSetup(VATPostingSetup2, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        CreatePurchaseDocument(
+          PurchaseLine, PurchaseLine."Document Type"::Invoice, PurchaseLine.Type::"G/L Account",
+          CreateGLAccountWithPostingGroup(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group"),
+          VATPostingSetup."VAT Bus. Posting Group", '');  // Blank Currency.
+        CreatePurchaseLine(
+          PurchaseLine, PurchaseLine."Document Type", PurchaseLine."Document No.", VATPostingSetup2."VAT Bus. Posting Group",
+          VATPostingSetup2."VAT Prod. Posting Group");
+        VATPct := FindVATPostingSetupVATPct(PurchaseLineNumber, VATPostingSetup."VAT %", VATPostingSetup2."VAT %");
+
+        // Exercise: Update VAT Amount on Purchase Statistics page in handler - PurchaseStatisticsPageHandler.
+        OpenPurchInvoiceStatisticsPage(PurchaseStatisticsOption::Update, MaxVATDifferenceAllowed, VATPct, PurchaseLine."Document No.");
+
+        // Verify: Verify the updated VAT Amount in handler - PurchaseStatisticsPageHandler.
+        LibraryVariableStorage.Dequeue(VATAmount);
+        OpenPurchInvoiceStatisticsPage(PurchaseStatisticsOption::Verify, VATAmount, VATPct, PurchaseLine."Document No.");
 
         // Tear Down.
         UpdateGeneralLedgerSetupMaxVATDifferenceAllowed(OldVATDifferenceAllowed);
@@ -720,7 +791,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
-#if not CLEAN23
+#if not CLEAN25
         CopyPurchPrices();
 #endif
 
@@ -740,6 +811,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
           PurchasePrice * PurchaseLine.Quantity * (VATPostingSetup."VAT %" + VATPostingSetup."EC %") / 100);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseStatisticsECModalPageHandler')]
     [Scope('OnPrem')]
@@ -769,7 +842,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
-#if not CLEAN23
+#if not CLEAN25
         CopyPurchPrices();
 #endif
 
@@ -791,6 +864,61 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
           PurchasePrice * PurchaseLine.Quantity * (VATPostingSetup."EC %" / 100));
 
         PurchaseInvoice.Statistics.Invoke();
+        PurchaseInvoice.Close();
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsECPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoicePriceInclVATECPageStatistics()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        VendorNo: Code[20];
+        ItemNo: Code[20];
+        PurchasePrice: Decimal;
+    begin
+        // [SCENARIO 363582] Purchase Statistics with EC % and Prices Incl. VAT = TRUE
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with EC % = 4 and VAT % = 18 specified
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateVATPostingSetup(VATPostingSetup);
+        VendorNo :=
+          CreateVendorWithPostingGroup(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Item with Purchase Price = 100
+        PurchasePrice := LibraryRandom.RandDec(100, 2);
+        ItemNo :=
+          CreateItemWithPurchasePrice(
+            PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
+#if not CLEAN25
+        CopyPurchPrices();
+#endif
+
+        // [GIVEN] Purchase Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
+        CreatePurchaseDocumentWithPriceInclVAT(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
+          VendorNo, PurchaseLine.Type::Item, ItemNo, true, 0);
+
+        // [WHEN] Open Purchase Statistics Page
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [THEN] "Line Amount" = 122, "VAT Amount" = 18, "EC Amount" = 4
+        LibraryVariableStorage.Enqueue(
+          PurchasePrice * PurchaseLine.Quantity * (1 + (VATPostingSetup."VAT %" + VATPostingSetup."EC %") / 100));
+        LibraryVariableStorage.Enqueue(
+          PurchasePrice * PurchaseLine.Quantity * (VATPostingSetup."VAT %" / 100));
+        LibraryVariableStorage.Enqueue(
+          PurchasePrice * PurchaseLine.Quantity * (VATPostingSetup."EC %" / 100));
+
+        PurchaseInvoice.PurchaseStatistics.Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -970,7 +1098,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     local procedure CreateItemWithPurchasePrice(UnitCost: Decimal; GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VendorNo: Code[20]): Code[20]
     var
         Item: Record Item;
-#if not CLEAN23
+#if not CLEAN25
         PurchasePrice: Record "Purchase Price";
 #else
         PriceListLine: Record "Price List Line";
@@ -980,7 +1108,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Modify(true);
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure", 0);
         PurchasePrice.Validate("Direct Unit Cost", UnitCost);
         PurchasePrice.Modify(true);
@@ -996,7 +1124,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         exit(Item."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CopyPurchPrices()
     var
         PurchasePrice: record "Purchase Price";
@@ -1162,6 +1290,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         until PurchInvLine.Next() = 0;
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenPurchaseInvoiceStatisticsPage(PurchaseStatisticsOption: Option; MaxVATDifferenceAllowed: Decimal; VATPct: Decimal; No: Code[20])
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
@@ -1172,6 +1302,20 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", No);
         PurchaseInvoice.Statistics.Invoke();  // Opens PurchaseStatisticsModalPageHandler.
+        PurchaseInvoice.Close();
+    end;
+#endif
+
+    local procedure OpenPurchInvoiceStatisticsPage(PurchaseStatisticsOption: Option; MaxVATDifferenceAllowed: Decimal; VATPct: Decimal; No: Code[20])
+    var
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        LibraryVariableStorage.Enqueue(PurchaseStatisticsOption);
+        LibraryVariableStorage.Enqueue(MaxVATDifferenceAllowed);
+        LibraryVariableStorage.Enqueue(VATPct);
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.FILTER.SetFilter("No.", No);
+        PurchaseInvoice.PurchaseStatistics.Invoke();  // Opens PurchaseStatisticsPageHandler.
         PurchaseInvoice.Close();
     end;
 
@@ -1363,6 +1507,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         VATPostingSetup.Modify(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatisticsModalPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
@@ -1388,10 +1534,59 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
             PurchaseStatistics.SubForm."VAT Amount".AssertEquals(VATAmount);
         PurchaseStatistics.OK().Invoke();
     end;
+#endif
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatisticsPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    var
+        VATAmount: Variant;
+        PurchaseStatisticsOption: Variant;
+        VATPct: Variant;
+        PurchaseStatisticsOptionValues: Option Update,Verify;
+        VATAmountValue: Decimal;
+    begin
+        LibraryVariableStorage.Dequeue(PurchaseStatisticsOption);
+        PurchaseStatisticsOptionValues := PurchaseStatisticsOption;
+        LibraryVariableStorage.Dequeue(VATAmount);
+        LibraryVariableStorage.Dequeue(VATPct);
+        PurchaseStatistics.SubForm.FindFirstField("VAT %", VATPct);
+
+        // Update VAT Amount on Purchase Statistics page.
+        if PurchaseStatisticsOptionValues = PurchaseStatisticsOptionValues::Update then begin
+            VATAmountValue := VATAmount;
+            PurchaseStatistics.SubForm."VAT Amount".SetValue(PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + VATAmountValue);
+            LibraryVariableStorage.Enqueue(PurchaseStatistics.SubForm."VAT Amount".AsDecimal());
+        end else  // Verify Updated VAT Amount on Purchase Statistics page.
+            PurchaseStatistics.SubForm."VAT Amount".AssertEquals(VATAmount);
+        PurchaseStatistics.OK().Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatisticsECModalPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    var
+        LineAmount: Variant;
+        VATAmount: Variant;
+        ECAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(LineAmount);
+        LibraryVariableStorage.Dequeue(VATAmount);
+        LibraryVariableStorage.Dequeue(ECAmount);
+        Assert.AreNearlyEqual(
+          LineAmount, PurchaseStatistics.SubForm."Line Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(
+          VATAmount, PurchaseStatistics.SubForm."VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(
+          ECAmount, PurchaseStatistics.SubForm."EC Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatisticsECPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
     var
         LineAmount: Variant;
         VATAmount: Variant;

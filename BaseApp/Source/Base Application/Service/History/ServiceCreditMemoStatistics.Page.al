@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Calculation;
@@ -189,7 +193,7 @@ page 6034 "Service Credit Memo Statistics"
                     ApplicationArea = Service;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies information about the customer''s credit limit.';
+                    ToolTip = 'Specifies the credit limit of the customer on the service document. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -232,10 +236,8 @@ page 6034 "Service Credit Memo Statistics"
                 CustAmount := CustAmount + ServCrMemoLine.Amount;
                 AmountInclVAT := AmountInclVAT + ServCrMemoLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then begin
-                    InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount" /
-                      (1 + (ServCrMemoLine."VAT %" + ServCrMemoLine."EC %") / 100);
-                    PmtDiscAmount := PmtDiscAmount + ServCrMemoLine."Pmt. Discount Amount" /
-                      (1 + (ServCrMemoLine."VAT %" + ServCrMemoLine."EC %") / 100)
+                    InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount" / (1 + ServCrMemoLine.GetVATPct() / 100);
+                    PmtDiscAmount := PmtDiscAmount + ServCrMemoLine."Pmt. Discount Amount" / (1 + ServCrMemoLine.GetVATPct() / 100)
                 end else begin
                     InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount";
                     PmtDiscAmount := PmtDiscAmount + ServCrMemoLine."Pmt. Discount Amount"
@@ -249,7 +251,7 @@ page 6034 "Service Credit Memo Statistics"
                     TotalParcels := TotalParcels + Round(ServCrMemoLine.Quantity / ServCrMemoLine."Units per Parcel", 1, '>');
                 if ServCrMemoLine."VAT %" <> VATpercentage then
                     if VATpercentage = 0 then
-                        VATpercentage := ServCrMemoLine."VAT %" + ServCrMemoLine."EC %"
+                        VATpercentage := ServCrMemoLine.GetVATPct()
                     else
                         VATpercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + ServCostCalculationMgt.CalcServCrMemoLineCostLCY(ServCrMemoLine);
@@ -298,8 +300,8 @@ page 6034 "Service Credit Memo Statistics"
         end;
 
         ServCrMemoLine.CalcVATAmountLines(Rec, TempVATAmountLine);
-        CurrPage.Subform.PAGE.SetTempVATAmountLine(TempVATAmountLine);
-        CurrPage.Subform.PAGE.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
+        CurrPage.Subform.Page.SetTempVATAmountLine(TempVATAmountLine);
+        CurrPage.Subform.Page.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
     end;
 
     var
@@ -351,4 +353,3 @@ page 6034 "Service Credit Memo Statistics"
     begin
     end;
 }
-

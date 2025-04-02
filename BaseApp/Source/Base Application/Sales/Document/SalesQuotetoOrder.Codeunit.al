@@ -291,9 +291,6 @@ codeunit 86 "Sales-Quote to Order"
                         Opp."Sales Document No." := '';
                         Opp.Modify();
                     end;
-#if not CLEAN23
-            OnAfterMoveWonLostOpportunites(SalesQuoteHeader, SalesOrderHeader);
-#endif
         end;
         OnAfterMoveWonLostOpportunity(SalesQuoteHeader, SalesOrderHeader, Opp);
     end;
@@ -408,13 +405,6 @@ codeunit 86 "Sales-Quote to Order"
     begin
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaces with OnAfterMoveWonLostOpportunity', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveWonLostOpportunites(var SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterMoveWonLostOpportunity(var SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var Opportunity: Record Opportunity)
     begin

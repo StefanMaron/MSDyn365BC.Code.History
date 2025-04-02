@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Setup;
 
 page 99000768 "Manufacturing Setup"
@@ -43,6 +47,14 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether to run the MRP engine to detect if planned shipment dates cannot be met.';
                 }
+                field("Inc. Non. Inv. Cost To Prod"; Rec."Inc. Non. Inv. Cost To Prod")
+                {
+                    ApplicationArea = Manufacturing;
+                }
+                field("Load SKU Cost on Manufacturing"; Rec."Load SKU Cost on Manufacturing")
+                {
+                    ApplicationArea = Manufacturing;
+                }
                 field("Doc. No. Is Prod. Order No."; Rec."Doc. No. Is Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
@@ -57,6 +69,19 @@ page 99000768 "Manufacturing Setup"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies whether the setup times are to be included in the cost calculation of the Standard Cost field.';
+                }
+                field("Finish Order without Output"; Rec."Finish Order without Output")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies that status of orders with no output can be changed to finished and the WIP will be written off to Inventory Adjustment Account.';
+                }
+                field("Default Gen. Bus. Post. Group"; Rec."Default Gen. Bus. Post. Group")
+                {
+                    ApplicationArea = Manufacturing;
+                }
+                field("Default Flushing Method"; Rec."Default Flushing Method")
+                {
+                    ApplicationArea = Manufacturing;
                 }
             }
             group(Numbering)
@@ -150,6 +175,14 @@ page 99000768 "Manufacturing Setup"
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a percentage of an item''s lot size by which an existing supply must change before a planning suggestion is made.';
+                }
+                field("Manual Scheduling"; Rec."Manual Scheduling")
+                {
+                    ApplicationArea = Manufacturing;
+                }
+                field("Safety Lead Time for Man. Sch."; Rec."Safety Lead Time for Man. Sch.")
+                {
+                    ApplicationArea = Manufacturing;
                 }
             }
         }

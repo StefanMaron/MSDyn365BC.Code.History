@@ -1,8 +1,10 @@
-﻿namespace Microsoft.Finance.FinancialReports;
+namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.GeneralLedger.Setup;
+using System.Environment;
 using System.IO;
+using System.Telemetry;
 using System.Utilities;
 
 table 84 "Acc. Schedule Name"
@@ -18,11 +20,14 @@ table 84 "Acc. Schedule Name"
         {
             Caption = 'Name';
             NotBlank = true;
+            ToolTip = 'Specifies the unique name (code) of the financial report row definition. You can use up to 10 characters.';
         }
         field(2; Description; Text[80])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the financial report row definition. The description is not shown on the final report but is used to provide more context when using the definition.';
         }
+#if not CLEANSCHEMA25
         field(3; "Default Column Layout"; Code[10])
         {
             Caption = 'Default Column Layout';
@@ -31,10 +36,12 @@ table 84 "Acc. Schedule Name"
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
         }
+#endif
         field(4; "Analysis View Name"; Code[10])
         {
             Caption = 'Analysis View Name';
             TableRelation = "Analysis View";
+            ToolTip = 'Specifies the name of the analysis view you want the row definition to use. This field is optional.';
 
             trigger OnValidate()
             var
@@ -67,16 +74,14 @@ table 84 "Acc. Schedule Name"
                 end;
             end;
         }
+        field(5; "Internal Description"; Text[250])
+        {
+            Caption = 'Internal Description';
+            ToolTip = 'Specifies the internal description of row definition. The internal description is not shown on the final report but is used to provide more context when using the definition.';
+        }
         field(10700; Standardized; Boolean)
         {
             Caption = 'Standardized';
-        }
-        field(10720; "Acc. No. Referred to old Acc."; Boolean)
-        {
-            Caption = 'Acc. No. Referred to old Acc.';
-            ObsoleteReason = 'Obsolete features';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -105,6 +110,7 @@ table 84 "Acc. Schedule Name"
         PackageNameTxt: Label 'Row Definition - %1', MaxLength = 40, Comment = '%1 - Rows definition name';
         ClearDimensionTotalingConfirmTxt: Label 'Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?';
         PackageImportErr: Label 'The row definitions could not be imported.';
+        TelemetryEventTxt: Label 'Financial Report Row Definition %1: %2', Comment = '%1 = event type, %2 = row definition', Locked = true;
 
     local procedure AnalysisViewGet(var AnalysisView: Record "Analysis View"; AnalysisViewName: Code[10])
     var
@@ -175,6 +181,7 @@ table 84 "Acc. Schedule Name"
         AddRowDefinitionToConfigPackage(Name, ConfigPackage, PackageCode);
         Commit();
         ConfigXMLExchange.ExportPackage(ConfigPackage);
+        LogImportExportTelemetry(Name, 'exported');
     end;
 
     procedure AddRowDefinitionToConfigPackage(AccScheduleName: Code[10]; var ConfigPackage: Record "Config. Package"; PackageCode: Code[20])
@@ -230,15 +237,18 @@ table 84 "Acc. Schedule Name"
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
         ConfigPackageMgt: Codeunit "Config. Package Management";
+        NewName: Code[10];
     begin
         if not ConfigPackage.Get(PackageCode) then
             Error(PackageImportErr);
 
-        if GetPackageAccSchedName(PackageCode) = '' then
+        NewName := GetPackageAccSchedName(PackageCode);
+        if NewName = '' then
             Error(PackageImportErr);
 
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, false);
+        LogImportExportTelemetry(NewName, 'imported');
     end;
 
     local procedure GetPackageAccSchedName(PackageCode: Code[20]) NewName: Code[10]
@@ -313,5 +323,17 @@ table 84 "Acc. Schedule Name"
             AccScheduleExists := AccScheduleName.Get(Name);
         end;
     end;
-}
 
+    local procedure LogImportExportTelemetry(DefinitionName: Text; Action: Text)
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        if not EnvironmentInfo.IsSaaS() then
+            exit;
+
+        TelemetryDimensions.Add('RowDefinitionCode', DefinitionName);
+        FeatureTelemetry.LogUsage('0000ONP', 'Financial Report', StrSubstNo(TelemetryEventTxt, DefinitionName, Action), TelemetryDimensions);
+    end;
+}

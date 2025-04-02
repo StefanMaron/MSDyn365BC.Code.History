@@ -1685,12 +1685,12 @@ codeunit 10750 "SII XML Creator"
         OldTotalNonExemptBase: Decimal;
         OldTotalVATAmount: Decimal;
         TotalAmount: Decimal;
-        TotalNDBase: Decimal;
-        TotalNDAmount: Decimal;
         BaseAmountDiff: Decimal;
         VATAmountDiff: Decimal;
         ECPercentDiff: Decimal;
         ECAmountDiff: Decimal;
+        TotalNDBase: Decimal;
+        TotalNDAmount: Decimal;
         DomesticCustomer: Boolean;
         NormalVATEntriesFound: Boolean;
         i: Integer;

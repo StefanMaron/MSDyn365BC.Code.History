@@ -233,7 +233,7 @@ codeunit 137030 "SCM Extend Warehouse"
     local procedure ParentItemSetupOnBOM(var ParentItem: Record Item; ProductionBOMHeader: Record "Production BOM Header")
     begin
         // Create parent item
-        ItemSetup(ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Flushing Method"::Manual);
+        ItemSetup(ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Flushing Method"::"Pick + Manual");
 
         // Uncertify production BOM and set UOM as the base UOM of the parent item
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::New);
@@ -268,7 +268,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Create component lines in the BOM
         for Counter := 1 to NoOfComponents do begin
-            ItemSetup(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Flushing Method"::Manual);
+            ItemSetup(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Flushing Method"::"Pick + Manual");
             LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '',
               ProductionBOMLine.Type::Item, ChildItem."No.", QtyPer);
         end;
@@ -1158,7 +1158,7 @@ codeunit 137030 "SCM Extend Warehouse"
         QtyUnit := LibraryRandom.RandIntInRange(30, 50);
 
         // [GIVEN] Parent item with child item and Production BOM
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
         CreateBOM(ProductionBOMHeader, 1, 2 * QtyUnit);
         ParentItemSetupOnBOM(Item, ProductionBOMHeader);
         FindChild(Item, ItemComponent, 1);
@@ -1286,7 +1286,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -1349,7 +1349,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -1390,7 +1390,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, LocationWhite, false, 1);
 
@@ -1441,7 +1441,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -1512,7 +1512,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -1576,7 +1576,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FromBin, Location, false, 1);
         FindBin(ToBin, Location, false, 2);
@@ -1646,7 +1646,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FromBin1, Location, false, 1);
         FindBin(FromBin2, Location, false, 2);
@@ -1699,7 +1699,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Test setup
         TestSetup();
 
-        ItemSetup(TestItem, TestItem."Replenishment System"::Purchase, TestItem."Flushing Method"::Manual);
+        ItemSetup(TestItem, TestItem."Replenishment System"::Purchase, TestItem."Flushing Method"::"Pick + Manual");
 
         FindBin(FromBin, Location, false, 1);
         AddInventoryNonDirectLocation(TestItem, Location, FromBin, 10);
@@ -1770,7 +1770,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::"Pick + Manual");
 
         // create an internal movement - Error message that Bin mandatory is required should be displayed.
         InternalMovementHeader.Init();
@@ -1825,7 +1825,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -1915,7 +1915,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -2058,7 +2058,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -5816,7 +5816,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -5860,7 +5860,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -5926,7 +5926,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -5967,7 +5967,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -6028,7 +6028,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -6080,7 +6080,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -6151,7 +6151,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -6217,7 +6217,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -6258,7 +6258,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, false, 1);
         FindBin(SecondBin, Location, false, 2);
@@ -6686,7 +6686,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, true, 1);
         FindBin(SecondBin, Location, true, 2);
@@ -6724,7 +6724,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBin, Location, true, 1);
         FindBin(SecondBin, Location, true, 2);
@@ -6780,7 +6780,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBinD, Location, true, 1);
         FindBin(SecondBinND, Location, false, 2);
@@ -6863,7 +6863,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBinD, Location, true, 1);
         FindBin(SecondBinND, Location, false, 2);
@@ -6936,7 +6936,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBinD, Location, true, 1);
         FindBin(SecondBinND, Location, false, 2);
@@ -6988,7 +6988,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Test setup
         TestSetup();
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
 
         FindBin(FirstBinD, Location, true, 1);
         FindBin(SecondBinND, Location, false, 2);
@@ -7303,7 +7303,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SetBinsOnWC(WorkCenter[2], LocationWhite.Code, '', Bin[1].Code, '');
 
         // [GIVEN] Create production item and set routing number.
-        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::"Pick + Manual");
         Item.Validate("Routing No.", RoutingHeader."No.");
         Item.Modify(true);
 
@@ -7410,7 +7410,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ManufacturingSetup();
 
         // [GIVEN] Create an Item with Setup.
-        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
+        ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::"Pick + Manual");
 
         // [GIVEN] Create a Location with setup.
         LocationSetup(Location, false, false, false, true, true,
@@ -7561,7 +7561,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ProductionBOMLine: Record "Production BOM Line";
         i: Integer;
     begin
-        ItemSetup(Item[1], Item[1]."Replenishment System"::"Prod. Order", Item[1]."Flushing Method"::Manual);
+        ItemSetup(Item[1], Item[1]."Replenishment System"::"Prod. Order", Item[1]."Flushing Method"::"Pick + Manual");
 
         UnitOfMeasure.Init();
         UnitOfMeasure.FindFirst();

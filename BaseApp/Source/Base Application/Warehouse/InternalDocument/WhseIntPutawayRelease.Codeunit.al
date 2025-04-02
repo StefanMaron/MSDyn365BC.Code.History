@@ -24,7 +24,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
     procedure Release(WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
     var
         Location: Record Location;
-        WhsePutawayRqst: Record "Whse. Put-away Request";
+        WhsePutAwayRequest: Record "Whse. Put-away Request";
         WhseInternalPutawayLine: Record "Whse. Internal Put-away Line";
         SuppressCommit: Boolean;
     begin
@@ -54,13 +54,13 @@ codeunit 7316 "Whse. Int. Put-away Release"
         WhseInternalPutAwayHeader.Status := WhseInternalPutAwayHeader.Status::Released;
         WhseInternalPutAwayHeader.Modify();
 
-        CreateWhsePutawayRqst(WhseInternalPutAwayHeader);
+        CreateWhsePutAwayRequest(WhseInternalPutAwayHeader);
 
-        WhsePutawayRqst.SetRange(
-          "Document Type", WhsePutawayRqst."Document Type"::"Internal Put-away");
-        WhsePutawayRqst.SetRange("Document No.", WhseInternalPutAwayHeader."No.");
-        WhsePutawayRqst.SetRange(Status, WhseInternalPutAwayHeader.Status::Open);
-        WhsePutawayRqst.DeleteAll(true);
+        WhsePutAwayRequest.SetRange(
+          "Document Type", WhsePutAwayRequest."Document Type"::"Internal Put-away");
+        WhsePutAwayRequest.SetRange("Document No.", WhseInternalPutAwayHeader."No.");
+        WhsePutAwayRequest.SetRange(Status, WhseInternalPutAwayHeader.Status::Open);
+        WhsePutAwayRequest.DeleteAll(true);
 
         OnReleaseOnBeforeCommit(WhseInternalPutAwayHeader, SuppressCommit);
         if not SuppressCommit then
@@ -69,7 +69,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
 
     procedure Reopen(WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
     var
-        WhsePutawayRqst: Record "Whse. Put-away Request";
+        WhsePutAwayRequest: Record "Whse. Put-away Request";
         WhseWkshLine: Record "Whse. Worksheet Line";
         WhseActivLine: Record "Warehouse Activity Line";
     begin
@@ -90,34 +90,34 @@ codeunit 7316 "Whse. Int. Put-away Release"
         if not WhseActivLine.IsEmpty() then
             Error(Text002);
 
-        WhsePutawayRqst.SetRange("Document Type", WhsePutawayRqst."Document Type"::"Internal Put-away");
-        WhsePutawayRqst.SetRange("Document No.", WhseInternalPutAwayHeader."No.");
-        WhsePutawayRqst.SetRange(Status, WhseInternalPutAwayHeader.Status::Released);
-        if WhsePutawayRqst.Find('-') then
+        WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::"Internal Put-away");
+        WhsePutAwayRequest.SetRange("Document No.", WhseInternalPutAwayHeader."No.");
+        WhsePutAwayRequest.SetRange(Status, WhseInternalPutAwayHeader.Status::Released);
+        if WhsePutAwayRequest.Find('-') then
             repeat
-                WhsePutawayRqst.Status := WhseInternalPutAwayHeader.Status::Open;
-                WhsePutawayRqst.Modify();
-            until WhsePutawayRqst.Next() = 0;
+                WhsePutAwayRequest.Status := WhseInternalPutAwayHeader.Status::Open;
+                WhsePutAwayRequest.Modify();
+            until WhsePutAwayRequest.Next() = 0;
 
         WhseInternalPutAwayHeader.Status := WhseInternalPutAwayHeader.Status::Open;
         WhseInternalPutAwayHeader.Modify();
     end;
 
-    local procedure CreateWhsePutawayRqst(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
+    local procedure CreateWhsePutAwayRequest(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
     var
-        WhsePutawayRqst: Record "Whse. Put-away Request";
+        WhsePutAwayRequest: Record "Whse. Put-away Request";
     begin
-        WhsePutawayRqst."Document Type" := WhsePutawayRqst."Document Type"::"Internal Put-away";
-        WhsePutawayRqst."Document No." := WhseInternalPutAwayHeader."No.";
-        WhsePutawayRqst.Status := WhseInternalPutAwayHeader.Status;
-        WhsePutawayRqst."Location Code" := WhseInternalPutAwayHeader."Location Code";
-        WhsePutawayRqst."Zone Code" := WhseInternalPutAwayHeader."From Zone Code";
-        WhsePutawayRqst."Bin Code" := WhseInternalPutAwayHeader."From Bin Code";
+        WhsePutAwayRequest."Document Type" := WhsePutAwayRequest."Document Type"::"Internal Put-away";
+        WhsePutAwayRequest."Document No." := WhseInternalPutAwayHeader."No.";
+        WhsePutAwayRequest.Status := WhseInternalPutAwayHeader.Status;
+        WhsePutAwayRequest."Location Code" := WhseInternalPutAwayHeader."Location Code";
+        WhsePutAwayRequest."Zone Code" := WhseInternalPutAwayHeader."From Zone Code";
+        WhsePutAwayRequest."Bin Code" := WhseInternalPutAwayHeader."From Bin Code";
         WhseInternalPutAwayHeader."Document Status" := WhseInternalPutAwayHeader.GetDocumentStatus(0);
-        WhsePutawayRqst."Completely Put Away" :=
+        WhsePutAwayRequest."Completely Put Away" :=
           WhseInternalPutAwayHeader."Document Status" = WhseInternalPutAwayHeader."Document Status"::"Completely Put Away";
-        if not WhsePutawayRqst.Insert() then
-            WhsePutawayRqst.Modify();
+        if not WhsePutAwayRequest.Insert() then
+            WhsePutAwayRequest.Modify();
     end;
 
     [IntegrationEvent(false, false)]

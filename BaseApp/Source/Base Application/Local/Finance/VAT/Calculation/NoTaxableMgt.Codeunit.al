@@ -24,14 +24,6 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Posting;
-#if not CLEAN23
-using Microsoft.Purchases.Document;
-using Microsoft.Purchases.Posting;
-using Microsoft.RoleCenters;
-using Microsoft.Sales.Document;
-using Microsoft.Sales.Posting;
-using System.Environment.Configuration;
-#endif
 
 codeunit 10740 "No Taxable Mgt."
 {
@@ -45,14 +37,6 @@ codeunit 10740 "No Taxable Mgt."
         GeneralLedgerSetup: Record "General Ledger Setup";
         SIIManagement: Codeunit "SII Management";
         GLSetupRead: Boolean;
-#if not CLEAN23
-        IncorrectVATPostingSetupRoleCenterTxt: label 'VAT Posting Setup has incorrect combinations. Click Open VAT Posting Setup and make sure that Normal VAT is only specified with blank No Taxable Type. ';
-        IncorrectVATPostingSetupPageTxt: label 'VAT Posting Setup has incorrect combinations. Make sure that Normal VAT is only specified with blank No Taxable Type. ';
-        NotificationActionTxt: label 'Open VAT Posting Setup';
-        DontShowAgainMsg: Label 'Don''t show me again';
-        VATSetupPageNotificationTxt: Label 'Incorrect VAT Posting Setup on the page.';
-        VATSetupRoleCenterNotificationTxt: Label 'Incorrect VAT Posting Setup on the role center.';
-#endif
         NonEURSetupErr: label 'You must set either local currency code or additional reporting currency in General Ledger Setup to EUR.';
 
     local procedure CreateNoTaxableEntriesPurchInvoice(GenJournalLine: Record "Gen. Journal Line"; TransactionNo: Integer): Boolean
@@ -1069,144 +1053,5 @@ codeunit 10740 "No Taxable Mgt."
           "General Posting Type"::Sale.AsInteger(), CustLedgerEntry."Customer No.",
           CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date");
     end;
-
-#if not CLEAN23
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    local procedure GetNormalNoTaxableVATPostingSetupNotificationId(): Guid
-    begin
-        exit('eac17a6e-1739-4ea1-b4a9-4a1c5e034f63');
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    local procedure GetNormalNoTaxableVATPostingSetupRoleCenterNotificationId(): Guid
-    begin
-        exit('8882cee6-57a5-4cf9-8282-d20137feddf3');
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    procedure OpenVATPostingSetupPage(Notification: Notification)
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        VATPostingSetupPage: Page "VAT Posting Setup";
-    begin
-        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.SetFilter("No Taxable Type", '<>%1', VATPostingSetup."No Taxable Type"::" ");
-        VATPostingSetupPage.SetTableView(VATPostingSetup);
-        VATPostingSetupPage.RunModal();
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    procedure CheckVATPostingSetupOnPage()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        MyNotifications: Record "My Notifications";
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-        VATSetupNotification: Notification;
-    begin
-        if not MyNotifications.IsEnabled(GetNormalNoTaxableVATPostingSetupNotificationId()) then
-            exit;
-
-        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.SetFilter("No Taxable Type", '<>%1', VATPostingSetup."No Taxable Type"::" ");
-        if VATPostingSetup.FindFirst() then begin
-            VATSetupNotification.Id(GetNormalNoTaxableVATPostingSetupNotificationId());
-            VATSetupNotification.Message(IncorrectVATPostingSetupPageTxt);
-            VATSetupNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
-            VATSetupNotification.AddAction(DontShowAgainMsg, CODEUNIT::"No Taxable Mgt.", 'DisableNotificationPage');
-            NotificationLifecycleMgt.SendNotification(VATSetupNotification, VATPostingSetup.RecordId);
-        end;
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Role Center Notification Mgt.", 'OnIsRunningPreview', '', false, false)]
-    local procedure CheckVATPostingSetupOnRoleCenter()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        MyNotifications: Record "My Notifications";
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-        VATSetupNotification: Notification;
-    begin
-        if not MyNotifications.IsEnabled(GetNormalNoTaxableVATPostingSetupRoleCenterNotificationId()) then
-            exit;
-
-        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.SetFilter("No Taxable Type", '<>%1', VATPostingSetup."No Taxable Type"::" ");
-        if VATPostingSetup.FindFirst() then begin
-            VATSetupNotification.Id(GetNormalNoTaxableVATPostingSetupRoleCenterNotificationId());
-            VATSetupNotification.Message(IncorrectVATPostingSetupRoleCenterTxt);
-            VATSetupNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
-            VATSetupNotification.AddAction(NotificationActionTxt, Codeunit::"No Taxable Mgt.", 'OpenVATPostingSetupPage');
-            VATSetupNotification.AddAction(DontShowAgainMsg, CODEUNIT::"No Taxable Mgt.", 'DisableNotificationRoleCenter');
-            NotificationLifecycleMgt.SendNotification(VATSetupNotification, VATPostingSetup.RecordId);
-        end;
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    procedure DisableNotificationPage(Notification: Notification)
-    var
-        MyNotifications: Record "My Notifications";
-    begin
-        if MyNotifications.WritePermission then
-            if not MyNotifications.Disable(Notification.Id) then
-                MyNotifications.InsertDefault(Notification.Id, VATSetupPageNotificationTxt, VATSetupPageNotificationTxt, false);
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    procedure DisableNotificationRoleCenter(Notification: Notification)
-    var
-        MyNotifications: Record "My Notifications";
-    begin
-        if MyNotifications.WritePermission then
-            if not MyNotifications.Disable(Notification.Id) then
-                MyNotifications.InsertDefault(Notification.Id, VATSetupRoleCenterNotificationTxt, VATSetupRoleCenterNotificationTxt, false);
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterTestPurchLine', '', false, false)]
-    local procedure TestPurchLineOnPurchPost(PurchLine: Record "Purchase Line")
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        if VATPostingSetup.Get(PurchLine."VAT Bus. Posting Group", PurchLine."VAT Prod. Posting Group") and
-            (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
-            VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterTestSalesLine', '', false, false)]
-    local procedure TestSalesLineOnSalesPost(SalesLine: Record "Sales Line")
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        if VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") and
-            (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
-            VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnTestMandatoryFieldsOnBeforePassedServLineFind', '', false, false)]
-    local procedure TestServiceLineOnServicePost(var ServiceLine: Record "Service Line")
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        if ServiceLine.FindSet() then
-            repeat
-                if VATPostingSetup.Get(ServiceLine."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") and
-                    (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
-                    VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
-            until ServiceLine.Next() = 0;
-    end;
-
-    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
-    local procedure TestGenJnlLineOnGenJnlPost(var GenJournalLine: Record "Gen. Journal Line")
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        if VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group") and
-            (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
-            VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
-    end;
-#endif    
 }
 

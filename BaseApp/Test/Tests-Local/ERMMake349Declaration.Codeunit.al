@@ -6132,134 +6132,6 @@ codeunit 144117 "ERM Make 349 Declaration"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,Make349DeclarationRequestPageHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler2')]
-    procedure Make349DeclExportsWhenIncludePurchaseCreditMemosWithAndWithoutCorrectedInvoiceNo()
-    var
-        Item: Record Item;
-        VATPostingSetup: Record "VAT Posting Setup";
-        Vendor: Record Vendor;
-        CrMemoNo: array[2] of Code[20];
-        InvNo: array[4] of Code[20];
-        CrMemoAmt: array[2] of Decimal;
-        InvoiceAmount: array[4] of Decimal;
-        TotalAmount: Decimal;
-        i: Integer;
-        LineNo: array[2] of Integer;
-        FileName: Text;
-        LineText: array[2] of Text;
-    begin
-        // [SCENARIO 559355] Verify Make 349 declaration exports information when including Credit Memos with and without Corrected Invoice No. 
-        Initialize();
-
-        // [GIVEN] Create VAT Posting Setup with GL Accounts.
-        CreateVATPostingSetup(VATPostingSetup, true);
-        ModifyVATPostingSetupWithGLAccounts(VATPostingSetup);
-
-        // [GIVEN] Create EU Vendor.
-        CreateEUVendorWithPostingGroups(Vendor, VATPostingSetup);
-
-        // [GIVEN] Create New Item.
-        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(2000, 2));
-        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Item.Modify(true);
-
-        // [GIVEN] Post Purchase Invoice
-        for i := 1 to LibraryRandom.RandIntInRange(4, 4) do begin
-            InvNo[i] := CreateAndPostMultiplePurchaseDocument(Vendor, Item, InvoiceAmount[i]);
-            TotalAmount += InvoiceAmount[i];
-        end;
-
-        // [GIVEN] Create and Post Purchase Credit Memo with Corrective Invoice.
-        CrMemoNo[1] := CreateAndPostMultiplePurchaseCreditMemoDocument(Vendor, Item, InvNo[4], CrMemoAmt[1], InvoiceAmount[4]);
-        TotalAmount += CrMemoAmt[1];
-
-        // [GIVEN] Create and Post Purchase Credit Memo without Corrective Invoice.
-        CrMemoNo[2] := CreateAndPostMultiplePurchaseCreditMemoDocument(Vendor, Item, '', CrMemoAmt[2], InvoiceAmount[4]);
-
-        // [GIVEN] Enqueue the Multiple Values.
-        EnqueueMultipleValues(Vendor."No.", InvoiceAmount[4]);
-
-        // [WHEN] Run Make 349 Declaration Report.
-        FileName := RunMake349DeclarationWithDate(WorkDate());
-
-        // [WHEN] Store the line Wise Value.
-        for i := 1 to LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Vendor.Name), 93, 40) do begin
-            LineNo[i] := LibraryTextFileValidation.FindLineNoWithValue(FileName, 93, 40, PadCustVendNo(Vendor."No."), i);
-            LineText[i] := LibraryTextFileValidation.ReadLine(FileName, LineNo[i]);
-        end;
-
-        // [THEN] Verify the Original Declared Amount when Including Credit Memos with and Without Corrected Invoice No.
-        VerifyRectificationLine(LineText[1], 'I', WorkDate(), InvoiceAmount[4], ABS(CrMemoAmt[2]));
-
-        // [THEN] Verify the Total Amount when Including Credit Memos with and Without Corrected Invoice No.
-        VerifyNormalLine(LineText[2], 'I', TotalAmount);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,Make349DeclarationRequestPageHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler2')]
-    procedure Make349DeclExportsWhenIncludeSalesCreditMemosWithAndWithoutCorrectedInvoiceNo()
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        VATPostingSetup: Record "VAT Posting Setup";
-        CrMemoNo: array[2] of Code[20];
-        InvNo: array[4] of Code[20];
-        CrMemoAmt: array[2] of Decimal;
-        InvoiceAmount: array[4] of Decimal;
-        TotalAmount: Decimal;
-        i: Integer;
-        LineNo: array[2] of Integer;
-        FileName: Text;
-        LineText: array[2] of Text;
-    begin
-        // [SCENARIO 559355] Verify Make 349 declaration exports information when including Credit Memos with and without Corrected Invoice No. 
-        Initialize();
-
-        // [GIVEN] Create VAT Posting Setup with GL Accounts.
-        CreateVATPostingSetup(VATPostingSetup, true);
-        ModifyVATPostingSetupWithGLAccounts(VATPostingSetup);
-
-        // [GIVEN] Create EU Customer.
-        CreateEUCustomerWithPostingGroups(Customer, VATPostingSetup);
-
-        // [GIVEN] Create New Item.
-        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(2000, 2));
-        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Item.Modify(true);
-
-        // [GIVEN] Post Sales Invoice.
-        for i := 1 to LibraryRandom.RandIntInRange(4, 4) do begin
-            InvNo[i] := CreateAndPostMultipleSalesDocument(Customer, Item, InvoiceAmount[i]);
-            TotalAmount += InvoiceAmount[i];
-        end;
-
-        // [GIVEN] Create and Post Sales Credit Memo with Corrective Invoice.
-        CrMemoNo[1] := CreateAndPostMultipleSalesCreditMemoDocument(Customer, Item, InvNo[4], CrMemoAmt[1], InvoiceAmount[4]);
-        TotalAmount += CrMemoAmt[1];
-
-        // [GIVEN] Create and Post Sales Credit Memo without Corrective Invoice.
-        CrMemoNo[2] := CreateAndPostMultipleSalesCreditMemoDocument(Customer, Item, '', CrMemoAmt[2], InvoiceAmount[4]);
-
-        // [GIVEN] Enqueue the Multiple Values.
-        EnqueueMultipleValues(Customer."No.", InvoiceAmount[4]);
-
-        // [WHEN] Run Make 349 Declaration Report.
-        FileName := RunMake349DeclarationWithDate(WorkDate());
-
-        // [WHEN] Store the line Wise Value.
-        for i := 1 to LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Customer.Name), 93, 40) do begin
-            LineNo[i] := LibraryTextFileValidation.FindLineNoWithValue(FileName, 93, 40, PadCustVendNo(Customer."No."), i);
-            LineText[i] := LibraryTextFileValidation.ReadLine(FileName, LineNo[i]);
-        end;
-
-        // [THEN] Verify the Original Declared Amount when Including Credit Memos with and Without Corrected Invoice No.
-        VerifyRectificationLine(LineText[1], 'S', WorkDate(), InvoiceAmount[4], ABS(CrMemoAmt[2]));
-
-        // [THEN] Verify the Total Amount when Including Credit Memos with and Without Corrected Invoice No.
-        VerifyNormalLine(LineText[2], 'S', TotalAmount);
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandlerYesNo,MessageHandler,Make349DeclarationRequestPageHandler2')]
     procedure Make349DeclarationRepWithNonDeductibleVATInPurchaseDocument()
     var
@@ -6285,7 +6157,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // [GIVEN] Set All Locations are EU.
         SetAllLocationAreEU(EULocationList);
-
+        
         // [GIVEN] Set All Country Regions are EU.
         SetAllCountryRegionAreEU(EUCountryRegionList);
 
@@ -6382,6 +6254,136 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // Restore the Country Region in Original State.
         RestoreEUCountryRegions(EUCountryRegionList);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,Make349DeclarationRequestPageHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler2')]
+    procedure Make349DeclExportsWhenIncludePurchaseCreditMemosWithAndWithoutCorrectedInvoiceNo()
+    var
+        Item: Record Item;
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        CrMemoNo: array[2] of Code[20];
+        InvNo: array[4] of Code[20];
+        CrMemoAmt: array[2] of Decimal;
+        InvoiceAmount: array[4] of Decimal;
+        TotalAmount: Decimal;
+        i: Integer;
+        LineNo: array[2] of Integer;
+        FileName: Text;
+        LineText: array[2] of Text;
+    begin
+        // [SCENARIO 559355] Verify Make 349 declaration exports information when including Credit Memos with and without Corrected Invoice No. 
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup with GL Accounts.
+        CreateVATPostingSetup(VATPostingSetup, true);
+        ModifyVATPostingSetupWithGLAccounts(VATPostingSetup);
+
+        // [GIVEN] Create EU Vendor.
+        CreateEUVendorWithPostingGroups(Vendor, VATPostingSetup);
+
+        // [GIVEN] Create New Item.
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(2000, 2));
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice
+        for i := 1 to LibraryRandom.RandIntInRange(4, 4) do begin
+            InvNo[i] := CreateAndPostMultiplePurchaseDocument(Vendor, Item, InvoiceAmount[i]);
+            TotalAmount += InvoiceAmount[i];
+        end;
+
+        // [GIVEN] Create and Post Purchase Credit Memo with Corrective Invoice.
+        CrMemoNo[1] := CreateAndPostMultiplePurchaseCreditMemoDocument(Vendor, Item, InvNo[4], CrMemoAmt[1], InvoiceAmount[4]);
+        TotalAmount += CrMemoAmt[1];
+
+        // [GIVEN] Create and Post Purchase Credit Memo without Corrective Invoice.
+        CrMemoNo[2] := CreateAndPostMultiplePurchaseCreditMemoDocument(Vendor, Item, '', CrMemoAmt[2], InvoiceAmount[4]);
+
+        // [GIVEN] Enqueue the Multiple Values.
+        EnqueueMultipleValues(Vendor."No.", InvoiceAmount[4]);
+
+        // [WHEN] Run Make 349 Declaration Report.
+        FileName := RunMake349DeclarationWithDate(WorkDate());
+
+        // [WHEN] Store the line Wise Value.
+        for i := 1 to LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Vendor.Name), 93, 40) do begin
+            LineNo[i] := LibraryTextFileValidation.FindLineNoWithValue(FileName, 93, 40, PadCustVendNo(Vendor."No."), i);
+            LineText[i] := LibraryTextFileValidation.ReadLine(FileName, LineNo[i]);
+        end;
+
+        // [THEN] Verify the Original Declared Amount when Including Credit Memos with and Without Corrected Invoice No.
+        VerifyRectificationLine(LineText[1], 'I', WorkDate(), InvoiceAmount[4], ABS(CrMemoAmt[2]));
+
+        // [THEN] Verify the Total Amount when Including Credit Memos with and Without Corrected Invoice No.
+        VerifyNormalLine(LineText[2], 'I', TotalAmount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,Make349DeclarationRequestPageHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler2')]
+    procedure Make349DeclExportsWhenIncludeSalesCreditMemosWithAndWithoutCorrectedInvoiceNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        VATPostingSetup: Record "VAT Posting Setup";
+        CrMemoNo: array[2] of Code[20];
+        InvNo: array[4] of Code[20];
+        CrMemoAmt: array[2] of Decimal;
+        InvoiceAmount: array[4] of Decimal;
+        TotalAmount: Decimal;
+        i: Integer;
+        LineNo: array[2] of Integer;
+        FileName: Text;
+        LineText: array[2] of Text;
+    begin
+        // [SCENARIO 559355] Verify Make 349 declaration exports information when including Credit Memos with and without Corrected Invoice No. 
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup with GL Accounts.
+        CreateVATPostingSetup(VATPostingSetup, true);
+        ModifyVATPostingSetupWithGLAccounts(VATPostingSetup);
+
+        // [GIVEN] Create EU Customer.
+        CreateEUCustomerWithPostingGroups(Customer, VATPostingSetup);
+
+        // [GIVEN] Create New Item.
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(2000, 2));
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Post Sales Invoice.
+        for i := 1 to LibraryRandom.RandIntInRange(4, 4) do begin
+            InvNo[i] := CreateAndPostMultipleSalesDocument(Customer, Item, InvoiceAmount[i]);
+            TotalAmount += InvoiceAmount[i];
+        end;
+
+        // [GIVEN] Create and Post Sales Credit Memo with Corrective Invoice.
+        CrMemoNo[1] := CreateAndPostMultipleSalesCreditMemoDocument(Customer, Item, InvNo[4], CrMemoAmt[1], InvoiceAmount[4]);
+        TotalAmount += CrMemoAmt[1];
+
+        // [GIVEN] Create and Post Sales Credit Memo without Corrective Invoice.
+        CrMemoNo[2] := CreateAndPostMultipleSalesCreditMemoDocument(Customer, Item, '', CrMemoAmt[2], InvoiceAmount[4]);
+
+        // [GIVEN] Enqueue the Multiple Values.
+        EnqueueMultipleValues(Customer."No.", InvoiceAmount[4]);
+
+        // [WHEN] Run Make 349 Declaration Report.
+        FileName := RunMake349DeclarationWithDate(WorkDate());
+
+        // [WHEN] Store the line Wise Value.
+        for i := 1 to LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Customer.Name), 93, 40) do begin
+            LineNo[i] := LibraryTextFileValidation.FindLineNoWithValue(FileName, 93, 40, PadCustVendNo(Customer."No."), i);
+            LineText[i] := LibraryTextFileValidation.ReadLine(FileName, LineNo[i]);
+        end;
+
+        // [THEN] Verify the Original Declared Amount when Including Credit Memos with and Without Corrected Invoice No.
+        VerifyRectificationLine(LineText[1], 'S', WorkDate(), InvoiceAmount[4], ABS(CrMemoAmt[2]));
+
+        // [THEN] Verify the Total Amount when Including Credit Memos with and Without Corrected Invoice No.
+        VerifyNormalLine(LineText[2], 'S', TotalAmount);
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -7940,12 +7942,20 @@ codeunit 144117 "ERM Make 349 Declaration"
 
     [ModalPageHandler]
     procedure CustomerVendorWarnings349IncludeAllEntriesPageHandler2(var CustomerVendorWarnings349: TestPage "Customer/Vendor Warnings 349")
+    var
+        VendorNo: Variant;
+        Amount: Variant;
+        PostingDate: Variant;
     begin
-        CustomerVendorWarnings349.Filter.SetFilter("Customer/Vendor No.", LibraryVariableStorage.DequeueText());
+        VendorNo := LibraryVariableStorage.DequeueText();
+        Amount := LibraryVariableStorage.DequeueDecimal();
+        PostingDate := LibraryVariableStorage.DequeueDate();
+        CustomerVendorWarnings349.Filter.SetFilter("Customer/Vendor No.", VendorNo);
+        CustomerVendorWarnings349.Filter.SetFilter("Posting Date", Format(PostingDate));
         CustomerVendorWarnings349."Include Correction".SetValue(true);
         CustomerVendorWarnings349.Next();
         CustomerVendorWarnings349."Include Correction".SetValue(true);
-        CustomerVendorWarnings349."Original Declared Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
+        CustomerVendorWarnings349."Original Declared Amount".SetValue(Amount);
         CustomerVendorWarnings349.Process.Invoke();
     end;
 
@@ -8230,96 +8240,6 @@ codeunit 144117 "ERM Make 349 Declaration"
         CompanyInformation.Modify();
     end;
 
-    local procedure ModifyVATPostingSetupWithGLAccounts(VATPostingSetup: Record "VAT Posting Setup")
-    begin
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
-        VATPostingSetup.Validate("VAT %", 0);
-
-        VATPostingSetup.Modify(true);
-    end;
-
-    local procedure CreateAndPostMultiplePurchaseDocument(Vendor: Record Vendor; Item: Record Item; var Amount: Decimal): Code[20]
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        DocumentNo: Code[20];
-    begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
-        PurchaseLine.Modify(true);
-        Amount := PurchaseLine.Amount;
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
-
-        exit(DocumentNo);
-    end;
-
-    local procedure CreateAndPostMultipleSalesDocument(Customer: Record Customer; Item: Record Item; var Amount: Decimal): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        DocumentNo: Code[20];
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-        SalesLine.Validate("Unit Cost", LibraryRandom.RandInt(1000));
-        SalesLine.Modify(true);
-        Amount := SalesLine.Amount;
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
-
-        exit(DocumentNo);
-    end;
-
-    local procedure CreateAndPostMultiplePurchaseCreditMemoDocument(Vendor: Record Vendor; Item: Record Item; CorrectiveInvNo: Code[20]; var CrMemoAmt: Decimal; Amount: Decimal): Code[20]
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        DocumentNo: Code[20];
-    begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
-        if CorrectiveInvNo <> '' then
-            PurchaseHeader.Validate("Corrected Invoice No.", CorrectiveInvNo);
-        PurchaseHeader.Modify(true);
-
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
-        PurchaseHeader.CalcFields("Amount Including VAT");
-        PurchaseLine.Validate("Direct Unit Cost", Amount);
-        PurchaseLine.Modify(true);
-        CrMemoAmt := -PurchaseHeader."Amount Including VAT";
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
-
-        exit(DocumentNo);
-    end;
-
-    local procedure CreateAndPostMultipleSalesCreditMemoDocument(Customer: Record Customer; Item: Record Item; CorrectiveInvNo: Code[20]; var CrMemoAmt: Decimal; Amount: Decimal): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        DocumentNo: Code[20];
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        if CorrectiveInvNo <> '' then begin
-            SalesHeader.Validate("Corrected Invoice No.", CorrectiveInvNo);
-            SalesHeader.Modify(true);
-        end;
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-        SalesHeader.CalcFields("Amount Including VAT");
-        SalesLine.Validate("Unit Cost", Amount);
-        SalesLine.Modify(true);
-        CrMemoAmt := -SalesHeader."Amount Including VAT";
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
-
-        exit(DocumentNo);
-    end;
-
-    local procedure EnqueueMultipleValues(VendorCustomerNo: Code[20]; InvoiceAmount: Decimal)
-    begin
-        LibraryVariableStorage.Enqueue(WorkDate());
-        LibraryVariableStorage.Enqueue(VendorCustomerNo);
-        LibraryVariableStorage.Enqueue(InvoiceAmount);
-    end;
-
     local procedure ModifyVATSetup()
     var
         VATSetup: Record "VAT Setup";
@@ -8445,6 +8365,96 @@ codeunit 144117 "ERM Make 349 Declaration"
             CountryRegion.Validate("EU Country/Region Code", '');
             CountryRegion.Modify(true);
         end;
+    end;
+
+    local procedure ModifyVATPostingSetupWithGLAccounts(VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        VATPostingSetup.Validate("VAT %", 0);
+
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateAndPostMultiplePurchaseDocument(Vendor: Record Vendor; Item: Record Item; var Amount: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DocumentNo: Code[20];
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+        PurchaseLine.Modify(true);
+        Amount := PurchaseLine.Amount;
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure CreateAndPostMultipleSalesDocument(Customer: Record Customer; Item: Record Item; var Amount: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Cost", LibraryRandom.RandInt(1000));
+        SalesLine.Modify(true);
+        Amount := SalesLine.Amount;
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure CreateAndPostMultiplePurchaseCreditMemoDocument(Vendor: Record Vendor; Item: Record Item; CorrectiveInvNo: Code[20]; var CrMemoAmt: Decimal; Amount: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DocumentNo: Code[20];
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
+        if CorrectiveInvNo <> '' then
+            PurchaseHeader.Validate("Corrected Invoice No.", CorrectiveInvNo);
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        PurchaseLine.Validate("Direct Unit Cost", Amount);
+        PurchaseLine.Modify(true);
+        CrMemoAmt := -PurchaseHeader."Amount Including VAT";
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure CreateAndPostMultipleSalesCreditMemoDocument(Customer: Record Customer; Item: Record Item; CorrectiveInvNo: Code[20]; var CrMemoAmt: Decimal; Amount: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        if CorrectiveInvNo <> '' then begin
+            SalesHeader.Validate("Corrected Invoice No.", CorrectiveInvNo);
+            SalesHeader.Modify(true);
+        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesHeader.CalcFields("Amount Including VAT");
+        SalesLine.Validate("Unit Cost", Amount);
+        SalesLine.Modify(true);
+        CrMemoAmt := -SalesHeader."Amount Including VAT";
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure EnqueueMultipleValues(VendorCustomerNo: Code[20]; InvoiceAmount: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(VendorCustomerNo);
+        LibraryVariableStorage.Enqueue(InvoiceAmount);
     end;
 }
 

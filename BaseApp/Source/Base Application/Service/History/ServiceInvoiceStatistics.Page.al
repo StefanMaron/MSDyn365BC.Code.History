@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Calculation;
@@ -189,7 +193,7 @@ page 6033 "Service Invoice Statistics"
                     ApplicationArea = Service;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies information about the customer''s credit limit.';
+                    ToolTip = 'Specifies the credit limit of the customer on the service document. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -232,10 +236,8 @@ page 6033 "Service Invoice Statistics"
                 CustAmount := CustAmount + ServInvLine.Amount;
                 AmountInclVAT := AmountInclVAT + ServInvLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then begin
-                    InvDiscAmount := InvDiscAmount + ServInvLine."Inv. Discount Amount" /
-                      (1 + (ServInvLine."VAT %" + ServInvLine."EC %") / 100);
-                    PmtDiscAmount := PmtDiscAmount + ServInvLine."Pmt. Discount Amount" /
-                      (1 + (ServInvLine."VAT %" + ServInvLine."EC %") / 100)
+                    InvDiscAmount := InvDiscAmount + ServInvLine."Inv. Discount Amount" / (1 + ServInvLine.GetVATPct() / 100);
+                    PmtDiscAmount := PmtDiscAmount + ServInvLine."Pmt. Discount Amount" / (1 + ServInvLine.GetVATPct() / 100);
                 end else begin
                     InvDiscAmount := InvDiscAmount + ServInvLine."Inv. Discount Amount";
                     PmtDiscAmount := PmtDiscAmount + ServInvLine."Pmt. Discount Amount";
@@ -249,7 +251,7 @@ page 6033 "Service Invoice Statistics"
                     TotalParcels := TotalParcels + Round(ServInvLine.Quantity / ServInvLine."Units per Parcel", 1, '>');
                 if ServInvLine."VAT %" <> VATPercentage then
                     if VATPercentage = 0 then
-                        VATPercentage := ServInvLine."VAT %" + ServInvLine."EC %"
+                        VATPercentage := ServInvLine.GetVATPct()
                     else
                         VATPercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + ServCostCalculationMgt.CalcServInvLineCostLCY(ServInvLine);
@@ -353,4 +355,3 @@ page 6033 "Service Invoice Statistics"
     begin
     end;
 }
-

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -34,6 +38,7 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
 
@@ -468,6 +473,11 @@ table 5990 "Service Shipment Header"
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
         }
+        field(200; "Work Description"; BLOB)
+        {
+            Caption = 'Work Description';
+            DataClassification = CustomerContent;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -769,6 +779,7 @@ table 5990 "Service Shipment Header"
             Caption = 'Cust. Bank Acc. Code';
             TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
         }
+#if not CLEANSCHEMA25
         field(7000003; "Pay-at Code"; Code[10])
         {
             Caption = 'Pay-at Code';
@@ -777,6 +788,7 @@ table 5990 "Service Shipment Header"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys
@@ -952,6 +964,25 @@ table 5990 "Service Shipment Header"
 #endif
             CertificateOfSupply.Insert(true);
         end
+    end;
+
+    procedure IsCompletelyInvoiced(): Boolean
+    var
+        ServiceShipmentLine: Record "Service Shipment Line";
+    begin
+        ServiceShipmentLine.SetRange("Document No.", "No.");
+        ServiceShipmentLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
+        exit(ServiceShipmentLine.IsEmpty());
+    end;
+
+    procedure GetWorkDescription(): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        CalcFields("Work Description");
+        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
     [IntegrationEvent(false, false)]

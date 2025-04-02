@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.PaymentTerms;
 
 using Microsoft.Integration.Dataverse;
@@ -64,17 +68,6 @@ page 4 "Payment Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an explanation of the payment terms.';
                 }
-#if not CLEAN23
-                field("Coupled to CRM"; Rec."Coupled to CRM")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies that the payment term is coupled to a payment term in Dataverse.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Coupled to Dataverse"; CDSIsCoupledToRecord)
                 {
                     ApplicationArea = All;

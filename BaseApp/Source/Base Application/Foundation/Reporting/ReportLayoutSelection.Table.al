@@ -140,6 +140,7 @@ table 9651 "Report Layout Selection"
         end;
     end;
 
+#if not CLEAN25
     [Obsolete('Moved to codeunit Report Management Helper', '25.0')]
     procedure IsProcessingOnly(ReportID: Integer): Boolean
     var
@@ -147,6 +148,7 @@ table 9651 "Report Layout Selection"
     begin
         exit(ReportManagementHelper.IsProcessingOnly(ReportID));
     end;
+#endif
 
     internal procedure HasLayoutOfType(ReportID: Integer; LayoutType: ReportLayoutType): Boolean
     begin
@@ -191,7 +193,7 @@ table 9651 "Report Layout Selection"
         exit(not ReportLayoutList.IsEmpty());
     end;
 
-    local procedure HasExternalLayout(ReportID: Integer): Boolean
+    procedure HasExternalLayout(ReportID: Integer): Boolean
     var
         ReportLayoutList: Record "Report Layout List";
     begin
@@ -200,7 +202,7 @@ table 9651 "Report Layout Selection"
         exit(not ReportLayoutList.IsEmpty());
     end;
 
-
+#if not CLEAN25
     [Obsolete('Obsolete programming model. Replaced by HasExternalLayout', '25.0')]
     procedure HasCustomLayout(ReportID: Integer): Integer
     var
@@ -217,6 +219,7 @@ table 9651 "Report Layout Selection"
         // Normal selection
         exit(HasNormalCustomLayoutSelection(ReportID));
     end;
+#endif
 
     procedure SelectedBuiltinLayoutType(ReportID: Integer): Integer
     begin
@@ -236,6 +239,9 @@ table 9651 "Report Layout Selection"
         end;
     end;
 
+#pragma warning disable AS0072
+#if not CLEAN25
+    [Obsolete('Obsolete programming model. Replaced by HasExternalLayout', '25.0')]
     local procedure HasNormalCustomLayoutSelection(ReportID: Integer) Result: Integer
     var
         CustomReportLayout: Record "Custom Report Layout";
@@ -262,6 +268,8 @@ table 9651 "Report Layout Selection"
                 exit(0);
         end;
     end;
+#endif
+#pragma warning restore AS0072
 
     procedure GetTempLayoutSelected(): Code[20]
     var
@@ -306,9 +314,14 @@ table 9651 "Report Layout Selection"
         DesignTimeReportSelection.SetSelectedLayout('');
     end;
 
+#pragma warning disable AS0072
+#if not CLEAN25
+    [Obsolete('Obsolete programming model. Replaced by HasExternalLayout', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHasNormalCustomLayoutSelection(ReportID: Integer; var Result: Integer; var Handled: Boolean; var ReportLayoutSelectionRec: Record "Report Layout Selection")
     begin
     end;
+#endif
+#pragma warning restore AS0072
 }
 

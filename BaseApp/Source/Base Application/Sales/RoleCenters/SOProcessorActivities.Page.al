@@ -29,13 +29,11 @@ page 9060 "SO Processor Activities"
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Quotes";
-                    ToolTip = 'Specifies the number of sales quotes that are not yet converted to invoices or orders.';
                 }
                 field("Sales Orders - Open"; Rec."Sales Orders - Open")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Order List";
-                    ToolTip = 'Specifies the number of sales orders that are not fully posted.';
                 }
                 field(SalesOrdersReservedFromStock; SalesOrdersReservedFromStock)
                 {
@@ -140,13 +138,11 @@ page 9060 "SO Processor Activities"
                 {
                     ApplicationArea = SalesReturnOrder;
                     DrillDownPageID = "Sales Return Order List";
-                    ToolTip = 'Specifies the number of sales return orders documents that are displayed in the Sales Cue on the Role Center. The documents are filtered by today''s date.';
                 }
                 field("Sales Credit Memos - Open"; Rec."Sales Credit Memos - Open")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Credit Memos";
-                    ToolTip = 'Specifies the number of sales credit memos that are not yet posted.';
                 }
 
                 actions
@@ -176,13 +172,11 @@ page 9060 "SO Processor Activities"
                 field("Sales Inv. - Pending Doc.Exch."; Rec."Sales Inv. - Pending Doc.Exch.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies sales invoices that await sending to the customer through the document exchange service.';
                     Visible = ShowDocumentsPendingDodExchService;
                 }
                 field("Sales CrM. - Pending Doc.Exch."; Rec."Sales CrM. - Pending Doc.Exch.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies sales credit memos that await sending to the customer through the document exchange service.';
                     Visible = ShowDocumentsPendingDodExchService;
                 }
             }
@@ -267,6 +261,7 @@ page 9060 "SO Processor Activities"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         ShowDocumentsPendingDodExchService := false;
+        DocExchServiceSetup.SetLoadFields("Enabled");
         if DocExchServiceSetup.Get() then
             ShowDocumentsPendingDodExchService := DocExchServiceSetup.Enabled;
     end;
@@ -326,7 +321,7 @@ page 9060 "SO Processor Activities"
         UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo(Delayed), DelayedOrders, DelayedOrdersStyle);
         UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo("Partially Shipped"), PartiallyShipped, PartiallyShippedStyle);
 
-        if Rec.WritePermission and (Rec."Avg. Days Delayed Updated On" > PrevUpdatedOn) then begin
+        if Rec.WritePermission() and (Rec."Avg. Days Delayed Updated On" > PrevUpdatedOn) then begin
             PrevUpdatedOn := Rec."Avg. Days Delayed Updated On";
             Rec.LockTable();
             Rec.Get();

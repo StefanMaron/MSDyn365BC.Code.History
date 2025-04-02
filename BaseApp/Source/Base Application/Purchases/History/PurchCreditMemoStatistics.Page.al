@@ -175,8 +175,8 @@ page 401 "Purch. Credit Memo Statistics"
         Vend.CalcFields("Balance (LCY)");
 
         PurchCrMemoLine.CalcVATAmountLines(Rec, TempVATAmountLine);
-        CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
-        CurrPage.SubForm.PAGE.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
+        CurrPage.SubForm.Page.SetTempVATAmountLine(TempVATAmountLine);
+        CurrPage.SubForm.Page.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
     end;
 
     var
@@ -222,10 +222,8 @@ page 401 "Purch. Credit Memo Statistics"
                 VendAmount += PurchCrMemoLine.Amount;
                 AmountInclVAT += PurchCrMemoLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then begin
-                    InvDiscAmount +=
-                        PurchCrMemoLine."Inv. Discount Amount" / (1 + (PurchCrMemoLine."VAT %" + PurchCrMemoLine."EC %") / 100);
-                    PmtDiscAmount +=
-                        PurchCrMemoLine."Pmt. Discount Amount" / (1 + (PurchCrMemoLine."VAT %" + PurchCrMemoLine."EC %") / 100)
+                    InvDiscAmount += PurchCrMemoLine."Inv. Discount Amount" / (1 + PurchCrMemoLine.GetVATPct() / 100);
+                    PmtDiscAmount += PurchCrMemoLine."Pmt. Discount Amount" / (1 + PurchCrMemoLine.GetVATPct() / 100);
                 end else begin
                     InvDiscAmount += PurchCrMemoLine."Inv. Discount Amount";
                     PmtDiscAmount += PurchCrMemoLine."Pmt. Discount Amount";
@@ -238,7 +236,7 @@ page 401 "Purch. Credit Memo Statistics"
                     TotalParcels += Round(PurchCrMemoLine.Quantity / PurchCrMemoLine."Units per Parcel", 1, '>');
                 if PurchCrMemoLine."VAT %" <> VATPercentage then
                     if VATPercentage = 0 then
-                        VATPercentage := PurchCrMemoLine."VAT %" + PurchCrMemoLine."EC %"
+                        VATPercentage := PurchCrMemoLine.GetVATPct()
                     else
                         VATPercentage := -1;
 

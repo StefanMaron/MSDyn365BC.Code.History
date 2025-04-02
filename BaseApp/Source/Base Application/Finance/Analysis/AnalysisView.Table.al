@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.Analysis;
+namespace Microsoft.Finance.Analysis;
 
 using Microsoft.CashFlow.Account;
 using Microsoft.CashFlow.Forecast;
@@ -401,15 +401,6 @@ table 363 "Analysis View"
         field(19; "Reset Needed"; Boolean)
         {
             Caption = 'Data update needed';
-        }
-        field(10700; "Historic G/L Account Filter"; Text[250])
-        {
-            Caption = 'Historic G/L Account Filter';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-            //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
-            //ValidateTableRelation = false;
         }
     }
 
@@ -1000,4 +991,3 @@ table 363 "Analysis View"
     begin
     end;
 }
-

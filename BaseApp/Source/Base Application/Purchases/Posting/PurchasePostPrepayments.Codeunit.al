@@ -16,7 +16,6 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Document;
@@ -32,9 +31,6 @@ codeunit 444 "Purchase-Post Prepayments"
 {
     Permissions = TableData "Purchase Line" = rimd,
                   TableData "G/L Register" = rimd,
-#if not CLEAN23
-                  TableData "Invoice Post. Buffer" = rimd,
-#endif
                   TableData "Vendor Posting Group" = rimd,
                   TableData "Inventory Posting Group" = rimd,
                   TableData "Purch. Inv. Header" = rimd,
@@ -49,6 +45,21 @@ codeunit 444 "Purchase-Post Prepayments"
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        PurchSetup: Record "Purchases & Payables Setup";
+        GenPostingSetup: Record "General Posting Setup";
+        TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary;
+        TempPurchaseLine: Record "Purchase Line" temporary;
+        GenJournalTemplate: Record "Gen. Journal Template";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        SuppressCommit: Boolean;
+        PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
+        PreviewMode: Boolean;
+        AutoDocNo: Code[20];
+
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text002: Label 'Posting Prepayment Lines   #2######\';
@@ -63,16 +74,6 @@ codeunit 444 "Purchase-Post Prepayments"
         PostingDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - Posting Date field caption';
         SpecifyInvNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted purchase prepayment invoices.';
         SpecifyCrNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted purchase prepayment invoices.';
-        GLSetup: Record "General Ledger Setup";
-        PurchSetup: Record "Purchases & Payables Setup";
-        GenPostingSetup: Record "General Posting Setup";
-        TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary;
-        TempPurchaseLine: Record "Purchase Line" temporary;
-        GenJournalTemplate: Record "Gen. Journal Template";
-        ErrorMessageMgt: Codeunit "Error Message Management";
-        FeatureTelemetry: Codeunit "Feature Telemetry";
-        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
-        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text013: Label 'It is not possible to assign a prepayment amount of %1 to the purchase lines.';
@@ -88,10 +89,6 @@ codeunit 444 "Purchase-Post Prepayments"
 #pragma warning disable AA0074
         text019: Label 'Invoice,Credit Memo';
 #pragma warning restore AA0074
-        SuppressCommit: Boolean;
-        PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
-        PreviewMode: Boolean;
-        AutoDocNo: Code[20];
 
     procedure SetDocumentType(DocumentType: Option ,,Invoice,"Credit Memo")
     begin
@@ -341,6 +338,7 @@ codeunit 444 "Purchase-Post Prepayments"
         if IsHandled then
             exit;
 
+        PrevLineNo := 0;
         TempPrepmtInvLineBuffer.Find('-');
         repeat
             LineCount := LineCount + 1;
@@ -374,7 +372,7 @@ codeunit 444 "Purchase-Post Prepayments"
             exit;
 
         if PurchHeader.TestStatusIsNotPendingPrepayment() then
-            PurchHeader.Status := "Purchase Document Status"::"Pending Prepayment";
+            PurchHeader.Status := PurchHeader.Status::"Pending Prepayment";
     end;
 
     procedure CheckPrepmtDoc(PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo")
@@ -489,7 +487,6 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchHeader."Prepayment No." := NoSeries.GetNextNo(PurchHeader."Prepayment No. Series", PurchHeader."Posting Date");
             ModifyHeader := true;
         end
-
     end;
 
     local procedure UpdateCrMemoDocNos(var PurchHeader: Record "Purchase Header"; var ModifyHeader: Boolean)
@@ -767,13 +764,11 @@ codeunit 444 "Purchase-Post Prepayments"
             repeat
                 PrepmtAmt := PrepmtAmount(PurchLine, DocumentType);
                 if PrepmtAmt <> 0 then begin
-                    VATAmountLine.Get(
-                      PurchLine."Prepayment VAT Identifier", PurchLine."Prepmt. VAT Calc. Type", PurchLine."Prepayment Tax Group Code", false, PrepmtAmt >= 0);
+                    FindVATAmountLine(PurchLine, VATAmountLine, PrepmtAmt);
                     OnUpdateVATOnLinesOnAfterVATAmountLineGet(VATAmountLine);
                     if VATAmountLine.Modified then begin
                         RemainderExists :=
-                          TempVATAmountLineRemainder.Get(
-                            PurchLine."Prepayment VAT Identifier", PurchLine."Prepmt. VAT Calc. Type", PurchLine."Prepayment Tax Group Code", false, PrepmtAmt >= 0);
+                          FindVATAmountLine(PurchLine, TempVATAmountLineRemainder, PrepmtAmt);
                         OnUpdateVATOnLinesOnAfterGetRemainder(TempVATAmountLineRemainder, RemainderExists);
                         if not RemainderExists then begin
                             TempVATAmountLineRemainder := VATAmountLine;
@@ -856,6 +851,7 @@ codeunit 444 "Purchase-Post Prepayments"
                     end;
                 end;
             until PurchLine.Next() = 0;
+        VATAmountLine.Reset();
 
         OnAfterUpdateVATOnLines(PurchHeader, PurchLine, VATAmountLine, DocumentType);
     end;
@@ -881,12 +877,9 @@ codeunit 444 "Purchase-Post Prepayments"
                        [PurchLine."VAT Calculation Type"::"Reverse Charge VAT", PurchLine."VAT Calculation Type"::"Sales Tax"]
                     then
                         PurchLine."VAT %" := 0;
-                    if not VATAmountLine.Get(
-                         PurchLine."Prepayment VAT Identifier", PurchLine."Prepmt. VAT Calc. Type", PurchLine."Prepayment Tax Group Code", false, NewAmount >= 0)
-                    then
-                        VATAmountLine.InsertNewLine(
-                          PurchLine."Prepayment VAT Identifier", PurchLine."Prepmt. VAT Calc. Type", PurchLine."Prepayment Tax Group Code", false,
-                          PurchLine."Prepayment VAT %", NewAmount >= 0, true, PurchLine."Prepayment EC %", 0);
+
+                    if not FindVATAmountLine(PurchLine, VATAmountLine, NewAmount) then
+                        InsertVATAmountLine(PurchLine, VATAmountLine, NewAmount);
 
                     VATAmountLine."Line Amount" := VATAmountLine."Line Amount" + NewAmount;
                     NewPrepmtVATDiffAmt := PrepmtVATDiffAmount(PurchLine, DocumentType);
@@ -897,12 +890,40 @@ codeunit 444 "Purchase-Post Prepayments"
                     VATAmountLine.Modify();
                 end;
             until PurchLine.Next() = 0;
+        VATAmountLine.Reset();
 
         VATAmountLine.UpdateLines(
           NewAmount, Currency, PurchHeader."Currency Factor", PurchHeader."Prices Including VAT",
           PurchHeader."VAT Base Discount %", PurchHeader."Tax Area Code", PurchHeader."Tax Liable", PurchHeader."Posting Date");
 
         OnAfterCalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, DocumentType);
+    end;
+
+    local procedure FindVATAmountLine(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line" temporary; LineAmount: Decimal): Boolean
+    begin
+        VATAmountLine.Reset();
+        VATAmountLine.SetRange("VAT Identifier", PurchaseLine."Prepayment VAT Identifier");
+        VATAmountLine.SetRange("VAT Calculation Type", PurchaseLine."Prepmt. VAT Calc. Type");
+        VATAmountLine.SetRange("Tax Group Code", PurchaseLine."Prepayment Tax Group Code");
+        VATAmountLine.SetRange("Use Tax", false);
+        VATAmountLine.SetRange(Positive, LineAmount >= 0);
+        OnFindVATAmountLineOnAfterSetFilters(PurchaseLine, VATAmountLine);
+        exit(VATAmountLine.FindFirst());
+    end;
+
+    local procedure InsertVATAmountLine(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; LineAmount: Decimal)
+    begin
+        VATAmountLine.Init();
+        VATAmountLine."VAT Identifier" := PurchaseLine."Prepayment VAT Identifier";
+        VATAmountLine."VAT Calculation Type" := PurchaseLine."Prepmt. VAT Calc. Type";
+        VATAmountLine."Tax Group Code" := PurchaseLine."Prepayment Tax Group Code";
+        VATAmountLine."VAT %" := PurchaseLine."Prepayment VAT %";
+        VATAmountLine."EC %" := PurchaseLine."Prepayment EC %";
+        VATAmountLine.Positive := LineAmount >= 0;
+        VATAmountLine.Modified := true;
+        VATAmountLine."Includes Prepayment" := true;
+        OnInsertVATAmountOnBeforeInsert(PurchaseLine, VATAmountLine);
+        VATAmountLine.Insert();
     end;
 
     procedure SumPrepmt(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; var TotalAmount: Decimal; var TotalVATAmount: Decimal; var VATAmountText: Text[30])
@@ -917,10 +938,10 @@ codeunit 444 "Purchase-Post Prepayments"
         UpdateVATOnLines(PurchHeader, PurchLine, VATAmountLine, 2);
         BuildInvLineBuffer(PurchHeader, PurchLine, 2, TempPrepmtInvLineBuf, false);
         if TempPrepmtInvLineBuf.Find('-') then begin
-            PrevVATPct := TempPrepmtInvLineBuf."VAT %" + TempPrepmtInvLineBuf."EC %";
+            PrevVATPct := TempPrepmtInvLineBuf.GetVATPct();
             repeat
                 RoundAmounts(PurchHeader, TempPrepmtInvLineBuf, TotalPrepmtInvLineBuf, TotalPrepmtInvLineBufLCY);
-                if (TempPrepmtInvLineBuf."VAT %" + TempPrepmtInvLineBuf."EC %") <> PrevVATPct then
+                if TempPrepmtInvLineBuf.GetVATPct() <> PrevVATPct then
                     DifVATPct := true;
             until TempPrepmtInvLineBuf.Next() = 0;
         end;
@@ -934,7 +955,6 @@ codeunit 444 "Purchase-Post Prepayments"
 
     procedure GetPurchLines(PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo",Statistic; var ToPurchLine: Record "Purchase Line")
     var
-        PurchSetup: Record "Purchases & Payables Setup";
         FromPurchLine: Record "Purchase Line";
         InvRoundingPurchLine: Record "Purchase Line";
         TempVATAmountLine: Record "VAT Amount Line" temporary;
@@ -988,7 +1008,6 @@ codeunit 444 "Purchase-Post Prepayments"
         PrepmtInvLineBuf2: Record "Prepayment Inv. Line Buffer";
         TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer";
         TotalPrepmtInvLineBufferDummy: Record "Prepayment Inv. Line Buffer";
-        PurchSetup: Record "Purchases & Payables Setup";
     begin
         TempGlobalPrepmtInvLineBuf.Reset();
         TempGlobalPrepmtInvLineBuf.DeleteAll();
@@ -1388,6 +1407,7 @@ codeunit 444 "Purchase-Post Prepayments"
             Error(Text013, NewTotalPrepmtAmount);
         if not (NewTotalPrepmtAmount in [TotalPrepmtAmtInv .. TotalLineAmount]) then
             Error(Text016, TotalPrepmtAmtInv, TotalLineAmount);
+        TotalPrepmtAmount := 0;
         if PurchLine.Find('-') then
             repeat
                 if PurchLine."Line No." <> LastLineNo then
@@ -1410,10 +1430,11 @@ codeunit 444 "Purchase-Post Prepayments"
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodeSetup.Get();
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", PurchLine."Work Center No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", PurchLine."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, PurchLine."Job No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", PurchLine."Responsibility Center");
+        OnCreateDimensionsOnAfterAddDimSources(PurchLine, DefaultDimSource);
+
         PurchLine."Shortcut Dimension 1 Code" := '';
         PurchLine."Shortcut Dimension 2 Code" := '';
         PurchLine."Dimension Set ID" :=
@@ -2018,8 +2039,22 @@ codeunit 444 "Purchase-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertVATAmountOnBeforeInsert(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindVATAmountLineOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBuildInvLineBufferOnPrepmtAmountZero(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var PrepaymentInvLineBuffer2: Record "Prepayment Inv. Line Buffer"; var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var TempPurchaseLineSource: Record "Purchase Line" temporary);
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimensionsOnAfterAddDimSources(var PurchaseLine: Record "Purchase Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
 }

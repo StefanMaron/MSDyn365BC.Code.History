@@ -71,7 +71,7 @@
         Quantity2: Decimal;
     begin
         // Setup: Create Blanket Purchase Order. Create Purchase Order and update Blanket Order No. on Purchase Order line.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);  // Value required for the test.
         LibraryInventory.CreateItem(Item);
@@ -100,7 +100,7 @@
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Order. Create Purchase Invoice with Item Charge.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandInt(50);  // Using Item Charge.
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -135,7 +135,7 @@
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Order. Undo Purchase Receipt.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -163,7 +163,7 @@
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Order with Negative Quantity.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -191,7 +191,7 @@
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Order. Undo Purchase Receipt.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -219,7 +219,7 @@
         Quantity: Decimal;
     begin
         // Setup: Create and Post Purchase Return Order. Undo Return Shipment Line.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -247,7 +247,7 @@
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Return Order with Negative Quantity.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -278,7 +278,7 @@
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Return Order with Negative Quantity. Create Sales Order and Reserve Quantity.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -304,7 +304,7 @@
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Block Item.
-        Initialize(false);
+        Initialize();
         CreateBlockedItem(Item);
 
         // Exercise: Create Purchase Order.
@@ -324,7 +324,7 @@
     begin
         // [FEATURE] [Purchase] [Reservation] [Date Conflict]
         // [SCENARIO 211625] Expected Receipt Date on Purchase Line cannot be updated if it becomes later than Shipment Date of sales reserved from this line.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item "I" with Reserve = "Always".
         // [GIVEN] Purchase Order with item "I" and Expected Receipt Date = WORKDATE.
@@ -347,7 +347,7 @@
     begin
         // [FEATURE] [Purchase] [Reservation]
         // [SCENARIO 211625] Expected Receipt Date on Purchase Line should not be updated after this date is erased on Purchase Header.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item "I" with Reserve = "Always".
         // [GIVEN] Purchase Order with item "I" and Expected Receipt Date = WORKDATE.
@@ -371,7 +371,7 @@
     begin
         // [FEATURE] [Purchase] [Reservation] [Date Conflict]
         // [SCENARIO 211625] Expected Receipt Date on Purchase Line can be updated if this date is set to an earlier value on Purchase Header.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item "I" with Reserve = "Always".
         // [GIVEN] Purchase Order with item "I" and Expected Receipt Date = WORKDATE.
@@ -394,7 +394,7 @@
     begin
         // [FEATURE] [Purchase] [Reservation] [Date Conflict]
         // [SCENARIO 211625] Expected Receipt Date on Purchase Line cannot be erased if this line is reserved.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item "I" with Reserve = "Always".
         // [GIVEN] Purchase Order with item "I" and Expected Receipt Date = WORKDATE.
@@ -415,7 +415,7 @@
     procedure PostPurchaseReturnOrderWithExactCostReversingMandatoryTrue()
     begin
         // Setup.
-        Initialize(false);
+        Initialize();
         PostPurchaseReturnOrderWithExactCostReversingMandatory(true);  // ExactCostReversingMandatory as TRUE.
     end;
 
@@ -424,7 +424,7 @@
     procedure PostPurchaseReturnOrderWithExactCostReversingMandatoryFalse()
     begin
         // Setup.
-        Initialize(false);
+        Initialize();
         PostPurchaseReturnOrderWithExactCostReversingMandatory(false);  // ExactCostReversingMandatory as FALSE.
     end;
 
@@ -439,7 +439,7 @@
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         // Setup: Create and register Put-away from Purchase Order. Create and Register Pick from Purchase Return Order.
-        Initialize(false);
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndRegisterPutAwayFromPurchaseOrder(PurchaseLine, Item."No.", LocationGreen.Code);
         CreatePickFromPurchaseReturnOrder(
@@ -467,7 +467,7 @@
         PostedDocumentNo: Code[20];
     begin
         // Setup: Create and post Purchase Order. Create and Post Purchase Credit Memo with Get Return Shipment Line.
-        Initialize(false);
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
         PostedDocumentNo :=
@@ -498,7 +498,7 @@
         ToDocumentType2: Option ,,"Order",Invoice;
     begin
         // Setup: Copy Document after create and post Purchase Order. Create negative Purchase Line in the Purchase Order.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
@@ -527,7 +527,7 @@
         ItemTrackingMode: Option AssignLotNo,UpdateQuantityToInvoice;
     begin
         // Setup: Create and Post Purchase Order as SHIP with Lot No. Update Quantity to Invoice on Item Tracking line.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);  // Quantity Shipped is greater than Quantity to Invoice.
         LibraryItemTracking.CreateLotItem(Item);
@@ -556,7 +556,7 @@
         Quantity: Decimal;
     begin
         // Setup: Create two Purchase Return Orders.
-        Initialize(false);
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -585,7 +585,7 @@
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize(false);
+        Initialize();
         UndoPurchaseDocumentForAppliedQuantity(PurchaseHeader."Document Type"::Order, 1);  // Undo Purchase Receipt for Applied Quantity.
     end;
 
@@ -596,7 +596,7 @@
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize(false);
+        Initialize();
         UndoPurchaseDocumentForAppliedQuantity(PurchaseHeader."Document Type"::"Return Order", -1);  // Undo Sales Shipment for Applied Quantity.
     end;
 
@@ -604,7 +604,7 @@
     [Scope('OnPrem')]
     procedure PostedPurchaseReceiptPageAfterPostPurchaseOrderWithSpecialOrder()
     begin
-        Initialize(false);
+        Initialize();
         PostPurchaseOrderWithSpecialOrder(false);  // Post Special Order Fully.
     end;
 
@@ -612,7 +612,7 @@
     [Scope('OnPrem')]
     procedure PostedPurchaseReceiptsPageAfterPartiallyPostPurchaseOrderWithSpecialOrder()
     begin
-        Initialize(false);
+        Initialize();
         PostPurchaseOrderWithSpecialOrder(true);  // Post Special Order Partially.
     end;
 
@@ -627,7 +627,7 @@
         PostedDocumentNo: Code[20];
     begin
         // Setup: Create and Post Purchase Order.
-        Initialize(false);
+        Initialize();
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
           CreateAndPostPurchaseDocument(
@@ -653,7 +653,7 @@
         PostedDocumentNo: Code[20];
     begin
         // Setup: Create and Post Purchase Order. Reopen the Purchase Order.
-        Initialize(false);
+        Initialize();
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
           CreateAndPostPurchaseDocument(
@@ -681,7 +681,7 @@
         PostedDocumentNo: Code[20];
     begin
         // Setup: Create and Post Purchase Order. Reopen Purchase Order and update Quantity on Purchase line.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);  // Greater value required for the Quantity in the test.
         LibraryInventory.CreateItem(Item);
@@ -716,7 +716,7 @@
         LineNo: Integer;
     begin
         // Setup: Set Expected Cost Posting to GL on Inventory Setup. Create and Post Purchase Order. Undo Posted Purchase Receipt.
-        Initialize(false);
+        Initialize();
         OldExpectedCostPostingToGL := UpdateExpectedCostPostingToGLOnInventorySetup(true);
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
@@ -754,7 +754,7 @@
         Quantity: Decimal;
     begin
         // Setup: Create Purchase Order with Item Charge Assignment. Post the Order as Receive. Undo the Purchase Receipt. Create new Purchase Line and assign Item Charge.
-        Initialize(false);
+        Initialize();
         Quantity := LibraryRandom.RandInt(50);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemCharge(ItemCharge);
@@ -780,7 +780,7 @@
     procedure PostPurchaseOrderAsReceiveAndInvoiceWithDifferentBuyFromVendorAndPayToVendor()
     begin
         // Setup.
-        Initialize(false);
+        Initialize();
         PostCreditMemoAgainstPurchaseReturnOrderUsingPayToVendorDifferentFromPurchaseOrder(false, false);  // Use Return Order as False and Credit Memo as False.
     end;
 
@@ -790,7 +790,7 @@
     procedure PostPurchaseReturnOrderAsShipUsingPayToVendorDifferentFromPurchaseOrder()
     begin
         // Setup.
-        Initialize(false);
+        Initialize();
         PostCreditMemoAgainstPurchaseReturnOrderUsingPayToVendorDifferentFromPurchaseOrder(true, false);  // Use Return Order as True and Credit Memo as False.
     end;
 
@@ -800,7 +800,7 @@
     procedure PostCreditMemoUsingPayToVendorDifferentFromPurchaseOrder()
     begin
         // Setup.
-        Initialize(false);
+        Initialize();
         PostCreditMemoAgainstPurchaseReturnOrderUsingPayToVendorDifferentFromPurchaseOrder(true, true);  // Use Return Order as True and Credit Memo as True.
     end;
 
@@ -814,7 +814,7 @@
         PurchaseOrderNo: Code[20];
     begin
         // Setup: Create Vendor. Create Purchase Order By Page.
-        Initialize(false);
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseOrderByPage(PurchaseOrder);
 
@@ -839,7 +839,7 @@
     begin
         // [SCENARIO 339745] Check total Discount Amount after posting Purchase Invoice with Item Charge
         // [GIVEN] Purchase Invoice with Charge Item with line discount and invoice discount.
-        Initialize(false);
+        Initialize();
 
         UpdateDiscountOnPurchasePayableSetup(true);
 
@@ -870,7 +870,7 @@
     begin
         // Setup: Create vendor, item, create and post purchase order with item.
         // Create and post purchase invoice with charge item with line discount and invoice discount.
-        Initialize(false);
+        Initialize();
 
         ExpdTotalDisAmt :=
           CreatePurchInvoiceWithItemChargeWithLnDiscAndInvDisc(
@@ -888,7 +888,7 @@
     procedure FillPurchasingCodeAsSpecialOrderWhenReservationEntryExist()
     begin
         // Test an error pops up when filling Purchasing Code as Special Order when Reservation Entry exists.
-        Initialize(false);
+        Initialize();
         FillPurchasingCodeWhenReservationEntryExist(false, true); // Speical Order as TRUE.
     end;
 
@@ -897,7 +897,7 @@
     procedure FillPurchasingCodeAsDropShipmentWhenReservationEntryExist()
     begin
         // Test an error pops up when filling Purchasing Code as Drop Shiment when Reservation Entry exists.
-        Initialize(false);
+        Initialize();
         FillPurchasingCodeWhenReservationEntryExist(true, false); // Drop Shiment as TRUE.
     end;
 
@@ -906,7 +906,7 @@
     procedure ChangeReserveOptionAfterFillingPurchasingCodeAsSpecialOrder()
     begin
         // Test an error pops up when changing Reserve from Never to Always when Sales Order is marked to Special Order.
-        Initialize(false);
+        Initialize();
         ChangeReserveOptionAfterFillingPurchasingCode(false, true); // Speical Order as TRUE.
     end;
 
@@ -915,7 +915,7 @@
     procedure ChangeReserveOptionAfterFillingPurchasingCodeAsDropShipment()
     begin
         // Test an error pops up when changing Reserve from Never to Always when Sales Order is marked to Drop Shipment.
-        Initialize(false);
+        Initialize();
         ChangeReserveOptionAfterFillingPurchasingCode(true, false); // Drop Shiment as TRUE.
     end;
 
@@ -928,7 +928,7 @@
         DocumentNo: Code[20];
     begin
         // Setup: Create Location and Item. Create and register Put-away from Purchase Order.
-        Initialize(false);
+        Initialize();
         GeneralSetupForRegisterPutAway(PurchaseLine);
         FindPurchaseReceiptLine2(PurchaseLine."Buy-from Vendor No.", PurchaseLine."No.", DocumentNo);
 
@@ -950,7 +950,7 @@
         ReturnShipmentLine: Record "Return Shipment Line";
     begin
         // Setup: Create and register Put-away from Purchase Order. Create and Register Pick from Purchase Return Order. Post Warehouse Shipment.
-        Initialize(false);
+        Initialize();
         GeneralSetupForRegisterPutAway(PurchaseLine);
         PostWhseShipmentAfterPickFromPurchReturnOrder(
           PurchaseLine."Buy-from Vendor No.", PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity);
@@ -976,7 +976,7 @@
     begin
         // [FEATURE] [Special Order] [Reservation]
         // [SCENARIO 375318] Purchase Order with Special Order option should not be Auto Reserved by another Sales Order
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Order "P" for Special Sales Order "S1"
         CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
@@ -1005,7 +1005,7 @@
         // [FEATURE] [Special Order] [Reservation]
         // [SCENARIO 376890] Item ledger entry posted from special order cannot be reserved for another sales order
 
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create sales order "SO1" and purchase order "PO" with special order link
         CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
@@ -1038,7 +1038,7 @@
     begin
         // [FEATURE] [Special Order] [Reservation]
         // [SCENARIO 376890] Item ledger entry posted from special order can be reserved for another sales order after the special sales order is shipped.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create sales order "SO1" and purchase order "PO" with special order link.
         CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
@@ -1077,7 +1077,7 @@
     begin
         // [FEATURE] [Special Order] [Reservation]
         // [SCENARIO 376890] Item ledger entry posted from special order cannot be reserved for another sales order before the special sales order is shipped.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create sales order "SO1" and purchase order "PO" with special order link.
         CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
@@ -1113,7 +1113,7 @@
     begin
         // [FEATURE] [Purchase Order] [Extended Text]
         // [SCENARIO 376033] Move Negative Lines should not copy Extended Text lines that are attached to Purchase Lines with positive Quantity
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Order with two Lines
         VendorNo := LibraryPurchase.CreateVendorNo();
@@ -1150,7 +1150,7 @@
     begin
         // [FEATURE] [Purchase Return Order] [Unit of Measure] [UT]
         // [SCENARIO 376171] Validating of Unit of Measure code should be prohibited if "Return Qty. Shipped" is not zero
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Return Order Line with "Return Qty. Shipped" <> 0
         CreatePurchOrderWithQuantityShipped(PurchaseLine, 0, LibraryRandom.RandInt(10));
@@ -1170,7 +1170,7 @@
     begin
         // [FEATURE] [Purchase Return Order] [Unit of Measure] [UT]
         // [SCENARIO 376171] Validating of Unit of Measure code should be prohibited if "Return Qty. Shipped (Base)" is not zero.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Return Order Line with "Return Qty. Shipped (Base)" <> 0
         CreatePurchOrderWithQuantityShipped(PurchaseLine, LibraryRandom.RandInt(10), 0);
@@ -1192,7 +1192,7 @@
     begin
         // [FEATURE] [Drop Shipment] [Location Mandatory]
         // [SCENARIO 381228] Purchase Order for drop shipment with blank location cannot be created from the Requisition Line when "Location Mandatory" is selected in Inventory Setup.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] "Location Mandatory" is set to TRUE.
         LibraryInventory.SetLocationMandatory(true);
@@ -1219,7 +1219,7 @@
     begin
         // [FEATURE] [Item Reference] [Planning]
         // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate "Vendor No." in "Requisition Line"
-        Initialize(true);
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
@@ -1248,7 +1248,7 @@
     begin
         // [FEATURE] [Item Reference] [Purchase]
         // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate item reference fields in "Purchase Line"
-        Initialize(true);
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
@@ -1282,7 +1282,7 @@
     begin
         // [FEATURE] [Item Reference] [Sales]
         // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate item reference fields in "Sales Line"
-        Initialize(true);
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
@@ -1317,7 +1317,7 @@
     begin
         // [FEATURE] [Item Reference] [Drop Shipment]
         // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when get drop shipment
-        Initialize(true);
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         LibraryPurchase.CreateVendor(Vendor);
@@ -1349,7 +1349,7 @@
     begin
         // [FEATURE] [Item Reference] [Purchase]
         // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate "No." in "Purchase Line"
-        Initialize(true);
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
@@ -1379,7 +1379,7 @@
     begin
         // [FEATURE] [Item Reference] [Sales]
         // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate "No." in "Sales Line"
-        Initialize(true);
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
@@ -1411,7 +1411,7 @@
     begin
         // [FEATURE] [Item Reference] [Item Vendor]
         // [SCENARIO 257873] Description and "Description 2" in "Item Reference" must stay empty when "Item Vendor" is created
-        Initialize(true);
+        Initialize();
 
         Language.Get(LibraryERM.GetAnyLanguageDifferentFromCurrent());
         LibraryPurchase.CreateVendor(Vendor);
@@ -1450,7 +1450,7 @@
     begin
         // [FEATURE] [Planning]
         // [SCENARIO 289230] Carry Out Action.InsertProductionOrder takes the earliest Starting Date and Time when created from multiple Requisition Lines
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] A Requisition Worksheet Template and Name
         CreateReqWkshTemplateName(ReqWkshTemplate, RequisitionWkshName);
@@ -1496,7 +1496,7 @@
     begin
         // [FEATURE] [Production Order] [Prod. Order Component] [Make-to-Order]
         // [SCENARIO 293010] Validating Item No on a new Production Order line doesn't change Planning Level Code for Production Order Components
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Production Order
         LibraryManufacturing.CreateProductionOrder(
@@ -1531,7 +1531,7 @@
     begin
         // [FEATURE] [Production Order] [Prod. Order Component] [Make-to-Order]
         // [SCENARIO 293010] Validating Item No on an existing Production Order line changes Planning Level Code for Production Order Components Supplied by this line
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Production Order
         LibraryManufacturing.CreateProductionOrder(
@@ -1586,7 +1586,7 @@
     begin
         // [FEATURE] [Production Order] [Prod. Order Component] [Inventory Pick] [Reservation]
         // [SCENARIO 301474] Inventory Pick posted for Production Order when there is a partial reservation from Production Order Component to a Purchase Order
-        Initialize(false);
+        Initialize();
 
         PerQty := LibraryRandom.RandIntInRange(2, 5);
         PurchQty := LibraryRandom.RandIntInRange(2, 5) * PerQty;
@@ -1647,7 +1647,7 @@
     begin
         // [FEATURE] [Purchase] [Undo Receipt] [Job]
         // [SCENARIO 306371] Undo Purchase Receipt Lines works for 2 receipt lines with Job No.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create 2 Items
         for i := 1 to ArrayLen(Item) do
@@ -1675,7 +1675,7 @@
     begin
         // [FEATURE] [Sales] [Order] [Non-Inventoriable]
         // [SCENARIO 348918] "Qty. To Ship" is set to "Outstanding Quantity" in Sales Order Lines for Non-Inventoriable Items when Shipment Required On Warehouse Setup
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Shipment Required on Warehouse Setup
         LibraryWarehouse.SetRequireShipmentOnWarehouseSetup(true);
@@ -1703,7 +1703,7 @@
     begin
         // [FEATURE] [Purchase] [Order] [Non-Inventoriable]
         // [SCENARIO 348918] "Qty. To Receive" is set to "Outstanding Quantity" in Purchase Order Lines for Non-Inventoriable Items when Receive Required On Warehouse Setup
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Receive Required on Warehouse Setup
         LibraryWarehouse.SetRequireReceiveOnWarehouseSetup(true);
@@ -1734,7 +1734,7 @@
     begin
         // [FEATURE] [Purchase] [Order] [Undo Receipt] [Warehouse Request]
         // [SCENARIO 373082] Stan can create warehouse receipt from purchase order for which a purchase receipt has been undone.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Location "L" with required receipt.
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
@@ -1775,7 +1775,7 @@
     begin
         // [FEATURE] [Sales] [Order] [Undo Receipt] [Warehouse Request]
         // [SCENARIO 373082] Stan can create warehouse shipment from sales order for which a sales shipment has been undone.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Location "L" with required shipment.
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
@@ -1814,7 +1814,7 @@
     begin
         // [FEATURE] [Service] [Order] [Undo Shipment] [Warehouse Request]
         // [SCENARIO 373082] Stan can create warehouse shipment from service order for which a service shipment has been undone.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Location "L" with required shipment.
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
@@ -1856,7 +1856,7 @@
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is set for Sales Line and Item from Sales Line has Drop Shipment = true.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchasing Code "P" with Drop Shipment = true. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
         // [GIVEN] Drop Shipment value for Sales Line is true and it is taken from item's Purchasing Code "P".
@@ -1887,7 +1887,7 @@
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is not set for Sales Line and Item from Sales Line has Drop Shipment = true.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchasing Code "P" with Drop Shipment = true. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
         // [GIVEN] Drop Shipment value for Sales Line is manually set to false.
@@ -1917,7 +1917,7 @@
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is set for Sales Line and Item from Sales Line has Drop Shipment = false.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchasing Code "P" with Drop Shipment = false. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
         // [GIVEN] Drop Shipment value for Sales Line is manually set to true.
@@ -1947,7 +1947,7 @@
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is not set for Sales Line and Item from Sales Line has Drop Shipment = false.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchasing Code "P" with Drop Shipment = false. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
         // [GIVEN] Drop Shipment value for Sales Line is false and it is taken from item's Purchasing Code "P".
@@ -1978,7 +1978,7 @@
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is set for Sales Line and Sales Order has linked Purchase Order for drop shipment.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchasing Code "P" with Drop Shipment = true. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
         // [GIVEN] Purchase Order that is prepared for drop shipment, it is linked to Sales Order.
@@ -2017,7 +2017,7 @@
     begin
         // [FEATURE] [Invoice Discount] [Sales] [Order] [Warehouse Shipment]
         // [SCENARIO 383047] Keep invoice discount when posting warehouse shipment with a new posting date for a sales order.
-        Initialize(false);
+        Initialize();
         ExecuteUIHandlers();
         InvDiscountPercent := LibraryRandom.RandIntInRange(30, 70);
 
@@ -2077,7 +2077,7 @@
     begin
         // [FEATURE] [Invoice Discount] [Purchase] [Order] [Warehouse Receipt]
         // [SCENARIO 383047] Keep invoice discount when posting warehouse receipt with a new posting date for a purchase order.
-        Initialize(false);
+        Initialize();
         ExecuteUIHandlers();
         InvDiscountPercent := LibraryRandom.RandIntInRange(30, 70);
 
@@ -2136,7 +2136,7 @@
     begin
         // [FEATURE] [Invoice Discount] [Purchase] [Return Order] [Warehouse Shipment]
         // [SCENARIO 383047] Keep invoice discount when posting warehouse shipment with a new posting date for a purchase return order.
-        Initialize(false);
+        Initialize();
         ExecuteUIHandlers();
         InvDiscountPercent := LibraryRandom.RandIntInRange(30, 70);
 
@@ -2197,7 +2197,7 @@
     begin
         // [FEATURE] [Invoice Discount] [Sales] [Return Order] [Warehouse Receipt]
         // [SCENARIO 383047] Keep invoice discount when posting warehouse receipt with a new posting date for a sales return order.
-        Initialize(false);
+        Initialize();
         ExecuteUIHandlers();
         InvDiscountPercent := LibraryRandom.RandIntInRange(30, 70);
 
@@ -2254,7 +2254,7 @@
     begin
         // [FEATURE] [Purchase] [Order] [Warehouse Receipt] [Rounding] [Item Unit of Measure]
         // [SCENARIO 396153] Correction of "Qty. to Receive (Base)" on purchase line because of rounding after posting several warehouse receipts.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Set "Default Qty. to Receive" = "Blank" in purchase setup.
         PurchasesPayablesSetup.Get();
@@ -2306,7 +2306,7 @@
     begin
         // [FEATURE] [Purchase] [Order] [Invoice] [Rounding] [Item Unit of Measure] [Get Receipt Lines]
         // [SCENARIO 396153] Rounding in purchase invoice created via "Get Receipt Lines".
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with base unit of measure = "KG" and alternate unit of measure "BUCKET" = 5.55555 "KG".
         LibraryInventory.CreateItem(Item);
@@ -2352,7 +2352,7 @@
     begin
         // [FEATURE] [Sales] [Order] [Warehouse Shipment] [Rounding] [Item Unit of Measure]
         // [SCENARIO 396153] Correction of "Qty. to Ship (Base)" on sales line because of rounding after posting several warehouse shipments.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Set "Default Quantity to Ship" = "Blank" in sales setup.
         SalesReceivablesSetup.Get();
@@ -2404,7 +2404,7 @@
     begin
         // [FEATURE] [Sales] [Order] [Invoice] [Rounding] [Item Unit of Measure] [Get Shipment Lines]
         // [SCENARIO 396153] Rounding in sales invoice created via "Get Shipment Lines".
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with base unit of measure = "KG" and alternate unit of measure "BUCKET" = 5.55555 "KG".
         LibraryInventory.CreateItem(Item);
@@ -2446,7 +2446,7 @@
     begin
         // [FEATURE] [Drop Shipment] [Location Mandatory]
         // [SCENARIO 397813] Purchase order for drop shipment at blank location cannot be created via requisition worksheet when "Location Mandatory" is on.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] "Location Mandatory" is set to TRUE.
         LibraryInventory.SetLocationMandatory(true);
@@ -2476,7 +2476,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
         CreateMandatoryVariant(Item, ItemVariant);
@@ -2515,7 +2515,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
         CreateMandatoryVariant(Item, ItemVariant);
@@ -2553,7 +2553,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
         CreateMandatoryVariant(Item, ItemVariant);
@@ -2592,7 +2592,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
         CreateMandatoryVariant(Item, ItemVariant);
@@ -2629,7 +2629,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
         CreateMandatoryVariant(Item, ItemVariant);
@@ -2669,7 +2669,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
         CreateMandatoryVariant(Item, ItemVariant);
@@ -2713,7 +2713,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Two items with available variants and Item."Variant Mandatory if Exists" = Yes
         InitVariantMandatoryAssemblyTestVariables(ChildItem, ParentItem, ChildItemVariant, ParentItemVariant);
@@ -2770,7 +2770,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
         CreateMandatoryVariant(Item, ItemVariant);
@@ -2811,7 +2811,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
         CreateMandatoryVariant(Item, ItemVariant);
@@ -2853,7 +2853,7 @@
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
         CreateMandatoryVariant(Item, ItemVariant);
@@ -2880,7 +2880,7 @@
 
     [Test]
     [HandlerFunctions('EmptyMessageHandler')]
-    procedure InventoryPutawayCreatedOnlyForPurchaseLinesWithoutJob()
+    procedure InventoryPutawayCreatedBothForPurchaseLinesWithJobAndWithoutJob()
     var
         Location: Record Location;
         JobTask: Record "Job Task";
@@ -2890,8 +2890,8 @@
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // [FEATURE] [Purchase] [Order] [Put-away] [Job]
-        // [SCENARIO 408137] Inventory put-away is created only for purchase lines that have no link to Job.
-        Initialize(false);
+        // [SCENARIO 408137] [545709] Inventory put-away is created for purchase lines regardless of link to Job.
+        Initialize();
 
         // [GIVEN] Location "L" with required put-away.
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
@@ -2919,9 +2919,9 @@
         // [WHEN] Create inventory put-away.
         LibraryWarehouse.CreateInvtPutPickPurchaseOrder(PurchaseHeader);
 
-        // [THEN] Put-away contains only the second purchase line (without Job).
+        // [THEN] Put-away contains both the first line (with Job) and the second purchase line
         WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
-        Assert.RecordIsEmpty(WarehouseActivityLine);
+        Assert.RecordIsNotEmpty(WarehouseActivityLine);
 
         WarehouseActivityLine.SetRange("Item No.", Item[2]."No.");
         Assert.RecordIsNotEmpty(WarehouseActivityLine);
@@ -2942,7 +2942,7 @@
     begin
         // [FEATURE] [Assembly Order] [Item Variant] [Resource]
         // [SCENARIO 461213] Assembly Order can be posted with Output Item Variant in Header. Child Item and Resource are consumed.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Create "Unit of Measure"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -2992,7 +2992,7 @@
     begin
         // [FEATURE] [Warehouse Request] [Inventory Pick]
         // [SCENARIO 474505] Warehouse Request is deleted before order during posting.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Location "L" with required pick.
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
@@ -3030,7 +3030,7 @@
         ValueEntry: Record "Value Entry";
     begin
         // [SCENARIO 556628] Field "Type" in Value Entry for purchase is blank on posting.
-        Initialize(false);
+        Initialize();
 
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, '', LibraryInventory.CreateItemNo(), 1);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -3048,7 +3048,7 @@
         ValueEntry: Record "Value Entry";
     begin
         // [SCENARIO 556628] Field "Type" in Value Entry for sales is blank on posting.
-        Initialize(false);
+        Initialize();
 
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, SalesLine.Type::Item, '', LibraryInventory.CreateItemNo(), 1, '');
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -3058,10 +3058,9 @@
         ValueEntry.TestField(Type, ValueEntry.Type::" ");
     end;
 
-    local procedure Initialize(Enable: Boolean)
+    local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
-        LibraryItemReference.EnableFeature(Enable);
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
         LibraryERM.SetWorkDate(); // IT.
@@ -3357,8 +3356,8 @@
         ExtendedTextLine: Record "Extended Text Line";
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, Item."No.");
         ExtendedTextLine.Modify(true);
         exit(Item."No.");

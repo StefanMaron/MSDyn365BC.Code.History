@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -621,6 +621,7 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'IC Direction';
         }
+#if not CLEANSCHEMA25
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -629,6 +630,7 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(117; "IC Partner Transaction No."; Integer)
         {
             Caption = 'IC Partner Transaction No.';
@@ -1248,6 +1250,7 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Applies-to Bill No.';
         }
+#if not CLEANSCHEMA25
         field(7000003; "Pmt. Address Code"; Code[10])
         {
             Caption = 'Pmt. Address Code';
@@ -1255,6 +1258,7 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

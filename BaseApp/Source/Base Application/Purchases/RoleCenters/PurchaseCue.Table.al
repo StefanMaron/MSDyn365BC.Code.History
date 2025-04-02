@@ -13,6 +13,7 @@ table 9055 "Purchase Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "To Send or Confirm"; Integer)

@@ -844,8 +844,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchaseHeader.Delete(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
-    [HandlerFunctions('SalesOrderStatisticsHandler')]
+    [HandlerFunctions('SalesOrderStatisticsModalPageHandler')]
     [Scope('OnPrem')]
     procedure SalesRetOrdStatisticsVATAmount()
     var
@@ -861,13 +863,38 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         LibraryERM.FindCurrency(Currency);
         CreateSingleLineSalesDoc(
           SalesHeader, SalesLine, Currency, LibraryRandom.RandInt(10), SalesHeader."Document Type"::"Return Order");  // Random value for Unit Price.
-        LibraryVariableStorage.Enqueue(SalesLine."Amount Including VAT"); // Enqueue value for SalesOrderStatisticsHandler.
+        LibraryVariableStorage.Enqueue(SalesLine."Amount Including VAT"); // Enqueue value for SalesOrderStatisticsModalPageHandler.
         OpenSalesRetOrdPage(SalesReturnOrder, SalesHeader."No.");
 
         // Exercise: Open Sales Order Statistics page.
         SalesReturnOrder.Statistics.Invoke();
 
-        // Verify: Verify Total Incl. VAT of Sales Return Order on Sales Invoice Statistics page, Verification done in SalesOrderStatisticsHandler.
+        // Verify: Verify Total Incl. VAT of Sales Return Order on Sales Invoice Statistics page, Verification done in SalesOrderStatisticsModalPageHandler.
+    end;
+#endif
+    [HandlerFunctions('SalesOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesRetOrdStatisticsVATAmountNM()
+    var
+        Currency: Record Currency;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // Verify Total Incl. VAT of Sales Return Order on Sales Invoice Statistics page.
+
+        // Setup: Create Sales Return Order with Random Quantity and Unit Price.
+        Initialize();
+        LibraryERM.FindCurrency(Currency);
+        CreateSingleLineSalesDoc(
+          SalesHeader, SalesLine, Currency, LibraryRandom.RandInt(10), SalesHeader."Document Type"::"Return Order");  // Random value for Unit Price.
+        LibraryVariableStorage.Enqueue(SalesLine."Amount Including VAT"); // Enqueue value for SalesOrderStatisticsPageHandler.
+        OpenSalesRetOrdPage(SalesReturnOrder, SalesHeader."No.");
+
+        // Exercise: Open Sales Order Statistics page.
+        SalesReturnOrder.SalesOrderStatistics.Invoke();
+
+        // Verify: Verify Total Incl. VAT of Sales Return Order on Sales Invoice Statistics page, Verification done in SalesOrderStatisticsPageHandler.
     end;
 
     [Test]
@@ -896,6 +923,8 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Verify: Verify Amount Including VAT on Apply Customer Entries page, Verification done in SalesOrderStatisticsHandler.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -918,6 +947,34 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
 
         // Exercise: Open Purchase Order Statistics page.
         PurchaseReturnOrder.Statistics.Invoke();
+
+        // Verify: Verify Amount Including VAT on Purchase Order Statistics page.
+        // Verification done in handler.
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchReturnOrderStatisticsVATAmount()
+    var
+        Currency: Record Currency;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // Verify Total Incl. VAT of Purchase Return Order on Purchase Invoice Statistics.
+
+        // Setup: Create Purchase Return Order with Random Direct Unit Cost.
+        Initialize();
+        LibraryERM.FindCurrency(Currency);
+        CreateSingleLinePurchaseDoc(
+          PurchaseHeader, PurchaseLine, Currency, LibraryRandom.RandInt(10), PurchaseHeader."Document Type"::"Return Order");
+        LibraryVariableStorage.Enqueue(PurchaseLine."Amount Including VAT");  // Enqueue value for PurchaseOrderStatisticsPageHandler.
+        OpenPurchRetOrdPage(PurchaseReturnOrder, PurchaseHeader."No.");
+
+        // Exercise: Open Purchase Order Statistics page.
+        PurchaseReturnOrder.PurchaseOrderStatistics.Invoke();
 
         // Verify: Verify Amount Including VAT on Purchase Order Statistics page.
         // Verification done in handler.
@@ -1588,9 +1645,21 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
             VATAmount, VATAmountLine.TableCaption()));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    procedure SalesOrderStatisticsModalPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    var
+        TotalInclVAT: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TotalInclVAT);
+        SalesOrderStatistics."TotalAmount1[1]".AssertEquals(TotalInclVAT);
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     var
         TotalInclVAT: Variant;
     begin
@@ -1608,9 +1677,22 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         ApplyCustomerEntries.ControlBalance.AssertEquals(Balance);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    var
+        TotalInclVAT: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TotalInclVAT);
+        PurchaseOrderStatistics."TotalAmount1[3]".AssertEquals(TotalInclVAT);
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     var
         TotalInclVAT: Variant;
     begin

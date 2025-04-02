@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Capacity;
 
 using Microsoft.Finance.Dimension;
@@ -118,7 +122,7 @@ page 99000773 "Capacity Journal"
 
                     trigger OnValidate()
                     begin
-                        ItemJnlMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
+                        MfgItemJournalMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
                     end;
                 }
                 field("No."; Rec."No.")
@@ -128,7 +132,7 @@ page 99000773 "Capacity Journal"
 
                     trigger OnValidate()
                     begin
-                        ItemJnlMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
+                        MfgItemJournalMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
                     end;
                 }
                 field(Description; Rec.Description)
@@ -604,7 +608,7 @@ page 99000773 "Capacity Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ItemJnlMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
+        MfgItemJournalMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
     end;
 
     trigger OnAfterGetRecord()
@@ -640,6 +644,7 @@ page 99000773 "Capacity Journal"
 
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
+        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
         ReportPrint: Codeunit "Test Report-Print";
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         CapDescription: Text[100];

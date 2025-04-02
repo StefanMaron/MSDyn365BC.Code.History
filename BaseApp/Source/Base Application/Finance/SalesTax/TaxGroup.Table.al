@@ -18,13 +18,6 @@ table 321 "Tax Group"
         {
             Caption = 'Description';
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(8005; "Last Modified DateTime"; DateTime)
         {
             Caption = 'Last Modified DateTime';
@@ -71,4 +64,3 @@ table 321 "Tax Group"
         "Last Modified DateTime" := CurrentDateTime;
     end;
 }
-

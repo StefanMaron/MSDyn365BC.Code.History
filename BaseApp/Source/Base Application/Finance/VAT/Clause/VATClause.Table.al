@@ -36,13 +36,6 @@ table 560 "VAT Clause"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(10700; "SII Exemption Code"; Enum "SII Exemption Code")
         {
             Caption = 'SII Exemption Code';
@@ -330,4 +323,3 @@ table 560 "VAT Clause"
     begin
     end;
 }
-

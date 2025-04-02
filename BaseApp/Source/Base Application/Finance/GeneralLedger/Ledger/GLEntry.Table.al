@@ -473,27 +473,6 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
-        field(10720; "New G/L Account No."; Code[20])
-        {
-            Caption = 'New G/L Account No.';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(10721; "Old G/L Account No."; Code[20])
-        {
-            Caption = 'Old G/L Account No.';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(10722; Updated; Boolean)
-        {
-            Caption = 'Updated';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(10723; "Period Trans. No."; Integer)
         {
             Caption = 'Period Trans. No.';
@@ -581,7 +560,7 @@ table 17 "G/L Entry"
 
     fieldgroups
     {
-        fieldgroup(DropDown; "Entry No.", Description, "G/L Account No.", "Posting Date", "Document Type", "Document No.")
+        fieldgroup(DropDown; "Entry No.", Description, Amount, "G/L Account No.", "Posting Date", "Document Type", "Document No.")
         {
         }
     }
@@ -883,4 +862,3 @@ table 17 "G/L Entry"
     begin
     end;
 }
-

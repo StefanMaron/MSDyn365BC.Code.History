@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
@@ -196,11 +200,30 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies how many times the document has been printed.';
                 }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
+                }
                 field("Corrected Invoice No."; Rec."Corrected Invoice No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the posted invoice that you need to correct.';
+                }
+		        group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(GetWorkDescription; Rec.GetWorkDescription())
+                    {
+                        ApplicationArea = Service;
+                        Editable = false;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or services being offered.';
+                    }
                 }
             }
             part(ServCrMemoLines; "Posted Serv. Cr. Memo Subform")
@@ -329,6 +352,18 @@ page 5972 "Posted Service Credit Memo"
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     Visible = false;
                 }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = false;
+                    ToolTip = 'Specifies that items, resources, or costs on the current credit memo line are liable to sales tax.';
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = false;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                }
                 group("SII Information")
                 {
                     Caption = 'SII Information';
@@ -426,6 +461,15 @@ page 5972 "Posted Service Credit Memo"
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -568,6 +612,7 @@ page 5972 "Posted Service Credit Memo"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
                               "No." = field("No.");
             }

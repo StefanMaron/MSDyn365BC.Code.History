@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Setup;
+namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Analysis;
@@ -40,6 +40,7 @@ table 98 "General Ledger Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Allow Posting From"; Date)
@@ -577,14 +578,6 @@ table 98 "General Ledger Setup"
             Editable = false;
             MinValue = 0;
         }
-        field(96; "Adapt Main Menu to Permissions"; Boolean)
-        {
-            Caption = 'Adapt Main Menu to Permissions';
-            InitValue = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced with UI Elements Removal feature.';
-            ObsoleteTag = '24.0';
-        }
         field(97; "Allow G/L Acc. Deletion Before"; Date)
         {
             Caption = 'Check G/L Acc. Deletion After';
@@ -620,6 +613,7 @@ table 98 "General Ledger Setup"
             Caption = 'Block Deletion of G/L Accounts';
             InitValue = true;
         }
+#if not CLEANSCHEMA25
         field(110; "Acc. Sched. for Balance Sheet"; Code[10])
         {
             Caption = 'Account Schedule for Balance Sheet';
@@ -671,6 +665,7 @@ table 98 "General Ledger Setup"
                 Error(AccSchedObsoleteErr);
             end;
         }
+#endif
         field(114; "Fin. Rep. for Balance Sheet"; Code[10])
         {
             Caption = 'Financial Report for Balance Sheet';
@@ -732,29 +727,10 @@ table 98 "General Ledger Setup"
                 end;
             end;
         }
-        field(152; "Use Legacy G/L Entry Locking"; Boolean)
-        {
-            Caption = 'Use Legacy G/L Entry Locking';
-            ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
         field(160; "Payroll Trans. Import Format"; Code[20])
         {
             Caption = 'Payroll Trans. Import Format';
             TableRelation = "Data Exch. Def" where(Type = const("Payroll Import"));
-        }
-        field(161; "VAT Reg. No. Validation URL"; Text[250])
-        {
-            Caption = 'VAT Reg. No. Validation URL';
-            ObsoleteReason = 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-
-            trigger OnValidate()
-            begin
-                Error(ObsoleteErr);
-            end;
         }
         field(162; "Local Currency Symbol"; Text[10])
         {
@@ -894,6 +870,10 @@ table 98 "General Ledger Setup"
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
+        field(192; "Hide Company Bank Account"; Boolean)
+        {
+            Caption = 'Hide Company Bank Account';
+        }
         field(10701; "Payment Discount Type"; Option)
         {
             Caption = 'Payment Discount Type';
@@ -1015,7 +995,6 @@ table 98 "General Ledger Setup"
 #pragma warning disable AA0470
         DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
 #pragma warning restore AA0470
-        ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
         VATPeriodControlUsageMsg: Label 'Control VAT Period set to %1', Locked = true;
@@ -1285,4 +1264,3 @@ table 98 "General Ledger Setup"
     begin
     end;
 }
-

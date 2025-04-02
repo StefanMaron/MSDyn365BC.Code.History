@@ -1,10 +1,10 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Journal;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.WorkCenter;
 
 codeunit 240 ItemJnlManagement
 {
@@ -16,24 +16,21 @@ codeunit 240 ItemJnlManagement
     end;
 
     var
+#if not CLEAN26
+        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
+#endif
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label '%1 journal';
-#pragma warning restore AA0470
         Text001: Label 'RECURRING';
         Text002: Label 'Recurring Item Journal';
         Text003: Label 'DEFAULT';
         Text004: Label 'Default Journal';
-#pragma warning restore AA0074
         OldItemNo: Code[20];
-        OldCapNo: Code[20];
-        OldCapType: Enum "Capacity Type";
-        OldProdOrderNo: Code[20];
-        OldOperationNo: Code[20];
-#pragma warning disable AA0074
         Text005: Label 'REC-';
         Text006: Label 'Recurring ';
 #pragma warning restore AA0074
+#pragma warning restore AA0470
         OpenFromBatch: Boolean;
 
     procedure TemplateSelection(PageID: Integer; PageTemplate: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order"; RecurringJnl: Boolean; var ItemJnlLine: Record "Item Journal Line"; var JnlSelected: Boolean)
@@ -47,6 +44,8 @@ codeunit 240 ItemJnlManagement
         ItemJnlTemplate.SetRange(Recurring, RecurringJnl);
         ItemJnlTemplate.SetRange(Type, PageTemplate);
         OnTemplateSelectionSetFilter(ItemJnlTemplate, PageTemplate);
+
+        OnBeforeTemplateSelection(ItemJnlLine, JnlSelected);
 
         case ItemJnlTemplate.Count of
             0:
@@ -252,66 +251,29 @@ codeunit 240 ItemJnlManagement
         OnAfterGetItem(Item, ItemDescription);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Item Journal Management', '26.0')]
     procedure GetConsump(var ItemJnlLine: Record "Item Journal Line"; var ProdOrderDescription: Text[100])
-    var
-        ProdOrder: Record "Production Order";
     begin
-        if (ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and (ItemJnlLine."Order No." <> OldProdOrderNo) then begin
-            ProdOrderDescription := '';
-            if ProdOrder.Get(ProdOrder.Status::Released, ItemJnlLine."Order No.") then
-                ProdOrderDescription := ProdOrder.Description;
-            OldProdOrderNo := ProdOrder."No.";
-        end;
+        MfgItemJournalMgt.GetConsump(ItemJnlLine, ProdOrderDescription);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Item Journal Management', '26.0')]
     procedure GetOutput(var ItemJnlLine: Record "Item Journal Line"; var ProdOrderDescription: Text[100]; var OperationDescription: Text[100])
-    var
-        ProdOrder: Record "Production Order";
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
     begin
-        if (ItemJnlLine."Operation No." <> OldOperationNo) or
-           ((ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and (ItemJnlLine."Order No." <> OldProdOrderNo))
-        then begin
-            OperationDescription := '';
-            if ProdOrderRtngLine.Get(
-                 ProdOrder.Status::Released,
-                 ItemJnlLine."Order No.",
-                 ItemJnlLine."Routing Reference No.",
-                 ItemJnlLine."Routing No.",
-                 ItemJnlLine."Operation No.")
-            then
-                OperationDescription := ProdOrderRtngLine.Description;
-            OldOperationNo := ProdOrderRtngLine."Operation No.";
-        end;
-
-        if (ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and (ItemJnlLine."Order No." <> OldProdOrderNo) then begin
-            ProdOrderDescription := '';
-            if ProdOrder.Get(ProdOrder.Status::Released, ItemJnlLine."Order No.") then
-                ProdOrderDescription := ProdOrder.Description;
-            OldProdOrderNo := ProdOrder."No.";
-        end;
+        MfgItemJournalMgt.GetOutput(ItemJnlLine, ProdOrderDescription, OperationDescription);
     end;
+#endif
 
-    procedure GetCapacity(CapType: Enum "Capacity Type"; CapNo: Code[20]; var CapDescription: Text[100])
-    var
-        WorkCenter: Record "Work Center";
-        MachineCenter: Record "Machine Center";
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Item Journal Management', '26.0')]
+    procedure GetCapacity(CapType: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; CapNo: Code[20]; var CapDescription: Text[100])
     begin
-        if (CapNo <> OldCapNo) or (CapType <> OldCapType) then begin
-            CapDescription := '';
-            if CapNo <> '' then
-                case CapType of
-                    CapType::"Work Center":
-                        if WorkCenter.Get(CapNo) then
-                            CapDescription := WorkCenter.Name;
-                    CapType::"Machine Center":
-                        if MachineCenter.Get(CapNo) then
-                            CapDescription := MachineCenter.Name;
-                end;
-            OldCapNo := CapNo;
-            OldCapType := CapType;
-        end;
+        MfgItemJournalMgt.GetCapacity(CapType, CapNo, CapDescription);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckName(CurrentJnlBatchName: Code[10]; var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
@@ -355,6 +317,11 @@ codeunit 240 ItemJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExitItemJnlBatchGetFilter(var ItemJnlBatch: record "Item Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTemplateSelection(var ItemJnlLine: Record "Item Journal Line"; var JnlSelected: Boolean)
     begin
     end;
 }

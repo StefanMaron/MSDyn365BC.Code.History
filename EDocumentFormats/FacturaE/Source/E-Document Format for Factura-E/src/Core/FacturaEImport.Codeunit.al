@@ -141,7 +141,7 @@ codeunit 10775 "Factura-E Import"
         EDocument."Receiving Company Name" := CopyStr(GetNameDependingOnType(TempXMLBuffer, BuyerPartyLbl), 1, MaxStrLen(EDocument."Receiving Company Name"));
         EDocument."Receiving Company Address" := CopyStr(GetAddressDependingOnType(TempXMLBuffer, BuyerPartyLbl), 1, MaxStrLen(EDocument."Receiving Company Address"));
         EDocument."Receiving Company VAT Reg. No." := CopyStr(GetNodeByPath(TempXMLBuffer, BuyerPartyLbl + 'TaxIdentification/TaxIdentificationNumber'), 1, MaxStrLen(EDocument."Receiving Company VAT Reg. No."));
-
+        EDocument."Receiving Company Id" := CopyStr(GetNodeByPath(TempXMLBuffer, BuyerPartyLbl + 'PartyIdentificationType'), 1, MaxStrLen(EDocument."Receiving Company Id"));
     end;
 
     local procedure ParseDocumentBasicInfo(var EDocument: Record "E-Document"; var TempXMLBuffer: Record "XML Buffer" temporary)

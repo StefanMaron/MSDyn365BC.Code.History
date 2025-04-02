@@ -25,7 +25,6 @@
         LibraryCosting: Codeunit "Library - Costing";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryJob: Codeunit "Library - Job";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
@@ -3364,8 +3363,8 @@
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify(true);
 
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         UpdateTextInExtendedTextLine(ExtendedTextLine, Item."No.");
         exit(ExtendedTextLine.Text);
     end;

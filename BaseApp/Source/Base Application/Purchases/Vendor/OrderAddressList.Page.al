@@ -26,6 +26,12 @@ page 369 "Order Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company name for the order address.';
                 }
+                field("Name 2"; Rec."Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;

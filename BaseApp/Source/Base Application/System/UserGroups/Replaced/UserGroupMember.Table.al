@@ -1,4 +1,5 @@
-﻿namespace System.Security.AccessControl;
+#if not CLEANSCHEMA25 
+namespace System.Security.AccessControl;
 
 using System.Environment;
 
@@ -67,3 +68,5 @@ table 9001 "User Group Member"
     }
 }
 
+ 
+#endif

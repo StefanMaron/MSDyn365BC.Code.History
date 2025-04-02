@@ -192,7 +192,7 @@ page 398 "Sales Credit Memo Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies the credit limit in LCY of the customer who you created and posted this sales credit memo for.';
+                    ToolTip = 'Specifies the credit limit of the customer on the sales document. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -330,9 +330,9 @@ page 398 "Sales Credit Memo Statistics"
                 AmountInclVAT += SalesCrMemoLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then begin
                     InvDiscAmount +=
-                        SalesCrMemoLine."Inv. Discount Amount" / (1 + (SalesCrMemoLine."VAT %" + SalesCrMemoLine."EC %") / 100);
+                        SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine.GetVATPct() / 100);
                     PmtDiscAmount +=
-                        SalesCrMemoLine."Pmt. Discount Amount" / (1 + (SalesCrMemoLine."VAT %" + SalesCrMemoLine."EC %") / 100)
+                        SalesCrMemoLine."Pmt. Discount Amount" / (1 + SalesCrMemoLine.GetVATPct() / 100)
                 end else begin
                     InvDiscAmount += SalesCrMemoLine."Inv. Discount Amount";
                     PmtDiscAmount += SalesCrMemoLine."Pmt. Discount Amount";
@@ -346,7 +346,7 @@ page 398 "Sales Credit Memo Statistics"
                     TotalParcels += Round(SalesCrMemoLine.Quantity / SalesCrMemoLine."Units per Parcel", 1, '>');
                 if SalesCrMemoLine."VAT %" <> VATpercentage then
                     if VATpercentage = 0 then
-                        VATpercentage := SalesCrMemoLine."VAT %" + SalesCrMemoLine."EC %"
+                        VATpercentage := SalesCrMemoLine.GetVATPct()
                     else
                         VATpercentage := -1;
                 TotalAdjCostLCY +=
@@ -378,4 +378,3 @@ page 398 "Sales Credit Memo Statistics"
     begin
     end;
 }
-

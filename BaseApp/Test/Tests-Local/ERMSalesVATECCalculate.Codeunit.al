@@ -114,10 +114,12 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         UpdatePostLineDiscountOnSalesReceivablesSetup(PostLineDiscount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalPageHandler')]
     [Scope('OnPrem')]
-    procedure LineAmountAndVATAmountOnSalesStatistics()
+    procedure LineAmountAndVATAmountOnStatistics()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -140,6 +142,38 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesInvoice.Statistics.Invoke();  // Opens SalesStatisticsModalPageHandler.
 
         // Verify: Verification of Amounts is done in SalesStatisticsModalPageHandler.
+
+        // Tear Down.
+        SalesInvoice.Close();
+        UpdatePostLineDiscountOnSalesReceivablesSetup(PostLineDiscount);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure LineAmountAndVATAmountOnSalesStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        PostLineDiscount: Boolean;
+    begin
+        // Test to verify Amounts on Sales Statistics Page on Created Sales Invoice.
+
+        // Setup: Create Sales Invoice, Open Sales Invoice page and Enqueue values for SalesStatisticsPageHandler.
+        Initialize();
+        PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(true);  // True used for Post Line Discount.
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, '');  // Blank - Currency Code.
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesLine."Document No.");
+        LibraryVariableStorage.Enqueue(SalesLine.Amount);
+        LibraryVariableStorage.Enqueue(SalesLine.Amount * SalesLine."VAT %" / 100);
+        LibraryVariableStorage.Enqueue(SalesLine.Amount * SalesLine."EC %" / 100);
+
+        // Exercise.
+        SalesInvoice.SalesStatistics.Invoke();  // Opens SalesStatisticsPageHandler.
+
+        // Verify: Verification of Amounts is done in SalesStatisticsPageHandler.
 
         // Tear Down.
         SalesInvoice.Close();
@@ -561,7 +595,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN23
+#if not CLEAN25
         CopySalesPrices();
 #endif
 
@@ -582,6 +616,8 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
           -ItemUnitPrice * SalesLine.Quantity * (SalesLine."VAT %" + SalesLine."EC %") / 100, 0);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -611,7 +647,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN23
+#if not CLEAN25
         CopySalesPrices();
 #endif
 
@@ -632,6 +668,58 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         LibraryVariableStorage.Enqueue(
           ItemUnitPrice * SalesLine.Quantity * (SalesLine."EC %" / 100));
         SalesInvoice.Statistics.Invoke();
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoicePriceInclVATECSalesStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesInvoice: TestPage "Sales Invoice";
+        ItemNo: Code[20];
+        CustomerNo: Code[20];
+        ItemUnitPrice: Decimal;
+    begin
+        // [SCENARIO 363582] Sales Statistics with EC % and Prices Incl. VAT = TRUE
+        Initialize();
+
+        // [GIVEN] General Posting Setup with EC % = 4 and VAT % = 18 specified
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        // [GIVEN] Item with Unit Price = 100
+        ItemUnitPrice := LibraryRandom.RandDec(100, 2);
+        ItemNo :=
+          CreateItemWithUnitPriceProdPostingGroups(
+            ItemUnitPrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        CustomerNo :=
+          CreateCustomerWithPostingGroup(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+#if not CLEAN25
+        CopySalesPrices();
+#endif
+
+        // [GIVEN] Sales Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
+        CreateSalesDocumentWithPriceInclVAT(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
+          CustomerNo, SalesLine.Type::Item, ItemNo, true, 0);
+
+        // [WHEN] Open Sales Statistics Page
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] "Line Amount" = 122, "VAT Amount" = 18, "EC Amount" = 4
+        LibraryVariableStorage.Enqueue(
+          ItemUnitPrice * SalesLine.Quantity * (1 + (SalesLine."VAT %" + SalesLine."EC %") / 100));
+        LibraryVariableStorage.Enqueue(
+          ItemUnitPrice * SalesLine.Quantity * (SalesLine."VAT %" / 100));
+        LibraryVariableStorage.Enqueue(
+          ItemUnitPrice * SalesLine.Quantity * (SalesLine."EC %" / 100));
+        SalesInvoice.SalesStatistics.Invoke();
     end;
 
     [Test]
@@ -810,7 +898,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN23
+#if not CLEAN25
         CopySalesPrices();
 #endif
 
@@ -911,7 +999,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CopySalesPrices()
     var
         SalesPrice: record "Sales Price";
@@ -1364,9 +1452,30 @@ SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
         GeneralLedgerSetup.Modify(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsModalPageHandler(var SalesStatistics: TestPage "Sales Statistics")
+    var
+        LineAmount: Variant;
+        VATAmount: Variant;
+        ECAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(LineAmount);
+        LibraryVariableStorage.Dequeue(VATAmount);
+        LibraryVariableStorage.Dequeue(ECAmount);
+        Assert.AreNearlyEqual(
+          LineAmount, SalesStatistics.SubForm."Line Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(
+          VATAmount, SalesStatistics.SubForm."VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(
+          ECAmount, SalesStatistics.SubForm."EC Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
     var
         LineAmount: Variant;
         VATAmount: Variant;

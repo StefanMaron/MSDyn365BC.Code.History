@@ -428,6 +428,7 @@ codeunit 5980 "Service-Post"
         SourceCode.Get(SourceCodeSetup."Deleted Document");
 
         if (ServiceHeader."Shipping No. Series" <> '') and (ServiceHeader."Shipping No." <> '') then begin
+            ServiceHeader.CalcFields("Work Description");
             ServiceShptHeader.TransferFields(ServiceHeader);
             OnTestDeleteHeaderOnAfterServiceShptHeaderTransferFields(ServiceShptHeader, ServiceHeader);
             ServiceShptHeader."No." := ServiceHeader."Shipping No.";
@@ -442,6 +443,7 @@ codeunit 5980 "Service-Post"
             (ServiceHeader."Document Type" = ServiceHeader."Document Type"::Invoice) and
             (ServiceHeader."No. Series" = ServiceHeader."Posting No. Series"))
         then begin
+            ServiceHeader.CalcFields("Work Description");
             ServiceInvHeader.TransferFields(ServiceHeader);
             OnTestDeleteHeaderOnAfterServiceInvHeaderTransferFields(ServiceInvHeader, ServiceHeader);
             if ServiceHeader."Posting No." <> '' then
@@ -466,6 +468,7 @@ codeunit 5980 "Service-Post"
             (ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo") and
             (ServiceHeader."No. Series" = ServiceHeader."Posting No. Series"))
         then begin
+            ServiceHeader.CalcFields("Work Description");
             ServiceCrMemoHeader.TransferFields(ServiceHeader);
             OnTestDeleteHeaderOnAfterServiceCrMemoHeaderTransferFields(ServiceCrMemoHeader, ServiceHeader);
             if ServiceHeader."Posting No." <> '' then

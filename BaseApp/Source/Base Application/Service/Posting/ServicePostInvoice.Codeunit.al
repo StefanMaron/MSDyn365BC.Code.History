@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Posting;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -220,6 +224,8 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 
     procedure PrepareInvoicePostingBuffer(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
+        ServicePostInvoiceEvents.RunOnBeforePrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
+
         Clear(InvoicePostingBuffer);
         case ServiceLine.Type of
             ServiceLine.Type::Item:
@@ -239,7 +245,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer."Global Dimension 2 Code" := ServiceLine."Shortcut Dimension 2 Code";
         InvoicePostingBuffer."Dimension Set ID" := ServiceLine."Dimension Set ID";
         InvoicePostingBuffer."Job No." := ServiceLine."Job No.";
-        InvoicePostingBuffer."VAT %" := ServiceLine."VAT %" + ServiceLine."EC %";
+        InvoicePostingBuffer."VAT %" := ServiceLine.GetVATPct();
         InvoicePostingBuffer."VAT Difference" := ServiceLine."VAT Difference";
         if InvoicePostingBuffer."VAT Calculation Type" = InvoicePostingBuffer."VAT Calculation Type"::"Sales Tax" then begin
             InvoicePostingBuffer."Tax Area Code" := ServiceLine."Tax Area Code";
@@ -254,7 +260,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 #if not CLEAN25
         InvoicePostingBuffer.RunOnAfterPrepareService(ServiceLine, InvoicePostingBuffer);
 #endif
-        OnAfterPrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
+        ServicePostInvoiceEvents.RunOnAfterPrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
     end;
 
     local procedure UpdateEntryDescriptionFromServiceLine(ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -268,7 +274,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
             ServiceSetup."Copy Line Descr. to G/L Entry",
             ServiceLine."Line No.",
             ServiceLine.Description,
-            ServiceHeader."Posting Description", false);
+            ServiceHeader."Posting Description");
     end;
 
     local procedure UpdateInvoicePostingBuffer(InvoicePostingBuffer: Record "Invoice Posting Buffer"; ServiceLine: Record "Service Line")
@@ -373,7 +379,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
             ServiceHeader."Posting Date", ServiceHeader."Currency Code", -TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor");
 
         ServicePostInvoiceEvents.RunOnPostLedgerEntryOnBeforeGenJnlPostLine(
-            GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+            GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine, InvoicePostingParameters);
         GenJnlPostLine.RunWithCheck(GenJnlLine);
         ServicePostInvoiceEvents.RunOnPostLedgerEntryOnAfterGenJnlPostLine(
             GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
@@ -460,8 +466,11 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('Use same event from codeunit Service Post Invoice Events','26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareInvoicePostingBuffer(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
     end;
+#endif
 }

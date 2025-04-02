@@ -921,47 +921,6 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes,PostBillGroupRequestPageHandler,CarteraJournalModalPageHandler,BillGroupDiscountPostedMessageHandler,SettlDocsPostedBillGroupsRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TotalSettlOnNewDateBillGroupDiscountRiskedAndChargeAfterAdjustExchRate()
-    var
-        BillGroup: Record "Bill Group";
-        CustomerNo: Code[20];
-        BankAccountNo: Code[20];
-        CurrencyCode: Code[10];
-        PostingDate: array[4] of Date;
-        DocumentNo: Code[20];
-        InvoiceAmount: Decimal;
-    begin
-        // [FEATURE] [Bill Group] [Currency] [Adjust Exchange Rates]
-        // [SCENARIO 270953] Total settlement of posted Bill Group with "Risked Factoring Expenses", "Charge Amt. per Operation" and "Bill Groups - Discount" after adjust exchange rates
-        Initialize();
-
-        // [GIVEN] Currency with "Bill Groups - Discount" = TRUE, exchange rates on dates 01-01-2018, 02-01-2018, 03-01-2018, 04-01-2018
-        CurrencyCode := PrepareCurrencyTFS270953(PostingDate);
-
-        // [GIVEN] FCY Bank Account with "Risked Factoring Expenses", "Charge Amt. per Operation", FCY Customer with ratings setup
-        PrepareCustAndBankWithFCYCustRatingsAndFactOperFees(CustomerNo, BankAccountNo, CurrencyCode);
-
-        // [GIVEN] Posted FCY Sales Invoice on 01-01-2018
-        // [GIVEN] Posted Bill Group on 02-01-2018
-        DocumentNo := CreateAndPostFactoringBillGroupsWithDiscountOnDate(CustomerNo, BankAccountNo, BillGroup, PostingDate[2]);
-
-        // [GIVEN] Run adjust exchange rates using "Ending Date" = 03-01-2018
-        LibraryVariableStorage.Enqueue('One or more currency exchange rates have been adjusted.');
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate[3], PostingDate[3]);
-
-        // [WHEN] Run "Total Settlement" from posted bill group
-        InvokeTotalSettlementOnBillGroup(CustomerNo, DocumentNo, BillGroup."No.", InvoiceAmount, PostingDate[4]);
-
-        // [THEN] The document has been settled
-        ValidateTotalSettlementClosedDocuments(DocumentNo, InvoiceAmount);
-        LibraryVariableStorage.AssertEmpty();
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,PostBillGroupRequestPageHandler,CarteraJournalModalPageHandler,BillGroupDiscountPostedMessageHandler,SettlDocsPostedBillGroupsRequestPageHandler')]
     [Scope('OnPrem')]

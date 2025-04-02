@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Posting;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Posting;
 
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Dimension;
@@ -39,9 +43,6 @@ codeunit 5988 "Serv-Documents Mgt."
                   TableData "Service Line" = rimd,
                   TableData "Service Ledger Entry" = rm,
                   TableData "Warranty Ledger Entry" = rm,
-#if not CLEAN23                  
-                  TableData "Invoice Post. Buffer" = rimd,
-#endif                  
                   TableData "Service Shipment Item Line" = rimd,
                   TableData "Service Shipment Header" = rimd,
                   TableData "Service Shipment Line" = rimd,
@@ -176,10 +177,6 @@ codeunit 5988 "Serv-Documents Mgt."
     var
         IsHandled: Boolean;
     begin
-#if not CLEAN23
-        if UseLegacyInvoicePosting() then
-            exit;
-#endif
         if IsInterfaceInitialized then
             exit;
 
@@ -199,7 +196,8 @@ codeunit 5988 "Serv-Documents Mgt."
         InvoicePostingParameters."Document No." := GenJnlLineDocNo;
         InvoicePostingParameters."External Document No." := GenJnlLineExtDocNo;
         InvoicePostingParameters."Source Code" := SrcCode;
-        InvoicePostingParameters."Auto Document No." := '';
+
+        OnAfterGetInvoicePostingParameters(InvoicePostingParameters, ServInvHeader);
     end;
 
     procedure CalcInvDiscount()
@@ -220,9 +218,6 @@ codeunit 5988 "Serv-Documents Mgt."
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TempVATAmountLineForSLE: Record "VAT Amount Line" temporary;
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
-#if not CLEAN23
-        TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
-#endif        
         DummyTrackingSpecification: Record "Tracking Specification";
         Item: Record Item;
         ServItemMgt: Codeunit ServItemManagement;
@@ -425,12 +420,7 @@ codeunit 5988 "Serv-Documents Mgt."
                 end;
 
                 if (ServLine.Type <> ServLine.Type::" ") and (ServLine."Qty. to Invoice" <> 0) then
-#if not CLEAN23
-                        if UseLegacyInvoicePosting() then
-                        ServAmountsMgt.FillInvoicePostBuffer(TempInvoicePostBuffer, ServLine, ServiceLineACY, ServHeader)
-                    else
-#endif
-                            InvoicePostingInterface.PrepareLine(ServHeader, ServLine, ServiceLineACY);
+                    InvoicePostingInterface.PrepareLine(ServHeader, ServLine, ServiceLineACY);
 
                 OnPostDocumentLinesOnAfterFillInvPostingBuffer(ServHeader, ServLine, ServiceLineACY, ServInvHeader, ServCrMemoHeader, ServShptHeader);
                 // prepare posted document lines
@@ -493,48 +483,22 @@ codeunit 5988 "Serv-Documents Mgt."
               ServDocReg."Destination Document Type"::"Credit Memo",
               ServLine."Document No.", ServCrMemoHeader."No.");
         end;
+
         // Post sales and VAT to G/L entries from posting buffer
         if Invoice then begin
-#if not CLEAN23
-            if UseLegacyInvoicePosting() then begin
-                OnPostDocumentLinesOnBeforePostInvoicePostBuffer(
-                    ServHeader, TempInvoicePostBuffer, TotalServiceLine, TotalServiceLineLCY);
-                LineCount := 0;
-                if TempInvoicePostBuffer.Find('+') then
-                    repeat
-                        LineCount += 1;
-                        if GuiAllowed() then
-                            Window.Update(3, LineCount);
-                        ServPostingJnlsMgt.SetPostingDate(ServHeader."Posting Date");
-                        ServPostingJnlsMgt.PostInvoicePostBufferLine(
-                            TempInvoicePostBuffer, GenJnlLineDocType.AsInteger(), GenJnlLineDocNo, GenJnlLineExtDocNo);
-                    until TempInvoicePostBuffer.Next(-1) = 0;
-            end else begin
-#endif
-                GetInvoicePostingParameters();
-                InvoicePostingInterface.SetParameters(InvoicePostingParameters);
-                InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
-                ServPostingJnlsMgt.PostLines(ServHeader, InvoicePostingInterface, Window, TotalAmount);
-#if not CLEAN23
-            end;
-#endif
+            GetInvoicePostingParameters();
+            InvoicePostingInterface.SetParameters(InvoicePostingParameters);
+            InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
+            ServPostingJnlsMgt.PostLines(ServHeader, InvoicePostingInterface, Window, TotalAmount);
+
             // Post customer entry
             if GuiAllowed() then
                 Window.Update(4, 1);
-#if not CLEAN23
-            if UseLegacyInvoicePosting() then begin
-                ServPostingJnlsMgt.SetPostingDate(ServHeader."Posting Date");
-                ServPostingJnlsMgt.PostCustomerEntry(
-                    TotalServiceLine, TotalServiceLineLCY, GenJnlLineDocType.AsInteger(), GenJnlLineDocNo, GenJnlLineExtDocNo);
-            end else begin
-#endif
-                GetInvoicePostingParameters();
-                InvoicePostingInterface.SetParameters(InvoicePostingParameters);
-                InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
-                ServPostingJnlsMgt.PostLedgerEntry(ServHeader, InvoicePostingInterface);
-#if not CLEAN23
-            end;
-#endif
+            GetInvoicePostingParameters();
+            InvoicePostingInterface.SetParameters(InvoicePostingParameters);
+            InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
+            ServPostingJnlsMgt.PostLedgerEntry(ServHeader, InvoicePostingInterface);
+
             // post Balancing account
             IsHandled := false;
             OnPostDocumentLinesOnBeforePostBalancingEntry(ServHeader, ServLine, TotalServiceLine, ServPostingJnlsMgt, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, InvoicePostingInterface, Window, IsHandled);
@@ -542,19 +506,9 @@ codeunit 5988 "Serv-Documents Mgt."
                 if ServHeader."Bal. Account No." <> '' then begin
                     if GuiAllowed() then
                         Window.Update(5, 1);
-#if not CLEAN23
-                    if UseLegacyInvoicePosting() then begin
-                        ServPostingJnlsMgt.SetPostingDate(ServHeader."Posting Date");
-                        ServPostingJnlsMgt.PostBalancingEntry(
-                            TotalServiceLine, TotalServiceLineLCY, GenJnlLineDocType.AsInteger(), GenJnlLineDocNo, GenJnlLineExtDocNo);
-                    end else begin
-#endif
-                        InvoicePostingInterface.SetParameters(InvoicePostingParameters);
-                        InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
-                        ServPostingJnlsMgt.PostBalancingEntry(ServHeader, InvoicePostingInterface);
-#if not CLEAN23
-                    end;
-#endif
+                    InvoicePostingInterface.SetParameters(InvoicePostingParameters);
+                    InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
+                    ServPostingJnlsMgt.PostBalancingEntry(ServHeader, InvoicePostingInterface);
                 end;
 
             MakeInvtAdjustment();
@@ -779,6 +733,7 @@ codeunit 5988 "Serv-Documents Mgt."
             ServiceShipmentLine2.LockTable();
 
             ServShptHeader.Init();
+            ServHeader.CalcFields("Work Description");
             ServShptHeader.TransferFields(ServHeader);
             ServShptHeader."No." := ServHeader."Shipping No.";
             if ServHeader."Document Type" = ServHeader."Document Type"::Order then begin
@@ -930,6 +885,7 @@ codeunit 5988 "Serv-Documents Mgt."
         UseAsExternalDocumentNo: Code[35];
     begin
         ServInvHeader.Init();
+        ServHeader.CalcFields("Work Description");
         ServInvHeader.TransferFields(ServHeader);
         OnPrepareInvoiceHeaderOnAfterServInvHeaderTransferFields(ServHeader, ServInvHeader);
         if ServHeader."Document Type" = ServHeader."Document Type"::Order then begin
@@ -1012,6 +968,7 @@ codeunit 5988 "Serv-Documents Mgt."
         UseAsExternalDocumentNo: Code[35];
     begin
         ServCrMemoHeader.Init();
+        ServHeader.CalcFields("Work Description");
         ServCrMemoHeader.TransferFields(ServHeader);
         ServCrMemoHeader."Pre-Assigned No. Series" := ServHeader."No. Series";
         ServCrMemoHeader."Pre-Assigned No." := ServHeader."No.";
@@ -1075,7 +1032,7 @@ codeunit 5988 "Serv-Documents Mgt."
         ServPostingJnlsMgt.Finalize();
 
         // finalize posted documents
-        FinalizeShipmentDocument();
+        FinalizeShipmentDocument(PassedServHeader);
         FinalizeInvoiceDocument(PassedServHeader);
         FinalizeCrMemoDocument(PassedServHeader);
         FinalizeWarrantyLedgerEntries(PassedServHeader, CloseCondition);
@@ -1205,7 +1162,7 @@ codeunit 5988 "Serv-Documents Mgt."
         ServItemLine.DeleteAll();
     end;
 
-    local procedure FinalizeShipmentDocument()
+    local procedure FinalizeShipmentDocument(var PassedServHeader: Record "Service Header")
     var
         ServiceShipmentHeader2: Record "Service Shipment Header";
         ServiceShipmentItemLine2: Record "Service Shipment Item Line";
@@ -1219,6 +1176,8 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServShptHeader.FindFirst() then begin
                 ServiceShipmentHeader2.Init();
                 ServiceShipmentHeader2.Copy(ServShptHeader);
+                PassedServHeader.CalcFields("Work Description");
+                ServiceShipmentHeader2."Work Description" := PassedServHeader."Work Description";
                 OnFinalizeShipmentDocumentOnBeforeServiceShipmentHeaderInsert(ServiceShipmentHeader2, ServShptHeader, ServHeader);
                 ServiceShipmentHeader2.Insert();
             end;
@@ -1261,6 +1220,8 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServInvHeader.FindFirst() then begin
                 ServiceInvoiceHeader2.Init();
                 ServiceInvoiceHeader2.Copy(ServInvHeader);
+			    PassedServHeader.CalcFields("Work Description");
+		        ServiceInvoiceHeader2."Work Description" := PassedServHeader."Work Description";
                 ServiceInvoiceHeader2.SetSIIFirstSummaryDocNo(PassedServHeader.GetSIIFirstSummaryDocNo());
                 ServiceInvoiceHeader2.SetSIILastSummaryDocNo(PassedServHeader.GetSIILastSummaryDocNo());
                 OnFinalizeInvoiceDocumentOnBeforeServiceInvoiceHeaderInsert(ServiceInvoiceHeader2, ServInvHeader, ServHeader);
@@ -1323,6 +1284,8 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServCrMemoHeader.FindFirst() then begin
                 PServCrMemoHeader.Init();
                 PServCrMemoHeader.Copy(ServCrMemoHeader);
+			    PassedServHeader.CalcFields("Work Description");
+		        PServCrMemoHeader."Work Description" := PassedServHeader."Work Description";
                 PServCrMemoHeader.SetSIIFirstSummaryDocNo(PassedServHeader.GetSIIFirstSummaryDocNo());
                 PServCrMemoHeader.SetSIILastSummaryDocNo(PassedServHeader.GetSIILastSummaryDocNo());
                 OnFinalizeCrMemoDocumentOnBeforeServiceCreditMemoHeaderInsert(PServCrMemoHeader, ServCrMemoHeader, ServHeader);
@@ -1869,7 +1832,6 @@ codeunit 5988 "Serv-Documents Mgt."
         GenJnlLineExtDocNo := ExtDocNo;
         ServPostingJnlsMgt.SetGenJnlLineDocNos(GenJnlLineDocNo, GenJnlLineExtDocNo);
     end;
-
 
     local procedure UpdateRcptLinesOnInv()
     begin
@@ -2463,15 +2425,6 @@ codeunit 5988 "Serv-Documents Mgt."
         end;
     end;
 
-#if not CLEAN23
-    local procedure UseLegacyInvoicePosting(): Boolean
-    var
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-    begin
-        exit(not FeatureKeyManagement.IsExtensibleInvoicePostingEngineEnabled());
-    end;
-#endif    
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckCertificateOfSupplyStatus(ServShptHeader: Record "Service Shipment Header"; ServShptLine: Record "Service Shipment Line")
     begin
@@ -2797,7 +2750,7 @@ codeunit 5988 "Serv-Documents Mgt."
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN24
     [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentLinesOnBeforePostInvoicePostBuffer(ServiceHeader: Record "Service Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line")
@@ -3037,6 +2990,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRemoveLinesNotSatisfyPosting(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; Ship: Boolean; Consume: Boolean; Invoice: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetInvoicePostingParameters(var InvoicePostingParameters: Record "Invoice Posting Parameters"; var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
     end;
 

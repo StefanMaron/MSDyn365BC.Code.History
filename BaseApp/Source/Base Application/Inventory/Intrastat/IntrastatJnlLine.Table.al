@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA25 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,9 +7,13 @@ namespace Microsoft.Inventory.Intrastat;
 
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Shipping;
+#if not CLEAN26
 using Microsoft.Inventory.Ledger;
+#endif
 using Microsoft.Inventory.Location;
+#if not CLEAN26
 using Microsoft.Projects.Project.Ledger;
+#endif
 
 table 263 "Intrastat Jnl. Line"
 {
@@ -66,18 +71,32 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
+#if not CLEANSCHEMA29
+#pragma warning disable AS0105        
         field(11; "Source Type"; Enum "Intrastat Source Type")
         {
             BlankZero = true;
             Caption = 'Source Type';
+#if CLEAN26
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#endif
+            ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
         }
+#pragma warning restore AS0105
+#endif
         field(12; "Source Entry No."; Integer)
         {
             Caption = 'Source Entry No.';
             Editable = false;
+#if not CLEAN26
             TableRelation = if ("Source Type" = const("Item Entry")) "Item Ledger Entry"
             else
             if ("Source Type" = const("Job Entry")) "Job Ledger Entry";
+#endif
         }
         field(13; "Net Weight"; Decimal)
         {
@@ -209,14 +228,6 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Place of Receipt';
         }
-        field(10701; "Shipment Method Code #1"; Code[10])
-        {
-            Caption = 'Shipment Method Code #1';
-            ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Removed;
-            TableRelation = "Shipment Method";
-            ObsoleteTag = '20.0';
-        }
         field(10702; "Shipment Method Code #2"; Option)
         {
             Caption = 'Shipment Method Code #2';
@@ -238,9 +249,11 @@ table 263 "Intrastat Jnl. Line"
         {
             Clustered = true;
         }
+#if not CLEAN26
         key(Key2; "Source Type", "Source Entry No.")
         {
         }
+#endif
         key(Key3; Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Country/Region of Origin Code", "Partner VAT ID")
         {
         }
@@ -257,3 +270,5 @@ table 263 "Intrastat Jnl. Line"
     }
 }
 
+ 
+#endif

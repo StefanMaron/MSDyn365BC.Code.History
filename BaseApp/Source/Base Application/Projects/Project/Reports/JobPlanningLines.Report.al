@@ -271,6 +271,8 @@ report 1006 "Job - Planning Lines"
 
     requestpage
     {
+        AboutTitle = 'About Project - Planning Lines';
+        AboutText = 'Get an overview of planning and tasks for a project.';
 
         layout
         {

@@ -5,9 +5,11 @@
 
 namespace Microsoft.Shared.Report;
 
-using System.Reflection;
 using System.Environment.Configuration;
 using System.Integration;
+using System.Reflection;
+using System.Security.AccessControl;
+
 /// <summary>
 /// The report layouts page, used for adding/deleting/editing user and extension defined report layouts.
 /// </summary>
@@ -18,7 +20,6 @@ page 9660 "Report Layouts"
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = true;
-    PromotedActionCategories = 'New,Process,Report,Approve';
     AdditionalSearchTerms = 'Custom Report Layouts, Report Layout Selection';
     PageType = List;
     SourceTable = "Report Layout List";
@@ -60,7 +61,6 @@ page 9660 "Report Layouts"
                     Caption = 'Description';
                     ToolTip = 'Specifies a description of the report layout.';
                 }
-
                 field(IsDefaultLayout; IsDefaultLayout)
                 {
                     ApplicationArea = Basic, Suite;
@@ -102,7 +102,64 @@ page 9660 "Report Layouts"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Visible = false;
+                    Caption = 'User Defined';
                     ToolTip = 'Specifies whether the layout was created by a user.';
+                }
+                field("Obsolete"; Rec.IsObsolete)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = Rec."User Defined" = true;
+                    Visible = true;
+                    Caption = 'Obsolete';
+                    ToolTip = 'Specifies whether the layout is obsolete.';
+                }
+                field("Excel data sheet configuration"; Rec.ExcelLayoutMultipleDataSheets)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = true;
+                    Caption = 'Excel Sheets';
+                    ToolTip = 'Specifies the Microsoft Excel sheet configuration override with respect to multiple data sheets (Default is defined by the report object).';
+                }
+                field("Last modified date"; Rec.SystemModifiedAt)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = true;
+                    Caption = 'Last Modified Date';
+                    ToolTip = 'Specifies the date and time when the layout was last modified.';
+                }
+                field("Last modified by"; SystemModifiedByDisplayName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = true;
+                    Caption = 'Last Modified By';
+                    ToolTip = 'Specifies the user who last modified the layout.';
+                }
+                field("Created date"; Rec.SystemCreatedAt)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = false;
+                    Caption = 'Created Date';
+                    ToolTip = 'Specifies the date and time when the layout was created.';
+                }
+                field("Created by"; SystemCreatedByDisplayName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = false;
+                    Caption = 'Created By';
+                    ToolTip = 'Specifies the user who created the layout.';
+                }
+                field("Layout ID"; Rec."Layout".MediaId)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = false;
+                    Caption = 'Layout ID';
+                    ToolTip = 'Specifies the unique ID of the layout.';
                 }
             }
         }
@@ -130,11 +187,7 @@ page 9660 "Report Layouts"
                 ApplicationArea = Basic, Suite;
                 Caption = 'New';
                 Image = NewDocument;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
                 Scope = Repeater;
-                PromotedCategory = Process;
                 ToolTip = 'Create a new layout.';
 
                 trigger OnAction()
@@ -150,13 +203,8 @@ page 9660 "Report Layouts"
             action(EditLayout)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Edit Info';
+                Caption = 'Edit info';
                 Image = Edit;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
-                Scope = Repeater;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Edit layout information.';
 
@@ -176,12 +224,8 @@ page 9660 "Report Layouts"
             action(RunReport)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Run Report';
+                Caption = 'Run report';
                 Image = "Report";
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Run the report using the selected layout.';
 
@@ -191,33 +235,11 @@ page 9660 "Report Layouts"
                 end;
             }
 
-            action(DefaulLayoutSelection)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Set Default';
-                Image = ListPage;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
-                Enabled = LayoutIsSelected;
-                ToolTip = 'Set the current layout as the default layout for the specified report.';
-                trigger OnAction()
-                begin
-                    ReportLayoutsImpl.SetDefaultReportLayoutSelection(Rec, true);
-                    CurrPage.Update(false);
-                end;
-            }
-
             action(ExportLayout)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Export Layout';
+                Caption = 'Export layout';
                 Image = Export;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Export the selected layout file.';
 
@@ -230,12 +252,8 @@ page 9660 "Report Layouts"
             action(UpdateAndExportLayout)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Update and Export Layout';
+                Caption = 'Update and export layout';
                 Image = Export;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Export the selected layout file using the current report dataset design.';
 
@@ -245,31 +263,11 @@ page 9660 "Report Layouts"
                 end;
             }
 
-            action(ExportReportSchema)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Export Report Schema';
-                Image = Export;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
-                Enabled = LayoutIsSelected;
-                ToolTip = 'Export report schema as a Microsft Word Custom Xml document.';
-                trigger OnAction()
-                begin
-                    ReportLayoutsImpl.ExportReportSchema(Rec, '', true);
-                end;
-            }
             action(ReplaceLayout)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Replace Layout';
+                Caption = 'Replace layout';
                 Image = Import;
-                PromotedOnly = true;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Enabled = LayoutIsSelected;
                 ToolTip = 'Replace the existing layout file.';
 
@@ -283,6 +281,61 @@ page 9660 "Report Layouts"
 
                     if Dialog.Confirm(StrSubstNo(ReplaceConfirmationTxt, Rec."Name"), false) then
                         ReportLayoutsImpl.ReplaceLayout(Rec."Report ID", Rec."Name", Rec."Description", Rec."Layout Format", ReturnReportID, ReturnLayoutName);
+                end;
+            }
+
+            action(ExportReportSchema)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Export report schema';
+                Image = Export;
+                Enabled = LayoutIsSelected;
+                ToolTip = 'Export report schema as a Microsft Word Custom Xml document.';
+                trigger OnAction()
+                begin
+                    ReportLayoutsImpl.ExportReportSchema(Rec, '', true);
+                end;
+            }
+
+            action(DefaulLayoutSelection)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Set as default';
+                Image = ListPage;
+                Enabled = LayoutIsSelected;
+                ToolTip = 'Set the current layout as the default layout for the specified report.';
+                trigger OnAction()
+                begin
+                    ReportLayoutsImpl.SetDefaultReportLayoutSelection(Rec, true);
+                    CurrPage.Update(false);
+                end;
+            }
+
+            action(ValidateLayout)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Validate layout';
+                Image = ValidateEmailLoggingSetup;
+                Enabled = LayoutIsSelected;
+                ToolTip = 'Validate the report layout.';
+
+                trigger OnAction()
+                begin
+                    ReportLayoutsImpl.ValidateLayout(Rec);
+                end;
+            }
+
+            action(ShowInfoDialog)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Show layout info';
+                Image = Info;
+                Enabled = LayoutIsSelected;
+                ToolTip = 'Show the report layout information.';
+
+                trigger OnAction()
+                begin
+                    ReportLayoutsImpl.ShowInfoDialog(Rec);
                 end;
             }
 
@@ -300,6 +353,7 @@ page 9660 "Report Layouts"
                     ReportLayoutsImpl.OpenInOneDrive(Rec);
                 end;
             }
+
             action(EditInOneDrive)
             {
                 ApplicationArea = Basic, Suite;
@@ -315,6 +369,7 @@ page 9660 "Report Layouts"
                     ReportLayoutsImpl.EditInOneDrive(Rec);
                 end;
             }
+
             action(ShareWithOneDrive)
             {
                 ApplicationArea = Basic, Suite;
@@ -328,6 +383,54 @@ page 9660 "Report Layouts"
                 begin
                     ReportLayoutsImpl.ShareWithOneDrive(Rec);
                 end;
+            }
+        }
+
+        area(Promoted)
+        {
+            actionref(NewLayout_Promoted; NewLayout)
+            {
+            }
+
+            actionref(EditLayout_Promoted; EditLayout)
+            {
+            }
+
+            actionref(RunReport_Promoted; RunReport)
+            {
+            }
+
+            actionref(ExportLayout_Promoted; ExportLayout)
+            {
+            }
+
+            actionref(ReplaceLayout_Promoted; ReplaceLayout)
+            {
+            }
+
+            group(Layout)
+            {
+                Caption = 'Layout';
+
+                actionref(UpdateAndExportLayout_Promoted; UpdateAndExportLayout)
+                {
+                }
+
+                actionref(ExportReportSchema_Promoted; ExportReportSchema)
+                {
+                }
+
+                actionref(DefaulLayoutSelection_Promoted; DefaulLayoutSelection)
+                {
+                }
+
+                actionref(ValidateLayout_Promoted; ValidateLayout)
+                {
+                }
+
+                actionref(ShowInfoDialog_Promoted; ShowInfoDialog)
+                {
+                }
             }
         }
     }
@@ -384,6 +487,7 @@ page 9660 "Report Layouts"
         IsMultiSelect := SelectedReportLayoutList.Count() > 1;
         ShareOptionsVisible := DocumentSharing.ShareEnabled(Enum::"Document Sharing Source"::System);
         ShareOptionsEnabled := LayoutIsSelected and (not IsMultiSelect) and Rec."User Defined" and (Rec."Layout Format" <> Rec."Layout Format"::RDLC);
+        UpdateUserDisplayName();
     end;
 
     trigger OnAfterGetRecord()
@@ -392,6 +496,23 @@ page 9660 "Report Layouts"
             ReportLayoutsImpl.GetDefaultReportLayoutSelection(Rec."Report ID", DefaultReportLayoutList);
 
         IsDefaultLayout := (DefaultReportLayoutList."Report ID" = Rec."Report ID") and (DefaultReportLayoutList.Name = Rec.Name) and (DefaultReportLayoutList."Application ID" = Rec."Application ID");
+    end;
+
+    local procedure UpdateUserDisplayName()
+    var
+        User: Record "User";
+    begin
+        Clear(SystemCreatedByDisplayName);
+        Clear(SystemModifiedByDisplayName);
+
+        if not User.ReadPermission() then
+            exit;
+
+        if (Rec.SystemCreatedBy <> EmptyGuid) and User.Get(Rec.SystemCreatedBy) then
+            SystemCreatedByDisplayName := User."User Name";
+
+        if (Rec.SystemModifiedBy <> EmptyGuid) and User.Get(Rec.SystemModifiedBy) then
+            SystemModifiedByDisplayName := User."User Name";
     end;
 
     var
@@ -407,6 +528,8 @@ page 9660 "Report Layouts"
         ModifyNonUserLayoutErr: Label 'Only user-defined layouts can be modified or removed.';
         EditInfoExtensionLayoutTxt: Label 'It is not possible to modify the layout info for this layout because it is provided by an extension. Do you want to edit a copy of the layout instead ?';
         ReplaceConfirmationTxt: Label 'This action will replace the layout file of the currently selected layout "%1". Do you want to continue ?', Comment = '%1 = LayoutName';
+        SystemModifiedByDisplayName: Text;
+        SystemCreatedByDisplayName: Text;
 
     local procedure SetFocusedRecord(ReportID: Integer; LayoutName: Text)
     var

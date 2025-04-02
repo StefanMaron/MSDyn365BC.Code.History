@@ -1185,6 +1185,7 @@ table 751 "Standard General Journal Line"
             Editable = false;
             TableRelation = "IC Partner";
         }
+#if not CLEANSCHEMA25
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -1193,6 +1194,7 @@ table 751 "Standard General Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(118; "Sell-to/Buy-from No."; Code[20])
         {
             Caption = 'Sell-to/Buy-from No.';

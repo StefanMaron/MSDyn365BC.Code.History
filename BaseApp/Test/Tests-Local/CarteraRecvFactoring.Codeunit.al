@@ -957,26 +957,9 @@ codeunit 147533 "Cartera Recv. Factoring"
         CarteraGenJournalTemplate.SetRange(Type, CarteraGenJournalTemplate.Type::Cartera);
         LibraryERM.FindGenJournalTemplate(CarteraGenJournalTemplate);
         LibraryERM.FindGenJournalBatch(CarteraGenJournalBatch, CarteraGenJournalTemplate.Name);
-#if not CLEAN23
-        CopySalesPrices();
-#endif
 
         IsInitialized := true;
     end;
-
-#if not CLEAN23
-    local procedure CopySalesPrices()
-    var
-        SalesPrice: record "Sales Price";
-        SalesLineDiscount: Record "Sales Line Discount";
-        PriceListLine: Record "Price List Line";
-        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-    begin
-        PriceListLine.DeleteAll();
-        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
-        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
-    end;
-#endif
 
     local procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; DealingType: Enum "Cartera Dealing Type"; Factoring: Option)
     begin

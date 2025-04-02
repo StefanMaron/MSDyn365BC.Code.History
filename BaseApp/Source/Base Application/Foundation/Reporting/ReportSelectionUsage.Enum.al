@@ -28,13 +28,8 @@ enum 77 "Report Selection Usage"
     value(16; "Fin.Charge") { Caption = 'Finance Charge'; }
     value(17; "Rem.Test") { Caption = 'Reminder Test'; }
     value(18; "F.C.Test") { Caption = 'Finance Charge Test'; }
-    value(19; "Prod.Order") { Caption = 'Production Order'; }
     value(20; "S.Blanket") { Caption = 'Sales Blanket Order'; }
     value(21; "P.Blanket") { Caption = 'Purchase Blanket Order'; }
-    value(22; "M1") { Caption = 'Job Card'; }
-    value(23; "M2") { Caption = 'Mat. & Requisition'; }
-    value(24; "M3") { Caption = 'Shortage List'; }
-    value(25; "M4") { Caption = 'Gantt Chart'; }
     value(26; "Inv1") { Caption = 'Transfer Order'; }
     value(27; "Inv2") { Caption = 'Transfer Shipment'; }
     value(28; "Inv3") { Caption = 'Transfer Receipt'; }
